@@ -1,0 +1,112 @@
+* {
+    margin: 0;
+}
+
+section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: rgb(2, 0, 36);
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(9, 9, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
+    overflow: hidden;
+}
+
+section .air {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: url(https://1.bp.blogspot.com/-xQUc-TovqDk/XdxogmMqIRI/AAAAAAAACvI/AizpnE509UMGBcTiLJ58BC6iViPYGYQfQCLcBGAsYHQ/s1600/wave.png);
+    background-size: 1000px 100px
+}
+
+section .air.air1 {
+    animation: wave 30s linear infinite;
+    z-index: 1000;
+    opacity: 1;
+    animation-delay: 0s;
+    bottom: 0;
+}
+
+section .air.air2 {
+    animation: wave2 15s linear infinite;
+    z-index: 999;
+    opacity: 0.5;
+    animation-delay: -5s;
+    bottom: 10px;
+}
+
+section .air.air3 {
+    animation: wave 30s linear infinite;
+    z-index: 998;
+    opacity: 0.2;
+    animation-delay: -2s;
+    bottom: 15px;
+}
+
+section .air.air4 {
+    animation: wave2 5s linear infinite;
+    z-index: 997;
+    opacity: 0.7;
+    animation-delay: -5s;
+    bottom: 20px;
+}
+
+@keyframes wave {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: 1000px;
+    }
+}
+
+@keyframes wave2 {
+    0% {
+        background-position-x: 0px;
+    }
+
+    100% {
+        background-position-x: -1000px;
+    }
+}
+
+
+
+
+
+.wave-container {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 100vh; /* Full screen height */
+    overflow: hidden;
+    pointer-events: none; /* Prevents interaction issues */
+}
+
+.heart {
+    position: absolute;
+    width: 40px; /* Adjust size */
+    height: 40px;
+    background: url('../../../../assets/images/heart.png') no-repeat center;
+    background-size: contain;
+    opacity: 0.3; /* Lower opacity */
+    animation: waveRise 5s linear infinite;
+}
+
+@keyframes waveRise {
+    0% {
+        transform: translateY(100vh) scale(0.8);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.3; /* Slight fade-in */
+    }
+    100% {
+        transform: translateY(-50px) scale(1.2);
+        opacity: 0;
+    }
+}
+
