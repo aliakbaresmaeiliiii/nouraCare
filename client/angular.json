@@ -57,6 +57,7 @@
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
+            
             }
           },
           "defaultConfiguration": "production"
@@ -87,9 +88,7 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           }
         }
       }

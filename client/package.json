@@ -32,6 +32,7 @@
     "@angular/router": "^20.1.0",
     "@angular/ssr": "^20.1.0",
     "@tailwindcss/postcss": "^4.1.11",
+    "angular-auth-oidc-client": "^19.0.2",
     "express": "^5.1.0",
     "ngx-toastr": "^19.0.0",
     "postcss": "^8.5.6",

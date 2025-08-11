@@ -1,14 +1,25 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LoginRequest } from '../model/login-request-interface';
 import { RegisterRequest } from '../model/register-request-interface';
+import { environment } from '../../environments/environments';
+import { UserInfo } from '../model/uesr-interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Auth {
-  private baseUrl = '/api/auth';
+  private baseUrl = environment.apiEndPoint + 'auth';
+  userInfo = signal<UserInfo | null>(null);
+
+  getUserInfo(): UserInfo | null {
+    return this.userInfo();
+  }
+
+  setUserInfo(userInfo: UserInfo): void {
+    this.userInfo.set(userInfo);
+  }
 
   http = inject(HttpClient);
 
@@ -29,6 +40,9 @@ export class Auth {
       token,
       password,
     });
+  }
+  verifyEmail(data: { email: string; verify_code: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/verify-email`, data);
   }
 
   isAuthenticated(): boolean {

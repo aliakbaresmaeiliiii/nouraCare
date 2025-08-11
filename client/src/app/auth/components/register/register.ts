@@ -3,6 +3,7 @@ import { FormBuilder, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
 import { Auth } from '../../services/auth';
 import { RegisterRequest } from '../../model/register-request-interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -12,7 +13,8 @@ import { RegisterRequest } from '../../model/register-request-interface';
 })
 export class Register {
   fb = inject(FormBuilder);
-  // service = inject(Auth);
+  service = inject(Auth);
+  router = inject(Router);
 
   items = [
     {
@@ -65,14 +67,17 @@ export class Register {
       email: this.form.value.email,
       phone: this.form.value.phone,
     };
-    // this.service.register(payload).subscribe({
-    //   next: (res) => {
-    //     console.log('Registration successful:', res);
-    //   },
-    //   error: (err) => {
-    //     console.error('Registration failed:', err);
-    //   },
-    // });
-  }
+    this.service.register(payload).subscribe({
+      next: (res) => {
+        localStorage.setItem('userInfo', JSON.stringify(res));
 
+        this.router.navigate(['auth/verify-email'], {
+          queryParams: { email: this.form.value.email },
+        });
+      },
+      error: (err) => {
+        console.error('Registration failed:', err);
+      },
+    });
+  }
 }

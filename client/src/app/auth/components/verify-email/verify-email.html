@@ -1,0 +1,28 @@
+<app-auth-layout>
+  <div class="desktop:flex content w-full h-full">
+    <div
+      class="p-4 desktop:w-1/3 border-2 rounded-2xl shadow-xl overflow-auto mobile:w-full max-h-[500px]  absolute top-1/2 left-1/2 -translate-x-2/4 -translate-y-2/4">
+        <div class="py-12 px-4 sm:px-6 lg:px-8 max-w-md shadow-lg rounded-lg m-auto bg-slate-50">
+          <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Please check your email and enter your verification code!
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600 mb-4">
+              <a
+                routerLink="/auth/register"
+                class="font-medium text-indigo-600 hover:text-indigo-500 ">
+                Sign up
+              </a>
+            </p>
+          </div>
+          <app-otp-input
+            #ngOtpInput
+            (onInputChange)="onOtpChange($event)"
+            *ngIf="showOtpComponent"
+            [config]="config"
+            (onCountDown)="getOtp()">
+          </app-otp-input>
+        </div>
+      </div>
+  </div>
+</app-auth-layout>
