@@ -1,8 +1,5 @@
 // Register request payload
 export interface RegisterRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
+  email: string | null | undefined;
+  phone: string | null | undefined;
 }

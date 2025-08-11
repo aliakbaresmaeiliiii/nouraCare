@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { AuthService } from "../services/auth.service";
+import { Request, Response } from "express";
 
 const router = Router();
 const authService = new AuthService();
 
-router.post("/register", async (req, res) => {
+router.post("/register", async (req: Request, res: Response) => {
   try {
     const user = await authService.register(
       req.body.name,
