@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
 
   // entities: [__dirname + "/../entities/*{.ts,.js}"],
   entities: [User],
-  synchronize: env.NODE_ENV ==='development',
+  synchronize: true,
   migrations:[__dirname + "/../migrations/*{.ts,.js}"],
-   dropSchema: true,
+   dropSchema: false,
 });

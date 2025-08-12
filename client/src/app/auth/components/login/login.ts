@@ -13,12 +13,10 @@ import { Auth } from '../../services/auth';
 })
 export class Login {
   router = inject(Router);
-  // #authService = inject(Auth);
-  // permissionService = inject(PermissionService);
-  // recaptchaV3Service = inject(ReCaptchaV3Service);
   renderer = inject(Renderer2);
   matcher = new ErrorStateMatcher();
-  // private themeManager = inject(ThemeManagerService);
+
+  service = inject(Auth);
   selectedRole: string = '';
   private destroy$ = new Subject<void>();
   successCaptcha = signal<boolean>(false);
@@ -40,7 +38,6 @@ export class Login {
   createForm() {
     this.form = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required]),
       remmeber: new FormControl(false),
     });
   }
@@ -85,7 +82,7 @@ export class Login {
       const payload = this.decodeToken(response.credential);
       // Store in session
       sessionStorage.setItem('loggedInUser', JSON.stringify(payload));
-
+      
       // Navigate to home
       this.router.navigate(['dashboard']);
     } else {
@@ -94,6 +91,13 @@ export class Login {
   }
 
   login() {
+
+
+    this.service.login(this.form.value).subscribe((res: any) => {
+      this.router.navigate(['/home']);
+        console.log('👌👌👌',res);
+      });
+
     // if (this.form.value) {
     //   let formValue = this.form.value;
     //   this.#authService.login(formValue).subscribe({

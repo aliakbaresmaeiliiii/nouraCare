@@ -24,7 +24,7 @@ export class Auth {
   http = inject(HttpClient);
 
   login(data: LoginRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, data);
+    return this.http.post(`${this.baseUrl}/sign-in`, data);
   }
 
   register(data: RegisterRequest): Observable<any> {
@@ -42,6 +42,7 @@ export class Auth {
     });
   }
   verifyEmail(data: { email: string; verify_code: string }): Observable<any> {
+    debugger;
     return this.http.post(`${this.baseUrl}/verify-email`, data);
   }
 

@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ErrorStateMatcher } from '@angular/material/core';
-import { Router } from 'express';
 import { Auth } from '../../services/auth';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 import { UserInfo } from '../../model/uesr-interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-verify-email',
@@ -14,6 +14,8 @@ import { UserInfo } from '../../model/uesr-interface';
 })
 export class VerifyEmail {
   authService = inject(Auth);
+  router = inject(Router);
+
   // authService = inject(Auth);
   // // #toastrService = inject(ToastrService);
   // matcher = new ErrorStateMatcher();
@@ -37,8 +39,9 @@ export class VerifyEmail {
 
   ngOnInit(): void {
     if (localStorage !== undefined) {
-      this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}').email;
-      debugger;
+      this.userInfo = JSON.parse(
+        localStorage.getItem('userInfo') || '{}'
+      ).email;
     }
     this.form = new FormGroup({
       verify_code: new FormControl('', [
@@ -60,8 +63,7 @@ export class VerifyEmail {
       email: this.userInfo || '',
       verify_code: this.otp,
     };
-    this.authService
-      .verifyEmail(payload)
+    of(payload)
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
@@ -70,6 +72,9 @@ export class VerifyEmail {
       .subscribe({
         next: (response) => {
           console.log('Email verified successfully:', response);
+          if (response) {
+            this.router.navigate(['auth/sign-in']);
+          }
         },
         error: (error) => {
           console.error('Error verifying email:', error);

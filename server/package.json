@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^6.13.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
@@ -20,12 +21,9 @@
     "handlebars": "^4.7.8",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
-    "mysql2": "^3.14.3",
     "nodemailer": "^7.0.5",
     "nodemailer-mailgun-transport": "^2.1.5",
-    "nodemon": "^3.1.10",
-    "reflect-metadata": "^0.2.2",
-    "typeorm": "^0.3.25"
+    "nodemon": "^3.1.10"
   },
   "keywords": [],
   "devDependencies": {
@@ -36,6 +34,8 @@
     "@types/node": "^24.2.1",
     "@types/nodemailer": "^6.4.17",
     "@types/nodemailer-mailgun-transport": "^1.4.6",
+    "prisma": "^6.13.0",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2"
   }
