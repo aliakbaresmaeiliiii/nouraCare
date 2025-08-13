@@ -1,10 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ErrorStateMatcher } from '@angular/material/core';
-import { Auth } from '../../services/auth';
-import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
-import { UserInfo } from '../../model/uesr-interface';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
+import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-verify-email',
@@ -51,14 +49,16 @@ export class VerifyEmail {
     });
   }
 
-  onOtpChange(otp: any) {
-    this.otp = otp;
+  onOtpComplete(otp: any) {
+    debugger;
+    this.otp = otp.detail.value;
     if (this.otp.length === this.config.length) {
       this.onSubmit();
     }
   }
 
   onSubmit() {
+    debugger;
     const payload = {
       email: this.userInfo || '',
       verify_code: this.otp,
@@ -71,7 +71,6 @@ export class VerifyEmail {
       )
       .subscribe({
         next: (response) => {
-          console.log('Email verified successfully:', response);
           if (response) {
             this.router.navigate(['auth/sign-in']);
           }

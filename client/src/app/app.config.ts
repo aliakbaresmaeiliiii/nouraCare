@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  importProvidersFrom,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
@@ -29,6 +30,7 @@ import {
 import { appRoutes } from './app.routes';
 import { AuthInterceptor } from './interceptors/auth-interceptor';
 import { environment } from './environments/environments';
+import { IonicModule } from '@ionic/angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -42,6 +44,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([authInterceptor()]),
       withInterceptorsFromDi()
     ),
+    importProvidersFrom(IonicModule.forRoot()),
     provideAuth({
       config: {
         authority: environment.oidc.authority,
@@ -63,6 +66,7 @@ export const appConfig: ApplicationConfig = {
       useClass: AuthInterceptor,
       multi: true,
     },
+
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideClientHydration(withEventReplay()),

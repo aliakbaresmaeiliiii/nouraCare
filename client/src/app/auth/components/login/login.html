@@ -1,17 +1,7 @@
-<app-auth-layout>
+<!-- <app-auth-layout>
   <div
     class="p-4 lg:w-1/3 border-2 rounded-2xl shadow-xl overflow-auto md:w-full max-h-[500px] bg-slate-50 absolute top-1/2 left-1/2 -translate-x-2/4 -translate-y-2/4">
     <h3 class="font-extrabold text-center">sign-in {{ title() }}</h3>
-
-    <!-- Invisible reCAPTCHA (v2) -->
-    <!-- <re-captcha
-    #captchaElem
-    siteKey="6Lfts_AqAAAAAI5rGBtpQG2cNM7vV5ykXK3jLbNC"
-    size="invisible"
-    (resolved)="resolved($event)">
-  </re-captcha> -->
-
-    <!-- <button type="button" (click)="submit()">Submit</button> -->
 
     <h2 class="cursor-pointer flex justify-center text-xs sign-up py-6">
       Enter details to create your account
@@ -23,38 +13,7 @@
         ><strong class="text-blue-600">sign-up</strong>
       </a>
     </h2>
-    <!-- <div class="flex items-center gap-4 pb-4">
-      <button
-        [ngClass]="{ '!bg-blue-500 !text-white ': selectedRole === 'clinic' }"
-        class="rounded-full w-full mt-2"
-        data-testid="login-button"
-        mat-raised-button
-        color="primary"
-        type="button"
-        (click)="setRole('clinic')">
-        Clinic
-      </button>
-      <button
-        [ngClass]="{ '!bg-blue-500 !text-white': selectedRole === 'doctor' }"
-        class="rounded-full w-full mt-2"
-        data-testid="login-button"
-        mat-raised-button
-        color="primary"
-        type="button"
-        (click)="setRole('doctor')">
-        Doctor
-      </button>
-      <button
-        [ngClass]="{ '!bg-blue-500 !text-white': selectedRole === 'patient' }"
-        class="rounded-full w-full mt-2"
-        data-testid="login-button"
-        mat-raised-button
-        color="primary"
-        type="button"
-        (click)="setRole('patient')">
-        Patient
-      </button>
-    </div> -->
+
     <form [formGroup]="form" (ngSubmit)="login()">
       <mat-form-field
         data-testing="email"
@@ -63,8 +22,7 @@
         <mat-label>{{ labelEmail }}</mat-label>
         <input
           type="text"
-          matInput
-          [errorStateMatcher]="matcher"
+          ion-button
           formControlName="email"
           placeholder="email" />
 
@@ -74,21 +32,7 @@
         <mat-error>email is <strong>required</strong></mat-error>
         }
       </mat-form-field>
-      <!-- <mat-form-field appearance="outline" class="w-full pt-2">
-        <mat-label>{{ labelPassword }}</mat-label>
-        <input
-          type="Password"
-          matInput
-          [errorStateMatcher]="matcher"
-          formControlName="password"
-          placeholder="Password" />
-        @if (password?.hasError('password') && !password?.hasError('required'))
-        {
-        <mat-error>Please enter a valid password address</mat-error>
-        } @if (password?.hasError('required')) {
-        <mat-error>password is <strong>required</strong></mat-error>
-        }
-      </mat-form-field> -->
+    
 
       <div class="flex justify-between items-center">
         <mat-checkbox formControlName="remmeber">Remember me</mat-checkbox>
@@ -100,12 +44,7 @@
         </a>
       </div>
 
-      <!-- <div class="flex justify-center items-center mb-2">
-        <re-captcha
-          #captchaElem
-          (resolved)="resolved($event)"
-          siteKey="6Lfts_AqAAAAAI5rGBtpQG2cNM7vV5ykXK3jLbNC"></re-captcha>
-      </div> -->
+
 
       <button
         class="login-button ease-in-out duration-300 w-full lg:m-0 tablet:mt-2 md:mt-2"
@@ -115,7 +54,6 @@
         type="submit">
         Login
       </button>
-      <!-- || !successCaptcha() -->
       <h2 class="social-login-title">OR</h2>
       <div class="flex justify-center items-center gap-3">
         <div id="google-btn"></div>
@@ -140,4 +78,149 @@
       </div>
     </form>
   </div>
-</app-auth-layout>
+</app-auth-layout> -->
+
+<ion-content class="flex items-center justify-center h-full bg-gray-500">
+  <div class="w-full max-w-md p-6 rounded-2xl shadow-lg">
+    <!-- Toggle Buttons -->
+    <div class="flex justify-around mb-6">
+      <button
+        (click)="activeTab = 'login'"
+        [class.bg-blue-500]="activeTab === 'login'"
+        [class.rounded-4xl]="activeTab === 'login'"
+        [class.text-white]="activeTab === 'login'"
+        class="px-4 py-2 rounded-4xl transition-colors"
+      >
+        Login
+      </button>
+      <button
+        (click)="activeTab = 'register'"
+        [class.bg-blue-500]="activeTab === 'register'"
+        [class.text-white]="activeTab === 'register'"
+        class="px-4 py-2 rounded-lg transition-colors"
+      >
+        Register
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <form
+      *ngIf="activeTab === 'login'"
+      [formGroup]="loginForm"
+      (ngSubmit)="onLogin()"
+      class="space-y-4"
+    >
+      <h2 class="text-xl font-bold text-center">Welcome Back</h2>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+        @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid)
+        { 
+          <div class="text-red-500 text-xs mt-1">Please enter a valid email.</div>
+        }
+      </div>
+
+      <!-- <div>
+        <label class="block mb-1 text-sm font-medium">Password</label>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="********"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+        <div
+          *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid"
+          class="text-red-500 text-xs mt-1"
+        >
+          Password is required.
+        </div>
+      </div> -->
+
+      <button
+        type="submit"
+        [disabled]="loginForm.invalid"
+        class="w-full py-2 h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+      >
+        Login
+      </button>
+    </form>
+
+    <!-- Register Form -->
+    <form
+      *ngIf="activeTab === 'register'"
+      [formGroup]="registerForm"
+      (ngSubmit)="onRegister()"
+      class="space-y-4"
+    >
+      <h2 class="text-xl font-bold text-center">Create Account</h2>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="you@example.com"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+        <div
+          *ngIf="
+            registerForm.get('email')?.touched &&
+            registerForm.get('email')?.invalid
+          "
+          class="text-red-500 text-xs mt-1"
+        >
+          Please enter a valid email.
+        </div>
+      </div>
+
+      <div>
+        <label class="block mb-1 text-sm font-medium">Phone</label>
+        <input
+          type="tel"
+          formControlName="phone"
+          placeholder="+60123456789"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+        <div
+          *ngIf="
+            registerForm.get('phone')?.touched &&
+            registerForm.get('phone')?.invalid
+          "
+          class="text-red-500 text-xs mt-1"
+        >
+          Please enter a valid phone number.
+        </div>
+      </div>
+
+      <!-- <div>
+        <label class="block mb-1 text-sm font-medium">Password</label>
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="********"
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+        <div
+          *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
+          class="text-red-500 text-xs mt-1"
+        >
+          Password must be at least 6 characters.
+        </div>
+      </div> -->
+
+      <button
+        type="submit"
+        [disabled]="registerForm.invalid"
+        class="w-full py-2 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+      >
+        Sign Up
+      </button>
+    </form>
+  </div>
+</ion-content>

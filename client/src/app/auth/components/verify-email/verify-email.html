@@ -1,4 +1,4 @@
-<app-auth-layout>
+<!-- <app-auth-layout>
   <div class="desktop:flex content w-full h-full">
     <div
       class="p-4 desktop:w-1/3 border-2 rounded-2xl shadow-xl overflow-auto mobile:w-full max-h-[500px]  absolute top-1/2 left-1/2 -translate-x-2/4 -translate-y-2/4">
@@ -25,4 +25,13 @@
         </div>
       </div>
   </div>
-</app-auth-layout>
+</app-auth-layout> -->
+
+
+<ion-input-otp
+  length="4"
+  type="text"
+  size="large"
+  fill="outline"
+  (ionComplete)="onOtpComplete($event)">
+</ion-input-otp>

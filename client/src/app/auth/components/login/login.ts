@@ -1,9 +1,14 @@
 import { Component, inject, Renderer2, signal } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ErrorStateMatcher } from '@angular/material/core';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { Auth } from '../../services/auth';
+import { RegisterRequest } from '../../model/register-request-interface';
 
 @Component({
   selector: 'app-login',
@@ -12,9 +17,23 @@ import { Auth } from '../../services/auth';
   styleUrl: './login.scss',
 })
 export class Login {
+  activeTab: 'login' | 'register' = 'login';
+  fb = inject(FormBuilder);
+
+  loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    phone: [''],
+  });
+
+  registerForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    phone: [''],
+    // Validators.required, Validators.pattern(/^\+?\d{10,15}$/)]
+  });
+
   router = inject(Router);
   renderer = inject(Renderer2);
-  matcher = new ErrorStateMatcher();
+  // matcher = new ErrorStateMatcher();
 
   service = inject(Auth);
   selectedRole: string = '';
@@ -35,12 +54,7 @@ export class Login {
   //   this.themeManager.toggleTheme();
   // }
 
-  createForm() {
-    this.form = new FormGroup({
-      email: new FormControl('', [Validators.required, Validators.email]),
-      remmeber: new FormControl(false),
-    });
-  }
+
   setRole(role: string) {
     this.selectedRole = role;
     this.title.set(role);
@@ -51,52 +65,50 @@ export class Login {
   }
 
   ngOnInit(): void {
-    // this.recaptchaV3Service.execute('homepage').subscribe(token => {
-    //   console.log('reCAPTCHA token:', token);
-    // });
-    // this.setRole('clinic');
-
-    this.createForm();
-
-    // google.accounts.id.initialize({
-    //   client_id:
-    //     '940657570058-gpm7buu1t25nlls0pcbs95c6t2bf4rg4.apps.googleusercontent.com',
-    //   callback: (resp: any) => {
-    //     this.handleLogin(resp);
-    //   },
-    // });
-    // google.accounts.id.renderButton(document.getElementById('google-btn'), {
-    //   theme: 'filled_blue',
-    //   size: 'large',
-    //   shape: 'rectangle',
-    // });
   }
 
   private decodeToken(token: any) {
     return JSON.parse(atob(token.split('.')[1]));
   }
-
-  handleLogin(response: any) {
-    if (response && response.credential) {
-      // Decode the token
-      const payload = this.decodeToken(response.credential);
-      // Store in session
-      sessionStorage.setItem('loggedInUser', JSON.stringify(payload));
-      
-      // Navigate to home
-      this.router.navigate(['dashboard']);
+  onTabChange(tab: 'login' | 'register') {
+    this.activeTab = tab;
+    if (tab === 'register') {
+      this.title.set('Register');
     } else {
-      console.error('Invalid response or missing credential');
+      this.title.set('Login');
     }
   }
+  onRegister() {
+    if (this.registerForm.invalid) {
+      this.registerForm.markAllAsTouched();
+      return;
+    }
+    const payload: RegisterRequest = {
+      email: this.registerForm.value.email,
+      phone: this.registerForm.value.phone,
+    };
+    this.service.register(payload).subscribe({
+      next: (res) => {
+        localStorage.setItem('userInfo', JSON.stringify(res));
 
-  login() {
+        this.router.navigate(['auth/verify-email']);
+      },
+      error: (err) => {
+        console.error('Registration failed:', err);
+      },
+    });
+  }
 
-
-    this.service.login(this.form.value).subscribe((res: any) => {
-      this.router.navigate(['/home']);
-        console.log('👌👌👌',res);
+  onLogin() {
+    if(this.loginForm.value){
+      const payload ={
+        email :this.loginForm.value.email || '',
+        phone:this.loginForm.value.phone || '',
+      }
+      this.service.login(payload).subscribe((res: any) => {
+        this.router.navigate(['/home']);
       });
+    }
 
     // if (this.form.value) {
     //   let formValue = this.form.value;

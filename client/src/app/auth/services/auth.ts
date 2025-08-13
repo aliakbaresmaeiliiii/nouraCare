@@ -23,11 +23,12 @@ export class Auth {
 
   http = inject(HttpClient);
 
-  login(data: LoginRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/sign-in`, data);
+  login(data: LoginRequest): Observable<LoginRequest[]> {
+    return this.http.post<LoginRequest[]>(`${this.baseUrl}/sign-in`, data);
   }
 
   register(data: RegisterRequest): Observable<any> {
+    debugger;
     return this.http.post(`${this.baseUrl}/register`, data);
   }
 
@@ -42,8 +43,8 @@ export class Auth {
     });
   }
   verifyEmail(data: { email: string; verify_code: string }): Observable<any> {
-    debugger;
-    return this.http.post(`${this.baseUrl}/verify-email`, data);
+      debugger;
+      return this.http.post(`${this.baseUrl}/verify-email`, data);
   }
 
   isAuthenticated(): boolean {
@@ -55,6 +56,6 @@ export class Auth {
   }
 
   logout(): void {
-    localStorage.removeItem('access_token');
+    // localStorage.removeItem('access_token');
   }
 }

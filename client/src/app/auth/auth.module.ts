@@ -1,18 +1,16 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule, Pipe } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '../shared/shared-module';
 import { AuthLayout } from './components/auth-layout/auth-layout';
 import { ForgetPassword } from './components/forget-password/forget-password';
 import { Login } from './components/login/login';
 import { OtpInput } from './components/otp-input/otp-input';
-import { Register } from './components/register/register';
 import { ResetPassword } from './components/reset-password/reset-password';
 import { VerifyEmail } from './components/verify-email/verify-email';
 import { KeysPipe } from './pipes/keys.pipe';
 
 export const routes: Routes = [
   { path: 'sign-in', component: Login },
-  { path: 'register', component: Register },
   { path: 'verify-email', component: VerifyEmail },
   // {
   //   path: 'forgot-password',
@@ -30,16 +28,15 @@ export const routes: Routes = [
   declarations: [
     AuthLayout,
     Login,
-    Register,
     ForgetPassword,
     ResetPassword,
     VerifyEmail,
     OtpInput,
-    KeysPipe
+    KeysPipe,
   ],
   imports: [RouterModule.forChild(routes), SharedModule],
   providers: [
-    KeysPipe
+    KeysPipe,
     // SocialAuthService,
     // {
     //   provide: 'SocialAuthServiceConfig',
