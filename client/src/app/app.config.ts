@@ -6,14 +6,13 @@ import {
 } from '@angular/core';
 import {
   provideRouter,
-  withDebugTracing,
-  withRouterConfig,
+  RouteReuseStrategy,
+  withComponentInputBinding
 } from '@angular/router';
 
 import {
   authInterceptor,
-  provideAuth,
-  StsConfigHttpLoader,
+  provideAuth
 } from 'angular-auth-oidc-client';
 
 import {
@@ -23,22 +22,22 @@ import {
   withInterceptors,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import {
-  provideClientHydration,
-  withEventReplay,
-} from '@angular/platform-browser';
+import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
+import { provideIonicAngular } from '@ionic/angular/standalone';
 import { appRoutes } from './app.routes';
-import { AuthInterceptor } from './interceptors/auth-interceptor';
 import { environment } from './environments/environments';
-import { IonicModule } from '@ionic/angular';
+import { AuthInterceptor } from './interceptors/auth-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(
-      appRoutes,
-      withDebugTracing(),
-      withRouterConfig({ paramsInheritanceStrategy: 'always' })
-    ),
+    provideIonicAngular(),
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    provideIonicAngular({ mode: 'ios' }),
+    provideRouter(appRoutes,withComponentInputBinding()),
+    // provideRouter(
+    //   withDebugTracing(),
+    //   withRouterConfig({ paramsInheritanceStrategy: 'always' })
+    // ),
     provideHttpClient(
       withFetch(),
       withInterceptors([authInterceptor()]),
@@ -69,6 +68,6 @@ export const appConfig: ApplicationConfig = {
 
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideClientHydration(withEventReplay()),
+    // provideClientHydration(withEventReplay()),
   ],
 };

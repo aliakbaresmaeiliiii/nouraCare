@@ -1,7 +1,7 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import {
   IonAvatar,
   IonBackButton,
@@ -19,6 +19,9 @@ import {
   IonList,
   IonMenu,
   IonMenuButton,
+  IonNav,
+  IonNavLink,
+  IonRouterLink,
   IonTab,
   IonTabBar,
   IonTabButton,
@@ -26,7 +29,7 @@ import {
   IonTitle,
   IonToast,
   IonToggle,
-  IonToolbar
+  IonToolbar,
 } from '@ionic/angular/standalone';
 
 const IONIC_MODULES = [
@@ -55,6 +58,9 @@ const IONIC_MODULES = [
   IonMenu,
   IonAvatar,
   IonItemDivider,
+  IonNavLink,
+  IonNav,
+  IonRouterLink,
 ];
 
 const COMMON_MODULES = [
@@ -63,11 +69,13 @@ const COMMON_MODULES = [
   FormsModule,
   NgOptimizedImage,
   RouterLink,
+  RouterOutlet,
+  RouterModule,
 ];
 
 @NgModule({
   declarations: [],
-  imports: [...COMMON_MODULES, ...IONIC_MODULES],
+  imports: [...COMMON_MODULES, ...IONIC_MODULES, RouterModule.forChild([])],
   exports: [...COMMON_MODULES, ...IONIC_MODULES],
   providers: [],
 })

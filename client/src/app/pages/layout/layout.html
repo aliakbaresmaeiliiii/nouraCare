@@ -1,35 +1,20 @@
-<ion-menu contentId="main-content" ngSkipHydration>
+<!-- <ion-menu contentId="main-content">
   <ion-header>
     <ion-toolbar>
-      <ion-item lines="none">
-        <div class="flex justify-between items-center">
-          <div>
-            <ion-title>
-              <ion-item>
-                <ion-avatar slot="start">
-                  <img
-                    class="w-8 h-8"
-                    alt="Silhouette of a person's head"
-                    src="https://ionicframework.com/docs/img/demos/avatar.svg"
-                  />
-                </ion-avatar>
-                <div class="flex flex-col">
-                  <span class="!text-md">Aliakbar Esmaeili</span>
-                  <span class="text-red-500 text-[10px]">
-                    30% is completed
-                  </span>
-                </div>
-              </ion-item>
-            </ion-title>
+      <ion-item class="!p-0 !border-0 !bg-transparent" >
+        <ion-avatar>
+          <img
+            class="w-8 h-8"
+            alt="Silhouette of a person's head"
+            src="https://ionicframework.com/docs/img/demos/avatar.svg"
+          />
+        </ion-avatar>
+        <div class="flex justify-between items-center w-full" >
+          <div class="flex flex-col">
+            <span class="!text-md pl-1">Aliakbar Esmaeili</span>
+            <span class="text-red-500 pl-1 text-[10px]"> 30% is completed </span>
           </div>
-          <div>
-            <ion-title
-              class="text-sm font-normal pr-2 text-cyan-500"
-              slot="end"
-            >
-              Profile &gt;
-            </ion-title>
-          </div>
+          <div class="text-sm text-cyan-500">Profile &gt;</div>
         </div>
       </ion-item>
     </ion-toolbar>
@@ -39,7 +24,7 @@
     <div class="flex flex-col text-xs gap-4 pt-2 w-full">
       @for (item of menuItemsTop; track $index) {
       <button
-        class="flex items-center gap-1.5 transition-colors duration-200 h-7 !pl-4 "
+        class="flex items-center gap-1.5 transition-colors duration-200 h-7 !pl-4"
         [ngClass]="{
           'bg-cyan-100 text-cyan-700 w-full': activeIndexTop === $index,
           'hover:bg-gray-100 text-gray-700': activeIndexTop !== $index
@@ -54,12 +39,19 @@
 
     <div class="bg-cyan-400 h-0.5 my-4"></div>
 
-    <div class="flex flex-col text-xs gap-10">
+    <div class="flex flex-col text-xs gap-4 pt-2 w-full">
       @for (item of menuItemsBottom; track $index) {
-      <div class="flex items-center gap-1.5">
+      <button
+        class="flex items-center gap-1.5 transition-colors duration-200 h-7 !pl-4"
+        [ngClass]="{
+          'bg-cyan-100 text-cyan-700 w-full': activeIndexBottom === $index,
+          'hover:bg-gray-100 text-gray-700': activeIndexBottom !== $index
+        }"
+        (click)="setActiveBottom($index)"
+      >
         <ion-icon [name]="item.icon"></ion-icon>
         {{ item.label }}
-      </div>
+      </button>
       }
     </div>
 
@@ -80,6 +72,7 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding" id="main-content">
-    <app-home />
+
   </ion-content>
-</div>
+</div> -->
+   sdfsfasdf

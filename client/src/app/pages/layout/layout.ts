@@ -1,5 +1,8 @@
 import { AfterViewInit, Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
+import { Profile } from '../profile/profile';
+import { Home } from '../home/home';
 
 @Component({
   selector: 'app-layout',
@@ -7,11 +10,15 @@ import { MenuController } from '@ionic/angular';
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
 })
-export class Layout implements  AfterViewInit{
+export class Layout implements AfterViewInit {
   activeIndexTop: number | null = null;
   activeIndexBottom: number | null = null;
+  profilePage = Profile;
+  homeComponent = Home;
+  router = inject(Router);
+  homePage = Home;
+  radioPage = Home;
 
-  
   menuItemsTop = [
     { icon: 'heart-outline', label: 'Gahvareh Pro' },
     { icon: 'list-outline', label: 'My Purchase' },
@@ -31,8 +38,7 @@ export class Layout implements  AfterViewInit{
     { icon: 'log-in-outline', label: 'Log Out' },
   ];
 
-  ngAfterViewInit(): void {
-  }
+  ngAfterViewInit(): void {}
 
   setActiveTop(index: number) {
     this.activeIndexTop = index;

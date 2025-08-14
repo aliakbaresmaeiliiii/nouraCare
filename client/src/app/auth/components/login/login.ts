@@ -1,25 +1,42 @@
-import { Component, inject, Renderer2, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  Renderer2,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
-  FormControl,
   FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterModule } from '@angular/router';
+import { NavController } from '@ionic/angular';
+import { IonRouterLink } from '@ionic/angular/standalone';
 import { Subject } from 'rxjs';
-import { Auth } from '../../services/auth';
+import { Layout } from '../../../pages/layout/layout';
+import { SharedModule } from '../../../shared/shared-module';
 import { RegisterRequest } from '../../model/register-request-interface';
-
+import { Auth } from '../../services/auth';
 @Component({
   selector: 'app-login',
   templateUrl: './login.html',
-  standalone: false,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedModule],
   styleUrl: './login.scss',
+  providers: [],
 })
 export class Login {
   activeTab: 'login' | 'register' = 'login';
   fb = inject(FormBuilder);
-
+  layoutComponent = Layout;
+  message: string = '';
+  private navCtrl: NavController = inject(NavController);
+  showToast = false;
+  success!: boolean;
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     phone: [''],
@@ -33,6 +50,7 @@ export class Login {
 
   router = inject(Router);
   renderer = inject(Renderer2);
+  cdr = inject(ChangeDetectorRef);
   // matcher = new ErrorStateMatcher();
 
   service = inject(Auth);
@@ -54,7 +72,6 @@ export class Login {
   //   this.themeManager.toggleTheme();
   // }
 
-
   setRole(role: string) {
     this.selectedRole = role;
     this.title.set(role);
@@ -64,8 +81,7 @@ export class Login {
     // this.authService.refreshAuthToken(GoogleLoginProvider.PROVIDER_ID);
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   private decodeToken(token: any) {
     return JSON.parse(atob(token.split('.')[1]));
@@ -100,13 +116,35 @@ export class Login {
   }
 
   onLogin() {
-    if(this.loginForm.value){
-      const payload ={
-        email :this.loginForm.value.email || '',
-        phone:this.loginForm.value.phone || '',
-      }
-      this.service.login(payload).subscribe((res: any) => {
-        this.router.navigate(['/home']);
+    if (this.loginForm.value) {
+      // if (this.loginForm.invalid) {
+      //   this.message = 'Please enter a valid email.';
+      //   this.success = false;
+      //   this.showToast = true;
+      //   return;
+      // }
+      const payload = {
+        email: this.loginForm.value.email || '',
+        phone: this.loginForm.value.phone || '',
+      };
+      this.service.login(payload).subscribe({
+        next: (res) => {
+          console.log('👌👌👌👌', res);
+          this.message = 'Login successful!';
+          this.success = true;
+          this.showToast = true;
+          this.navCtrl.navigateRoot('/home');
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          debugger;
+          this.message =
+            err?.error?.message || 'Login failed. Please try again.';
+          this.success = false;
+          this.showToast = true;
+          this.cdr.detectChanges();
+        },
+        complete: () => {},
       });
     }
 

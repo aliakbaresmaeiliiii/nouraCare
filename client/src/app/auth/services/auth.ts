@@ -10,6 +10,7 @@ import { UserInfo } from '../model/uesr-interface';
   providedIn: 'root',
 })
 export class Auth {
+  http = inject(HttpClient);
   private baseUrl = environment.apiEndPoint + 'auth';
   userInfo = signal<UserInfo | null>(null);
 
@@ -21,14 +22,12 @@ export class Auth {
     this.userInfo.set(userInfo);
   }
 
-  http = inject(HttpClient);
 
   login(data: LoginRequest): Observable<LoginRequest[]> {
     return this.http.post<LoginRequest[]>(`${this.baseUrl}/sign-in`, data);
   }
 
   register(data: RegisterRequest): Observable<any> {
-    debugger;
     return this.http.post(`${this.baseUrl}/register`, data);
   }
 
@@ -43,7 +42,6 @@ export class Auth {
     });
   }
   verifyEmail(data: { email: string; verify_code: string }): Observable<any> {
-      debugger;
       return this.http.post(`${this.baseUrl}/verify-email`, data);
   }
 

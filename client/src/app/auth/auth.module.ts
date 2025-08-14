@@ -27,7 +27,6 @@ export const routes: Routes = [
 @NgModule({
   declarations: [
     AuthLayout,
-    Login,
     ForgetPassword,
     ResetPassword,
     VerifyEmail,

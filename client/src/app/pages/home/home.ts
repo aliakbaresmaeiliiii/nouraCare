@@ -20,10 +20,8 @@ import {
 })
 export class Home implements OnInit{
   constructor() {
-    
     this.insertIcon();
   }
-
   ngOnInit(): void {
   }
 

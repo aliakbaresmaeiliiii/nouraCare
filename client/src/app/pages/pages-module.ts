@@ -5,10 +5,11 @@ import { SharedModule } from '../shared/shared-module';
 import { RouterModule } from '@angular/router';
 import { pagesRoutes } from './pages-routes';
 import { Layout } from './layout/layout';
+import { Profile } from './profile/profile';
 
 @NgModule({
-  declarations: [Home, Layout],
+  declarations: [Home, Layout, Profile],
   imports: [CommonModule, SharedModule, RouterModule.forChild(pagesRoutes)],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class PagesModule {}

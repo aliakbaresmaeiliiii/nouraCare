@@ -50,7 +50,6 @@ export class VerifyEmail {
   }
 
   onOtpComplete(otp: any) {
-    debugger;
     this.otp = otp.detail.value;
     if (this.otp.length === this.config.length) {
       this.onSubmit();
@@ -58,7 +57,6 @@ export class VerifyEmail {
   }
 
   onSubmit() {
-    debugger;
     const payload = {
       email: this.userInfo || '',
       verify_code: this.otp,
