@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { MenuController } from '@ionic/angular';
 import { Profile } from '../profile/profile';
 import { Home } from '../home/home';
 
@@ -44,7 +43,10 @@ export class Layout implements AfterViewInit {
     this.activeIndexTop = index;
   }
 
-  setActiveBottom(index: number) {
+  setActiveBottom(item: any, index: number) {
     this.activeIndexBottom = index;
+    if(item.label === 'Log Out') {
+      this.router.navigate(['/auth/sign-in']);
+    }
   }
 }

@@ -1,7 +1,7 @@
 <ion-menu contentId="main-content">
   <ion-header>
     <ion-toolbar>
-      <ion-item class="!p-0 !border-0 !bg-transparent" >
+      <ion-item class="!p-0 !border-0 !bg-transparent" button  [routerLink]="['profile']">
         <ion-avatar>
           <img
             class="w-8 h-8"
@@ -47,7 +47,7 @@
           'bg-cyan-100 text-cyan-700 w-full': activeIndexBottom === $index,
           'hover:bg-gray-100 text-gray-700': activeIndexBottom !== $index
         }"
-        (click)="setActiveBottom($index)"
+        (click)="setActiveBottom(item, $index)"
       >
         <ion-icon [name]="item.icon"></ion-icon>
         {{ item.label }}

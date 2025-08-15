@@ -7,13 +7,10 @@ import {
 import {
   provideRouter,
   RouteReuseStrategy,
-  withComponentInputBinding
+  withComponentInputBinding,
 } from '@angular/router';
 
-import {
-  authInterceptor,
-  provideAuth
-} from 'angular-auth-oidc-client';
+import { authInterceptor, provideAuth } from 'angular-auth-oidc-client';
 
 import {
   HTTP_INTERCEPTORS,
@@ -33,7 +30,7 @@ export const appConfig: ApplicationConfig = {
     provideIonicAngular(),
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular({ mode: 'ios' }),
-    provideRouter(appRoutes,withComponentInputBinding()),
+    provideRouter(appRoutes, withComponentInputBinding()),
     // provideRouter(
     //   withDebugTracing(),
     //   withRouterConfig({ paramsInheritanceStrategy: 'always' })
@@ -43,7 +40,10 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([authInterceptor()]),
       withInterceptorsFromDi()
     ),
-    importProvidersFrom(IonicModule.forRoot()),
+
+    importProvidersFrom(
+      IonicModule.forRoot(),
+    ),
     provideAuth({
       config: {
         authority: environment.oidc.authority,

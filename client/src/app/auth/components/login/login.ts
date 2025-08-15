@@ -137,7 +137,6 @@ export class Login {
           this.cdr.detectChanges();
         },
         error: (err) => {
-          debugger;
           this.message =
             err?.error?.message || 'Login failed. Please try again.';
           this.success = false;

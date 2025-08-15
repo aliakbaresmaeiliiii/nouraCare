@@ -56,8 +56,8 @@
     }
 
     <!-- Register Form -->
+    @if (activeTab === 'register') {
     <form
-      *ngIf="activeTab === 'register'"
       [formGroup]="registerForm"
       (ngSubmit)="onRegister()"
       class="space-y-4"
@@ -126,5 +126,6 @@
         Sign Up
       </button>
     </form>
+    }
   </div>
 </ion-content>
