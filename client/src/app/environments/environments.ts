@@ -49,10 +49,10 @@ export const environment  = {
     appId: '1:357428854325:web:04fd91819ab7e8945a3b7c',
     measurementId: 'G-Y8RLZHZ7NM',
   },
-  production: true,
+  production: false,
   // SERVER_API: 'https://api.example.com',
-  apiEndPoint: 'http://localhost:8080/api/v1/',
-  urlProfileImg: 'http://localhost:8080/images/',
+  apiEndPoint: 'http://172.20.10.2:8080/api/v1/',
+  urlProfileImg: 'http://172.20.10.2:8080/images/',
   neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',
   mapboxToken:
@@ -60,9 +60,9 @@ export const environment  = {
   //  ' pk.eyJ1IjoiYWxpYWtiYXJlc21hZWlsaSIsImEiOiJjbHp6ODI1ZDAwdjBpMmxyMjZpcjdvZzZlIn0.kQouXthroqQGvAYDArZ3uQ'
 
   oidc: {
-    authority: 'http://localhost:8080/api/v1/',
-    redirectUrl: 'http://localhost:4200/sign-in',
-    postLogoutRedirectUri: 'http://localhost:4200/sign-in',
+    authority: 'http://172.20.10.1:8080/api/v1/',
+    redirectUrl: 'http://172.20.10.2:4200/sign-in',
+    postLogoutRedirectUri: 'http://172.20.10.1:4200/sign-in',
     clientId: 'Angular_Connect',
     scope: 'openid profile beedos_auth_api offline_access',
     responseType: 'code',

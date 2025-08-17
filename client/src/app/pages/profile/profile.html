@@ -8,6 +8,7 @@
 </ion-header>
 
 <ion-content>
+  <!-- User Avatar -->
   <ion-item class="pt-2">
     <ion-avatar>
       <img
@@ -18,12 +19,13 @@
     </ion-avatar>
     <div class="flex justify-between items-center w-full">
       <div class="flex flex-col">
-        <span class="!text-md pl-1">Aliakbar Esmaeili</span>
+        <span class="!text-md pl-1">Aliakbar Esmaei</span>
         <span class="text-red-500 pl-1 text-[10px]"> 30% is completed </span>
       </div>
     </div>
   </ion-item>
 
+  <!-- User Information -->
   <ion-item class="mt-2" lines="none">
     @for (item of userInfo(); track $index) {
     <div
@@ -49,6 +51,7 @@
     }
   </ion-item>
 
+  <!-- Edit Profile Button -->
   <ion-item>
     <div class="grid grid-cols-8 gap-2 w-full">
       <div class="col-span-7 h-3">
@@ -61,12 +64,170 @@
       </div>
     </div>
   </ion-item>
+  <!-- Progress Bar -->
+  <div class="grid grid-cols-2 pl-2">
+    <div class="flex items-center pl-2">
+      <span class="text-xs">Present to complete Profile</span>
+    </div>
+    <div class="justify-self-end">
+      <app-circle-progress-bar [value]="percent" />
+    </div>
+  </div>
+
+  <!-- Slider Section -->
+  <section>
+    <div class="keen-slider pl-3 mt-4" #sliderRef>
+      <div
+        class="keen-slider__slide number-slide px-4 pb-2 border-2 rounded-md border-gray-700"
+      >
+        <div class="flex flex-col justify-center gap-2 items-center">
+          <ion-avatar class="flex justify-center items-center">
+            <img
+              class="w-8 h-8"
+              alt="Silhouette of a person's head"
+              src="https://ionicframework.com/docs/img/demos/avatar.svg"
+            />
+          </ion-avatar>
+          <span class="text-xs text-gray-900"> Add a name </span>
+          <span class="text-xs text-gray-500"> description </span>
+          <ion-buttons slot="secondary">
+            <ion-button fill="solid" class="text-[10px]"> Add name </ion-button>
+          </ion-buttons>
+        </div>
+      </div>
+      <div
+        class="keen-slider__slide number-slide pb-2 px-4 border-2 rounded-md border-gray-700"
+      >
+        <div class="flex flex-col justify-center gap-2 items-center">
+          <ion-avatar class="flex justify-center items-center">
+            <img
+              class="w-8 h-8"
+              alt="Silhouette of a person's head"
+              src="https://ionicframework.com/docs/img/demos/avatar.svg"
+            />
+          </ion-avatar>
+          <span class="text-xs text-gray-900"> Add a name </span>
+          <span class="text-xs text-gray-500"> description </span>
+          <ion-buttons slot="secondary">
+            <ion-button fill="solid" class="text-[10px]"> Add name </ion-button>
+          </ion-buttons>
+        </div>
+      </div>
+      <div
+        class="keen-slider__slide number-slide pb-2 px-4 border-2 rounded-md border-gray-700"
+      >
+        <div class="flex flex-col justify-center gap-2 items-center">
+          <ion-avatar class="flex justify-center items-center">
+            <img
+              class="w-8 h-8"
+              alt="Silhouette of a person's head"
+              src="https://ionicframework.com/docs/img/demos/avatar.svg"
+            />
+          </ion-avatar>
+          <span class="text-xs text-gray-900"> Add a name </span>
+          <span class="text-xs text-gray-500"> description </span>
+          <ion-buttons slot="secondary">
+            <ion-button fill="solid" class="text-[10px]"> Add name </ion-button>
+          </ion-buttons>
+        </div>
+      </div>
+      <div
+        class="keen-slider__slide number-slide pb-2 px-4 border-2 rounded-md border-gray-700"
+      >
+        <div class="flex flex-col justify-center gap-2 items-center">
+          <ion-avatar class="flex justify-center items-center">
+            <img
+              class="w-8 h-8"
+              alt="Silhouette of a person's head"
+              src="https://ionicframework.com/docs/img/demos/avatar.svg"
+            />
+          </ion-avatar>
+          <span class="text-xs text-gray-900"> Add a name </span>
+          <span class="text-xs text-gray-500"> description </span>
+          <ion-buttons slot="secondary">
+            <ion-button fill="solid" class="text-[10px]"> Add name </ion-button>
+          </ion-buttons>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tabs Section -->
+  <section>
+    <!-- Tabs in center -->
+    <div class="flex justify-center my-4 mt-8">
+      <ion-segment value="first" (ionChange)="segmentChanged($event)">
+        <ion-segment-button value="first">
+          <ion-label>Question</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="second">
+          <ion-label>Answers</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="third">
+          <ion-label>buying Experience</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </div>
+
+    <!-- Tab content -->
 
 
-  <!-- <div class="flex justify-between items-center">
-    <ion-label>Present to complete Profile</ion-label> -->
-  <!-- <div class="bg-red-600">asdf -->
-      <app-circle-progress-bar [value]="percent"/>
-  <!-- </div> -->
-  <!-- </div> -->
+    @switch (selectedTab) { @case ('first') {
+    <div class="flex flex-col justify-center gap-2 items-center">
+      <ion-avatar class="flex justify-center items-center">
+        <img
+          class="w-8 h-8"
+          alt="Silhouette of a person's head"
+          src="https://ionicframework.com/docs/img/demos/avatar.svg"
+        />
+      </ion-avatar>
+      <span class="text-xs text-gray-900">
+        You haven't asked any questions yet.
+      </span>
+      <ion-button fill="outline" class="text-xs text-gray-900"
+        ><ion-icon name="add"></ion-icon> Ask the first question</ion-button
+      >
+    </div>
+
+    } @case ('second') {
+    <div class="flex flex-col justify-center gap-2 items-center">
+      <ion-avatar class="flex justify-center items-center">
+        <img
+          class="w-8 h-8"
+          alt="Silhouette of a person's head"
+          src="https://ionicframework.com/docs/img/demos/avatar.svg"
+        />
+      </ion-avatar>
+
+      <span class="text-xs text-gray-900">
+        You haven't answered any questions yet.
+      </span>
+
+      <ion-button fill="outline" class="text-xs text-gray-900">
+        <ion-icon name="add"></ion-icon>
+        Go to QA section</ion-button
+      >
+    </div>
+    } @case ('third') {
+    <div class="flex flex-col justify-center gap-2 items-center">
+      <ion-avatar class="flex justify-center items-center">
+        <img
+          class="w-8 h-8"
+          alt="Silhouette of a person's head"
+          src="https://ionicframework.com/docs/img/demos/avatar.svg"
+        />
+      </ion-avatar>
+
+      <span class="text-xs text-gray-900">
+        You haven't shared your buying experience yet.
+      </span>
+
+      <ion-button fill="outline" class="text-xs text-gray-900">
+        <ion-icon name="add"></ion-icon>
+        Share your first buying experience</ion-button
+      >
+    </div>
+
+    } @default { Default case. } }
+  </section>
 </ion-content>

@@ -19,16 +19,27 @@
           "options": {
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
-            "polyfills": ['src/polyfills.ts'],
+
             "inlineStyleLanguage": "scss",
-            "assets": [
+              "assets": [
+              "src/assets",
+              "src/robots.txt",
+              {
+                "glob": "keen-slider.min.css",
+                "input": "node_modules/keen-slider",
+                "output": "/keen-slider/"
+              },
+
               {
                 "glob": "**/*",
-                "input": "src/assets"
+                "input": "src/assets",
+                "output": "/assets/"
               }
             ],
             "styles": [
               "node_modules/@ionic/angular/css/ionic.bundle.css",
+               "node_modules/swiper/swiper-bundle.min.css",
+              "node_modules/keen-slider/keen-slider.min.css",
               "src/styles.scss",
               "styles.css"
             ],
@@ -83,10 +94,10 @@
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              {
+            {
                 "glob": "**/*",
                 "input": "src/assets",
-                "output": "assets"
+                "output": "/assets/"
               },
               {
                 "glob": "**/*",

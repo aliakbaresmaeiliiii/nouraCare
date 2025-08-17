@@ -1,7 +1,11 @@
 <ion-menu contentId="main-content">
   <ion-header>
     <ion-toolbar>
-      <ion-item class="!p-0 !border-0 !bg-transparent" button  [routerLink]="['profile']">
+      <ion-item
+        class="!p-0 !border-0 !bg-transparent"
+        button
+        [routerLink]="['profile']"
+      >
         <ion-avatar>
           <img
             class="w-8 h-8"
@@ -9,10 +13,12 @@
             src="https://ionicframework.com/docs/img/demos/avatar.svg"
           />
         </ion-avatar>
-        <div class="flex justify-between items-center w-full" >
+        <div class="flex justify-between items-center w-full">
           <div class="flex flex-col">
             <span class="!text-md pl-1">Aliakbar Esmaeili</span>
-            <span class="text-red-500 pl-1 text-[10px]"> 30% is completed </span>
+            <span class="text-red-500 pl-1 text-[10px]">
+              30% is completed
+            </span>
           </div>
           <div class="text-sm text-cyan-500">Profile &gt;</div>
         </div>
@@ -71,7 +77,28 @@
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
-  <ion-content class="ion-padding" id="main-content">
-
+  
+    <ion-content>
+    <!-- Tab layout goes here -->
+    <ion-tabs>
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="home">
+          <ion-icon name="play-circle"></ion-icon>
+          <ion-label>Listen Now</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="radio">
+          <ion-icon name="radio"></ion-icon>
+          <ion-label>Radio</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="library">
+          <ion-icon name="library"></ion-icon>
+          <ion-label>Library</ion-label>
+        </ion-tab-button>
+        <ion-tab-button tab="search">
+          <ion-icon name="search"></ion-icon>
+          <ion-label>Search</ion-label>
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
   </ion-content>
 </div>

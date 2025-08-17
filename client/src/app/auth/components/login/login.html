@@ -1,7 +1,7 @@
-<ion-content class="flex items-center justify-center h-full bg-gray-500">
-  <div class="w-full max-w-md p-6 rounded-2xl shadow-lg">
+<ion-content>
+  <div class="mx-4 px-4 pt-1 rounded-2xl shadow-lg ">
     <!-- Toggle Buttons -->
-    <div class="flex mb-6 gap-3">
+    <div class="flex mb-2 gap-3">
       <button
         type="button"
         (click)="activeTab = 'login'"
@@ -26,7 +26,6 @@
     <!-- Login Form -->
     @if (activeTab === 'login') {
     <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-4">
-      <h2 class="text-xl font-bold text-center">Welcome Back</h2>
       <div>
         <label class="block mb-1 text-sm font-medium">Email</label>
         <input

@@ -8,6 +8,8 @@ import { Layout } from './layout/layout';
 import { Profile } from './profile/profile';
 import { CircleProgressBar } from '../shared/components/circle-progress-bar/circle-progress-bar';
 
+
+
 @NgModule({
   declarations: [Home, Layout, Profile],
   imports: [
@@ -17,6 +19,7 @@ import { CircleProgressBar } from '../shared/components/circle-progress-bar/circ
 
     RouterModule.forChild(pagesRoutes),
   ],
+  exports:[Profile,Layout],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class PagesModule {}

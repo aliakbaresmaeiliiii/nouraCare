@@ -9,12 +9,17 @@ import { prisma } from "./src/config/prisma";
 const app = express();
 app.use(express.json());
 
-const optCors: cors.CorsOptions = {
-  origin: allowedOrigins,
-  methods: "GET,POST,PUT,DELETE",
-  allowedHeaders: "Content-Type,Authorization",
-};
-app.use(cors(optCors));
+
+app.use(cors({
+  origin:function(origin,callback){
+    if(!origin || allowedOrigins.includes(origin)){
+      callback(null,true);
+    }else{
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/auth", authRoutes);
@@ -26,6 +31,12 @@ app.use(
   })
 );
 
+
+app.listen(8080, "0.0.0.0", () => {
+  console.log("Server running on http://0.0.0.0:8080");
+});
+
+
 (async () => {
   try {
     await prisma.$connect();
@@ -34,5 +45,8 @@ app.use(
     console.error("❌ DB Connection error:", error);
   }
 })();
+
+
+
 
 export default app;

@@ -61,6 +61,7 @@ const IONIC_MODULES = [
   IonNavLink,
   IonNav,
   IonRouterLink,
+  
 ];
 
 const COMMON_MODULES = [
