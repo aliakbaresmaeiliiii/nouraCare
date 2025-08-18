@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { LoginRequest } from '../model/login-request-interface';
-import { RegisterRequest } from '../model/register-request-interface';
-import { environment } from '../../environments/environments';
-import { UserInfo } from '../model/uesr-interface';
+import { UserInfo } from '../login/model/uesr-interface';
+import { environment } from 'src/environments/environment';
+import { LoginRequest } from '../login/model/login-request-interface';
+import { RegisterRequest } from '../login/model/register-request-interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class Auth {
+export class AuthService {
   http = inject(HttpClient);
   private baseUrl = environment.apiEndPoint + 'auth';
   userInfo = signal<UserInfo | null>(null);
