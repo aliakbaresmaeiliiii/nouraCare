@@ -36,7 +36,9 @@
             "styles": [
               "src/global.scss",
               "styles.css",
-              "src/theme/variables.scss"
+              "src/theme/variables.scss",
+               "node_modules/swiper/swiper-bundle.min.css"
+
             ],
             "scripts": [],
             "browser": "src/main.ts"
@@ -111,7 +113,9 @@
                 "output": "assets"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/global.scss", "src/theme/variables.scss",
+               "node_modules/swiper/swiper-bundle.min.css"
+          ],
             "scripts": []
           },
           "configurations": {

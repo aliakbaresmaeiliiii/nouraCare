@@ -1,0 +1,51 @@
+:root {
+  --pink: #ff3b7e;
+  --teal: #2ec4b6;
+  --purple: #7b61ff;
+  --ring-bg: #edeff3;
+  --inner: #dff7f4;
+}
+
+.wrap {
+  max-width: 520px;
+  margin: 20px auto;
+}
+.btn {
+  background: white;
+  border: 0;
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  cursor: pointer;
+}
+.center-txt {
+  font-weight: 700;
+  fill: black;
+}
+.center-sub {
+  fill: black;
+  opacity: 0.9;
+}
+
+.ion-modal-picker {
+  --height: 50%;
+  --border-radius: 16px;
+  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+ion-modal::part(backdrop) {
+  background: rgba(209, 213, 219);
+  opacity: 1;
+}
+ion-modal ion-toolbar {
+  --background: rgb(14 116 144);
+  --color: white;
+}
+
+ion-button{
+  --background: #0FA3B1;
+  
+  --color: white;
+
+}

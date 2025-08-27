@@ -22,8 +22,8 @@ export class AuthService {
     this.userInfo.set(userInfo);
   }
 
-
   login(data: LoginRequest): Observable<LoginRequest[]> {
+    debugger;
     return this.http.post<LoginRequest[]>(`${this.baseUrl}/sign-in`, data);
   }
 
@@ -42,8 +42,13 @@ export class AuthService {
     });
   }
   verifyEmail(data: { email: string; verify_code: string }): Observable<any> {
-      return this.http.post(`${this.baseUrl}/verify-email`, data);
+    return this.http.post(`${this.baseUrl}/verify-email`, data);
   }
+  resendOtp(data: { email: string}): Observable<any> {
+    return this.http.post(`${this.baseUrl}/resend-otp`, data);
+  }
+
+  
 
   isAuthenticated(): boolean {
     if (typeof window !== 'undefined') {

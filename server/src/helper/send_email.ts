@@ -1,8 +1,8 @@
-import handlebars from "handlebars";
-import path from "path";
-import { EmailProvider } from "../config/email";
-import fs from "fs/promises";
-import { ResponseError } from "../error/response_error";
+import handlebars from 'handlebars';
+import path from 'path';
+import fs from 'fs/promises';
+import { BadGatewayException, UnauthorizedException } from '@nestjs/common';
+import { EmailProvider } from 'src/auth/config/email';
 
 const { APP_NAME } = process.env;
 
@@ -14,29 +14,32 @@ class SendMail {
   }
   private async loadTemplate(
     templateName: string,
-    data: object
+    data: object,
   ): Promise<string> {
     try {
       const templatePath = path.resolve(
         __dirname,
-        `../../public/template/email/${templateName}.html`
+        `../../public/template/email/${templateName}.html`,
       );
-      const html = await fs.readFile(templatePath, "utf8");
+      const html = await fs.readFile(templatePath, 'utf8');
       const template = handlebars.compile(html);
       return template(data);
     } catch (error) {
       console.error(`Error loading email template (${templateName}):`, error);
-      throw new ResponseError.NotFound("Email template not found");
+      throw new BadGatewayException('Email template not found');
     }
   }
 
   public async sendAccountRegister(email: string, verifyCode: string) {
     try {
-      const htmlToSend = await this.loadTemplate("emailverify", { APP_NAME, TOKEN: verifyCode });
-      await this.emailProvider.send(email, "Ali  Registration", htmlToSend);
+      const htmlToSend = await this.loadTemplate('emailverify', {
+        APP_NAME,
+        TOKEN: verifyCode,
+      });
+      await this.emailProvider.send(email, 'Ali  Registration', htmlToSend);
     } catch (error) {
-      console.error("Error sending registration email:", error);
-      throw new ResponseError.InternalServer("Failed to send email");
+      console.error('Error sending registration email:', error);
+      throw new UnauthorizedException('Failed to send email');
     }
   }
 
@@ -84,7 +87,6 @@ class SendMail {
   //   //   Email.send(email, subject, htmlToSend)
   //   // })
   // }
-
 
   // public async sendForgetPassToken(user: User, token: string) {
   //   try {

@@ -1,0 +1,137 @@
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { SharedModule } from 'src/app/shared/shared-module';
+import { AuthService } from '../services/auth';
+import { UserInfo } from '../login/model/uesr-interface';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  interval,
+  Subscription,
+} from 'rxjs';
+
+function otpRequiredLength(length: number) {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (!value || value.toString().length !== length) {
+      return { otpLength: true };
+    }
+    return null;
+  };
+}
+
+@Component({
+  selector: 'app-verify-email',
+  templateUrl: './verify-email.component.html',
+  styleUrls: ['./verify-email.component.scss'],
+  imports: [SharedModule],
+})
+export class VerifyEmailComponent implements OnInit {
+  showToast = false;
+  message = '';
+  success = signal<boolean>(false);
+  otpCode: string = '';
+  service = inject(AuthService);
+  userInfo!: any;
+  form!: FormGroup;
+  timer: number = 180;
+  timerSub!: Subscription;
+  isExpired: boolean = false;
+
+  constructor(
+    private fb: FormBuilder,
+    private httpClient: HttpClient,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    this.form = this.fb.group({
+      otpCode: ['', [Validators.required, Validators.minLength(4)]],
+    });
+    this.startTimer();
+  }
+
+  startTimer() {
+    this.timer = 180;
+    this.isExpired = false;
+
+    this.timerSub = interval(1000).subscribe(() => {
+      this.timer--;
+      if (this.timer <= 0) {
+        this.isExpired = true;
+        this.timerSub.unsubscribe();
+      }
+    });
+  }
+
+  onOtpChange(event: any) {
+    const otp = event.detail.value;
+    if (otp && otp.length === 4) {
+      this.verifyOrp(otp);
+    }
+  }
+
+  getValidationText(controlName: string): string {
+    const control = this.form.get('otpCode');
+    if (!control) return '';
+
+    if (control.valid && control.value) {
+      return 'Valid';
+    } else if (control.invalid && control.touched) {
+      return 'Invalid';
+    }
+    return '';
+  }
+
+  async verifyOrp(otp: string) {
+    if (this.isExpired) {
+      this.showToast = true;
+      this.message = 'OTP expired,Please request a new one';
+      this.success.set(false);
+      return;
+    }
+    const payload = {
+      email: this.userInfo.email,
+      verify_code: otp,
+    };
+
+    this.service.verifyEmail(payload).subscribe({
+      next: (res: any) => {
+        console.log('Response:', res);
+        if (res.success) {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.showToast = true;
+          this.message = 'Invalid OTP, please try again.';
+        }
+      },
+      error: (error) => {
+        console.log(error);
+
+        this.showToast = true;
+        this.message = error.error.message;
+      },
+    });
+  }
+
+  resendCode() {
+    this.startTimer();
+    const email = this.userInfo.email;
+    const payload = {
+      email: email,
+    };
+    this.service.resendOtp(payload).subscribe((res) => {
+      console.log('newCOde', res);
+        this.router.navigate(['/home']);
+    });
+  }
+}

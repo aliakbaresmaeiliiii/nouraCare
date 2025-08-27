@@ -3,11 +3,18 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import {
+  IonApp,
   IonAvatar,
   IonBackButton,
   IonButton,
   IonButtons,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
   IonContent,
+  IonDatetime,
   IonFooter,
   IonHeader,
   IonIcon,
@@ -19,18 +26,30 @@ import {
   IonList,
   IonMenu,
   IonMenuButton,
+  IonModal,
   IonNav,
   IonNavLink,
+  IonPicker,
+  IonPickerColumn,
+  IonPickerColumnOption,
   IonRouterLink,
+  IonRouterOutlet,
+  IonSegment,
+  IonSegmentButton,
   IonTab,
   IonTabBar,
   IonTabButton,
   IonTabs,
+  IonText,
   IonTitle,
   IonToast,
   IonToggle,
   IonToolbar,
+  IonRadio,
+  IonRadioGroup,
+  IonNote
 } from '@ionic/angular/standalone';
+import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
 
 const IONIC_MODULES = [
   IonInput,
@@ -61,6 +80,23 @@ const IONIC_MODULES = [
   IonNavLink,
   IonNav,
   IonRouterLink,
+  IonSegment,
+  IonSegmentButton,
+  IonApp,
+  IonModal,
+  IonDatetime,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonText,
+  IonPicker,
+  IonPickerColumn,
+  IonPickerColumnOption,
+  IonRadio,
+  IonRadioGroup,
+  IonNote,
   
 ];
 
@@ -72,12 +108,15 @@ const COMMON_MODULES = [
   RouterLink,
   RouterOutlet,
   RouterModule,
+  IonRouterOutlet,
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [CircleProgressBarComponent,
+
+  ],
   imports: [...COMMON_MODULES, ...IONIC_MODULES, RouterModule.forChild([])],
-  exports: [...COMMON_MODULES, ...IONIC_MODULES],
+  exports: [...COMMON_MODULES, ...IONIC_MODULES, CircleProgressBarComponent],
   providers: [],
 })
 export class SharedModule {}

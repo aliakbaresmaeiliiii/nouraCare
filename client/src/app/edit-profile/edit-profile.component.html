@@ -1,0 +1,137 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="tabs"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="flex justify-center pt-6 relative">
+    <!-- Avatar -->
+    <ion-avatar class="w-24 h-24 overflow-hidden">
+      <img
+        [src]="
+          profileImage || 'https://ionicframework.com/docs/img/demos/avatar.svg'
+        "
+        alt="Profile"
+        class="object-cover w-full h-full"
+      />
+    </ion-avatar>
+
+    <label
+      for="fileeInput"
+      class="absolute bottom-0 right-38.5 rounded-full p-1 shadow cursor-pointer"
+    >
+      <ion-icon name="pencil" class="bg-gray-200 rounded-full p-1"></ion-icon>
+    </label>
+
+    <!-- Hidden file input -->
+    <input
+      type="file"
+      id="fileeInput"
+      accept="image/*"
+      hidden
+      (change)="onFileSelected($event)"
+    />
+  </div>
+
+  <div class="pl-2">
+    <h3>Your Status:</h3>
+    <ion-radio-group value="planning">
+      <ion-item>
+        <ion-label>I am planning to get pregnant</ion-label>
+        <ion-radio slot="start" value="planning"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>I am pregnant</ion-label>
+        <ion-radio slot="start" value="pregnant"></ion-radio>
+      </ion-item>
+
+      <ion-item>
+        <ion-label>I have a child</ion-label>
+        <ion-radio slot="start" value="child"></ion-radio>
+      </ion-item>
+    </ion-radio-group>
+  </div>
+
+  <h5 class="pl-2">Your menstrual cycle information:</h5>
+  <ion-item button>
+    <ion-input
+      labelPlacement="floating"
+      [value]="menstrualCycleDays()"
+       (click)="openPickerMenstrualCycle()"
+      readonly      
+    >
+      <div slot="label">
+        <span class="text-green-500"> End Date Period </span>
+      </div>
+    </ion-input>
+  </ion-item>
+
+  <div class="flex items-start mx-4 pt-2">
+    <ion-icon name="star" class="text-yellow-500 w-4 h-4 mt-0.5"></ion-icon>
+    <ion-note class="text-xs text-gray-500 ml-2 flex-1 leading-snug">
+      The time interval between the first day of your period and the start of
+      your next one.
+    </ion-note>
+  </div>
+
+  <h5 class="pl-2">How many days your period usullay last?:</h5>
+
+</ion-content>
+
+<!-- Modal Picker menstrual cycle -->
+<ion-modal
+  class="ion-modal-picker"
+  #modal
+  [isOpen]="showPickerMenstrualPicker"
+  trigger="open-modal"
+  (didDismiss)="closePeriodSheet()"
+  [breakpoints]="[0, 0.5, 1]"
+  [initialBreakpoint]="0.5"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Select Date</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding">
+      <ion-picker>
+        <!-- Day -->
+        <ion-picker-column
+          [value]="tempCycleDays()"
+          (click)="onChangeMenstrualCycle($event)"
+        >
+          @for (d of daysMenstrualCycle; track $index) {
+          <ion-picker-column-option [value]="d">
+            {{ d }}
+          </ion-picker-column-option>
+          }
+        </ion-picker-column>
+      </ion-picker>
+
+      <ion-item>
+        <ion-buttons slot="end">
+          <ion-button
+            (click)="confirmPickerMenstrualCycle()"
+            size="small"
+            color="success"
+            >Confirm</ion-button
+          >
+        </ion-buttons>
+        <ion-buttons slot="end">
+          <ion-button (click)="cancelPickerMenstrualCycle()" size="small" color="danger"
+            >Cancel</ion-button
+          >
+        </ion-buttons>
+      </ion-item>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+

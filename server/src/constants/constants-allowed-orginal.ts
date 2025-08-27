@@ -1,16 +1,8 @@
-// export const allowedOrigins = [
-//   "http://localhost:4200", // Frontend Web
-//   "http://192.168.50.207:3000", // Frontend Web
-//   "http://192.168.50.207:8000",
-//   "http://172.26.144.1:8000",
-// ];
-
-
 export const allowedOrigins = [
-  "http://localhost:4200",           // Angular on PC (localhost)
-  "http://192.168.50.207:4200",      // Angular via LAN
-  "http://172.20.10.2:4200",         // Angular via mobile hotspot
-  "http://192.168.50.207:3000",      // If running Next.js/React
-  "http://192.168.50.207:8000",      
-  "http://172.26.144.1:8000",
+  "http://localhost:4200",        // Localhost
+  "http://192.168.50.197:4200",   // Your current PC IP
+  "http://192.168.50.186:4200",   // Old IP (can keep/remove if needed)
+  "http://10.0.85.2:4200",        // VPN/virtual adapter
+  "http://192.168.50.207:4200",   // Other PC on LAN
+  "http://172.20.10.2:4200",      // Mobile hotspot
 ];

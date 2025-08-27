@@ -1,0 +1,46 @@
+<ion-app>
+  <app-side-menu></app-side-menu>
+
+  <!-- Main layout goes here -->
+  <ion-router-outlet id="main-content"></ion-router-outlet>
+
+  <!-- Main layout -->
+  <div class="ion-page" id="main-content">
+    <!-- Shared header -->
+    <ion-header>
+      <ion-toolbar>
+        <ion-toggle
+        class="mr-1"
+        slot="end"
+          [(ngModel)]="paletteToggle"
+          (ionChange)="toggleChange($event)"
+        ></ion-toggle>
+        <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+        </ion-buttons>
+        <ion-title>{{ selectedTitle }} </ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-tabs>
+      <ion-tab-bar slot="bottom">
+        <ion-tab-button tab="home">
+          <ion-icon name="play-circle"></ion-icon>
+          Listen Now
+        </ion-tab-button>
+        <ion-tab-button tab="tools">
+          <ion-icon name="radio"></ion-icon>
+          Radio
+        </ion-tab-button>
+        <ion-tab-button tab="library">
+          <ion-icon name="library"></ion-icon>
+          Library
+        </ion-tab-button>
+        <ion-tab-button tab="search">
+          <ion-icon name="search"></ion-icon>
+          Search
+        </ion-tab-button>
+      </ion-tab-bar>
+    </ion-tabs>
+  </div>
+</ion-app>

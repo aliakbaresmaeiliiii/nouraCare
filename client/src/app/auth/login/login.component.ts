@@ -106,7 +106,7 @@ export class LoginComponent {
       next: (res) => {
         localStorage.setItem('userInfo', JSON.stringify(res));
 
-        this.router.navigate(['auth/verify-email']);
+        this.router.navigate(['verify-email']);
       },
       error: (err) => {
         console.error('Registration failed:', err);
@@ -132,7 +132,7 @@ export class LoginComponent {
           this.message = 'Login successful!';
           this.success = true;
           this.showToast = true;
-          this.navCtrl.navigateRoot('/home');
+          this.navCtrl.navigateRoot('tabs');
           this.cdr.detectChanges();
         },
         error: (err) => {

@@ -1,0 +1,79 @@
+<ion-menu contentId="main-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-item
+        class="!p-0 !border-0 !bg-transparent"
+        button
+        [routerLink]="['/profile']"
+      >
+        <ion-avatar>
+          <img
+            class="w-8 h-8"
+            alt="Silhouette of a person's head"
+            src="https://ionicframework.com/docs/img/demos/avatar.svg"
+          />
+        </ion-avatar>
+        <div class="flex justify-between items-center w-full">
+          <div class="flex flex-col">
+            <span class="!text-md pl-2">Aliakbar Esmaeili</span>
+            <span class="text-red-500 pl-1 text-[10px]">
+              30% is completed
+            </span>
+          </div>
+          <div class="text-sm text-cyan-500">Profile</div>
+        </div>
+      </ion-item>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    <div class="flex flex-col text-xs gap-4 pt-2 w-full">
+      @for (item of menuItemsTop; track $index) {
+      <button
+        class="flex items-center gap-1.5 transition-colors w-full duration-200 h-7"
+        [ngClass]="{
+          'bg-cyan-100 text-cyan-900 w-full ': activeIndexTop === $index,
+        }"
+        (click)="setActiveTop($index)"
+      >
+        <ion-icon [name]="item.icon"></ion-icon>
+        {{ item.label }}
+      </button>
+      }
+    </div>
+
+    <div class="bg-cyan-400 h-0.5 my-4"></div>
+
+    <div class="flex flex-col text-xs gap-4 pt-2 w-full">
+      @for (item of menuItemsBottom; track $index) {
+      <button
+        class="flex items-center gap-1.5 transition-colors duration-200 h-7"
+        [ngClass]="{
+          'bg-cyan-100 text-cyan-700 w-full': activeIndexBottom === $index,
+        }"
+        (click)="setActiveBottom(item, $index)"
+      >
+        <ion-icon [name]="item.icon"></ion-icon>
+        {{ item.label }}
+      </button>
+      }
+    </div>
+
+    <div class="bg-cyan-400 h-0.5 mt-6"></div>
+
+    <div class="flex items-center justify-center gap-3 mt-4">
+      <img class="w-8" src="assets/images/instagram.png" alt="Instagram" />
+      <img class="w-8" src="assets/images/telegram.png" alt="Telegram" />
+    </div>
+  </ion-content>
+</ion-menu>
+
+<div class="ion-page" id="main-content">
+  <!-- Shared header -->
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+</div>

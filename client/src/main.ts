@@ -13,22 +13,31 @@ import {
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import {
+  HTTP_INTERCEPTORS,
   provideHttpClient,
   withFetch,
   withInterceptors,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { authInterceptor } from 'angular-auth-oidc-client';
+import { authInterceptor, provideAuth } from 'angular-auth-oidc-client';
+import { AuthInterceptor } from './app/auth/interceptor/auth-interceptor';
+
 
 bootstrapApplication(AppComponent, {
   providers: [
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor()]),
       withInterceptorsFromDi()
     ),
+
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
+
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
   ],
 });
