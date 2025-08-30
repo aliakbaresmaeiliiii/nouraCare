@@ -4,7 +4,7 @@ import { VerifyEmailComponent } from './auth/verify-email/verify-email.component
 
 export const routes: Routes = [
   {
-    path: '',
+    path: 'welcome',
     loadComponent: () =>
       import('./welcome/welcome.component').then((m) => m.WelcomeComponent),
   },

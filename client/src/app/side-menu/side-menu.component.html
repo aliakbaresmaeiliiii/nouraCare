@@ -1,78 +1,137 @@
-<ion-menu contentId="main-content">
-  <ion-header>
-    <ion-toolbar>
-      <ion-item
-        class="!p-0 !border-0 !bg-transparent"
-        button
-        [routerLink]="['/profile']"
-      >
-        <ion-avatar>
-          <img
-            class="w-8 h-8"
-            alt="Silhouette of a person's head"
-            src="https://ionicframework.com/docs/img/demos/avatar.svg"
-          />
-        </ion-avatar>
-        <div class="flex justify-between items-center w-full">
-          <div class="flex flex-col">
-            <span class="!text-md pl-2">Aliakbar Esmaeili</span>
-            <span class="text-red-500 pl-1 text-[10px]">
-              30% is completed
-            </span>
-          </div>
-          <div class="text-sm text-cyan-500">Profile</div>
+<ion-menu contentId="main-content" class="custom-menu">
+  <!-- Profile Section -->
+  <ion-header class="profile-header">
+    <ion-toolbar class="profile-toolbar">
+      <div class="profile-section">
+        <div class="profile-avatar-container">
+          <ion-avatar class="profile-avatar">
+            <img
+              [src]="userProfileImage || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
+              alt="Profile"
+              class="avatar-image"
+            />
+          </ion-avatar>
+          <div class="online-indicator"></div>
         </div>
-      </ion-item>
+        <div class="profile-info">
+          <h3 class="user-name">{{ userName || 'User Name' }}</h3>
+          <div class="profile-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="profileCompletion"></div>
+            </div>
+            <span class="progress-text">{{ profileCompletion }}% completed</span>
+          </div>
+        </div>
+        <ion-button 
+          fill="clear" 
+          class="edit-profile-btn"
+          [routerLink]="['/edit-profile']"
+        >
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
     </ion-toolbar>
   </ion-header>
-  <ion-content class="ion-padding">
-    <div class="flex flex-col text-xs gap-4 pt-2 w-full">
-      @for (item of menuItemsTop; track $index) {
-      <button
-        class="flex items-center gap-1.5 transition-colors w-full duration-200 h-7"
-        [ngClass]="{
-          'bg-cyan-100 text-cyan-900 w-full ': activeIndexTop === $index,
-        }"
-        (click)="setActiveTop($index)"
-      >
-        <ion-icon [name]="item.icon"></ion-icon>
-        {{ item.label }}
-      </button>
-      }
+
+  <!-- Menu Content -->
+  <ion-content class="menu-content">
+    <!-- Main Menu Items -->
+    <div class="menu-section">
+      <h4 class="section-title">Main Menu</h4>
+      <div class="menu-items">
+        @for (item of menuItemsTop; track $index) {
+        <ion-item 
+          class="menu-item" 
+          [class.active]="activeIndexTop === $index"
+          button
+          (click)="setActiveTop($index)"
+        >
+          <ion-icon 
+            [name]="item.icon" 
+            slot="start" 
+            class="menu-icon"
+          ></ion-icon>
+          <ion-label class="menu-label">{{ item.label }}</ion-label>
+          @if (item.badge) {
+          <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
+          }
+        </ion-item>
+        }
+      </div>
     </div>
 
-    <div class="bg-cyan-400 h-0.5 my-4"></div>
+    <!-- Divider -->
+    <div class="menu-divider"></div>
 
-    <div class="flex flex-col text-xs gap-4 pt-2 w-full">
-      @for (item of menuItemsBottom; track $index) {
-      <button
-        class="flex items-center gap-1.5 transition-colors duration-200 h-7"
-        [ngClass]="{
-          'bg-cyan-100 text-cyan-700 w-full': activeIndexBottom === $index,
-        }"
-        (click)="setActiveBottom(item, $index)"
-      >
-        <ion-icon [name]="item.icon"></ion-icon>
-        {{ item.label }}
-      </button>
-      }
+    <!-- Settings & Support -->
+    <div class="menu-section">
+      <h4 class="section-title">Settings & Support</h4>
+      <div class="menu-items">
+        @for (item of menuItemsBottom; track $index) {
+        <ion-item 
+          class="menu-item" 
+          [class.active]="activeIndexBottom === $index"
+          button
+          (click)="setActiveBottom(item, $index)"
+        >
+          <ion-icon 
+            [name]="item.icon" 
+            slot="start" 
+            class="menu-icon"
+          ></ion-icon>
+          <ion-label class="menu-label">{{ item.label }}</ion-label>
+          @if (item.badge) {
+          <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
+          }
+        </ion-item>
+        }
+      </div>
     </div>
 
-    <div class="bg-cyan-400 h-0.5 mt-6"></div>
+    <!-- Social Media Section -->
+    <div class="social-section">
+      <h4 class="section-title">Follow Us</h4>
+      <div class="social-links">
+        <ion-button 
+          fill="clear" 
+          class="social-btn instagram"
+          (click)="openSocialLink('instagram')"
+        >
+          <ion-icon name="logo-instagram" class="social-icon"></ion-icon>
+          <span class="social-text">Instagram</span>
+        </ion-button>
+        <ion-button 
+          fill="clear" 
+          class="social-btn telegram"
+          (click)="openSocialLink('telegram')"
+        >
+          <ion-icon name="logo-telegram" class="social-icon"></ion-icon>
+          <span class="social-text">Telegram</span>
+        </ion-button>
+      </div>
+    </div>
 
-    <div class="flex items-center justify-center gap-3 mt-4">
-      <img class="w-8" src="assets/images/instagram.png" alt="Instagram" />
-      <img class="w-8" src="assets/images/telegram.png" alt="Telegram" />
+    <!-- App Version -->
+    <div class="app-version">
+      <span class="version-text">Gahvareh v{{ appVersion }}</span>
     </div>
   </ion-content>
 </ion-menu>
 
+<!-- Main Content Header -->
 <div class="ion-page" id="main-content">
-  <!-- Shared header -->
-  <ion-header>
-    <ion-toolbar>
+  <ion-header class="main-header">
+    <ion-toolbar class="main-toolbar">
       <ion-buttons slot="start">
-        <ion-menu-button></ion-menu-button>
+        <ion-menu-button class="menu-button">
+          <ion-icon name="menu-outline"></ion-icon>
+        </ion-menu-button>
+      </ion-buttons>
+      <ion-title class="main-title">Gahvareh</ion-title>
+      <ion-buttons slot="end">
+        <ion-button fill="clear" class="notification-btn">
+          <ion-icon name="notifications-outline"></ion-icon>
+        </ion-button>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>

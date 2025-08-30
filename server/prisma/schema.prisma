@@ -12,9 +12,54 @@ model user {
   email                     String    @unique(map: "User_email_key")
   phone                     String    @unique(map: "User_phone_key")
   verificationCode          String?
+  name          String?
   verificationCodeExpiresAt DateTime?
   isVerified                Boolean   @default(false)
   createdAt                 DateTime  @default(now())
+  profileImage              String?
+  status                    Status?
+  menstrualCycleLength      Int?
+  periodDuration            Int?
+  lastPeriodStartDate       DateTime?
+    birthday                  DateTime?  
+  city                      String?
+
+  // Relations
+  addresses                 Address[]
 }
 
+enum Status {
+  PLANNING_PREGNANCY
+  PREGNANT
+  HAS_CHILD
+}
 
+model City {
+  id        Int        @id @default(autoincrement())
+  name      String
+  state     String?
+  districts District[]
+  addresses Address[]
+}
+
+model District {
+  id      Int    @id @default(autoincrement())
+  name    String
+  cityId  Int
+  city    City   @relation(fields: [cityId], references: [id])
+  addresses Address[]
+}
+
+model Address {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        user     @relation(fields: [userId], references: [id])
+  cityId      Int
+  city        City     @relation(fields: [cityId], references: [id])
+  districtId  Int?
+  district    District? @relation(fields: [districtId], references: [id])
+  addressLine String
+  latitude    Float
+  longitude   Float
+  createdAt   DateTime @default(now())
+}

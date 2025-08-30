@@ -4,7 +4,7 @@ import {
   Component,
   inject,
   Renderer2,
-  signal
+  signal,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -19,8 +19,6 @@ import { Subject } from 'rxjs';
 import { AuthService } from '../services/auth';
 import { RegisterRequest } from './model/register-request-interface';
 import { SharedModule } from 'src/app/shared/shared-module';
-
-
 
 @Component({
   selector: 'app-login',
@@ -128,7 +126,7 @@ export class LoginComponent {
       };
       this.service.login(payload).subscribe({
         next: (res) => {
-          console.log('👌👌👌👌', res);
+          localStorage.setItem('userInfo', JSON.stringify(res));
           this.message = 'Login successful!';
           this.success = true;
           this.showToast = true;

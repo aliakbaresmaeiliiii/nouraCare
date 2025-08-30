@@ -4,12 +4,676 @@
   --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
     0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
+
 ion-modal::part(backdrop) {
   background: rgba(209, 213, 219);
   opacity: 1;
 }
+
 ion-modal ion-toolbar {
-  --background: rgb(14 116 144);
+  --background: rgb(135, 224, 248);
   --color: white;
+}
+
+// Address section styling
+.address-section {
+  ion-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    
+    ion-label {
+      font-weight: 500;
+      color: var(--ion-color-dark);
+    }
+    
+    ion-button {
+      --color: var(--ion-color-primary);
+      --color-hover: var(--ion-color-primary-shade);
+    }
+    
+    ion-note {
+      font-size: 12px;
+      font-weight: 500;
+      
+      &.text-green-500 {
+        color: var(--ion-color-success);
+      }
+      
+      &.text-blue-500 {
+        color: var(--ion-color-primary);
+      }
+      
+      &.text-gray-500 {
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// Profile Header
+.profile-header {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --color: white;
+  
+  .back-button {
+    --color: white;
+  }
+  
+  .header-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  
+  .save-button {
+    --background: rgba(255, 255, 255, 0.2);
+    --color: white;
+    --border-radius: 20px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    font-weight: 500;
+    
+    &:hover {
+      --background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// Profile Content
+.profile-content {
+  --background: #f8fafc;
+  
+  .profile-form {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+// Profile Picture Section
+.profile-picture-section {
+  text-align: center;
+  margin-bottom: 32px;
+  
+  .avatar-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 16px;
+    
+    .profile-avatar {
+      width: 120px;
+      height: 120px;
+      border: 4px solid white;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      
+      .avatar-image {
+        object-fit: cover;
+        border-radius: 50%;
+      }
+    }
+    
+    .avatar-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      
+      .upload-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: transform 0.2s ease;
+        
+        &:hover {
+          transform: scale(1.1);
+        }
+        
+        .camera-icon {
+          color: white;
+          font-size: 20px;
+        }
+      }
+    }
+  }
+  
+  .avatar-hint {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+// Form Cards
+.form-card {
+  background: white;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  
+  .card-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    
+    .card-icon {
+      font-size: 24px;
+      color: #667eea;
+    }
+    
+    .card-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+  }
+  
+  .form-fields {
+    padding: 20px;
+  }
+}
+
+// Form Items
+.form-item {
+  --background: transparent;
+  --border-color: #e2e8f0;
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  margin-bottom: 16px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .form-label {
+    color: #475569;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .form-input {
+    --color: #1e293b;
+    --placeholder-color: #94a3b8;
+    font-size: 16px;
+    
+    &::part(native) {
+      padding-left: 0;
+    }
+  }
+  
+  .datetime-button {
+    --color: #667eea;
+    font-weight: 500;
+  }
+  
+  .cycle-select {
+    --color: #1e293b;
+    font-weight: 500;
+  }
+  
+  .date-button {
+    --background: #667eea;
+    --color: white;
+    --border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+// Status Section
+.status-section {
+  padding: 20px;
+  
+  .status-hint {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0 0 16px 0;
+  }
+  
+  .current-status {
+    color: #475569;
+    font-size: 14px;
+    margin: 0 0 20px 0;
+    
+    .status-value {
+      color: #667eea;
+      font-weight: 600;
+    }
+  }
+  
+  .status-list {
+    background: transparent;
+    
+    .status-item {
+      --background: #f8fafc;
+      --border-radius: 12px;
+      margin-bottom: 12px;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --padding-top: 16px;
+      --padding-bottom: 16px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      .status-radio {
+        --color: #667eea;
+        --color-checked: #667eea;
+      }
+      
+      .status-label {
+        color: #1e293b;
+        font-weight: 500;
+        font-size: 15px;
+      }
+      
+      .status-checkmark {
+        color: #10b981;
+        font-size: 18px;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+// Debug Section
+.debug-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  
+  .debug-details {
+    .debug-summary {
+      color: #64748b;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+      
+      &:hover {
+        color: #475569;
+      }
+    }
+    
+    .debug-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      
+      .debug-btn {
+        --background: #f1f5f9;
+        --color: #475569;
+        --border-radius: 8px;
+        font-size: 12px;
+        font-weight: 500;
+        
+        &:hover {
+          --background: #e2e8f0;
+        }
+      }
+    }
+  }
+}
+
+// Cycle Section
+.cycle-section {
+  padding: 20px;
+  
+  .cycle-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fef3c7;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    
+    .info-icon {
+      color: #f59e0b;
+      font-size: 20px;
+      margin-top: 2px;
+    }
+    
+    .info-text {
+      color: #92400e;
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Location Section
+.location-section {
+  padding: 20px;
+  
+  .city-button {
+    --color: #667eea;
+    font-weight: 500;
+    text-transform: none;
+    
+    &:hover {
+      --color: #5a67d8;
+    }
+  }
+  
+  .selection-checkmark {
+    color: #10b981;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .location-actions {
+    margin-top: 20px;
+    
+    .location-button {
+      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --color: white;
+      --border-radius: 12px;
+      font-weight: 500;
+      width: 100%;
+      
+      &:hover {
+        --background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+      }
+    }
+  }
+}
+
+// Map Container
+.map-container {
+  width: 100%;
+  height: 100%;
+  min-height: 70vh;
+}
+
+.map-actions {
+  padding: 20px;
+  
+  .action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    
+    .action-button {
+      flex: 1;
+      --border-radius: 8px;
+      font-weight: 500;
+    }
+  }
+  
+  .confirm-location-button {
+    --background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --color: white;
+    --border-radius: 12px;
+    font-weight: 500;
+    
+    &:hover {
+      --background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    }
+  }
+}
+
+// Modal Styling
+.cropper-modal {
+  .cropper-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    
+    .canvas-container {
+      width: 256px;
+      height: 256px;
+      background: #f1f5f9;
+      border-radius: 12px;
+      overflow: hidden;
+      
+      .crop-canvas {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    .zoom-controls {
+      text-align: center;
+      width: 100%;
+      
+      ion-label {
+        color: #475569;
+        font-weight: 500;
+        margin-bottom: 12px;
+        display: block;
+      }
+      
+      .zoom-range {
+        --bar-background: #e2e8f0;
+        --bar-background-active: #667eea;
+        --knob-background: #667eea;
+      }
+    }
+  }
+}
+
+// Date Picker Modal Styling
+.ion-modal-picker {
+  --height: auto;
+  --max-height: 80vh;
+  --border-radius: 16px;
+  --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.picker-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px 16px 0 0;
+  padding: 0;
+  
+  .picker-toolbar {
+    --background: transparent;
+    --color: white;
+    --border-color: transparent;
+    
+    .cancel-button {
+      --color: white;
+      --color-hover: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+    
+    .confirm-button {
+      --color: white;
+      --color-hover: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+  }
+  
+  .picker-title-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+    
+    .picker-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .picker-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: white;
+    }
+    
+    .picker-subtitle {
+      font-size: 14px;
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+    }
+  }
+}
+
+.date-picker-container {
+  padding: 24px;
+  background: white;
+  border-radius: 0 0 16px 16px;
+  
+  .custom-datetime {
+    --background: white;
+    --color: #1e293b;
+    --border-radius: 12px;
+    --border: 2px solid #e2e8f0;
+    
+    &::part(calendar-header) {
+      background: #f8fafc;
+      border-radius: 8px 8px 0 0;
+      padding: 16px;
+    }
+    
+    &::part(day) {
+      border-radius: 8px;
+      margin: 2px;
+      font-weight: 500;
+      
+      &:hover {
+        background: #667eea;
+        color: white;
+      }
+    }
+    
+    &::part(month-year) {
+      background: #667eea;
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 8px 16px;
+    }
+  }
+}
+
+// Dark mode support for date picker
+@media (prefers-color-scheme: dark) {
+  .date-picker-container {
+    background: #1e293b;
+    
+    .custom-datetime {
+      --background: #1e293b;
+      --color: #f1f5f9;
+      --border-color: #334155;
+      
+      &::part(calendar-header) {
+        background: #334155;
+      }
+      
+      &::part(day) {
+        &:hover {
+          background: #667eea;
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .profile-content .profile-form {
+    padding: 16px;
+  }
+  
+  .form-card {
+    margin-bottom: 20px;
+    
+    .card-header {
+      padding: 16px;
+      
+      .card-title {
+        font-size: 16px;
+      }
+    }
+    
+    .form-fields,
+    .status-section,
+    .cycle-section,
+    .location-section {
+      padding: 16px;
+    }
+  }
+  
+  .debug-buttons {
+    flex-direction: column;
+    
+    .debug-btn {
+      width: 100%;
+    }
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+}
+
+// Dark Mode Support
+@media (prefers-color-scheme: dark) {
+  .profile-content {
+    --background: #0f172a;
+  }
+  
+  .form-card {
+    background: #1e293b;
+    
+    .card-header {
+      background: linear-gradient(135deg, #334155 0%, #475569 100%);
+      border-bottom-color: #475569;
+      
+      .card-title {
+        color: #f1f5f9;
+      }
+    }
+  }
+  
+  .form-item {
+    --border-color: #475569;
+    
+    .form-label {
+      color: #cbd5e1;
+    }
+    
+    .form-input {
+      --color: #f1f5f9;
+      --placeholder-color: #64748b;
+    }
+  }
+  
+  .status-section .status-item {
+    --background: #334155;
+    
+    .status-label {
+      color: #f1f5f9;
+    }
+  }
+  
+  .cycle-info {
+    background: #451a03;
+    
+    .info-text {
+      color: #fbbf24;
+    }
+  }
 }
 

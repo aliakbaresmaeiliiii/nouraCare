@@ -8,6 +8,7 @@ import {
 import { SharedModule } from '../shared/shared-module';
 import Swiper from 'swiper';
 import { Router } from '@angular/router';
+import { User } from '../shared/services/user';
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -20,6 +21,13 @@ export class ProfileComponent implements OnInit {
   selectedTab = 'first';
   // swiperEl = viewChild('swiperContainer');
   router = inject(Router);
+  userInfoStore: any = {};
+  name: string = '';
+  email: string = '';
+  birthday: string = '';
+  city: string = '';
+  profileImage: string | null = null;
+  private userService = inject(User);
   
   userInfo = signal<any[]>([
     {
@@ -58,7 +66,46 @@ export class ProfileComponent implements OnInit {
     // Logic to edit profile
     this.router.navigate(['/profile-edit']);
   }
+
+  goEdit(field: string) {
+    this.router.navigate(['/profile-edit'], { queryParams: { focus: field } });
+  }
+
+  shareProfile() {
+    // Logic to share profile
+    console.log('Sharing profile...');
+    // You can implement native sharing or custom share dialog here
+  }
+
   ngOnInit(): void {
     this.percent = 80;
+    try {
+      this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const u = this.userInfoStore?.user || {};
+      this.name = u.name || '';
+      this.email = u.email || '';
+      this.birthday = u.birthday || '';
+      this.city = u.city || '';
+      this.profileImage = u.profileImage || null;
+    } catch {}
+    // fetch fresh from API if we have id
+    const id = this.userInfoStore?.user?.id;
+    if (id) {
+      this.userService.getUser(String(id)).subscribe((res: any) => {
+        this.name = res?.name || this.name;
+        this.email = res?.email || this.email;
+        this.birthday = res?.birthday || this.birthday;
+        this.city = res?.city || this.city;
+        this.profileImage = res?.profileImage || this.profileImage;
+        this.computeProgress();
+      });
+    }
+    this.computeProgress();
+  }
+
+  private computeProgress() {
+    const fields = [this.name, this.email, this.birthday, this.city];
+    const filled = fields.filter((v) => !!v).length;
+    this.percent = Math.round((filled / fields.length) * 100);
   }
 }

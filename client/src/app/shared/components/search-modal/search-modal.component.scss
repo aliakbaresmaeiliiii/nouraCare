@@ -1,0 +1,35 @@
+ion-item.selected {
+  --background: var(--ion-color-primary-tint);
+  --color: var(--ion-color-primary-contrast);
+}
+
+ion-item {
+  cursor: pointer;
+  
+  &:hover {
+    --background: var(--ion-color-light);
+  }
+}
+
+ion-searchbar {
+  --background: var(--ion-color-light);
+  --border-radius: 8px;
+  --box-shadow: none;
+}
+
+// Full height styling for the modal content
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+ion-content {
+  flex: 1;
+  --overflow: hidden;
+}
+
+ion-list {
+  height: 100%;
+  overflow-y: auto;
+}

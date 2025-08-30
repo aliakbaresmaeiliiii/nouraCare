@@ -1,137 +1,329 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="profile-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="tabs"></ion-back-button>
+      <ion-back-button defaultHref="tabs" class="back-button"></ion-back-button>
     </ion-buttons>
-    <ion-title>Profile</ion-title>
+    <ion-title class="header-title">Edit Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button type="submit" class="save-button" (click)="onSubmit()">
+        <ion-icon name="checkmark" slot="start"></ion-icon>
+        Save
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div class="flex justify-center pt-6 relative">
-    <!-- Avatar -->
-    <ion-avatar class="w-24 h-24 overflow-hidden">
-      <img
-        [src]="
-          profileImage || 'https://ionicframework.com/docs/img/demos/avatar.svg'
-        "
-        alt="Profile"
-        class="object-cover w-full h-full"
-      />
-    </ion-avatar>
+<ion-content class="profile-content">
+  <form [formGroup]="form" class="profile-form">
 
-    <label
-      for="fileeInput"
-      class="absolute bottom-0 right-38.5 rounded-full p-1 shadow cursor-pointer"
-    >
-      <ion-icon name="pencil" class="bg-gray-200 rounded-full p-1"></ion-icon>
-    </label>
-
-    <!-- Hidden file input -->
-    <input
-      type="file"
-      id="fileeInput"
-      accept="image/*"
-      hidden
-      (change)="onFileSelected($event)"
-    />
-  </div>
-
-  <div class="pl-2">
-    <h3>Your Status:</h3>
-    <ion-radio-group value="planning">
-      <ion-item>
-        <ion-label>I am planning to get pregnant</ion-label>
-        <ion-radio slot="start" value="planning"></ion-radio>
-      </ion-item>
-
-      <ion-item>
-        <ion-label>I am pregnant</ion-label>
-        <ion-radio slot="start" value="pregnant"></ion-radio>
-      </ion-item>
-
-      <ion-item>
-        <ion-label>I have a child</ion-label>
-        <ion-radio slot="start" value="child"></ion-radio>
-      </ion-item>
-    </ion-radio-group>
-  </div>
-
-  <h5 class="pl-2">Your menstrual cycle information:</h5>
-  <ion-item button>
-    <ion-input
-      labelPlacement="floating"
-      [value]="menstrualCycleDays()"
-       (click)="openPickerMenstrualCycle()"
-      readonly      
-    >
-      <div slot="label">
-        <span class="text-green-500"> End Date Period </span>
+    <!-- Profile Picture Section -->
+    <div class="profile-picture-section">
+      <div class="avatar-container">
+        <ion-avatar class="profile-avatar">
+          <img [src]="profileImage || 'https://ionicframework.com/docs/img/demos/avatar.svg'" alt="Profile"
+            class="avatar-image" />
+        </ion-avatar>
+        <div class="avatar-overlay">
+          <label for="fileeInput" class="upload-button">
+            <ion-icon name="camera" class="camera-icon"></ion-icon>
+          </label>
+          <input type="file" id="fileeInput" accept="image/*" hidden (change)="onFileSelected($event)" />
+        </div>
       </div>
-    </ion-input>
-  </ion-item>
+      <p class="avatar-hint">Tap to change profile picture</p>
+    </div>
 
-  <div class="flex items-start mx-4 pt-2">
-    <ion-icon name="star" class="text-yellow-500 w-4 h-4 mt-0.5"></ion-icon>
-    <ion-note class="text-xs text-gray-500 ml-2 flex-1 leading-snug">
-      The time interval between the first day of your period and the start of
-      your next one.
-    </ion-note>
-  </div>
+    <!-- Image Cropper Modal -->
+    <ion-modal [isOpen]="showCropper" (didDismiss)="closeCropper()" class="cropper-modal">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Crop Image</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="confirmCrop()" class="confirm-button">Done</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <div class="cropper-container">
+            <div class="canvas-container">
+              <canvas #cropCanvas class="crop-canvas"></canvas>
+            </div>
+            <div class="zoom-controls">
+              <ion-label>Zoom</ion-label>
+              <ion-range min="0.5" max="3" step="0.1" [value]="zoom" (ionChange)="onZoom($event)"
+                class="zoom-range"></ion-range>
+            </div>
+          </div>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
 
-  <h5 class="pl-2">How many days your period usullay last?:</h5>
+    <!-- Personal Information Card -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="person" class="card-icon"></ion-icon>
+        <h2 class="card-title">Personal Information</h2>
+      </div>
 
+      <div class="form-fields">
+        <ion-item class="form-item">
+          <ion-label position="floating" class="form-label">Full Name</ion-label>
+          <ion-input formControlName="name" class="form-input" placeholder="Enter your full name"></ion-input>
+        </ion-item>
+
+        <ion-item class="form-item">
+          <ion-label position="floating" class="form-label">Email Address</ion-label>
+          <ion-input type="email" formControlName="email" class="form-input" placeholder="Enter your email"></ion-input>
+        </ion-item>
+
+        <ion-item class="form-item">
+          <ion-label class="form-label">Birthday</ion-label>
+          <ion-datetime-button datetime="birthdayPicker" class="datetime-button"></ion-datetime-button>
+        </ion-item>
+      </div>
+    </div>
+
+    <!-- Status Selection Card -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="heart" class="card-icon"></ion-icon>
+        <h2 class="card-title">Your Status</h2>
+      </div>
+
+      <div class="status-section">
+        <p class="status-hint">Tell us about your current situation</p>
+        <p class="current-status">Current: <span class="status-value">{{ getCurrentStatus() || 'None selected' }}</span>
+        </p>
+
+        <ion-list class="status-list">
+          <ion-radio-group formControlName="status" [compareWith]="compareWith" (ionChange)="handleChange($event)">
+            @for (option of statusOptions; track option.value) {
+            <ion-item class="status-item">
+              <ion-radio slot="start" [value]="option.value" (ionSelect)="setStatus(option.value)"
+                class="status-radio"></ion-radio>
+              <ion-label class="status-label">{{ option.label }}</ion-label>
+              <ion-note slot="end" *ngIf="isStatusSelected(option.value)" class="status-checkmark">✓</ion-note>
+            </ion-item>
+            }
+          </ion-radio-group>
+        </ion-list>
+
+        <!-- Debug Section (can be hidden in production) -->
+        <div class="debug-section">
+          <details class="debug-details">
+            <summary class="debug-summary">Debug Tools</summary>
+            <div class="debug-buttons">
+              <ion-button size="small" fill="outline" (click)="setStatus('PLANNING_PREGNANCY')" class="debug-btn">Set
+                Planning</ion-button>
+              <ion-button size="small" fill="outline" (click)="setStatus('PREGNANT')" class="debug-btn">Set
+                Pregnant</ion-button>
+              <ion-button size="small" fill="outline" (click)="setStatus('HAS_CHILD')" class="debug-btn">Set Has
+                Child</ion-button>
+              <ion-button size="small" fill="outline" (click)="setStatus(null)" class="debug-btn">Clear
+                Status</ion-button>
+              <ion-button size="small" fill="outline" (click)="resetForm()" class="debug-btn">Reset Form</ion-button>
+              <ion-button size="small" fill="outline" (click)="checkFormControlState()" class="debug-btn">Check
+                State</ion-button>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cycle Information Card -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="calendar" class="card-icon"></ion-icon>
+        <h2 class="card-title">Cycle Information</h2>
+      </div>
+
+      <div class="cycle-section">
+        <div class="cycle-info">
+          <ion-icon name="star" class="info-icon"></ion-icon>
+          <p class="info-text">The time interval between the first day of your period and the start of your next one.
+          </p>
+        </div>
+
+        <ion-item class="form-item">
+          <ion-label class="form-label">Cycle Length (days)</ion-label>
+          <ion-select formControlName="menstrualCycleDay" interface="popover" class="cycle-select">
+            <ion-select-option *ngFor="let d of daysMenstrualCycle" [value]="d">{{ d }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="form-item">
+          <ion-label class="form-label">Period Duration (days)</ion-label>
+          <ion-select formControlName="periodUsual" interface="popover" class="cycle-select">
+            <ion-select-option *ngFor="let d of daysPeriodUsual" [value]="d">{{ d }}</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item class="form-item">
+          <ion-label position="stacked" class="form-label">Last Period Start</ion-label>
+          <ion-input [value]="startDate" readonly class="form-input"></ion-input>
+          <ion-button slot="end" (click)="openDatePicker()" class="date-button">Select Date</ion-button>
+        </ion-item>
+
+
+      </div>
+    </div>
+
+    <!-- Location Information Card -->
+    <div class="form-card">
+      <div class="card-header">
+        <ion-icon name="location" class="card-icon"></ion-icon>
+        <h2 class="card-title">Location</h2>
+      </div>
+
+      <div class="location-section">
+        <ion-item class="form-item">
+          <ion-label class="form-label">City</ion-label>
+          <ion-button fill="clear" (click)="openCitySearch()" [disabled]="!cities.length" class="city-button">
+            {{ getSelectedCityName() || 'Search for a city...' }}
+          </ion-button>
+          <ion-note *ngIf="selectedCityId" slot="end" class="selection-checkmark">✓</ion-note>
+        </ion-item>
+
+        <ion-item class="form-item">
+          <ion-label position="floating" class="form-label">Address Line</ion-label>
+          <ion-input formControlName="addressLine" class="form-input" placeholder="Enter your address"></ion-input>
+        </ion-item>
+
+        <div class="location-actions">
+          <ion-button fill="solid" (click)="openMapWithCurrentLocation()" class="location-button">
+            <ion-icon name="location" slot="start"></ion-icon>
+            Get My Location
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- City Search Modal -->
+    <ion-modal [isOpen]="showCitySearchModal" (didDismiss)="closeCitySearch()" [breakpoints]="[0, 1]"
+      [initialBreakpoint]="1">
+      <ng-template>
+        <app-search-modal [items]="getCitySearchItems()" [selectedValue]="selectedCityId" title="Select City"
+          (selectionCancel)="closeCitySearch()" (selectionChange)="onCitySelected($event)">
+        </app-search-modal>
+      </ng-template>
+    </ion-modal>
+
+    <!-- District Search Modal -->
+    <ion-modal [isOpen]="showDistrictSearchModal" (didDismiss)="closeDistrictSearch()" [breakpoints]="[0, 1]"
+      [initialBreakpoint]="1">
+      <ng-template>
+        <app-search-modal [items]="getDistrictSearchItems()" [selectedValue]="selectedDistrictId"
+          title="Select District" (selectionCancel)="closeDistrictSearch()"
+          (selectionChange)="onDistrictSelected($event)">
+        </app-search-modal>
+      </ng-template>
+    </ion-modal>
+
+    <!-- Map Modal -->
+    <ion-modal [isOpen]="showMapModal" (didDismiss)="closeMapModal()" [breakpoints]="[0, 1]" [initialBreakpoint]="1">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>Select Your Location</ion-title>
+            <ion-buttons slot="end">
+              <ion-button (click)="closeMapModal()" class="close-button">Close</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <div class="map-container">
+            <app-mapbox-map [coordinates]="mapCoordinates" [zoomLevel]="14" (markerMoved)="onMapLocationSelect($event)">
+            </app-mapbox-map>
+          </div>
+          <div class="map-actions">
+            <div class="action-buttons">
+              <ion-button fill="outline" (click)="refreshMapLocation()" class="action-button">
+                <ion-icon name="refresh" slot="start"></ion-icon>
+                Refresh Location
+              </ion-button>
+              <ion-button fill="outline" (click)="getCurrentLocation()" class="action-button">
+                <ion-icon name="location" slot="start"></ion-icon>
+                Get Current Location
+              </ion-button>
+            </div>
+            <ion-button expand="block" (click)="confirmMapLocation()" [disabled]="!selectedMapLocation"
+              class="confirm-location-button">
+              Confirm Location
+            </ion-button>
+          </div>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
+         <!-- Date Picker Modal -->
+     <ion-modal
+       class="ion-modal-picker"
+       #modal
+       [isOpen]="showPickerLastPeriod"
+       (didDismiss)="closeDatePicker()"
+       [breakpoints]="[0, 0.5, 1]"
+       [initialBreakpoint]="0.5"
+     >
+       <ng-template>
+         <ion-header>
+           <ion-toolbar>
+             <ion-title>Select Last Period Date</ion-title>
+             <ion-buttons slot="end">
+               <ion-button (click)="confirmPicker()">Confirm</ion-button>
+             </ion-buttons>
+           </ion-toolbar>
+         </ion-header>
+
+         <ion-content class="ion-padding">
+           <ion-picker>
+             <!-- Year -->
+             <ion-picker-column
+               [value]="tempYear"
+               (ionChange)="onChange($event,'year')"
+             >
+               @for (y of years; track $index) {
+               <ion-picker-column-option [value]="y">
+                 {{ y }}
+               </ion-picker-column-option>
+               }
+             </ion-picker-column>
+
+             <!-- Month -->
+             <ion-picker-column
+               [value]="tempMonth"
+               (ionChange)="onChange($event,'month')"
+             >
+               @for (m of months; track $index) {
+               <ion-picker-column-option [value]="m">
+                 {{ m }}
+               </ion-picker-column-option>
+               }
+             </ion-picker-column>
+
+             <!-- Day -->
+             <ion-picker-column
+               [value]="tempDay"
+               (ionChange)="onChange($event,'day')"
+             >
+               @for (d of pickerDays; track $index) {
+               <ion-picker-column-option [value]="d">
+                 {{ d }}
+               </ion-picker-column-option>
+               }
+             </ion-picker-column>
+           </ion-picker>
+         </ion-content>
+       </ng-template>
+     </ion-modal>
+
+    <!-- Birthday Picker Modal -->
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime id="birthdayPicker" (ionChange)="onBirthdayChange($event)" presentation="date"
+          show-default-buttons="true" class="birthday-picker"></ion-datetime>
+      </ng-template>
+    </ion-modal>
+
+  </form>
 </ion-content>
-
-<!-- Modal Picker menstrual cycle -->
-<ion-modal
-  class="ion-modal-picker"
-  #modal
-  [isOpen]="showPickerMenstrualPicker"
-  trigger="open-modal"
-  (didDismiss)="closePeriodSheet()"
-  [breakpoints]="[0, 0.5, 1]"
-  [initialBreakpoint]="0.5"
->
-  <ng-template>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>Select Date</ion-title>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content class="ion-padding">
-      <ion-picker>
-        <!-- Day -->
-        <ion-picker-column
-          [value]="tempCycleDays()"
-          (click)="onChangeMenstrualCycle($event)"
-        >
-          @for (d of daysMenstrualCycle; track $index) {
-          <ion-picker-column-option [value]="d">
-            {{ d }}
-          </ion-picker-column-option>
-          }
-        </ion-picker-column>
-      </ion-picker>
-
-      <ion-item>
-        <ion-buttons slot="end">
-          <ion-button
-            (click)="confirmPickerMenstrualCycle()"
-            size="small"
-            color="success"
-            >Confirm</ion-button
-          >
-        </ion-buttons>
-        <ion-buttons slot="end">
-          <ion-button (click)="cancelPickerMenstrualCycle()" size="small" color="danger"
-            >Cancel</ion-button
-          >
-        </ion-buttons>
-      </ion-item>
-    </ion-content>
-  </ng-template>
-</ion-modal>
-
-

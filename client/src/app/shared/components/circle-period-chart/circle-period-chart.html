@@ -33,10 +33,10 @@
         [attr.stroke-dashoffset]="dashOffset(s.start)"
       />
 
-      } @for (d of days; track $index) {
+      } @for (d of ringDays; track $index) {
       <text
-        [attr.x]="getDayX($index, days.length)"
-        [attr.y]="getDayY($index, days.length)"
+        [attr.x]="getDayX($index, ringDays.length)"
+        [attr.y]="getDayY($index, ringDays.length)"
         text-anchor="middle"
         alignment-baseline="middle"
         font-size="12"
@@ -53,7 +53,7 @@
     <g transform="translate(190,190)">
       <circle r="120" fill="#B4E4FD"></circle>
       <text class="center-sub" text-anchor="middle" font-size="16" y="-78">
-        {{today | date: 'dd MMMM'}}
+        {{ todayDate | date: 'dd MMMM' }}
       </text>
       <text class="center-sub" text-anchor="middle" font-size="14" y="-20">
         High fertility chance
@@ -79,6 +79,30 @@
       </g>
     </g>
 
+    <!-- Outer labels -->
+    <g transform="translate(190,190)">
+      <text
+        [attr.x]="periodLabelX"
+        [attr.y]="periodLabelY"
+        text-anchor="middle"
+        alignment-baseline="middle"
+        font-size="12"
+        fill="#A01D1E"
+      >
+        {{ periodLength }}d
+      </text>
+      <text
+        [attr.x]="cycleLabelX"
+        [attr.y]="cycleLabelY"
+        text-anchor="middle"
+        alignment-baseline="middle"
+        font-size="12"
+        fill="#666"
+      >
+        {{ cycleLength }}d
+      </text>
+    </g>
+
     <!-- Ovulation heart -->
     <g
       [attr.transform]="'translate('+(200+ovulationX)+','+(200+ovulationY)+') rotate('+ovulationRotation+')'"
@@ -97,7 +121,7 @@
       <span class="w-3 h-3 bg-red-500 rounded-full"></span>
       <span>Period</span>
     </div>
-    <div class="text-sm">Start 10 August</div>
+    <div class="text-sm">Start {{ periodStartLabel }} · {{ periodLength }} days</div>
   </div>
 
   <div class="flex justify-between items-center w-full py-2 border-b">
@@ -105,7 +129,7 @@
       <span class="w-3 h-3 bg-green-500 rounded-full"></span>
       <span>Fertility </span>
     </div>
-    <div class="text-sm">Start 15 August</div>
+    <div class="text-sm">Start {{ fertilityStartLabel }} · {{ fertileWindowLength }} days</div>
   </div>
 
   <div class="flex justify-between items-center w-full py-2 border-b">
@@ -125,7 +149,7 @@
       </svg>
       <span>Ovulation Day </span>
     </div>
-    <div class="text-sm">Start 20 August</div>
+    <div class="text-sm">Start {{ ovulationLabel }} · {{ ovulationLengthDays }} day</div>
   </div>
 
   <div class="flex justify-between items-center w-full py-2">
@@ -133,7 +157,7 @@
       <span class="w-3 h-3 bg-purple-500 rounded-full"></span>
       <span>PMS </span>
     </div>
-    <div class="text-sm">Start 25 August</div>
+    <div class="text-sm">Start {{ pmsStartLabel }} · {{ pmsLength }} days</div>
   </div>
 </div>
 
@@ -168,6 +192,7 @@
       </ion-header>
 
       <div class="flex flex-col gap-4 mt-4">
+       
         <ion-item button (click)="openButtonSheet()">
           <ion-input
             labelPlacement="floating"
@@ -307,7 +332,7 @@
           [value]="tempDay"
           (ionChange)="onChange($event,'day')"
         >
-          @for (d of days; track $index) {
+          @for (d of pickerDays; track $index) {
           <ion-picker-column-option [value]="d">
             {{ d }}
           </ion-picker-column-option>

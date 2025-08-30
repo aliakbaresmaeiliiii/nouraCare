@@ -1,79 +1,1158 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { IonModal } from '@ionic/angular/standalone';
+import { OverlayEventDetail } from '@ionic/core/components';
 import { addIcons } from 'ionicons';
-import { pencil, star } from 'ionicons/icons';
+import { pencil, star, location, refresh, checkmark, camera, person, heart, calendar, close } from 'ionicons/icons';
 import { SharedModule } from '../shared/shared-module';
-
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { User } from '../shared/services/user';
+import { ActivatedRoute } from '@angular/router';
+import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.scss'],
   imports: [SharedModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class EditProfileComponent implements OnInit {
+  userService = inject(User);
+  cycleSettings = inject(CycleSettingsService);
+  route = inject(ActivatedRoute);
   profileImage: string | null = null;
   selectedProfile: File | null = null;
-  showPickerMenstrualPicker = false;
-  showPickerPeriodUsually = false;
+  showCropper = false;
+  zoom = 1;
+  private imageBitmap: ImageBitmap | null = null;
+  @ViewChild('cropCanvas') cropCanvas!: ElementRef<HTMLCanvasElement>;
+
+  showPicker = false;
+
+  // Arrays for picker options
   daysMenstrualCycle: number[] = Array.from({ length: 41 }, (_, i) => i + 20);
-  tempPeriodDays: number[] = Array.from({ length: 8 }, (_, i) => i + 3);
-  tempCycleDays = signal<number>(20);
-  menstrualCycleDays = signal<number>(20);
+  daysPeriodUsual: number[] = Array.from({ length: 8 }, (_, i) => i + 3);
 
-  temUsualPeriodDays = signal<number>(3);
-  usualPeriodDays = signal<number>(3);
+  // Final values bound to inputs
+  menstrualCycleDay = 28; // default cycle length
+  usualPeriodDays = 5; // default period length
 
-  constructor() {
-    addIcons({ pencil, star });
+  // Temporary values while picker is open
+  tempCycleDay = this.menstrualCycleDay;
+  tempUsualPeriodDay = this.usualPeriodDays;
+
+  showPickerLastPeriod = false;
+  startDate: any;
+  
+  // Picker properties for the new ion-picker format
+  tempYear: number = new Date().getFullYear();
+  tempMonth: number = new Date().getMonth() + 1;
+  tempDay: number = new Date().getDate();
+  years: number[] = Array.from({ length: 25 }, (_, i) => new Date().getFullYear() - 12 + i);
+  months: number[] = Array.from({ length: 12 }, (_, i) => i + 1);
+  pickerDays: number[] = [];
+  
+  // Date constraints for the picker (not used with ion-picker)
+  message: string = '';
+  name = '';
+  @ViewChild(IonModal) modal!: IonModal;
+  userInfoStore: any;
+
+  statusOptions = [
+    { label: 'I am planning to get pregnant', value: 'PLANNING_PREGNANCY' },
+    { label: 'I am pregnant', value: 'PREGNANT' },
+    { label: 'I have a child', value: 'HAS_CHILD' },
+  ];
+
+  constructor(private fb: FormBuilder) {
+    addIcons({ pencil, star, location, refresh, checkmark, camera, person, heart, calendar, close });
   }
 
-  ngOnInit() {}
+  form: FormGroup = this.fb.group({
+    profileImage: [''],
+    status: [null, Validators.required],
+    menstrualCycleDay: [28],
+    periodUsual: [5],
+    lastPeriodStartDate: [null],
+    name: [''],
+    birthday: [''],
+    city: [''],
+    // Address reactive controls
+    cityId: [null],
+    districtId: [null],
+    addressLine: [''],
+    email: [''],
+  });
+  // Method to check form control state
+  checkFormControlState(): void {
+    // Form state checking functionality
+  }
+
+  ngOnInit() {
+    console.log('=== Component Initialization ===');
+    this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    console.log('User info store:', this.userInfoStore);
+    
+    // Check initial form state
+    this.checkFormControlState();
+    
+    this.route.queryParamMap.subscribe((params) => {
+      const focus = params.get('focus');
+      setTimeout(() => {
+        if (focus === 'name') {
+          const el = document.querySelector('ion-input[formControlName="name"] input') as HTMLInputElement | null;
+          el?.focus();
+        } else if (focus === 'email') {
+          const el = document.querySelector('ion-input[formControlName="email"] input') as HTMLInputElement | null;
+          el?.focus();
+        } else if (focus === 'city') {
+          const el = document.querySelector('ion-input[formControlName="city"] input') as HTMLInputElement | null;
+          el?.focus();
+        } else if (focus === 'birthday') {
+          const btn = document.querySelector('ion-datetime-button[datetime="birthdayPicker"]') as HTMLElement | null;
+          btn?.click();
+        }
+      });
+    });
+
+    // Load existing user data from API and patch the form
+    try {
+      const id = this.userInfoStore?.user?.id;
+      if (id) {
+        this.userService.getUser(String(id)).subscribe((res: any) => {
+          // Map server fields to form controls
+          const patch: any = {
+            name: res?.name ?? '',
+            email: res?.email ?? '',
+            city: res?.city ?? '',
+            birthday: res?.birthday ?? '',
+            menstrualCycleDay: res?.menstrualCycleLength ?? 28,
+            periodUsual: res?.periodDuration ?? 5,
+            lastPeriodStartDate: res?.lastPeriodStartDate ?? null,
+            profileImage: res?.profileImage ?? '',
+            status: res?.status ?? null,
+          };
+          this.form.patchValue(patch);
+          
+          // Check form state after patch
+          setTimeout(() => {
+            this.checkFormControlState();
+          }, 100);
+          
+          // reflect last period start in the local startDate for the readonly input
+          this.startDate = patch.lastPeriodStartDate;
+        });
+
+        // Load user addresses
+        this.userService.listUserAddresses(String(id)).subscribe((addresses: any[]) => {
+          if (addresses && addresses.length > 0) {
+            const address = addresses[0]; // Get first address
+            this.selectedCityId = address.cityId;
+            this.selectedDistrictId = address.districtId;
+            this.addressLine = address.addressLine;
+            this.latitude = address.latitude;
+            this.longitude = address.longitude;
+            
+            // Patch form with address data
+            this.form.patchValue({
+              cityId: address.cityId,
+              districtId: address.districtId,
+              addressLine: address.addressLine
+            });
+
+            // Load districts for selected city
+            if (this.selectedCityId) {
+              this.loadDistricts(this.selectedCityId);
+            }
+          }
+        });
+      }
+    } catch {}
+
+    // Load geo data
+    this.loadCities();
+    setTimeout(() => this.initMap(), 0);
+    
+    // Initialize picker days array
+    this.updatePickerDays();
+  }
+
+  initMap() {
+    if (this.latitude && this.longitude) {
+      this.mapCoordinates = [{ lat: this.latitude, lng: this.longitude }];
+    } else {
+      // Default coordinates (can be set to any default location)
+      this.mapCoordinates = [{ lat: 35.744711325653654, lng: 51.375447552429875 }];
+    }
+  }
+  
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.profileImage = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image file size should be less than 5MB');
+        return;
+      }
+      
+      this.selectedProfile = file;
+      
+      // Try modern createImageBitmap first, fallback to FileReader
+      if (typeof createImageBitmap === 'function') {
+        try {
+          createImageBitmap(file).then((bmp) => {
+            this.imageBitmap = bmp;
+            this.showCropper = true;
+            
+            setTimeout(() => {
+              this.renderCrop();
+              // Auto-confirm and close the dialog right after choosing the image
+              setTimeout(() => this.confirmCrop(), 100);
+            }, 100);
+          }).catch((error) => {
+            console.error('Error creating image bitmap:', error);
+            this.fallbackImageProcessing(file);
+          });
+        } catch (error) {
+          console.error('Error in createImageBitmap:', error);
+          this.fallbackImageProcessing(file);
+        }
+      } else {
+        // Fallback for older browsers
+        this.fallbackImageProcessing(file);
+      }
     }
   }
 
-  openPickerMenstrualCycle(){
-    this.showPickerMenstrualPicker = true;
-
+  // Fallback method for browsers that don't support createImageBitmap
+  private fallbackImageProcessing(file: File) {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // Create a canvas to convert to ImageBitmap-like object
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          
+          // Convert canvas to ImageBitmap-like object
+          this.imageBitmap = canvas as any;
+          this.showCropper = true;
+          
+          setTimeout(() => {
+            this.renderCrop();
+            setTimeout(() => this.confirmCrop(), 100);
+          }, 100);
+        }
+      };
+      img.src = e.target?.result as string;
+    };
+    
+    reader.onerror = () => {
+      console.error('Error reading file');
+      alert('Error reading image file. Please try again.');
+    };
+    
+    reader.readAsDataURL(file);
   }
 
-   closePeriodSheet() {
-    this.showPickerMenstrualPicker = false;
+  private renderCrop() {
+    if (!this.cropCanvas || !this.cropCanvas.nativeElement || !this.imageBitmap) return;
+    const canvas = this.cropCanvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const size = 256;
+    canvas.width = size;
+    canvas.height = size;
+    ctx.clearRect(0, 0, size, size);
+    const iw = this.imageBitmap.width;
+    const ih = this.imageBitmap.height;
+    const scale = this.zoom * Math.max(size / iw, size / ih);
+    const dw = iw * scale;
+    const dh = ih * scale;
+    const dx = (size - dw) / 2;
+    const dy = (size - dh) / 2;
+    ctx.drawImage(this.imageBitmap, dx, dy, dw, dh);
+  }
+
+  onZoom(ev: any) {
+    this.zoom = Number(ev.detail.value ?? 1);
+    this.renderCrop();
+  }
+
+  closeCropper() {
+    this.showCropper = false;
+    this.imageBitmap = null;
+    
+    // Reset file input so user can select the same image again if needed
+    const fileInput = document.getElementById('fileeInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
+
+  private canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+    return new Promise((resolve) => canvas.toBlob((b) => resolve(b as Blob), 'image/jpeg', 0.9));
+  }
+
+  compareWith(o1: any, o2: any): boolean {
+    // Handle both cases:
+    // 1. When comparing option objects (o1 and o2 are both option objects)
+    // 2. When comparing option object with form value (o1 is option, o2 is string value)
+    if (o1 && o2) {
+      if (typeof o1 === 'object' && typeof o2 === 'object') {
+        // Both are option objects
+        return o1.value === o2.value;
+      } else if (typeof o1 === 'object' && typeof o2 === 'string') {
+        // o1 is option object, o2 is string value
+        return o1.value === o2;
+      } else if (typeof o1 === 'string' && typeof o2 === 'object') {
+        // o1 is string value, o2 is option object
+        return o1 === o2.value;
+      } else {
+        // Both are strings
+        return o1 === o2;
+      }
+    }
+    return false;
+  }
+
+  handleChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    // Status change handled
   }
 
 
-  onChangeMenstrualCycle(event: any) {
-    this.tempCycleDays.set(event.detail.value);
+
+  confirmPicker() {
+    try {
+      // Format the date for display and storage using picker values
+      const formattedDate = `${this.tempYear}-${String(this.tempMonth).padStart(2, '0')}-${String(this.tempDay).padStart(2, '0')}`;
+
+      // Update the start date and form
+      this.startDate = formattedDate;
+      this.form.patchValue({ lastPeriodStartDate: this.startDate });
+      
+      // Close the date picker modal
+      this.closeDatePicker();
+      
+      // Show success feedback
+      this.showSuccessAlert('Last period start date updated successfully!');
+      
+    } catch (error) {
+      console.error('Error in confirmPicker:', error);
+      this.showErrorAlert('Error selecting date. Please try again.');
+    }
   }
 
-  confirmPickerMenstrualCycle() {
-    this.menstrualCycleDays.set(this.tempCycleDays());
-    this.showPickerMenstrualPicker = false;
+
+
+  // Old cancel method removed - now using cancelDatePicker()
+  onWillDismiss(event: CustomEvent<OverlayEventDetail>) {
+    if (event.detail.role === 'confirm') {
+      this.message = `Hello, ${event.detail.data}!`;
+    }
   }
 
-  cancelPickerMenstrualCycle() {
-    this.showPickerMenstrualPicker = false;
+  onBirthdayChange(event: any) {
+    debugger;
+    const date = event.detail?.value;
+    this.form.patchValue({ birthday: date });
   }
 
-  onChangetemUsualPeriod(event: any) {
-    // just store temporary value
-    this.temUsualPeriodDays.set(event.detail.value);
+  onSubmit() {
+    const formValues = this.form.value;
+    const id = this.userInfoStore.user.id;
+
+    // Show loading state
+    this.showLoadingAlert('Saving profile...');
+
+    // also reflect in localStorage userInfo if present for profile display
+    try {
+      const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      store.user = {
+        ...(store.user || {}),
+        name: formValues.name,
+        email: formValues.email,
+        birthday: formValues.birthday,
+        city: formValues.city,
+      };
+      localStorage.setItem('userInfo', JSON.stringify(store));
+    } catch {}
+
+    // Persist locally for the app chart
+    this.cycleSettings.setCycleLength(formValues.menstrualCycleDay ?? 28);
+    this.cycleSettings.setPeriodLength(formValues.periodUsual ?? 5);
+    this.cycleSettings.setLastPeriodStart(formValues.lastPeriodStartDate ?? null);
+
+    // Map form to server DTO field names
+    const payload: any = {
+      name: formValues.name,
+      email: formValues.email,
+      birthday: formValues.birthday,
+      city: formValues.city,
+      profileImage: formValues.profileImage,
+      status: formValues.status,
+      menstrualCycleLength: formValues.menstrualCycleDay,
+      periodDuration: formValues.periodUsual,
+      lastPeriodStartDate: formValues.lastPeriodStartDate,
+    };
+
+    this.userService.updateUserInfo(id, payload).subscribe({
+      next: (res: any) => {
+        // Save address if provided
+        if (this.selectedCityId && this.addressLine && this.latitude && this.longitude) {
+          const addrPayload = {
+            cityId: this.selectedCityId,
+            districtId: this.selectedDistrictId || undefined,
+            addressLine: this.addressLine,
+            latitude: this.latitude,
+            longitude: this.longitude,
+          };
+          
+          this.userService.createAddress(String(id), addrPayload).subscribe({
+            next: (addrRes: any) => {
+              this.showSuccessAlert('Profile updated successfully!');
+            },
+            error: (addrError: any) => {
+              console.error('Error creating address:', addrError);
+              this.showSuccessAlert('Profile updated successfully! (Address could not be saved)');
+            }
+          });
+        } else {
+          // No address to save, show success immediately
+          this.showSuccessAlert('Profile updated successfully!');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error updating profile:', error);
+        this.showErrorAlert('Failed to update profile. Please try again.');
+      }
+    });
   }
 
-  confirmUsualPeriodDays() {
-    this.usualPeriodDays.set(this.temUsualPeriodDays()); // update state only here
-    this.showPickerPeriodUsually = false;
+  async confirmCrop() {
+    try {
+      if (!this.cropCanvas?.nativeElement) {
+        console.error('Crop canvas not available');
+        return;
+      }
+      
+      const blob = await this.canvasToBlob(this.cropCanvas.nativeElement);
+      
+      const id = this.userInfoStore?.user?.id;
+      if (!id) {
+        console.error('No user ID available');
+        alert('User not found. Please try again.');
+        return;
+      }
+      
+      this.userService.uploadProfileImage(String(id), blob).subscribe({
+        next: (res: any) => {
+          
+          // Set preview and form control
+          this.profileImage = res.url;
+          this.form.patchValue({ profileImage: res.url });
+          
+          // Update local storage for profile page
+          try {
+            const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            store.user = { ...(store.user || {}), profileImage: res.url };
+            localStorage.setItem('userInfo', JSON.stringify(store));
+          } catch (error) {
+            console.error('Error updating local storage:', error);
+          }
+          
+          this.closeCropper();
+          this.showSuccessAlert('Profile picture updated successfully!');
+        },
+        error: (error: any) => {
+          console.error('Error uploading image:', error);
+          alert('Failed to upload image. Please try again.');
+          this.closeCropper();
+        }
+      });
+    } catch (error) {
+      console.error('Error in confirmCrop:', error);
+      alert('Error processing image. Please try again.');
+      this.closeCropper();
+    }
   }
 
-  cancelPickerPeriodUsually() {
-    this.showPickerPeriodUsually = false;
+  // --- GEO & MAP ---
+  cities: any[] = [];
+  districts: any[] = [];
+  selectedCityId: number | null = null;
+  selectedDistrictId: number | null = null;
+  addressLine: string = '';
+  latitude: number | null = null;
+  longitude: number | null = null;
+  
+  // Loading states
+  isLoadingDistricts = false;
+  
+  // Search modals
+  showCitySearchModal = false;
+  showDistrictSearchModal = false;
+
+  // --- GEO & MAP METHODS ---
+  loadCities() {
+    this.userService.listCities().subscribe({
+      next: (res: any[]) => {
+        this.cities = res || [];
+      },
+      error: (error: any) => {
+        console.error('Error loading cities:', error);
+        this.cities = [];
+      }
+    });
+  }
+
+  loadDistricts(cityId: number) {
+    this.isLoadingDistricts = true;
+    
+    this.userService.listDistricts(cityId).subscribe({
+      next: (res: any[]) => {
+        this.districts = res || [];
+        
+        // If no districts found, show a message or handle accordingly
+        if (this.districts.length === 0) {
+          // No districts found
+        }
+        this.isLoadingDistricts = false;
+        
+        // Log state after districts are loaded
+        this.logCurrentState();
+      },
+      error: (error: any) => {
+        console.error('Error loading districts for city', cityId, ':', error);
+        this.districts = [];
+        this.isLoadingDistricts = false;
+      }
+    });
+  }
+
+  onCityChange(ev: any) {
+    this.selectedCityId = Number(ev.detail.value);
+    this.form.patchValue({ cityId: this.selectedCityId });
+    
+    // Reset district when city changes
+    this.selectedDistrictId = null;
+    this.form.patchValue({ districtId: null });
+    this.districts = [];
+    
+    if (this.selectedCityId) {
+      this.loadDistricts(this.selectedCityId);
+    }
+  }
+
+  onDistrictChange(ev: any) {
+    this.selectedDistrictId = Number(ev.detail.value);
+    this.form.patchValue({ districtId: this.selectedDistrictId });
+  }
+
+  onAddressLineChange(ev: any) {
+    this.addressLine = ev.detail.value;
+    this.form.patchValue({ addressLine: this.addressLine });
+  }
+
+  onCitySelectOpen() {
+    // Reset city filter when opening
+    // Force the select to reset its search state
+    setTimeout(() => {
+      const citySelect = document.querySelector('ion-select[formControlName="cityId"]') as any;
+      if (citySelect) {
+        citySelect.value = null;
+        citySelect.reset();
+      }
+    }, 100);
+  }
+
+  onDistrictSelectOpen() {
+    // Reset district filter when opening
+    // Force the select to reset its search state
+    setTimeout(() => {
+      const districtSelect = document.querySelector('ion-select[formControlName="districtId"]') as any;
+      if (districtSelect) {
+        districtSelect.value = null;
+        districtSelect.reset();
+      }
+    }, 100);
+  }
+
+  onCitySelectCancel() {
+    // Reset the select component
+    setTimeout(() => {
+      const citySelect = document.querySelector('ion-select[formControlName="cityId"]') as any;
+      if (citySelect) {
+        citySelect.reset();
+      }
+    }, 100);
+  }
+
+  onDistrictSelectCancel() {
+    // Reset the select component
+    setTimeout(() => {
+      const districtSelect = document.querySelector('ion-select[formControlName="districtId"]') as any;
+      if (districtSelect) {
+        districtSelect.reset();
+      }
+    }, 100);
+  }
+
+  // Custom search methods using the new search modal
+  openCitySearch() {
+    this.showCitySearchModal = true;
+  }
+
+  openDistrictSearch() {
+    // Only open district search if a city is selected and districts are available
+    if (!this.selectedCityId) {
+      return;
+    }
+    
+    if (this.districts.length === 0) {
+      return;
+    }
+    
+    this.showDistrictSearchModal = true;
+  }
+
+  closeCitySearch() {
+    this.showCitySearchModal = false;
+  }
+
+  closeDistrictSearch() {
+    this.showDistrictSearchModal = false;
+  }
+
+  onCitySelected(cityId: number) {
+    this.selectedCityId = cityId;
+    this.form.patchValue({ cityId: cityId });
+    this.closeCitySearch();
+    
+    // Reset district when city changes
+    this.selectedDistrictId = null;
+    this.form.patchValue({ districtId: null });
+    this.districts = [];
+    
+    if (this.selectedCityId) {
+      this.loadDistricts(this.selectedCityId);
+    }
+    
+    // Log state after city selection
+    setTimeout(() => this.logCurrentState(), 100);
+  }
+
+  onDistrictSelected(districtId: any) {
+    this.selectedDistrictId = districtId;
+    this.form.patchValue({ districtId: districtId });
+    this.closeDistrictSearch();
+  }
+
+  // Convert cities to search items format
+  getCitySearchItems() {
+    return this.cities.map(city => ({
+      text: `${city.name}, ${city.state}`,
+      value: city.id,
+      city: city
+    }));
+  }
+
+  // Convert districts to search items format
+  getDistrictSearchItems() {
+    return this.districts.map(district => ({
+      text: district.name,
+      value: district.id,
+      district: district
+    }));
+  }
+
+  getSelectedCityName(): string {
+    if (!this.selectedCityId) return '';
+    const city = this.cities.find(c => c.id === this.selectedCityId);
+    return city ? `${city.name}, ${city.state}` : '';
+  }
+
+  getSelectedDistrictName(): string {
+    if (!this.selectedDistrictId) return '';
+    const district = this.districts.find(d => d.id === this.selectedDistrictId);
+    return district ? district.name : '';
+  }
+
+  // Helper method to check if districts are available
+  areDistrictsAvailable(): boolean {
+    return this.selectedCityId !== null && this.districts.length > 0;
+  }
+
+  // Helper method to check if district search should be enabled
+  canSearchDistricts(): boolean {
+    return this.selectedCityId !== null && !this.isLoadingDistricts && this.districts.length > 0;
+  }
+
+  // Helper method to get district availability message
+  getDistrictAvailabilityMessage(): string {
+    if (!this.selectedCityId) {
+      return 'Please select a city first';
+    }
+    if (this.isLoadingDistricts) {
+      return 'Loading districts...';
+    }
+    if (this.districts.length === 0) {
+      return 'No districts available for this city';
+    }
+    return 'Search for a district...';
+  }
+
+  // Debug method to log current state
+  logCurrentState() {
+    // State logging functionality
+  }
+
+  showMapModal = false;
+  mapCoordinates: { lat: number; lng: number }[] = [];
+  selectedMapLocation: { lat: number; lng: number; address: string } | null = null;
+
+  openMapWithCurrentLocation() {
+    // Show loading state first
+    this.showMapModal = true;
+    this.selectedMapLocation = null;
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        this.latitude = pos.coords.latitude;
+        this.longitude = pos.coords.longitude;
+        this.mapCoordinates = [{ lat: this.latitude, lng: this.longitude }];
+      }, (error) => {
+        // fallback to default location
+        this.mapCoordinates = [{ lat: 35.744711325653654, lng: 51.375447552429875 }];
+      });
+    } else {
+      this.mapCoordinates = [{ lat: 35.744711325653654, lng: 51.375447552429875 }];
+    }
+  }
+
+  openMapModal() {
+    this.showMapModal = true;
+  }
+  
+  closeMapModal() {
+    this.showMapModal = false;
+    this.selectedMapLocation = null;
+  }
+
+  // Method to handle map location selection from Mapbox
+  onMapLocationSelect(location: { lat: number; lng: number; address: string }) {
+    this.selectedMapLocation = location;
+  }
+
+  // Method to confirm the selected map location
+  confirmMapLocation() {
+    if (this.selectedMapLocation) {
+      this.latitude = this.selectedMapLocation.lat;
+      this.longitude = this.selectedMapLocation.lng;
+      this.addressLine = this.selectedMapLocation.address;
+      this.form.patchValue({ addressLine: this.addressLine });
+      this.closeMapModal();
+    }
+  }
+
+  // Method to refresh the map location
+  refreshMapLocation() {
+    // This will trigger the map component to refresh its location
+    if (this.showMapModal) {
+      // Re-open the modal to refresh the map
+      this.closeMapModal();
+      setTimeout(() => {
+        this.openMapWithCurrentLocation();
+      }, 100);
+    }
+  }
+
+  // Method to get current location and update map
+  getCurrentLocation() {
+    if (navigator.geolocation) {
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
+
+
+
+          // Update coordinates
+          this.latitude = lat;
+          this.longitude = lng;
+          this.mapCoordinates = [{ lat, lng }];
+
+          // Update the map coordinates to trigger refresh
+          this.selectedMapLocation = {
+            lat,
+            lng,
+            address: 'Current Location'
+          };
+
+
+        },
+        error => {
+          console.error('Error getting current location:', error);
+          let errorMessage = '';
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location access denied. Please allow location access in your browser settings.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information unavailable. Please try again.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out. Please try again.';
+              break;
+            default:
+              errorMessage = 'An unknown error occurred while getting location.';
+          }
+          
+          alert(errorMessage);
+        },
+        options
+      );
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  }
+
+  // Method to manually set status (for debugging)
+  setStatus(statusValue: string | null): void {
+    this.form.patchValue({ status: statusValue });
+  }
+
+  // Method to get current status value
+  getCurrentStatus(): string | null {
+    return this.form.get('status')?.value;
+  }
+
+  // Method to check if a status option is selected
+  isStatusSelected(statusValue: string): boolean {
+    const currentStatus = this.form.get('status')?.value;
+    // Handle null case - if currentStatus is null, no option is selected
+    if (currentStatus === null) {
+      return false;
+    }
+    return currentStatus === statusValue;
+  }
+
+  // Method to reset and reinitialize the form
+  resetForm(): void {
+    this.form.reset();
+  }
+
+  // Method to manually initialize the form with default values
+  initializeFormWithDefaults(): void {
+    console.log('Initializing form with defaults...');
+    this.form.patchValue({
+      status: null,
+      menstrualCycleDay: 28,
+      periodUsual: 5,
+      name: '',
+      email: '',
+      city: '',
+      birthday: '',
+      profileImage: '',
+      lastPeriodStartDate: null,
+      cityId: null,
+      districtId: null,
+      addressLine: ''
+    });
+    console.log('Form after initialization:', this.form.value);
+  }
+
+  // Method to manually trigger form initialization
+  triggerFormInit(): void {
+    console.log('=== Manual Form Initialization ===');
+    console.log('Current form state:', this.form.value);
+    console.log('Status options:', this.statusOptions);
+    
+    // Try to set a specific status
+    this.setStatus('PLANNING_PREGNANCY');
+    
+    // Check if the radio button should be selected
+    setTimeout(() => {
+      this.checkFormControlState();
+    }, 100);
+  }
+
+  // Method to test radio button selection
+  testRadioSelection(): void {
+    this.statusOptions.forEach(option => {
+
+    });
+  }
+
+  // Method to show loading alert
+  showLoadingAlert(message: string): void {
+    const loadingDialog = document.createElement('div');
+    loadingDialog.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+
+    const content = document.createElement('div');
+    content.style.cssText = `
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      max-width: 300px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    `;
+
+    const spinner = document.createElement('div');
+    spinner.innerHTML = '⏳';
+    spinner.style.cssText = `
+      font-size: 48px;
+      margin-bottom: 16px;
+      animation: spin 1s linear infinite;
+    `;
+
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    const messageElement = document.createElement('p');
+    messageElement.textContent = message;
+    messageElement.style.cssText = `
+      margin: 0;
+      color: #333;
+      font-size: 16px;
+      font-weight: 500;
+    `;
+
+    content.appendChild(spinner);
+    content.appendChild(messageElement);
+    loadingDialog.appendChild(content);
+    document.body.appendChild(loadingDialog);
+
+    // Store reference for removal
+    (this as any).loadingDialog = loadingDialog;
+  }
+
+  // Method to hide loading alert
+  hideLoadingAlert(): void {
+    if ((this as any).loadingDialog) {
+      (this as any).loadingDialog.remove();
+      (this as any).loadingDialog = null;
+    }
+  }
+
+  // Method to show success alert
+  showSuccessAlert(message: string): void {
+    // Hide loading first
+    this.hideLoadingAlert();
+
+    const successDialog = document.createElement('div');
+    successDialog.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 300px;
+      animation: slideIn 0.3s ease-out;
+    `;
+
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    const messageElement = document.createElement('div');
+    messageElement.innerHTML = `✅ ${message}`;
+    messageElement.style.cssText = `
+      font-size: 14px;
+      font-weight: 500;
+    `;
+
+    successDialog.appendChild(messageElement);
+    document.body.appendChild(successDialog);
+
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+      if (successDialog.parentNode) {
+        successDialog.remove();
+      }
+    }, 3000);
+  }
+
+  // Method to show error alert
+  showErrorAlert(message: string): void {
+    // Hide loading first
+    this.hideLoadingAlert();
+
+    const errorDialog = document.createElement('div');
+    errorDialog.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #f44336;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 300px;
+      animation: slideIn 0.3s ease-out;
+    `;
+
+    // Add CSS animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    const messageElement = document.createElement('div');
+    messageElement.innerHTML = `❌ ${message}`;
+    messageElement.style.cssText = `
+      font-size: 14px;
+      font-weight: 500;
+    `;
+
+    errorDialog.appendChild(messageElement);
+    document.body.appendChild(errorDialog);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      if (errorDialog.parentNode) {
+        errorDialog.remove();
+      }
+    }, 5000);
+  }
+
+  // Method to open the date picker modal for last period start
+  openDatePicker() {
+    // Initialize picker values from startDate or current date
+    if (this.startDate) {
+      try {
+        const date = this.startDate instanceof Date ? this.startDate : new Date(this.startDate);
+        if (!isNaN(date.getTime())) {
+          this.tempYear = date.getFullYear();
+          this.tempMonth = date.getMonth() + 1;
+          this.tempDay = date.getDate();
+        } else {
+          const now = new Date();
+          this.tempYear = now.getFullYear();
+          this.tempMonth = now.getMonth() + 1;
+          this.tempDay = now.getDate();
+        }
+      } catch (error) {
+        const now = new Date();
+        this.tempYear = now.getFullYear();
+        this.tempMonth = now.getMonth() + 1;
+        this.tempDay = now.getDate();
+      }
+    } else {
+      const now = new Date();
+      this.tempYear = now.getFullYear();
+      this.tempMonth = now.getMonth() + 1;
+      this.tempDay = now.getDate();
+    }
+    
+    // Update the days array for the selected month
+    this.updatePickerDays();
+    
+    this.showPickerLastPeriod = true;
+  }
+
+  // Method to close the date picker modal
+  closeDatePicker() {
+    console.log('Closing date picker...');
+    this.showPickerLastPeriod = false;
+  }
+
+  // Method to cancel date picker selection
+  cancelDatePicker() {
+    console.log('Cancelling date picker...');
+    this.showPickerLastPeriod = false;
+  }
+
+  // Method to handle picker column changes
+  onChange(event: any, type: 'year' | 'month' | 'day') {
+    const value = event.detail.value;
+    
+    switch (type) {
+      case 'year':
+        this.tempYear = value;
+        break;
+      case 'month':
+        this.tempMonth = value;
+        break;
+      case 'day':
+        this.tempDay = value;
+        break;
+    }
+    
+    // Update days array when year or month changes
+    if (type === 'year' || type === 'month') {
+      this.updatePickerDays();
+    }
+  }
+  
+  // Method to update the days array based on selected year and month
+  private updatePickerDays() {
+    const daysInMonth = new Date(this.tempYear, this.tempMonth, 0).getDate();
+    this.pickerDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    
+    // Adjust tempDay if it exceeds the new month's days
+    if (this.tempDay > daysInMonth) {
+      this.tempDay = daysInMonth;
+    }
   }
 }

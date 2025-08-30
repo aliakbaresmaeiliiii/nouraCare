@@ -1,6 +1,7 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
 import {
   IonApp,
@@ -47,12 +48,21 @@ import {
   IonToolbar,
   IonRadio,
   IonRadioGroup,
-  IonNote
+  IonNote,
+  IonSelect,
+  IonSelectOption,
+  IonDatetimeButton,
+  IonSearchbar,
+  IonSpinner,
 } from '@ionic/angular/standalone';
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
+import { SearchModalComponent } from './components/search-modal/search-modal.component';
+import { MapboxMapComponent } from './components/mapbox-map/mapbox-map.component';
+import { MapService } from './services/map.service';
 
 const IONIC_MODULES = [
   IonInput,
+  IonDatetimeButton,
   IonItem,
   IonList,
   IonInputOtp,
@@ -97,7 +107,10 @@ const IONIC_MODULES = [
   IonRadio,
   IonRadioGroup,
   IonNote,
-  
+  IonSelect,
+  IonSelectOption,
+  IonSearchbar,
+  IonSpinner,
 ];
 
 const COMMON_MODULES = [
@@ -109,14 +122,14 @@ const COMMON_MODULES = [
   RouterOutlet,
   RouterModule,
   IonRouterOutlet,
+  HttpClientModule,
 ];
 
 @NgModule({
-  declarations: [CircleProgressBarComponent,
-
-  ],
+  declarations: [CircleProgressBarComponent, SearchModalComponent, MapboxMapComponent],
   imports: [...COMMON_MODULES, ...IONIC_MODULES, RouterModule.forChild([])],
-  exports: [...COMMON_MODULES, ...IONIC_MODULES, CircleProgressBarComponent],
-  providers: [],
+  exports: [...COMMON_MODULES, ...IONIC_MODULES, CircleProgressBarComponent, SearchModalComponent, MapboxMapComponent],
+  providers: [MapService],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SharedModule {}

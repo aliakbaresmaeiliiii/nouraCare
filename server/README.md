@@ -96,3 +96,59 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+# Gahvareh Backend
+
+## Database Setup
+
+### 1. Prisma Setup
+```bash
+# Install dependencies
+npm install
+
+# Generate Prisma client
+npx prisma generate
+
+# Push schema to database
+npx prisma db push
+```
+
+### 2. Seed Database with Malaysia Cities
+```bash
+# Run the seed script to populate cities and districts
+npm run seed
+```
+
+This will create sample cities:
+- Kuala Lumpur (Federal Territory)
+- Penang
+- Johor Bahru
+- Malacca
+- Ipoh
+
+Each city includes 5 districts/neighborhoods.
+
+### 3. Start Development Server
+```bash
+npm run start:dev
+```
+
+## API Endpoints
+
+### Geo API
+- `GET /api/v1/geo/cities` - List all cities
+- `GET /api/v1/geo/cities/:id/districts` - List districts for a city
+- `GET /api/v1/geo/users/:id/addresses` - List user addresses
+- `POST /api/v1/geo/users/:id/addresses` - Create user address
+
+### User API
+- `GET /api/v1/user/:id` - Get user profile
+- `PUT /api/v1/user/:id/edit` - Update user profile
+- `POST /api/v1/user/:id/profile-image` - Upload profile image
+
+## Testing City/State Selection
+
+1. Start the backend server
+2. Run the seed script to populate cities
+3. Test the frontend city/district selection in Edit Profile
+4. Cities should load from database and districts should populate when a city is selected

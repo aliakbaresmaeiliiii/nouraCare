@@ -23,7 +23,6 @@ export class AuthService {
   }
 
   login(data: LoginRequest): Observable<LoginRequest[]> {
-    debugger;
     return this.http.post<LoginRequest[]>(`${this.baseUrl}/sign-in`, data);
   }
 

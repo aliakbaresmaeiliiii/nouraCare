@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancelChanges()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="confirmChanges()">Done</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar (ionInput)="searchbarInput($event)" placeholder="Search..."></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="light" class="ion-padding" fullscreen style="height: 100vh;">
+  <ion-list id="modal-list" [inset]="true">
+    @if (filteredItems.length > 0) {
+      @for (item of filteredItems; track item.value) {
+      <ion-item button (click)="selectItem(item)" [class.selected]="isSelected(item.value)">
+        <ion-label>{{ item.text }}</ion-label>
+        <ion-icon *ngIf="isSelected(item.value)" name="checkmark" slot="end" color="primary"></ion-icon>
+      </ion-item>
+      }
+    } @else {
+      <ion-item>
+        <ion-label class="ion-text-center">
+          <p>No items available</p>
+          <p class="text-sm text-gray-500">Try selecting a different option or contact support</p>
+        </ion-label>
+      </ion-item>
+    }
+  </ion-list>
+</ion-content>
