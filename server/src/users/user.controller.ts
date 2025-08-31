@@ -47,7 +47,8 @@ export class UserController {
   }))
   async uploadProfileImage(@Param('id') id: string, @UploadedFile() file: any) {
     if (!file) throw new BadRequestException('No file uploaded');
-    const url = `/uploads/profile/${file.filename}`;
+    const baseUrl = process.env.BASE_URL || 'http://172.20.10.2:8080';
+    const url = `${baseUrl}/uploads/profile/${file.filename}`;
     await this.userService.editUserInfo(+id, { profileImage: url } as any);
     return { url };
   }

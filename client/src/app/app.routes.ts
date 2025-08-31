@@ -57,14 +57,21 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./tools/tools.component').then((m) => m.ToolsComponent),
       },
-      // {
-      //   path: 'library',
-      //   loadComponent: () => import('./library/library.component').then(m => m.LibraryComponent),
-      // },
-      // {
-      //   path: 'search',
-      //   loadComponent: () => import('./search/search.component').then(m => m.SearchComponent),س
-      // },
+      {
+        path: 'social',
+        loadComponent: () =>
+          import('./social/social.component').then((m) => m.SocialComponent),
+      },
+      {
+        path: 'consultation',
+        loadComponent: () =>
+          import('./consultation/consultation.component').then((m) => m.ConsultationComponent),
+      },
+      {
+        path: 'school',
+        loadComponent: () =>
+          import('./school/school.component').then((m) => m.SchoolComponent),
+      },
       {
         path: '',
         redirectTo: '/tabs/home',

@@ -24,7 +24,7 @@ export const environment  = {
   },
   production: false,
   apiEndPoint: 'http://172.20.10.2:8080/api/v1/',
-  urlProfileImg: 'http://172.20.10.2:8080/images/',
+  urlProfileImg: 'http://172.20.10.2:8080/uploads/',
   neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',
   mapboxToken:
@@ -44,5 +44,5 @@ export const environment  = {
 //   },
 //   production: false,
 //   apiEndPoint: 'http://localhost:8080/api/v1/',
-//   urlProfileImg: 'http://localhost:8080/images/',
+//   urlProfileImg: 'http://localhost:8080/uploads/',
 // };

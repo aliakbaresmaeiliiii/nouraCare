@@ -1,131 +1,327 @@
-<ion-content class="!p-0">
-  <div class="h-screen flex flex-col">
-    <div class="h-2/3 relative">
-      <swiper-container
-        slides-per-view="1"
-        centered-slides="true"
-        [autoplay]="{ delay: 2000, disableOnInteraction: false }"
-        [pagination]="{ clickable: true }"
-        class="h-full w-full"
+<ion-content class="welcome-page">
+  <!-- Welcome Slides Section -->
+  <div class="welcome-section">
+    <swiper-container
+      slides-per-view="1"
+      centered-slides="true"
+      [autoplay]="{ delay: 3000, disableOnInteraction: false }"
+      [pagination]="{ clickable: true }"
+      class="welcome-swiper"
+    >
+      <!-- Slide 1: Welcome -->
+      <swiper-slide class="welcome-slide">
+        <div class="slide-background" style="background-image: url('assets/images/welcome1.jpg')"></div>
+        <div class="slide-overlay">
+          <div class="slide-content">
+            <div class="slide-icon">
+              <ion-icon name="heart" class="heart-icon"></ion-icon>
+            </div>
+            <h1 class="slide-title">Welcome to Gahvaremi</h1>
+            <p class="slide-subtitle">Your Pregnancy Companion</p>
+            <div class="slide-features">
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>We are with you on your child's growth journey</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>Up-to-date information on proper nutrition</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>Learn necessary care from expert consultants</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </swiper-slide>
+
+      <!-- Slide 2: Support -->
+      <swiper-slide class="welcome-slide">
+        <div class="slide-background" style="background-image: url('assets/images/welcome2.jpg')"></div>
+        <div class="slide-overlay">
+          <div class="slide-content">
+            <div class="slide-icon">
+              <ion-icon name="people" class="heart-icon"></ion-icon>
+            </div>
+            <h1 class="slide-title">Expert Support</h1>
+            <p class="slide-subtitle">24/7 Guidance & Care</p>
+            <div class="slide-features">
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>Professional medical consultation</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>Personalized health tracking</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>Community of expecting mothers</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </swiper-slide>
+
+      <!-- Slide 3: Tools -->
+      <swiper-slide class="welcome-slide">
+        <div class="slide-background" style="background-image: url('assets/images/welcome3.jpg')"></div>
+        <div class="slide-overlay">
+          <div class="slide-content">
+            <div class="slide-icon">
+              <ion-icon name="construct" class="heart-icon"></ion-icon>
+            </div>
+            <h1 class="slide-title">Smart Tools</h1>
+            <p class="slide-subtitle">Track Your Journey</p>
+            <div class="slide-features">
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>Period & fertility tracking</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>Symptom & mood monitoring</span>
+              </div>
+              <div class="feature-item">
+                <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
+                <span>Nutrition & exercise planning</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </swiper-slide>
+    </swiper-container>
+
+    <!-- Floating Action Button -->
+    <div class="floating-action">
+      <ion-button 
+        fill="clear" 
+        class="skip-button"
+        (click)="scrollToLogin()"
       >
-        <swiper-slide class="h-screen w-full">
-          <img
-            src="assets/images/welcome1.jpg"
-            class="h-full w-full object-cover absolute opacity-75"
-            alt="welcome"
-          />
-
-          <div
-            class="relative top-1/2 flex flex-col gap-3 text-white h-40 bg-gradient-to-t from-black/90 via-black/50 to-transparent"
-          >
-            <div class="pl-4 flex flex-col gap-3">
-              <div class="flex items-center">
-                <img src="assets/images/heart.png" class="w-6 mr-2" alt="" />
-                <p class="text-lg">Welcome to Our App</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  We are with you on your child's growth journey
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  Up-to-date information on proper nutrition is at your
-                  fingertips
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  With your consultant’s messages, you’ll learn the necessary
-                  care
-                </p>
-              </div>
-            </div>
-          </div>
-        </swiper-slide>
-        <swiper-slide class="relative h-screen w-full">
-          <img
-            src="../../../assets/images/welcome2.jpg "
-            class="h-full w-full object-cover absolute opacity-75"
-            alt="welcome"
-          />
-          <div
-            class="relative top-1/2 flex flex-col gap-3 text-white h-40 bg-gradient-to-t from-black/80 via-black/50 to-transparent"
-          >
-            <div class="pl-4 flex flex-col gap-3">
-              <div class="flex items-center">
-                <img src="assets/images/heart.png" class="w-6 mr-2" alt="" />
-                <p class="text-lg">Welcome to Our App</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  We are with you on your child's growth journey
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  Up-to-date information on proper nutrition is at your
-                  fingertips
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  With your consultant’s messages, you’ll learn the necessary
-                  care
-                </p>
-              </div>
-            </div>
-          </div>
-        </swiper-slide>
-        <swiper-slide class="relative h-screen w-full">
-          <img
-            src="../../../assets/images/welcome3.jpg"
-            class="h-full w-full object-cover absolute opacity-75"
-            alt="welcome"
-          />
-          <div
-            class="relative top-1/2 lef text-white h-40 bg-gradient-to-t from-black/80 via-black/50 to-transparent"
-          >
-            <div class="pl-4 flex flex-col gap-3">
-              <div class="flex items-center">
-                <img src="assets/images/heart.png" class="w-6 mr-2" alt="" />
-                <p class="text-lg">Welcome to Our App</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  We are with you on your child's growth journey
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  Up-to-date information on proper nutrition is at your
-                  fingertips
-                </p>
-              </div>
-              <div class="flex items-center gap-2">
-                <img src="assets/svg/checkmark-circle-svgrepo-com.svg" alt="" />
-                <p class="text-xs">
-                  With your consultant’s messages, you’ll learn the necessary
-                  care
-                </p>
-              </div>
-            </div>
-          </div>
-        </swiper-slide>
-      </swiper-container>
+        <!-- <ion-icon name="arrow-down" slot="start"></ion-icon> -->
+        <ion-icon name="arrow-down" size="large" color="primary"></ion-icon>
+        <span >
+          Get Started
+        </span>
+      </ion-button>
     </div>
+  </div>
 
-    <!-- Your login component always at bottom -->
-    <div class="h-2/3 bg-white">
-      <app-login />
+  <!-- Login Section -->
+  <div class="login-section" #loginSection>
+    <div class="login-container">
+      <div class="section-header">
+        <h2 class="section-title">Join Gahvaremi</h2>
+        <p class="section-subtitle">Start your pregnancy journey today</p>
+      </div>
+      
+      <!-- Login Component -->
+      <!-- <app-login></app-login> -->
+      
+      <!-- Temporary Inline Login Form for Testing -->
+      <div class="inline-login-form">
+        <div class="tab-container">
+          <button
+            type="button"
+            (click)="activeTab = 'login'"
+            [class.active]="activeTab === 'login'"
+            class="tab-button"
+          >
+            <ion-icon name="log-in-outline"></ion-icon>
+            Sign In
+          </button>
+          <button
+            type="button"
+            (click)="activeTab = 'register'"
+            [class.active]="activeTab === 'register'"
+            class="tab-button"
+          >
+            <ion-icon name="person-add-outline"></ion-icon>
+            Sign Up
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <div *ngIf="activeTab === 'login'" class="form-container">
+          <div class="form-header">
+            <h2 class="form-title">Welcome Back</h2>
+            <p class="form-subtitle">Sign in to continue your journey</p>
+          </div>
+
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
+            <div class="form-group">
+              <label class="form-label">
+                <ion-icon name="mail-outline" class="label-icon"></ion-icon>
+                Email Address
+              </label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                class="form-input"
+                [class.error]="isFieldInvalid(loginForm, 'email')"
+              />
+              <div
+                *ngIf="isFieldInvalid(loginForm, 'email')"
+                class="error-message"
+              >
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                {{ getFieldError(loginForm, 'email') }}
+              </div>
+            </div>
+
+            <!-- <div class="form-group">
+              <label class="form-label">
+                <ion-icon name="lock-closed-outline" class="label-icon"></ion-icon>
+                Password
+              </label>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="Enter your password"
+                class="form-input"
+                [class.error]="isFieldInvalid(loginForm, 'password')"
+              />
+              <div
+                *ngIf="isFieldInvalid(loginForm, 'password')"
+                class="error-message"
+              >
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                {{ getFieldError(loginForm, 'password') }}
+              </div>
+            </div> -->
+
+            <ion-button 
+              type="submit" 
+              class="submit-button"
+              [disabled]="loginForm.invalid"
+              expand="block"
+            >
+              <ion-icon name="log-in-outline" slot="start"></ion-icon>
+              Sign In
+            </ion-button>
+
+            <div class="form-footer">
+              <a href="#" class="forgot-link">Forgot Password?</a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Register Form -->
+        <div *ngIf="activeTab === 'register'" class="form-container">
+          <div class="form-header">
+            <h2 class="form-title">Join Gahvaremi</h2>
+            <p class="form-subtitle">Start your pregnancy journey today</p>
+          </div>
+
+          <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
+            <div class="form-group">
+              <label class="form-label">
+                <ion-icon name="mail-outline" class="label-icon"></ion-icon>
+                Email Address
+              </label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                class="form-input"
+                [class.error]="isFieldInvalid(registerForm, 'email')"
+              />
+              <div
+                *ngIf="isFieldInvalid(registerForm, 'email')"
+                class="error-message"
+              >
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                {{ getFieldError(registerForm, 'email') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <ion-icon name="call-outline" class="label-icon"></ion-icon>
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                formControlName="phone"
+                placeholder="Enter your phone number"
+                class="form-input"
+                [class.error]="isFieldInvalid(registerForm, 'phone')"
+              />
+              <div
+                *ngIf="isFieldInvalid(registerForm, 'phone')"
+                class="error-message"
+              >
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                {{ getFieldError(registerForm, 'phone') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <ion-icon name="lock-closed-outline" class="label-icon"></ion-icon>
+                Password
+              </label>
+              <input
+                type="password"
+                formControlName="password"
+                placeholder="Create a password"
+                class="form-input"
+                [class.error]="isFieldInvalid(registerForm, 'password')"
+              />
+              <div
+                *ngIf="isFieldInvalid(registerForm, 'password')"
+                class="error-message"
+              >
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                {{ getFieldError(registerForm, 'password') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <ion-icon name="lock-closed-outline" class="label-icon"></ion-icon>
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                formControlName="confirmPassword"
+                placeholder="Confirm your password"
+                class="form-input"
+                [class.error]="isFieldInvalid(registerForm, 'confirmPassword')"
+              />
+              <div
+                *ngIf="isFieldInvalid(registerForm, 'confirmPassword')"
+                class="error-message"
+              >
+                <ion-icon name="alert-circle-outline"></ion-icon>
+                {{ getFieldError(registerForm, 'confirmPassword') }}
+              </div>
+            </div>
+
+            <ion-button 
+              type="submit" 
+              class="submit-button register"
+              [disabled]="registerForm.invalid"
+              expand="block"
+            >
+              <ion-icon name="person-add-outline" slot="start"></ion-icon>
+              Create Account
+            </ion-button>
+
+            <div class="form-footer">
+              <p class="terms-text">
+                By signing up, you agree to our 
+                <a href="#" class="terms-link">Terms of Service</a> and 
+                <a href="#" class="terms-link">Privacy Policy</a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+   
     </div>
   </div>
 </ion-content>

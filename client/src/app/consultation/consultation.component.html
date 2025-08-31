@@ -1,0 +1,221 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Schedule Consultation</ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="calendar"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="consultation-content">
+  <!-- Hero Section -->
+  <div class="consultation-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Expert Consultation</h1>
+      <p class="hero-subtitle">Book appointments with healthcare professionals</p>
+    </div>
+  </div>
+
+  <!-- Quick Booking -->
+  <div class="quick-booking">
+    <h2 class="section-title">Quick Booking</h2>
+    <div class="booking-options">
+      <ion-button expand="block" fill="solid" class="booking-btn primary">
+        <ion-icon name="medical" slot="start"></ion-icon>
+        Book Doctor Appointment
+      </ion-button>
+      <ion-button expand="block" fill="outline" class="booking-btn">
+        <ion-icon name="nutrition" slot="start"></ion-icon>
+        Nutrition Consultation
+      </ion-button>
+      <ion-button expand="block" fill="outline" class="booking-btn">
+        <ion-icon name="fitness" slot="start"></ion-icon>
+        Fitness Consultation
+      </ion-button>
+      <ion-button expand="block" fill="outline" class="booking-btn">
+        <ion-icon name="heart" slot="start"></ion-icon>
+        Mental Health Support
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Available Specialists -->
+  <div class="specialists-section">
+    <h2 class="section-title">Available Specialists</h2>
+    
+    <div class="specialist-card">
+      <div class="specialist-avatar">
+        <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Dr. Sarah Johnson">
+      </div>
+      <div class="specialist-info">
+        <h3 class="specialist-name">Dr. Sarah Johnson</h3>
+        <p class="specialist-specialty">Obstetrician & Gynecologist</p>
+        <div class="specialist-details">
+          <span class="rating">⭐ 4.9 (127 reviews)</span>
+          <span class="experience">15+ years experience</span>
+        </div>
+        <div class="specialist-availability">
+          <span class="available">Available Today</span>
+          <span class="next-slot">Next: 2:00 PM</span>
+        </div>
+      </div>
+      <ion-button fill="outline" size="small" class="book-btn">
+        Book Now
+      </ion-button>
+    </div>
+
+    <div class="specialist-card">
+      <div class="specialist-avatar">
+        <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Dr. Michael Chen">
+      </div>
+      <div class="specialist-info">
+        <h3 class="specialist-name">Dr. Michael Chen</h3>
+        <p class="specialist-specialty">Pregnancy Nutritionist</p>
+        <div class="specialist-details">
+          <span class="rating">⭐ 4.8 (89 reviews)</span>
+          <span class="experience">12+ years experience</span>
+        </div>
+        <div class="specialist-availability">
+          <span class="available">Available Tomorrow</span>
+          <span class="next-slot">Next: 10:00 AM</span>
+        </div>
+      </div>
+      <ion-button fill="outline" size="small" class="book-btn">
+        Book Now
+      </ion-button>
+    </div>
+
+    <div class="specialist-card">
+      <div class="specialist-avatar">
+        <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Dr. Emily Rodriguez">
+      </div>
+      <div class="specialist-info">
+        <h3 class="specialist-name">Dr. Emily Rodriguez</h3>
+        <p class="specialist-specialty">Prenatal Fitness Expert</p>
+        <div class="specialist-details">
+          <span class="rating">⭐ 4.9 (156 reviews)</span>
+          <span class="experience">8+ years experience</span>
+        </div>
+        <div class="specialist-availability">
+          <span class="available">Available Today</span>
+          <span class="next-slot">Next: 4:30 PM</span>
+        </div>
+      </div>
+      <ion-button fill="outline" size="small" class="book-btn">
+        Book Now
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Upcoming Appointments -->
+  <div class="appointments-section">
+    <h2 class="section-title">Upcoming Appointments</h2>
+    
+    <div class="appointment-card">
+      <div class="appointment-icon">
+        <ion-icon name="medical"></ion-icon>
+      </div>
+      <div class="appointment-details">
+        <h3 class="appointment-type">Prenatal Checkup</h3>
+        <p class="appointment-specialist">Dr. Sarah Johnson</p>
+        <div class="appointment-time">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>Tomorrow, 10:00 AM</span>
+        </div>
+        <div class="appointment-location">
+          <ion-icon name="location-outline"></ion-icon>
+          <span>Women's Health Clinic - Room 3</span>
+        </div>
+      </div>
+      <ion-button fill="clear" size="small" class="reschedule-btn">
+        Reschedule
+      </ion-button>
+    </div>
+
+    <div class="appointment-card">
+      <div class="appointment-icon">
+        <ion-icon name="nutrition"></ion-icon>
+      </div>
+      <div class="appointment-details">
+        <h3 class="appointment-type">Nutrition Consultation</h3>
+        <p class="appointment-specialist">Dr. Michael Chen</p>
+        <div class="appointment-time">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>Friday, 2:30 PM</span>
+        </div>
+        <div class="appointment-location">
+          <ion-icon name="location-outline"></ion-icon>
+          <span>Nutrition Center - Room 1</span>
+        </div>
+      </div>
+      <ion-button fill="clear" size="small" class="reschedule-btn">
+        Reschedule
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Consultation Types -->
+  <div class="consultation-types">
+    <h2 class="section-title">Consultation Types</h2>
+    
+    <div class="type-grid">
+      <div class="type-card">
+        <div class="type-icon">
+          <ion-icon name="medical"></ion-icon>
+        </div>
+        <h3 class="type-name">Prenatal Care</h3>
+        <p class="type-description">Regular checkups and monitoring</p>
+        <div class="type-duration">30-45 min</div>
+      </div>
+
+      <div class="type-card">
+        <div class="type-icon">
+          <ion-icon name="nutrition"></ion-icon>
+        </div>
+        <h3 class="type-name">Nutrition Planning</h3>
+        <p class="type-description">Personalized meal plans</p>
+        <div class="type-duration">45-60 min</div>
+      </div>
+
+      <div class="type-card">
+        <div class="type-icon">
+          <ion-icon name="fitness"></ion-icon>
+        </div>
+        <h3 class="type-name">Exercise Guidance</h3>
+        <p class="type-description">Safe pregnancy workouts</p>
+        <div class="type-duration">30-40 min</div>
+      </div>
+
+      <div class="type-card">
+        <div class="type-icon">
+          <ion-icon name="heart"></ion-icon>
+        </div>
+        <h3 class="type-name">Mental Health</h3>
+        <p class="type-description">Emotional support & counseling</p>
+        <div class="type-duration">50-60 min</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Emergency Contact -->
+  <div class="emergency-section">
+    <div class="emergency-card">
+      <div class="emergency-icon">
+        <ion-icon name="warning"></ion-icon>
+      </div>
+      <div class="emergency-content">
+        <h3 class="emergency-title">Emergency Contact</h3>
+        <p class="emergency-description">Need immediate assistance?</p>
+        <ion-button fill="solid" color="danger" expand="block">
+          <ion-icon name="call" slot="start"></ion-icon>
+          Call Emergency: 911
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

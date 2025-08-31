@@ -20,7 +20,7 @@
     <div class="profile-picture-section">
       <div class="avatar-container">
         <ion-avatar class="profile-avatar">
-          <img [src]="profileImage || 'https://ionicframework.com/docs/img/demos/avatar.svg'" alt="Profile"
+          <img [src]="profileImage" alt="Profile"
             class="avatar-image" />
         </ion-avatar>
         <div class="avatar-overlay">
@@ -39,6 +39,9 @@
         <ion-header>
           <ion-toolbar>
             <ion-title>Crop Image</ion-title>
+            <ion-buttons slot="start">
+              <ion-button (click)="closeCropper()" class="cancel-button">Cancel</ion-button>
+            </ion-buttons>
             <ion-buttons slot="end">
               <ion-button (click)="confirmCrop()" class="confirm-button">Done</ion-button>
             </ion-buttons>
@@ -125,10 +128,27 @@
               <ion-button size="small" fill="outline" (click)="resetForm()" class="debug-btn">Reset Form</ion-button>
               <ion-button size="small" fill="outline" (click)="checkFormControlState()" class="debug-btn">Check
                 State</ion-button>
+              <ion-button size="small" fill="outline" (click)="checkCropperState()" class="debug-btn">Check
+                Cropper</ion-button>
+              <ion-button size="small" fill="outline" (click)="forceRenderCrop()" class="debug-btn">Force
+                Render</ion-button>
             </div>
           </details>
         </div>
       </div>
+    </div>
+
+    <!-- Additional Debug Buttons -->
+    <div class="debug-section">
+      <details class="debug-details">
+        <summary class="debug-summary">Image Debug Tools</summary>
+        <div class="debug-buttons">
+          <ion-button size="small" fill="outline" (click)="testImageDisplay()" class="debug-btn">Test
+            Image</ion-button>
+          <ion-button size="small" fill="outline" (click)="checkImageVisibility()" class="debug-btn">Check
+            Visibility</ion-button>
+        </div>
+      </details>
     </div>
 
     <!-- Cycle Information Card -->

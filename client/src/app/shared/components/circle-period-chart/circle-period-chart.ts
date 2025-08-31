@@ -1,8 +1,8 @@
-import { Component, effect, inject, Input, ViewChild } from '@angular/core';
+import { Component, effect, inject, Input, ViewChild, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonDatetime } from '@ionic/angular';
 import { SharedModule } from '../../shared-module';
-import { CycleSettingsService } from 'src/app/shared/services/cycle-settings.service';
+import { CycleSettingsService } from '../../services/cycle-settings.service';
 
 export interface Segment {
   label: string; // نام بخش، مثلا "پریود"
@@ -12,11 +12,12 @@ export interface Segment {
 
 @Component({
   selector: 'app-circle-period-chart',
+  standalone: true,
   imports: [SharedModule],
   templateUrl: './circle-period-chart.html',
   styleUrl: './circle-period-chart.scss',
 })
-export class CirclePeriodChart {
+export class CirclePeriodChart implements OnInit, OnChanges {
   @ViewChild('periodCalendar') periodCalendar!: IonDatetime;
   router = inject(Router);
   private cycleSettings = inject(CycleSettingsService);
@@ -122,7 +123,7 @@ export class CirclePeriodChart {
     this.showPeriodSheet = false;
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
     this.recomputeEverything();
   }
 

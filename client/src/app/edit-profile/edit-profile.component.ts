@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../shared/services/user';
 import { ActivatedRoute } from '@angular/router';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import { ImageUrlService } from '../shared/services/image-url.service';
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
@@ -19,6 +20,7 @@ export class EditProfileComponent implements OnInit {
   userService = inject(User);
   cycleSettings = inject(CycleSettingsService);
   route = inject(ActivatedRoute);
+  private imageUrlService = inject(ImageUrlService);
   profileImage: string | null = null;
   selectedProfile: File | null = null;
   showCropper = false;
@@ -133,6 +135,9 @@ export class EditProfileComponent implements OnInit {
           };
           this.form.patchValue(patch);
           
+          // Set profile image with proper URL
+          this.profileImage = this.imageUrlService.getImageUrl(res?.profileImage);
+          
           // Check form state after patch
           setTimeout(() => {
             this.checkFormControlState();
@@ -190,7 +195,7 @@ export class EditProfileComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      
+      debugger;
       // Validate file type
       if (!file.type.startsWith('image/')) {
         alert('Please select an image file');
@@ -204,19 +209,23 @@ export class EditProfileComponent implements OnInit {
       }
       
       this.selectedProfile = file;
+      console.log('File validated, processing...');
       
       // Try modern createImageBitmap first, fallback to FileReader
       if (typeof createImageBitmap === 'function') {
         try {
+          console.log('Using createImageBitmap...');
           createImageBitmap(file).then((bmp) => {
+            console.log('ImageBitmap created:', bmp.width, 'x', bmp.height);
             this.imageBitmap = bmp;
             this.showCropper = true;
             
+            // Wait for the modal to be fully rendered before rendering the crop
             setTimeout(() => {
+              console.log('Modal should be open, rendering crop...');
               this.renderCrop();
-              // Auto-confirm and close the dialog right after choosing the image
-              setTimeout(() => this.confirmCrop(), 100);
-            }, 100);
+              // Don't auto-confirm - let user crop manually
+            }, 300);
           }).catch((error) => {
             console.error('Error creating image bitmap:', error);
             this.fallbackImageProcessing(file);
@@ -227,6 +236,7 @@ export class EditProfileComponent implements OnInit {
         }
       } else {
         // Fallback for older browsers
+        console.log('Using fallback image processing...');
         this.fallbackImageProcessing(file);
       }
     }
@@ -234,11 +244,14 @@ export class EditProfileComponent implements OnInit {
 
   // Fallback method for browsers that don't support createImageBitmap
   private fallbackImageProcessing(file: File) {
+    console.log('Using fallback image processing...');
     const reader = new FileReader();
     
     reader.onload = (e) => {
+      console.log('File read successfully, creating image...');
       const img = new Image();
       img.onload = () => {
+        console.log('Image loaded:', img.width, 'x', img.height);
         // Create a canvas to convert to ImageBitmap-like object
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -252,8 +265,9 @@ export class EditProfileComponent implements OnInit {
           this.showCropper = true;
           
           setTimeout(() => {
+            console.log('Rendering crop with fallback...');
             this.renderCrop();
-            setTimeout(() => this.confirmCrop(), 100);
+            // Don't auto-confirm - let user crop manually
           }, 100);
         }
       };
@@ -269,22 +283,61 @@ export class EditProfileComponent implements OnInit {
   }
 
   private renderCrop() {
-    if (!this.cropCanvas || !this.cropCanvas.nativeElement || !this.imageBitmap) return;
+    if (!this.cropCanvas || !this.cropCanvas.nativeElement || !this.imageBitmap) {
+      console.error('Cannot render crop: missing elements', {
+        canvas: !!this.cropCanvas,
+        canvasElement: !!this.cropCanvas?.nativeElement,
+        imageBitmap: !!this.imageBitmap
+      });
+      return;
+    }
+    
     const canvas = this.cropCanvas.nativeElement;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.error('Cannot get canvas context');
+      return;
+    }
+    
     const size = 256;
     canvas.width = size;
     canvas.height = size;
     ctx.clearRect(0, 0, size, size);
+    
     const iw = this.imageBitmap.width;
     const ih = this.imageBitmap.height;
-    const scale = this.zoom * Math.max(size / iw, size / ih);
+    
+    // Calculate scaling to fit image within canvas while maintaining aspect ratio
+    const scaleX = size / iw;
+    const scaleY = size / ih;
+    const scale = Math.min(scaleX, scaleY) * this.zoom;
+    
+    // Calculate dimensions after scaling
     const dw = iw * scale;
     const dh = ih * scale;
+    
+    // Center the image on the canvas
     const dx = (size - dw) / 2;
     const dy = (size - dh) / 2;
-    ctx.drawImage(this.imageBitmap, dx, dy, dw, dh);
+    
+    console.log('Rendering crop:', { 
+      iw, ih, scale, dw, dh, dx, dy, zoom: this.zoom,
+      scaleX, scaleY, finalScale: scale
+    });
+    
+    try {
+      // Draw the image centered on the canvas
+      ctx.drawImage(this.imageBitmap, dx, dy, dw, dh);
+      console.log('Image rendered successfully');
+      
+      // Add a border to make the canvas visible
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, size, size);
+      
+    } catch (error) {
+      console.error('Error drawing image to canvas:', error);
+    }
   }
 
   onZoom(ev: any) {
@@ -293,6 +346,7 @@ export class EditProfileComponent implements OnInit {
   }
 
   closeCropper() {
+    console.log('Closing cropper...');
     this.showCropper = false;
     this.imageBitmap = null;
     
@@ -450,7 +504,19 @@ export class EditProfileComponent implements OnInit {
         return;
       }
       
-      const blob = await this.canvasToBlob(this.cropCanvas.nativeElement);
+      console.log('Starting crop confirmation...');
+      const canvas = this.cropCanvas.nativeElement;
+      
+      // Log canvas state
+      console.log('Canvas state:', {
+        width: canvas.width,
+        height: canvas.height,
+        offsetWidth: canvas.offsetWidth,
+        offsetHeight: canvas.offsetHeight
+      });
+      
+      const blob = await this.canvasToBlob(canvas);
+      console.log('Blob created:', blob.size, 'bytes, type:', blob.type);
       
       const id = this.userInfoStore?.user?.id;
       if (!id) {
@@ -459,18 +525,23 @@ export class EditProfileComponent implements OnInit {
         return;
       }
       
+      console.log('Uploading image...');
       this.userService.uploadProfileImage(String(id), blob).subscribe({
         next: (res: any) => {
+          console.log('Upload successful:', res);
           
           // Set preview and form control
-          this.profileImage = res.url;
+          this.profileImage = this.imageUrlService.getImageUrl(res.url);
           this.form.patchValue({ profileImage: res.url });
+          
+          console.log('Profile image updated:', this.profileImage);
           
           // Update local storage for profile page
           try {
             const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
             store.user = { ...(store.user || {}), profileImage: res.url };
             localStorage.setItem('userInfo', JSON.stringify(store));
+            console.log('Local storage updated');
           } catch (error) {
             console.error('Error updating local storage:', error);
           }
@@ -844,10 +915,76 @@ export class EditProfileComponent implements OnInit {
     this.form.patchValue({ status: statusValue });
   }
 
+    // Method to check cropper state (for debugging)
+  checkCropperState(): void {
+    console.log('Cropper state:', {
+      showCropper: this.showCropper,
+      imageBitmap: !!this.imageBitmap,
+      canvas: !!this.cropCanvas,
+      canvasElement: !!this.cropCanvas?.nativeElement
+    });
+    
+    if (this.cropCanvas?.nativeElement) {
+      const canvas = this.cropCanvas.nativeElement;
+      console.log('Canvas details:', {
+        width: canvas.width,
+        height: canvas.height,
+        styleWidth: canvas.style.width,
+        styleHeight: canvas.style.height,
+        offsetWidth: canvas.offsetWidth,
+        offsetHeight: canvas.offsetHeight,
+        visible: canvas.offsetWidth > 0 && canvas.offsetHeight > 0
+      });
+    }
+  }
+
+  // Method to force re-render the crop
+  forceRenderCrop(): void {
+    console.log('Forcing crop re-render...');
+    if (this.showCropper && this.imageBitmap) {
+      setTimeout(() => {
+        this.renderCrop();
+      }, 100);
+    }
+  }
+  
+  // Method to test image display
+  testImageDisplay(): void {
+    console.log('Testing image display...');
+    console.log('Current profileImage:', this.profileImage);
+    console.log('Form profileImage value:', this.form.get('profileImage')?.value);
+    
+    // Test with a sample image
+    const testImage = 'https://ionicframework.com/docs/img/demos/avatar.svg';
+    this.profileImage = testImage;
+    this.form.patchValue({ profileImage: testImage });
+    
+    console.log('Test image set:', this.profileImage);
+  }
+  
+  // Method to check if image is actually visible
+  checkImageVisibility(): void {
+    const imgElement = document.querySelector('.avatar-image') as HTMLImageElement;
+    if (imgElement) {
+      console.log('Image element found:', {
+        src: imgElement.src,
+        width: imgElement.width,
+        height: imgElement.height,
+        naturalWidth: imgElement.naturalWidth,
+        naturalHeight: imgElement.naturalHeight,
+        style: imgElement.style.cssText,
+        visible: imgElement.offsetWidth > 0 && imgElement.offsetHeight > 0
+      });
+    } else {
+      console.log('Image element not found');
+    }
+  }
+  
   // Method to get current status value
   getCurrentStatus(): string | null {
     return this.form.get('status')?.value;
   }
+  
 
   // Method to check if a status option is selected
   isStatusSelected(statusValue: string): boolean {

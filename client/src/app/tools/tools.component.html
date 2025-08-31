@@ -1,3 +1,321 @@
-<p>
-  tools works!
-</p>
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Health Tools</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openSettings()">
+        <ion-icon name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="tools-content">
+  <!-- Hero Section -->
+  <div class="tools-hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Your Health Toolkit</h1>
+      <p class="hero-subtitle">Essential tools for tracking your journey to motherhood</p>
+    </div>
+  </div>
+
+  <!-- Quick Access Tools -->
+  <div class="quick-tools-section">
+    <div class="section-header">
+      <h2 class="section-title">Quick Access</h2>
+      <p class="section-subtitle">Most used tools</p>
+    </div>
+    <div class="quick-tools-grid">
+      <div class="tool-card primary" (click)="openFertilityCalculator()">
+        <div class="tool-icon">
+          <ion-icon name="calculator-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Fertility Calculator</h3>
+        <p class="tool-description">Calculate your fertile days</p>
+        <div class="tool-status">
+          <ion-badge color="success">Ready</ion-badge>
+        </div>
+      </div>
+
+      <div class="tool-card primary" (click)="openSymptomTracker()">
+        <div class="tool-icon">
+          <ion-icon name="medical-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Symptom Tracker</h3>
+        <p class="tool-description">Log daily symptoms & mood</p>
+        <div class="tool-status">
+          <ion-badge color="warning">2 entries today</ion-badge>
+        </div>
+      </div>
+
+      <div class="tool-card primary" (click)="openCycleTracker()">
+        <div class="tool-icon">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Cycle Tracker</h3>
+        <p class="tool-description">Track your menstrual cycle</p>
+        <div class="tool-status">
+          <ion-badge color="primary">Day 14</ion-badge>
+        </div>
+      </div>
+
+      <div class="tool-card primary" (click)="openNutritionTracker()">
+        <div class="tool-icon">
+          <ion-icon name="nutrition-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Nutrition Tracker</h3>
+        <p class="tool-description">Monitor daily nutrition</p>
+        <div class="tool-status">
+          <ion-badge color="success">85% complete</ion-badge>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Health Monitoring Tools -->
+  <div class="health-tools-section">
+    <div class="section-header">
+      <h2 class="section-title">Health Monitoring</h2>
+      <p class="section-subtitle">Track your vital signs and health metrics</p>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card" (click)="openWeightTracker()">
+        <div class="tool-icon">
+          <ion-icon name="scale-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Weight Tracker</h3>
+        <p class="tool-description">Monitor weight changes during pregnancy</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Track Today
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openBloodPressureTracker()">
+        <div class="tool-icon">
+          <ion-icon name="heart-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Blood Pressure</h3>
+        <p class="tool-description">Monitor BP readings</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Track Today
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openSleepTracker()">
+        <div class="tool-icon">
+          <ion-icon name="moon-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Sleep Tracker</h3>
+        <p class="tool-description">Monitor sleep quality & duration</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Track Today
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openWaterIntakeTracker()">
+        <div class="tool-icon">
+          <ion-icon name="water-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Water Intake</h3>
+        <p class="tool-description">Track daily water consumption</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Track Today
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pregnancy Specific Tools -->
+  <div class="pregnancy-tools-section">
+    <div class="section-header">
+      <h2 class="section-title">Pregnancy Tools</h2>
+      <p class="section-subtitle">Specialized tools for expecting mothers</p>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card" (click)="openKickCounter()">
+        <div class="tool-icon">
+          <ion-icon name="football-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Kick Counter</h3>
+        <p class="tool-description">Count baby movements</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Start Counting
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openContractionTimer()">
+        <div class="tool-icon">
+          <ion-icon name="timer-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Contraction Timer</h3>
+        <p class="tool-description">Time contractions during labor</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Start Timer
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openDueDateCalculator()">
+        <div class="tool-icon">
+          <ion-icon name="calendar-number-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Due Date Calculator</h3>
+        <p class="tool-description">Calculate pregnancy due date</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Calculate
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openPregnancyWeekTracker()">
+        <div class="tool-icon">
+          <ion-icon name="trending-up-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Week Tracker</h3>
+        <p class="tool-description">Track pregnancy progress by week</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          View Progress
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wellness Tools -->
+  <div class="wellness-tools-section">
+    <div class="section-header">
+      <h2 class="section-title">Wellness & Lifestyle</h2>
+      <p class="section-subtitle">Tools for mental and physical well-being</p>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card" (click)="openExercisePlanner()">
+        <div class="tool-icon">
+          <ion-icon name="fitness-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Exercise Planner</h3>
+        <p class="tool-description">Safe exercises for each trimester</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          View Exercises
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openMeditationTimer()">
+        <div class="tool-icon">
+          <ion-icon name="leaf-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Meditation Timer</h3>
+        <p class="tool-description">Guided meditation sessions</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Start Session
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openMoodTracker()">
+        <div class="tool-icon">
+          <ion-icon name="happy-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Mood Tracker</h3>
+        <p class="tool-description">Track emotional well-being</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Track Today
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openGratitudeJournal()">
+        <div class="tool-icon">
+          <ion-icon name="heart-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Gratitude Journal</h3>
+        <p class="tool-description">Daily gratitude practice</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Write Today
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medication & Reminders -->
+  <div class="medication-section">
+    <div class="section-header">
+      <h2 class="section-title">Medications & Reminders</h2>
+      <p class="section-subtitle">Never miss important medications</p>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-card" (click)="openMedicationReminder()">
+        <div class="tool-icon">
+          <ion-icon name="medkit-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Medication Reminder</h3>
+        <p class="tool-description">Set reminders for medications</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Set Reminders
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openVitaminTracker()">
+        <div class="tool-icon">
+          <ion-icon name="medical-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Vitamin Tracker</h3>
+        <p class="tool-description">Track prenatal vitamins</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Track Today
+        </ion-button>
+      </div>
+
+      <div class="tool-card" (click)="openAppointmentReminder()">
+        <div class="tool-icon">
+          <ion-icon name="alarm-outline"></ion-icon>
+        </div>
+        <h3 class="tool-title">Appointment Reminders</h3>
+        <p class="tool-description">Never miss doctor visits</p>
+        <ion-button fill="clear" size="small" class="tool-action">
+          Set Reminders
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress & Reports -->
+  <div class="progress-section">
+    <div class="section-header">
+      <h2 class="section-title">Progress & Reports</h2>
+      <p class="section-subtitle">View your health journey progress</p>
+    </div>
+    <div class="progress-cards">
+      <div class="progress-card" (click)="openHealthReport()">
+        <div class="progress-icon">
+          <ion-icon name="analytics-outline"></ion-icon>
+        </div>
+        <div class="progress-content">
+          <h3 class="progress-title">Health Report</h3>
+          <p class="progress-description">Comprehensive health summary</p>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 75%"></div>
+          </div>
+          <p class="progress-text">75% complete this month</p>
+        </div>
+      </div>
+
+      <div class="progress-card" (click)="openTrendsAnalysis()">
+        <div class="progress-icon">
+          <ion-icon name="trending-up-outline"></ion-icon>
+        </div>
+        <div class="progress-content">
+          <h3 class="progress-title">Trends Analysis</h3>
+          <p class="progress-description">View patterns over time</p>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 60%"></div>
+          </div>
+          <p class="progress-text">60% of data analyzed</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="openQuickAdd()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

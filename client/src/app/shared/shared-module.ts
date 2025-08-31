@@ -7,6 +7,7 @@ import {
   IonApp,
   IonAvatar,
   IonBackButton,
+  IonBadge,
   IonButton,
   IonButtons,
   IonCard,
@@ -16,6 +17,8 @@ import {
   IonCardTitle,
   IonContent,
   IonDatetime,
+  IonFab,
+  IonFabButton,
   IonFooter,
   IonHeader,
   IonIcon,
@@ -49,6 +52,7 @@ import {
   IonRadio,
   IonRadioGroup,
   IonNote,
+  IonRange,
   IonSelect,
   IonSelectOption,
   IonDatetimeButton,
@@ -58,7 +62,11 @@ import {
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
 import { SearchModalComponent } from './components/search-modal/search-modal.component';
 import { MapboxMapComponent } from './components/mapbox-map/mapbox-map.component';
+import { CirclePeriodChart } from './components/circle-period-chart/circle-period-chart';
 import { MapService } from './services/map.service';
+import { ImageUrlService } from './services/image-url.service';
+import { ToolsService } from './services/tools.service';
+import { MessageService } from './services/message.service';
 
 const IONIC_MODULES = [
   IonInput,
@@ -68,6 +76,9 @@ const IONIC_MODULES = [
   IonInputOtp,
   IonToggle,
   IonButton,
+  IonBadge,
+  IonFab,
+  IonFabButton,
   IonFooter,
   IonToast,
   IonContent,
@@ -107,6 +118,7 @@ const IONIC_MODULES = [
   IonRadio,
   IonRadioGroup,
   IonNote,
+  IonRange,
   IonSelect,
   IonSelectOption,
   IonSearchbar,
@@ -129,7 +141,7 @@ const COMMON_MODULES = [
   declarations: [CircleProgressBarComponent, SearchModalComponent, MapboxMapComponent],
   imports: [...COMMON_MODULES, ...IONIC_MODULES, RouterModule.forChild([])],
   exports: [...COMMON_MODULES, ...IONIC_MODULES, CircleProgressBarComponent, SearchModalComponent, MapboxMapComponent],
-  providers: [MapService],
+  providers: [MapService, ImageUrlService, ToolsService, MessageService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SharedModule {}

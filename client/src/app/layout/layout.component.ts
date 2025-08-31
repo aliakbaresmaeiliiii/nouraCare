@@ -1,79 +1,60 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { addIcons } from 'ionicons';
+import { 
+  home, 
+  construct, 
+  people, 
+  calendar, 
+  school 
+} from 'ionicons/icons';
 import { SharedModule } from '../shared/shared-module';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
-import { MenuController } from '@ionic/angular';
-import { addIcons } from 'ionicons';
-import {
-  personCircle,
-  personCircleOutline,
-  sunny,
-  sunnyOutline,
-  library,
-  playCircle,
-  radio,
-  search
-} from 'ionicons/icons';
 
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
-  imports: [SharedModule, SideMenuComponent],
+  standalone: true,
+  imports:[SharedModule, SideMenuComponent],
+  schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LayoutComponent implements OnInit {
-  selectedTitle = 'Home';
   paletteToggle = false;
-  constructor(private menuCtrl: MenuController) {
-    addIcons({ personCircle, personCircleOutline, sunny, sunnyOutline ,library, playCircle, radio, search });
+  selectedTitle = 'Home';
+
+  constructor(private router: Router) {
+    // Register the icons
+    addIcons({ home, construct, people, calendar, school });
   }
 
-  openMenu() {
-    this.menuCtrl.open('main-menu');
-  }
-
-  tabChanged(event: any) {
-    switch (event.tab) {
-      case 'home':
-        this.selectedTitle = 'Home';
-        break;
-      case 'tools':
-        this.selectedTitle = 'Tools';
-        break;
-      case 'library':
-        this.selectedTitle = 'Library';
-        break;
-      case 'search':
-        this.selectedTitle = 'Search';
-        break;
-    }
-  }
   ngOnInit() {
-    // Use matchMedia to check the user preference
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-
-    // Initialize the dark palette based on the initial
-    // value of the prefers-color-scheme media query
-    this.initializeDarkPalette(prefersDark.matches);
-
-    // Listen for changes to the prefers-color-scheme media query
-    prefersDark.addEventListener('change', (mediaQuery) =>
-      this.initializeDarkPalette(mediaQuery.matches)
-    );
+    // Listen to route changes to update the title
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.updateTitle(event.url);
+    });
   }
 
-  // Check/uncheck the toggle and update the palette based on isDark
-  initializeDarkPalette(isDark: boolean) {
-    this.paletteToggle = isDark;
-    this.toggleDarkPalette(isDark);
+  toggleChange(event: any) {
+    this.paletteToggle = event.detail.checked;
   }
 
-  // Listen for the toggle check/uncheck to toggle the dark palette
-  toggleChange(event: CustomEvent) {
-    this.toggleDarkPalette(event.detail.checked);
-  }
-
-  // Add or remove the "ion-palette-dark" class on the html element
-  toggleDarkPalette(shouldAdd: boolean) {
-    document.documentElement.classList.toggle('ion-palette-dark', shouldAdd);
+  private updateTitle(url: string) {
+    if (url.includes('/tabs/home')) {
+      this.selectedTitle = 'Home';
+    } else if (url.includes('/tabs/tools')) {
+      this.selectedTitle = 'Health Tools';
+    } else if (url.includes('/tabs/social')) {
+      this.selectedTitle = 'Social Media';
+    } else if (url.includes('/tabs/consultation')) {
+      this.selectedTitle = 'Schedule Consultation';
+    } else if (url.includes('/tabs/school')) {
+      this.selectedTitle = 'Pregnancy School';
+    } else {
+      this.selectedTitle = 'Home';
+    }
   }
 }

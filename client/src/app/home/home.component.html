@@ -1,227 +1,262 @@
-<ion-content>
-  <div class="mt-12">
-    <app-circle-period-chart/>
-  </div>
-
-  <div
-    class="border-2 rounded-md p-4 border-green-500 bg-green-100 text-black mt-4 mx-4"
-  >
-    Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-    Lorem Ipsum has been the industry's standard dummy text ever since the
-    1500s, when an unknown printer took a galley of type and scrambled it to
-    make a type
-  </div>
-
-  <div class="mt-4 mx-4">
-    <ion-button fill="outline" class="w-full"> I became pregnant</ion-button>
-  </div>
-
-  <div class="mt-8 mx-4">
-    <ion-card>
-      <!-- Header with light green bg -->
-      <ion-card-header class="gap-2 bg-green-100 rounded-t-lg">
-        <!-- Icon (Person Circle as consultant) -->
-
-        <ion-card-title
-          class="text-base font-semibold py-4 flex justify-center items-center text-gray-700"
-        >
-          Today’s Message from the Counselor
-        </ion-card-title>
-      </ion-card-header>
-      <div
-        class="w-16 h-16 rounded-full border-2 bg-rose-800 absolute top-6 left-10 transform -translate-x-1/2 overflow-hidden"
-      >
-        <img
-          class="w-full h-full object-cover"
-          src="assets/images/nurse.png"
-          alt=""
-        />
+<ion-content class="home-content">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Welcome to Gahvaremi</h1>
+      
+      <!-- Personalized Welcome Message -->
+      <div class="welcome-message" *ngIf="welcomeMessage">
+        <p class="message-text">{{ welcomeMessage }}</p>
+        <ion-button fill="clear" size="small" (click)="generateMessages()">
+          <ion-icon name="refresh" slot="start"></ion-icon>
+          New Message
+        </ion-button>
+      </div>
+      
+      <!-- Daily Inspirational Message -->
+      <div class="daily-message" *ngIf="dailyMessage">
+        <div class="message-card">
+          <ion-icon name="heart" class="message-icon"></ion-icon>
+          <p class="daily-text">{{ dailyMessage }}</p>
+          <ion-button fill="clear" size="small" (click)="refreshDailyMessage()">
+            <ion-icon name="refresh" slot="start"></ion-icon>
+            Refresh
+          </ion-button>
+        </div>
       </div>
 
-      <ion-card-content>
-        <h2>5 Tips for Better Mental Preparation Before Pregnancy</h2>
-        <div class="pt-4 border-b pb-2">
-          Manage Stress – Practice relaxation and mindfulness to stay calm.
-          Strengthen Relationships – Build emotional support with your partner
-          and family. Positive Mindset – Focus on self-confidence and readiness
-          for motherhood.
-        </div>
-
-        <h2 class="text-cyan-500 font-bold text-center underline">
-          View Counselor’s Weekly Schedule
-        </h2>
-      </ion-card-content>
-    </ion-card>
-  </div>
-  <div class="animation-card">
-    <h2
-      class="flex justify-center items-center text-2xl font-bold absolute w-3/4 top-12 left-1/2 transform -translate-x-1/2 text-black bg-blue-100 py-4 rounded-md"
-    >
-      Gahvare is Always With You...
-    </h2>
-    <div class="air air1"></div>
-    <div class="air air2"></div>
-    <div class="air air3"></div>
-    <div class="air air4"></div>
-    <div class="wave-container">
-      <div class="heart" style="left: 10%; animation-delay: 0s"></div>
-      <div class="heart" style="left: 30%; animation-delay: 1s"></div>
-      <div class="heart" style="left: 50%; animation-delay: 2s"></div>
-      <div class="heart" style="left: 70%; animation-delay: 1.5s"></div>
-      <div class="heart" style="left: 90%; animation-delay: 2.5s"></div>
+      <div class="hero-actions">
+        <ion-button expand="block" fill="solid" class="track-btn" (click)="trackToday()">
+          <ion-icon name="calendar" slot="start"></ion-icon>
+          Track Today
+        </ion-button>
+        <ion-button expand="block" fill="outline" class="calendar-btn" (click)="viewCalendar()">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          View Calendar
+        </ion-button>
+      </div>
+    </div>
+    <div class="hero-decoration">
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
     </div>
   </div>
 
-  <div class="mt-8 mx-4">
-    <ion-card>
-      <ion-card-header class="gap-2 bg-green-100 rounded-t-lg">
-        <ion-card-title
-          class="text-base font-semibold py-4 flex justify-center items-center text-gray-700"
-        >
-          Tools
-        </ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
-        <div class="swiper mySwiper mt-4">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide border-2 border-gray-400 rounded-md">
-              <div class="flex flex-col justify-center gap-2 items-center">
-                <ion-avatar class="flex justify-center items-center">
-                  <img
-                    class="w-8 h-8"
-                    alt="Silhouette of a person's head"
-                    src="https://ionicframework.com/docs/img/demos/avatar.svg"
-                  />
-                </ion-avatar>
-                <span class="text-xs"> Add a name </span>
-                <span class="text-xs"> description </span>
-                <ion-buttons slot="secondary">
-                  <ion-button
-                    fill="solid"
-                    class="text-[10px] w-28 pb-2 text-white font-semibold"
-                  >
-                    Add name
-                  </ion-button>
-                </ion-buttons>
-              </div>
-            </div>
-            <div class="swiper-slide border-2 border-gray-400 rounded-md">
-              <div class="flex flex-col justify-center gap-2 items-center">
-                <ion-avatar class="flex justify-center items-center">
-                  <img
-                    class="w-8 h-8"
-                    alt="Silhouette of a person's head"
-                    src="https://ionicframework.com/docs/img/demos/avatar.svg"
-                  />
-                </ion-avatar>
-                <span class="text-xs"> Add a name </span>
-                <span class="text-xs"> description </span>
-                <ion-buttons slot="secondary">
-                  <ion-button
-                    fill="solid"
-                    class="text-[10px] w-28 pb-2 text-white font-semibold"
-                  >
-                    Add name
-                  </ion-button>
-                </ion-buttons>
-              </div>
-            </div>
-            <div class="swiper-slide border-2 border-gray-400 rounded-md">
-              <div class="flex flex-col justify-center gap-2 items-center">
-                <ion-avatar class="flex justify-center items-center">
-                  <img
-                    class="w-8 h-8"
-                    alt="Silhouette of a person's head"
-                    src="https://ionicframework.com/docs/img/demos/avatar.svg"
-                  />
-                </ion-avatar>
-                <span class="text-xs"> Add a name </span>
-                <span class="text-xs"> description </span>
-                <ion-buttons slot="secondary">
-                  <ion-button
-                    fill="solid"
-                    class="text-[10px] w-28 pb-2 text-white font-semibold"
-                  >
-                    Add name
-                  </ion-button>
-                </ion-buttons>
-              </div>
-            </div>
-            <div class="swiper-slide border-2 border-gray-400 rounded-md">
-              <div class="flex flex-col justify-center gap-2 items-center">
-                <ion-avatar class="flex justify-center items-center">
-                  <img
-                    class="w-8 h-8"
-                    alt="Silhouette of a person's head"
-                    src="https://ionicframework.com/docs/img/demos/avatar.svg"
-                  />
-                </ion-avatar>
-                <span class="text-xs"> Add a name </span>
-                <span class="text-xs"> description </span>
-                <ion-buttons slot="secondary">
-                  <ion-button
-                    fill="solid"
-                    class="text-[10px] w-28 pb-2 text-white font-semibold"
-                  >
-                    Add name
-                  </ion-button>
-                </ion-buttons>
-              </div>
-            </div>
-          </div>
-          <div class="swiper-pagination"></div>
-        </div>
-      </ion-card-content>
-    </ion-card>
+  <!-- Period Chart Section -->
+  <div class="chart-section">
+    <div class="section-header">
+      <h2 class="section-title">Your Cycle Overview</h2>
+      <p class="section-subtitle">Track your fertility and health</p>
+    </div>
+    <div class="chart-container">
+      <app-circle-period-chart/>
+    </div>
   </div>
 
-  <div class="mt-8 mx-4">
-    <ion-card>
-      <ion-card-header class="gap-2 bg-cyan-400 rounded-t-lg">
-        <ion-card-title class="flex justify-center items-center">
-          <div
-            class="w-full max-w-sm mx-auto bg-gradient-to-b rounded-xl shadow-lg flex flex-col items-center"
-          >
-            <!-- Profile Image -->
-            <div
-              class="w-68 h-68 rounded-full overflow-hidden border-4 border-white shadow-md"
-            >
-              <img
-                src="assets/images/doctor.jpg"
-                alt="Doctor"
-                class="w-full h-full object-cover object-top"
-              />
-            </div>
+  <!-- Quick Actions Section -->
+  <div class="quick-actions-section">
+    <div class="section-header">
+      <h2 class="section-title">Quick Actions</h2>
+      <p class="section-subtitle">What would you like to do today?</p>
+    </div>
+    <div class="actions-grid">
+      <div class="action-card" (click)="onActionClick('pregnant')">
+        <div class="action-icon">
+          <ion-icon name="heart-circle-outline"></ion-icon>
+        </div>
+        <h3 class="action-title">I became pregnant</h3>
+        <p class="action-description">Update your status and get personalized guidance</p>
+      </div>
+      
+      <div class="action-card" (click)="onActionClick('symptoms')">
+        <div class="action-icon">
+          <ion-icon name="medical-outline"></ion-icon>
+        </div>
+        <h3 class="action-title">Track Symptoms</h3>
+        <p class="action-description">Log your daily symptoms and mood</p>
+      </div>
+      
+      <div class="action-card" (click)="onActionClick('appointment')">
+        <div class="action-icon">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+        <h3 class="action-title">Book Appointment</h3>
+        <p class="action-description">Schedule a consultation with specialists</p>
+      </div>
+      
+      <div class="action-card" (click)="onActionClick('community')">
+        <div class="action-icon">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <h3 class="action-title">Join Community</h3>
+        <p class="action-description">Connect with other women on similar journeys</p>
+      </div>
+    </div>
+  </div>
 
-            <!-- Name & Title -->
-            <div
-              class="bg-cyan-200 w-4/6 mt-6 rounded-lg text-center shadow absolute pb-2 top-2/3 px-2"
-            >
-              <span class="!text-md font-bold text-gray-800"
-                >Parinaz Banaei</span
-              >
-              <p class="text-sm text-gray-700">
-                Clinical Nutritionist &
-                <br />
-                Diet Therapy Specialist
-              </p>
+  <!-- Daily Tips Section -->
+  <div class="tips-section">
+    <div class="section-header">
+      <h2 class="section-title">Today's Wisdom</h2>
+      <p class="section-subtitle">Expert advice from our counselors</p>
+    </div>
+    <div class="tip-card">
+      <div class="tip-header">
+        <div class="counselor-avatar">
+          <img src="assets/images/nurse.png" alt="Counselor" />
+        </div>
+        <div class="tip-info">
+          <h3 class="tip-title">5 Tips for Better Mental Preparation Before Pregnancy</h3>
+          <p class="tip-author">Dr. Sarah Johnson, Mental Health Specialist</p>
+        </div>
+      </div>
+      <div class="tip-content">
+        <p class="tip-text">
+          <strong>1. Manage Stress</strong> – Practice relaxation and mindfulness to stay calm.<br>
+          <strong>2. Strengthen Relationships</strong> – Build emotional support with your partner and family.<br>
+          <strong>3. Positive Mindset</strong> – Focus on self-confidence and readiness for motherhood.
+        </p>
+        <ion-button fill="outline" class="tip-action" (click)="viewCounselorSchedule()">
+          <ion-icon name="time-outline" slot="start"></ion-icon>
+          View Counselor's Weekly Schedule
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tools Section -->
+  <div class="tools-section">
+    <div class="section-header">
+      <h2 class="section-title">Health Tools</h2>
+      <p class="section-subtitle">Essential tools for your journey</p>
+    </div>
+    <div class="tools-carousel">
+      <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div class="tool-card">
+              <div class="tool-icon">
+                <ion-icon name="calculator-outline"></ion-icon>
+              </div>
+              <h3 class="tool-title">Fertility Calculator</h3>
+              <p class="tool-description">Calculate your most fertile days</p>
+              <ion-button fill="solid" size="small" class="tool-action" (click)="openFertilityCalculator()">
+                Use Tool
+              </ion-button>
             </div>
           </div>
-        </ion-card-title>
-      </ion-card-header>
-
-      <ion-card-content>
-        <div class="mt-6">
-          <h2>5 Tips for Better Mental Preparation Before Pregnancy</h2>
-          <div class="pt-4 pb-2">
-            Manage Stress – Practice relaxation and mindfulness to stay calm.
-            Strengthen Relationships – Build emotional support with your partner
-            and family. Positive Mindset – Focus on self-confidence and
-            readiness for motherhood.
+          
+          <div class="swiper-slide">
+            <div class="tool-card">
+              <div class="tool-icon">
+                <ion-icon name="nutrition-outline"></ion-icon>
+              </div>
+              <h3 class="tool-title">Nutrition Tracker</h3>
+              <p class="tool-description">Track your daily nutrition intake</p>
+              <ion-button fill="solid" size="small" class="tool-action" (click)="openNutritionTracker()">
+                Use Tool
+              </ion-button>
+            </div>
+          </div>
+          
+          <div class="swiper-slide">
+            <div class="tool-card">
+              <div class="tool-icon">
+                <ion-icon name="fitness-outline"></ion-icon>
+              </div>
+              <h3 class="tool-title">Exercise Planner</h3>
+              <p class="tool-description">Safe exercises during pregnancy</p>
+              <ion-button fill="solid" size="small" class="tool-action" (click)="openExercisePlanner()">
+                Use Tool
+              </ion-button>
+            </div>
+          </div>
+          
+          <div class="swiper-slide">
+            <div class="tool-card">
+              <div class="tool-icon">
+                <ion-icon name="medkit-outline"></ion-icon>
+              </div>
+              <h3 class="tool-title">Medication Reminder</h3>
+              <p class="tool-description">Never miss your supplements</p>
+              <ion-button fill="solid" size="small" class="tool-action" (click)="openMedicationReminder()">
+                Use Tool
+              </ion-button>
+            </div>
           </div>
         </div>
-      </ion-card-content>
-    </ion-card>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
   </div>
+
+  <!-- Expert Profile Section -->
+  <div class="expert-section">
+    <div class="section-header">
+      <h2 class="section-title">Meet Our Experts</h2>
+      <p class="section-subtitle">Specialized care from professionals</p>
+    </div>
+    <div class="expert-card">
+      <div class="expert-profile">
+        <div class="expert-avatar">
+          <img src="assets/images/doctor.jpg" alt="Dr. Parinaz Banaei" />
+        </div>
+        <div class="expert-info">
+          <h3 class="expert-name">Dr. Parinaz Banaei</h3>
+          <p class="expert-title">Clinical Nutritionist & Diet Therapy Specialist</p>
+          <div class="expert-credentials">
+            <span class="credential">PhD Nutrition</span>
+            <span class="credential">15+ Years Experience</span>
+          </div>
+        </div>
+      </div>
+      <div class="expert-content">
+        <h4 class="expert-tip-title">Nutrition Tip of the Day</h4>
+        <p class="expert-tip-text">
+          "Focus on folate-rich foods like leafy greens, legumes, and fortified cereals. 
+          These are essential for healthy fetal development and can help prevent neural tube defects."
+        </p>
+        <ion-button fill="outline" class="expert-action" (click)="bookExpertConsultation()">
+          <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
+          Book Consultation
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Community Section -->
+  <div class="community-section">
+    <div class="section-header">
+      <h2 class="section-title">Join Our Community</h2>
+      <p class="section-subtitle">Connect with women on similar journeys</p>
+    </div>
+    <div class="community-stats">
+      <div class="stat-item">
+        <div class="stat-number">2,847</div>
+        <div class="stat-label">Active Members</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">156</div>
+        <div class="stat-label">Success Stories</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Support Available</div>
+      </div>
+    </div>
+    <ion-button expand="block" fill="solid" class="community-action" (click)="joinCommunity()">
+      <ion-icon name="people-circle-outline" slot="start"></ion-icon>
+      Join the Community
+    </ion-button>
+  </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="openQuickMenu()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

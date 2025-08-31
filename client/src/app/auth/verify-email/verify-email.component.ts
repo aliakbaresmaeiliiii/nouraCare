@@ -32,6 +32,7 @@ function otpRequiredLength(length: number) {
   selector: 'app-verify-email',
   templateUrl: './verify-email.component.html',
   styleUrls: ['./verify-email.component.scss'],
+  standalone: true,
   imports: [SharedModule],
 })
 export class VerifyEmailComponent implements OnInit {
@@ -39,6 +40,7 @@ export class VerifyEmailComponent implements OnInit {
   message = '';
   success = signal<boolean>(false);
   otpCode: string = '';
+  isLoading: boolean = false;
   service = inject(AuthService);
   userInfo!: any;
   form!: FormGroup;
@@ -121,6 +123,17 @@ export class VerifyEmailComponent implements OnInit {
         this.message = error.error.message;
       },
     });
+  }
+
+  onSubmit() {
+    if (this.form.valid) {
+      const otp = this.form.get('otpCode')?.value;
+      if (otp) {
+        this.verifyOrp(otp);
+      }
+    } else {
+      this.form.markAllAsTouched();
+    }
   }
 
   resendCode() {

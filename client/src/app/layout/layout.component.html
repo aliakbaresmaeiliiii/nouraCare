@@ -1,9 +1,6 @@
 <ion-app>
   <app-side-menu></app-side-menu>
 
-  <!-- Main layout goes here -->
-  <ion-router-outlet id="main-content"></ion-router-outlet>
-
   <!-- Main layout -->
   <div class="ion-page" id="main-content">
     <!-- Shared header -->
@@ -18,27 +15,34 @@
         <ion-buttons slot="start">
           <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-title>{{ selectedTitle }} </ion-title>
+        <ion-title>{{ selectedTitle }}</ion-title>
       </ion-toolbar>
     </ion-header>
 
+    <!-- Tab content -->
     <ion-tabs>
+      <ion-router-outlet></ion-router-outlet>
+      
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="home">
-          <ion-icon name="play-circle"></ion-icon>
-          Listen Now
+        <ion-tab-button tab="home" href="tabs/home">
+          <ion-icon name="home"></ion-icon>
+          Home
         </ion-tab-button>
-        <ion-tab-button tab="tools">
-          <ion-icon name="radio"></ion-icon>
-          Radio
+        <ion-tab-button tab="tools" href="tabs/tools">
+          <ion-icon name="construct"></ion-icon>
+          Tools
         </ion-tab-button>
-        <ion-tab-button tab="library">
-          <ion-icon name="library"></ion-icon>
-          Library
+        <ion-tab-button tab="social" href="tabs/social">
+          <ion-icon name="people"></ion-icon>
+          Social
         </ion-tab-button>
-        <ion-tab-button tab="search">
-          <ion-icon name="search"></ion-icon>
-          Search
+        <ion-tab-button tab="consultation" href="tabs/consultation">
+          <ion-icon name="calendar"></ion-icon>
+          Consultation
+        </ion-tab-button>
+        <ion-tab-button tab="school" href="tabs/school">
+          <ion-icon name="school"></ion-icon>
+          School
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

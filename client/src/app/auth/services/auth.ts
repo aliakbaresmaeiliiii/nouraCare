@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { UserInfo } from '../login/model/uesr-interface';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../../environments/environment';
 import { LoginRequest } from '../login/model/login-request-interface';
 import { RegisterRequest } from '../login/model/register-request-interface';
 

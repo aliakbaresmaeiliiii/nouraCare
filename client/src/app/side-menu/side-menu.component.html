@@ -2,11 +2,11 @@
   <!-- Profile Section -->
   <ion-header class="profile-header">
     <ion-toolbar class="profile-toolbar">
-      <div class="profile-section">
+      <div class="profile-section" (click)="navigateToProfile()">
         <div class="profile-avatar-container">
           <ion-avatar class="profile-avatar">
             <img
-              [src]="userProfileImage || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
+              [src]="userProfileImage"
               alt="Profile"
               class="avatar-image"
             />

@@ -9,6 +9,9 @@ import { SharedModule } from '../shared/shared-module';
 import Swiper from 'swiper';
 import { Router } from '@angular/router';
 import { User } from '../shared/services/user';
+import { ImageUrlService } from '../shared/services/image-url.service';
+
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -28,6 +31,7 @@ export class ProfileComponent implements OnInit {
   city: string = '';
   profileImage: string | null = null;
   private userService = inject(User);
+  private imageUrlService = inject(ImageUrlService);
   
   userInfo = signal<any[]>([
     {
@@ -86,7 +90,7 @@ export class ProfileComponent implements OnInit {
       this.email = u.email || '';
       this.birthday = u.birthday || '';
       this.city = u.city || '';
-      this.profileImage = u.profileImage || null;
+      this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
     } catch {}
     // fetch fresh from API if we have id
     const id = this.userInfoStore?.user?.id;
@@ -96,7 +100,7 @@ export class ProfileComponent implements OnInit {
         this.email = res?.email || this.email;
         this.birthday = res?.birthday || this.birthday;
         this.city = res?.city || this.city;
-        this.profileImage = res?.profileImage || this.profileImage;
+        this.profileImage = this.imageUrlService.getImageUrl(res?.profileImage || this.profileImage);
         this.computeProgress();
       });
     }

@@ -1,130 +1,165 @@
-<ion-content>
-  <div class="mx-4 px-4 pt-1 rounded-2xl shadow-lg ">
+<ion-content class="login-page">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="logo-container">
+        <ion-icon name="heart" class="logo-icon"></ion-icon>
+        <h1 class="app-title">Gahvaremi</h1>
+        <p class="app-subtitle">Your Pregnancy Companion</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Forms Container -->
+  <div class="auth-container">
     <!-- Toggle Buttons -->
-    <div class="flex mb-2 gap-3">
+    <div class="tab-container">
       <button
         type="button"
         (click)="activeTab = 'login'"
-        [class.bg-blue-500]="activeTab === 'login'"
-        [class.rounded-4xl]="activeTab === 'login'"
-        [class.text-white]="activeTab === 'login'"
-        class="form-submit-btn"
+        [class.active]="activeTab === 'login'"
+        class="tab-button"
       >
-        Login
+        <ion-icon name="log-in-outline" slot="start"></ion-icon>
+        Sign In
       </button>
       <button
         type="button"
         (click)="activeTab = 'register'"
-        [class.bg-blue-500]="activeTab === 'register'"
-        [class.text-white]="activeTab === 'register'"
-        class="form-submit-btn"
+        [class.active]="activeTab === 'register'"
+        class="tab-button"
       >
-        Register
+        <ion-icon name="person-add-outline" slot="start"></ion-icon>
+        Sign Up
       </button>
     </div>
 
     <!-- Login Form -->
-    @if (activeTab === 'login') {
-    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-4">
-      <div>
-        <label class="block mb-1 text-sm font-medium">Email</label>
-        <input
-          type="email"
-          formControlName="email"
-          placeholder="you@example.com"
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        />
-        @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid)
-        {
-        <div class="text-red-500 text-xs mt-1">Please enter a valid email.</div>
-        }
+    <div *ngIf="activeTab === 'login'" class="form-container">
+      <div class="form-header">
+        <h2 class="form-title">Welcome Back</h2>
+        <p class="form-subtitle">Sign in to continue your journey</p>
       </div>
-      <!-- <button class="form-submit-btn" type="submit">Login</button> -->
-      <ion-button type="submit" class="w-full">Login</ion-button>
-    </form>
 
-    <ion-toast
-      [isOpen]="showToast"
-      [message]="message"
-      [duration]="3000"
-      (didDismiss)="showToast = false"
-      [buttons]="['OK']"
-      [color]="success ? 'success' : 'danger'"
-    >
-    </ion-toast>
-    }
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">
+            <ion-icon name="mail-outline" class="label-icon"></ion-icon>
+            Email Address
+          </label>
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            class="form-input"
+            [class.error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+          />
+          <div
+            *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+            class="error-message"
+          >
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            Please enter a valid email address
+          </div>
+        </div>
+
+        <ion-button 
+          type="submit" 
+          class="submit-button"
+          [disabled]="loginForm.invalid || isLoading"
+          expand="block"
+        >
+          <ion-icon name="log-in-outline" slot="start" *ngIf="!isLoading"></ion-icon>
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          {{ isLoading ? 'Signing In...' : 'Sign In' }}
+        </ion-button>
+
+        <div class="form-footer">
+          <a href="#" class="forgot-link">Forgot Password?</a>
+        </div>
+      </form>
+    </div>
 
     <!-- Register Form -->
-    @if (activeTab === 'register') {
-    <form
-      [formGroup]="registerForm"
-      (ngSubmit)="onRegister()"
-      class="space-y-4"
-    >
-      <h2 class="text-xl font-bold text-center">Create Account</h2>
-
-      <div>
-        <label class="block mb-1 text-sm font-medium">Email</label>
-        <input
-          type="email"
-          formControlName="email"
-          placeholder="you@example.com"
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        />
-        <div
-          *ngIf="
-            registerForm.get('email')?.touched &&
-            registerForm.get('email')?.invalid
-          "
-          class="text-red-500 text-xs mt-1"
-        >
-          Please enter a valid email.
-        </div>
+    <div *ngIf="activeTab === 'register'" class="form-container">
+      <div class="form-header">
+        <h2 class="form-title">Join Gahvaremi</h2>
+        <p class="form-subtitle">Start your pregnancy journey today</p>
       </div>
 
-      <div>
-        <label class="block mb-1 text-sm font-medium">Phone</label>
-        <input
-          type="tel"
-          formControlName="phone"
-          placeholder="+60123456789"
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        />
-        <div
-          *ngIf="
-            registerForm.get('phone')?.touched &&
-            registerForm.get('phone')?.invalid
-          "
-          class="text-red-500 text-xs mt-1"
-        >
-          Please enter a valid phone number.
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">
+            <ion-icon name="mail-outline" class="label-icon"></ion-icon>
+            Email Address
+          </label>
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            class="form-input"
+            [class.error]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+          />
+          <div
+            *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+            class="error-message"
+          >
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            Please enter a valid email address
+          </div>
         </div>
-      </div>
 
-      <!-- <div>
-        <label class="block mb-1 text-sm font-medium">Password</label>
-        <input
-          type="password"
-          formControlName="password"
-          placeholder="********"
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        />
-        <div
-          *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
-          class="text-red-500 text-xs mt-1"
-        >
-          Password must be at least 6 characters.
+        <div class="form-group">
+          <label class="form-label">
+            <ion-icon name="call-outline" class="label-icon"></ion-icon>
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            formControlName="phone"
+            placeholder="Enter your phone number"
+            class="form-input"
+            [class.error]="registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid"
+          />
+          <div
+            *ngIf="registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid"
+            class="error-message"
+          >
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            Please enter a valid phone number
+          </div>
         </div>
-      </div> -->
 
-      <button
-        type="submit"
-        [disabled]="registerForm.invalid"
-        class="w-full py-2 h-10 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-      >
-        Sign Up
-      </button>
-    </form>
-    }
+        <ion-button 
+          type="submit" 
+          class="submit-button register"
+          [disabled]="registerForm.invalid || isLoading"
+          expand="block"
+        >
+          <ion-icon name="person-add-outline" slot="start" *ngIf="!isLoading"></ion-icon>
+          <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+          {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+        </ion-button>
+
+        <div class="form-footer">
+          <p class="terms-text">
+            By signing up, you agree to our 
+            <a href="#" class="terms-link">Terms of Service</a> and 
+            <a href="#" class="terms-link">Privacy Policy</a>
+          </p>
+        </div>
+      </form>
+    </div>
   </div>
+
+  <!-- Toast for notifications -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="message"
+    [duration]="3000"
+    (didDismiss)="showToast = false"
+    [buttons]="['OK']"
+    [color]="success ? 'success' : 'danger'"
+  >
+  </ion-toast>
 </ion-content>

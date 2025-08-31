@@ -1,17 +1,26 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
+import { ImageUrlService } from '../shared/services/image-url.service';
+
+interface MenuItem {
+  icon: string;
+  label: string;
+  badge?: string;
+}
 
 @Component({
   selector: 'app-side-menu',
   templateUrl: './side-menu.component.html',
   styleUrls: ['./side-menu.component.scss'],
+  standalone: true,
   imports: [SharedModule],
 })
 export class SideMenuComponent implements OnInit {
   activeIndexTop: number | null = null;
   activeIndexBottom: number | null = null;
   router = inject(Router);
+  private imageUrlService = inject(ImageUrlService);
 
   // User profile data
   userName: string = 'Aliakbar Esmaeili';
@@ -21,7 +30,7 @@ export class SideMenuComponent implements OnInit {
   // App version
   appVersion: string = '1.0.0';
 
-  menuItemsTop = [
+  menuItemsTop: MenuItem[] = [
     { icon: 'diamond-outline', label: 'Gahvareh Pro', badge: 'PRO' },
     { icon: 'bag-outline', label: 'My Purchases' },
     { icon: 'heart-outline', label: 'My Favorites' },
@@ -31,7 +40,7 @@ export class SideMenuComponent implements OnInit {
     { icon: 'ban-outline', label: 'Blocked Users' },
   ];
 
-  menuItemsBottom = [
+  menuItemsBottom: MenuItem[] = [
     { icon: 'settings-outline', label: 'Settings' },
     { icon: 'refresh-outline', label: 'Check for Updates' },
     { icon: 'person-add-outline', label: 'Invite Friends' },
@@ -47,11 +56,15 @@ export class SideMenuComponent implements OnInit {
     // Add navigation logic here if needed
   }
 
-  setActiveBottom(item: any, index: number) {
+  setActiveBottom(item: MenuItem, index: number) {
     this.activeIndexBottom = index;
     if (item.label === 'Log Out') {
       this.logout();
     }
+  }
+
+  navigateToProfile() {
+    this.router.navigate(['/profile']);
   }
 
   logout() {
@@ -77,12 +90,18 @@ export class SideMenuComponent implements OnInit {
 
   private loadUserProfile() {
     // Load user profile from localStorage or service
-    const storedProfile = localStorage.getItem('userProfile');
-    if (storedProfile) {
-      const profile = JSON.parse(storedProfile);
-      this.userName = profile.name || this.userName;
-      this.userProfileImage = profile.profileImage || null;
-      this.profileCompletion = profile.completion || this.profileCompletion;
+    try {
+      const userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const user = userInfoStore?.user || {};
+      this.userName = user.name || this.userName;
+      this.userProfileImage = this.imageUrlService.getImageUrl(user.profileImage);
+      
+      // Calculate profile completion based on filled fields
+      const fields = [user.name, user.email, user.birthday, user.city];
+      const filled = fields.filter((v) => !!v).length;
+      this.profileCompletion = Math.round((filled / fields.length) * 100);
+    } catch (error) {
+      console.error('Error loading user profile:', error);
     }
   }
 }
