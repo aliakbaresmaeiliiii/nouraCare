@@ -26,11 +26,11 @@
       </div>
 
       <div class="hero-actions">
-        <ion-button expand="block" fill="solid" class="track-btn" (click)="trackToday()">
+        <ion-button expand="block" fill="solid" class="track-btn" (click)="openDailyTracking()">
           <ion-icon name="calendar" slot="start"></ion-icon>
           Track Today
         </ion-button>
-        <ion-button expand="block" fill="outline" class="calendar-btn" (click)="viewCalendar()">
+        <ion-button expand="block" fill="outline" class="calendar-btn" (click)="openCalendarView()">
           <ion-icon name="calendar-outline" slot="start"></ion-icon>
           View Calendar
         </ion-button>
@@ -52,7 +52,11 @@
       <p class="section-subtitle">Track your fertility and health</p>
     </div>
     <div class="chart-container">
-      <app-circle-period-chart/>
+      <!-- Temporarily disabled to test -->
+      <div class="chart-placeholder">
+        <ion-icon name="analytics-outline" size="large"></ion-icon>
+       <app-circle-period-chart></app-circle-period-chart>
+      </div>
     </div>
   </div>
 

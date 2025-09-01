@@ -67,10 +67,10 @@ export class ToolsComponent implements OnInit {
   async loadTodayStats() {
     try {
       this.isLoading = true;
-      const stats = await this.toolsService.getTodayStats(this.currentUserId).toPromise();
-      if (stats) {
-        this.todayStats = stats;
-      }
+      // const stats = await this.toolsService.getTodayStats(this.currentUserId).toPromise();
+      // if (stats) {
+      //   this.todayStats = stats;
+      // }
     } catch (error) {
       console.error('Error loading today stats:', error);
       await this.showToast('Failed to load today\'s statistics', 'danger');

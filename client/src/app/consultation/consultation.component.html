@@ -5,8 +5,8 @@
     </ion-buttons>
     <ion-title>Schedule Consultation</ion-title>
     <ion-buttons slot="end">
-      <ion-button>
-        <ion-icon name="calendar"></ion-icon>
+      <ion-button (click)="openNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -18,6 +18,20 @@
     <div class="hero-content">
       <h1 class="hero-title">Expert Consultation</h1>
       <p class="hero-subtitle">Book appointments with healthcare professionals</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">50+</span>
+          <span class="stat-label">Specialists</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Support</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">4.9★</span>
+          <span class="stat-label">Rating</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -25,19 +39,19 @@
   <div class="quick-booking">
     <h2 class="section-title">Quick Booking</h2>
     <div class="booking-options">
-      <ion-button expand="block" fill="solid" class="booking-btn primary">
+      <ion-button expand="block" fill="solid" class="booking-btn primary" (click)="bookDoctorAppointment()">
         <ion-icon name="medical" slot="start"></ion-icon>
         Book Doctor Appointment
       </ion-button>
-      <ion-button expand="block" fill="outline" class="booking-btn">
+      <ion-button expand="block" fill="outline" class="booking-btn" (click)="bookNutritionConsultation()">
         <ion-icon name="nutrition" slot="start"></ion-icon>
         Nutrition Consultation
       </ion-button>
-      <ion-button expand="block" fill="outline" class="booking-btn">
+      <ion-button expand="block" fill="outline" class="booking-btn" (click)="bookFitnessConsultation()">
         <ion-icon name="fitness" slot="start"></ion-icon>
         Fitness Consultation
       </ion-button>
-      <ion-button expand="block" fill="outline" class="booking-btn">
+      <ion-button expand="block" fill="outline" class="booking-btn" (click)="bookMentalHealthSupport()">
         <ion-icon name="heart" slot="start"></ion-icon>
         Mental Health Support
       </ion-button>
@@ -48,9 +62,10 @@
   <div class="specialists-section">
     <h2 class="section-title">Available Specialists</h2>
     
-    <div class="specialist-card">
+    <div class="specialist-card" (click)="bookSpecialist('sarah')">
       <div class="specialist-avatar">
-        <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Dr. Sarah Johnson">
+        <img src="assets/images/doctor.jpg" alt="Dr. Sarah Johnson">
+        <div class="online-indicator"></div>
       </div>
       <div class="specialist-info">
         <h3 class="specialist-name">Dr. Sarah Johnson</h3>
@@ -63,15 +78,20 @@
           <span class="available">Available Today</span>
           <span class="next-slot">Next: 2:00 PM</span>
         </div>
+        <div class="specialist-tags">
+          <span class="tag">Prenatal Care</span>
+          <span class="tag">High Risk</span>
+        </div>
       </div>
       <ion-button fill="outline" size="small" class="book-btn">
         Book Now
       </ion-button>
     </div>
 
-    <div class="specialist-card">
+    <div class="specialist-card" (click)="bookSpecialist('michael')">
       <div class="specialist-avatar">
-        <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Dr. Michael Chen">
+        <img src="assets/images/nurse.png" alt="Dr. Michael Chen">
+        <div class="online-indicator"></div>
       </div>
       <div class="specialist-info">
         <h3 class="specialist-name">Dr. Michael Chen</h3>
@@ -84,15 +104,20 @@
           <span class="available">Available Tomorrow</span>
           <span class="next-slot">Next: 10:00 AM</span>
         </div>
+        <div class="specialist-tags">
+          <span class="tag">Nutrition</span>
+          <span class="tag">Diet Plans</span>
+        </div>
       </div>
       <ion-button fill="outline" size="small" class="book-btn">
         Book Now
       </ion-button>
     </div>
 
-    <div class="specialist-card">
+    <div class="specialist-card" (click)="bookSpecialist('emily')">
       <div class="specialist-avatar">
-        <img src="https://ionicframework.com/docs/img/demos/avatar.svg" alt="Dr. Emily Rodriguez">
+        <img src="assets/images/doctor.jpg" alt="Dr. Emily Rodriguez">
+        <div class="online-indicator"></div>
       </div>
       <div class="specialist-info">
         <h3 class="specialist-name">Dr. Emily Rodriguez</h3>
@@ -105,9 +130,39 @@
           <span class="available">Available Today</span>
           <span class="next-slot">Next: 4:30 PM</span>
         </div>
+        <div class="specialist-tags">
+          <span class="tag">Exercise</span>
+          <span class="tag">Yoga</span>
+        </div>
       </div>
       <ion-button fill="outline" size="small" class="book-btn">
         Book Now
+      </ion-button>
+    </div>
+
+    <div class="specialist-card" (click)="bookSpecialist('david')">
+      <div class="specialist-avatar">
+        <img src="assets/images/nurse.png" alt="Dr. David Wilson">
+        <div class="online-indicator offline"></div>
+      </div>
+      <div class="specialist-info">
+        <h3 class="specialist-name">Dr. David Wilson</h3>
+        <p class="specialist-specialty">Mental Health Specialist</p>
+        <div class="specialist-details">
+          <span class="rating">⭐ 4.7 (203 reviews)</span>
+          <span class="experience">10+ years experience</span>
+        </div>
+        <div class="specialist-availability">
+          <span class="unavailable">Available Next Week</span>
+          <span class="next-slot">Next: Monday 9:00 AM</span>
+        </div>
+        <div class="specialist-tags">
+          <span class="tag">Counseling</span>
+          <span class="tag">Stress</span>
+        </div>
+      </div>
+      <ion-button fill="outline" size="small" class="book-btn" disabled>
+        Book Later
       </ion-button>
     </div>
   </div>
@@ -116,7 +171,7 @@
   <div class="appointments-section">
     <h2 class="section-title">Upcoming Appointments</h2>
     
-    <div class="appointment-card">
+    <div class="appointment-card" (click)="viewAppointment('prenatal')">
       <div class="appointment-icon">
         <ion-icon name="medical"></ion-icon>
       </div>
@@ -131,13 +186,16 @@
           <ion-icon name="location-outline"></ion-icon>
           <span>Women's Health Clinic - Room 3</span>
         </div>
+        <div class="appointment-status">
+          <span class="status confirmed">Confirmed</span>
+        </div>
       </div>
-      <ion-button fill="clear" size="small" class="reschedule-btn">
+      <ion-button fill="clear" size="small" class="reschedule-btn" (click)="rescheduleAppointment('prenatal')">
         Reschedule
       </ion-button>
     </div>
 
-    <div class="appointment-card">
+    <div class="appointment-card" (click)="viewAppointment('nutrition')">
       <div class="appointment-icon">
         <ion-icon name="nutrition"></ion-icon>
       </div>
@@ -152,9 +210,21 @@
           <ion-icon name="location-outline"></ion-icon>
           <span>Nutrition Center - Room 1</span>
         </div>
+        <div class="appointment-status">
+          <span class="status pending">Pending Confirmation</span>
+        </div>
       </div>
-      <ion-button fill="clear" size="small" class="reschedule-btn">
+      <ion-button fill="clear" size="small" class="reschedule-btn" (click)="rescheduleAppointment('nutrition')">
         Reschedule
+      </ion-button>
+    </div>
+
+    <div class="no-appointments" *ngIf="false">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <h3>No Upcoming Appointments</h3>
+      <p>Book your first consultation to get started</p>
+      <ion-button fill="solid" (click)="bookDoctorAppointment()">
+        Book Now
       </ion-button>
     </div>
   </div>
@@ -164,47 +234,51 @@
     <h2 class="section-title">Consultation Types</h2>
     
     <div class="type-grid">
-      <div class="type-card">
+      <div class="type-card" (click)="selectConsultationType('prenatal')">
         <div class="type-icon">
           <ion-icon name="medical"></ion-icon>
         </div>
         <h3 class="type-name">Prenatal Care</h3>
         <p class="type-description">Regular checkups and monitoring</p>
         <div class="type-duration">30-45 min</div>
+        <div class="type-price">$150</div>
       </div>
 
-      <div class="type-card">
+      <div class="type-card" (click)="selectConsultationType('nutrition')">
         <div class="type-icon">
           <ion-icon name="nutrition"></ion-icon>
         </div>
         <h3 class="type-name">Nutrition Planning</h3>
         <p class="type-description">Personalized meal plans</p>
         <div class="type-duration">45-60 min</div>
+        <div class="type-price">$120</div>
       </div>
 
-      <div class="type-card">
+      <div class="type-card" (click)="selectConsultationType('fitness')">
         <div class="type-icon">
           <ion-icon name="fitness"></ion-icon>
         </div>
         <h3 class="type-name">Exercise Guidance</h3>
         <p class="type-description">Safe pregnancy workouts</p>
         <div class="type-duration">30-40 min</div>
+        <div class="type-price">$100</div>
       </div>
 
-      <div class="type-card">
+      <div class="type-card" (click)="selectConsultationType('mental')">
         <div class="type-icon">
           <ion-icon name="heart"></ion-icon>
         </div>
         <h3 class="type-name">Mental Health</h3>
         <p class="type-description">Emotional support & counseling</p>
         <div class="type-duration">50-60 min</div>
+        <div class="type-price">$180</div>
       </div>
     </div>
   </div>
 
   <!-- Emergency Contact -->
   <div class="emergency-section">
-    <div class="emergency-card">
+    <div class="emergency-card" (click)="callEmergency()">
       <div class="emergency-icon">
         <ion-icon name="warning"></ion-icon>
       </div>
@@ -218,4 +292,11 @@
       </div>
     </div>
   </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="openQuickMenu()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

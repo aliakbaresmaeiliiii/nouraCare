@@ -149,7 +149,7 @@ export class LoginComponent {
           this.message = 'Login successful!';
           this.success = true;
           this.showToast = true;
-          this.navCtrl.navigateRoot('tabs');
+          this.router.navigate(['/tabs']);
           this.cdr.detectChanges();
         },
         error: (err) => {

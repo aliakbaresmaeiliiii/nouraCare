@@ -5,8 +5,8 @@
     </ion-buttons>
     <ion-title>Pregnancy School</ion-title>
     <ion-buttons slot="end">
-      <ion-button>
-        <ion-icon name="book"></ion-icon>
+      <ion-button (click)="openNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -18,6 +18,20 @@
     <div class="hero-content">
       <h1 class="hero-title">Pregnancy School</h1>
       <p class="hero-subtitle">Learn everything about pregnancy & motherhood</p>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">24</span>
+          <span class="stat-label">Courses</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">500+</span>
+          <span class="stat-label">Students</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">4.9★</span>
+          <span class="stat-label">Rating</span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -41,10 +55,10 @@
   <div class="featured-courses">
     <h2 class="section-title">Featured Courses</h2>
     
-    <div class="course-card featured">
+    <div class="course-card featured" (click)="enrollCourse('pregnancy-basics')">
       <div class="course-badge">Featured</div>
       <div class="course-image">
-        <img src="https://ionicframework.com/docs/img/demos/card-media.png" alt="Pregnancy Basics">
+        <img src="assets/images/doctor.jpg" alt="Pregnancy Basics">
       </div>
       <div class="course-content">
         <h3 class="course-title">Pregnancy Basics 101</h3>
@@ -66,7 +80,7 @@
     <h2 class="section-title">Course Categories</h2>
     
     <div class="category-grid">
-      <div class="category-card">
+      <div class="category-card" (click)="browseCategory('health')">
         <div class="category-icon">
           <ion-icon name="medical"></ion-icon>
         </div>
@@ -74,7 +88,7 @@
         <p class="category-count">8 courses</p>
       </div>
 
-      <div class="category-card">
+      <div class="category-card" (click)="browseCategory('nutrition')">
         <div class="category-icon">
           <ion-icon name="nutrition"></ion-icon>
         </div>
@@ -82,7 +96,7 @@
         <p class="category-count">6 courses</p>
       </div>
 
-      <div class="category-card">
+      <div class="category-card" (click)="browseCategory('fitness')">
         <div class="category-icon">
           <ion-icon name="fitness"></ion-icon>
         </div>
@@ -90,7 +104,7 @@
         <p class="category-count">5 courses</p>
       </div>
 
-      <div class="category-card">
+      <div class="category-card" (click)="browseCategory('mental')">
         <div class="category-icon">
           <ion-icon name="heart"></ion-icon>
         </div>
@@ -98,7 +112,7 @@
         <p class="category-count">4 courses</p>
       </div>
 
-      <div class="category-card">
+      <div class="category-card" (click)="browseCategory('baby')">
         <div class="category-icon">
           <ion-icon name="baby"></ion-icon>
         </div>
@@ -106,7 +120,7 @@
         <p class="category-count">7 courses</p>
       </div>
 
-      <div class="category-card">
+      <div class="category-card" (click)="browseCategory('parenting')">
         <div class="category-icon">
           <ion-icon name="people"></ion-icon>
         </div>
@@ -121,9 +135,9 @@
     <h2 class="section-title">Popular Courses</h2>
     
     <div class="course-list">
-      <div class="course-item">
+      <div class="course-item" (click)="enrollCourse('nutrition')">
         <div class="course-thumbnail">
-          <img src="https://ionicframework.com/docs/img/demos/card-media.png" alt="Nutrition">
+          <img src="assets/images/nurse.png" alt="Nutrition">
         </div>
         <div class="course-info">
           <h3 class="course-name">Pregnancy Nutrition Guide</h3>
@@ -143,9 +157,9 @@
         </ion-button>
       </div>
 
-      <div class="course-item">
+      <div class="course-item" (click)="enrollCourse('exercise')">
         <div class="course-thumbnail">
-          <img src="https://ionicframework.com/docs/img/demos/card-media.png" alt="Exercise">
+          <img src="assets/images/doctor.jpg" alt="Exercise">
         </div>
         <div class="course-info">
           <h3 class="course-name">Safe Pregnancy Exercises</h3>
@@ -165,9 +179,9 @@
         </ion-button>
       </div>
 
-      <div class="course-item">
+      <div class="course-item" (click)="enrollCourse('mental-health')">
         <div class="course-thumbnail">
-          <img src="https://ionicframework.com/docs/img/demos/card-media.png" alt="Mental Health">
+          <img src="assets/images/nurse.png" alt="Mental Health">
         </div>
         <div class="course-info">
           <h3 class="course-name">Mental Wellness During Pregnancy</h3>
@@ -186,6 +200,28 @@
           Enroll
         </ion-button>
       </div>
+
+      <div class="course-item" (click)="enrollCourse('baby-care')">
+        <div class="course-thumbnail">
+          <img src="assets/images/doctor.jpg" alt="Baby Care">
+        </div>
+        <div class="course-info">
+          <h3 class="course-name">Newborn Care Essentials</h3>
+          <p class="course-instructor">Dr. Maria Garcia</p>
+          <div class="course-rating">
+            <span class="stars">⭐⭐⭐⭐⭐</span>
+            <span class="rating-text">4.9 (312 reviews)</span>
+          </div>
+          <div class="course-details">
+            <span class="duration">2.5 hours</span>
+            <span class="lessons">10 lessons</span>
+            <span class="price">Free</span>
+          </div>
+        </div>
+        <ion-button fill="outline" size="small">
+          Enroll
+        </ion-button>
+      </div>
     </div>
   </div>
 
@@ -193,7 +229,7 @@
   <div class="learning-paths">
     <h2 class="section-title">Learning Paths</h2>
     
-    <div class="path-card">
+    <div class="path-card" (click)="continuePath('first-time')">
       <div class="path-header">
         <div class="path-icon">
           <ion-icon name="star"></ion-icon>
@@ -214,7 +250,7 @@
       </div>
     </div>
 
-    <div class="path-card">
+    <div class="path-card" (click)="continuePath('active')">
       <div class="path-header">
         <div class="path-icon">
           <ion-icon name="fitness"></ion-icon>
@@ -234,13 +270,34 @@
         </ion-button>
       </div>
     </div>
+
+    <div class="path-card" (click)="continuePath('nutrition')">
+      <div class="path-header">
+        <div class="path-icon">
+          <ion-icon name="nutrition"></ion-icon>
+        </div>
+        <div class="path-info">
+          <h3 class="path-name">Nutrition Mastery Path</h3>
+          <p class="path-description">Master pregnancy nutrition and meal planning</p>
+        </div>
+      </div>
+      <div class="path-progress">
+        <div class="path-stats">
+          <span class="completed-courses">3/6</span>
+          <span class="total-courses">courses completed</span>
+        </div>
+        <ion-button fill="outline" size="small">
+          Continue
+        </ion-button>
+      </div>
+    </div>
   </div>
 
   <!-- Certificates -->
   <div class="certificates-section">
     <h2 class="section-title">Your Certificates</h2>
     
-    <div class="certificate-card">
+    <div class="certificate-card" (click)="viewCertificate('nutrition')">
       <div class="certificate-icon">
         <ion-icon name="ribbon"></ion-icon>
       </div>
@@ -254,7 +311,7 @@
       </ion-button>
     </div>
 
-    <div class="certificate-card">
+    <div class="certificate-card" (click)="viewCertificate('fitness')">
       <div class="certificate-icon">
         <ion-icon name="ribbon"></ion-icon>
       </div>
@@ -267,5 +324,26 @@
         View
       </ion-button>
     </div>
+
+    <div class="certificate-card" (click)="viewCertificate('mental')">
+      <div class="certificate-icon">
+        <ion-icon name="ribbon"></ion-icon>
+      </div>
+      <div class="certificate-info">
+        <h3 class="certificate-name">Mental Wellness Advocate</h3>
+        <p class="certificate-date">Earned on January 20, 2024</p>
+        <p class="certificate-description">Completed 4 mental health courses with distinction</p>
+      </div>
+      <ion-button fill="clear" size="small">
+        View
+      </ion-button>
+    </div>
   </div>
+
+  <!-- Floating Action Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="openQuickMenu()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

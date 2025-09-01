@@ -62,7 +62,7 @@ import {
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
 import { SearchModalComponent } from './components/search-modal/search-modal.component';
 import { MapboxMapComponent } from './components/mapbox-map/mapbox-map.component';
-import { CirclePeriodChart } from './components/circle-period-chart/circle-period-chart';
+
 import { MapService } from './services/map.service';
 import { ImageUrlService } from './services/image-url.service';
 import { ToolsService } from './services/tools.service';
@@ -144,4 +144,4 @@ const COMMON_MODULES = [
   providers: [MapService, ImageUrlService, ToolsService, MessageService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class SharedModule {}
+export class SharedModule { }

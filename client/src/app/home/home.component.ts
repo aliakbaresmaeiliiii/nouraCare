@@ -27,14 +27,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngAfterViewInit() {
-    var swiper = new Swiper('.mySwiper', {
-      slidesPerView: 3,
-      spaceBetween: 10,
-      pagination: {
-        el: '.swiper-pagination',
-        clickable: true,
-      },
-    });
+    try {
+      // Initialize Swiper only if the element exists
+      const swiperElement = document.querySelector('.mySwiper');
+      if (swiperElement) {
+        var swiper = new Swiper('.mySwiper', {
+          slidesPerView: 3,
+          spaceBetween: 10,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Swiper initialization error:', error);
+    }
   }
 
   ngOnInit() {
@@ -73,13 +81,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // Hero Section Actions
   trackToday() {
-    this.showToast('Opening today\'s tracking... 📊');
-    // Add your tracking logic here
+    this.openDailyTracking();
   }
 
   viewCalendar() {
-    this.showToast('Opening calendar view... 📅');
-    // Add your calendar logic here
+    this.openCalendarView();
   }
 
   // Open daily tracking modal
