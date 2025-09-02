@@ -56,15 +56,17 @@ export class SideMenuComponent implements OnInit {
     // Add navigation logic here if needed
   }
 
-  setActiveBottom(item: MenuItem, index: number) {
+  async setActiveBottom(item: MenuItem, index: number) {
     this.activeIndexBottom = index;
     if (item.label === 'Log Out') {
       this.logout();
+    } else if (item.label === 'About Gahvareh') {
+      await this.router.navigate(['/tabs/about']);
     }
   }
 
-  navigateToProfile() {
-    this.router.navigate(['/profile']);
+  async navigateToProfile() {
+    await this.router.navigate(['/profile']);
   }
 
   logout() {

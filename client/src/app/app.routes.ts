@@ -67,10 +67,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./consultation/consultation.component').then((m) => m.ConsultationComponent),
       },
-      {
+            {
         path: 'school',
         loadComponent: () =>
           import('./school/school.component').then((m) => m.SchoolComponent),
+      },
+      {
+        path: 'about',
+        loadComponent: () =>
+          import('./about/about.component').then((m) => m.AboutComponent),
       },
       {
         path: '',

@@ -18,6 +18,99 @@ export class HomeComponent implements OnInit, AfterViewInit {
   welcomeMessage: string = '';
   dailyMessage: string = '';
   userName: string = 'Ali'; // This would come from your user service
+  
+  // User Status and Progress
+  userStatus: string = 'Trying to Conceive';
+  isPregnant: boolean = false;
+  isPostpartum: boolean = false;
+  pregnancyWeek: number = 12;
+  pregnancyProgress: number = 30; // percentage
+  babySize: string = 'Lime 🍋';
+  babyWeight: string = '45g';
+  
+  // Postpartum tracking
+  postpartumWeek: number = 1;
+  babyAge: string = '1 week old';
+  postpartumBabyWeight: string = '3.2kg';
+  postpartumBabyLength: string = '50cm';
+  feedingMethod: string = 'Breastfeeding';
+  sleepPattern: string = 'Every 2-3 hours';
+  
+  // Postpartum recovery data
+  postpartumData: any[] = [
+    { week: 1, recovery: 'Physical Healing', symptoms: ['Bleeding', 'Cramping', 'Fatigue'], tips: 'Rest as much as possible, stay hydrated' },
+    { week: 2, recovery: 'Emotional Adjustment', symptoms: ['Baby Blues', 'Mood Swings', 'Anxiety'], tips: 'Talk to your partner, seek support' },
+    { week: 3, recovery: 'Establishing Routine', symptoms: ['Sleep Deprivation', 'Breastfeeding Challenges'], tips: 'Accept help, practice self-care' },
+    { week: 4, recovery: 'Building Confidence', symptoms: ['Self-Doubt', 'Overwhelm'], tips: 'Trust your instincts, celebrate small wins' },
+    { week: 5, recovery: 'Physical Recovery', symptoms: ['Hormonal Changes', 'Body Changes'], tips: 'Gentle exercise, healthy nutrition' },
+    { week: 6, recovery: 'Emotional Balance', symptoms: ['Postpartum Depression Risk'], tips: 'Monitor mood, seek professional help if needed' },
+    { week: 8, recovery: 'New Normal', symptoms: ['Finding Balance', 'Identity Shift'], tips: 'Embrace the journey, be patient with yourself' },
+    { week: 12, recovery: 'Thriving', symptoms: ['Confidence Building', 'Routine Established'], tips: 'You\'re doing great! Keep going!' }
+  ];
+  
+  // Baby size data for different weeks
+  babySizeData: any[] = [
+    { week: 4, size: 'Poppy Seed 🌱', weight: '0.04g', description: 'Tiny as a poppy seed' },
+    { week: 5, size: 'Sesame Seed 🌱', weight: '0.1g', description: 'Small as a sesame seed' },
+    { week: 6, size: 'Lentil 🌱', weight: '0.2g', description: 'Size of a lentil' },
+    { week: 7, size: 'Blueberry 🫐', weight: '1g', description: 'Sweet as a blueberry' },
+    { week: 8, size: 'KidneyBean 🫘', weight: '3g', description: 'Shaped like a kidney bean' },
+    { week: 9, size: 'Grape 🍇', weight: '7g', description: 'Plump as a grape' },
+    { week: 10, size: 'Kumquat 🍊', weight: '14g', description: 'Citrusy kumquat size' },
+    { week: 11, size: 'Fig 🫒', weight: '25g', description: 'Sweet fig size' },
+    { week: 12, size: 'Lime 🍋', weight: '45g', description: 'Zesty lime size' },
+    { week: 13, size: 'Peach 🍑', weight: '70g', description: 'Soft peach size' },
+    { week: 14, size: 'Lemon 🍋', weight: '100g', description: 'Bright lemon size' },
+    { week: 15, size: 'Apple 🍎', weight: '150g', description: 'Crisp apple size' },
+    { week: 16, size: 'Avocado 🥑', weight: '200g', description: 'Creamy avocado size' },
+    { week: 17, size: 'Pear 🍐', weight: '250g', description: 'Sweet pear size' },
+    { week: 18, size: 'BellPepper 🫑', weight: '300g', description: 'Colorful bell pepper' },
+    { week: 19, size: 'Mango 🥭', weight: '400g', description: 'Tropical mango size' },
+    { week: 20, size: 'Banana 🍌', weight: '500g', description: 'Banana length' },
+    { week: 21, size: 'Carrot 🥕', weight: '600g', description: 'Carrot length' },
+    { week: 22, size: 'Coconut 🥥', weight: '700g', description: 'Coconut size' },
+    { week: 23, size: 'Grapefruit 🍊', weight: '800g', description: 'Grapefruit size' },
+    { week: 24, size: 'Corn 🌽', weight: '900g', description: 'Corn cob length' },
+    { week: 25, size: 'Cauliflower 🥦', weight: '1kg', description: 'Cauliflower size' },
+    { week: 26, size: 'Lettuce 🥬', weight: '1.2kg', description: 'Lettuce head size' },
+    { week: 27, size: 'Broccoli 🥦', weight: '1.4kg', description: 'Broccoli size' },
+    { week: 28, size: 'Eggplant 🍆', weight: '1.6kg', description: 'Eggplant size' },
+    { week: 29, size: 'ButternutSquash 🎃', weight: '1.8kg', description: 'Squash size' },
+    { week: 30, size: 'Cabbage 🥬', weight: '2kg', description: 'Cabbage size' },
+    { week: 31, size: 'Pineapple 🍍', weight: '2.2kg', description: 'Pineapple size' },
+    { week: 32, size: 'Squash 🎃', weight: '2.4kg', description: 'Large squash' },
+    { week: 33, size: 'HoneydewMelon 🍈', weight: '2.6kg', description: 'Melon size' },
+    { week: 34, size: 'Cantaloupe 🍈', weight: '2.8kg', description: 'Cantaloupe size' },
+    { week: 35, size: 'Honeydew 🍈', weight: '3kg', description: 'Honeydew melon' },
+    { week: 36, size: 'RomaineLettuce 🥬', weight: '3.2kg', description: 'Romaine size' },
+    { week: 37, size: 'SwissChard 🥬', weight: '3.4kg', description: 'Swiss chard size' },
+    { week: 38, size: 'Leek 🧅', weight: '3.6kg', description: 'Leek length' },
+    { week: 39, size: 'MiniWatermelon 🍉', weight: '3.8kg', description: 'Mini watermelon' },
+    { week: 40, size: 'Watermelon 🍉', weight: '4kg', description: 'Full watermelon size' }
+  ];
+  
+  // Quick Stats
+  cycleDay: number = 14;
+  temperature: number = 36.8;
+  mood: string = 'Happy';
+  
+  // Appointments
+  upcomingAppointments: any[] = [
+    {
+      day: '15',
+      month: 'Dec',
+      title: 'Prenatal Checkup',
+      time: '10:00 AM',
+      doctor: 'Dr. Sarah Johnson'
+    },
+    {
+      day: '22',
+      month: 'Dec',
+      title: 'Ultrasound',
+      time: '2:30 PM',
+      doctor: 'Dr. Emily Rodriguez'
+    }
+  ];
 
   constructor(
     private router: Router,
@@ -86,6 +179,285 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   viewCalendar() {
     this.openCalendarView();
+  }
+
+  // User Status Management
+  async updateUserStatus() {
+    const alert = await this.alertController.create({
+      header: 'Update Your Status',
+      message: 'Select your current status:',
+      buttons: [
+        {
+          text: 'Trying to Conceive',
+          handler: () => {
+            this.userStatus = 'Trying to Conceive';
+            this.isPregnant = false;
+            this.showToast('Status updated to: Trying to Conceive');
+          }
+        },
+        {
+          text: 'Pregnant',
+          handler: async () => {
+            this.userStatus = 'Pregnant';
+            this.isPregnant = true;
+            
+            // Ask for pregnancy week
+            const weekAlert = await this.alertController.create({
+              header: '🎉 Congratulations!',
+              message: 'What week of pregnancy are you in?',
+              inputs: [
+                {
+                  name: 'week',
+                  type: 'number',
+                  placeholder: 'Enter week (4-40)',
+                  min: 4,
+                  max: 40,
+                  value: 12
+                }
+              ],
+              buttons: [
+                {
+                  text: 'Cancel',
+                  role: 'cancel'
+                },
+                {
+                  text: 'Set Week',
+                  handler: (data) => {
+                    const week = parseInt(data.week);
+                    if (week >= 4 && week <= 40) {
+                      this.updatePregnancyWeek(week);
+                      const babyData = this.getCurrentBabySize();
+                      this.showToast(`🎉 Week ${week}: Your baby is the size of a ${babyData.size.split(' ')[0]}!`);
+                    } else {
+                      this.showToast('Please enter a valid week (4-40)', 'warning');
+                    }
+                  }
+                }
+              ]
+            });
+            await weekAlert.present();
+          }
+        },
+        {
+          text: 'Postpartum',
+          handler: async () => {
+            this.userStatus = 'Postpartum';
+            this.isPregnant = false;
+            this.isPostpartum = true;
+            
+            // Ask for postpartum week
+            const weekAlert = await this.alertController.create({
+              header: '👶 Welcome to Postpartum!',
+              message: 'How many weeks postpartum are you?',
+              inputs: [
+                {
+                  name: 'week',
+                  type: 'number',
+                  placeholder: 'Enter week (1-12)',
+                  min: 1,
+                  max: 12,
+                  value: 1
+                }
+              ],
+              buttons: [
+                {
+                  text: 'Cancel',
+                  role: 'cancel'
+                },
+                {
+                  text: 'Set Week',
+                  handler: (data) => {
+                    const week = parseInt(data.week);
+                    if (week >= 1 && week <= 12) {
+                      this.updatePostpartumWeek(week);
+                      const postpartumData = this.getCurrentPostpartumData();
+                      this.showToast(`👶 Week ${week}: ${postpartumData.recovery} - You're doing amazing!`);
+                    } else {
+                      this.showToast('Please enter a valid week (1-12)', 'warning');
+                    }
+                  }
+                }
+              ]
+            });
+            await weekAlert.present();
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  // Pregnancy Progress
+  viewPregnancyDetails() {
+    this.router.navigate(['/tabs/school']);
+    this.showToast('Opening pregnancy week details...');
+  }
+
+  // Get current baby size data
+  getCurrentBabySize() {
+    const currentData = this.babySizeData.find(data => data.week === this.pregnancyWeek);
+    if (currentData) {
+      this.babySize = currentData.size;
+      this.babyWeight = currentData.weight;
+      return currentData;
+    }
+    return this.babySizeData[8]; // Default to week 12 (lime)
+  }
+
+  // Update pregnancy week and recalculate progress
+  updatePregnancyWeek(week: number) {
+    this.pregnancyWeek = week;
+    this.pregnancyProgress = (week / 40) * 100;
+    const babyData = this.getCurrentBabySize();
+    this.babySize = babyData.size;
+    this.babyWeight = babyData.weight;
+  }
+
+  // Get baby length based on week
+  getBabyLength() {
+    const lengths: { [key: number]: string } = {
+      4: '0.04 inches',
+      5: '0.13 inches',
+      6: '0.25 inches',
+      7: '0.5 inches',
+      8: '0.63 inches',
+      9: '0.9 inches',
+      10: '1.22 inches',
+      11: '1.61 inches',
+      12: '2.13 inches',
+      13: '2.91 inches',
+      14: '3.42 inches',
+      15: '3.98 inches',
+      16: '4.57 inches',
+      17: '5.12 inches',
+      18: '5.59 inches',
+      19: '6.02 inches',
+      20: '6.46 inches',
+      21: '10.51 inches',
+      22: '10.94 inches',
+      23: '11.38 inches',
+      24: '11.81 inches',
+      25: '13.62 inches',
+      26: '14.02 inches',
+      27: '14.41 inches',
+      28: '14.80 inches',
+      29: '15.2 inches',
+      30: '15.71 inches',
+      31: '16.18 inches',
+      32: '16.69 inches',
+      33: '17.20 inches',
+      34: '17.72 inches',
+      35: '18.19 inches',
+      36: '18.66 inches',
+      37: '19.13 inches',
+      38: '19.61 inches',
+      39: '19.96 inches',
+      40: '20.16 inches'
+    };
+    return lengths[this.pregnancyWeek] || 'Growing...';
+  }
+
+  // Change week navigation
+  changeWeek(direction: number) {
+    const newWeek = this.pregnancyWeek + direction;
+    if (newWeek >= 4 && newWeek <= 40) {
+      this.updatePregnancyWeek(newWeek);
+      this.showToast(`Week ${newWeek}: Your baby is now the size of a ${this.getCurrentBabySize().size.split(' ')[0]}! 🎉`);
+    }
+  }
+
+  // Postpartum methods
+  getCurrentPostpartumData() {
+    const currentData = this.postpartumData.find(data => data.week === this.postpartumWeek);
+    return currentData || this.postpartumData[0];
+  }
+
+  updatePostpartumWeek(week: number) {
+    this.postpartumWeek = week;
+    this.babyAge = `${week} week${week > 1 ? 's' : ''} old`;
+    // Update baby stats based on week
+    const weightGain = week * 0.2; // Approximate weight gain per week
+    this.postpartumBabyWeight = `${(3.2 + weightGain).toFixed(1)}kg`;
+    const lengthGain = week * 0.5; // Approximate length gain per week
+    this.postpartumBabyLength = `${(50 + lengthGain).toFixed(0)}cm`;
+  }
+
+  changePostpartumWeek(direction: number) {
+    const newWeek = this.postpartumWeek + direction;
+    if (newWeek >= 1 && newWeek <= 12) {
+      this.updatePostpartumWeek(newWeek);
+      const postpartumData = this.getCurrentPostpartumData();
+      this.showToast(`Week ${newWeek}: ${postpartumData.recovery} - ${postpartumData.tips} 💕`);
+    }
+  }
+
+  // Get baby milestones based on age
+  getBabyMilestones() {
+    const milestones: { [key: number]: string[] } = {
+      1: ['Lifts head briefly', 'Responds to sounds', 'Makes eye contact'],
+      2: ['Follows objects with eyes', 'Makes cooing sounds', 'Smiles responsively'],
+      3: ['Holds head up longer', 'Reaches for objects', 'Laughs out loud'],
+      4: ['Rolls from tummy to back', 'Grasps objects', 'Babbles more'],
+      5: ['Sits with support', 'Recognizes familiar faces', 'Shows excitement'],
+      6: ['Rolls both ways', 'Passes objects between hands', 'Responds to name'],
+      8: ['Sits without support', 'Crawls or scoots', 'Says "mama" or "dada"'],
+      12: ['Pulls to stand', 'Takes first steps', 'Says first words']
+    };
+    return milestones[this.postpartumWeek] || ['Growing and developing beautifully!'];
+  }
+
+  // Appointment Management
+  async rescheduleAppointment(appointment: any) {
+    const alert = await this.alertController.create({
+      header: 'Reschedule Appointment',
+      message: `Reschedule ${appointment.title} with ${appointment.doctor}?`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Reschedule',
+          handler: () => {
+            this.router.navigate(['/tabs/consultation']);
+            this.showToast('Opening appointment booking...');
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async cancelAppointment(appointment: any) {
+    const alert = await this.alertController.create({
+      header: 'Cancel Appointment',
+      message: `Are you sure you want to cancel ${appointment.title}?`,
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel'
+        },
+        {
+          text: 'Yes, Cancel',
+          handler: () => {
+            this.upcomingAppointments = this.upcomingAppointments.filter(
+              apt => apt !== appointment
+            );
+            this.showToast('Appointment cancelled');
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  bookNewAppointment() {
+    this.router.navigate(['/tabs/consultation']);
+    this.showToast('Opening appointment booking...');
   }
 
   // Open daily tracking modal
@@ -185,6 +557,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
         break;
       case 'community':
         await this.navigateToCommunity();
+        break;
+      case 'feeding':
+        await this.openFeedingTracker();
+        break;
+      case 'sleep':
+        await this.openSleepTracker();
         break;
     }
   }
@@ -476,7 +854,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         {
           text: '📊 View Progress',
           handler: () => {
-            this.router.navigate(['/tools']);
+            this.router.navigate(['tabs/tools']);
           }
         },
         {
@@ -599,6 +977,63 @@ export class HomeComponent implements OnInit, AfterViewInit {
       
     } catch (error) {
       await this.showToast('Failed to open medication reminder. Please try again.', 'danger');
+    }
+  }
+
+  // Postpartum-specific methods
+  async openFeedingTracker() {
+    try {
+      await this.showToast('Opening feeding tracker...', 'success');
+      
+      const feedingAlert = await this.alertController.create({
+        header: '🍼 Feeding Tracker',
+        message: 'Track your baby\'s feeding schedule, duration, and patterns to ensure proper nutrition.',
+        buttons: [
+          {
+            text: 'Start Tracking',
+            handler: () => {
+              this.router.navigate(['/tools']);
+            }
+          },
+          {
+            text: 'Continue',
+            role: 'cancel'
+          }
+        ]
+      });
+
+      await feedingAlert.present();
+      
+    } catch (error) {
+      await this.showToast('Failed to open feeding tracker. Please try again.', 'danger');
+    }
+  }
+
+  async openSleepTracker() {
+    try {
+      await this.showToast('Opening sleep tracker...', 'success');
+      
+      const sleepAlert = await this.alertController.create({
+        header: '😴 Sleep Tracker',
+        message: 'Monitor your baby\'s sleep patterns, duration, and quality to establish healthy sleep habits.',
+        buttons: [
+          {
+            text: 'Start Tracking',
+            handler: () => {
+              this.router.navigate(['/tools']);
+            }
+          },
+          {
+            text: 'Continue',
+            role: 'cancel'
+          }
+        ]
+      });
+
+      await sleepAlert.present();
+      
+    } catch (error) {
+      await this.showToast('Failed to open sleep tracker. Please try again.', 'danger');
     }
   }
 

@@ -4,6 +4,13 @@
     <div class="hero-content">
       <h1 class="hero-title">Welcome to Gahvaremi</h1>
       
+      <!-- User Status Badge -->
+      <div class="user-status-badge" (click)="updateUserStatus()">
+        <ion-icon name="checkmark-circle" class="status-icon"></ion-icon>
+        <span class="status-text">{{ userStatus }}</span>
+        <ion-icon name="chevron-down" class="status-arrow"></ion-icon>
+      </div>
+      
       <!-- Personalized Welcome Message -->
       <div class="welcome-message" *ngIf="welcomeMessage">
         <p class="message-text">{{ welcomeMessage }}</p>
@@ -22,6 +29,37 @@
             <ion-icon name="refresh" slot="start"></ion-icon>
             Refresh
           </ion-button>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="quick-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <ion-icon name="calendar"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">{{ cycleDay }}</div>
+            <div class="stat-label">Cycle Day</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <ion-icon name="thermometer"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">{{ temperature }}°C</div>
+            <div class="stat-label">Temperature</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="stat-info">
+            <div class="stat-number">{{ mood }}</div>
+            <div class="stat-label">Mood</div>
+          </div>
         </div>
       </div>
 
@@ -60,6 +98,160 @@
     </div>
   </div>
 
+  <!-- Pregnancy Progress Section (Conditional) -->
+  <div class="pregnancy-progress-section" *ngIf="isPregnant">
+    <div class="section-header">
+      <h2 class="section-title">Pregnancy Progress</h2>
+      <p class="section-subtitle">Week {{ pregnancyWeek }} of 40</p>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="pregnancyProgress"></div>
+      </div>
+      <div class="progress-info">
+        <div class="progress-text">
+          <span class="current-week">Week {{ pregnancyWeek }}</span>
+          <span class="remaining-weeks">{{ 40 - pregnancyWeek }} weeks remaining</span>
+        </div>
+        
+        <!-- Enhanced Baby Size Display -->
+        <div class="baby-size-display">
+          <div class="baby-size-card">
+            <div class="size-emoji">{{ getCurrentBabySize().size.split(' ')[1] }}</div>
+            <div class="size-info">
+              <h3 class="size-title">Your Baby is the size of:</h3>
+              <p class="size-fruit">{{ getCurrentBabySize().size.split(' ')[0] }}</p>
+              <p class="size-description">{{ getCurrentBabySize().description }}</p>
+            </div>
+          </div>
+          
+          <div class="baby-stats">
+            <div class="stat-item">
+              <ion-icon name="scale-outline" class="stat-icon"></ion-icon>
+              <div class="stat-content">
+                <span class="stat-value">{{ babyWeight }}</span>
+                <span class="stat-label">Weight</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <ion-icon name="resize-outline" class="stat-icon"></ion-icon>
+              <div class="stat-content">
+                <span class="stat-value">{{ getBabyLength() }}</span>
+                <span class="stat-label">Length</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Week Navigation -->
+        <div class="week-navigation">
+          <ion-button fill="clear" size="small" (click)="changeWeek(-1)" [disabled]="pregnancyWeek <= 4">
+            <ion-icon name="chevron-back-outline"></ion-icon>
+            Previous Week
+          </ion-button>
+          <ion-button fill="clear" size="small" (click)="changeWeek(1)" [disabled]="pregnancyWeek >= 40">
+            Next Week
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+      <ion-button fill="outline" class="progress-action" (click)="viewPregnancyDetails()">
+        <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+        View Week Details
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Postpartum Progress Section (Conditional) -->
+  <div class="postpartum-progress-section" *ngIf="isPostpartum">
+    <div class="section-header">
+      <h2 class="section-title">Postpartum Journey</h2>
+      <p class="section-subtitle">Week {{ postpartumWeek }} of Recovery</p>
+    </div>
+    <div class="postpartum-container">
+      <!-- Recovery Progress -->
+      <div class="recovery-progress">
+        <div class="recovery-bar">
+          <div class="recovery-fill" [style.width.%]="(postpartumWeek / 12) * 100"></div>
+        </div>
+        <div class="recovery-info">
+          <div class="recovery-text">
+            <span class="current-week">Week {{ postpartumWeek }}</span>
+            <span class="remaining-weeks">{{ 12 - postpartumWeek }} weeks to full recovery</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Baby Development -->
+      <div class="baby-development">
+        <div class="baby-info-card">
+          <div class="baby-avatar">👶</div>
+          <div class="baby-details">
+            <h3 class="baby-age">{{ babyAge }}</h3>
+            <div class="baby-stats-grid">
+              <div class="baby-stat">
+                <ion-icon name="scale-outline"></ion-icon>
+                <span>{{ postpartumBabyWeight }}</span>
+              </div>
+              <div class="baby-stat">
+                <ion-icon name="resize-outline"></ion-icon>
+                <span>{{ postpartumBabyLength }}</span>
+              </div>
+              <div class="baby-stat">
+                <ion-icon name="nutrition-outline"></ion-icon>
+                <span>{{ feedingMethod }}</span>
+              </div>
+              <div class="baby-stat">
+                <ion-icon name="bed-outline"></ion-icon>
+                <span>{{ sleepPattern }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recovery Focus -->
+      <div class="recovery-focus">
+        <div class="focus-card">
+          <h3 class="focus-title">{{ getCurrentPostpartumData().recovery }}</h3>
+          <div class="symptoms-list">
+            <h4>Common This Week:</h4>
+            <ul>
+              <li *ngFor="let symptom of getCurrentPostpartumData().symptoms">{{ symptom }}</li>
+            </ul>
+          </div>
+          <div class="tips-section">
+            <h4>💡 This Week's Tip:</h4>
+            <p>{{ getCurrentPostpartumData().tips }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Baby Milestones -->
+      <div class="milestones-section">
+        <h3 class="milestones-title">🎯 Baby Milestones This Week</h3>
+        <div class="milestones-list">
+          <div class="milestone-item" *ngFor="let milestone of getBabyMilestones()">
+            <ion-icon name="checkmark-circle" class="milestone-icon"></ion-icon>
+            <span>{{ milestone }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Week Navigation -->
+      <div class="week-navigation">
+        <ion-button fill="clear" size="small" (click)="changePostpartumWeek(-1)" [disabled]="postpartumWeek <= 1">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+          Previous Week
+        </ion-button>
+        <ion-button fill="clear" size="small" (click)="changePostpartumWeek(1)" [disabled]="postpartumWeek >= 12">
+          Next Week
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
   <!-- Quick Actions Section -->
   <div class="quick-actions-section">
     <div class="section-header">
@@ -91,13 +283,30 @@
         <p class="action-description">Schedule a consultation with specialists</p>
       </div>
       
-      <div class="action-card" (click)="onActionClick('community')">
-        <div class="action-icon">
-          <ion-icon name="people-outline"></ion-icon>
-        </div>
-        <h3 class="action-title">Join Community</h3>
-        <p class="action-description">Connect with other women on similar journeys</p>
-      </div>
+             <div class="action-card" (click)="onActionClick('community')">
+         <div class="action-icon">
+           <ion-icon name="people-outline"></ion-icon>
+         </div>
+         <h3 class="action-title">Join Community</h3>
+         <p class="action-description">Connect with other women on similar journeys</p>
+       </div>
+       
+       <!-- Postpartum-specific actions -->
+       <div class="action-card" *ngIf="isPostpartum" (click)="onActionClick('feeding')">
+         <div class="action-icon">
+           <ion-icon name="nutrition-outline"></ion-icon>
+         </div>
+         <h3 class="action-title">Track Feeding</h3>
+         <p class="action-description">Log feeding times and patterns</p>
+       </div>
+       
+       <div class="action-card" *ngIf="isPostpartum" (click)="onActionClick('sleep')">
+         <div class="action-icon">
+           <ion-icon name="bed-outline"></ion-icon>
+         </div>
+         <h3 class="action-title">Sleep Tracker</h3>
+         <p class="action-description">Monitor baby's sleep schedule</p>
+       </div>
     </div>
   </div>
 
@@ -229,6 +438,45 @@
         </ion-button>
       </div>
     </div>
+  </div>
+
+  <!-- Upcoming Appointments Section -->
+  <div class="appointments-section">
+    <div class="section-header">
+      <h2 class="section-title">Upcoming Appointments</h2>
+      <p class="section-subtitle">Stay on track with your health</p>
+    </div>
+    <div class="appointments-list" *ngIf="upcomingAppointments.length > 0; else noAppointments">
+      <div class="appointment-card" *ngFor="let appointment of upcomingAppointments">
+        <div class="appointment-date">
+          <div class="date-day">{{ appointment.day }}</div>
+          <div class="date-month">{{ appointment.month }}</div>
+        </div>
+        <div class="appointment-details">
+          <h3 class="appointment-title">{{ appointment.title }}</h3>
+          <p class="appointment-time">{{ appointment.time }}</p>
+          <p class="appointment-doctor">{{ appointment.doctor }}</p>
+        </div>
+        <div class="appointment-actions">
+          <ion-button fill="clear" size="small" (click)="rescheduleAppointment(appointment)">
+            <ion-icon name="time-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" size="small" (click)="cancelAppointment(appointment)">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+    <ng-template #noAppointments>
+      <div class="no-appointments">
+        <ion-icon name="calendar-outline" size="large"></ion-icon>
+        <p>No upcoming appointments</p>
+        <ion-button fill="outline" (click)="bookNewAppointment()">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Book Appointment
+        </ion-button>
+      </div>
+    </ng-template>
   </div>
 
   <!-- Community Section -->
