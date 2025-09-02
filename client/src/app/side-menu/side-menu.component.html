@@ -6,11 +6,7 @@
         <div class="profile-section" (click)="navigateToProfile()">
           <div class="profile-avatar-container">
             <ion-avatar class="profile-avatar">
-              <img
-                [src]="userProfileImage"
-                alt="Profile"
-                class="avatar-image"
-              />
+              <img [src]="userProfileImage" alt="Profile" class="avatar-image" />
             </ion-avatar>
             <div class="online-indicator"></div>
           </div>
@@ -23,17 +19,12 @@
               <span class="progress-text">{{ profileCompletion }}% {{ 'menu.completed' | translate }}</span>
             </div>
           </div>
+          <ion-button fill="clear" class="edit-profile-btn" [routerLink]="['/edit-profile']">
+            <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+          </ion-button>
         </div>
       </ion-menu-toggle>
-      <ion-menu-toggle>
-        <ion-button 
-          fill="clear" 
-          class="edit-profile-btn"
-          [routerLink]="['/edit-profile']"
-        >
-          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
-        </ion-button>
-      </ion-menu-toggle>
+      
     </ion-toolbar>
   </ion-header>
 
@@ -45,17 +36,8 @@
       <div class="menu-items">
         @for (item of menuItemsTop; track $index) {
         <ion-menu-toggle>
-          <ion-item 
-            class="menu-item" 
-            [class.active]="activeIndexTop === $index"
-            button
-            (click)="setActiveTop($index)"
-          >
-            <ion-icon 
-              [name]="item.icon" 
-              slot="start" 
-              class="menu-icon"
-            ></ion-icon>
+          <ion-item class="menu-item" [class.active]="activeIndexTop === $index" button (click)="setActiveTop($index)">
+            <ion-icon [name]="item.icon" slot="start" class="menu-icon"></ion-icon>
             <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
             @if (item.badge) {
             <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
@@ -75,17 +57,9 @@
       <div class="menu-items">
         @for (item of menuItemsBottom; track $index) {
         <ion-menu-toggle>
-          <ion-item 
-            class="menu-item" 
-            [class.active]="activeIndexBottom === $index"
-            button
-            (click)="setActiveBottom(item, $index)"
-          >
-            <ion-icon 
-              [name]="item.icon" 
-              slot="start" 
-              class="menu-icon"
-            ></ion-icon>
+          <ion-item class="menu-item" [class.active]="activeIndexBottom === $index" button
+            (click)="setActiveBottom(item, $index)">
+            <ion-icon [name]="item.icon" slot="start" class="menu-icon"></ion-icon>
             <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
             @if (item.badge) {
             <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
@@ -101,21 +75,13 @@
       <h4 class="section-title">{{ 'menu.followUs' | translate }}</h4>
       <div class="social-links">
         <ion-menu-toggle>
-          <ion-button 
-            fill="clear" 
-            class="social-btn instagram"
-            (click)="openSocialLink('instagram')"
-          >
+          <ion-button fill="clear" class="social-btn instagram" (click)="openSocialLink('instagram')">
             <ion-icon name="logo-instagram" class="social-icon"></ion-icon>
             <span class="social-text">Instagram</span>
           </ion-button>
         </ion-menu-toggle>
         <ion-menu-toggle>
-          <ion-button 
-            fill="clear" 
-            class="social-btn telegram"
-            (click)="openSocialLink('telegram')"
-          >
+          <ion-button fill="clear" class="social-btn telegram" (click)="openSocialLink('telegram')">
             <ion-icon name="logo-telegram" class="social-icon"></ion-icon>
             <span class="social-text">Telegram</span>
           </ion-button>

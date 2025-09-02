@@ -195,7 +195,6 @@ export class EditProfileComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      debugger;
       // Validate file type
       if (!file.type.startsWith('image/')) {
         alert('Please select an image file');
@@ -421,7 +420,6 @@ export class EditProfileComponent implements OnInit {
   }
 
   onBirthdayChange(event: any) {
-    debugger;
     const date = event.detail?.value;
     this.form.patchValue({ birthday: date });
   }
@@ -466,14 +464,13 @@ export class EditProfileComponent implements OnInit {
 
     this.userService.updateUserInfo(id, payload).subscribe({
       next: (res: any) => {
-        // Save address if provided
-        if (this.selectedCityId && this.addressLine && this.latitude && this.longitude) {
+      // Save address if city and address are provided (latitude/longitude are optional)
+        if (this.selectedCityId ) {
           const addrPayload = {
             cityId: this.selectedCityId,
             districtId: this.selectedDistrictId || undefined,
-            addressLine: this.addressLine,
-            latitude: this.latitude,
-            longitude: this.longitude,
+            latitude: this.latitude || undefined,
+            longitude: this.longitude || undefined,
           };
           
           this.userService.createAddress(String(id), addrPayload).subscribe({
@@ -685,7 +682,12 @@ export class EditProfileComponent implements OnInit {
 
   // Custom search methods using the new search modal
   openCitySearch() {
+    console.log('Opening city search modal...');
+    console.log('Cities loaded:', this.cities.length);
+    console.log('Cities data:', this.cities);
+    console.log('City search items:', this.getCitySearchItems());
     this.showCitySearchModal = true;
+    console.log('Modal state set to:', this.showCitySearchModal);
   }
 
   openDistrictSearch() {

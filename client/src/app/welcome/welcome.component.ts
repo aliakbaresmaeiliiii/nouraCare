@@ -8,6 +8,8 @@ import { LanguageSwitcherComponent } from '../shared/components/language-switche
 import { LanguageService } from '../shared/services/language.service';
 import { addIcons } from 'ionicons';
 import { Subscription } from 'rxjs';
+import { RegisterRequest } from '../auth/login/model/register-request-interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-welcome',
@@ -29,7 +31,8 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private fb: FormBuilder, 
     private authService: AuthService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private router: Router
   ) {
     // Initialize login form
     this.loginForm = this.fb.group({
@@ -43,7 +46,9 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
       phone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s\-\(\)]{10,15}$/)]],
       // password: ['', [Validators.required, Validators.minLength(6)]],
       // confirmPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
+    }, 
+    // { validators: this.passwordMatchValidator }
+  );
   }
 
   ngOnInit() {
@@ -98,14 +103,24 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onRegister() {
-    if (this.registerForm.valid) {
-      console.log('Register form submitted:', this.registerForm.value);
-      // Add your register logic here
-    } else {
+    if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
+      return;
     }
-  }
+    const payload: RegisterRequest = {
+      email: this.registerForm.value.email,
+      phone: this.registerForm.value.phone,
+    };
+    this.authService.register(payload).subscribe({
+      next: (res) => {
 
+        this.router.navigate(['verify-email']);
+      },
+      error: (err) => {
+        console.error('Registration failed:', err);
+      },
+    });
+  }
   // Helper methods for validation
   isFieldInvalid(form: FormGroup, fieldName: string): boolean {
     const field = form.get(fieldName);

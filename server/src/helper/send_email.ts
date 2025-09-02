@@ -19,7 +19,7 @@ class SendMail {
     try {
       const templatePath = path.resolve(
         __dirname,
-        `../../public/template/email/${templateName}.html`,
+        `../../../public/template/email/${templateName}.html`,
       );
       const html = await fs.readFile(templatePath, 'utf8');
       const template = handlebars.compile(html);

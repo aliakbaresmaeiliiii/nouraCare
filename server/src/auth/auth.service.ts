@@ -14,7 +14,7 @@ import { env } from './config/env';
 @Injectable()
 export class AuthService {
   private jwtSecret = env.JWT_SECRET;
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async register(email: string, phone: string) {
     const existing = await this.prisma.user.findUnique({ where: { email } });
@@ -39,7 +39,7 @@ export class AuthService {
     const emailService = new SendMail(new EmailProvider());
     await emailService.sendAccountRegister(email, verificationCode);
 
-    return { email, message: 'User registered successfully' };
+    return { email, message: 'User registered successfully', code: 200 };
   }
 
   async verifyEmail(email: string, code: string) {
@@ -61,7 +61,7 @@ export class AuthService {
       throw new BadRequestException('Verification code expired');
     }
 
-    await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { email },
       data: {
         isVerified: true,
@@ -70,7 +70,21 @@ export class AuthService {
       },
     });
 
-    return { message: 'Email verified successfully' };
+    return { 
+      message: 'Email verified successfully',
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        name: updatedUser.name,
+        isVerified: updatedUser.isVerified,
+        profileImage: updatedUser.profileImage,
+        status: updatedUser.status,
+        city: updatedUser.city,
+        birthday: updatedUser.birthday,
+        createdAt: updatedUser.createdAt
+      }
+    };
   }
 
   async resendOtp(email: string) {

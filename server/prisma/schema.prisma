@@ -59,7 +59,5 @@ model Address {
   districtId  Int?
   district    District? @relation(fields: [districtId], references: [id])
   addressLine String
-  latitude    Float
-  longitude   Float
   createdAt   DateTime @default(now())
 }

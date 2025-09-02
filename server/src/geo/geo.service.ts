@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
+import { CreateAddressDto } from './dto/create-address.dto';
 
 @Injectable()
 export class GeoService {
@@ -17,8 +18,11 @@ export class GeoService {
     return this.prisma.address.findMany({ where: { userId }, include: { city: true, district: true } });
   }
 
-  createAddress(userId: number, dto: { cityId: number; districtId?: number; addressLine: string; latitude: number; longitude: number; }) {
-    return this.prisma.address.create({ data: { userId, ...dto } });
+  createAddress(userId: number, dto: CreateAddressDto) {
+    return this.prisma.address.create({ 
+      data: { userId, ...dto },
+      include: { city: true, district: true }
+    });
   }
 }
 

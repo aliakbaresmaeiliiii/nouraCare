@@ -109,11 +109,19 @@ export class VerifyEmailComponent implements OnInit {
     this.service.verifyEmail(payload).subscribe({
       next: (res: any) => {
         console.log('Response:', res);
-        if (res.success) {
-          this.router.navigate(['/dashboard']);
+        // Now we can rely on the interceptor to provide consistent success flag
+        if (res.success || res.isSuccess) {
+          this.showToast = true;
+          this.message = 'Email verified successfully!';
+          this.success.set(true);
+          // Navigate after a short delay to show success message
+          setTimeout(() => {
+            this.router.navigate(['/tabs/home']);
+          }, 1500);
         } else {
           this.showToast = true;
           this.message = 'Invalid OTP, please try again.';
+          this.success.set(false);
         }
       },
       error: (error) => {
@@ -144,7 +152,7 @@ export class VerifyEmailComponent implements OnInit {
     };
     this.service.resendOtp(payload).subscribe((res) => {
       console.log('newCOde', res);
-        this.router.navigate(['/home']);
+        this.router.navigate(['/tabs/home']);
     });
   }
 }

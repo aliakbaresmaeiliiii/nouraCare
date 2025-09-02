@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { GeoService } from './geo.service';
+import { CreateAddressDto } from './dto/create-address.dto';
 
 @Controller('api/v1/geo')
 export class GeoController {
@@ -21,8 +22,8 @@ export class GeoController {
   }
 
   @Post('users/:id/addresses')
-  createAddress(@Param('id') id: string, @Body() body: any) {
-    return this.geo.createAddress(+id, body);
+  createAddress(@Param('id') id: string, @Body() createAddressDto: CreateAddressDto) {
+    return this.geo.createAddress(+id, createAddressDto);
   }
 }
 
