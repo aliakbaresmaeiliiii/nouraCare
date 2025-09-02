@@ -1,27 +1,36 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { IonContent, IonButton, IonIcon, NavController } from '@ionic/angular/standalone';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../auth/services/auth';
+import { TranslatePipe } from '../shared/pipes/translate.pipe';
+import { LanguageSwitcherComponent } from '../shared/components/language-switcher/language-switcher.component';
+import { LanguageService } from '../shared/services/language.service';
 import { addIcons } from 'ionicons';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-welcome',
   templateUrl: './welcome.component.html',
   standalone: true,
-  imports: [IonContent, IonButton, IonIcon, ReactiveFormsModule, CommonModule],
+  imports: [IonContent, IonButton, IonIcon, ReactiveFormsModule, CommonModule, TranslatePipe, LanguageSwitcherComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: ['./welcome.component.scss'],
 })
-export class WelcomeComponent implements OnInit, AfterViewInit {
+export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('loginSection', { static: false }) loginSection!: ElementRef;
   activeTab: 'login' | 'register' = 'login';
   private navCtrl: NavController = inject(NavController);
+  private languageSubscription!: Subscription;
   // Form groups
   loginForm: FormGroup;
   registerForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(
+    private fb: FormBuilder, 
+    private authService: AuthService,
+    private languageService: LanguageService
+  ) {
     // Initialize login form
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -38,6 +47,16 @@ export class WelcomeComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
+    // Listen to language changes to trigger updates
+    this.languageSubscription = this.languageService.currentLanguage$.subscribe(() => {
+      // This will trigger change detection when language changes
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.languageSubscription) {
+      this.languageSubscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit() {

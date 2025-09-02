@@ -7,9 +7,16 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:en": "ng build --configuration=en",
+    "build:zh": "ng build --configuration=zh",
+    "build:ms": "ng build --configuration=ms",
+    "serve:en": "ng serve --configuration=en",
+    "serve:zh": "ng serve --configuration=zh",
+    "serve:ms": "ng serve --configuration=ms",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "extract-i18n": "ng extract-i18n"
   },
   "private": true,
   "dependencies": {

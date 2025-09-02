@@ -2,7 +2,7 @@
   <!-- Hero Section -->
   <div class="hero-section">
     <div class="hero-content">
-      <h1 class="hero-title">Welcome to Gahvaremi</h1>
+      <h1 class="hero-title">{{ 'home.welcomeTitle' | translate }}</h1>
       
       <!-- User Status Badge -->
       <div class="user-status-badge" (click)="updateUserStatus()">
@@ -16,7 +16,7 @@
         <p class="message-text">{{ welcomeMessage }}</p>
         <ion-button fill="clear" size="small" (click)="generateMessages()">
           <ion-icon name="refresh" slot="start"></ion-icon>
-          New Message
+          {{ 'home.newMessage' | translate }}
         </ion-button>
       </div>
       
@@ -27,7 +27,7 @@
           <p class="daily-text">{{ dailyMessage }}</p>
           <ion-button fill="clear" size="small" (click)="refreshDailyMessage()">
             <ion-icon name="refresh" slot="start"></ion-icon>
-            Refresh
+            {{ 'home.refresh' | translate }}
           </ion-button>
         </div>
       </div>
@@ -40,7 +40,7 @@
           </div>
           <div class="stat-info">
             <div class="stat-number">{{ cycleDay }}</div>
-            <div class="stat-label">Cycle Day</div>
+            <div class="stat-label">{{ 'home.cycleDay' | translate }}</div>
           </div>
         </div>
         <div class="stat-card">
@@ -49,7 +49,7 @@
           </div>
           <div class="stat-info">
             <div class="stat-number">{{ temperature }}°C</div>
-            <div class="stat-label">Temperature</div>
+            <div class="stat-label">{{ 'home.temperature' | translate }}</div>
           </div>
         </div>
         <div class="stat-card">
@@ -58,7 +58,7 @@
           </div>
           <div class="stat-info">
             <div class="stat-number">{{ mood }}</div>
-            <div class="stat-label">Mood</div>
+            <div class="stat-label">{{ 'home.mood' | translate }}</div>
           </div>
         </div>
       </div>
@@ -66,11 +66,11 @@
       <div class="hero-actions">
         <ion-button expand="block" fill="solid" class="track-btn" (click)="openDailyTracking()">
           <ion-icon name="calendar" slot="start"></ion-icon>
-          Track Today
+          {{ 'home.trackToday' | translate }}
         </ion-button>
         <ion-button expand="block" fill="outline" class="calendar-btn" (click)="openCalendarView()">
           <ion-icon name="calendar-outline" slot="start"></ion-icon>
-          View Calendar
+          {{ 'home.viewCalendar' | translate }}
         </ion-button>
       </div>
     </div>
@@ -86,8 +86,8 @@
   <!-- Period Chart Section -->
   <div class="chart-section">
     <div class="section-header">
-      <h2 class="section-title">Your Cycle Overview</h2>
-      <p class="section-subtitle">Track your fertility and health</p>
+      <h2 class="section-title">{{ 'home.cycleOverview' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.trackFertility' | translate }}</p>
     </div>
     <div class="chart-container">
       <!-- Temporarily disabled to test -->
@@ -101,8 +101,8 @@
   <!-- Pregnancy Progress Section (Conditional) -->
   <div class="pregnancy-progress-section" *ngIf="isPregnant">
     <div class="section-header">
-      <h2 class="section-title">Pregnancy Progress</h2>
-      <p class="section-subtitle">Week {{ pregnancyWeek }} of 40</p>
+      <h2 class="section-title">{{ 'home.pregnancyProgress' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.weekOf' | translate }} {{ pregnancyWeek }} {{ 'home.of40' | translate }}</p>
     </div>
     <div class="progress-container">
       <div class="progress-bar">
@@ -110,8 +110,8 @@
       </div>
       <div class="progress-info">
         <div class="progress-text">
-          <span class="current-week">Week {{ pregnancyWeek }}</span>
-          <span class="remaining-weeks">{{ 40 - pregnancyWeek }} weeks remaining</span>
+          <span class="current-week">{{ 'home.week' | translate }} {{ pregnancyWeek }}</span>
+          <span class="remaining-weeks">{{ 40 - pregnancyWeek }} {{ 'home.weeksRemaining' | translate }}</span>
         </div>
         
         <!-- Enhanced Baby Size Display -->
@@ -119,7 +119,7 @@
           <div class="baby-size-card">
             <div class="size-emoji">{{ getCurrentBabySize().size.split(' ')[1] }}</div>
             <div class="size-info">
-              <h3 class="size-title">Your Baby is the size of:</h3>
+              <h3 class="size-title">{{ 'home.babySizeTitle' | translate }}</h3>
               <p class="size-fruit">{{ getCurrentBabySize().size.split(' ')[0] }}</p>
               <p class="size-description">{{ getCurrentBabySize().description }}</p>
             </div>
@@ -130,14 +130,14 @@
               <ion-icon name="scale-outline" class="stat-icon"></ion-icon>
               <div class="stat-content">
                 <span class="stat-value">{{ babyWeight }}</span>
-                <span class="stat-label">Weight</span>
+                <span class="stat-label">{{ 'home.weight' | translate }}</span>
               </div>
             </div>
             <div class="stat-item">
               <ion-icon name="resize-outline" class="stat-icon"></ion-icon>
               <div class="stat-content">
                 <span class="stat-value">{{ getBabyLength() }}</span>
-                <span class="stat-label">Length</span>
+                <span class="stat-label">{{ 'home.length' | translate }}</span>
               </div>
             </div>
           </div>
@@ -147,17 +147,17 @@
         <div class="week-navigation">
           <ion-button fill="clear" size="small" (click)="changeWeek(-1)" [disabled]="pregnancyWeek <= 4">
             <ion-icon name="chevron-back-outline"></ion-icon>
-            Previous Week
+{{ 'home.previousWeek' | translate }}
           </ion-button>
           <ion-button fill="clear" size="small" (click)="changeWeek(1)" [disabled]="pregnancyWeek >= 40">
-            Next Week
+{{ 'home.nextWeek' | translate }}
             <ion-icon name="chevron-forward-outline"></ion-icon>
           </ion-button>
         </div>
       </div>
       <ion-button fill="outline" class="progress-action" (click)="viewPregnancyDetails()">
         <ion-icon name="information-circle-outline" slot="start"></ion-icon>
-        View Week Details
+{{ 'home.viewWeekDetails' | translate }}
       </ion-button>
     </div>
   </div>
@@ -255,40 +255,40 @@
   <!-- Quick Actions Section -->
   <div class="quick-actions-section">
     <div class="section-header">
-      <h2 class="section-title">Quick Actions</h2>
-      <p class="section-subtitle">What would you like to do today?</p>
+      <h2 class="section-title">{{ 'home.quickActions' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.whatToDoToday' | translate }}</p>
     </div>
     <div class="actions-grid">
       <div class="action-card" (click)="onActionClick('pregnant')">
         <div class="action-icon">
           <ion-icon name="heart-circle-outline"></ion-icon>
         </div>
-        <h3 class="action-title">I became pregnant</h3>
-        <p class="action-description">Update your status and get personalized guidance</p>
+        <h3 class="action-title">{{ 'home.actionPregnant' | translate }}</h3>
+        <p class="action-description">{{ 'home.actionPregnantDesc' | translate }}</p>
       </div>
       
       <div class="action-card" (click)="onActionClick('symptoms')">
         <div class="action-icon">
           <ion-icon name="medical-outline"></ion-icon>
         </div>
-        <h3 class="action-title">Track Symptoms</h3>
-        <p class="action-description">Log your daily symptoms and mood</p>
+        <h3 class="action-title">{{ 'home.actionSymptoms' | translate }}</h3>
+        <p class="action-description">{{ 'home.actionSymptomsDesc' | translate }}</p>
       </div>
       
       <div class="action-card" (click)="onActionClick('appointment')">
         <div class="action-icon">
           <ion-icon name="calendar-outline"></ion-icon>
         </div>
-        <h3 class="action-title">Book Appointment</h3>
-        <p class="action-description">Schedule a consultation with specialists</p>
+        <h3 class="action-title">{{ 'home.actionAppointment' | translate }}</h3>
+        <p class="action-description">{{ 'home.actionAppointmentDesc' | translate }}</p>
       </div>
       
              <div class="action-card" (click)="onActionClick('community')">
          <div class="action-icon">
            <ion-icon name="people-outline"></ion-icon>
          </div>
-         <h3 class="action-title">Join Community</h3>
-         <p class="action-description">Connect with other women on similar journeys</p>
+         <h3 class="action-title">{{ 'home.actionCommunity' | translate }}</h3>
+         <p class="action-description">{{ 'home.actionCommunityDesc' | translate }}</p>
        </div>
        
        <!-- Postpartum-specific actions -->
@@ -296,16 +296,16 @@
          <div class="action-icon">
            <ion-icon name="nutrition-outline"></ion-icon>
          </div>
-         <h3 class="action-title">Track Feeding</h3>
-         <p class="action-description">Log feeding times and patterns</p>
+         <h3 class="action-title">{{ 'home.actionFeeding' | translate }}</h3>
+         <p class="action-description">{{ 'home.actionFeedingDesc' | translate }}</p>
        </div>
        
        <div class="action-card" *ngIf="isPostpartum" (click)="onActionClick('sleep')">
          <div class="action-icon">
            <ion-icon name="bed-outline"></ion-icon>
          </div>
-         <h3 class="action-title">Sleep Tracker</h3>
-         <p class="action-description">Monitor baby's sleep schedule</p>
+         <h3 class="action-title">{{ 'home.actionSleep' | translate }}</h3>
+         <p class="action-description">{{ 'home.actionSleepDesc' | translate }}</p>
        </div>
     </div>
   </div>
@@ -313,8 +313,8 @@
   <!-- Daily Tips Section -->
   <div class="tips-section">
     <div class="section-header">
-      <h2 class="section-title">Today's Wisdom</h2>
-      <p class="section-subtitle">Expert advice from our counselors</p>
+      <h2 class="section-title">{{ 'home.todaysWisdom' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.expertAdvice' | translate }}</p>
     </div>
     <div class="tip-card">
       <div class="tip-header">
@@ -322,19 +322,19 @@
           <img src="assets/images/nurse.png" alt="Counselor" />
         </div>
         <div class="tip-info">
-          <h3 class="tip-title">5 Tips for Better Mental Preparation Before Pregnancy</h3>
-          <p class="tip-author">Dr. Sarah Johnson, Mental Health Specialist</p>
+          <h3 class="tip-title">{{ 'home.tipTitle' | translate }}</h3>
+          <p class="tip-author">{{ 'home.tipAuthor' | translate }}</p>
         </div>
       </div>
       <div class="tip-content">
         <p class="tip-text">
-          <strong>1. Manage Stress</strong> – Practice relaxation and mindfulness to stay calm.<br>
-          <strong>2. Strengthen Relationships</strong> – Build emotional support with your partner and family.<br>
-          <strong>3. Positive Mindset</strong> – Focus on self-confidence and readiness for motherhood.
+          <strong>{{ 'home.tip1Title' | translate }}</strong> – {{ 'home.tip1Desc' | translate }}<br>
+          <strong>{{ 'home.tip2Title' | translate }}</strong> – {{ 'home.tip2Desc' | translate }}<br>
+          <strong>{{ 'home.tip3Title' | translate }}</strong> – {{ 'home.tip3Desc' | translate }}
         </p>
         <ion-button fill="outline" class="tip-action" (click)="viewCounselorSchedule()">
           <ion-icon name="time-outline" slot="start"></ion-icon>
-          View Counselor's Weekly Schedule
+{{ 'home.viewSchedule' | translate }}
         </ion-button>
       </div>
     </div>
@@ -343,8 +343,8 @@
   <!-- Tools Section -->
   <div class="tools-section">
     <div class="section-header">
-      <h2 class="section-title">Health Tools</h2>
-      <p class="section-subtitle">Essential tools for your journey</p>
+      <h2 class="section-title">{{ 'home.healthTools' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.essentialTools' | translate }}</p>
     </div>
     <div class="tools-carousel">
       <div class="swiper mySwiper">
@@ -354,10 +354,10 @@
               <div class="tool-icon">
                 <ion-icon name="calculator-outline"></ion-icon>
               </div>
-              <h3 class="tool-title">Fertility Calculator</h3>
-              <p class="tool-description">Calculate your most fertile days</p>
+              <h3 class="tool-title">{{ 'home.toolFertility' | translate }}</h3>
+              <p class="tool-description">{{ 'home.toolFertilityDesc' | translate }}</p>
               <ion-button fill="solid" size="small" class="tool-action" (click)="openFertilityCalculator()">
-                Use Tool
+                {{ 'home.useTool' | translate }}
               </ion-button>
             </div>
           </div>
@@ -367,10 +367,10 @@
               <div class="tool-icon">
                 <ion-icon name="nutrition-outline"></ion-icon>
               </div>
-              <h3 class="tool-title">Nutrition Tracker</h3>
-              <p class="tool-description">Track your daily nutrition intake</p>
+              <h3 class="tool-title">{{ 'home.toolNutrition' | translate }}</h3>
+              <p class="tool-description">{{ 'home.toolNutritionDesc' | translate }}</p>
               <ion-button fill="solid" size="small" class="tool-action" (click)="openNutritionTracker()">
-                Use Tool
+                {{ 'home.useTool' | translate }}
               </ion-button>
             </div>
           </div>
@@ -380,10 +380,10 @@
               <div class="tool-icon">
                 <ion-icon name="fitness-outline"></ion-icon>
               </div>
-              <h3 class="tool-title">Exercise Planner</h3>
-              <p class="tool-description">Safe exercises during pregnancy</p>
+              <h3 class="tool-title">{{ 'home.toolExercise' | translate }}</h3>
+              <p class="tool-description">{{ 'home.toolExerciseDesc' | translate }}</p>
               <ion-button fill="solid" size="small" class="tool-action" (click)="openExercisePlanner()">
-                Use Tool
+                {{ 'home.useTool' | translate }}
               </ion-button>
             </div>
           </div>
@@ -393,10 +393,10 @@
               <div class="tool-icon">
                 <ion-icon name="medkit-outline"></ion-icon>
               </div>
-              <h3 class="tool-title">Medication Reminder</h3>
-              <p class="tool-description">Never miss your supplements</p>
+              <h3 class="tool-title">{{ 'home.toolMedication' | translate }}</h3>
+              <p class="tool-description">{{ 'home.toolMedicationDesc' | translate }}</p>
               <ion-button fill="solid" size="small" class="tool-action" (click)="openMedicationReminder()">
-                Use Tool
+                {{ 'home.useTool' | translate }}
               </ion-button>
             </div>
           </div>
@@ -409,8 +409,8 @@
   <!-- Expert Profile Section -->
   <div class="expert-section">
     <div class="section-header">
-      <h2 class="section-title">Meet Our Experts</h2>
-      <p class="section-subtitle">Specialized care from professionals</p>
+      <h2 class="section-title">{{ 'home.meetExperts' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.specializedCare' | translate }}</p>
     </div>
     <div class="expert-card">
       <div class="expert-profile">
@@ -418,23 +418,22 @@
           <img src="assets/images/doctor.jpg" alt="Dr. Parinaz Banaei" />
         </div>
         <div class="expert-info">
-          <h3 class="expert-name">Dr. Parinaz Banaei</h3>
-          <p class="expert-title">Clinical Nutritionist & Diet Therapy Specialist</p>
+          <h3 class="expert-name">{{ 'home.expertName' | translate }}</h3>
+          <p class="expert-title">{{ 'home.expertTitle' | translate }}</p>
           <div class="expert-credentials">
-            <span class="credential">PhD Nutrition</span>
-            <span class="credential">15+ Years Experience</span>
+            <span class="credential">{{ 'home.expertCredential1' | translate }}</span>
+            <span class="credential">{{ 'home.expertCredential2' | translate }}</span>
           </div>
         </div>
       </div>
       <div class="expert-content">
-        <h4 class="expert-tip-title">Nutrition Tip of the Day</h4>
+        <h4 class="expert-tip-title">{{ 'home.nutritionTip' | translate }}</h4>
         <p class="expert-tip-text">
-          "Focus on folate-rich foods like leafy greens, legumes, and fortified cereals. 
-          These are essential for healthy fetal development and can help prevent neural tube defects."
+          {{ 'home.nutritionTipText' | translate }}
         </p>
         <ion-button fill="outline" class="expert-action" (click)="bookExpertConsultation()">
           <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
-          Book Consultation
+          {{ 'home.bookConsultation' | translate }}
         </ion-button>
       </div>
     </div>
@@ -443,8 +442,8 @@
   <!-- Upcoming Appointments Section -->
   <div class="appointments-section">
     <div class="section-header">
-      <h2 class="section-title">Upcoming Appointments</h2>
-      <p class="section-subtitle">Stay on track with your health</p>
+      <h2 class="section-title">{{ 'home.upcomingAppointments' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.stayOnTrack' | translate }}</p>
     </div>
     <div class="appointments-list" *ngIf="upcomingAppointments.length > 0; else noAppointments">
       <div class="appointment-card" *ngFor="let appointment of upcomingAppointments">
@@ -470,10 +469,10 @@
     <ng-template #noAppointments>
       <div class="no-appointments">
         <ion-icon name="calendar-outline" size="large"></ion-icon>
-        <p>No upcoming appointments</p>
+        <p>{{ 'home.noAppointments' | translate }}</p>
         <ion-button fill="outline" (click)="bookNewAppointment()">
           <ion-icon name="add-outline" slot="start"></ion-icon>
-          Book Appointment
+          {{ 'home.bookAppointment' | translate }}
         </ion-button>
       </div>
     </ng-template>
@@ -482,26 +481,26 @@
   <!-- Community Section -->
   <div class="community-section">
     <div class="section-header">
-      <h2 class="section-title">Join Our Community</h2>
-      <p class="section-subtitle">Connect with women on similar journeys</p>
+      <h2 class="section-title">{{ 'home.joinCommunity' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.connectWomen' | translate }}</p>
     </div>
     <div class="community-stats">
       <div class="stat-item">
         <div class="stat-number">2,847</div>
-        <div class="stat-label">Active Members</div>
+        <div class="stat-label">{{ 'home.activeMembers' | translate }}</div>
       </div>
       <div class="stat-item">
         <div class="stat-number">156</div>
-        <div class="stat-label">Success Stories</div>
+        <div class="stat-label">{{ 'home.successStories' | translate }}</div>
       </div>
       <div class="stat-item">
         <div class="stat-number">24/7</div>
-        <div class="stat-label">Support Available</div>
+        <div class="stat-label">{{ 'home.supportAvailable' | translate }}</div>
       </div>
     </div>
     <ion-button expand="block" fill="solid" class="community-action" (click)="joinCommunity()">
       <ion-icon name="people-circle-outline" slot="start"></ion-icon>
-      Join the Community
+{{ 'home.joinTheCommunity' | translate }}
     </ion-button>
   </div>
 

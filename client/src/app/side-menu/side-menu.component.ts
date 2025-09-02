@@ -31,22 +31,22 @@ export class SideMenuComponent implements OnInit {
   appVersion: string = '1.0.0';
 
   menuItemsTop: MenuItem[] = [
-    { icon: 'diamond-outline', label: 'Gahvareh Pro', badge: 'PRO' },
-    { icon: 'bag-outline', label: 'My Purchases' },
-    { icon: 'heart-outline', label: 'My Favorites' },
-    { icon: 'bookmark-outline', label: 'Saved Information' },
-    { icon: 'people-outline', label: 'My Friends' },
-    { icon: 'chatbubbles-outline', label: 'Forums' },
-    { icon: 'ban-outline', label: 'Blocked Users' },
+    { icon: 'diamond-outline', label: 'menu.gahvarehPro', badge: 'PRO' },
+    { icon: 'bag-outline', label: 'menu.myPurchases' },
+    { icon: 'heart-outline', label: 'menu.myFavorites' },
+    { icon: 'bookmark-outline', label: 'menu.savedInformation' },
+    { icon: 'people-outline', label: 'menu.myFriends' },
+    { icon: 'chatbubbles-outline', label: 'menu.forums' },
+    { icon: 'ban-outline', label: 'menu.blockedUsers' },
   ];
 
   menuItemsBottom: MenuItem[] = [
-    { icon: 'settings-outline', label: 'Settings' },
-    { icon: 'refresh-outline', label: 'Check for Updates' },
-    { icon: 'person-add-outline', label: 'Invite Friends' },
-    { icon: 'notifications-outline', label: 'Notifications' },
-    { icon: 'information-circle-outline', label: 'About Gahvareh' },
-    { icon: 'log-out-outline', label: 'Log Out' },
+    { icon: 'settings-outline', label: 'menu.settings' },
+    { icon: 'refresh-outline', label: 'menu.checkUpdates' },
+    { icon: 'person-add-outline', label: 'menu.inviteFriends' },
+    { icon: 'notifications-outline', label: 'menu.notifications' },
+    { icon: 'information-circle-outline', label: 'menu.aboutGahvareh' },
+    { icon: 'log-out-outline', label: 'menu.logOut' },
   ];
 
   constructor() {}
@@ -58,9 +58,9 @@ export class SideMenuComponent implements OnInit {
 
   async setActiveBottom(item: MenuItem, index: number) {
     this.activeIndexBottom = index;
-    if (item.label === 'Log Out') {
+    if (item.label === 'menu.logOut') {
       this.logout();
-    } else if (item.label === 'About Gahvareh') {
+    } else if (item.label === 'menu.aboutGahvareh') {
       await this.router.navigate(['/tabs/about']);
     }
   }

@@ -1,4 +1,9 @@
 <ion-content class="welcome-page">
+  <!-- Language Selector Section -->
+  <div class="language-section">
+    <app-language-switcher></app-language-switcher>
+  </div>
+
   <!-- Welcome Slides Section -->
   <div class="welcome-section">
     <swiper-container
@@ -16,20 +21,20 @@
             <div class="slide-icon">
               <ion-icon name="heart" class="heart-icon"></ion-icon>
             </div>
-            <h1 class="slide-title">Welcome to Gahvaremi</h1>
-            <p class="slide-subtitle">Your Pregnancy Companion</p>
+            <h1 class="slide-title">{{ 'welcome.title' | translate }}</h1>
+            <p class="slide-subtitle">{{ 'welcome.subtitle' | translate }}</p>
             <div class="slide-features">
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>We are with you on your child's growth journey</span>
+                <span>{{ 'welcome.feature1' | translate }}</span>
               </div>
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>Up-to-date information on proper nutrition</span>
+                <span>{{ 'welcome.feature2' | translate }}</span>
               </div>
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>Learn necessary care from expert consultants</span>
+                <span>{{ 'welcome.feature3' | translate }}</span>
               </div>
             </div>
           </div>
@@ -44,20 +49,20 @@
             <div class="slide-icon">
               <ion-icon name="people" class="heart-icon"></ion-icon>
             </div>
-            <h1 class="slide-title">Expert Support</h1>
-            <p class="slide-subtitle">24/7 Guidance & Care</p>
+            <h1 class="slide-title">{{ 'welcome.expertSupport' | translate }}</h1>
+            <p class="slide-subtitle">{{ 'welcome.guidanceCare' | translate }}</p>
             <div class="slide-features">
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>Professional medical consultation</span>
+                <span>{{ 'welcome.expertFeature1' | translate }}</span>
               </div>
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>Personalized health tracking</span>
+                <span>{{ 'welcome.expertFeature2' | translate }}</span>
               </div>
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>Community of expecting mothers</span>
+                <span>{{ 'welcome.expertFeature3' | translate }}</span>
               </div>
             </div>
           </div>
@@ -72,20 +77,20 @@
             <div class="slide-icon">
               <ion-icon name="construct" class="heart-icon"></ion-icon>
             </div>
-            <h1 class="slide-title">Smart Tools</h1>
-            <p class="slide-subtitle">Track Your Journey</p>
+            <h1 class="slide-title">{{ 'welcome.smartTools' | translate }}</h1>
+            <p class="slide-subtitle">{{ 'welcome.trackJourney' | translate }}</p>
             <div class="slide-features">
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>Period & fertility tracking</span>
+                <span>{{ 'welcome.toolFeature1' | translate }}</span>
               </div>
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>Symptom & mood monitoring</span>
+                <span>{{ 'welcome.toolFeature2' | translate }}</span>
               </div>
               <div class="feature-item">
                 <ion-icon name="checkmark-circle" class="feature-icon"></ion-icon>
-                <span>Nutrition & exercise planning</span>
+                <span>{{ 'welcome.toolFeature3' | translate }}</span>
               </div>
             </div>
           </div>
@@ -103,7 +108,7 @@
         <!-- <ion-icon name="arrow-down" slot="start"></ion-icon> -->
         <ion-icon name="arrow-down" size="large" color="primary"></ion-icon>
         <span >
-          Get Started
+          {{ 'welcome.getStarted' | translate }}
         </span>
       </ion-button>
     </div>
@@ -113,8 +118,8 @@
   <div class="login-section" #loginSection>
     <div class="login-container">
       <div class="section-header">
-        <h2 class="section-title">Join Gahvaremi</h2>
-        <p class="section-subtitle">Start your pregnancy journey today</p>
+        <h2 class="section-title">{{ 'welcome.joinTitle' | translate }}</h2>
+        <p class="section-subtitle">{{ 'welcome.joinSubtitle' | translate }}</p>
       </div>
       
       <!-- Login Component -->
@@ -130,7 +135,7 @@
             class="tab-button"
           >
             <ion-icon name="log-in-outline"></ion-icon>
-            Sign In
+            {{ 'auth.signIn' | translate }}
           </button>
           <button
             type="button"
@@ -139,27 +144,27 @@
             class="tab-button"
           >
             <ion-icon name="person-add-outline"></ion-icon>
-            Sign Up
+            {{ 'auth.signUp' | translate }}
           </button>
         </div>
 
         <!-- Login Form -->
         <div *ngIf="activeTab === 'login'" class="form-container">
           <div class="form-header">
-            <h2 class="form-title">Welcome Back</h2>
-            <p class="form-subtitle">Sign in to continue your journey</p>
+            <h2 class="form-title">{{ 'welcome.welcomeBack' | translate }}</h2>
+            <p class="form-subtitle">{{ 'welcome.continueJourney' | translate }}</p>
           </div>
 
           <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
             <div class="form-group">
               <label class="form-label">
                 <ion-icon name="mail-outline" class="label-icon"></ion-icon>
-                Email Address
+                {{ 'welcome.emailAddress' | translate }}
               </label>
               <input
                 type="email"
                 formControlName="email"
-                placeholder="Enter your email"
+                [placeholder]="'welcome.enterEmail' | translate"
                 class="form-input"
                 [class.error]="isFieldInvalid(loginForm, 'email')"
               />
@@ -200,11 +205,11 @@
               expand="block"
             >
               <ion-icon name="log-in-outline" slot="start"></ion-icon>
-              Sign In
+              {{ 'auth.signIn' | translate }}
             </ion-button>
 
             <div class="form-footer">
-              <a href="#" class="forgot-link">Forgot Password?</a>
+              <a href="#" class="forgot-link">{{ 'welcome.forgotPassword' | translate }}</a>
             </div>
           </form>
         </div>
@@ -212,20 +217,20 @@
         <!-- Register Form -->
         <div *ngIf="activeTab === 'register'" class="form-container">
           <div class="form-header">
-            <h2 class="form-title">Join Gahvaremi</h2>
-            <p class="form-subtitle">Start your pregnancy journey today</p>
+            <h2 class="form-title">{{ 'welcome.joinTitle' | translate }}</h2>
+            <p class="form-subtitle">{{ 'welcome.joinSubtitle' | translate }}</p>
           </div>
 
           <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
             <div class="form-group">
               <label class="form-label">
                 <ion-icon name="mail-outline" class="label-icon"></ion-icon>
-                Email Address
+                {{ 'welcome.emailAddress' | translate }}
               </label>
               <input
                 type="email"
                 formControlName="email"
-                placeholder="Enter your email"
+                [placeholder]="'welcome.enterEmail' | translate"
                 class="form-input"
                 [class.error]="isFieldInvalid(registerForm, 'email')"
               />
@@ -241,12 +246,12 @@
             <div class="form-group">
               <label class="form-label">
                 <ion-icon name="call-outline" class="label-icon"></ion-icon>
-                Phone Number
+                {{ 'welcome.phoneNumber' | translate }}
               </label>
               <input
                 type="tel"
                 formControlName="phone"
-                placeholder="Enter your phone number"
+                [placeholder]="'welcome.enterPhone' | translate"
                 class="form-input"
                 [class.error]="isFieldInvalid(registerForm, 'phone')"
               />
@@ -262,12 +267,12 @@
             <div class="form-group">
               <label class="form-label">
                 <ion-icon name="lock-closed-outline" class="label-icon"></ion-icon>
-                Password
+                {{ 'auth.password' | translate }}
               </label>
               <input
                 type="password"
                 formControlName="password"
-                placeholder="Create a password"
+                [placeholder]="'welcome.createPassword' | translate"
                 class="form-input"
                 [class.error]="isFieldInvalid(registerForm, 'password')"
               />
@@ -283,12 +288,12 @@
             <div class="form-group">
               <label class="form-label">
                 <ion-icon name="lock-closed-outline" class="label-icon"></ion-icon>
-                Confirm Password
+                {{ 'welcome.confirmPassword' | translate }}
               </label>
               <input
                 type="password"
                 formControlName="confirmPassword"
-                placeholder="Confirm your password"
+                [placeholder]="'welcome.confirmPasswordPlaceholder' | translate"
                 class="form-input"
                 [class.error]="isFieldInvalid(registerForm, 'confirmPassword')"
               />
@@ -308,14 +313,14 @@
               expand="block"
             >
               <ion-icon name="person-add-outline" slot="start"></ion-icon>
-              Create Account
+              {{ 'welcome.createAccount' | translate }}
             </ion-button>
 
             <div class="form-footer">
               <p class="terms-text">
-                By signing up, you agree to our 
-                <a href="#" class="terms-link">Terms of Service</a> and 
-                <a href="#" class="terms-link">Privacy Policy</a>
+                {{ 'welcome.termsText' | translate }} 
+                <a href="#" class="terms-link">{{ 'welcome.termsOfService' | translate }}</a> {{ 'welcome.and' | translate }} 
+                <a href="#" class="terms-link">{{ 'welcome.privacyPolicy' | translate }}</a>
               </p>
             </div>
           </form>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <!-- Common -->
+      <trans-unit id="common.welcome" datatype="html">
+        <source>Welcome</source>
+        <target>Welcome</target>
+      </trans-unit>
+      <trans-unit id="common.home" datatype="html">
+        <source>Home</source>
+        <target>Home</target>
+      </trans-unit>
+      <trans-unit id="common.profile" datatype="html">
+        <source>Profile</source>
+        <target>Profile</target>
+      </trans-unit>
+      <trans-unit id="common.settings" datatype="html">
+        <source>Settings</source>
+        <target>Settings</target>
+      </trans-unit>
+      <trans-unit id="common.save" datatype="html">
+        <source>Save</source>
+        <target>Save</target>
+      </trans-unit>
+      <trans-unit id="common.cancel" datatype="html">
+        <source>Cancel</source>
+        <target>Cancel</target>
+      </trans-unit>
+      <trans-unit id="common.edit" datatype="html">
+        <source>Edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="common.delete" datatype="html">
+        <source>Delete</source>
+        <target>Delete</target>
+      </trans-unit>
+      <trans-unit id="common.language" datatype="html">
+        <source>Language</source>
+        <target>Language</target>
+      </trans-unit>
+      
+      <!-- Navigation -->
+      <trans-unit id="nav.tools" datatype="html">
+        <source>Tools</source>
+        <target>Tools</target>
+      </trans-unit>
+      <trans-unit id="nav.social" datatype="html">
+        <source>Social</source>
+        <target>Social</target>
+      </trans-unit>
+      <trans-unit id="nav.consultation" datatype="html">
+        <source>Consultation</source>
+        <target>Consultation</target>
+      </trans-unit>
+      <trans-unit id="nav.school" datatype="html">
+        <source>School</source>
+        <target>School</target>
+      </trans-unit>
+      <trans-unit id="nav.about" datatype="html">
+        <source>About</source>
+        <target>About</target>
+      </trans-unit>
+      
+      <!-- Auth -->
+      <trans-unit id="auth.signIn" datatype="html">
+        <source>Sign In</source>
+        <target>Sign In</target>
+      </trans-unit>
+      <trans-unit id="auth.signUp" datatype="html">
+        <source>Sign Up</source>
+        <target>Sign Up</target>
+      </trans-unit>
+      <trans-unit id="auth.email" datatype="html">
+        <source>Email</source>
+        <target>Email</target>
+      </trans-unit>
+      <trans-unit id="auth.password" datatype="html">
+        <source>Password</source>
+        <target>Password</target>
+      </trans-unit>
+      <trans-unit id="auth.verifyEmail" datatype="html">
+        <source>Verify Email</source>
+        <target>Verify Email</target>
+      </trans-unit>
+      
+      <!-- Profile -->
+      <trans-unit id="profile.editProfile" datatype="html">
+        <source>Edit Profile</source>
+        <target>Edit Profile</target>
+      </trans-unit>
+      <trans-unit id="profile.editPeriod" datatype="html">
+        <source>Edit Period</source>
+        <target>Edit Period</target>
+      </trans-unit>
+      
+      <!-- Welcome Page -->
+      <trans-unit id="welcome.title" datatype="html">
+        <source>Welcome to Gahvaremi</source>
+        <target>Welcome to Gahvaremi</target>
+      </trans-unit>
+      <trans-unit id="welcome.subtitle" datatype="html">
+        <source>Your Pregnancy Companion</source>
+        <target>Your Pregnancy Companion</target>
+      </trans-unit>
+      <trans-unit id="welcome.getStarted" datatype="html">
+        <source>Get Started</source>
+        <target>Get Started</target>
+      </trans-unit>
+      <trans-unit id="welcome.joinTitle" datatype="html">
+        <source>Join Gahvaremi</source>
+        <target>Join Gahvaremi</target>
+      </trans-unit>
+      <trans-unit id="welcome.joinSubtitle" datatype="html">
+        <source>Start your pregnancy journey today</source>
+        <target>Start your pregnancy journey today</target>
+      </trans-unit>
+      <trans-unit id="welcome.welcomeBack" datatype="html">
+        <source>Welcome Back</source>
+        <target>Welcome Back</target>
+      </trans-unit>
+      <trans-unit id="welcome.continueJourney" datatype="html">
+        <source>Sign in to continue your journey</source>
+        <target>Sign in to continue your journey</target>
+      </trans-unit>
+      <trans-unit id="welcome.emailAddress" datatype="html">
+        <source>Email Address</source>
+        <target>Email Address</target>
+      </trans-unit>
+      <trans-unit id="welcome.enterEmail" datatype="html">
+        <source>Enter your email</source>
+        <target>Enter your email</target>
+      </trans-unit>
+      <trans-unit id="welcome.phoneNumber" datatype="html">
+        <source>Phone Number</source>
+        <target>Phone Number</target>
+      </trans-unit>
+      <trans-unit id="welcome.enterPhone" datatype="html">
+        <source>Enter your phone number</source>
+        <target>Enter your phone number</target>
+      </trans-unit>
+      <trans-unit id="welcome.createPassword" datatype="html">
+        <source>Create a password</source>
+        <target>Create a password</target>
+      </trans-unit>
+      <trans-unit id="welcome.confirmPassword" datatype="html">
+        <source>Confirm Password</source>
+        <target>Confirm Password</target>
+      </trans-unit>
+      <trans-unit id="welcome.confirmPasswordPlaceholder" datatype="html">
+        <source>Confirm your password</source>
+        <target>Confirm your password</target>
+      </trans-unit>
+      <trans-unit id="welcome.createAccount" datatype="html">
+        <source>Create Account</source>
+        <target>Create Account</target>
+      </trans-unit>
+      <trans-unit id="welcome.forgotPassword" datatype="html">
+        <source>Forgot Password?</source>
+        <target>Forgot Password?</target>
+      </trans-unit>
+      <trans-unit id="welcome.termsText" datatype="html">
+        <source>By signing up, you agree to our</source>
+        <target>By signing up, you agree to our</target>
+      </trans-unit>
+      <trans-unit id="welcome.termsOfService" datatype="html">
+        <source>Terms of Service</source>
+        <target>Terms of Service</target>
+      </trans-unit>
+      <trans-unit id="welcome.and" datatype="html">
+        <source>and</source>
+        <target>and</target>
+      </trans-unit>
+      <trans-unit id="welcome.privacyPolicy" datatype="html">
+        <source>Privacy Policy</source>
+        <target>Privacy Policy</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

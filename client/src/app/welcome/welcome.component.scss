@@ -3,6 +3,22 @@
   --color: #333;
 }
 
+/* Language Section */
+.language-section {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  .language-section {
+    top: 15px;
+    right: 15px;
+  }
+}
+
 /* Welcome Section */
 .welcome-section {
   height: 100vh;

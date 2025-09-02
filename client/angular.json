@@ -65,6 +65,27 @@
               ],
               "outputHashing": "all"
             },
+            "en": {
+              "aot": true,
+              "outputPath": "dist/en/",
+              "i18nFile": "src/locale/messages.en.xlf",
+              "i18nFormat": "xlf",
+              "i18nLocale": "en"
+            },
+            "zh": {
+              "aot": true,
+              "outputPath": "dist/zh/",
+              "i18nFile": "src/locale/messages.zh.xlf",
+              "i18nFormat": "xlf",
+              "i18nLocale": "zh"
+            },
+            "ms": {
+              "aot": true,
+              "outputPath": "dist/ms/",
+              "i18nFile": "src/locale/messages.ms.xlf",
+              "i18nFormat": "xlf",
+              "i18nLocale": "ms"
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -85,6 +106,15 @@
             },
             "development": {
               "buildTarget": "app:build:development"
+            },
+            "en": {
+              "buildTarget": "app:build:en"
+            },
+            "zh": {
+              "buildTarget": "app:build:zh"
+            },
+            "ms": {
+              "buildTarget": "app:build:ms"
             },
             "ci": {
               "progress": false

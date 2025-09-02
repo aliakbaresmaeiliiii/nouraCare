@@ -125,11 +125,32 @@ export class HomeComponent implements OnInit, AfterViewInit {
       const swiperElement = document.querySelector('.mySwiper');
       if (swiperElement) {
         var swiper = new Swiper('.mySwiper', {
-          slidesPerView: 3,
-          spaceBetween: 10,
+          slidesPerView: 2,
+          spaceBetween: 5,
+          centeredSlides: false,
+          loop: false,
           pagination: {
             el: '.swiper-pagination',
             clickable: true,
+            dynamicBullets: true,
+          },
+          breakpoints: {
+            480: {
+              slidesPerView: 2,
+              spaceBetween: 15,
+            },
+            640: {
+              slidesPerView: 3,
+              spaceBetween: 20,
+            },
+            768: {
+              slidesPerView: 2.5,
+              spaceBetween: 20,
+            },
+            1024: {
+              slidesPerView: 3,
+              spaceBetween: 25,
+            },
           },
         });
       }

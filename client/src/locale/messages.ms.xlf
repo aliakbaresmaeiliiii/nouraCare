@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <!-- Common -->
+      <trans-unit id="common.welcome" datatype="html">
+        <source>Welcome</source>
+        <target>Selamat Datang</target>
+      </trans-unit>
+      <trans-unit id="common.home" datatype="html">
+        <source>Home</source>
+        <target>Utama</target>
+      </trans-unit>
+      <trans-unit id="common.profile" datatype="html">
+        <source>Profile</source>
+        <target>Profil</target>
+      </trans-unit>
+      <trans-unit id="common.settings" datatype="html">
+        <source>Settings</source>
+        <target>Tetapan</target>
+      </trans-unit>
+      <trans-unit id="common.save" datatype="html">
+        <source>Save</source>
+        <target>Simpan</target>
+      </trans-unit>
+      <trans-unit id="common.cancel" datatype="html">
+        <source>Cancel</source>
+        <target>Batal</target>
+      </trans-unit>
+      <trans-unit id="common.edit" datatype="html">
+        <source>Edit</source>
+        <target>Edit</target>
+      </trans-unit>
+      <trans-unit id="common.delete" datatype="html">
+        <source>Delete</source>
+        <target>Padam</target>
+      </trans-unit>
+      <trans-unit id="common.language" datatype="html">
+        <source>Language</source>
+        <target>Bahasa</target>
+      </trans-unit>
+      
+      <!-- Navigation -->
+      <trans-unit id="nav.tools" datatype="html">
+        <source>Tools</source>
+        <target>Alat</target>
+      </trans-unit>
+      <trans-unit id="nav.social" datatype="html">
+        <source>Social</source>
+        <target>Sosial</target>
+      </trans-unit>
+      <trans-unit id="nav.consultation" datatype="html">
+        <source>Consultation</source>
+        <target>Perundingan</target>
+      </trans-unit>
+      <trans-unit id="nav.school" datatype="html">
+        <source>School</source>
+        <target>Sekolah</target>
+      </trans-unit>
+      <trans-unit id="nav.about" datatype="html">
+        <source>About</source>
+        <target>Tentang</target>
+      </trans-unit>
+      
+      <!-- Auth -->
+      <trans-unit id="auth.signIn" datatype="html">
+        <source>Sign In</source>
+        <target>Log Masuk</target>
+      </trans-unit>
+      <trans-unit id="auth.signUp" datatype="html">
+        <source>Sign Up</source>
+        <target>Daftar</target>
+      </trans-unit>
+      <trans-unit id="auth.email" datatype="html">
+        <source>Email</source>
+        <target>E-mel</target>
+      </trans-unit>
+      <trans-unit id="auth.password" datatype="html">
+        <source>Password</source>
+        <target>Kata Laluan</target>
+      </trans-unit>
+      <trans-unit id="auth.verifyEmail" datatype="html">
+        <source>Verify Email</source>
+        <target>Sahkan E-mel</target>
+      </trans-unit>
+      
+      <!-- Profile -->
+      <trans-unit id="profile.editProfile" datatype="html">
+        <source>Edit Profile</source>
+        <target>Edit Profil</target>
+      </trans-unit>
+      <trans-unit id="profile.editPeriod" datatype="html">
+        <source>Edit Period</source>
+        <target>Edit Tempoh</target>
+      </trans-unit>
+      
+      <!-- Welcome Page -->
+      <trans-unit id="welcome.title" datatype="html">
+        <source>Welcome to Gahvaremi</source>
+        <target>Selamat Datang ke Gahvaremi</target>
+      </trans-unit>
+      <trans-unit id="welcome.subtitle" datatype="html">
+        <source>Your Pregnancy Companion</source>
+        <target>Rakan Kehamilan Anda</target>
+      </trans-unit>
+      <trans-unit id="welcome.getStarted" datatype="html">
+        <source>Get Started</source>
+        <target>Mula</target>
+      </trans-unit>
+      <trans-unit id="welcome.joinTitle" datatype="html">
+        <source>Join Gahvaremi</source>
+        <target>Sertai Gahvaremi</target>
+      </trans-unit>
+      <trans-unit id="welcome.joinSubtitle" datatype="html">
+        <source>Start your pregnancy journey today</source>
+        <target>Mulakan perjalanan kehamilan anda hari ini</target>
+      </trans-unit>
+      <trans-unit id="welcome.welcomeBack" datatype="html">
+        <source>Welcome Back</source>
+        <target>Selamat Kembali</target>
+      </trans-unit>
+      <trans-unit id="welcome.continueJourney" datatype="html">
+        <source>Sign in to continue your journey</source>
+        <target>Log masuk untuk meneruskan perjalanan anda</target>
+      </trans-unit>
+      <trans-unit id="welcome.emailAddress" datatype="html">
+        <source>Email Address</source>
+        <target>Alamat E-mel</target>
+      </trans-unit>
+      <trans-unit id="welcome.enterEmail" datatype="html">
+        <source>Enter your email</source>
+        <target>Masukkan e-mel anda</target>
+      </trans-unit>
+      <trans-unit id="welcome.phoneNumber" datatype="html">
+        <source>Phone Number</source>
+        <target>Nombor Telefon</target>
+      </trans-unit>
+      <trans-unit id="welcome.enterPhone" datatype="html">
+        <source>Enter your phone number</source>
+        <target>Masukkan nombor telefon anda</target>
+      </trans-unit>
+      <trans-unit id="welcome.createPassword" datatype="html">
+        <source>Create a password</source>
+        <target>Cipta kata laluan</target>
+      </trans-unit>
+      <trans-unit id="welcome.confirmPassword" datatype="html">
+        <source>Confirm Password</source>
+        <target>Sahkan Kata Laluan</target>
+      </trans-unit>
+      <trans-unit id="welcome.confirmPasswordPlaceholder" datatype="html">
+        <source>Confirm your password</source>
+        <target>Sahkan kata laluan anda</target>
+      </trans-unit>
+      <trans-unit id="welcome.createAccount" datatype="html">
+        <source>Create Account</source>
+        <target>Cipta Akaun</target>
+      </trans-unit>
+      <trans-unit id="welcome.forgotPassword" datatype="html">
+        <source>Forgot Password?</source>
+        <target>Lupa Kata Laluan?</target>
+      </trans-unit>
+      <trans-unit id="welcome.termsText" datatype="html">
+        <source>By signing up, you agree to our</source>
+        <target>Dengan mendaftar, anda bersetuju dengan</target>
+      </trans-unit>
+      <trans-unit id="welcome.termsOfService" datatype="html">
+        <source>Terms of Service</source>
+        <target>Terma Perkhidmatan</target>
+      </trans-unit>
+      <trans-unit id="welcome.and" datatype="html">
+        <source>and</source>
+        <target>dan</target>
+      </trans-unit>
+      <trans-unit id="welcome.privacyPolicy" datatype="html">
+        <source>Privacy Policy</source>
+        <target>Dasar Privasi</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

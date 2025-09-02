@@ -20,7 +20,7 @@
               <div class="progress-bar">
                 <div class="progress-fill" [style.width.%]="profileCompletion"></div>
               </div>
-              <span class="progress-text">{{ profileCompletion }}% completed</span>
+              <span class="progress-text">{{ profileCompletion }}% {{ 'menu.completed' | translate }}</span>
             </div>
           </div>
         </div>
@@ -41,7 +41,7 @@
   <ion-content class="menu-content">
     <!-- Main Menu Items -->
     <div class="menu-section">
-      <h4 class="section-title">Main Menu</h4>
+      <h4 class="section-title">{{ 'menu.mainMenu' | translate }}</h4>
       <div class="menu-items">
         @for (item of menuItemsTop; track $index) {
         <ion-menu-toggle>
@@ -56,7 +56,7 @@
               slot="start" 
               class="menu-icon"
             ></ion-icon>
-            <ion-label class="menu-label">{{ item.label }}</ion-label>
+            <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
             @if (item.badge) {
             <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
             }
@@ -71,7 +71,7 @@
 
     <!-- Settings & Support -->
     <div class="menu-section">
-      <h4 class="section-title">Settings & Support</h4>
+      <h4 class="section-title">{{ 'menu.settingsSupport' | translate }}</h4>
       <div class="menu-items">
         @for (item of menuItemsBottom; track $index) {
         <ion-menu-toggle>
@@ -86,7 +86,7 @@
               slot="start" 
               class="menu-icon"
             ></ion-icon>
-            <ion-label class="menu-label">{{ item.label }}</ion-label>
+            <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
             @if (item.badge) {
             <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
             }
@@ -98,7 +98,7 @@
 
     <!-- Social Media Section -->
     <div class="social-section">
-      <h4 class="section-title">Follow Us</h4>
+      <h4 class="section-title">{{ 'menu.followUs' | translate }}</h4>
       <div class="social-links">
         <ion-menu-toggle>
           <ion-button 

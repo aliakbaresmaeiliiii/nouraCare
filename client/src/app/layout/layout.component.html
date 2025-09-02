@@ -12,10 +12,11 @@
           [(ngModel)]="paletteToggle"
           (ionChange)="toggleChange($event)"
         ></ion-toggle>
+        <app-header-language-switcher slot="end"></app-header-language-switcher>
         <ion-buttons slot="start">
           <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-title>{{ selectedTitle }}</ion-title>
+        <ion-title>{{ selectedTitle | translate }}</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -26,23 +27,23 @@
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="home" href="tabs/home">
           <ion-icon name="home"></ion-icon>
-          Home
+          {{ 'common.home' | translate }}
         </ion-tab-button>
         <ion-tab-button tab="tools" href="tabs/tools">
           <ion-icon name="construct"></ion-icon>
-          Tools
+          {{ 'nav.tools' | translate }}
         </ion-tab-button>
         <ion-tab-button tab="social" href="tabs/social">
           <ion-icon name="people"></ion-icon>
-          Social
+          {{ 'nav.social' | translate }}
         </ion-tab-button>
         <ion-tab-button tab="consultation" href="tabs/consultation">
           <ion-icon name="calendar"></ion-icon>
-          Consultation
+          {{ 'nav.consultation' | translate }}
         </ion-tab-button>
         <ion-tab-button tab="school" href="tabs/school">
           <ion-icon name="school"></ion-icon>
-          School
+          {{ 'nav.school' | translate }}
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

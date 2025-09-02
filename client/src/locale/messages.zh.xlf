@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en" datatype="plaintext" original="ng2.template">
+    <body>
+      <!-- Common -->
+      <trans-unit id="common.welcome" datatype="html">
+        <source>Welcome</source>
+        <target>欢迎</target>
+      </trans-unit>
+      <trans-unit id="common.home" datatype="html">
+        <source>Home</source>
+        <target>首页</target>
+      </trans-unit>
+      <trans-unit id="common.profile" datatype="html">
+        <source>Profile</source>
+        <target>个人资料</target>
+      </trans-unit>
+      <trans-unit id="common.settings" datatype="html">
+        <source>Settings</source>
+        <target>设置</target>
+      </trans-unit>
+      <trans-unit id="common.save" datatype="html">
+        <source>Save</source>
+        <target>保存</target>
+      </trans-unit>
+      <trans-unit id="common.cancel" datatype="html">
+        <source>Cancel</source>
+        <target>取消</target>
+      </trans-unit>
+      <trans-unit id="common.edit" datatype="html">
+        <source>Edit</source>
+        <target>编辑</target>
+      </trans-unit>
+      <trans-unit id="common.delete" datatype="html">
+        <source>Delete</source>
+        <target>删除</target>
+      </trans-unit>
+      <trans-unit id="common.language" datatype="html">
+        <source>Language</source>
+        <target>语言</target>
+      </trans-unit>
+      
+      <!-- Navigation -->
+      <trans-unit id="nav.tools" datatype="html">
+        <source>Tools</source>
+        <target>工具</target>
+      </trans-unit>
+      <trans-unit id="nav.social" datatype="html">
+        <source>Social</source>
+        <target>社交</target>
+      </trans-unit>
+      <trans-unit id="nav.consultation" datatype="html">
+        <source>Consultation</source>
+        <target>咨询</target>
+      </trans-unit>
+      <trans-unit id="nav.school" datatype="html">
+        <source>School</source>
+        <target>学校</target>
+      </trans-unit>
+      <trans-unit id="nav.about" datatype="html">
+        <source>About</source>
+        <target>关于</target>
+      </trans-unit>
+      
+      <!-- Auth -->
+      <trans-unit id="auth.signIn" datatype="html">
+        <source>Sign In</source>
+        <target>登录</target>
+      </trans-unit>
+      <trans-unit id="auth.signUp" datatype="html">
+        <source>Sign Up</source>
+        <target>注册</target>
+      </trans-unit>
+      <trans-unit id="auth.email" datatype="html">
+        <source>Email</source>
+        <target>邮箱</target>
+      </trans-unit>
+      <trans-unit id="auth.password" datatype="html">
+        <source>Password</source>
+        <target>密码</target>
+      </trans-unit>
+      <trans-unit id="auth.verifyEmail" datatype="html">
+        <source>Verify Email</source>
+        <target>验证邮箱</target>
+      </trans-unit>
+      
+      <!-- Profile -->
+      <trans-unit id="profile.editProfile" datatype="html">
+        <source>Edit Profile</source>
+        <target>编辑个人资料</target>
+      </trans-unit>
+      <trans-unit id="profile.editPeriod" datatype="html">
+        <source>Edit Period</source>
+        <target>编辑周期</target>
+      </trans-unit>
+      
+      <!-- Welcome Page -->
+      <trans-unit id="welcome.title" datatype="html">
+        <source>Welcome to Gahvaremi</source>
+        <target>欢迎来到Gahvaremi</target>
+      </trans-unit>
+      <trans-unit id="welcome.subtitle" datatype="html">
+        <source>Your Pregnancy Companion</source>
+        <target>您的孕期伴侣</target>
+      </trans-unit>
+      <trans-unit id="welcome.getStarted" datatype="html">
+        <source>Get Started</source>
+        <target>开始使用</target>
+      </trans-unit>
+      <trans-unit id="welcome.joinTitle" datatype="html">
+        <source>Join Gahvaremi</source>
+        <target>加入Gahvaremi</target>
+      </trans-unit>
+      <trans-unit id="welcome.joinSubtitle" datatype="html">
+        <source>Start your pregnancy journey today</source>
+        <target>今天开始您的孕期之旅</target>
+      </trans-unit>
+      <trans-unit id="welcome.welcomeBack" datatype="html">
+        <source>Welcome Back</source>
+        <target>欢迎回来</target>
+      </trans-unit>
+      <trans-unit id="welcome.continueJourney" datatype="html">
+        <source>Sign in to continue your journey</source>
+        <target>登录以继续您的旅程</target>
+      </trans-unit>
+      <trans-unit id="welcome.emailAddress" datatype="html">
+        <source>Email Address</source>
+        <target>邮箱地址</target>
+      </trans-unit>
+      <trans-unit id="welcome.enterEmail" datatype="html">
+        <source>Enter your email</source>
+        <target>输入您的邮箱</target>
+      </trans-unit>
+      <trans-unit id="welcome.phoneNumber" datatype="html">
+        <source>Phone Number</source>
+        <target>电话号码</target>
+      </trans-unit>
+      <trans-unit id="welcome.enterPhone" datatype="html">
+        <source>Enter your phone number</source>
+        <target>输入您的电话号码</target>
+      </trans-unit>
+      <trans-unit id="welcome.createPassword" datatype="html">
+        <source>Create a password</source>
+        <target>创建密码</target>
+      </trans-unit>
+      <trans-unit id="welcome.confirmPassword" datatype="html">
+        <source>Confirm Password</source>
+        <target>确认密码</target>
+      </trans-unit>
+      <trans-unit id="welcome.confirmPasswordPlaceholder" datatype="html">
+        <source>Confirm your password</source>
+        <target>确认您的密码</target>
+      </trans-unit>
+      <trans-unit id="welcome.createAccount" datatype="html">
+        <source>Create Account</source>
+        <target>创建账户</target>
+      </trans-unit>
+      <trans-unit id="welcome.forgotPassword" datatype="html">
+        <source>Forgot Password?</source>
+        <target>忘记密码？</target>
+      </trans-unit>
+      <trans-unit id="welcome.termsText" datatype="html">
+        <source>By signing up, you agree to our</source>
+        <target>注册即表示您同意我们的</target>
+      </trans-unit>
+      <trans-unit id="welcome.termsOfService" datatype="html">
+        <source>Terms of Service</source>
+        <target>服务条款</target>
+      </trans-unit>
+      <trans-unit id="welcome.and" datatype="html">
+        <source>and</source>
+        <target>和</target>
+      </trans-unit>
+      <trans-unit id="welcome.privacyPolicy" datatype="html">
+        <source>Privacy Policy</source>
+        <target>隐私政策</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
