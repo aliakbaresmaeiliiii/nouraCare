@@ -1,7 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
 import { ImageUrlService } from '../shared/services/image-url.service';
+import { ProfileCompletionService } from '../shared/services/profile-completion.service';
 
 interface MenuItem {
   icon: string;
@@ -16,16 +18,20 @@ interface MenuItem {
   standalone: true,
   imports: [SharedModule],
 })
-export class SideMenuComponent implements OnInit {
+export class SideMenuComponent implements OnInit, ViewWillEnter {
   activeIndexTop: number | null = null;
   activeIndexBottom: number | null = null;
   router = inject(Router);
   private imageUrlService = inject(ImageUrlService);
+  private profileCompletionService = inject(ProfileCompletionService);
 
   // User profile data
   userName: string = 'Aliakbar Esmaeili';
   userProfileImage: string | null = null;
-  profileCompletion: number = 30;
+  // Use the service's computed signal for profile completion
+  get profileCompletion(): number {
+    return this.profileCompletionService.profileCompletion();
+  }
 
   // App version
   appVersion: string = '1.0.0';
@@ -51,9 +57,23 @@ export class SideMenuComponent implements OnInit {
 
   constructor() {}
 
-  setActiveTop(index: number) {
+  async setActiveTop(index: number) {
     this.activeIndexTop = index;
-    // Add navigation logic here if needed
+    
+    // Get the menu item
+    const item = this.menuItemsTop[index];
+    
+    // Add navigation logic for specific menu items
+    if (item.label === 'menu.blockedUsers') {
+      await this.router.navigate(['/blocked-users']);
+    } else if (item.label === 'menu.savedInformation') {
+      await this.router.navigate(['/saved-information']);
+    } else if (item.label === 'menu.myFriends') {
+      await this.router.navigate(['/my-friends']);
+    } else if (item.label === 'menu.forums') {
+      await this.router.navigate(['/forums']);
+    }
+    // Add more navigation logic for other menu items as needed
   }
 
   async setActiveBottom(item: MenuItem, index: number) {
@@ -62,6 +82,14 @@ export class SideMenuComponent implements OnInit {
       this.logout();
     } else if (item.label === 'menu.aboutGahvareh') {
       await this.router.navigate(['/tabs/about']);
+    } else if (item.label === 'menu.checkUpdates') {
+      await this.router.navigate(['/check-version']);
+    } else if (item.label === 'menu.settings') {
+      await this.router.navigate(['/settings']);
+    } else if (item.label === 'menu.inviteFriends') {
+      await this.router.navigate(['/invite-friends']);
+    } else if (item.label === 'menu.notifications') {
+      await this.router.navigate(['/notifications']);
     }
   }
 
@@ -90,6 +118,11 @@ export class SideMenuComponent implements OnInit {
     this.loadUserProfile();
   }
 
+  ionViewWillEnter(): void {
+    // Refresh profile data when entering the page
+    this.loadUserProfile();
+  }
+
   private loadUserProfile() {
     // Load user profile from localStorage or service
     try {
@@ -98,10 +131,8 @@ export class SideMenuComponent implements OnInit {
       this.userName = user.name || this.userName;
       this.userProfileImage = this.imageUrlService.getImageUrl(user.profileImage);
       
-      // Calculate profile completion based on filled fields
-      const fields = [user.name, user.email, user.birthday, user.city];
-      const filled = fields.filter((v) => !!v).length;
-      this.profileCompletion = Math.round((filled / fields.length) * 100);
+      // Update the service with user data
+      this.profileCompletionService.updateUserData(user);
     } catch (error) {
       console.error('Error loading user profile:', error);
     }

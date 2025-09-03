@@ -11,6 +11,7 @@ import Swiper from 'swiper';
 import { Router } from '@angular/router';
 import { User } from '../shared/services/user';
 import { ImageUrlService } from '../shared/services/image-url.service';
+import { ProfileCompletionService } from '../shared/services/profile-completion.service';
 
 
 @Component({
@@ -21,7 +22,11 @@ import { ImageUrlService } from '../shared/services/image-url.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ProfileComponent implements OnInit, ViewWillEnter {
-  percent: number = 0;
+  // Use the service's computed signal for percent
+  get percent(): number {
+    const completion = this.profileCompletionService.profileCompletion();
+    return completion;
+  }
   selectedTab = 'first';
   // swiperEl = viewChild('swiperContainer');
   router = inject(Router);
@@ -33,6 +38,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   profileImage: string | null = null;
   private userService = inject(User);
   private imageUrlService = inject(ImageUrlService);
+  private profileCompletionService = inject(ProfileCompletionService);
   
   userInfo = signal<any[]>([
     {
@@ -76,10 +82,127 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     this.router.navigate(['/profile-edit'], { queryParams: { focus: field } });
   }
 
-  shareProfile() {
-    // Logic to share profile
-    console.log('Sharing profile...');
-    // You can implement native sharing or custom share dialog here
+  async shareProfile() {
+    try {
+      // Create share data
+      const shareData = {
+        title: 'My Profile - Gahvareh',
+        text: `Check out my profile on Gahvareh! I'm ${this.name || 'a user'} and my profile is ${this.percent}% complete.`,
+        url: window.location.href, // Share the current profile page URL
+      };
+
+      // Try to use native Web Share API
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        console.log('Profile shared successfully using native share');
+      } else {
+        // Fallback: Copy to clipboard and show alert
+        const shareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+        await this.copyToClipboard(shareText);
+        this.showShareSuccessAlert();
+      }
+    } catch (error) {
+      console.error('Error sharing profile:', error);
+      // Fallback: Copy to clipboard
+      try {
+        const fallbackText = `My Profile - Gahvareh\nCheck out my profile: ${window.location.href}`;
+        await this.copyToClipboard(fallbackText);
+        this.showShareSuccessAlert();
+      } catch (clipboardError) {
+        console.error('Error copying to clipboard:', clipboardError);
+        this.showShareErrorAlert();
+      }
+    }
+  }
+
+  private async copyToClipboard(text: string): Promise<void> {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  }
+
+  private showShareSuccessAlert() {
+    const alert = document.createElement('div');
+    alert.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 300px;
+      animation: slideIn 0.3s ease-out;
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    alert.innerHTML = `✅ Profile link copied to clipboard!`;
+    document.body.appendChild(alert);
+
+    setTimeout(() => {
+      if (alert.parentNode) {
+        alert.remove();
+      }
+    }, 3000);
+  }
+
+  private showShareErrorAlert() {
+    const alert = document.createElement('div');
+    alert.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #f44336;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 300px;
+      animation: slideIn 0.3s ease-out;
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    alert.innerHTML = `❌ Failed to share profile. Please try again.`;
+    document.body.appendChild(alert);
+
+    setTimeout(() => {
+      if (alert.parentNode) {
+        alert.remove();
+      }
+    }, 3000);
   }
 
   // Method to refresh profile data and progress when returning from edit profile
@@ -92,7 +215,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.birthday = u.birthday || '';
       this.city = u.city || '';
       this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
-      this.computeProgress();
+      // Don't update service here - let ngOnInit handle it with API data
     } catch {}
   }
 
@@ -101,7 +224,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     this.refreshProfileData();
   }
 
-  ngOnInit(): void {
+    ngOnInit(): void {
     try {
       this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const u = this.userInfoStore?.user || {};
@@ -110,7 +233,10 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.birthday = u.birthday || '';
       this.city = u.city || '';
       this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
-    } catch {}
+      // Don't initialize service here - wait for API data
+    } catch (error) {
+      console.error('ProfileComponent - Error loading from localStorage:', error);
+    }
     
     // fetch fresh from API if we have id
     const id = this.userInfoStore?.user?.id;
@@ -121,7 +247,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
         this.birthday = res?.birthday || this.birthday;
         this.city = res?.city || this.city;
         this.profileImage = this.imageUrlService.getImageUrl(res?.profileImage || this.profileImage);
-        
+
         // Update userInfoStore with fresh data for progress calculation
         if (res) {
           this.userInfoStore.user = {
@@ -130,47 +256,16 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
           };
         }
         
-        this.computeProgress();
+        // Update the service with fresh data from API
+        this.profileCompletionService.updateUserData(this.userInfoStore.user);
       });
     } else {
-      this.computeProgress();
+      // Only update service if no API call is made
+      this.profileCompletionService.updateUserData(this.userInfoStore?.user || {});
     }
   }
-
-  private computeProgress() {
-    // Calculate progress based on all profile fields from edit profile form
-    const profileFields = [
-      { value: this.name, weight: 20 },           // Name - 20%
-      { value: this.email, weight: 20 },          // Email - 20%
-      { value: this.birthday, weight: 15 },       // Birthday - 15%
-      { value: this.profileImage, weight: 15 },   // Profile Image - 15%
-      // Additional fields from edit profile that we can check
-      { value: this.userInfoStore?.user?.status, weight: 10 },           // Status - 10%
-      { value: this.userInfoStore?.user?.menstrualCycleLength, weight: 5 }, // Cycle Length - 5%
-      { value: this.userInfoStore?.user?.periodDuration, weight: 5 },     // Period Duration - 5%
-      { value: this.userInfoStore?.user?.lastPeriodStartDate, weight: 10 }  // Last Period Start - 10%
-    ];
-
-    let totalProgress = 0;
-    let totalWeight = 0;
-
-    profileFields.forEach(field => {
-      totalWeight += field.weight;
-      if (field.value && field.value !== '' && field.value !== null && field.value !== undefined) {
-        totalProgress += field.weight;
-      }
-    });
-
-    this.percent = Math.round((totalProgress / totalWeight) * 100);
-    console.log('Profile completion:', this.percent + '%', {
-      name: this.name,
-      email: this.email,
-      birthday: this.birthday,
-      profileImage: this.profileImage,
-      status: this.userInfoStore?.user?.status,
-      cycleLength: this.userInfoStore?.user?.menstrualCycleLength,
-      periodDuration: this.userInfoStore?.user?.periodDuration,
-      lastPeriodStart: this.userInfoStore?.user?.lastPeriodStartDate
-    });
-  }
 }
+
+
+
+

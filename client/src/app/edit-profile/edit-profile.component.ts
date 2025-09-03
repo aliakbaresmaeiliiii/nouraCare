@@ -45,6 +45,24 @@ export class EditProfileComponent implements OnInit {
   showPickerLastPeriod = false;
   startDate: any;
 
+  // Getter to format the start date for display
+  get formattedStartDate(): string {
+    if (!this.startDate) return '';
+    
+    try {
+      const date = new Date(this.startDate);
+      if (isNaN(date.getTime())) return '';
+      
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch (error) {
+      return '';
+    }
+  }
+
   // Picker properties for the new ion-picker format
   tempYear: number = new Date().getFullYear();
   tempMonth: number = new Date().getMonth() + 1;

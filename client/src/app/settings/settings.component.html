@@ -1,0 +1,150 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="settings-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="tabs" class="back-button" (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Settings</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" class="search-button">
+        <ion-icon name="search-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="settings-content">
+  <div class="container">
+    <!-- Loading State -->
+    @if (isLoading) {
+      <div class="loading-state">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading settings...</p>
+      </div>
+    }
+
+    <!-- Error State -->
+    @if (errorMessage) {
+      <div class="error-state">
+        <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+        <p>{{ errorMessage }}</p>
+        <ion-button fill="outline" (click)="loadSettings()">Retry</ion-button>
+      </div>
+    }
+
+    <!-- Settings Content -->
+    @if (!isLoading && !errorMessage) {
+      <!-- Account Settings -->
+      <div class="settings-section">
+        <h2 class="section-title">Account</h2>
+        <ion-list class="settings-list">
+          @for (setting of accountSettings; track setting.id) {
+            <ion-item 
+              button 
+              (click)="onSettingClick(setting)"
+              class="setting-item">
+              <ion-icon [name]="setting.icon" slot="start" class="setting-icon"></ion-icon>
+              <ion-label class="setting-label">
+                <h3 class="setting-title">{{ setting.title }}</h3>
+                @if (setting.subtitle) {
+                  <p class="setting-subtitle">{{ setting.subtitle }}</p>
+                }
+              </ion-label>
+              @if (setting.type === 'link') {
+                <ion-icon name="chevron-forward-outline" slot="end" class="chevron-icon"></ion-icon>
+              }
+            </ion-item>
+          }
+        </ion-list>
+      </div>
+
+      <!-- App Settings -->
+      <div class="settings-section">
+        <h2 class="section-title">App</h2>
+        <ion-list class="settings-list">
+          @for (setting of appSettings; track setting.id) {
+            <ion-item 
+              button 
+              (click)="onSettingClick(setting)"
+              class="setting-item">
+              <ion-icon [name]="setting.icon" slot="start" class="setting-icon"></ion-icon>
+              <ion-label class="setting-label">
+                <h3 class="setting-title">{{ setting.title }}</h3>
+                @if (setting.subtitle) {
+                  <p class="setting-subtitle">{{ setting.subtitle }}</p>
+                }
+              </ion-label>
+              @if (setting.type === 'toggle') {
+                <ion-toggle 
+                  [checked]="setting.value" 
+                  slot="end"
+                  (ionChange)="onSettingClick(setting)"
+                  class="setting-toggle">
+                </ion-toggle>
+              } @else if (setting.type === 'link') {
+                <ion-icon name="chevron-forward-outline" slot="end" class="chevron-icon"></ion-icon>
+              }
+            </ion-item>
+          }
+        </ion-list>
+      </div>
+
+      <!-- Support & About -->
+      <div class="settings-section">
+        <h2 class="section-title">Support & About</h2>
+        <ion-list class="settings-list">
+          @for (setting of supportSettings; track setting.id) {
+            <ion-item 
+              button 
+              (click)="onSettingClick(setting)"
+              class="setting-item">
+              <ion-icon [name]="setting.icon" slot="start" class="setting-icon"></ion-icon>
+              <ion-label class="setting-label">
+                <h3 class="setting-title">{{ setting.title }}</h3>
+                @if (setting.subtitle) {
+                  <p class="setting-subtitle">{{ setting.subtitle }}</p>
+                }
+              </ion-label>
+              @if (setting.type === 'link') {
+                <ion-icon name="chevron-forward-outline" slot="end" class="chevron-icon"></ion-icon>
+              }
+            </ion-item>
+          }
+        </ion-list>
+      </div>
+
+      <!-- Account Actions -->
+      <div class="settings-section">
+        <h2 class="section-title">Account Actions</h2>
+        <ion-list class="settings-list">
+          @for (setting of accountActions; track setting.id) {
+            <ion-item 
+              button 
+              (click)="onSettingClick(setting)"
+              class="setting-item"
+              [class.danger-item]="setting.id === 'delete'">
+              <ion-icon [name]="setting.icon" slot="start" class="setting-icon"></ion-icon>
+              <ion-label class="setting-label">
+                <h3 class="setting-title">{{ setting.title }}</h3>
+                @if (setting.subtitle) {
+                  <p class="setting-subtitle">{{ setting.subtitle }}</p>
+                }
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </div>
+
+      <!-- Logout Button -->
+      <div class="logout-section">
+        <ion-button 
+          expand="block" 
+          fill="outline" 
+          color="medium"
+          class="logout-button">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          Log Out
+        </ion-button>
+      </div>
+    }
+  </div>
+</ion-content>

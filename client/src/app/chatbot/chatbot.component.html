@@ -1,0 +1,163 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="chatbot-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="tabs" class="back-button" (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">
+      <div class="title-content">
+        <ion-icon name="chatbubble-ellipses" class="bot-icon"></ion-icon>
+        <span>Gahvareh Assistant</span>
+      </div>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" class="action-button" (click)="clearChat()">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="chatbot-content">
+  <div class="chat-container">
+    <!-- Messages Container -->
+    <div class="messages-container" #messageContainer>
+      @for (message of messages; track message.id) {
+        <div class="message-wrapper" [class.user-message]="message.sender === 'user'">
+          <div class="message" [class]="'message-' + message.sender">
+            <!-- Bot Avatar -->
+            @if (message.sender === 'bot') {
+              <div class="bot-avatar">
+                <ion-icon name="chatbubble-ellipses"></ion-icon>
+              </div>
+            }
+
+            <!-- Message Content -->
+            <div class="message-content">
+              <div class="message-text" [innerHTML]="formatMessageText(message.text)"></div>
+              
+              <!-- Quick Replies -->
+              @if (message.quickReplies && message.quickReplies.length > 0) {
+                <div class="quick-replies">
+                  @for (reply of message.quickReplies; track reply) {
+                    <ion-button 
+                      fill="outline" 
+                      size="small"
+                      class="quick-reply-button"
+                      (click)="sendQuickReply(reply)">
+                      {{ reply }}
+                    </ion-button>
+                  }
+                </div>
+              }
+
+              <!-- Suggestions -->
+              @if (message.suggestions && message.suggestions.length > 0) {
+                <div class="suggestions">
+                  @for (suggestion of message.suggestions; track suggestion) {
+                    <ion-button 
+                      fill="clear" 
+                      size="small"
+                      class="suggestion-button"
+                      (click)="sendSuggestion(suggestion)">
+                      {{ suggestion }}
+                    </ion-button>
+                  }
+                </div>
+              }
+
+              <!-- Link -->
+              @if (message.link) {
+                <div class="message-link">
+                  <ion-button 
+                    fill="clear" 
+                    size="small"
+                    class="link-button"
+                    (click)="openLink(message.link!.url)">
+                    <ion-icon name="open-outline" slot="start"></ion-icon>
+                    {{ message.link!.text }}
+                  </ion-button>
+                </div>
+              }
+
+              <!-- Message Time -->
+              <div class="message-time">
+                {{ formatTime(message.timestamp) }}
+              </div>
+            </div>
+
+            <!-- User Avatar -->
+            @if (message.sender === 'user') {
+              <div class="user-avatar">
+                <ion-icon name="person"></ion-icon>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Typing Indicator -->
+      @if (isTyping) {
+        <div class="message-wrapper">
+          <div class="message message-bot">
+            <div class="bot-avatar">
+              <ion-icon name="chatbubble-ellipses"></ion-icon>
+            </div>
+            <div class="message-content">
+              <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Quick Reply Suggestions -->
+    @if (messages.length === 1) {
+      <div class="quick-reply-suggestions">
+        <h3 class="suggestions-title">Quick Start</h3>
+        <div class="suggestions-grid">
+          @for (quickReply of quickReplies; track quickReply.action) {
+            <ion-button 
+              fill="outline" 
+              class="suggestion-card"
+              (click)="sendQuickReply(quickReply.action)">
+              <ion-icon [name]="getQuickReplyIcon(quickReply.action)" slot="start"></ion-icon>
+              {{ quickReply.text }}
+            </ion-button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Input Section -->
+    <div class="input-section">
+      <div class="input-container">
+        <ion-input
+          #messageInput
+          [(ngModel)]="newMessage"
+          placeholder="Type your message..."
+          class="message-input"
+          (keyup.enter)="sendMessage()"
+          [disabled]="isTyping">
+        </ion-input>
+        <ion-button 
+          fill="clear" 
+          class="send-button"
+          (click)="sendMessage()"
+          [disabled]="!newMessage.trim() || isTyping">
+          <ion-icon name="send"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button for Quick Actions -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="openQuickActions()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

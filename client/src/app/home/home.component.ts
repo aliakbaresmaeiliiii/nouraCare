@@ -861,6 +861,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
       header: 'Quick Actions',
       buttons: [
         {
+          text: '🤖 Chat with Assistant',
+          handler: () => {
+            this.router.navigate(['/chatbot']);
+          }
+        },
+        {
           text: '📝 Add Symptom Entry',
           handler: () => {
             this.openSymptomsTracking();

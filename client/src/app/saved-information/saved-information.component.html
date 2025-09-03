@@ -1,0 +1,127 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="saved-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="tabs" class="back-button" (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Saved Information</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" class="search-button">
+        <ion-icon name="search-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="saved-content">
+  <div class="container">
+    <!-- Search Bar -->
+    <div class="search-section">
+      <ion-searchbar 
+        placeholder="Search saved items..." 
+        [(ngModel)]="searchQuery"
+        (ionInput)="onSearchChange($event)"
+        class="search-bar">
+      </ion-searchbar>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="category-section">
+      <ion-segment 
+        [(ngModel)]="selectedCategory" 
+        (ionChange)="onCategoryChange($event.detail.value || 'all')"
+        class="category-segment">
+        @for (category of categories; track category.value) {
+        <ion-segment-button [value]="category.value" class="category-button">
+          <ion-icon [name]="category.icon" class="category-icon"></ion-icon>
+          <ion-label class="category-label">{{ category.label }}</ion-label>
+        </ion-segment-button>
+        }
+      </ion-segment>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+      <p class="loading-text">Loading saved items...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="error-container">
+      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+      <p class="error-text">{{ errorMessage }}</p>
+      <ion-button fill="outline" (click)="loadSavedItems()" class="retry-button">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Try Again
+      </ion-button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && filteredItems.length === 0" class="empty-container">
+      <ion-icon name="bookmark-outline" class="empty-icon"></ion-icon>
+      <h2 class="empty-title">No Saved Items</h2>
+      <p class="empty-text">
+        {{ searchQuery ? 'No items match your search.' : 'You haven\'t saved any items yet.' }}
+      </p>
+      @if (!searchQuery) {
+      <ion-button fill="outline" (click)="goBack()" class="browse-button">
+        <ion-icon name="library-outline" slot="start"></ion-icon>
+        Browse Content
+      </ion-button>
+      }
+    </div>
+
+    <!-- Saved Items Grid -->
+    <div *ngIf="!isLoading && !errorMessage && filteredItems.length > 0" class="items-container">
+      <div class="items-header">
+        <h2 class="items-title">{{ filteredItems.length }} Saved {{ filteredItems.length === 1 ? 'Item' : 'Items' }}</h2>
+      </div>
+
+      <div class="items-grid">
+        @for (item of filteredItems; track item.id) {
+        <div class="item-card" (click)="openItem(item)">
+          <div class="card-image">
+            <img [src]="item.imageUrl || 'assets/images/heart.png'" 
+                 [alt]="item.title"
+                 class="item-image"
+                 (error)="onImageError($event)">
+            <div class="card-overlay">
+              <ion-button fill="clear" 
+                         class="remove-button"
+                         (click)="removeSavedItem(item.id); $event.stopPropagation()">
+                <ion-icon name="close" class="remove-icon"></ion-icon>
+              </ion-button>
+            </div>
+            <div class="type-badge">
+              <ion-icon [name]="getCategoryIcon(item.category)" class="type-icon"></ion-icon>
+            </div>
+          </div>
+          
+          <div class="card-content">
+            <h3 class="item-title">{{ item.title }}</h3>
+            <p class="item-description">{{ item.description }}</p>
+            
+            <div class="item-meta">
+              @if (item.author) {
+              <div class="author">
+                <ion-icon name="person-outline" class="meta-icon"></ion-icon>
+                <span class="meta-text">{{ item.author }}</span>
+              </div>
+              }
+              @if (item.readTime) {
+              <div class="read-time">
+                <ion-icon name="time-outline" class="meta-icon"></ion-icon>
+                <span class="meta-text">{{ item.readTime }} min read</span>
+              </div>
+              }
+              <div class="saved-date">
+                <ion-icon name="calendar-outline" class="meta-icon"></ion-icon>
+                <span class="meta-text">{{ formatDate(item.savedAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</ion-content>

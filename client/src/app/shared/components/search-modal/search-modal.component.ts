@@ -36,8 +36,6 @@ export class SearchModalComponent implements OnInit {
 
   ngOnInit() {
     this.updateFilteredItems();
-    debugger;
-    console.log('SearchModal initialized with items:', this.items);
   }
 
   private updateFilteredItems() {

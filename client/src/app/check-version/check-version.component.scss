@@ -1,0 +1,313 @@
+.version-header {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --color: white;
+  
+  .back-button {
+    --color: white;
+  }
+  
+  .header-title {
+    font-weight: 600;
+    font-size: 18px;
+  }
+}
+
+.version-content {
+  --background: #f8fafc;
+  
+  .container {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    --color: #667eea;
+  }
+  
+  .loading-text {
+    color: #64748b;
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+// Error State
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  
+  .error-icon {
+    font-size: 64px;
+    color: #ef4444;
+    margin-bottom: 16px;
+  }
+  
+  .error-text {
+    color: #64748b;
+    font-size: 16px;
+    margin: 0 0 24px 0;
+    max-width: 300px;
+  }
+  
+  .retry-button {
+    --color: #667eea;
+    --border-color: #667eea;
+    --border-width: 2px;
+    font-weight: 500;
+  }
+}
+
+// Version Container
+.version-container {
+  .version-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      
+      .card-icon {
+        font-size: 24px;
+        color: #667eea;
+        margin-right: 8px;
+      }
+      
+      .card-title {
+        color: #1e293b;
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+      }
+    }
+    
+    .version-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    
+    .version-label {
+      color: #64748b;
+      font-size: 14px;
+      margin: 0;
+    }
+  }
+  
+  .current-version {
+    border-left: 4px solid #10b981;
+  }
+  
+  .latest-version {
+    border-left: 4px solid #f59e0b;
+  }
+}
+
+// Update Available
+.update-available {
+  .update-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    
+    .update-icon {
+      font-size: 20px;
+      margin-right: 8px;
+    }
+    
+    .update-text {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+  
+  .release-notes {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e2e8f0;
+    
+    .notes-title {
+      color: #1e293b;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      text-align: center;
+    }
+    
+    .notes-list {
+      background: transparent;
+      
+      .note-item {
+        --background: transparent;
+        --padding-start: 0;
+        --padding-end: 0;
+        --padding-top: 8px;
+        --padding-bottom: 8px;
+        border: none;
+        
+        .note-icon {
+          color: #10b981;
+          font-size: 16px;
+        }
+        
+        .note-text {
+          color: #374151;
+          font-size: 14px;
+          margin: 0;
+        }
+      }
+    }
+  }
+  
+  .download-button {
+    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --color: white;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    font-weight: 600;
+    height: 56px;
+    margin-bottom: 20px;
+  }
+}
+
+// No Update Available
+.no-update {
+  text-align: center;
+  padding: 40px 20px;
+  
+  .no-update-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    
+    .no-update-icon {
+      font-size: 20px;
+      margin-right: 8px;
+    }
+    
+    .no-update-text {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+  
+  .no-update-message {
+    color: #64748b;
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+// Last Checked
+.last-checked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  
+  .time-icon {
+    color: #64748b;
+    font-size: 16px;
+    margin-right: 8px;
+  }
+  
+  .time-text {
+    color: #64748b;
+    font-size: 14px;
+  }
+}
+
+// Check Again Button
+.check-again-button {
+  --color: #64748b;
+  --border-color: #cbd5e1;
+  --border-width: 2px;
+  --border-radius: 12px;
+  font-weight: 500;
+  height: 48px;
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .version-content .container {
+    padding: 16px;
+  }
+  
+  .version-container .version-card {
+    padding: 20px;
+    
+    .card-header .card-title {
+      font-size: 16px;
+    }
+    
+    .version-number {
+      font-size: 28px;
+    }
+  }
+  
+  .update-available .update-badge {
+    padding: 10px 16px;
+    
+    .update-text {
+      font-size: 14px;
+    }
+  }
+  
+  .release-notes {
+    padding: 16px;
+    
+    .notes-title {
+      font-size: 16px;
+    }
+  }
+  
+  .download-button {
+    height: 48px;
+  }
+}

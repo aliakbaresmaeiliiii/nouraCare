@@ -1,0 +1,70 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="blocked-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="tabs" class="back-button" (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Blocked Users</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="blocked-content">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+      <p class="loading-text">Loading blocked users...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="error-container">
+      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+      <p class="error-text">{{ errorMessage }}</p>
+      <ion-button fill="outline" (click)="loadBlockedUsers()" class="retry-button">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Try Again
+      </ion-button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && blockedUsers.length === 0" class="empty-container">
+      <ion-icon name="people-outline" class="empty-icon"></ion-icon>
+      <h2 class="empty-title">No Blocked Users</h2>
+      <p class="empty-text">You haven't blocked any users yet.</p>
+    </div>
+
+    <!-- Blocked Users List -->
+    <div *ngIf="!isLoading && !errorMessage && blockedUsers.length > 0" class="users-container">
+      <div class="list-header">
+        <h2 class="list-title">Blocked Users ({{ blockedUsers.length }})</h2>
+        <p class="list-subtitle">Users you've blocked from contacting you</p>
+      </div>
+
+      <ion-list class="users-list">
+        <ion-item *ngFor="let user of blockedUsers" class="user-item">
+          <ion-avatar slot="start" class="user-avatar">
+                         <img [src]="user.profileImage || 'assets/images/nurse.png'" 
+                  [alt]="user.name"
+                  class="avatar-image"
+                  (error)="onImageError($event)">
+          </ion-avatar>
+          
+          <ion-label class="user-info">
+            <h3 class="user-name">{{ user.name }}</h3>
+            <p class="user-email">{{ user.email }}</p>
+            <p class="blocked-date">Blocked on {{ formatDate(user.blockedAt) }}</p>
+          </ion-label>
+
+          <ion-button slot="end" 
+                     fill="outline" 
+                     color="danger" 
+                     size="small"
+                     (click)="unblockUser(user.id)"
+                     class="unblock-button">
+            <ion-icon name="unlock" slot="start"></ion-icon>
+            Unblock
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </div>
+  </div>
+</ion-content>

@@ -35,6 +35,69 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'blocked-users',
+    loadComponent: () =>
+      import('./blocked-users/blocked-users.component').then(
+        (m) => m.BlockedUsersComponent
+      ),
+  },
+  {
+    path: 'check-version',
+    loadComponent: () =>
+      import('./check-version/check-version.component').then(
+        (m) => m.CheckVersionComponent
+      ),
+  },
+  {
+    path: 'saved-information',
+    loadComponent: () =>
+      import('./saved-information/saved-information.component').then(
+        (m) => m.SavedInformationComponent
+      ),
+  },
+  {
+    path: 'my-friends',
+    loadComponent: () =>
+      import('./my-friends/my-friends.component').then(
+        (m) => m.MyFriendsComponent
+      ),
+  },
+  {
+    path: 'forums',
+    loadComponent: () =>
+      import('./forums/forums.component').then(
+        (m) => m.ForumsComponent
+      ),
+  },
+  {
+    path: 'settings',
+    loadComponent: () =>
+      import('./settings/settings.component').then(
+        (m) => m.SettingsComponent
+      ),
+  },
+  {
+    path: 'invite-friends',
+    loadComponent: () =>
+      import('./invite-friends/invite-friends.component').then(
+        (m) => m.InviteFriendsComponent
+      ),
+  },
+  {
+    path: 'notifications',
+    loadComponent: () =>
+      import('./notifications/notifications.component').then(
+        (m) => m.NotificationsComponent
+      ),
+  },
+  {
+    path: 'chatbot',
+    loadComponent: () =>
+      import('./chatbot/chatbot.component').then(
+        (m) => m.ChatbotComponent
+      ),
+  },
+  {
     path: 'period-edit',
     loadComponent: () =>
       import('./edit-period/edit-period.component').then(

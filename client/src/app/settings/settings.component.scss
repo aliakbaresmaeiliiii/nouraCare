@@ -1,0 +1,216 @@
+.settings-header {
+  --background: var(--ion-color-primary);
+  --color: white;
+  
+  .back-button {
+    --color: white;
+  }
+  
+  .header-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  
+  .search-button {
+    --color: white;
+  }
+}
+
+.settings-content {
+  --background: var(--ion-color-light);
+  
+  .container {
+    padding: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  
+  ion-spinner {
+    margin-bottom: 16px;
+    --color: var(--ion-color-primary);
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  
+  .error-icon {
+    font-size: 48px;
+    color: var(--ion-color-danger);
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0 0 16px 0;
+  }
+}
+
+.settings-section {
+  margin-bottom: 24px;
+  
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 12px 0;
+    padding: 0 4px;
+  }
+}
+
+.settings-list {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  .setting-item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --background: white;
+    --border-color: var(--ion-color-light);
+    
+    &:last-child {
+      --border-style: none;
+    }
+    
+    &.danger-item {
+      --color: var(--ion-color-danger);
+      
+      .setting-icon {
+        color: var(--ion-color-danger);
+      }
+      
+      .setting-title {
+        color: var(--ion-color-danger);
+      }
+    }
+    
+    .setting-icon {
+      font-size: 20px;
+      color: var(--ion-color-primary);
+      margin-right: 12px;
+    }
+    
+    .setting-label {
+      flex: 1;
+      
+      .setting-title {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--ion-color-dark);
+        margin: 0 0 4px 0;
+      }
+      
+      .setting-subtitle {
+        font-size: 0.875rem;
+        color: var(--ion-color-medium);
+        margin: 0;
+        line-height: 1.4;
+      }
+    }
+    
+    .chevron-icon {
+      font-size: 16px;
+      color: var(--ion-color-medium);
+    }
+    
+    .setting-toggle {
+      --background: var(--ion-color-light);
+      --background-checked: var(--ion-color-primary);
+      --handle-background: white;
+      --handle-background-checked: white;
+    }
+  }
+}
+
+.logout-section {
+  margin-top: 32px;
+  padding: 0 4px;
+  
+  .logout-button {
+    --border-color: var(--ion-color-medium);
+    --color: var(--ion-color-medium);
+    --border-radius: 12px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    font-weight: 500;
+    
+    ion-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .settings-content .container {
+    padding: 12px;
+  }
+  
+  .settings-list .setting-item {
+    --padding-start: 12px;
+    --padding-end: 12px;
+  }
+  
+  .setting-icon {
+    font-size: 18px !important;
+  }
+  
+  .setting-title {
+    font-size: 0.95rem !important;
+  }
+  
+  .setting-subtitle {
+    font-size: 0.8rem !important;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .settings-content {
+    --background: var(--ion-color-dark);
+  }
+  
+  .settings-list {
+    background: var(--ion-color-dark-shade);
+    
+    .setting-item {
+      --background: var(--ion-color-dark-shade);
+      --border-color: var(--ion-color-dark-tint);
+      
+      .setting-title {
+        color: white;
+      }
+      
+      .setting-subtitle {
+        color: var(--ion-color-light);
+      }
+    }
+  }
+  
+  .section-title {
+    color: white !important;
+  }
+}
