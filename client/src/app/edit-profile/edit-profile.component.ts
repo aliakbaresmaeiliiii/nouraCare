@@ -44,7 +44,7 @@ export class EditProfileComponent implements OnInit {
 
   showPickerLastPeriod = false;
   startDate: any;
-  
+
   // Picker properties for the new ion-picker format
   tempYear: number = new Date().getFullYear();
   tempMonth: number = new Date().getMonth() + 1;
@@ -52,7 +52,7 @@ export class EditProfileComponent implements OnInit {
   years: number[] = Array.from({ length: 25 }, (_, i) => new Date().getFullYear() - 12 + i);
   months: number[] = Array.from({ length: 12 }, (_, i) => i + 1);
   pickerDays: number[] = [];
-  
+
   // Date constraints for the picker (not used with ion-picker)
   message: string = '';
   name = '';
@@ -77,11 +77,6 @@ export class EditProfileComponent implements OnInit {
     lastPeriodStartDate: [null],
     name: [''],
     birthday: [''],
-    city: [''],
-    // Address reactive controls
-    cityId: [null],
-    districtId: [null],
-    addressLine: [''],
     email: [''],
   });
   // Method to check form control state
@@ -93,10 +88,10 @@ export class EditProfileComponent implements OnInit {
     console.log('=== Component Initialization ===');
     this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
     console.log('User info store:', this.userInfoStore);
-    
+
     // Check initial form state
     this.checkFormControlState();
-    
+
     this.route.queryParamMap.subscribe((params) => {
       const focus = params.get('focus');
       setTimeout(() => {
@@ -105,9 +100,6 @@ export class EditProfileComponent implements OnInit {
           el?.focus();
         } else if (focus === 'email') {
           const el = document.querySelector('ion-input[formControlName="email"] input') as HTMLInputElement | null;
-          el?.focus();
-        } else if (focus === 'city') {
-          const el = document.querySelector('ion-input[formControlName="city"] input') as HTMLInputElement | null;
           el?.focus();
         } else if (focus === 'birthday') {
           const btn = document.querySelector('ion-datetime-button[datetime="birthdayPicker"]') as HTMLElement | null;
@@ -125,7 +117,6 @@ export class EditProfileComponent implements OnInit {
           const patch: any = {
             name: res?.name ?? '',
             email: res?.email ?? '',
-            city: res?.city ?? '',
             birthday: res?.birthday ?? '',
             menstrualCycleDay: res?.menstrualCycleLength ?? 28,
             periodUsual: res?.periodDuration ?? 5,
@@ -134,62 +125,31 @@ export class EditProfileComponent implements OnInit {
             status: res?.status ?? null,
           };
           this.form.patchValue(patch);
-          
+
           // Set profile image with proper URL
           this.profileImage = this.imageUrlService.getImageUrl(res?.profileImage);
-          
+
           // Check form state after patch
           setTimeout(() => {
             this.checkFormControlState();
           }, 100);
-          
+
           // reflect last period start in the local startDate for the readonly input
           this.startDate = patch.lastPeriodStartDate;
         });
 
-        // Load user addresses
-        this.userService.listUserAddresses(String(id)).subscribe((addresses: any[]) => {
-          if (addresses && addresses.length > 0) {
-            const address = addresses[0]; // Get first address
-            this.selectedCityId = address.cityId;
-            this.selectedDistrictId = address.districtId;
-            this.addressLine = address.addressLine;
-            this.latitude = address.latitude;
-            this.longitude = address.longitude;
-            
-            // Patch form with address data
-            this.form.patchValue({
-              cityId: address.cityId,
-              districtId: address.districtId,
-              addressLine: address.addressLine
-            });
 
-            // Load districts for selected city
-            if (this.selectedCityId) {
-              this.loadDistricts(this.selectedCityId);
-            }
-          }
-        });
       }
-    } catch {}
+    } catch { }
 
-    // Load geo data
-    this.loadCities();
-    setTimeout(() => this.initMap(), 0);
-    
+    // Initialize picker days array
+
     // Initialize picker days array
     this.updatePickerDays();
   }
 
-  initMap() {
-    if (this.latitude && this.longitude) {
-      this.mapCoordinates = [{ lat: this.latitude, lng: this.longitude }];
-    } else {
-      // Default coordinates (can be set to any default location)
-      this.mapCoordinates = [{ lat: 35.744711325653654, lng: 51.375447552429875 }];
-    }
-  }
-  
+
+
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -200,16 +160,16 @@ export class EditProfileComponent implements OnInit {
         alert('Please select an image file');
         return;
       }
-      
+
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('Image file size should be less than 5MB');
         return;
       }
-      
+
       this.selectedProfile = file;
       console.log('File validated, processing...');
-      
+
       // Try modern createImageBitmap first, fallback to FileReader
       if (typeof createImageBitmap === 'function') {
         try {
@@ -218,7 +178,7 @@ export class EditProfileComponent implements OnInit {
             console.log('ImageBitmap created:', bmp.width, 'x', bmp.height);
             this.imageBitmap = bmp;
             this.showCropper = true;
-            
+
             // Wait for the modal to be fully rendered before rendering the crop
             setTimeout(() => {
               console.log('Modal should be open, rendering crop...');
@@ -245,7 +205,7 @@ export class EditProfileComponent implements OnInit {
   private fallbackImageProcessing(file: File) {
     console.log('Using fallback image processing...');
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       console.log('File read successfully, creating image...');
       const img = new Image();
@@ -258,11 +218,11 @@ export class EditProfileComponent implements OnInit {
           canvas.width = img.width;
           canvas.height = img.height;
           ctx.drawImage(img, 0, 0);
-          
+
           // Convert canvas to ImageBitmap-like object
           this.imageBitmap = canvas as any;
           this.showCropper = true;
-          
+
           setTimeout(() => {
             console.log('Rendering crop with fallback...');
             this.renderCrop();
@@ -272,12 +232,12 @@ export class EditProfileComponent implements OnInit {
       };
       img.src = e.target?.result as string;
     };
-    
+
     reader.onerror = () => {
       console.error('Error reading file');
       alert('Error reading image file. Please try again.');
     };
-    
+
     reader.readAsDataURL(file);
   }
 
@@ -290,50 +250,50 @@ export class EditProfileComponent implements OnInit {
       });
       return;
     }
-    
+
     const canvas = this.cropCanvas.nativeElement;
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       console.error('Cannot get canvas context');
       return;
     }
-    
+
     const size = 256;
     canvas.width = size;
     canvas.height = size;
     ctx.clearRect(0, 0, size, size);
-    
+
     const iw = this.imageBitmap.width;
     const ih = this.imageBitmap.height;
-    
+
     // Calculate scaling to fit image within canvas while maintaining aspect ratio
     const scaleX = size / iw;
     const scaleY = size / ih;
     const scale = Math.min(scaleX, scaleY) * this.zoom;
-    
+
     // Calculate dimensions after scaling
     const dw = iw * scale;
     const dh = ih * scale;
-    
+
     // Center the image on the canvas
     const dx = (size - dw) / 2;
     const dy = (size - dh) / 2;
-    
-    console.log('Rendering crop:', { 
+
+    console.log('Rendering crop:', {
       iw, ih, scale, dw, dh, dx, dy, zoom: this.zoom,
       scaleX, scaleY, finalScale: scale
     });
-    
+
     try {
       // Draw the image centered on the canvas
       ctx.drawImage(this.imageBitmap, dx, dy, dw, dh);
       console.log('Image rendered successfully');
-      
+
       // Add a border to make the canvas visible
       ctx.strokeStyle = '#e2e8f0';
       ctx.lineWidth = 2;
       ctx.strokeRect(0, 0, size, size);
-      
+
     } catch (error) {
       console.error('Error drawing image to canvas:', error);
     }
@@ -348,7 +308,7 @@ export class EditProfileComponent implements OnInit {
     console.log('Closing cropper...');
     this.showCropper = false;
     this.imageBitmap = null;
-    
+
     // Reset file input so user can select the same image again if needed
     const fileInput = document.getElementById('fileeInput') as HTMLInputElement;
     if (fileInput) {
@@ -390,20 +350,22 @@ export class EditProfileComponent implements OnInit {
 
 
   confirmPicker() {
+    console.log('Confirming picker...');
     try {
       // Format the date for display and storage using picker values
       const formattedDate = `${this.tempYear}-${String(this.tempMonth).padStart(2, '0')}-${String(this.tempDay).padStart(2, '0')}`;
+      console.log('Formatted date:', formattedDate);
 
       // Update the start date and form
       this.startDate = formattedDate;
       this.form.patchValue({ lastPeriodStartDate: this.startDate });
-      
+
       // Close the date picker modal
       this.closeDatePicker();
-      
+
       // Show success feedback
       this.showSuccessAlert('Last period start date updated successfully!');
-      
+
     } catch (error) {
       console.error('Error in confirmPicker:', error);
       this.showErrorAlert('Error selecting date. Please try again.');
@@ -439,10 +401,9 @@ export class EditProfileComponent implements OnInit {
         name: formValues.name,
         email: formValues.email,
         birthday: formValues.birthday,
-        city: formValues.city,
       };
       localStorage.setItem('userInfo', JSON.stringify(store));
-    } catch {}
+    } catch { }
 
     // Persist locally for the app chart
     this.cycleSettings.setCycleLength(formValues.menstrualCycleDay ?? 28);
@@ -454,7 +415,6 @@ export class EditProfileComponent implements OnInit {
       name: formValues.name,
       email: formValues.email,
       birthday: formValues.birthday,
-      city: formValues.city,
       profileImage: formValues.profileImage,
       status: formValues.status,
       menstrualCycleLength: formValues.menstrualCycleDay,
@@ -464,28 +424,7 @@ export class EditProfileComponent implements OnInit {
 
     this.userService.updateUserInfo(id, payload).subscribe({
       next: (res: any) => {
-      // Save address if city and address are provided (latitude/longitude are optional)
-        if (this.selectedCityId ) {
-          const addrPayload = {
-            cityId: this.selectedCityId,
-            districtId: this.selectedDistrictId || undefined,
-            latitude: this.latitude || undefined,
-            longitude: this.longitude || undefined,
-          };
-          
-          this.userService.createAddress(String(id), addrPayload).subscribe({
-            next: (addrRes: any) => {
-              this.showSuccessAlert('Profile updated successfully!');
-            },
-            error: (addrError: any) => {
-              console.error('Error creating address:', addrError);
-              this.showSuccessAlert('Profile updated successfully! (Address could not be saved)');
-            }
-          });
-        } else {
-          // No address to save, show success immediately
-          this.showSuccessAlert('Profile updated successfully!');
-        }
+        this.showSuccessAlert('Profile updated successfully!');
       },
       error: (error: any) => {
         console.error('Error updating profile:', error);
@@ -500,10 +439,10 @@ export class EditProfileComponent implements OnInit {
         console.error('Crop canvas not available');
         return;
       }
-      
+
       console.log('Starting crop confirmation...');
       const canvas = this.cropCanvas.nativeElement;
-      
+
       // Log canvas state
       console.log('Canvas state:', {
         width: canvas.width,
@@ -511,28 +450,28 @@ export class EditProfileComponent implements OnInit {
         offsetWidth: canvas.offsetWidth,
         offsetHeight: canvas.offsetHeight
       });
-      
+
       const blob = await this.canvasToBlob(canvas);
       console.log('Blob created:', blob.size, 'bytes, type:', blob.type);
-      
+
       const id = this.userInfoStore?.user?.id;
       if (!id) {
         console.error('No user ID available');
         alert('User not found. Please try again.');
         return;
       }
-      
+
       console.log('Uploading image...');
       this.userService.uploadProfileImage(String(id), blob).subscribe({
         next: (res: any) => {
           console.log('Upload successful:', res);
-          
+
           // Set preview and form control
           this.profileImage = this.imageUrlService.getImageUrl(res.url);
           this.form.patchValue({ profileImage: res.url });
-          
+
           console.log('Profile image updated:', this.profileImage);
-          
+
           // Update local storage for profile page
           try {
             const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -542,7 +481,7 @@ export class EditProfileComponent implements OnInit {
           } catch (error) {
             console.error('Error updating local storage:', error);
           }
-          
+
           this.closeCropper();
           this.showSuccessAlert('Profile picture updated successfully!');
         },
@@ -559,365 +498,15 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  // --- GEO & MAP ---
-  cities: any[] = [];
-  districts: any[] = [];
-  selectedCityId: number | null = null;
-  selectedDistrictId: number | null = null;
-  addressLine: string = '';
-  latitude: number | null = null;
-  longitude: number | null = null;
-  
-  // Loading states
-  isLoadingDistricts = false;
-  
-  // Search modals
-  showCitySearchModal = false;
-  showDistrictSearchModal = false;
-
-  // --- GEO & MAP METHODS ---
-  loadCities() {
-    this.userService.listCities().subscribe({
-      next: (res: any[]) => {
-        this.cities = res || [];
-      },
-      error: (error: any) => {
-        console.error('Error loading cities:', error);
-        this.cities = [];
-      }
-    });
-  }
-
-  loadDistricts(cityId: number) {
-    this.isLoadingDistricts = true;
-    
-    this.userService.listDistricts(cityId).subscribe({
-      next: (res: any[]) => {
-        this.districts = res || [];
-        
-        // If no districts found, show a message or handle accordingly
-        if (this.districts.length === 0) {
-          // No districts found
-        }
-        this.isLoadingDistricts = false;
-        
-        // Log state after districts are loaded
-        this.logCurrentState();
-      },
-      error: (error: any) => {
-        console.error('Error loading districts for city', cityId, ':', error);
-        this.districts = [];
-        this.isLoadingDistricts = false;
-      }
-    });
-  }
-
-  onCityChange(ev: any) {
-    this.selectedCityId = Number(ev.detail.value);
-    this.form.patchValue({ cityId: this.selectedCityId });
-    
-    // Reset district when city changes
-    this.selectedDistrictId = null;
-    this.form.patchValue({ districtId: null });
-    this.districts = [];
-    
-    if (this.selectedCityId) {
-      this.loadDistricts(this.selectedCityId);
-    }
-  }
-
-  onDistrictChange(ev: any) {
-    this.selectedDistrictId = Number(ev.detail.value);
-    this.form.patchValue({ districtId: this.selectedDistrictId });
-  }
-
-  onAddressLineChange(ev: any) {
-    this.addressLine = ev.detail.value;
-    this.form.patchValue({ addressLine: this.addressLine });
-  }
-
-  onCitySelectOpen() {
-    // Reset city filter when opening
-    // Force the select to reset its search state
-    setTimeout(() => {
-      const citySelect = document.querySelector('ion-select[formControlName="cityId"]') as any;
-      if (citySelect) {
-        citySelect.value = null;
-        citySelect.reset();
-      }
-    }, 100);
-  }
-
-  onDistrictSelectOpen() {
-    // Reset district filter when opening
-    // Force the select to reset its search state
-    setTimeout(() => {
-      const districtSelect = document.querySelector('ion-select[formControlName="districtId"]') as any;
-      if (districtSelect) {
-        districtSelect.value = null;
-        districtSelect.reset();
-      }
-    }, 100);
-  }
-
-  onCitySelectCancel() {
-    // Reset the select component
-    setTimeout(() => {
-      const citySelect = document.querySelector('ion-select[formControlName="cityId"]') as any;
-      if (citySelect) {
-        citySelect.reset();
-      }
-    }, 100);
-  }
-
-  onDistrictSelectCancel() {
-    // Reset the select component
-    setTimeout(() => {
-      const districtSelect = document.querySelector('ion-select[formControlName="districtId"]') as any;
-      if (districtSelect) {
-        districtSelect.reset();
-      }
-    }, 100);
-  }
-
-  // Custom search methods using the new search modal
-  openCitySearch() {
-    console.log('Opening city search modal...');
-    console.log('Cities loaded:', this.cities.length);
-    console.log('Cities data:', this.cities);
-    console.log('City search items:', this.getCitySearchItems());
-    this.showCitySearchModal = true;
-    console.log('Modal state set to:', this.showCitySearchModal);
-  }
-
-  openDistrictSearch() {
-    // Only open district search if a city is selected and districts are available
-    if (!this.selectedCityId) {
-      return;
-    }
-    
-    if (this.districts.length === 0) {
-      return;
-    }
-    
-    this.showDistrictSearchModal = true;
-  }
-
-  closeCitySearch() {
-    this.showCitySearchModal = false;
-  }
-
-  closeDistrictSearch() {
-    this.showDistrictSearchModal = false;
-  }
-
-  onCitySelected(cityId: number) {
-    this.selectedCityId = cityId;
-    this.form.patchValue({ cityId: cityId });
-    this.closeCitySearch();
-    
-    // Reset district when city changes
-    this.selectedDistrictId = null;
-    this.form.patchValue({ districtId: null });
-    this.districts = [];
-    
-    if (this.selectedCityId) {
-      this.loadDistricts(this.selectedCityId);
-    }
-    
-    // Log state after city selection
-    setTimeout(() => this.logCurrentState(), 100);
-  }
-
-  onDistrictSelected(districtId: any) {
-    this.selectedDistrictId = districtId;
-    this.form.patchValue({ districtId: districtId });
-    this.closeDistrictSearch();
-  }
-
-  // Convert cities to search items format
-  getCitySearchItems() {
-    return this.cities.map(city => ({
-      text: `${city.name}, ${city.state}`,
-      value: city.id,
-      city: city
-    }));
-  }
-
-  // Convert districts to search items format
-  getDistrictSearchItems() {
-    return this.districts.map(district => ({
-      text: district.name,
-      value: district.id,
-      district: district
-    }));
-  }
-
-  getSelectedCityName(): string {
-    if (!this.selectedCityId) return '';
-    const city = this.cities.find(c => c.id === this.selectedCityId);
-    return city ? `${city.name}, ${city.state}` : '';
-  }
-
-  getSelectedDistrictName(): string {
-    if (!this.selectedDistrictId) return '';
-    const district = this.districts.find(d => d.id === this.selectedDistrictId);
-    return district ? district.name : '';
-  }
-
-  // Helper method to check if districts are available
-  areDistrictsAvailable(): boolean {
-    return this.selectedCityId !== null && this.districts.length > 0;
-  }
-
-  // Helper method to check if district search should be enabled
-  canSearchDistricts(): boolean {
-    return this.selectedCityId !== null && !this.isLoadingDistricts && this.districts.length > 0;
-  }
-
-  // Helper method to get district availability message
-  getDistrictAvailabilityMessage(): string {
-    if (!this.selectedCityId) {
-      return 'Please select a city first';
-    }
-    if (this.isLoadingDistricts) {
-      return 'Loading districts...';
-    }
-    if (this.districts.length === 0) {
-      return 'No districts available for this city';
-    }
-    return 'Search for a district...';
-  }
-
-  // Debug method to log current state
-  logCurrentState() {
-    // State logging functionality
-  }
-
-  showMapModal = false;
-  mapCoordinates: { lat: number; lng: number }[] = [];
-  selectedMapLocation: { lat: number; lng: number; address: string } | null = null;
-
-  openMapWithCurrentLocation() {
-    // Show loading state first
-    this.showMapModal = true;
-    this.selectedMapLocation = null;
-    
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        this.latitude = pos.coords.latitude;
-        this.longitude = pos.coords.longitude;
-        this.mapCoordinates = [{ lat: this.latitude, lng: this.longitude }];
-      }, (error) => {
-        // fallback to default location
-        this.mapCoordinates = [{ lat: 35.744711325653654, lng: 51.375447552429875 }];
-      });
-    } else {
-      this.mapCoordinates = [{ lat: 35.744711325653654, lng: 51.375447552429875 }];
-    }
-  }
-
-  openMapModal() {
-    this.showMapModal = true;
-  }
-  
-  closeMapModal() {
-    this.showMapModal = false;
-    this.selectedMapLocation = null;
-  }
-
-  // Method to handle map location selection from Mapbox
-  onMapLocationSelect(location: { lat: number; lng: number; address: string }) {
-    this.selectedMapLocation = location;
-  }
-
-  // Method to confirm the selected map location
-  confirmMapLocation() {
-    if (this.selectedMapLocation) {
-      this.latitude = this.selectedMapLocation.lat;
-      this.longitude = this.selectedMapLocation.lng;
-      this.addressLine = this.selectedMapLocation.address;
-      this.form.patchValue({ addressLine: this.addressLine });
-      this.closeMapModal();
-    }
-  }
-
-  // Method to refresh the map location
-  refreshMapLocation() {
-    // This will trigger the map component to refresh its location
-    if (this.showMapModal) {
-      // Re-open the modal to refresh the map
-      this.closeMapModal();
-      setTimeout(() => {
-        this.openMapWithCurrentLocation();
-      }, 100);
-    }
-  }
-
-  // Method to get current location and update map
-  getCurrentLocation() {
-    if (navigator.geolocation) {
-      const options = {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-      };
-
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          const accuracy = position.coords.accuracy;
 
 
-
-          // Update coordinates
-          this.latitude = lat;
-          this.longitude = lng;
-          this.mapCoordinates = [{ lat, lng }];
-
-          // Update the map coordinates to trigger refresh
-          this.selectedMapLocation = {
-            lat,
-            lng,
-            address: 'Current Location'
-          };
-
-
-        },
-        error => {
-          console.error('Error getting current location:', error);
-          let errorMessage = '';
-          
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage = 'Location access denied. Please allow location access in your browser settings.';
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage = 'Location information unavailable. Please try again.';
-              break;
-            case error.TIMEOUT:
-              errorMessage = 'Location request timed out. Please try again.';
-              break;
-            default:
-              errorMessage = 'An unknown error occurred while getting location.';
-          }
-          
-          alert(errorMessage);
-        },
-        options
-      );
-    } else {
-      alert('Geolocation is not supported by this browser.');
-    }
-  }
 
   // Method to manually set status (for debugging)
   setStatus(statusValue: string | null): void {
     this.form.patchValue({ status: statusValue });
   }
 
-    // Method to check cropper state (for debugging)
+  // Method to check cropper state (for debugging)
   checkCropperState(): void {
     console.log('Cropper state:', {
       showCropper: this.showCropper,
@@ -925,7 +514,7 @@ export class EditProfileComponent implements OnInit {
       canvas: !!this.cropCanvas,
       canvasElement: !!this.cropCanvas?.nativeElement
     });
-    
+
     if (this.cropCanvas?.nativeElement) {
       const canvas = this.cropCanvas.nativeElement;
       console.log('Canvas details:', {
@@ -949,21 +538,21 @@ export class EditProfileComponent implements OnInit {
       }, 100);
     }
   }
-  
+
   // Method to test image display
   testImageDisplay(): void {
     console.log('Testing image display...');
     console.log('Current profileImage:', this.profileImage);
     console.log('Form profileImage value:', this.form.get('profileImage')?.value);
-    
+
     // Test with a sample image
     const testImage = 'https://ionicframework.com/docs/img/demos/avatar.svg';
     this.profileImage = testImage;
     this.form.patchValue({ profileImage: testImage });
-    
+
     console.log('Test image set:', this.profileImage);
   }
-  
+
   // Method to check if image is actually visible
   checkImageVisibility(): void {
     const imgElement = document.querySelector('.avatar-image') as HTMLImageElement;
@@ -981,12 +570,12 @@ export class EditProfileComponent implements OnInit {
       console.log('Image element not found');
     }
   }
-  
+
   // Method to get current status value
   getCurrentStatus(): string | null {
     return this.form.get('status')?.value;
   }
-  
+
 
   // Method to check if a status option is selected
   isStatusSelected(statusValue: string): boolean {
@@ -1012,13 +601,9 @@ export class EditProfileComponent implements OnInit {
       periodUsual: 5,
       name: '',
       email: '',
-      city: '',
       birthday: '',
       profileImage: '',
-      lastPeriodStartDate: null,
-      cityId: null,
-      districtId: null,
-      addressLine: ''
+      lastPeriodStartDate: null
     });
     console.log('Form after initialization:', this.form.value);
   }
@@ -1028,10 +613,10 @@ export class EditProfileComponent implements OnInit {
     console.log('=== Manual Form Initialization ===');
     console.log('Current form state:', this.form.value);
     console.log('Status options:', this.statusOptions);
-    
+
     // Try to set a specific status
     this.setStatus('PLANNING_PREGNANCY');
-    
+
     // Check if the radio button should be selected
     setTimeout(() => {
       this.checkFormControlState();
@@ -1217,6 +802,9 @@ export class EditProfileComponent implements OnInit {
 
   // Method to open the date picker modal for last period start
   openDatePicker() {
+    console.log('Opening date picker...');
+    console.log('Current showPickerLastPeriod:', this.showPickerLastPeriod);
+    
     // Initialize picker values from startDate or current date
     if (this.startDate) {
       try {
@@ -1243,11 +831,13 @@ export class EditProfileComponent implements OnInit {
       this.tempMonth = now.getMonth() + 1;
       this.tempDay = now.getDate();
     }
-    
+
     // Update the days array for the selected month
     this.updatePickerDays();
-    
+
     this.showPickerLastPeriod = true;
+    console.log('Set showPickerLastPeriod to:', this.showPickerLastPeriod);
+    console.log('Picker values:', { tempYear: this.tempYear, tempMonth: this.tempMonth, tempDay: this.tempDay });
   }
 
   // Method to close the date picker modal
@@ -1265,7 +855,7 @@ export class EditProfileComponent implements OnInit {
   // Method to handle picker column changes
   onChange(event: any, type: 'year' | 'month' | 'day') {
     const value = event.detail.value;
-    
+
     switch (type) {
       case 'year':
         this.tempYear = value;
@@ -1277,21 +867,29 @@ export class EditProfileComponent implements OnInit {
         this.tempDay = value;
         break;
     }
-    
+
     // Update days array when year or month changes
     if (type === 'year' || type === 'month') {
       this.updatePickerDays();
     }
   }
-  
+
   // Method to update the days array based on selected year and month
   private updatePickerDays() {
     const daysInMonth = new Date(this.tempYear, this.tempMonth, 0).getDate();
     this.pickerDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    
+
     // Adjust tempDay if it exceeds the new month's days
     if (this.tempDay > daysInMonth) {
       this.tempDay = daysInMonth;
     }
+    
+    console.log('Updated picker days:', {
+      year: this.tempYear,
+      month: this.tempMonth,
+      daysInMonth,
+      pickerDays: this.pickerDays.length,
+      tempDay: this.tempDay
+    });
   }
 }

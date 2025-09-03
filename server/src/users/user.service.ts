@@ -9,22 +9,22 @@ export class UserService {
     return this.prismaService.user.findUnique({ where: { id: userId } });
   }
   async editUserInfo(userId: number, updateUserDto: UpdateUserDto) {
+    // Filter out undefined values and handle date conversions
+    const updateData = Object.fromEntries(
+      Object.entries(updateUserDto)
+        .filter(([_, value]) => value !== undefined)
+        .map(([key, value]) => {
+          // Convert date strings to Date objects
+          if (['birthday', 'lastPeriodStartDate'].includes(key) && value) {
+            return [key, new Date(value as string)];
+          }
+          return [key, value];
+        })
+    );
+    
     return this.prismaService.user.update({
       where: { id: userId },
-      data: {
-        name: updateUserDto.name,
-        email: updateUserDto.email,
-        birthday: updateUserDto.birthday
-          ? new Date(updateUserDto.birthday)
-          : undefined,
-        city: updateUserDto.city,
-        profileImage: updateUserDto.profileImage,
-        menstrualCycleLength: updateUserDto.menstrualCycleLength,
-        periodDuration: updateUserDto.periodDuration,
-        lastPeriodStartDate: updateUserDto.lastPeriodStartDate
-          ? new Date(updateUserDto.lastPeriodStartDate)
-          : undefined,
-      },
+      data: updateData,
     });
   }
 }

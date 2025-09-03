@@ -16,7 +16,6 @@ export class UserController {
   }
 
   @Put(':id/edit')
-
   async editUserInfo(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,

@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { SharedModule } from '../../shared-module';
 
 export interface SearchItem {
   text: string;
@@ -14,7 +13,18 @@ export interface SearchItem {
   standalone: false
 })
 export class SearchModalComponent implements OnInit {
-  @Input() items: SearchItem[] = [];
+  private _items: SearchItem[] = [];
+  
+  @Input() set items(value: SearchItem[]) {
+    this._items = value || [];
+    this.updateFilteredItems();
+    console.log('SearchModal items set:', this._items);
+  }
+  
+  get items(): SearchItem[] {
+    return this._items;
+  }
+  
   @Input() selectedValue: any = null;
   @Input() title = 'Select Item';
   @Input() showCheckbox = false;
@@ -25,7 +35,14 @@ export class SearchModalComponent implements OnInit {
   filteredItems: SearchItem[] = [];
 
   ngOnInit() {
+    this.updateFilteredItems();
+    debugger;
+    console.log('SearchModal initialized with items:', this.items);
+  }
+
+  private updateFilteredItems() {
     this.filteredItems = [...this.items];
+    console.log('SearchModal filteredItems updated:', this.filteredItems);
   }
 
   cancelChanges() {
@@ -41,37 +58,22 @@ export class SearchModalComponent implements OnInit {
     this.filterList(inputElement.value);
   }
 
-  /**
-   * Update the rendered view with
-   * the provided search query. If no
-   * query is provided, all data
-   * will be rendered.
-   */
-  filterList(searchQuery: string | undefined) {
-    /**
-     * If no search query is defined,
-     * return all options.
-     */
-    if (searchQuery === undefined || searchQuery.trim() === '') {
-      this.filteredItems = [...this.items];
-    } else {
-      /**
-       * Otherwise, normalize the search
-       * query and check to see which items
-       * contain the search query as a substring.
-       */
-      const normalizedQuery = searchQuery.toLowerCase();
-      this.filteredItems = this.items.filter((item) =>
-        item.text.toLowerCase().includes(normalizedQuery)
-      );
-    }
-  }
-
   selectItem(item: SearchItem) {
     this.selectedValue = item.value;
   }
 
   isSelected(value: any): boolean {
     return this.selectedValue === value;
+  }
+
+  filterList(searchQuery: string | undefined) {
+    if (searchQuery === undefined || searchQuery.trim() === '') {
+      this.filteredItems = [...this.items];
+    } else {
+      const normalizedQuery = searchQuery.toLowerCase();
+      this.filteredItems = this.items.filter((item) =>
+        item.text.toLowerCase().includes(normalizedQuery)
+      );
+    }
   }
 }

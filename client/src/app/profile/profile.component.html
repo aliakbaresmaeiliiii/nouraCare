@@ -69,7 +69,7 @@
 
   <!-- Action Buttons -->
   <div class="action-buttons">
-    <ion-button expand="block" class="edit-profile-btn" (click)="editProfile()">
+    <ion-button expand="block" type="button" class="edit-profile-btn" (click)="editProfile()">
       <ion-icon name="create-outline" slot="start"></ion-icon>
       Edit Profile
     </ion-button>
@@ -132,7 +132,7 @@
       </div>
 
       <!-- City Card -->
-      <div class="field-card" [class.completed]="city" (click)="goEdit('city')">
+      <!-- <div class="field-card" [class.completed]="city" (click)="goEdit('city')">
         <div class="field-icon">
           <ion-icon name="location-outline"></ion-icon>
         </div>
@@ -146,7 +146,7 @@
         <div class="completion-badge" *ngIf="city">
           <ion-icon name="checkmark-circle"></ion-icon>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 

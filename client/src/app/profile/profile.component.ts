@@ -5,6 +5,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { SharedModule } from '../shared/shared-module';
 import Swiper from 'swiper';
 import { Router } from '@angular/router';
@@ -19,7 +20,7 @@ import { ImageUrlService } from '../shared/services/image-url.service';
   styleUrls: ['./profile.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, ViewWillEnter {
   percent: number = 0;
   selectedTab = 'first';
   // swiperEl = viewChild('swiperContainer');
@@ -81,8 +82,26 @@ export class ProfileComponent implements OnInit {
     // You can implement native sharing or custom share dialog here
   }
 
+  // Method to refresh profile data and progress when returning from edit profile
+  refreshProfileData() {
+    try {
+      this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const u = this.userInfoStore?.user || {};
+      this.name = u.name || '';
+      this.email = u.email || '';
+      this.birthday = u.birthday || '';
+      this.city = u.city || '';
+      this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
+      this.computeProgress();
+    } catch {}
+  }
+
+  ionViewWillEnter(): void {
+    // Refresh profile data when entering the page
+    this.refreshProfileData();
+  }
+
   ngOnInit(): void {
-    this.percent = 80;
     try {
       this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const u = this.userInfoStore?.user || {};
@@ -92,6 +111,7 @@ export class ProfileComponent implements OnInit {
       this.city = u.city || '';
       this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
     } catch {}
+    
     // fetch fresh from API if we have id
     const id = this.userInfoStore?.user?.id;
     if (id) {
@@ -101,15 +121,56 @@ export class ProfileComponent implements OnInit {
         this.birthday = res?.birthday || this.birthday;
         this.city = res?.city || this.city;
         this.profileImage = this.imageUrlService.getImageUrl(res?.profileImage || this.profileImage);
+        
+        // Update userInfoStore with fresh data for progress calculation
+        if (res) {
+          this.userInfoStore.user = {
+            ...this.userInfoStore.user,
+            ...res
+          };
+        }
+        
         this.computeProgress();
       });
+    } else {
+      this.computeProgress();
     }
-    this.computeProgress();
   }
 
   private computeProgress() {
-    const fields = [this.name, this.email, this.birthday, this.city];
-    const filled = fields.filter((v) => !!v).length;
-    this.percent = Math.round((filled / fields.length) * 100);
+    // Calculate progress based on all profile fields from edit profile form
+    const profileFields = [
+      { value: this.name, weight: 20 },           // Name - 20%
+      { value: this.email, weight: 20 },          // Email - 20%
+      { value: this.birthday, weight: 15 },       // Birthday - 15%
+      { value: this.profileImage, weight: 15 },   // Profile Image - 15%
+      // Additional fields from edit profile that we can check
+      { value: this.userInfoStore?.user?.status, weight: 10 },           // Status - 10%
+      { value: this.userInfoStore?.user?.menstrualCycleLength, weight: 5 }, // Cycle Length - 5%
+      { value: this.userInfoStore?.user?.periodDuration, weight: 5 },     // Period Duration - 5%
+      { value: this.userInfoStore?.user?.lastPeriodStartDate, weight: 10 }  // Last Period Start - 10%
+    ];
+
+    let totalProgress = 0;
+    let totalWeight = 0;
+
+    profileFields.forEach(field => {
+      totalWeight += field.weight;
+      if (field.value && field.value !== '' && field.value !== null && field.value !== undefined) {
+        totalProgress += field.weight;
+      }
+    });
+
+    this.percent = Math.round((totalProgress / totalWeight) * 100);
+    console.log('Profile completion:', this.percent + '%', {
+      name: this.name,
+      email: this.email,
+      birthday: this.birthday,
+      profileImage: this.profileImage,
+      status: this.userInfoStore?.user?.status,
+      cycleLength: this.userInfoStore?.user?.menstrualCycleLength,
+      periodDuration: this.userInfoStore?.user?.periodDuration,
+      lastPeriodStart: this.userInfoStore?.user?.lastPeriodStartDate
+    });
   }
 }

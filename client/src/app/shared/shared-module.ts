@@ -61,10 +61,10 @@ import {
   IonMenuToggle
 } from '@ionic/angular/standalone';
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
-import { SearchModalComponent } from './components/search-modal/search-modal.component';
 import { MapboxMapComponent } from './components/mapbox-map/mapbox-map.component';
 import { LanguageSwitcherComponent } from './components/language-switcher/language-switcher.component';
 import { HeaderLanguageSwitcherComponent } from './components/header-language-switcher/header-language-switcher.component';
+
 import { TranslatePipe } from './pipes/translate.pipe';
 
 import { MapService } from './services/map.service';
@@ -145,9 +145,9 @@ const COMMON_MODULES = [
 ];
 
 @NgModule({
-  declarations: [CircleProgressBarComponent, SearchModalComponent, MapboxMapComponent],
+  declarations: [CircleProgressBarComponent, MapboxMapComponent],
   imports: [...COMMON_MODULES, ...IONIC_MODULES, RouterModule.forChild([]), LanguageSwitcherComponent, HeaderLanguageSwitcherComponent, TranslatePipe],
-  exports: [...COMMON_MODULES, ...IONIC_MODULES, CircleProgressBarComponent, SearchModalComponent, MapboxMapComponent, LanguageSwitcherComponent, HeaderLanguageSwitcherComponent, TranslatePipe],
+  exports: [...COMMON_MODULES, ...IONIC_MODULES, CircleProgressBarComponent, MapboxMapComponent, LanguageSwitcherComponent, HeaderLanguageSwitcherComponent, TranslatePipe],
   providers: [MapService, ImageUrlService, ToolsService, MessageService, LanguageService, TranslationService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
