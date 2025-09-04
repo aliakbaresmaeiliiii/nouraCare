@@ -20,13 +20,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
   userName: string = 'Ali'; // This would come from your user service
   
   // User Status and Progress
-  userStatus: string = 'Trying to Conceive';
-  isPregnant: boolean = false;
+  userStatus: string = 'Not Set'; // Default state
+  isPregnant: boolean = false; // Set to false by default
   isPostpartum: boolean = false;
   pregnancyWeek: number = 12;
   pregnancyProgress: number = 30; // percentage
   babySize: string = 'Lime 🍋';
   babyWeight: string = '45g';
+  
+  // Pregnancy tracker properties
+  pregnancyStartDate: string = '2024-01-01';
+  pregnancyDays: number = 84; // 12 weeks * 7 days
+  minDate: string = '2023-01-01';
+  maxDate: string = '2025-12-31';
+  currentWeekOffset: number = 0; // For scrolling weeks
   
   // Postpartum tracking
   postpartumWeek: number = 1;
@@ -1064,6 +1071,219 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  // Helper methods for pregnancy tracker
+  getWeeksArray(): number[] {
+    return Array.from({length: 40}, (_, i) => i + 1);
+  }
+  
+  getCurrentDate(): string {
+    return new Date().toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  }
+  
+  logPeriod() {
+    // Open period logging modal
+    this.openPeriodLogging();
+  }
+  
+  async openPeriodLogging() {
+    const alert = await this.alertController.create({
+      header: 'Log Your Period',
+      message: 'When did your last period start?',
+      inputs: [
+        {
+          name: 'periodDate',
+          type: 'date',
+          placeholder: 'Select date',
+          value: new Date().toISOString().split('T')[0]
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Log Period',
+          handler: (data) => {
+            if (data.periodDate) {
+              this.showToast('Period logged successfully!', 'success');
+              // Update user status to "Trying to Conceive" to show the period chart
+              this.userStatus = 'Trying to Conceive';
+              this.isPregnant = false;
+              this.isPostpartum = false;
+              // Here you would typically save to backend
+              // For now, just show success message and update status
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+  
+  showPregnancyDetails() {
+    this.viewPregnancyDetails();
+  }
+  
+  getWeekDays(): any[] {
+    const today = new Date();
+    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const days = [];
+    
+    // Get the start of the current week (Sunday)
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - currentDay);
+    
+    for (let i = 0; i < 7; i++) {
+      const dayDate = new Date(startOfWeek);
+      dayDate.setDate(startOfWeek.getDate() + i);
+      
+      days.push({
+        date: dayDate.getDate(),
+        isSelected: dayDate.getDate() === today.getDate() && 
+                   dayDate.getMonth() === today.getMonth() &&
+                   dayDate.getFullYear() === today.getFullYear(),
+        fullDate: dayDate
+      });
+    }
+    
+    return days;
+  }
+  
+  selectDay(day: any) {
+    // Update all days to not selected
+    this.getWeekDays().forEach(d => d.isSelected = false);
+    
+    // Set the clicked day as selected
+    day.isSelected = true;
+    
+    // Calculate pregnancy progress based on selected date
+    const selectedDate = day.fullDate;
+    const pregnancyStartDate = new Date(this.pregnancyStartDate);
+    const diffTime = Math.abs(selectedDate.getTime() - pregnancyStartDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    this.pregnancyDays = diffDays;
+    this.pregnancyWeek = Math.floor(diffDays / 7);
+    this.pregnancyProgress = (this.pregnancyWeek / 40) * 100;
+    
+    // Update baby size data
+    this.updateBabySize();
+  }
+  
+  getWeeksForDisplay(): any[][] {
+    const weeks = [];
+    const today = new Date();
+    
+    // Generate 8 weeks (4 weeks before current + current week + 3 weeks after)
+    for (let weekOffset = -4; weekOffset <= 3; weekOffset++) {
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - today.getDay() + (weekOffset * 7));
+      
+      const weekDays = [];
+      for (let i = 0; i < 7; i++) {
+        const dayDate = new Date(weekStart);
+        dayDate.setDate(weekStart.getDate() + i);
+        
+        weekDays.push({
+          date: dayDate.getDate(),
+          isSelected: dayDate.getDate() === today.getDate() && 
+                     dayDate.getMonth() === today.getMonth() &&
+                     dayDate.getFullYear() === today.getFullYear(),
+          isToday: dayDate.getDate() === today.getDate() && 
+                   dayDate.getMonth() === today.getMonth() &&
+                   dayDate.getFullYear() === today.getFullYear(),
+          fullDate: dayDate
+        });
+      }
+      weeks.push(weekDays);
+    }
+    
+    return weeks;
+  }
+  
+  previousWeek() {
+    this.currentWeekOffset--;
+    // Trigger change detection
+    this.getWeeksForDisplay();
+  }
+  
+  nextWeek() {
+    this.currentWeekOffset++;
+    // Trigger change detection
+    this.getWeeksForDisplay();
+  }
+  
+  selectWeek(week: number) {
+    this.pregnancyWeek = week;
+    this.pregnancyProgress = (week / 40) * 100;
+    this.pregnancyDays = week * 7;
+    this.updateBabySize();
+    
+    // Calculate the start date based on selected week
+    const today = new Date();
+    const daysToSubtract = this.pregnancyDays;
+    const startDate = new Date(today.getTime() - (daysToSubtract * 24 * 60 * 60 * 1000));
+    this.pregnancyStartDate = startDate.toISOString().split('T')[0];
+  }
+  
+  onDateChange(event: any) {
+    const selectedDate = new Date(event.detail.value);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - selectedDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    this.pregnancyDays = diffDays;
+    this.pregnancyWeek = Math.floor(diffDays / 7);
+    this.pregnancyProgress = (this.pregnancyWeek / 40) * 100;
+    
+    // Update baby size data
+    this.updateBabySize();
+  }
+  
+  getBabyDevelopment(week: number): string {
+    // Realistic baby development stages with more detail
+    if (week <= 4) return '🥚'; // Fertilized egg
+    if (week <= 8) return '🫘'; // Embryo
+    if (week <= 12) return '👶'; // Early fetus
+    if (week <= 16) return '👶'; // Developing fetus
+    if (week <= 20) return '👶'; // More developed fetus
+    if (week <= 24) return '👶'; // Viable fetus
+    if (week <= 28) return '👶'; // Growing fetus
+    if (week <= 32) return '👶'; // Almost full term
+    if (week <= 36) return '👶'; // Near term
+    return '👶'; // Full term
+  }
+  
+  getBabyEmoji(week: number): string {
+    const emojis = [
+      '🌱', '🌱', '🌱', '🌱', // Weeks 1-4
+      '🫘', '🫘', '🫘', '🫘', // Weeks 5-8
+      '🫐', '🫐', '🫐', '🫐', // Weeks 9-12
+      '🍊', '🍊', '🍊', '🍊', // Weeks 13-16
+      '🍑', '🍑', '🍑', '🍑', // Weeks 17-20
+      '🍎', '🍎', '🍎', '🍎', // Weeks 21-24
+      '🥑', '🥑', '🥑', '🥑', // Weeks 25-28
+      '🍐', '🍐', '🍐', '🍐', // Weeks 29-32
+      '🎃', '🎃', '🎃', '🎃', // Weeks 33-36
+      '🍉', '🍉', '🍉', '🍉'  // Weeks 37-40
+    ];
+    
+    return emojis[Math.min(week - 1, emojis.length - 1)] || '👶';
+  }
+  
+  updateBabySize() {
+    const babyData = this.babySizeData.find(data => data.week === this.pregnancyWeek);
+    if (babyData) {
+      this.babySize = babyData.size;
+      this.babyWeight = babyData.weight;
+    }
+  }
+  
   // Utility method to show toast messages
   async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
     const toast = await this.toastController.create({

@@ -239,69 +239,134 @@
 .chart-section {
   padding: 0 1rem 2rem;
   
-  .chart-container {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    margin: 0 0.5rem;
-  }
+  // .chart-container {
+  //   background: linear-gradient(135deg, #ec4899 0%, #be185d 50%, #f472b6 100%);
+  //   border-radius: 20px;
+  //   padding: 2rem;
+  //   margin: 0 0.5rem;
+  //   position: relative;
+  //   overflow: hidden;
+    
+  //   &::before {
+  //     content: '';
+  //     position: absolute;
+  //     top: 0;
+  //     left: 0;
+  //     right: 0;
+  //     bottom: 0;
+  //     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+  //     opacity: 0.3;
+  //   }
+    
+  //   app-circle-period-chart {
+  //     position: relative;
+  //     z-index: 2;
+  //   }
+  // }
 }
 
 // Quick Actions Section
 .quick-actions-section {
-  padding: 0 1rem 2rem;
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 1rem;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+    opacity: 0.3;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+    
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .section-subtitle {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+      font-weight: 500;
+    }
+  }
   
   .actions-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem;
-    margin: 0 0.5rem;
+    gap: 1.5rem;
+    position: relative;
+    z-index: 2;
     
-    .action-card {
-      background: white;
-      border-radius: 20px;
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
       padding: 1.5rem;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       transition: all 0.3s ease;
       cursor: pointer;
-      border: 2px solid transparent;
       
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-        border-color: #667eea;
+        transform: translateY(-3px);
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
       }
       
       .action-icon {
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 1rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        flex-shrink: 0;
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 2px solid rgba(255, 255, 255, 0.3);
         
         ion-icon {
-          font-size: 28px;
+          font-size: 24px;
           color: white;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
       }
       
-      .action-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1e293b;
-        margin: 0 0 0.5rem 0;
-      }
-      
-      .action-description {
-        font-size: 0.9rem;
-        color: #64748b;
-        margin: 0;
-        line-height: 1.4;
+      .action-content {
+        flex: 1;
+        
+        .action-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: white;
+          margin: 0 0 0.5rem 0;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .action-description {
+          font-size: 0.9rem;
+          color: rgba(255, 255, 255, 0.9);
+          margin: 0;
+          line-height: 1.4;
+        }
       }
     }
   }
@@ -732,201 +797,622 @@ ion-fab {
   }
 }
 
-// Pregnancy Progress Section
-.pregnancy-progress-section {
-  background: white;
-  margin: 1rem;
-  border-radius: 20px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-
-  .progress-container {
-    .progress-bar {
-      width: 100%;
-      height: 12px;
-      background: #e2e8f0;
-      border-radius: 6px;
-      overflow: hidden;
+// Log Period Section
+.log-period-section {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  
+  .section-header {
+    margin-bottom: 2rem;
+    
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .section-subtitle {
+      font-size: 1rem;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+  
+  .log-period-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 0 auto;
+    
+    .period-icon {
       margin-bottom: 1.5rem;
-
-      .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #ec4899, #be185d);
-        border-radius: 6px;
-        transition: width 0.3s ease;
+      
+      ion-icon {
+        color: #ec4899;
+        font-size: 3rem;
       }
     }
+    
+    .period-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0 0 1rem 0;
+    }
+    
+    .period-description {
+      font-size: 1rem;
+      color: #64748b;
+      line-height: 1.6;
+      margin: 0 0 2rem 0;
+    }
+    
+    .log-period-btn {
+      --background: #ec4899;
+      --color: white;
+      --border-radius: 12px;
+      font-weight: 600;
+      height: 48px;
+      
+      &:hover {
+        --background: #be185d;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+      }
+    }
+  }
+}
 
-    .progress-info {
+// Pregnancy Tracker Section
+.pregnancy-tracker-section {
+  background: linear-gradient(135deg, #ffd7c4 0%, #ffb366 100%);
+  padding: 2rem 1.5rem;
+  margin-top: 45px;
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  
+  .tracker-header {
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      
+      .left-icon {
+        position: relative;
+        
+        .frog-icon {
+          font-size: 2rem;
+          color: #4CAF50;
+        }
+        
+        .notification-dot {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: 8px;
+          height: 8px;
+          background: #ff6b9d;
+          border-radius: 50%;
+          border: 2px solid white;
+        }
+      }
+      
+      .current-date {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+      }
+      
+      .right-icon {
+        .calendar-icon {
+          font-size: 1.5rem;
+          color: #333;
+        }
+      }
+    }
+    
+    .day-picker {
+      margin-top: 15px;
+      
+      .day-labels {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 10px;
+        
+        span {
+          color: #8b5a3c;
+          font-size: 12px;
+          font-weight: 500;
+          width: 30px;
+          text-align: center;
+        }
+      }
+      
+      .day-dates {
+        display: flex;
+        justify-content: space-around;
+        
+        span {
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          font-size: 14px;
+          font-weight: 500;
+          color: #8b5a3c;
+          transition: all 0.3s ease;
+          
+          &.selected-day {
+            background: white;
+            color: #ff6b35;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+        }
+      }
+    }
+  }
+  
+  .fetus-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+    
+    .fetus-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      
+      .fetus-3d {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.5s ease;
+        
+        // Week-specific fetus sizing
+        &.week-1, &.week-2, &.week-3, &.week-4 {
+          transform: scale(0.3);
+        }
+        
+        &.week-5, &.week-6, &.week-7, &.week-8 {
+          transform: scale(0.4);
+        }
+        
+        &.week-9, &.week-10, &.week-11, &.week-12 {
+          transform: scale(0.5);
+        }
+        
+        &.week-13, &.week-14, &.week-15, &.week-16 {
+          transform: scale(0.6);
+        }
+        
+        &.week-17, &.week-18, &.week-19, &.week-20 {
+          transform: scale(0.7);
+        }
+        
+        &.week-21, &.week-22, &.week-23, &.week-24 {
+          transform: scale(0.8);
+        }
+        
+        &.week-25, &.week-26, &.week-27, &.week-28 {
+          transform: scale(0.9);
+        }
+        
+        &.week-29, &.week-30, &.week-31, &.week-32 {
+          transform: scale(1.0);
+        }
+        
+        &.week-33, &.week-34, &.week-35, &.week-36 {
+          transform: scale(1.1);
+        }
+        
+        &.week-37, &.week-38, &.week-39, &.week-40 {
+          transform: scale(1.2);
+        }
+        
+        .fetus-body {
+          position: relative;
+          width: 120px;
+          height: 160px;
+          background: linear-gradient(135deg, #ffb3b3 0%, #ff9999 100%);
+          border-radius: 60px 60px 40px 40px;
+          transform: rotate(-15deg);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+          
+          .fetus-head {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ffb3b3 0%, #ff9999 100%);
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+          
+          .fetus-arms {
+            position: absolute;
+            top: 30px;
+            left: -15px;
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(135deg, #ffb3b3 0%, #ff9999 100%);
+            border-radius: 10px;
+            transform: rotate(45deg);
+            
+            &::after {
+              content: '';
+              position: absolute;
+              top: 35px;
+              left: -5px;
+              width: 15px;
+              height: 30px;
+              background: linear-gradient(135deg, #ffb3b3 0%, #ff9999 100%);
+              border-radius: 8px;
+              transform: rotate(-30deg);
+            }
+          }
+          
+          .fetus-legs {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 35px;
+            background: linear-gradient(135deg, #ffb3b3 0%, #ff9999 100%);
+            border-radius: 12px;
+            
+            &::after {
+              content: '';
+              position: absolute;
+              bottom: -10px;
+              left: -8px;
+              width: 20px;
+              height: 30px;
+              background: linear-gradient(135deg, #ffb3b3 0%, #ff9999 100%);
+              border-radius: 10px;
+              transform: rotate(15deg);
+            }
+          }
+          
+          .umbilical-cord {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 60px;
+            background: linear-gradient(to bottom, #8B4513, #A0522D);
+            border-radius: 2px;
+            
+            &::after {
+              content: '';
+              position: absolute;
+              bottom: -10px;
+              left: -3px;
+              width: 10px;
+              height: 15px;
+              background: #8B4513;
+              border-radius: 5px;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .gestational-info {
+    text-align: center;
+    margin-top: 2rem;
+    
+    .gestational-age {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
       margin-bottom: 1.5rem;
+      
+      .age-text {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #ff6b35;
+      }
+      
+      .info-icon {
+        font-size: 1.2rem;
+        color: #ff6b35;
+      }
+    }
+    
+    .details-btn {
+      --color: #ff6b35;
+      --border-color: #ff6b35;
+      --border-radius: 25px;
+      --padding-start: 2rem;
+      --padding-end: 2rem;
+      font-weight: 600;
+      background: white;
+      
+      &:hover {
+        --background: #ff6b35;
+        --color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+      }
+    }
+  }
+}
 
+// Pregnancy Progress Section
+.pregnancy-progress-section {
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 25%, #ff5722 50%, #ff7043 75%, #ffab40 100%);
+  padding: 3rem 2rem;
+  margin: 1rem;
+  border-radius: 25px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(255, 107, 53, 0.3);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+    opacity: 0.3;
+  }
+  
+  .progress-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    z-index: 2;
+    
+    .progress-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .progress-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+  
+  .progress-content {
+    position: relative;
+    z-index: 2;
+    
+    .progress-bar-container {
+      margin-bottom: 2.5rem;
+      
+      .progress-bar {
+        width: 100%;
+        height: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        
+        .progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #ffffff, #fff3e0);
+          border-radius: 10px;
+          transition: width 0.5s ease;
+          box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+        }
+      }
+      
       .progress-text {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 1.5rem;
-        padding: 0.75rem;
-        background: linear-gradient(135deg, #fef3c7, #fde68a);
-        border-radius: 12px;
-
-        .current-week {
-          font-weight: 700;
-          color: #92400e;
-          font-size: 1.1rem;
-        }
-
-        .remaining-weeks {
-          color: #a16207;
-          font-size: 0.9rem;
-          font-weight: 500;
-        }
-      }
-
-      // Enhanced Baby Size Display
-      .baby-size-display {
-        margin-bottom: 1.5rem;
-
-        .baby-size-card {
-          background: linear-gradient(135deg, #fce7f3, #fbcfe8);
-          border-radius: 16px;
-          padding: 1.5rem;
-          text-align: center;
-          margin-bottom: 1rem;
-          border: 2px solid #f9a8d4;
-          position: relative;
-          overflow: hidden;
-
-          &::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-            animation: shimmer 3s infinite;
-          }
-
-          .size-emoji {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            display: block;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-            animation: bounce 2s infinite;
-          }
-
-          .size-info {
-            .size-title {
-              font-size: 1rem;
-              font-weight: 600;
-              color: #831843;
-              margin: 0 0 0.5rem 0;
-            }
-
-            .size-fruit {
-              font-size: 1.5rem;
-              font-weight: 700;
-              color: #be185d;
-              margin: 0 0 0.5rem 0;
-              text-transform: capitalize;
-            }
-
-            .size-description {
-              font-size: 0.9rem;
-              color: #9d174d;
-              margin: 0;
-              font-style: italic;
-            }
-          }
-        }
-
-        .baby-stats {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 1rem;
-
-          .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 1rem;
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            border-radius: 12px;
-            border: 1px solid #bae6fd;
-
-            .stat-icon {
-              color: #0284c7;
-              font-size: 1.5rem;
-              flex-shrink: 0;
-            }
-
-            .stat-content {
-              display: flex;
-              flex-direction: column;
-
-              .stat-value {
-                font-size: 1rem;
-                font-weight: 700;
-                color: #0c4a6e;
-                margin-bottom: 0.25rem;
-              }
-
-              .stat-label {
-                font-size: 0.8rem;
-                color: #0369a1;
-                font-weight: 500;
-              }
-            }
-          }
-        }
-      }
-
-      // Week Navigation
-      .week-navigation {
-        display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 1rem;
-        background: #f8fafc;
-        border-radius: 12px;
-        margin-bottom: 1rem;
-
-        ion-button {
-          --color: #64748b;
-          --color-hover: #ec4899;
+        
+        .current-week {
+          font-size: 1.3rem;
+          font-weight: 700;
+          color: white;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .remaining-weeks {
+          font-size: 1rem;
+          color: rgba(255, 255, 255, 0.9);
           font-weight: 500;
-
-          &[disabled] {
-            --color: #cbd5e1;
-            opacity: 0.5;
+        }
+      }
+    }
+    
+    .baby-size-section {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      
+      .size-emoji {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        display: block;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        animation: bounce 2s infinite;
+      }
+      
+      .size-info {
+        .size-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: white;
+          margin: 0 0 0.5rem 0;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .size-fruit {
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: white;
+          margin: 0 0 0.5rem 0;
+          text-transform: capitalize;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .size-description {
+          font-size: 1rem;
+          color: rgba(255, 255, 255, 0.9);
+          margin: 0;
+          font-style: italic;
+        }
+      }
+    }
+    
+    .baby-stats-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: transform 0.3s ease;
+        
+        &:hover {
+          transform: translateY(-3px);
+          background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-icon {
+          color: white;
+          font-size: 2rem;
+          flex-shrink: 0;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+        
+        .stat-content {
+          display: flex;
+          flex-direction: column;
+          
+          .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
           }
-
-          ion-icon {
-            margin: 0 0.25rem;
+          
+          .stat-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
           }
         }
       }
     }
-
-    .progress-action {
-      --color: #ec4899;
-      --border-color: #ec4899;
-      --border-radius: 12px;
+    
+    .week-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      
+      ion-button {
+        --color: white;
+        --color-hover: #fff3e0;
+        font-weight: 600;
+        font-size: 1rem;
+        
+        &[disabled] {
+          --color: rgba(255, 255, 255, 0.5);
+          opacity: 0.6;
+        }
+        
+        ion-icon {
+          margin: 0 0.5rem;
+          font-size: 1.2rem;
+        }
+      }
+    }
+    
+    .details-btn {
+      --color: white;
+      --border-color: white;
+      --border-radius: 15px;
       font-weight: 600;
       width: 100%;
+      height: 50px;
+      font-size: 1.1rem;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid white;
+      
+      &:hover {
+        --background: white;
+        --color: #ff6b35;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+      }
     }
   }
 }
 
 // Animations
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
+@keyframes bellyFloat {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  40% {
+  50% {
     transform: translateY(-10px);
   }
-  60% {
-    transform: translateY(-5px);
+}
+
+@keyframes bellyGlow {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes babyHeartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
   }
 }
 
@@ -936,6 +1422,18 @@ ion-fab {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
   }
 }
 

@@ -1,27 +1,27 @@
 <ion-content class="home-content">
   <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="hero-content">
-      <h1 class="hero-title">{{ 'home.welcomeTitle' | translate }}</h1>
+  <!-- <div class="hero-section">
+    <div class="hero-content"> -->
+      <!-- <h1 class="hero-title">{{ 'home.welcomeTitle' | translate }}</h1> -->
       
       <!-- User Status Badge -->
-      <div class="user-status-badge" (click)="updateUserStatus()">
+      <!-- <div class="user-status-badge" (click)="updateUserStatus()">
         <ion-icon name="checkmark-circle" class="status-icon"></ion-icon>
         <span class="status-text">{{ userStatus }}</span>
         <ion-icon name="chevron-down" class="status-arrow"></ion-icon>
-      </div>
+      </div> -->
       
       <!-- Personalized Welcome Message -->
-      <div class="welcome-message" *ngIf="welcomeMessage">
+      <!-- <div class="welcome-message" *ngIf="welcomeMessage">
         <p class="message-text">{{ welcomeMessage }}</p>
         <ion-button fill="clear" size="small" (click)="generateMessages()">
           <ion-icon name="refresh" slot="start"></ion-icon>
           {{ 'home.newMessage' | translate }}
         </ion-button>
-      </div>
+      </div> -->
       
       <!-- Daily Inspirational Message -->
-      <div class="daily-message" *ngIf="dailyMessage">
+      <!-- <div class="daily-message" *ngIf="dailyMessage">
         <div class="message-card">
           <ion-icon name="heart" class="message-icon"></ion-icon>
           <p class="daily-text">{{ dailyMessage }}</p>
@@ -30,10 +30,10 @@
             {{ 'home.refresh' | translate }}
           </ion-button>
         </div>
-      </div>
+      </div> -->
 
       <!-- Quick Stats -->
-      <div class="quick-stats">
+      <!-- <div class="quick-stats">
         <div class="stat-card">
           <div class="stat-icon">
             <ion-icon name="calendar"></ion-icon>
@@ -61,9 +61,9 @@
             <div class="stat-label">{{ 'home.mood' | translate }}</div>
           </div>
         </div>
-      </div>
+      </div> -->
 
-      <div class="hero-actions">
+      <!-- <div class="hero-actions">
         <ion-button expand="block" fill="solid" class="track-btn" (click)="openDailyTracking()">
           <ion-icon name="calendar" slot="start"></ion-icon>
           {{ 'home.trackToday' | translate }}
@@ -72,92 +72,113 @@
           <ion-icon name="calendar-outline" slot="start"></ion-icon>
           {{ 'home.viewCalendar' | translate }}
         </ion-button>
-      </div>
-    </div>
-    <div class="hero-decoration">
+      </div> -->
+    <!-- </div> -->
+    <!-- <div class="hero-decoration">
       <div class="floating-shapes">
         <div class="shape shape-1"></div>
         <div class="shape shape-2"></div>
         <div class="shape shape-3"></div>
       </div>
+    </div> -->
+  <!-- </div> -->
+
+  <!-- Default State - Log Period Section -->
+  <div class="log-period-section" *ngIf="!userStatus || userStatus === 'Not Set'">
+    <div class="section-header">
+      <h2 class="section-title pt-8">Welcome to Your Journey</h2>
+      <p class="section-subtitle">Log the first day of your last period to make better predictions</p>
+    </div>
+    <div class="log-period-card">
+      <div class="period-icon">
+        <ion-icon name="calendar-outline" size="large"></ion-icon>
+      </div>
+      <h3 class="period-title">Start Tracking Your Cycle</h3>
+      <p class="period-description">By logging your period, we can help you track your fertility, predict ovulation, and provide personalized insights.</p>
+      <ion-button expand="block" fill="solid" class="log-period-btn" (click)="logPeriod()">
+        <ion-icon name="add" slot="start"></ion-icon>
+        Log Period
+      </ion-button>
     </div>
   </div>
 
-  <!-- Period Chart Section -->
-  <div class="chart-section">
+  <!-- Period Chart Section (for Trying to Conceive) -->
+  <div class="chart-section" *ngIf="!isPregnant && !isPostpartum && userStatus === 'Trying to Conceive'">
     <div class="section-header">
       <h2 class="section-title">{{ 'home.cycleOverview' | translate }}</h2>
       <p class="section-subtitle">{{ 'home.trackFertility' | translate }}</p>
     </div>
     <div class="chart-container">
-      <!-- Temporarily disabled to test -->
       <div class="chart-placeholder">
         <ion-icon name="analytics-outline" size="large"></ion-icon>
-       <app-circle-period-chart></app-circle-period-chart>
+        <app-circle-period-chart></app-circle-period-chart>
       </div>
     </div>
   </div>
 
   <!-- Pregnancy Progress Section (Conditional) -->
   <div class="pregnancy-progress-section" *ngIf="isPregnant">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'home.pregnancyProgress' | translate }}</h2>
-      <p class="section-subtitle">{{ 'home.weekOf' | translate }} {{ pregnancyWeek }} {{ 'home.of40' | translate }}</p>
+    <div class="progress-header">
+      <h2 class="progress-title">{{ 'home.pregnancyProgress' | translate }}</h2>
+      <p class="progress-subtitle">{{ 'home.weekOf' | translate }} {{ pregnancyWeek }} {{ 'home.of40' | translate }}</p>
     </div>
-    <div class="progress-container">
-      <div class="progress-bar">
-        <div class="progress-fill" [style.width.%]="pregnancyProgress"></div>
-      </div>
-      <div class="progress-info">
+    
+    <div class="progress-content">
+      <!-- Progress Bar -->
+      <div class="progress-bar-container">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="pregnancyProgress"></div>
+        </div>
         <div class="progress-text">
           <span class="current-week">{{ 'home.week' | translate }} {{ pregnancyWeek }}</span>
           <span class="remaining-weeks">{{ 40 - pregnancyWeek }} {{ 'home.weeksRemaining' | translate }}</span>
         </div>
-        
-        <!-- Enhanced Baby Size Display -->
-        <div class="baby-size-display">
-          <div class="baby-size-card">
-            <div class="size-emoji">{{ getCurrentBabySize().size.split(' ')[1] }}</div>
-            <div class="size-info">
-              <h3 class="size-title">{{ 'home.babySizeTitle' | translate }}</h3>
-              <p class="size-fruit">{{ getCurrentBabySize().size.split(' ')[0] }}</p>
-              <p class="size-description">{{ getCurrentBabySize().description }}</p>
-            </div>
-          </div>
-          
-          <div class="baby-stats">
-            <div class="stat-item">
-              <ion-icon name="scale-outline" class="stat-icon"></ion-icon>
-              <div class="stat-content">
-                <span class="stat-value">{{ babyWeight }}</span>
-                <span class="stat-label">{{ 'home.weight' | translate }}</span>
-              </div>
-            </div>
-            <div class="stat-item">
-              <ion-icon name="resize-outline" class="stat-icon"></ion-icon>
-              <div class="stat-content">
-                <span class="stat-value">{{ getBabyLength() }}</span>
-                <span class="stat-label">{{ 'home.length' | translate }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Week Navigation -->
-        <div class="week-navigation">
-          <ion-button fill="clear" size="small" (click)="changeWeek(-1)" [disabled]="pregnancyWeek <= 4">
-            <ion-icon name="chevron-back-outline"></ion-icon>
-{{ 'home.previousWeek' | translate }}
-          </ion-button>
-          <ion-button fill="clear" size="small" (click)="changeWeek(1)" [disabled]="pregnancyWeek >= 40">
-{{ 'home.nextWeek' | translate }}
-            <ion-icon name="chevron-forward-outline"></ion-icon>
-          </ion-button>
+      </div>
+      
+      <!-- Baby Size Information -->
+      <div class="baby-size-section">
+        <div class="size-emoji">{{ getCurrentBabySize().size.split(' ')[1] }}</div>
+        <div class="size-info">
+          <h3 class="size-title">{{ 'home.babySizeTitle' | translate }}</h3>
+          <p class="size-fruit">{{ getCurrentBabySize().size.split(' ')[0] }}</p>
+          <p class="size-description">{{ getCurrentBabySize().description }}</p>
         </div>
       </div>
-      <ion-button fill="outline" class="progress-action" (click)="viewPregnancyDetails()">
+      
+      <!-- Baby Stats -->
+      <div class="baby-stats-section">
+        <div class="stat-item">
+          <ion-icon name="scale-outline" class="stat-icon"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ babyWeight }}</span>
+            <span class="stat-label">{{ 'home.weight' | translate }}</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <ion-icon name="resize-outline" class="stat-icon"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-value">{{ getBabyLength() }}</span>
+            <span class="stat-label">{{ 'home.length' | translate }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Week Navigation -->
+      <div class="week-navigation">
+        <ion-button fill="clear" size="small" (click)="changeWeek(-1)" [disabled]="pregnancyWeek <= 4">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+          {{ 'home.previousWeek' | translate }}
+        </ion-button>
+        <ion-button fill="clear" size="small" (click)="changeWeek(1)" [disabled]="pregnancyWeek >= 40">
+          {{ 'home.nextWeek' | translate }}
+          <ion-icon name="chevron-forward-outline"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <!-- Details Button -->
+      <ion-button fill="outline" class="details-btn" (click)="viewPregnancyDetails()">
         <ion-icon name="information-circle-outline" slot="start"></ion-icon>
-{{ 'home.viewWeekDetails' | translate }}
+        {{ 'home.viewWeekDetails' | translate }}
       </ion-button>
     </div>
   </div>
@@ -259,54 +280,65 @@
       <p class="section-subtitle">{{ 'home.whatToDoToday' | translate }}</p>
     </div>
     <div class="actions-grid">
-      <div class="action-card" (click)="onActionClick('pregnant')">
+      <div class="action-item" (click)="onActionClick('pregnant')">
         <div class="action-icon">
           <ion-icon name="heart-circle-outline"></ion-icon>
         </div>
-        <h3 class="action-title">{{ 'home.actionPregnant' | translate }}</h3>
-        <p class="action-description">{{ 'home.actionPregnantDesc' | translate }}</p>
+        <div class="action-content">
+          <h3 class="action-title">{{ 'home.actionPregnant' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionPregnantDesc' | translate }}</p>
+        </div>
       </div>
       
-      <div class="action-card" (click)="onActionClick('symptoms')">
+      <div class="action-item" (click)="onActionClick('symptoms')">
         <div class="action-icon">
           <ion-icon name="medical-outline"></ion-icon>
         </div>
-        <h3 class="action-title">{{ 'home.actionSymptoms' | translate }}</h3>
-        <p class="action-description">{{ 'home.actionSymptomsDesc' | translate }}</p>
+        <div class="action-content">
+          <h3 class="action-title">{{ 'home.actionSymptoms' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionSymptomsDesc' | translate }}</p>
+        </div>
       </div>
       
-      <div class="action-card" (click)="onActionClick('appointment')">
+      <div class="action-item" (click)="onActionClick('appointment')">
         <div class="action-icon">
           <ion-icon name="calendar-outline"></ion-icon>
         </div>
-        <h3 class="action-title">{{ 'home.actionAppointment' | translate }}</h3>
-        <p class="action-description">{{ 'home.actionAppointmentDesc' | translate }}</p>
+        <div class="action-content">
+          <h3 class="action-title">{{ 'home.actionAppointment' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionAppointmentDesc' | translate }}</p>
+        </div>
       </div>
       
-             <div class="action-card" (click)="onActionClick('community')">
-         <div class="action-icon">
-           <ion-icon name="people-outline"></ion-icon>
-         </div>
-         <h3 class="action-title">{{ 'home.actionCommunity' | translate }}</h3>
-         <p class="action-description">{{ 'home.actionCommunityDesc' | translate }}</p>
-       </div>
-       
-       <!-- Postpartum-specific actions -->
-       <div class="action-card" *ngIf="isPostpartum" (click)="onActionClick('feeding')">
-         <div class="action-icon">
-           <ion-icon name="nutrition-outline"></ion-icon>
-         </div>
-         <h3 class="action-title">{{ 'home.actionFeeding' | translate }}</h3>
-         <p class="action-description">{{ 'home.actionFeedingDesc' | translate }}</p>
-       </div>
-       
-       <div class="action-card" *ngIf="isPostpartum" (click)="onActionClick('sleep')">
-         <div class="action-icon">
-           <ion-icon name="bed-outline"></ion-icon>
-         </div>
-         <h3 class="action-title">{{ 'home.actionSleep' | translate }}</h3>
-         <p class="action-description">{{ 'home.actionSleepDesc' | translate }}</p>
-       </div>
+      <div class="action-item" (click)="onActionClick('community')">
+        <div class="action-icon">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <div class="action-content">
+          <h3 class="action-title">{{ 'home.actionCommunity' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionCommunityDesc' | translate }}</p>
+        </div>
+      </div>
+      
+      <div class="action-item" (click)="onActionClick('feeding')" *ngIf="isPostpartum">
+        <div class="action-icon">
+          <ion-icon name="nutrition-outline"></ion-icon>
+        </div>
+        <div class="action-content">
+          <h3 class="action-title">{{ 'home.actionFeeding' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionFeedingDesc' | translate }}</p>
+        </div>
+      </div>
+      
+      <div class="action-item" (click)="onActionClick('sleep')" *ngIf="isPostpartum">
+        <div class="action-icon">
+          <ion-icon name="bed-outline"></ion-icon>
+        </div>
+        <div class="action-content">
+          <h3 class="action-title">{{ 'home.actionSleep' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionSleepDesc' | translate }}</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -334,7 +366,7 @@
         </p>
         <ion-button fill="outline" class="tip-action" (click)="viewCounselorSchedule()">
           <ion-icon name="time-outline" slot="start"></ion-icon>
-{{ 'home.viewSchedule' | translate }}
+          {{ 'home.viewSchedule' | translate }}
         </ion-button>
       </div>
     </div>
@@ -500,7 +532,7 @@
     </div>
     <ion-button expand="block" fill="solid" class="community-action" (click)="joinCommunity()">
       <ion-icon name="people-circle-outline" slot="start"></ion-icon>
-{{ 'home.joinTheCommunity' | translate }}
+      {{ 'home.joinTheCommunity' | translate }}
     </ion-button>
   </div>
 
