@@ -35,8 +35,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   // Today
   todayDate: Date = new Date();
-  todayCycleDay: number = 0; // 0-based index in current cycle relative to startDate
-  radius = 152;
+  todayCycleDay: number = 0; // 1-based day number in current cycle relative to startDate
+  radius = 230;
   circumference = 2 * Math.PI * this.radius;
 
   todayX = 0;
@@ -51,7 +51,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   cycleLabelY = 0;
   totalDays = this.cycleLength;
   highlightedPeriods = 4;
-  R = 152;
+  R = 190;
 
   // Phase lengths (in days)
   fertileWindowLength = 6;
@@ -64,13 +64,14 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   months = Array.from({ length: 12 }, (_, i) => i + 1);
   pickerDays = Array.from({ length: 31 }, (_, i) => i + 1);
   ringDays = Array.from({ length: this.cycleLength }, (_, i) => i + 1);
+  periodDayNumbers = Array.from({ length: this.periodLength }, (_, i) => i + 1);
 
-  // شروع
+  // start
   startYear = new Date().getFullYear();
   startMonth = new Date().getMonth() + 1;
   startDay = new Date().getDate();
 
-  // پایان
+  // end
   endYear = new Date().getFullYear();
   endMonth = new Date().getMonth() + 1;
   endDay = new Date().getDate();
@@ -177,23 +178,47 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     return this.R * Math.sin(angle);
   }
 
+  getOuterNumberX(index: number, total: number) {
+    const angle = (2 * Math.PI * index) / total - Math.PI / 2;
+    const outerRadius = this.R + 25; // 25px outside the main circle
+    return outerRadius * Math.cos(angle);
+  }
+
+  getOuterNumberY(index: number, total: number) {
+    const angle = (2 * Math.PI * index) / total - Math.PI / 2;
+    const outerRadius = this.R + 25; // 25px outside the main circle
+    return outerRadius * Math.sin(angle);
+  }
+
+  getPhaseMarkX(dayIndex: number, total: number) {
+    const angle = (2 * Math.PI * dayIndex) / total - Math.PI / 2;
+    const phaseRadius = this.R + 15; // 15px outside the main circle
+    return phaseRadius * Math.cos(angle);
+  }
+
+  getPhaseMarkY(dayIndex: number, total: number) {
+    const angle = (2 * Math.PI * dayIndex) / total - Math.PI / 2;
+    const phaseRadius = this.R + 15; // 15px outside the main circle
+    return phaseRadius * Math.sin(angle);
+  }
+
   isToday(value: number): boolean {
-    // value is 1..cycleLength label on ring
-    return value - 1 === this.todayCycleDay;
+    // value is 1..cycleLength label on ring, todayCycleDay is also 1-based
+    return value === this.todayCycleDay;
   }
 
   private updatePositions() {
-    // today dot (use todayCycleDay)
+    // today dot (use todayCycleDay, which is now 1-based)
     const todayAngle =
-      ((this.todayCycleDay + 1) / this.cycleLength) * 2 * Math.PI - Math.PI / 2;
-    this.todayX = 132 * Math.cos(todayAngle);
-    this.todayY = 132 * Math.sin(todayAngle);
+      (this.todayCycleDay / this.cycleLength) * 2 * Math.PI - Math.PI / 2;
+    this.todayX = 140 * Math.cos(todayAngle);
+    this.todayY = 140 * Math.sin(todayAngle);
 
-    // ovulation heart at ovulationDay (0-based index)
+    // ovulation heart at ovulationDay (1-based index)
     const ovAngle =
-      ((this.ovulationDay + 1) / this.cycleLength) * 2 * Math.PI - Math.PI / 2;
-    this.ovulationX = 120 * Math.cos(ovAngle);
-    this.ovulationY = 120 * Math.sin(ovAngle);
+      ((this.ovulationDay - 1) / this.cycleLength) * 2 * Math.PI - Math.PI / 2;
+    this.ovulationX = 140 * Math.cos(ovAngle);
+    this.ovulationY = 140 * Math.sin(ovAngle);
     this.ovulationRotation = (ovAngle * 180) / Math.PI + 90;
 
     // period label at middle of period arc, slightly outside ring
@@ -217,9 +242,16 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   editPeriod(event: Event) {
     console.log('Edit period clicked!', event);
-    // update signals if you like
-    // this.fertilityStatus.set('Updated!');
-    // this.strokes.set('90, 100');
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Don't open if already open
+    if (this.showPeriodSheet) {
+      return;
+    }
+    
+    // Open the modal
+    this.showPeriodSheet = true;
   }
 
   openCalendar() {
@@ -355,6 +387,133 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     return this.formatDateShort(d);
   }
 
+  getCycleStatusText(): string {
+    if (this.todayCycleDay <= 0) return 'Start tracking';
+    if (this.todayCycleDay <= this.periodLength) return 'Period Phase';
+    if (this.todayCycleDay <= this.ovulationDay - 5) return 'Follicular Phase';
+    if (this.todayCycleDay <= this.ovulationDay + 1) return 'Fertile Window';
+    if (this.todayCycleDay <= this.cycleLength - this.pmsLength) return 'Luteal Phase';
+    return 'PMS Phase';
+  }
+
+  getCyclePhaseText(): string {
+    if (this.todayCycleDay <= 0) return 'Log your period to begin';
+    if (this.todayCycleDay <= this.periodLength) return `Day ${this.todayCycleDay} of period`;
+    if (this.todayCycleDay <= this.ovulationDay - 5) return 'Preparing for ovulation';
+    if (this.todayCycleDay <= this.ovulationDay + 1) return 'High fertility chance';
+    if (this.todayCycleDay <= this.cycleLength - this.pmsLength) return 'Post-ovulation phase';
+    return 'Pre-menstrual phase';
+  }
+
+  getNextMilestoneText(): string {
+    if (this.todayCycleDay <= 0) return 'Log your period';
+    if (this.todayCycleDay <= this.periodLength) {
+      const daysLeft = this.periodLength - this.todayCycleDay;
+      return daysLeft > 0 ? `${daysLeft} days left` : 'Period ending';
+    }
+    if (this.todayCycleDay < this.ovulationDay - 5) {
+      const daysToFertile = (this.ovulationDay - 5) - this.todayCycleDay;
+      return `${daysToFertile} days to fertile window`;
+    }
+    if (this.todayCycleDay <= this.ovulationDay + 1) {
+      const daysToOvulation = this.ovulationDay - this.todayCycleDay;
+      return daysToOvulation > 0 ? `${daysToOvulation} days to ovulation` : 'Ovulation day';
+    }
+    if (this.todayCycleDay < this.cycleLength - this.pmsLength) {
+      const daysToPMS = (this.cycleLength - this.pmsLength) - this.todayCycleDay;
+      return `${daysToPMS} days to PMS`;
+    }
+    const daysToNextPeriod = this.cycleLength - this.todayCycleDay;
+    return `${daysToNextPeriod} days to next period`;
+  }
+
+  getFertilityStatus() {
+    if (this.todayCycleDay <= this.periodLength) {
+      return {
+        status: 'Period Days',
+        description: 'Low chance of pregnancy',
+        color: '#ef4444',
+        icon: '🩸'
+      };
+    } else if (this.todayCycleDay <= this.periodLength + 3) {
+      return {
+        status: 'Low Chance Days',
+        description: 'Very low chance of pregnancy',
+        color: '#f97316',
+        icon: '📅'
+      };
+    } else if (this.todayCycleDay <= this.ovulationDay - 3) {
+      return {
+        status: 'Medium Chance Days',
+        description: 'Moderate chance of pregnancy',
+        color: '#eab308',
+        icon: '🌱'
+      };
+    } else if (this.todayCycleDay <= this.ovulationDay + 1) {
+      return {
+        status: 'High Fertility Days',
+        description: 'Peak fertility - highest chance',
+        color: '#10b981',
+        icon: '💚'
+      };
+    } else if (this.todayCycleDay <= this.ovulationDay + 7) {
+      return {
+        status: 'Post-Ovulation',
+        description: 'Lower chance of pregnancy',
+        color: '#8b5cf6',
+        icon: '🌙'
+      };
+    } else {
+      return {
+        status: 'Pre-Menstrual',
+        description: 'Very low chance of pregnancy',
+        color: '#ec4899',
+        icon: '🌊'
+      };
+    }
+  }
+
+  getDaysUntilFertileWindow() {
+    const nextCycleStart = this.cycleLength - this.todayCycleDay + 1;
+    const nextFertileStart = nextCycleStart + this.periodLength + 3;
+    return nextFertileStart;
+  }
+
+  getDaysUntilOvulation() {
+    if (this.todayCycleDay < this.ovulationDay) {
+      return this.ovulationDay - this.todayCycleDay;
+    } else if (this.todayCycleDay === this.ovulationDay) {
+      return 0; // Today is ovulation day
+    } else {
+      return this.getDaysUntilFertileWindow() + (this.ovulationDay - this.periodLength - 3);
+    }
+  }
+
+  getDetailedMilestone() {
+    const fertility = this.getFertilityStatus();
+    const daysUntilOvulation = this.getDaysUntilOvulation();
+    
+    if (this.todayCycleDay < this.ovulationDay) {
+      return `Ovulation in ${daysUntilOvulation} day${daysUntilOvulation !== 1 ? 's' : ''}`;
+    } else if (this.todayCycleDay === this.ovulationDay) {
+      return 'Today is ovulation day!';
+    } else if (this.todayCycleDay < this.ovulationDay + 7) {
+      return `Post-ovulation phase (${this.todayCycleDay - this.ovulationDay} day${this.todayCycleDay - this.ovulationDay !== 1 ? 's' : ''} past)`;
+    } else {
+      const daysUntilPeriod = this.cycleLength - this.todayCycleDay + 1;
+      return `Next period in ${daysUntilPeriod} day${daysUntilPeriod !== 1 ? 's' : ''}`;
+    }
+  }
+
+  // Progress loader calculation
+  getProgressOffset(): number {
+    if (this.todayCycleDay <= 0) return 753.98; // Full circle (no progress)
+    
+    const progress = this.todayCycleDay / this.cycleLength;
+    const circumference = 2 * Math.PI * 120; // 2πr where r=120
+    return circumference * (1 - progress);
+  }
+
   onCycleLengthChange(ev: any) {
     const value = Number(ev?.detail?.value ?? ev);
     this.cycleLength = Math.max(21, Math.min(60, Math.floor(value || 28)));
@@ -365,6 +524,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   onPeriodLengthChange(ev: any) {
     const value = Number(ev?.detail?.value ?? ev);
     this.periodLength = Math.max(1, Math.min(10, Math.floor(value || 5)));
+    this.periodDayNumbers = Array.from({ length: this.periodLength }, (_, i) => i + 1);
     if (this.startDate) {
       this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
       this.calculatePeriodDays();
@@ -393,18 +553,18 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     // refresh ring day labels
     this.ringDays = Array.from({ length: this.cycleLength }, (_, i) => i + 1);
 
-    // compute today cycle day relative to last period start
+    // compute today cycle day relative to last period start (1-based)
     if (this.startDate) {
       const start = new Date(this.startDate);
       const diffDays = Math.floor(
         (this.todayDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
       );
       const mod = ((diffDays % this.cycleLength) + this.cycleLength) % this.cycleLength;
-      this.todayCycleDay = mod;
+      this.todayCycleDay = mod + 1; // Convert to 1-based day numbering
     } else {
       // fallback: keep current day index within cycle length (not ideal but avoids NaN)
       const todayNum = new Date().getDate();
-      this.todayCycleDay = ((todayNum - 1) % this.cycleLength + this.cycleLength) % this.cycleLength;
+      this.todayCycleDay = ((todayNum - 1) % this.cycleLength + this.cycleLength) % this.cycleLength + 1;
     }
 
     // rebuild segments

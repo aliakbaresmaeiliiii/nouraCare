@@ -7,6 +7,9 @@ export class CycleSettingsService {
   cycleLength = signal<number>(28);
   periodLength = signal<number>(5);
   lastPeriodStartDate = signal<string | null>(null);
+  userStatus = signal<string>('Not Set');
+  isPregnant = signal<boolean>(false);
+  isPostpartum = signal<boolean>(false);
 
   constructor() {
     this.loadFromStorage();
@@ -27,6 +30,21 @@ export class CycleSettingsService {
     this.saveToStorage();
   }
 
+  setUserStatus(status: string) {
+    this.userStatus.set(status);
+    this.saveToStorage();
+  }
+
+  setPregnancyStatus(isPregnant: boolean) {
+    this.isPregnant.set(isPregnant);
+    this.saveToStorage();
+  }
+
+  setPostpartumStatus(isPostpartum: boolean) {
+    this.isPostpartum.set(isPostpartum);
+    this.saveToStorage();
+  }
+
   private loadFromStorage() {
     try {
       const raw = localStorage.getItem(this.storageKey);
@@ -37,6 +55,9 @@ export class CycleSettingsService {
       if (typeof data.lastPeriodStartDate === 'string' || data.lastPeriodStartDate === null) {
         this.lastPeriodStartDate.set(data.lastPeriodStartDate);
       }
+      if (typeof data.userStatus === 'string') this.userStatus.set(data.userStatus);
+      if (typeof data.isPregnant === 'boolean') this.isPregnant.set(data.isPregnant);
+      if (typeof data.isPostpartum === 'boolean') this.isPostpartum.set(data.isPostpartum);
     } catch {}
   }
 
@@ -46,6 +67,9 @@ export class CycleSettingsService {
         cycleLength: this.cycleLength(),
         periodLength: this.periodLength(),
         lastPeriodStartDate: this.lastPeriodStartDate(),
+        userStatus: this.userStatus(),
+        isPregnant: this.isPregnant(),
+        isPostpartum: this.isPostpartum(),
       };
       localStorage.setItem(this.storageKey, JSON.stringify(data));
     } catch {}

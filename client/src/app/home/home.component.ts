@@ -5,6 +5,7 @@ import Swiper from 'swiper';
 import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-picker-page/period-date-picker-page.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
 import { MessageService } from '../shared/services/message.service';
+import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import { SharedModule } from '../shared/shared-module';
 
 @Component({
@@ -130,7 +131,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private alertController: AlertController,
     private toastController: ToastController,
     private modalController: ModalController,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private cycleSettings: CycleSettingsService
   ) { }
 
   ngAfterViewInit() {
@@ -175,6 +177,27 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.generateMessages();
+    this.loadPersistedData();
+  }
+
+  /**
+   * Load persisted user status and period data from CycleSettingsService
+   */
+  private loadPersistedData() {
+    // Load user status
+    this.userStatus = this.cycleSettings.userStatus();
+    this.isPregnant = this.cycleSettings.isPregnant();
+    this.isPostpartum = this.cycleSettings.isPostpartum();
+    
+    // Load period data
+    const lastPeriodStart = this.cycleSettings.lastPeriodStartDate();
+    if (lastPeriodStart) {
+      this.periodStartDate = new Date(lastPeriodStart);
+      this.updateCycleDay();
+    }
+    
+    // Load cycle settings
+    this.periodLength = this.cycleSettings.periodLength();
   }
 
   /**
@@ -227,6 +250,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
           handler: () => {
             this.userStatus = 'Trying to Conceive';
             this.isPregnant = false;
+            this.isPostpartum = false;
+            this.cycleSettings.setUserStatus('Trying to Conceive');
+            this.cycleSettings.setPregnancyStatus(false);
+            this.cycleSettings.setPostpartumStatus(false);
             this.showToast('Status updated to: Trying to Conceive');
           }
         },
@@ -235,6 +262,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
           handler: async () => {
             this.userStatus = 'Pregnant';
             this.isPregnant = true;
+            this.isPostpartum = false;
+            this.cycleSettings.setUserStatus('Pregnant');
+            this.cycleSettings.setPregnancyStatus(true);
+            this.cycleSettings.setPostpartumStatus(false);
             
             // Ask for pregnancy week
             const weekAlert = await this.alertController.create({
@@ -279,6 +310,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
             this.userStatus = 'Postpartum';
             this.isPregnant = false;
             this.isPostpartum = true;
+            this.cycleSettings.setUserStatus('Postpartum');
+            this.cycleSettings.setPregnancyStatus(false);
+            this.cycleSettings.setPostpartumStatus(true);
             
             // Ask for postpartum week
             const weekAlert = await this.alertController.create({
@@ -1115,6 +1149,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   onPeriodDateSelected(periodRange: PeriodDateRange) {
     console.log('Period date selected:', periodRange);
     this.showToast('Period logged successfully!', 'success');
+    
     // Update user status to "Trying to Conceive" to show the period chart
     this.userStatus = 'Trying to Conceive';
     this.isPregnant = false;
@@ -1124,8 +1159,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.periodStartDate = periodRange.startDate;
     this.updateCycleDay();
     
-    // Here you would typically save to backend
-    // For now, just show success message and update status
+    // Save to persistent storage
+    this.cycleSettings.setUserStatus('Trying to Conceive');
+    this.cycleSettings.setPregnancyStatus(false);
+    this.cycleSettings.setPostpartumStatus(false);
+    this.cycleSettings.setLastPeriodStart(periodRange.startDate.toISOString().split('T')[0]);
   }
   
   showPregnancyDetails() {
