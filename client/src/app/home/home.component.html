@@ -86,7 +86,7 @@
   <!-- Default State - Log Period Section -->
   <div class="log-period-section" *ngIf="!userStatus || userStatus === 'Not Set'">
     <div class="section-header">
-      <h2 class="section-title pt-8">Welcome to Your Journey</h2>
+      <h2 class="section-title pt-10">Welcome to Your Journey</h2>
       <p class="section-subtitle">Log the first day of your last period to make better predictions</p>
     </div>
     <div class="log-period-card">
@@ -95,25 +95,42 @@
       </div>
       <h3 class="period-title">Start Tracking Your Cycle</h3>
       <p class="period-description">By logging your period, we can help you track your fertility, predict ovulation, and provide personalized insights.</p>
-      <ion-button expand="block" fill="solid" class="log-period-btn" (click)="logPeriod()">
-        <ion-icon name="add" slot="start"></ion-icon>
-        Log Period
-      </ion-button>
+      
+              <!-- Log Period Button -->
+        <ion-button expand="block" fill="solid" class="log-period-btn" (click)="openPeriodDatePicker()">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          Log Period
+        </ion-button>
     </div>
   </div>
 
   <!-- Period Chart Section (for Trying to Conceive) -->
   <div class="chart-section" *ngIf="!isPregnant && !isPostpartum && userStatus === 'Trying to Conceive'">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'home.cycleOverview' | translate }}</h2>
+    <!-- <div class="section-header">
+      <h2 class="section-title pt-10">{{ 'home.cycleOverview' | translate }}</h2>
       <p class="section-subtitle">{{ 'home.trackFertility' | translate }}</p>
-    </div>
-    <div class="chart-container">
-      <div class="chart-placeholder">
-        <ion-icon name="analytics-outline" size="large"></ion-icon>
+    </div> -->
+
+      <div class=" mt-10">
+        <!-- <ion-icon name="analytics-outline" size="large"></ion-icon> -->
         <app-circle-period-chart></app-circle-period-chart>
       </div>
+    
+    <!-- Cycle Day Information -->
+    <div class="cycle-day-info" *ngIf="currentCycleDay > 0">
+      <div class="cycle-day-card">
+        <div class="cycle-day-number">
+          <span class="day-number">{{ currentCycleDay }}</span>
+          <span class="day-label">Day</span>
+        </div>
+        <div class="cycle-day-details">
+          <h3 class="cycle-status">{{ getCycleDayStatus() }}</h3>
+          <p class="cycle-description">{{ getCycleDayDescription() }}</p>
+        </div>
+      </div>
     </div>
+    
+   
   </div>
 
   <!-- Pregnancy Progress Section (Conditional) -->

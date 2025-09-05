@@ -826,8 +826,15 @@ ion-fab {
     border-radius: 20px;
     padding: 2rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
+    max-width: 500px;
     margin: 0 auto;
+
+    .date-picker-container {
+      margin: 1.5rem 0;
+      padding: 1rem;
+      background: #f8fafc;
+      border-radius: 12px;
+    }
     
     .period-icon {
       margin-bottom: 1.5rem;
@@ -1776,6 +1783,69 @@ ion-fab {
       --border-color: #ec4899;
       --border-radius: 12px;
       font-weight: 600;
+    }
+  }
+}
+
+// Cycle Day Information
+.cycle-day-info {
+  margin: 1rem;
+  margin-bottom: 1.5rem;
+
+  .cycle-day-card {
+    background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    color: white;
+    box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(236, 72, 153, 0.4);
+    }
+
+    .cycle-day-number {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-right: 1.5rem;
+      min-width: 80px;
+
+      .day-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .day-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    .cycle-day-details {
+      flex: 1;
+
+      .cycle-status {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .cycle-description {
+        font-size: 0.95rem;
+        margin: 0;
+        opacity: 0.9;
+        line-height: 1.4;
+      }
     }
   }
 }

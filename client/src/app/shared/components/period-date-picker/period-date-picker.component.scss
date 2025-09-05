@@ -1,0 +1,435 @@
+.period-date-picker {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  margin: 0 auto;
+
+  // Calendar Header
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+
+    .nav-button {
+      --color: #666;
+      --color-hover: #333;
+      --padding-start: 8px;
+      --padding-end: 8px;
+      min-width: 40px;
+      height: 40px;
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+
+    .month-year {
+      text-align: center;
+      flex: 1;
+
+      .month-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        margin: 0 0 0.25rem 0;
+      }
+
+      .year-name {
+        font-size: 1rem;
+        color: #666;
+        margin: 0;
+        font-weight: 500;
+      }
+    }
+  }
+
+  // Weekdays Header
+  .weekdays-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+
+    .weekday {
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #666;
+      padding: 0.5rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  // Calendar Grid
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 1.5rem;
+
+    .calendar-day-wrapper {
+      aspect-ratio: 1;
+      padding: 2px;
+
+      .calendar-day {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        background: transparent;
+        border: 2px solid transparent;
+
+        .day-number {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #333;
+          z-index: 2;
+          position: relative;
+        }
+
+        .period-indicator {
+          position: absolute;
+          bottom: 4px;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+        }
+
+        // Other month styling
+        &.other-month {
+          .day-number {
+            color: #ccc;
+          }
+        }
+
+        // Today styling
+        &.today {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-color: #667eea;
+          transform: scale(1.1);
+
+          .day-number {
+            color: white;
+            font-weight: 700;
+          }
+        }
+
+        // Selected start date styling
+        &.selected-start {
+          background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+          border-color: #ec4899;
+          transform: scale(1.15);
+          box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+
+          .day-number {
+            color: white;
+            font-weight: 700;
+          }
+        }
+
+        // Period range styling
+        &.period-past {
+          background: rgba(239, 68, 68, 0.1);
+          border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        &.period-upcoming {
+          background: rgba(245, 158, 11, 0.1);
+          border-color: rgba(245, 158, 11, 0.3);
+          border-style: dashed;
+        }
+
+        &.period-future {
+          background: rgba(16, 185, 129, 0.1);
+          border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        // Hover effects
+        &:hover:not(.other-month) {
+          transform: scale(1.05);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        &:active:not(.other-month) {
+          transform: scale(0.95);
+        }
+
+        // Clickable state
+        &.clickable {
+          cursor: pointer;
+        }
+
+        &:not(.clickable) {
+          cursor: default;
+        }
+      }
+    }
+  }
+
+  // Period Indicators
+  .period-indicator {
+    &.past-start {
+      background: #ef4444;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+    }
+
+    &.today-start {
+      background: #f59e0b;
+      box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+    }
+
+    &.future-start {
+      background: #10b981;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    }
+
+    &.past-period {
+      background: #ef4444;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+    }
+
+    &.upcoming-period {
+      background: #f59e0b;
+      border: 2px dashed #f59e0b;
+      background: transparent;
+    }
+
+    &.future-period {
+      background: #10b981;
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    }
+  }
+
+  // Legend
+  .calendar-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-top: 1rem;
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #666;
+
+      .legend-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+
+        &.past-start {
+          background: #ef4444;
+        }
+
+        &.today-start {
+          background: #f59e0b;
+        }
+
+        &.future-start {
+          background: #10b981;
+        }
+
+        &.past-period {
+          background: #ef4444;
+        }
+
+        &.upcoming-period {
+          background: transparent;
+          border: 2px dashed #f59e0b;
+        }
+
+        &.future-period {
+          background: #10b981;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .period-date-picker {
+    padding: 0.75rem;
+
+    .calendar-header {
+      .month-year {
+        .month-name {
+          font-size: 1.25rem;
+        }
+
+        .year-name {
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    .calendar-grid {
+      gap: 2px;
+
+      .calendar-day-wrapper {
+        .calendar-day {
+          border-radius: 8px;
+
+          .day-number {
+            font-size: 0.75rem;
+          }
+
+          .period-indicator {
+            width: 4px;
+            height: 4px;
+            bottom: 2px;
+          }
+        }
+      }
+    }
+
+    .calendar-legend {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      padding: 0.75rem;
+
+      .legend-item {
+        font-size: 0.7rem;
+      }
+    }
+  }
+}
+
+// Tablet and larger screens
+@media (min-width: 768px) {
+  .period-date-picker {
+    padding: 1.5rem;
+    max-width: 500px;
+
+    .calendar-grid {
+      gap: 6px;
+
+      .calendar-day-wrapper {
+        .calendar-day {
+          border-radius: 16px;
+
+          .day-number {
+            font-size: 1rem;
+          }
+
+          .period-indicator {
+            width: 8px;
+            height: 8px;
+            bottom: 6px;
+          }
+        }
+      }
+    }
+
+    .calendar-legend {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding: 1.5rem;
+
+      .legend-item {
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .period-date-picker {
+    background: #1f2937;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+    .calendar-header {
+      .month-year {
+        .month-name {
+          color: #f9fafb;
+        }
+
+        .year-name {
+          color: #9ca3af;
+        }
+      }
+    }
+
+    .weekdays-header {
+      .weekday {
+        color: #9ca3af;
+      }
+    }
+
+    .calendar-grid {
+      .calendar-day-wrapper {
+        .calendar-day {
+          .day-number {
+            color: #f9fafb;
+          }
+
+          &.other-month {
+            .day-number {
+              color: #4b5563;
+            }
+          }
+        }
+      }
+    }
+
+    .calendar-legend {
+      background: #374151;
+
+      .legend-item {
+        color: #9ca3af;
+      }
+    }
+  }
+}
+
+// Smooth animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.period-date-picker {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.calendar-day {
+  animation: fadeIn 0.2s ease-out;
+}
+
+// Focus states for accessibility
+.calendar-day:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.nav-button:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+  border-radius: 8px;
+}

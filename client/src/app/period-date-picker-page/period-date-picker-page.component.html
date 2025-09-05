@@ -1,0 +1,68 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Select Period Start Date</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="savePeriod()" [disabled]="!selectedDate">
+        <ion-icon name="checkmark"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="date-picker-container">
+    <div class="header-section">
+      <h2>When did your last period start?</h2>
+      <p>Select the first day of your last period to track your cycle</p>
+    </div>
+
+    <div class="datetime-container">
+      <ion-datetime 
+        presentation="date" 
+        [value]="selectedDate"
+        [highlightedDates]="highlightedDates"
+        (ionChange)="onDateChange($event)"
+        [min]="'2020-01-01'"
+        [max]="'2030-12-31'">
+      </ion-datetime>
+    </div>
+
+    <div class="period-info" *ngIf="selectedDate">
+      <h3>Period Range</h3>
+      <div class="period-dates">
+        <div class="date-item" *ngFor="let date of highlightedDates; let i = index">
+          <div class="date-circle" [style.background-color]="date.backgroundColor">
+            <span class="date-number">{{ getDateNumber(date.date) }}</span>
+          </div>
+          <span class="date-label">
+            {{ i === 0 ? 'Start' : 'Day ' + (i + 1) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-dot start"></div>
+        <span>Period Start</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot past"></div>
+        <span>Past Days</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot today"></div>
+        <span>Today</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot future"></div>
+        <span>Future Days</span>
+      </div>
+    </div>
+  </div>
+</ion-content>

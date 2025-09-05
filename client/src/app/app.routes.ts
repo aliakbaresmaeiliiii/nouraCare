@@ -98,6 +98,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'period-date-picker',
+    loadComponent: () =>
+      import('./period-date-picker-page/period-date-picker-page.component').then(
+        (m) => m.PeriodDatePickerPageComponent
+      ),
+  },
+  {
     path: 'period-edit',
     loadComponent: () =>
       import('./edit-period/edit-period.component').then(

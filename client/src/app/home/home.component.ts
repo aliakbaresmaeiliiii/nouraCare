@@ -1,10 +1,11 @@
-import { AfterViewInit, Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import Swiper from 'swiper';
-import { MessageService } from '../shared/services/message.service';
+import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-picker-page/period-date-picker-page.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
+import { MessageService } from '../shared/services/message.service';
+import { SharedModule } from '../shared/shared-module';
 
 @Component({
   selector: 'app-home',
@@ -23,6 +24,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   userStatus: string = 'Not Set'; // Default state
   isPregnant: boolean = false; // Set to false by default
   isPostpartum: boolean = false;
+  
+  // Cycle tracking
+  currentCycleDay: number = 0;
+  periodStartDate: Date | null = null;
+  periodLength: number = 5;
   pregnancyWeek: number = 12;
   pregnancyProgress: number = 30; // percentage
   babySize: string = 'Lime 🍋';
@@ -123,6 +129,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private router: Router,
     private alertController: AlertController,
     private toastController: ToastController,
+    private modalController: ModalController,
     private messageService: MessageService
   ) { }
 
@@ -1084,45 +1091,41 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
   
-  logPeriod() {
-    // Open period logging modal
-    this.openPeriodLogging();
-  }
-  
-  async openPeriodLogging() {
-    const alert = await this.alertController.create({
-      header: 'Log Your Period',
-      message: 'When did your last period start?',
-      inputs: [
-        {
-          name: 'periodDate',
-          type: 'date',
-          placeholder: 'Select date',
-          value: new Date().toISOString().split('T')[0]
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Log Period',
-          handler: (data) => {
-            if (data.periodDate) {
-              this.showToast('Period logged successfully!', 'success');
-              // Update user status to "Trying to Conceive" to show the period chart
-              this.userStatus = 'Trying to Conceive';
-              this.isPregnant = false;
-              this.isPostpartum = false;
-              // Here you would typically save to backend
-              // For now, just show success message and update status
-            }
-          }
-        }
-      ]
+
+
+  // Open period date picker modal
+  async openPeriodDatePicker() {
+    const modal = await this.modalController.create({
+      component: PeriodDatePickerPageComponent,
+      componentProps: {},
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
+      backdropDismiss: false
     });
-    await alert.present();
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      this.onPeriodDateSelected(data);
+    }
+  }
+
+  // Handle period date selection from the date picker modal
+  onPeriodDateSelected(periodRange: PeriodDateRange) {
+    console.log('Period date selected:', periodRange);
+    this.showToast('Period logged successfully!', 'success');
+    // Update user status to "Trying to Conceive" to show the period chart
+    this.userStatus = 'Trying to Conceive';
+    this.isPregnant = false;
+    this.isPostpartum = false;
+    
+    // Set the period start date and update cycle day
+    this.periodStartDate = periodRange.startDate;
+    this.updateCycleDay();
+    
+    // Here you would typically save to backend
+    // For now, just show success message and update status
   }
   
   showPregnancyDetails() {
@@ -1297,5 +1300,36 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   tabChanged() {
     // Handle tab changes if needed
+  }
+
+  // Cycle day methods
+  getCycleDayStatus(): string {
+    if (this.currentCycleDay <= 0) return 'Not tracking';
+    if (this.currentCycleDay <= this.periodLength) return 'Period Day';
+    if (this.currentCycleDay <= 14) return 'Follicular Phase';
+    if (this.currentCycleDay <= 28) return 'Luteal Phase';
+    return 'Next Cycle';
+  }
+
+  getCycleDayDescription(): string {
+    if (this.currentCycleDay <= 0) return 'Start tracking your cycle';
+    if (this.currentCycleDay <= this.periodLength) return `Day ${this.currentCycleDay} of your period`;
+    if (this.currentCycleDay <= 14) return 'Your body is preparing for ovulation';
+    if (this.currentCycleDay <= 28) return 'Your body is preparing for the next period';
+    return 'Time to start tracking your next cycle';
+  }
+
+  updateCycleDay() {
+    if (!this.periodStartDate) {
+      this.currentCycleDay = 0;
+      return;
+    }
+
+    const today = new Date();
+    const startDate = new Date(this.periodStartDate);
+    const diffTime = Math.abs(today.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    this.currentCycleDay = diffDays + 1; // +1 because day 1 is the start date
   }
 }
