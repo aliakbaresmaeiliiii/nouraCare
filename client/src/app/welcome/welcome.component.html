@@ -6,13 +6,9 @@
 
   <!-- Welcome Slides Section -->
   <div class="welcome-section">
-    <swiper-container
-      slides-per-view="1"
-      centered-slides="true"
-      [autoplay]="{ delay: 3000, disableOnInteraction: false }"
-      [pagination]="{ clickable: true }"
-      class="welcome-swiper"
-    >
+    <swiper-container slides-per-view="1" centered-slides="true"
+      [autoplay]="{ delay: 3000, disableOnInteraction: false }" [pagination]="{ clickable: true }"
+      class="welcome-swiper">
       <!-- Slide 1: Welcome -->
       <swiper-slide class="welcome-slide">
         <div class="slide-background" style="background-image: url('assets/images/welcome1.jpg')"></div>
@@ -100,14 +96,10 @@
 
     <!-- Floating Action Button -->
     <div class="floating-action">
-      <ion-button 
-        fill="clear" 
-        class="skip-button"
-        (click)="scrollToLogin()"
-      >
+      <ion-button fill="clear" class="skip-button" (click)="scrollToLogin()">
         <!-- <ion-icon name="arrow-down" slot="start"></ion-icon> -->
         <ion-icon name="arrow-down" size="large" color="primary"></ion-icon>
-        <span >
+        <span>
           {{ 'welcome.getStarted' | translate }}
         </span>
       </ion-button>
@@ -121,28 +113,19 @@
         <h2 class="section-title">{{ 'welcome.joinTitle' | translate }}</h2>
         <p class="section-subtitle">{{ 'welcome.joinSubtitle' | translate }}</p>
       </div>
-      
+
       <!-- Login Component -->
       <!-- <app-login></app-login> -->
-      
+
       <!-- Temporary Inline Login Form for Testing -->
       <div class="inline-login-form">
         <div class="tab-container">
-          <button
-            type="button"
-            (click)="activeTab = 'login'"
-            [class.active]="activeTab === 'login'"
-            class="tab-button"
-          >
+          <button type="button" (click)="activeTab = 'login'" [class.active]="activeTab === 'login'" class="tab-button">
             <ion-icon name="log-in-outline"></ion-icon>
             {{ 'auth.signIn' | translate }}
           </button>
-          <button
-            type="button"
-            (click)="activeTab = 'register'"
-            [class.active]="activeTab === 'register'"
-            class="tab-button"
-          >
+          <button type="button" (click)="activeTab = 'register'" [class.active]="activeTab === 'register'"
+            class="tab-button">
             <ion-icon name="person-add-outline"></ion-icon>
             {{ 'auth.signUp' | translate }}
           </button>
@@ -161,17 +144,9 @@
                 <ion-icon name="mail-outline" class="label-icon"></ion-icon>
                 {{ 'welcome.emailAddress' | translate }}
               </label>
-              <input
-                type="email"
-                formControlName="email"
-                [placeholder]="'welcome.enterEmail' | translate"
-                class="form-input"
-                [class.error]="isFieldInvalid(loginForm, 'email')"
-              />
-              <div
-                *ngIf="isFieldInvalid(loginForm, 'email')"
-                class="error-message"
-              >
+              <input type="email" formControlName="email" [placeholder]="'welcome.enterEmail' | translate"
+                class="form-input" [class.error]="isFieldInvalid(loginForm, 'email')" />
+              <div *ngIf="isFieldInvalid(loginForm, 'email')" class="error-message">
                 <ion-icon name="alert-circle-outline"></ion-icon>
                 {{ getFieldError(loginForm, 'email') }}
               </div>
@@ -198,12 +173,7 @@
               </div>
             </div> -->
 
-            <ion-button 
-              type="submit" 
-              class="submit-button"
-              [disabled]="loginForm.invalid"
-              expand="block"
-            >
+            <ion-button type="submit" class="submit-button" [disabled]="loginForm.invalid" expand="block">
               <ion-icon name="log-in-outline" slot="start"></ion-icon>
               {{ 'auth.signIn' | translate }}
             </ion-button>
@@ -227,17 +197,9 @@
                 <ion-icon name="mail-outline" class="label-icon"></ion-icon>
                 {{ 'welcome.emailAddress' | translate }}
               </label>
-              <input
-                type="email"
-                formControlName="email"
-                [placeholder]="'welcome.enterEmail' | translate"
-                class="form-input"
-                [class.error]="isFieldInvalid(registerForm, 'email')"
-              />
-              <div
-                *ngIf="isFieldInvalid(registerForm, 'email')"
-                class="error-message"
-              >
+              <input type="email" formControlName="email" [placeholder]="'welcome.enterEmail' | translate"
+                class="form-input" [class.error]="isFieldInvalid(registerForm, 'email')" />
+              <div *ngIf="isFieldInvalid(registerForm, 'email')" class="error-message">
                 <ion-icon name="alert-circle-outline"></ion-icon>
                 {{ getFieldError(registerForm, 'email') }}
               </div>
@@ -248,17 +210,9 @@
                 <ion-icon name="call-outline" class="label-icon"></ion-icon>
                 {{ 'welcome.phoneNumber' | translate }}
               </label>
-              <input
-                type="tel"
-                formControlName="phone"
-                [placeholder]="'welcome.enterPhone' | translate"
-                class="form-input"
-                [class.error]="isFieldInvalid(registerForm, 'phone')"
-              />
-              <div
-                *ngIf="isFieldInvalid(registerForm, 'phone')"
-                class="error-message"
-              >
+              <input type="tel" formControlName="phone" [placeholder]="'welcome.enterPhone' | translate"
+                class="form-input" [class.error]="isFieldInvalid(registerForm, 'phone')" />
+              <div *ngIf="isFieldInvalid(registerForm, 'phone')" class="error-message">
                 <ion-icon name="alert-circle-outline"></ion-icon>
                 {{ getFieldError(registerForm, 'phone') }}
               </div>
@@ -306,27 +260,23 @@
               </div>
             </div> -->
 
-            <ion-button 
-              type="submit" 
-              class="submit-button register"
-              [disabled]="registerForm.invalid"
-              expand="block"
-            >
+            <ion-button type="submit" class="submit-button register" [disabled]="registerForm.invalid" expand="block">
               <ion-icon name="person-add-outline" slot="start"></ion-icon>
               {{ 'welcome.createAccount' | translate }}
             </ion-button>
 
             <div class="form-footer">
               <p class="terms-text">
-                {{ 'welcome.termsText' | translate }} 
-                <a href="#" class="terms-link">{{ 'welcome.termsOfService' | translate }}</a> {{ 'welcome.and' | translate }} 
+                {{ 'welcome.termsText' | translate }}
+                <a href="#" class="terms-link">{{ 'welcome.termsOfService' | translate }}</a> {{ 'welcome.and' |
+                translate }}
                 <a href="#" class="terms-link">{{ 'welcome.privacyPolicy' | translate }}</a>
               </p>
             </div>
           </form>
         </div>
       </div>
-   
+
     </div>
   </div>
 </ion-content>

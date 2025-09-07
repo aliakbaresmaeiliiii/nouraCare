@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { UserInfoService } from './shared/services/user-info.service';
 
 @Component({
   selector: 'app-root',
@@ -7,5 +8,10 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
   imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  constructor() {}
+  private userInfoService = inject(UserInfoService);
+
+  constructor() {
+    // Initialize user info service on app start
+    this.userInfoService.loadUserInfoOnInit();
+  }
 }

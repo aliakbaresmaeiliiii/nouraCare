@@ -21,8 +21,13 @@ model user {
   menstrualCycleLength      Int?
   periodDuration            Int?
   lastPeriodStartDate       DateTime?
-    birthday                  DateTime?  
+  birthday                  DateTime?  
   city                      String?
+  pregnancyWeek             Int?
+  pregnancyProgress         String?
+  healthGoals               String?    // JSON string array
+  notificationsEnabled      Boolean    @default(true)
+  updatedAt                 DateTime   @updatedAt
 
   // Relations
   addresses                 Address[]

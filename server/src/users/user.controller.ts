@@ -5,10 +5,15 @@ import { extname, join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/user.dto';
+import { OnboardingService } from './onboarding.service';
+import { OnboardingDataDto } from './dto/onboarding.dto';
 
 @Controller('api/v1/user')
 export class UserController {
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private onboardingService: OnboardingService
+  ) { }
 
   @Get(':id')
   async getUser(@Param('id') id: string) {
@@ -50,5 +55,18 @@ export class UserController {
     const url = `${baseUrl}/uploads/profile/${file.filename}`;
     await this.userService.editUserInfo(+id, { profileImage: url } as any);
     return { url };
+  }
+
+  @Post(':id/onboarding')
+  async saveOnboardingData(
+    @Param('id') id: string,
+    @Body() onboardingData: OnboardingDataDto
+  ) {
+    return this.onboardingService.saveOnboardingData(+id, onboardingData);
+  }
+
+  @Get(':id/onboarding')
+  async getUserOnboardingData(@Param('id') id: string) {
+    return this.onboardingService.getUserOnboardingData(+id);
   }
 }

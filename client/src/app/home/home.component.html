@@ -111,24 +111,27 @@
       <p class="section-subtitle">{{ 'home.trackFertility' | translate }}</p>
     </div> -->
 
-      <div class=" mt-10">
-        <!-- <ion-icon name="analytics-outline" size="large"></ion-icon> -->
-        <app-circle-period-chart></app-circle-period-chart>
-      </div>
-    
-    <!-- Cycle Day Information -->
-    <!-- <div class="cycle-day-info" *ngIf="currentCycleDay > 0">
-      <div class="cycle-day-card">
-        <div class="cycle-day-number">
-          <span class="day-number">{{ currentCycleDay }}</span>
-          <span class="day-label">Day</span>
+      <!-- Cycle Chart Section (shown when NOT pregnant) -->
+      <div class="cycle-chart-section" *ngIf="!isPregnant">
+        <div class=" mt-10">
+          <!-- <ion-icon name="analytics-outline" size="large"></ion-icon> -->
+          <app-circle-period-chart></app-circle-period-chart>
         </div>
-        <div class="cycle-day-details">
-          <h3 class="cycle-status">{{ getCycleDayStatus() }}</h3>
-          <p class="cycle-description">{{ getCycleDayDescription() }}</p>
-        </div>
+        
+        <!-- Cycle Day Information -->
+        <!-- <div class="cycle-day-info" *ngIf="currentCycleDay > 0">
+          <div class="cycle-day-card">
+            <div class="cycle-day-number">
+              <span class="day-number">{{ currentCycleDay }}</span>
+              <span class="day-label">Day</span>
+            </div>
+            <div class="cycle-day-details">
+              <h3 class="cycle-status">{{ getCycleDayStatus() }}</h3>
+              <p class="cycle-description">{{ getCycleDayDescription() }}</p>
+            </div>
+          </div>
+        </div> -->
       </div>
-    </div> -->
     
    
   </div>
@@ -299,11 +302,11 @@
     <div class="actions-grid">
       <div class="action-item" (click)="onActionClick('pregnant')">
         <div class="action-icon">
-          <ion-icon name="heart-circle-outline"></ion-icon>
+          <ion-icon [name]="isPregnant ? 'heart-dislike-outline' : 'heart-circle-outline'"></ion-icon>
         </div>
         <div class="action-content">
-          <h3 class="action-title">{{ 'home.actionPregnant' | translate }}</h3>
-          <p class="action-description">{{ 'home.actionPregnantDesc' | translate }}</p>
+          <h3 class="action-title">{{ isPregnant ? ('home.actionNotPregnant' | translate) : ('home.actionPregnant' | translate) }}</h3>
+          <p class="action-description">{{ isPregnant ? ('home.actionNotPregnantDesc' | translate) : ('home.actionPregnantDesc' | translate) }}</p>
         </div>
       </div>
       

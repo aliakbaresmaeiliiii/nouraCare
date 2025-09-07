@@ -95,6 +95,9 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.authService.login(this.loginForm.value).subscribe((res) => {
         console.log('Login response:', res);
         localStorage.setItem('userInfo', JSON.stringify(res));
+        
+        // Navigate directly to main app after successful login
+        console.log('Navigating to tabs');
         this.navCtrl.navigateRoot('tabs');
       });
     } else {
@@ -161,5 +164,14 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
     }
+  }
+
+  testOnboarding() {
+    console.log('Test onboarding button clicked');
+    console.log('Trying to navigate to onboarding...');
+    this.router.navigate(['/onboarding']).then(
+      (success) => console.log('Navigation successful:', success),
+      (error) => console.error('Navigation failed:', error)
+    );
   }
 }

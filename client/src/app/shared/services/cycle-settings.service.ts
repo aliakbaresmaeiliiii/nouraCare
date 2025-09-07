@@ -10,6 +10,8 @@ export class CycleSettingsService {
   userStatus = signal<string>('Not Set');
   isPregnant = signal<boolean>(false);
   isPostpartum = signal<boolean>(false);
+  pregnancyWeek = signal<number>(12);
+  pregnancyProgress = signal<number>(30);
 
   constructor() {
     this.loadFromStorage();
@@ -45,6 +47,16 @@ export class CycleSettingsService {
     this.saveToStorage();
   }
 
+  setPregnancyWeek(week: number) {
+    this.pregnancyWeek.set(Math.max(4, Math.min(40, Math.floor(week || 12))));
+    this.saveToStorage();
+  }
+
+  setPregnancyProgress(progress: number) {
+    this.pregnancyProgress.set(Math.max(0, Math.min(100, Math.floor(progress || 30))));
+    this.saveToStorage();
+  }
+
   private loadFromStorage() {
     try {
       const raw = localStorage.getItem(this.storageKey);
@@ -58,6 +70,8 @@ export class CycleSettingsService {
       if (typeof data.userStatus === 'string') this.userStatus.set(data.userStatus);
       if (typeof data.isPregnant === 'boolean') this.isPregnant.set(data.isPregnant);
       if (typeof data.isPostpartum === 'boolean') this.isPostpartum.set(data.isPostpartum);
+      if (typeof data.pregnancyWeek === 'number') this.pregnancyWeek.set(data.pregnancyWeek);
+      if (typeof data.pregnancyProgress === 'number') this.pregnancyProgress.set(data.pregnancyProgress);
     } catch {}
   }
 
@@ -70,6 +84,8 @@ export class CycleSettingsService {
         userStatus: this.userStatus(),
         isPregnant: this.isPregnant(),
         isPostpartum: this.isPostpartum(),
+        pregnancyWeek: this.pregnancyWeek(),
+        pregnancyProgress: this.pregnancyProgress(),
       };
       localStorage.setItem(this.storageKey, JSON.stringify(data));
     } catch {}

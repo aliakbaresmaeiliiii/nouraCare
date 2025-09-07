@@ -178,6 +178,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.generateMessages();
     this.loadPersistedData();
+    
+    // Onboarding is now handled before reaching this component
   }
 
   /**
@@ -188,6 +190,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.userStatus = this.cycleSettings.userStatus();
     this.isPregnant = this.cycleSettings.isPregnant();
     this.isPostpartum = this.cycleSettings.isPostpartum();
+    
+    // Load pregnancy data
+    this.pregnancyWeek = this.cycleSettings.pregnancyWeek();
+    this.pregnancyProgress = this.cycleSettings.pregnancyProgress();
     
     // Load period data
     const lastPeriodStart = this.cycleSettings.lastPeriodStartDate();
@@ -616,7 +622,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
   async onActionClick(action: string) {
     switch(action) {
       case 'pregnant':
-        await this.handlePregnancyUpdate();
+        if (this.isPregnant) {
+          await this.handleNotPregnantUpdate();
+        } else {
+          await this.handlePregnancyUpdate();
+        }
         break;
       case 'symptoms':
         await this.openSymptomsTracking();
@@ -659,22 +669,46 @@ export class HomeComponent implements OnInit, AfterViewInit {
     await alert.present();
   }
 
-  // Update pregnancy status
-  async updatePregnancyStatus() {
+  // Handle "I'm not pregnant anymore" action
+  async handleNotPregnantUpdate() {
+    const alert = await this.alertController.create({
+      header: 'Update Status',
+      message: 'Are you sure you want to change your status back to "Trying to Conceive"?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Update Status',
+          handler: async () => {
+            await this.updateNotPregnantStatus();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Update not pregnant status
+  async updateNotPregnantStatus() {
     try {
-      // Here you would typically make an API call to update the user's status
-      // For now, we'll simulate the update
+      // Update the status back to "Trying to Conceive"
+      this.userStatus = 'Trying to Conceive';
+      this.isPregnant = false;
+      this.isPostpartum = false;
+      
+      // Save to persistent storage
+      this.cycleSettings.setUserStatus('Trying to Conceive');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(false);
       
       const successAlert = await this.alertController.create({
         header: '✅ Status Updated!',
-        message: 'Your pregnancy status has been updated successfully!',
+        message: 'Your status has been updated back to "Trying to Conceive". You can now track your cycle again.',
         buttons: [
-          {
-            text: 'View Pregnancy Guide',
-            handler: () => {
-              this.router.navigate(['tabs/tools']);
-            }
-          },
           {
             text: 'Continue',
             role: 'cancel'
@@ -683,10 +717,108 @@ export class HomeComponent implements OnInit, AfterViewInit {
       });
 
       await successAlert.present();
-      await this.showToast('Pregnancy status updated successfully!', 'success');
-      
+    } catch (error) {
+      console.error('Error updating status:', error);
+      this.showToast('Error updating status. Please try again.', 'danger');
+    }
+  }
+
+  // Update pregnancy status
+  async updatePregnancyStatus() {
+    try {
+      // First ask for last period date to calculate pregnancy week
+      const lmpAlert = await this.alertController.create({
+        header: '🤰 Last Period Date',
+        message: 'Please enter the date of your last menstrual period (LMP) to calculate your current pregnancy week.',
+        inputs: [
+          {
+            name: 'lastPeriod',
+            type: 'date',
+            placeholder: 'Last menstrual period date',
+            label: 'LMP Date'
+          }
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Calculate & Update',
+            handler: async (data) => {
+              if (data.lastPeriod) {
+                await this.calculateAndUpdatePregnancyStatus(data.lastPeriod);
+              } else {
+                this.showToast('Please enter your last period date', 'warning');
+              }
+            }
+          }
+        ]
+      });
+
+      await lmpAlert.present();
     } catch (error) {
       await this.showToast('Failed to update status. Please try again.', 'danger');
+    }
+  }
+
+  // Calculate pregnancy week and update status
+  private async calculateAndUpdatePregnancyStatus(lastPeriod: string) {
+    try {
+      // Calculate pregnancy week based on LMP
+      const lmpDate = new Date(lastPeriod);
+      const today = new Date();
+      const daysDifference = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+      const pregnancyWeek = Math.floor(daysDifference / 7) + 1;
+      
+      // Validate pregnancy week (should be between 4-40 weeks)
+      if (pregnancyWeek < 4 || pregnancyWeek > 40) {
+        await this.showToast('Invalid date. Please enter a valid LMP date (4-40 weeks ago).', 'warning');
+        return;
+      }
+      
+      // Update pregnancy status
+      this.userStatus = 'Pregnant';
+      this.isPregnant = true;
+      this.isPostpartum = false;
+      
+      // Update pregnancy week and progress
+      this.pregnancyWeek = pregnancyWeek;
+      this.pregnancyProgress = (pregnancyWeek / 40) * 100;
+      
+      // Save to persistent storage
+      this.cycleSettings.setUserStatus('Pregnant');
+      this.cycleSettings.setPregnancyStatus(true);
+      this.cycleSettings.setPostpartumStatus(false);
+      this.cycleSettings.setPregnancyWeek(pregnancyWeek);
+      this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
+      
+      // Show results
+      const successAlert = await this.alertController.create({
+        header: '🎉 Congratulations!',
+        message: `You are currently in week ${pregnancyWeek} of your pregnancy!\n\nYour pregnancy progress has been updated and you can now track your journey.`,
+        buttons: [
+          {
+            text: 'View Pregnancy Progress',
+            handler: () => {
+              // Stay on home page to see the pregnancy progress
+            }
+          },
+          {
+            text: 'View Pregnancy Guide',
+            handler: () => {
+              this.router.navigate(['/tabs/tools']);
+            }
+          }
+        ]
+      });
+
+      await successAlert.present();
+      await this.showToast(`Pregnancy week ${pregnancyWeek} calculated successfully!`, 'success');
+      
+    } catch (error) {
+      console.error('Error calculating pregnancy week:', error);
+      await this.showToast('Failed to calculate pregnancy week', 'danger');
     }
   }
 

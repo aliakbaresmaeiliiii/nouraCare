@@ -1,6 +1,7 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import { ToolsService, 
          SymptomEntry, 
          CycleEntry, 
@@ -30,6 +31,7 @@ import { SharedModule } from '../shared/shared-module';
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ToolsComponent implements OnInit {
+  private cycleSettings = inject(CycleSettingsService);
 
   // User data
   currentUserId: number = 1; // This should come from auth service
@@ -81,6 +83,20 @@ export class ToolsComponent implements OnInit {
 
   // Quick Access Tools
   async openFertilityCalculator() {
+    // Check if user is pregnant
+    const isPregnant = this.cycleSettings.isPregnant();
+    
+    if (isPregnant) {
+      // Show pregnancy week calculator
+      await this.openPregnancyWeekCalculator();
+    } else {
+      // Show regular fertility calculator
+      await this.openRegularFertilityCalculator();
+    }
+  }
+
+  // Regular fertility calculator for non-pregnant users
+  async openRegularFertilityCalculator() {
     const alert = await this.alertController.create({
       header: '🧮 Fertility Calculator',
       message: 'Calculate your most fertile days based on your cycle length and last period date.',
@@ -116,6 +132,129 @@ export class ToolsComponent implements OnInit {
     });
 
     await alert.present();
+  }
+
+  // Pregnancy week calculator for pregnant users
+  async openPregnancyWeekCalculator() {
+    const alert = await this.alertController.create({
+      header: '🤰 Pregnancy Week Calculator',
+      message: 'Calculate your current pregnancy week based on your last menstrual period (LMP) date.',
+      inputs: [
+        {
+          name: 'lastPeriod',
+          type: 'date',
+          placeholder: 'Last menstrual period date',
+          label: 'LMP Date'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Calculate Week',
+          handler: async (data) => {
+            if (data.lastPeriod) {
+              await this.calculatePregnancyWeek(data.lastPeriod);
+            }
+          }
+        },
+        {
+          text: 'Edit Status',
+          handler: () => {
+            this.openPregnancyStatusEditor();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Direct pregnancy status editor
+  async openPregnancyStatusEditor() {
+    const currentWeek = this.cycleSettings.pregnancyWeek();
+    const isPregnant = this.cycleSettings.isPregnant();
+    
+    const alert = await this.alertController.create({
+      header: '🤰 Edit Pregnancy Status',
+      message: 'Update your pregnancy information.',
+      inputs: [
+        {
+          name: 'pregnancyWeek',
+          type: 'number',
+          placeholder: 'Current pregnancy week',
+          min: 4,
+          max: 40,
+          value: currentWeek.toString(),
+          label: 'Pregnancy Week (4-40)'
+        },
+        {
+          name: 'status',
+          type: 'radio',
+          label: 'I am pregnant',
+          value: 'pregnant',
+          checked: isPregnant
+        },
+        {
+          name: 'status',
+          type: 'radio',
+          label: 'I am not pregnant',
+          value: 'not-pregnant',
+          checked: !isPregnant
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Update Status',
+          handler: async (data) => {
+            await this.updatePregnancyStatus(data);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Update pregnancy status
+  private async updatePregnancyStatus(data: any) {
+    try {
+      const week = parseInt(data.pregnancyWeek);
+      const isPregnant = data.status === 'pregnant';
+      
+      if (isPregnant) {
+        // Update pregnancy status
+        this.cycleSettings.setUserStatus('Pregnant');
+        this.cycleSettings.setPregnancyStatus(true);
+        this.cycleSettings.setPostpartumStatus(false);
+        
+        // Update pregnancy week if valid
+        if (week >= 4 && week <= 40) {
+          this.cycleSettings.setPregnancyWeek(week);
+          const progress = (week / 40) * 100;
+          this.cycleSettings.setPregnancyProgress(progress);
+        }
+        
+        await this.showToast('Pregnancy status updated successfully!', 'success');
+      } else {
+        // Update to trying to conceive
+        this.cycleSettings.setUserStatus('Trying to Conceive');
+        this.cycleSettings.setPregnancyStatus(false);
+        this.cycleSettings.setPostpartumStatus(false);
+        
+        await this.showToast('Status updated to "Trying to Conceive"', 'success');
+      }
+      
+    } catch (error) {
+      console.error('Error updating pregnancy status:', error);
+      await this.showToast('Failed to update status', 'danger');
+    }
   }
 
   async openSymptomTracker() {
@@ -885,6 +1024,59 @@ export class ToolsComponent implements OnInit {
     } catch (error) {
       console.error('Error calculating fertile days:', error);
       await this.showToast('Failed to calculate fertile days', 'danger');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  // Calculate pregnancy week and update progress
+  private async calculatePregnancyWeek(lastPeriod: string) {
+    try {
+      this.isLoading = true;
+      
+      // Calculate pregnancy week based on LMP
+      const lmpDate = new Date(lastPeriod);
+      const today = new Date();
+      const daysDifference = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+      const pregnancyWeek = Math.floor(daysDifference / 7) + 1;
+      
+      // Validate pregnancy week (should be between 4-40 weeks)
+      if (pregnancyWeek < 4 || pregnancyWeek > 40) {
+        await this.showToast('Invalid date. Please enter a valid LMP date.', 'warning');
+        return;
+      }
+      
+      // Update pregnancy week in CycleSettingsService
+      this.cycleSettings.setPregnancyWeek(pregnancyWeek);
+      
+      // Calculate pregnancy progress percentage
+      const pregnancyProgress = (pregnancyWeek / 40) * 100;
+      this.cycleSettings.setPregnancyProgress(pregnancyProgress);
+      
+      // Show results
+      const alert = await this.alertController.create({
+        header: '🤰 Pregnancy Week Calculated!',
+        message: `You are currently in week ${pregnancyWeek} of your pregnancy.\n\nThis information has been updated in your pregnancy progress tracker.`,
+        buttons: [
+          {
+            text: 'View Progress',
+            handler: () => {
+              this.router.navigate(['/tabs/home']);
+            }
+          },
+          {
+            text: 'Continue',
+            role: 'cancel'
+          }
+        ]
+      });
+      
+      await alert.present();
+      await this.showToast(`Pregnancy week ${pregnancyWeek} calculated successfully!`, 'success');
+      
+    } catch (error) {
+      console.error('Error calculating pregnancy week:', error);
+      await this.showToast('Failed to calculate pregnancy week', 'danger');
     } finally {
       this.isLoading = false;
     }

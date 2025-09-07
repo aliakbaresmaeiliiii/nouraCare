@@ -4,6 +4,19 @@ import { VerifyEmailComponent } from './auth/verify-email/verify-email.component
 
 export const routes: Routes = [
   {
+    path: 'onboarding',
+    loadComponent: () => {
+      return import('./onboarding/onboarding.component').then((m) => {
+        return m.OnboardingComponent;
+      });
+    },
+  },
+  {
+    path: 'test-onboarding',
+    loadComponent: () =>
+      import('./onboarding/onboarding.component').then((m) => m.OnboardingComponent),
+  },
+  {
     path: 'welcome',
     loadComponent: () =>
       import('./welcome/welcome.component').then((m) => m.WelcomeComponent),
@@ -157,7 +170,7 @@ export const routes: Routes = [
 
   {
     path: '',
-    redirectTo: 'welcome',
+    redirectTo: 'onboarding',
     pathMatch: 'full',
   },
 ];
