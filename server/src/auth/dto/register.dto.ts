@@ -1,8 +1,14 @@
-import { IsOptional, IsString, IsInt, IsBoolean, IsDate, IsEnum, IsArray, Min, Max } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsInt, Min, Max, IsDate } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Status } from '@prisma/client';
 
-export class OnboardingDataDto {
+export class RegisterDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  phone: string;
+
+  // Onboarding data fields (optional for backward compatibility)
   @IsOptional()
   @IsString()
   pregnancy_status?: string;
@@ -36,23 +42,9 @@ export class OnboardingDataDto {
 
   @IsOptional()
   @IsString()
-  health_goals?: string;
+  health_goals?: string; // JSON string array
 
   @IsOptional()
   @IsString()
-  notifications?: string;
-}
-
-export class CompleteOnboardingDto {
-  @IsString()
-  email: string;
-
-  @IsString()
-  phone: string;
-}
-
-export class OnboardingResponseDto {
-  sessionId: string;
-  onboardingData: OnboardingDataDto;
-  expiresAt: Date;
+  notifications?: string; // "yes" or "no"
 }

@@ -10,7 +10,8 @@
   </div>
 
   <!-- Step Content -->
-  <div class="step-container" *ngIf="!isCompleted">
+  @if (!isCompleted) {
+    <div class="step-container">
     <div class="step-header">
       <h1 class="step-title">{{ currentStepData.title }}</h1>
       <p class="step-subtitle">{{ currentStepData.subtitle }}</p>
@@ -21,24 +22,31 @@
         <h2 class="question-text">{{ currentStepData.question }}</h2>
 
         <!-- Radio Options -->
-        <div class="options-container" *ngIf="currentStepData.type === 'radio'">
-          <div 
-            class="option-card" 
-            *ngFor="let option of currentStepData.options"
-            [class.selected]="answers[currentStepData.id] === option.value"
-            (click)="selectOption(currentStepData.id, option.value)">
-            <div class="option-icon" *ngIf="option.icon">{{ option.icon }}</div>
-            <span class="option-label">{{ option.label }}</span>
-            <ion-icon 
-              name="checkmark-circle" 
-              class="check-icon"
-              *ngIf="answers[currentStepData.id] === option.value">
-            </ion-icon>
+        @if (currentStepData.type === 'radio') {
+          <div class="options-container">
+          @for (option of currentStepData.options; track option.value) {
+            <div 
+              class="option-card" 
+              [class.selected]="answers[currentStepData.id] === option.value"
+              (click)="selectOption(currentStepData.id, option.value)">
+              @if (option.icon) {
+                <div class="option-icon">{{ option.icon }}</div>
+              }
+              <span class="option-label">{{ option.label }}</span>
+              @if (answers[currentStepData.id] === option.value) {
+                <ion-icon 
+                  name="checkmark-circle" 
+                  class="check-icon">
+                </ion-icon>
+              }
+            </div>
+          }
           </div>
-        </div>
+        }
 
         <!-- Date Input -->
-        <div class="input-container" *ngIf="currentStepData.type === 'date'">
+        @if (currentStepData.type === 'date') {
+          <div class="input-container">
           <ion-datetime-button 
             datetime="date-picker">
           </ion-datetime-button>
@@ -52,24 +60,29 @@
               </ion-datetime>
             </ng-template>
           </ion-modal>
-        </div>
+          </div>
+        }
 
         <!-- Select Options -->
-        <div class="select-container" *ngIf="currentStepData.type === 'select'">
+        @if (currentStepData.type === 'select') {
+          <div class="select-container">
           <ion-select 
             [value]="answers[currentStepData.id]"
             (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
             [placeholder]="currentStepData.placeholder || 'Select an option'">
-            <ion-select-option 
-              *ngFor="let option of currentStepData.options"
-              [value]="option.value">
-              {{ option.label }}
-            </ion-select-option>
+            @for (option of currentStepData.options; track option.value) {
+              <ion-select-option 
+                [value]="option.value">
+                {{ option.label }}
+              </ion-select-option>
+            }
           </ion-select>
-        </div>
+          </div>
+        }
 
         <!-- Number Input -->
-        <div class="input-container" *ngIf="currentStepData.type === 'number'">
+        @if (currentStepData.type === 'number') {
+          <div class="input-container">
           <ion-input 
             type="number"
             [value]="answers[currentStepData.id]"
@@ -78,7 +91,8 @@
             [max]="currentStepData.max"
             (ionInput)="selectOption(currentStepData.id, $event.detail.value)">
           </ion-input>
-        </div>
+          </div>
+        }
       </div>
     </div>
 
@@ -94,38 +108,44 @@
         </ion-button>
 
         <div class="nav-right">
-          <ion-button 
-            fill="clear" 
-            (click)="skipStep()"
-            *ngIf="!currentStepData.required && currentStep < steps.length - 1">
-            Skip
-          </ion-button>
+          @if (!currentStepData.required && currentStep < steps.length - 1) {
+            <ion-button 
+              fill="clear" 
+              (click)="skipStep()">
+              Skip
+            </ion-button>
+          }
           
           <ion-button 
             [disabled]="!canProceed"
             (click)="nextStep()">
             {{ currentStep === steps.length - 1 ? 'Complete' : 'Next' }}
-            <ion-icon name="chevron-forward-outline" slot="end" *ngIf="currentStep < steps.length - 1"></ion-icon>
+            @if (currentStep < steps.length - 1) {
+              <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+            }
           </ion-button>
         </div>
       </div>
     </div>
-  </div>
+    </div>
+  }
 
   <!-- Completion Screen -->
-  <div class="completion-screen" *ngIf="isCompleted">
+  @if (isCompleted) {
+    <div class="completion-screen">
     <div class="completion-content">
       <div class="completion-icon">🎉</div>
       <h1 class="completion-title">Profile Setup Complete! 🎉</h1>
-      <p class="completion-message">Your profile has been set up successfully. Now let's get you signed in to start your health journey!</p>
+      <p class="completion-message">Your profile has been set up successfully. Now let's create your account to get started!</p>
       
       <ion-button 
         size="large" 
         (click)="navigateToWelcome()"
         class="get-started-btn">
-        Continue to Sign In
+        Continue to Registration
         <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
       </ion-button>
     </div>
-  </div>
+    </div>
+  }
 </ion-content>

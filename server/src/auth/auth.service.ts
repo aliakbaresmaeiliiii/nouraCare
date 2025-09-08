@@ -10,13 +10,16 @@ import { getUniqueCodev3 } from '../helper/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { EmailProvider } from './config/email';
 import { env } from './config/env';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
   private jwtSecret = env.JWT_SECRET;
   constructor(private prisma: PrismaService) { }
 
-  async register(email: string, phone: string) {
+  async register(registerDto: RegisterDto) {
+    const { email, phone, ...onboardingData } = registerDto;
+    
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) {
       throw new BadRequestException('User already exists with this email');
@@ -26,14 +29,43 @@ export class AuthService {
     const expiry = new Date();
     expiry.setMinutes(expiry.getMilliseconds() + 3);
 
+    // Prepare user data with onboarding fields
+    const userData: any = {
+      email,
+      phone,
+      verificationCode,
+      verificationCodeExpiresAt: expiry,
+      isVerified: false,
+    };
+
+    // Add onboarding data if provided
+    if (onboardingData.pregnancy_status) {
+      userData.status = this.mapPregnancyStatus(onboardingData.pregnancy_status);
+    }
+    if (onboardingData.last_period) {
+      userData.lastPeriodStartDate = onboardingData.last_period;
+    }
+    if (onboardingData.cycle_length) {
+      userData.menstrualCycleLength = onboardingData.cycle_length;
+    }
+    if (onboardingData.period_length) {
+      userData.periodDuration = onboardingData.period_length;
+    }
+    if (onboardingData.pregnancy_week) {
+      userData.pregnancyWeek = onboardingData.pregnancy_week;
+    }
+    if (onboardingData.pregnancy_progress) {
+      userData.pregnancyProgress = onboardingData.pregnancy_progress;
+    }
+    if (onboardingData.health_goals) {
+      userData.healthGoals = onboardingData.health_goals;
+    }
+    if (onboardingData.notifications) {
+      userData.notificationsEnabled = this.mapNotifications(onboardingData.notifications);
+    }
+
     await this.prisma.user.create({
-      data: {
-        email,
-        phone,
-        verificationCode,
-        verificationCodeExpiresAt: expiry,
-        isVerified: false,
-      },
+      data: userData,
     });
 
     const emailService = new SendMail(new EmailProvider());
@@ -121,5 +153,21 @@ export class AuthService {
       expiresIn: '1d',
     });
     return { token, user };
+  }
+
+  private mapPregnancyStatus(status: string): string | undefined {
+    const statusMap: { [key: string]: string } = {
+      'tracking': 'PLANNING_PREGNANCY',
+      'pregnant': 'PREGNANT',
+      'postpartum': 'POSTPARTUM',
+      'trying': 'TRYING_TO_CONCEIVE',
+    };
+    return statusMap[status] || 'PLANNING_PREGNANCY';
+  }
+
+  private mapNotifications(notifications: string): boolean | undefined {
+    if (notifications === 'yes') return true;
+    if (notifications === 'no') return false;
+    return undefined;
   }
 }

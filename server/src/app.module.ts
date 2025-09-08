@@ -5,6 +5,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/user.module';
 import { GeoModule } from './geo/geo.module';
+import { OnboardingModule } from './onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { GeoModule } from './geo/geo.module';
     AuthModule,
     UserModule,
     GeoModule,
+    OnboardingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

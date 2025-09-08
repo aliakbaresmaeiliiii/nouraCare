@@ -27,7 +27,7 @@ model user {
   pregnancyProgress         String?
   healthGoals               String?    // JSON string array
   notificationsEnabled      Boolean    @default(true)
-  updatedAt                 DateTime   @updatedAt
+  updatedAt                 DateTime   @default(now()) @updatedAt
 
   // Relations
   addresses                 Address[]

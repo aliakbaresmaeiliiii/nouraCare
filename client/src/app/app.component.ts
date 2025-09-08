@@ -1,17 +1,35 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
+import { Router } from '@angular/router';
 import { UserInfoService } from './shared/services/user-info.service';
+import { OnboardingStateService } from './shared/services/onboarding-state.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   imports: [IonApp, IonRouterOutlet],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   private userInfoService = inject(UserInfoService);
+  private onboardingStateService = inject(OnboardingStateService);
+  private router = inject(Router);
 
   constructor() {
     // Initialize user info service on app start
     this.userInfoService.loadUserInfoOnInit();
+  }
+
+  ngOnInit() {
+    // Check if user should be redirected based on authentication and onboarding status
+    this.handleInitialRouting();
+  }
+
+  private handleInitialRouting() {
+    // Check if user should be redirected based on authentication and onboarding status
+    if (this.onboardingStateService.isUserAuthenticated() && this.onboardingStateService.hasCompletedOnboarding()) {
+      // User is authenticated and has completed onboarding, go to home
+      this.router.navigate(['/tabs/home']);
+    }
+    // Otherwise, let the default routing handle it (which goes to onboarding)
   }
 }

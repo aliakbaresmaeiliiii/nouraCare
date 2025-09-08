@@ -7,17 +7,18 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() body: { email: string; phone: string }) {
-    if (!body.email || !body.phone) {
+  async register(@Body() registerDto: RegisterDto) {
+    if (!registerDto.email || !registerDto.phone) {
       throw new BadRequestException('Email and phone are required!');
     }
-    return this.authService.register(body.email, body.phone);
+    return this.authService.register(registerDto);
   }
 
   @Post('verify-email')

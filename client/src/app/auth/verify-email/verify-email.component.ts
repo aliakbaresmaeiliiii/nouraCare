@@ -17,6 +17,7 @@ import {
   interval,
   Subscription,
 } from 'rxjs';
+import { OnboardingStateService } from 'src/app/shared/services/onboarding-state.service';
 
 function otpRequiredLength(length: number) {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -52,7 +53,9 @@ export class VerifyEmailComponent implements OnInit {
     private fb: FormBuilder,
     private httpClient: HttpClient,
     private router: Router
-  ) {}
+  ) { }
+
+  private onboardingStateService = inject(OnboardingStateService);
 
   ngOnInit() {
     this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -114,10 +117,7 @@ export class VerifyEmailComponent implements OnInit {
           this.showToast = true;
           this.message = 'Email verified successfully!';
           this.success.set(true);
-          // Navigate after a short delay to show success message
-          setTimeout(() => {
-            this.router.navigate(['/tabs/home']);
-          }, 1500);
+          this.router.navigate(['/tabs/home']);
         } else {
           this.showToast = true;
           this.message = 'Invalid OTP, please try again.';
@@ -152,7 +152,12 @@ export class VerifyEmailComponent implements OnInit {
     };
     this.service.resendOtp(payload).subscribe((res) => {
       console.log('newCOde', res);
+      // Check if user has completed onboarding
+      if (this.onboardingStateService.hasCompletedOnboarding()) {
         this.router.navigate(['/tabs/home']);
+      } else {
+        this.router.navigate(['/onboarding']);
+      }
     });
   }
 }

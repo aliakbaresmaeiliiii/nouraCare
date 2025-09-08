@@ -9,29 +9,15 @@ import {
 import {
   FormBuilder,
   FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
+  Validators
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Subject } from 'rxjs';
+import { OnboardingStateService } from 'src/app/shared/services/onboarding-state.service';
+import { SharedModule } from 'src/app/shared/shared-module';
 import { AuthService } from '../services/auth';
 import { RegisterRequest } from './model/register-request-interface';
-import { 
-  IonContent, 
-  IonButton, 
-  IonIcon, 
-  IonToast, 
-  IonSpinner,
-  IonToggle,
-  IonToolbar,
-  IonHeader,
-  IonTitle,
-  IonButtons,
-  IonMenuButton
-} from '@ionic/angular/standalone';
-import { SharedModule } from 'src/app/shared/shared-module';
 
 @Component({
   selector: 'app-login',
@@ -70,6 +56,7 @@ export class LoginComponent {
   // matcher = new ErrorStateMatcher();
 
   service = inject(AuthService);
+  private onboardingStateService = inject(OnboardingStateService);
   selectedRole: string = '';
   private destroy$ = new Subject<void>();
   successCaptcha = signal<boolean>(false);
@@ -149,7 +136,10 @@ export class LoginComponent {
           this.message = 'Login successful!';
           this.success = true;
           this.showToast = true;
-          this.router.navigate(['/tabs']);
+          
+          // Check if user has completed onboarding
+            this.router.navigate(['/tabs/home']);
+          
           this.cdr.detectChanges();
         },
         error: (err) => {

@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import { UserInfoService, OnboardingData } from '../shared/services/user-info.service';
+import { OnboardingService, OnboardingDataDto } from '../shared/services/onboarding.service';
+import { OnboardingStateService } from '../shared/services/onboarding-state.service';
 import { SharedModule } from '../shared/shared-module';
 
 interface OnboardingStep {
@@ -31,10 +33,14 @@ export class OnboardingComponent implements OnInit {
   private alertController = inject(AlertController);
   private cycleSettings = inject(CycleSettingsService);
   private userInfoService = inject(UserInfoService);
+  private onboardingService = inject(OnboardingService);
+  private onboardingStateService = inject(OnboardingStateService);
 
   currentStep = 0;
   answers: { [key: string]: any } = {};
   isCompleted = false;
+  sessionId: string | null = null;
+  isSaving = false;
 
   steps: OnboardingStep[] = [
     {
@@ -163,6 +169,12 @@ export class OnboardingComponent implements OnInit {
       period_length: 5,
       notifications: 'yes'
     };
+    
+    // Check for existing session
+    this.sessionId = this.onboardingService.getSessionId();
+    if (this.sessionId) {
+      this.loadExistingOnboardingData();
+    }
   }
 
   get currentStepData(): OnboardingStep {
@@ -187,6 +199,8 @@ export class OnboardingComponent implements OnInit {
     if (this.canProceed) {
       if (this.currentStep < this.steps.length - 1) {
         this.currentStep++;
+        // Save progress after each step
+        this.saveOnboardingProgress();
       } else {
         this.completeOnboarding();
       }
@@ -207,34 +221,102 @@ export class OnboardingComponent implements OnInit {
     }
   }
 
+  /**
+   * Load existing onboarding data from session
+   */
+  private loadExistingOnboardingData() {
+    if (!this.sessionId) return;
+    
+    this.onboardingService.getOnboardingData(this.sessionId).subscribe({
+      next: (response) => {
+        console.log('Loaded existing onboarding data:', response);
+        if (response.data) {
+          this.answers = {
+            pregnancy_status: response.data.pregnancy_status,
+            last_period: response.data.last_period,
+            cycle_length: response.data.cycle_length,
+            period_length: response.data.period_length,
+            pregnancy_week: response.data.pregnancy_week,
+            health_goals: response.data.health_goals ? JSON.parse(response.data.health_goals) : [],
+            notifications: response.data.notifications
+          };
+        }
+      },
+      error: (error) => {
+        console.error('Error loading existing onboarding data:', error);
+        // Clear invalid session ID
+        this.onboardingService.clearSessionId();
+        this.sessionId = null;
+      }
+    });
+  }
+
+  /**
+   * Save onboarding progress to API
+   */
+  private saveOnboardingProgress() {
+    if (this.isSaving) return;
+    
+    this.isSaving = true;
+    
+    const onboardingData: OnboardingDataDto = {
+      pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
+      last_period: this.answers['last_period'] || null,
+      cycle_length: this.answers['cycle_length'] || 28,
+      period_length: this.answers['period_length'] || 5,
+      pregnancy_week: this.answers['pregnancy_week'] || undefined,
+      health_goals: JSON.stringify(this.answers['health_goals'] || []),
+      notifications: this.answers['notifications'] || 'yes'
+    };
+
+    this.onboardingService.saveOnboardingData(onboardingData).subscribe({
+      next: (response) => {
+        console.log('Onboarding data saved successfully:', response);
+        this.sessionId = response.sessionId;
+        this.onboardingService.saveSessionId(this.sessionId);
+        this.isSaving = false;
+      },
+      error: (error) => {
+        console.error('Error saving onboarding data:', error);
+        this.isSaving = false;
+        this.showErrorAlert('Failed to save your progress. Please try again.');
+      }
+    });
+  }
+
+  /**
+   * Complete onboarding and redirect to login for registration
+   */
   async completeOnboarding() {
     try {
-      // Save all answers to CycleSettingsService
+      // Save final onboarding data
+      this.saveOnboardingProgress();
+      
+      // Save to local services for immediate use
       this.saveAnswers();
       
-      // Save to UserInfoService
-      await this.saveToUserInfoService();
-      
-      // Show completion message
-      const alert = await this.alertController.create({
-        header: '🎉 Profile Setup Complete!',
-        message: 'Your profile has been set up successfully. Now let\'s get you signed in!',
-        buttons: [
-          {
-            text: 'Continue to Sign In',
-            handler: () => {
-              this.router.navigate(['/welcome']);
-            }
-          }
-        ]
-      });
-
-      await alert.present();
+      // Show completion screen directly
       this.isCompleted = true;
       
     } catch (error) {
       console.error('Error completing onboarding:', error);
+      this.showErrorAlert('An error occurred. Please try again.');
     }
+  }
+
+
+
+  /**
+   * Show error alert
+   */
+  private async showErrorAlert(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: message,
+      buttons: ['OK']
+    });
+
+    await alert.present();
   }
 
   private saveAnswers() {
@@ -272,36 +354,14 @@ export class OnboardingComponent implements OnInit {
     localStorage.setItem('onboarding_completed', 'true');
     localStorage.setItem('health_goals', JSON.stringify(this.answers['health_goals']));
     localStorage.setItem('notifications_enabled', this.answers['notifications'] === 'yes' ? 'true' : 'false');
+    
+    // Mark onboarding as completed for this user
+    this.onboardingStateService.markOnboardingCompleted();
   }
 
-  private async saveToUserInfoService() {
-    try {
-      const onboardingData: OnboardingData = {
-        pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
-        last_period: this.answers['last_period'] || null,
-        cycle_length: this.answers['cycle_length'] || 28,
-        period_length: this.answers['period_length'] || 5,
-        pregnancy_week: this.answers['pregnancy_week'] || undefined,
-        health_goals: JSON.stringify(this.answers['health_goals'] || []),
-        notifications: this.answers['notifications'] || 'yes'
-      };
-
-      console.log('Saving onboarding data to UserInfoService:', onboardingData);
-      
-      this.userInfoService.saveOnboardingData(onboardingData).subscribe({
-        next: (userInfo) => {
-          console.log('Onboarding data saved successfully to user info table:', userInfo);
-        },
-        error: (error) => {
-          console.error('Error saving onboarding data to user info table:', error);
-        }
-      });
-    } catch (error) {
-      console.error('Error preparing onboarding data for UserInfoService:', error);
-    }
-  }
 
   navigateToWelcome() {
-    this.router.navigate(['/welcome']);
+    // After completing onboarding, navigate to registration/sign-in
+    this.router.navigate(['/sign-in']);
   }
 }
