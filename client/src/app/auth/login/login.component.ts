@@ -102,13 +102,32 @@ export class LoginComponent {
       this.registerForm.markAllAsTouched();
       return;
     }
+
+    // Get onboarding data from localStorage if available
+    let onboardingData = null;
+    try {
+      const storedData = localStorage.getItem('onboarding_data');
+      if (storedData) {
+        onboardingData = JSON.parse(storedData);
+      }
+    } catch (error) {
+      console.error('Error parsing onboarding data:', error);
+    }
+
     const payload: RegisterRequest = {
       email: this.registerForm.value.email,
       phone: this.registerForm.value.phone,
     };
-    this.service.register(payload).subscribe({
+
+    this.service.register(payload, onboardingData).subscribe({
       next: (res) => {
         localStorage.setItem('userInfo', JSON.stringify(res));
+        
+        // Clear onboarding data after successful registration
+        if (onboardingData) {
+          localStorage.removeItem('onboarding_data');
+          localStorage.removeItem('onboarding_completed');
+        } 
 
         this.router.navigate(['verify-email']);
       },

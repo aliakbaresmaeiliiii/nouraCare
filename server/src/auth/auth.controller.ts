@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { OnboardingDataDto } from 'src/onboarding/dto/onboarding.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -18,7 +19,7 @@ export class AuthController {
     if (!registerDto.email || !registerDto.phone) {
       throw new BadRequestException('Email and phone are required!');
     }
-    return this.authService.register(registerDto);
+    return this.authService.register(registerDto, registerDto.onboardingData);
   }
 
   @Post('verify-email')

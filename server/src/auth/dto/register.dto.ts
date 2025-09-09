@@ -1,14 +1,7 @@
-import { IsEmail, IsString, IsOptional, IsInt, Min, Max, IsDate } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsInt, Min, Max, IsDate, IsBoolean, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class RegisterDto {
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  phone: string;
-
-  // Onboarding data fields (optional for backward compatibility)
+class OnboardingDataDto {
   @IsOptional()
   @IsString()
   pregnancy_status?: string;
@@ -42,9 +35,25 @@ export class RegisterDto {
 
   @IsOptional()
   @IsString()
-  health_goals?: string; // JSON string array
+  health_goals?: string;
+
+  @IsOptional()
+  notifications?: boolean | string;
+}
+
+export class RegisterDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  phone: string;
 
   @IsOptional()
   @IsString()
-  notifications?: string; // "yes" or "no"
+  sessionId?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => OnboardingDataDto)
+  onboardingData?: OnboardingDataDto;
 }

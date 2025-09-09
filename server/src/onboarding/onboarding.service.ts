@@ -47,6 +47,10 @@ export class OnboardingService {
     return session.data;
   }
 
+  async deleteTemporaryOnboardingData(sessionId: string) {
+    this.temporaryData.delete(sessionId);
+  }
+
   async completeOnboardingWithRegistration(sessionId: string, email: string, phone: string) {
     const session = this.temporaryData.get(sessionId);
     
@@ -130,10 +134,12 @@ export class OnboardingService {
     return statusMap[status.toLowerCase()] || status.toUpperCase();
   }
 
-  private mapNotifications(notifications: string): boolean | undefined {
-    if (!notifications) return undefined;
-    
-    return notifications.toLowerCase() === 'yes' || notifications.toLowerCase() === 'true';
+  private mapNotifications(notifications: boolean | string): boolean | undefined {
+    if (typeof notifications === 'boolean') return notifications;
+    if (typeof notifications === 'string') {
+      return notifications.toLowerCase() === 'yes' || notifications.toLowerCase() === 'true';
+    }
+    return undefined;
   }
 
   private generateSessionId(): string {

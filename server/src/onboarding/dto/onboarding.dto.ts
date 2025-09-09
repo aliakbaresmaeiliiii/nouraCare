@@ -39,8 +39,7 @@ export class OnboardingDataDto {
   health_goals?: string;
 
   @IsOptional()
-  @IsString()
-  notifications?: string;
+  notifications?: boolean | string;
 }
 
 export class CompleteOnboardingDto {

@@ -5,6 +5,7 @@ import { UserInfo } from '../login/model/uesr-interface';
 import { environment } from '../../../environments/environment';
 import { LoginRequest } from '../login/model/login-request-interface';
 import { RegisterRequest } from '../login/model/register-request-interface';
+import { OnboardingDataDto } from 'src/app/shared/services/onboarding.service';
 
 @Injectable({
   providedIn: 'root',
@@ -26,13 +27,14 @@ export class AuthService {
     return this.http.post<LoginRequest[]>(`${this.baseUrl}/sign-in`, data);
   }
 
-  register(data: RegisterRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, data);
+  register(data: RegisterRequest, onboardingData: OnboardingDataDto | null): Observable<any> {
+    // The register endpoint will receive the complete payload including onboarding data
+    return this.http.post(`${this.baseUrl}/register`, { ...data, onboardingData });
   }
 
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/forgot-password`, { email });
-  }
+      forgotPassword(email: string): Observable<any> {
+        return this.http.post(`${this.baseUrl}/forgot-password`, { email });
+      }
 
   resetPassword(token: string, password: string): Observable<any> {
     return this.http.post(`${this.baseUrl}/reset-password`, {

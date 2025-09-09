@@ -114,15 +114,15 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
       email: this.registerForm.value.email,
       phone: this.registerForm.value.phone,
     };
-    this.authService.register(payload).subscribe({
-      next: (res) => {
+    // this.authService.register(payload).subscribe({
+    //   next: (res) => {
 
-        this.router.navigate(['verify-email']);
-      },
-      error: (err) => {
-        console.error('Registration failed:', err);
-      },
-    });
+    //     this.router.navigate(['verify-email']);
+    //   },
+    //   error: (err) => {
+    //     console.error('Registration failed:', err);
+    //   },
+    // });
   }
   // Helper methods for validation
   isFieldInvalid(form: FormGroup, fieldName: string): boolean {

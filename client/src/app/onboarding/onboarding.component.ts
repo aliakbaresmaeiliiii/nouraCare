@@ -162,14 +162,13 @@ export class OnboardingComponent implements OnInit {
   ];
 
   ngOnInit() {
-    console.log('Onboarding component initialized');
     // Initialize with default values
     this.answers = {
       cycle_length: 28,
       period_length: 5,
       notifications: 'yes'
     };
-    
+
     // Check for existing session
     this.sessionId = this.onboardingService.getSessionId();
     if (this.sessionId) {
@@ -226,7 +225,7 @@ export class OnboardingComponent implements OnInit {
    */
   private loadExistingOnboardingData() {
     if (!this.sessionId) return;
-    
+
     this.onboardingService.getOnboardingData(this.sessionId).subscribe({
       next: (response) => {
         console.log('Loaded existing onboarding data:', response);
@@ -256,9 +255,9 @@ export class OnboardingComponent implements OnInit {
    */
   private saveOnboardingProgress() {
     if (this.isSaving) return;
-    
+
     this.isSaving = true;
-    
+
     const onboardingData: OnboardingDataDto = {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
       last_period: this.answers['last_period'] || null,
@@ -288,20 +287,21 @@ export class OnboardingComponent implements OnInit {
    * Complete onboarding and redirect to login for registration
    */
   async completeOnboarding() {
-    try {
-      // Save final onboarding data
-      this.saveOnboardingProgress();
-      
-      // Save to local services for immediate use
-      this.saveAnswers();
-      
-      // Show completion screen directly
-      this.isCompleted = true;
-      
-    } catch (error) {
-      console.error('Error completing onboarding:', error);
-      this.showErrorAlert('An error occurred. Please try again.');
-    }
+
+    // Save final onboarding data
+    this.saveOnboardingProgress();
+
+    // Save to local services for immediate use
+    this.saveAnswers();
+
+    // Show completion screen briefly, then navigate to register
+    this.isCompleted = true;
+    
+    // Navigate to register/sign-in page after a short delay
+    setTimeout(() => {
+      this.router.navigate(['/sign-in']);
+    }, 2000); // 2 second delay to show completion message
+
   }
 
 
@@ -323,7 +323,7 @@ export class OnboardingComponent implements OnInit {
     // Save basic cycle information
     this.cycleSettings.setCycleLength(this.answers['cycle_length'] || 28);
     this.cycleSettings.setPeriodLength(this.answers['period_length'] || 5);
-    
+
     if (this.answers['last_period']) {
       this.cycleSettings.setLastPeriodStart(this.answers['last_period']);
     }
@@ -334,7 +334,7 @@ export class OnboardingComponent implements OnInit {
       this.cycleSettings.setUserStatus('Pregnant');
       this.cycleSettings.setPregnancyStatus(true);
       this.cycleSettings.setPostpartumStatus(false);
-      
+
       if (this.answers['pregnancy_week']) {
         this.cycleSettings.setPregnancyWeek(this.answers['pregnancy_week']);
         const progress = (this.answers['pregnancy_week'] / 40) * 100;
@@ -355,6 +355,18 @@ export class OnboardingComponent implements OnInit {
     localStorage.setItem('health_goals', JSON.stringify(this.answers['health_goals']));
     localStorage.setItem('notifications_enabled', this.answers['notifications'] === 'yes' ? 'true' : 'false');
     
+    // Store complete onboarding data for registration
+    const onboardingData = {
+      pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
+      last_period: this.answers['last_period'] || null,
+      cycle_length: this.answers['cycle_length'] || 28,
+      period_length: this.answers['period_length'] || 5,
+      pregnancy_week: this.answers['pregnancy_week'] || undefined,
+      health_goals: JSON.stringify(this.answers['health_goals'] || []),
+      notifications: this.answers['notifications'] || 'yes'
+    };
+    localStorage.setItem('onboarding_data', JSON.stringify(onboardingData));
+
     // Mark onboarding as completed for this user
     this.onboardingStateService.markOnboardingCompleted();
   }

@@ -11,14 +11,19 @@ import { PrismaService } from '../prisma/services/prisma.service';
 import { EmailProvider } from './config/email';
 import { env } from './config/env';
 import { RegisterDto } from './dto/register.dto';
+import { OnboardingDataDto } from 'src/onboarding/dto/onboarding.dto';
 
 @Injectable()
 export class AuthService {
   private jwtSecret = env.JWT_SECRET;
-  constructor(private prisma: PrismaService) { }
 
-  async register(registerDto: RegisterDto) {
-    const { email, phone, ...onboardingData } = registerDto;
+  constructor(private prisma: PrismaService) {}
+
+  async register(registerDto: RegisterDto,directOnboardingData: OnboardingDataDto) {
+
+    const { email, phone, sessionId } = registerDto;
+    
+    console.log('Registration request:', { email, phone, sessionId, directOnboardingData });
     
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -29,7 +34,7 @@ export class AuthService {
     const expiry = new Date();
     expiry.setMinutes(expiry.getMilliseconds() + 3);
 
-    // Prepare user data with onboarding fields
+    // Prepare user data
     const userData: any = {
       email,
       phone,
@@ -38,7 +43,10 @@ export class AuthService {
       isVerified: false,
     };
 
-    // Add onboarding data if provided
+    // Use direct onboarding data (session-based registration will be handled separately)
+    const onboardingData = directOnboardingData;
+
+    // Add onboarding data if available
     if (onboardingData.pregnancy_status) {
       userData.status = this.mapPregnancyStatus(onboardingData.pregnancy_status);
     }
@@ -67,6 +75,8 @@ export class AuthService {
     await this.prisma.user.create({
       data: userData,
     });
+
+    // Note: Session-based registration will be handled by the onboarding complete endpoint
 
     const emailService = new SendMail(new EmailProvider());
     await emailService.sendAccountRegister(email, verificationCode);
@@ -165,9 +175,12 @@ export class AuthService {
     return statusMap[status] || 'PLANNING_PREGNANCY';
   }
 
-  private mapNotifications(notifications: string): boolean | undefined {
-    if (notifications === 'yes') return true;
-    if (notifications === 'no') return false;
+  private mapNotifications(notifications: boolean | string): boolean | undefined {
+    if (typeof notifications === 'boolean') return notifications;
+    if (typeof notifications === 'string') {
+      if (notifications.toLowerCase() === 'yes' || notifications.toLowerCase() === 'true') return true;
+      if (notifications.toLowerCase() === 'no' || notifications.toLowerCase() === 'false') return false;
+    }
     return undefined;
   }
 }

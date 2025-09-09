@@ -66,9 +66,22 @@ export class OnboardingStateService {
   private getCompletedUsers(): string[] {
     try {
       const completed = localStorage.getItem(this.ONBOARDING_COMPLETED_KEY);
-      return completed ? JSON.parse(completed) : [];
+      if (!completed) return [];
+      
+      const parsed = JSON.parse(completed);
+      // Ensure the parsed result is an array
+      if (Array.isArray(parsed)) {
+        return parsed;
+      } else {
+        // If it's not an array, clear the invalid data and return empty array
+        console.warn('Invalid completed users data found, clearing...');
+        localStorage.removeItem(this.ONBOARDING_COMPLETED_KEY);
+        return [];
+      }
     } catch (error) {
       console.error('Error getting completed users:', error);
+      // Clear any corrupted data
+      localStorage.removeItem(this.ONBOARDING_COMPLETED_KEY);
       return [];
     }
   }
