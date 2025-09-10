@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import Swiper from 'swiper';
@@ -6,6 +6,7 @@ import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-p
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
 import { MessageService } from '../shared/services/message.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import { BabyDevelopmentService } from '../shared/services/baby-development.service';
 import { SharedModule } from '../shared/shared-module';
 
 @Component({
@@ -17,6 +18,9 @@ import { SharedModule } from '../shared/shared-module';
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomeComponent implements OnInit, AfterViewInit {
+  private cycleSettings = inject(CycleSettingsService);
+  private babyDevelopmentService = inject(BabyDevelopmentService);
+  
   welcomeMessage: string = '';
   dailyMessage: string = '';
   userName: string = 'Ali'; // This would come from your user service
@@ -32,8 +36,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
   periodLength: number = 5;
   pregnancyWeek: number = 12;
   pregnancyProgress: number = 30; // percentage
-  babySize: string = 'Lime 🍋';
-  babyWeight: string = '45g';
+  
+  // Dynamic baby size data - now computed from service
+  get babySize(): string {
+    const currentBaby = this.babyDevelopmentService.getCurrentBabySize();
+    return currentBaby?.size || 'Lime 🍋';
+  }
+  
+  get babyWeight(): string {
+    const currentBaby = this.babyDevelopmentService.getCurrentBabySize();
+    return currentBaby?.weight || '45g';
+  }
+  
+  get babyDescription(): string {
+    const currentBaby = this.babyDevelopmentService.getCurrentBabySize();
+    return currentBaby?.description || 'Zesty lime size';
+  }
   
   // Pregnancy tracker properties
   pregnancyStartDate: string = '2024-01-01';
@@ -62,46 +80,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     { week: 12, recovery: 'Thriving', symptoms: ['Confidence Building', 'Routine Established'], tips: 'You\'re doing great! Keep going!' }
   ];
   
-  // Baby size data for different weeks
-  babySizeData: any[] = [
-    { week: 4, size: 'Poppy Seed 🌱', weight: '0.04g', description: 'Tiny as a poppy seed' },
-    { week: 5, size: 'Sesame Seed 🌱', weight: '0.1g', description: 'Small as a sesame seed' },
-    { week: 6, size: 'Lentil 🌱', weight: '0.2g', description: 'Size of a lentil' },
-    { week: 7, size: 'Blueberry 🫐', weight: '1g', description: 'Sweet as a blueberry' },
-    { week: 8, size: 'KidneyBean 🫘', weight: '3g', description: 'Shaped like a kidney bean' },
-    { week: 9, size: 'Grape 🍇', weight: '7g', description: 'Plump as a grape' },
-    { week: 10, size: 'Kumquat 🍊', weight: '14g', description: 'Citrusy kumquat size' },
-    { week: 11, size: 'Fig 🫒', weight: '25g', description: 'Sweet fig size' },
-    { week: 12, size: 'Lime 🍋', weight: '45g', description: 'Zesty lime size' },
-    { week: 13, size: 'Peach 🍑', weight: '70g', description: 'Soft peach size' },
-    { week: 14, size: 'Lemon 🍋', weight: '100g', description: 'Bright lemon size' },
-    { week: 15, size: 'Apple 🍎', weight: '150g', description: 'Crisp apple size' },
-    { week: 16, size: 'Avocado 🥑', weight: '200g', description: 'Creamy avocado size' },
-    { week: 17, size: 'Pear 🍐', weight: '250g', description: 'Sweet pear size' },
-    { week: 18, size: 'BellPepper 🫑', weight: '300g', description: 'Colorful bell pepper' },
-    { week: 19, size: 'Mango 🥭', weight: '400g', description: 'Tropical mango size' },
-    { week: 20, size: 'Banana 🍌', weight: '500g', description: 'Banana length' },
-    { week: 21, size: 'Carrot 🥕', weight: '600g', description: 'Carrot length' },
-    { week: 22, size: 'Coconut 🥥', weight: '700g', description: 'Coconut size' },
-    { week: 23, size: 'Grapefruit 🍊', weight: '800g', description: 'Grapefruit size' },
-    { week: 24, size: 'Corn 🌽', weight: '900g', description: 'Corn cob length' },
-    { week: 25, size: 'Cauliflower 🥦', weight: '1kg', description: 'Cauliflower size' },
-    { week: 26, size: 'Lettuce 🥬', weight: '1.2kg', description: 'Lettuce head size' },
-    { week: 27, size: 'Broccoli 🥦', weight: '1.4kg', description: 'Broccoli size' },
-    { week: 28, size: 'Eggplant 🍆', weight: '1.6kg', description: 'Eggplant size' },
-    { week: 29, size: 'ButternutSquash 🎃', weight: '1.8kg', description: 'Squash size' },
-    { week: 30, size: 'Cabbage 🥬', weight: '2kg', description: 'Cabbage size' },
-    { week: 31, size: 'Pineapple 🍍', weight: '2.2kg', description: 'Pineapple size' },
-    { week: 32, size: 'Squash 🎃', weight: '2.4kg', description: 'Large squash' },
-    { week: 33, size: 'HoneydewMelon 🍈', weight: '2.6kg', description: 'Melon size' },
-    { week: 34, size: 'Cantaloupe 🍈', weight: '2.8kg', description: 'Cantaloupe size' },
-    { week: 35, size: 'Honeydew 🍈', weight: '3kg', description: 'Honeydew melon' },
-    { week: 36, size: 'RomaineLettuce 🥬', weight: '3.2kg', description: 'Romaine size' },
-    { week: 37, size: 'SwissChard 🥬', weight: '3.4kg', description: 'Swiss chard size' },
-    { week: 38, size: 'Leek 🧅', weight: '3.6kg', description: 'Leek length' },
-    { week: 39, size: 'MiniWatermelon 🍉', weight: '3.8kg', description: 'Mini watermelon' },
-    { week: 40, size: 'Watermelon 🍉', weight: '4kg', description: 'Full watermelon size' }
-  ];
+  // Baby size data is now managed by BabyDevelopmentService
+  // Access via: this.babyDevelopmentService.getAllBabySizeData()
   
   // Quick Stats
   cycleDay: number = 14;
@@ -132,7 +112,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private toastController: ToastController,
     private modalController: ModalController,
     private messageService: MessageService,
-    private cycleSettings: CycleSettingsService
   ) { }
 
   ngAfterViewInit() {
@@ -178,6 +157,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.generateMessages();
     this.loadPersistedData();
+    this.checkOnboardingStatus();
+    
+    // Debug: Log current status
+    console.log('🔍 ngOnInit - Current status:', {
+      userStatus: this.userStatus,
+      isPregnant: this.isPregnant,
+      isPostpartum: this.isPostpartum,
+      pregnancyWeek: this.pregnancyWeek
+    });
     
     // Onboarding is now handled before reaching this component
   }
@@ -204,6 +192,91 @@ export class HomeComponent implements OnInit, AfterViewInit {
     
     // Load cycle settings
     this.periodLength = this.cycleSettings.periodLength();
+    
+    // Baby development data is automatically loaded by the service
+    // and will be computed based on the current pregnancy week
+    console.log('Current pregnancy week:', this.pregnancyWeek);
+    console.log('Current baby size:', this.babySize);
+  }
+
+  /**
+   * Check if user has completed onboarding and set appropriate status
+   */
+  private checkOnboardingStatus() {
+    const onboardingCompleted = localStorage.getItem('onboarding_completed');
+    const onboardingData = localStorage.getItem('onboarding_data');
+    
+    if (onboardingCompleted === 'true' && onboardingData) {
+      try {
+        const data = JSON.parse(onboardingData);
+        console.log('Onboarding data found:', data);
+        
+        // Update user status based on onboarding data
+        if (data.pregnancy_status === 'pregnant') {
+          this.userStatus = 'Pregnant';
+          this.isPregnant = true;
+          this.isPostpartum = false;
+          
+          // Set pregnancy week if provided
+          if (data.pregnancy_week) {
+            this.pregnancyWeek = data.pregnancy_week;
+            this.pregnancyProgress = (data.pregnancy_week / 40) * 100;
+            this.cycleSettings.setPregnancyWeek(data.pregnancy_week);
+            this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
+          }
+          
+          // Update cycle settings
+          this.cycleSettings.setUserStatus('Pregnant');
+          this.cycleSettings.setPregnancyStatus(true);
+          this.cycleSettings.setPostpartumStatus(false);
+          
+        } else if (data.pregnancy_status === 'postpartum') {
+          this.userStatus = 'Postpartum';
+          this.isPregnant = false;
+          this.isPostpartum = true;
+          
+          // Update cycle settings
+          this.cycleSettings.setUserStatus('Postpartum');
+          this.cycleSettings.setPregnancyStatus(false);
+          this.cycleSettings.setPostpartumStatus(true);
+          
+        } else {
+          // Trying to conceive or tracking
+          this.userStatus = 'Trying to Conceive';
+          this.isPregnant = false;
+          this.isPostpartum = false;
+          
+          // Update cycle settings
+          this.cycleSettings.setUserStatus('Trying to Conceive');
+          this.cycleSettings.setPregnancyStatus(false);
+          this.cycleSettings.setPostpartumStatus(false);
+        }
+        
+        // Set cycle data if provided
+        if (data.cycle_length) {
+          this.cycleSettings.setCycleLength(data.cycle_length);
+        }
+        if (data.period_length) {
+          this.cycleSettings.setPeriodLength(data.period_length);
+        }
+        if (data.last_period) {
+          this.cycleSettings.setLastPeriodStart(data.last_period);
+          this.periodStartDate = new Date(data.last_period);
+          this.updateCycleDay();
+        }
+        
+        console.log('User status updated from onboarding:', this.userStatus);
+        console.log('Is pregnant:', this.isPregnant);
+        console.log('Is postpartum:', this.isPostpartum);
+        console.log('Pregnancy week:', this.pregnancyWeek);
+        console.log('Current baby size:', this.babySize);
+        
+      } catch (error) {
+        console.error('Error parsing onboarding data:', error);
+      }
+    } else {
+      console.log('No onboarding data found, using default state');
+    }
   }
 
   /**
@@ -218,6 +291,147 @@ export class HomeComponent implements OnInit, AfterViewInit {
     
     // You can also generate pregnancy-specific messages if needed
     // this.dailyMessage = this.messageService.generatePregnancyDailyMessage(28);
+  }
+
+  /**
+   * Refresh the display based on current user status
+   */
+  refreshDisplay() {
+    this.loadPersistedData();
+    this.checkOnboardingStatus();
+    console.log('Display refreshed - Status:', this.userStatus, 'Pregnant:', this.isPregnant);
+  }
+
+  /**
+   * Test method to debug button clicks
+   */
+  testButtonClick() {
+    console.log('🔍 TEST BUTTON CLICKED!');
+    console.log('🔍 Current status:', {
+      userStatus: this.userStatus,
+      isPregnant: this.isPregnant,
+      isPostpartum: this.isPostpartum
+    });
+    this.showToast('Test button clicked!', 'success');
+  }
+
+  /**
+   * Get baby development facts for specific week
+   */
+  getBabyDevelopmentFacts(week: number): string {
+    const facts: { [key: number]: string } = {
+      4: "Your baby is just a tiny ball of cells called a blastocyst, but the foundation for everything is being laid!",
+      5: "The heart is beginning to form and will start beating soon. The neural tube (which becomes the brain and spinal cord) is developing.",
+      6: "Your baby's heart is now beating! The eyes, ears, and mouth are starting to form. The baby is about the size of a lentil.",
+      7: "The baby's arms and legs are beginning to form as tiny buds. The brain is developing rapidly with 100 new brain cells every minute!",
+      8: "Fingers and toes are starting to form! The baby's facial features are becoming more defined. The tail is disappearing.",
+      9: "All major organs are in place and starting to function. The baby can now move, though you won't feel it yet.",
+      10: "The baby's bones are starting to harden. The baby can now make a fist and has individual fingers and toes.",
+      11: "The baby is starting to look more human! The head is about half the size of the body. The baby can now swallow and make breathing movements.",
+      12: "The baby's reflexes are developing. The baby can now make facial expressions and may even suck their thumb!",
+      13: "The baby's vocal cords are developing. The baby can now hear sounds from outside the womb.",
+      14: "The baby's fingerprints are forming! The baby can now make facial expressions and may even smile.",
+      15: "The baby's bones are getting stronger. The baby can now make coordinated movements and may even kick!",
+      16: "The baby's eyes can now move and detect light. The baby's taste buds are developing.",
+      17: "The baby's hearing is improving. The baby can now hear your heartbeat and voice!",
+      18: "The baby's movements are becoming more coordinated. The baby can now yawn and hiccup.",
+      19: "The baby's brain is developing rapidly. The baby can now respond to touch and may even grab the umbilical cord.",
+      20: "The baby is halfway through pregnancy! The baby can now hear and respond to sounds from outside the womb.",
+      21: "The baby's digestive system is developing. The baby can now taste the amniotic fluid.",
+      22: "The baby's sense of touch is developing. The baby can now feel when you touch your belly.",
+      23: "The baby's lungs are developing rapidly. The baby can now make breathing movements.",
+      24: "The baby's eyes are fully formed and can now open and close. The baby can see light filtering through the womb.",
+      25: "The baby's brain is developing rapidly. The baby can now dream and have sleep cycles.",
+      26: "The baby's lungs are producing surfactant, which helps them breathe after birth.",
+      27: "The baby's immune system is developing. The baby can now respond to your voice and may even recognize it.",
+      28: "The baby's eyes can now focus and track light. The baby can now distinguish between different sounds.",
+      29: "The baby's bones are fully formed but still soft. The baby can now make coordinated movements.",
+      30: "The baby's brain is developing rapidly. The baby can now learn and remember sounds from outside the womb.",
+      31: "The baby's lungs are almost fully developed. The baby can now practice breathing movements.",
+      32: "The baby's skin is becoming less transparent. The baby can now make facial expressions.",
+      33: "The baby's immune system is getting stronger. The baby can now respond to your touch.",
+      34: "The baby's lungs are fully developed. The baby can now breathe on their own if born early.",
+      35: "The baby's brain is developing rapidly. The baby can now learn and remember patterns.",
+      36: "The baby's head is now in position for birth. The baby can now make coordinated movements.",
+      37: "The baby is considered full-term! The baby can now survive outside the womb with minimal support.",
+      38: "The baby's brain is developing rapidly. The baby can now learn and remember sounds.",
+      39: "The baby's lungs are fully developed. The baby can now breathe on their own.",
+      40: "The baby is ready to be born! The baby can now survive outside the womb with full support."
+    };
+
+    return facts[week] || "Your baby is growing and developing beautifully! Each week brings new milestones and amazing changes.";
+  }
+
+  /**
+   * Get fun facts about baby development
+   */
+  getFunFacts(week: number): string {
+    const funFacts: { [key: number]: string } = {
+      4: "At this stage, your baby is smaller than a grain of rice!",
+      5: "Your baby's heart will beat about 100,000 times a day!",
+      6: "Your baby's heart beats twice as fast as yours!",
+      7: "Your baby is developing at an incredible rate - about 1 million new cells every minute!",
+      8: "Your baby's fingerprints are already forming and will be unique!",
+      9: "Your baby can now make tiny movements, though you won't feel them yet!",
+      10: "Your baby's brain is growing at an amazing rate - about 250,000 new neurons every minute!",
+      11: "Your baby can now swallow and may even suck their thumb!",
+      12: "Your baby's reflexes are developing - they can now make a fist!",
+      13: "Your baby can now hear sounds from outside the womb!",
+      14: "Your baby's fingerprints are fully formed and unique!",
+      15: "Your baby can now make facial expressions and may even smile!",
+      16: "Your baby's taste buds are developing and can taste the amniotic fluid!",
+      17: "Your baby can now hear your heartbeat and voice!",
+      18: "Your baby can now yawn and hiccup!",
+      19: "Your baby can now respond to touch and may even grab the umbilical cord!",
+      20: "Your baby is halfway through pregnancy and can now hear and respond to sounds!",
+      21: "Your baby can now taste the amniotic fluid and may have food preferences!",
+      22: "Your baby can now feel when you touch your belly!",
+      23: "Your baby can now make breathing movements!",
+      24: "Your baby's eyes can now open and close and can see light!",
+      25: "Your baby can now dream and have sleep cycles!",
+      26: "Your baby can now respond to your voice and may even recognize it!",
+      27: "Your baby can now distinguish between different sounds!",
+      28: "Your baby can now focus and track light!",
+      29: "Your baby can now make coordinated movements!",
+      30: "Your baby can now learn and remember sounds from outside the womb!",
+      31: "Your baby can now practice breathing movements!",
+      32: "Your baby can now make facial expressions!",
+      33: "Your baby can now respond to your touch!",
+      34: "Your baby can now breathe on their own if born early!",
+      35: "Your baby can now learn and remember patterns!",
+      36: "Your baby can now make coordinated movements!",
+      37: "Your baby is considered full-term and can survive outside the womb!",
+      38: "Your baby can now learn and remember sounds!",
+      39: "Your baby can now breathe on their own!",
+      40: "Your baby is ready to be born and can survive outside the womb!"
+    };
+
+    return funFacts[week] || "Your baby is growing and developing beautifully! Each week brings new milestones and amazing changes.";
+  }
+
+  /**
+   * Update onboarding data in localStorage
+   */
+  private updateOnboardingData(newStatus: string, pregnancyWeek?: number) {
+    try {
+      const onboardingData = localStorage.getItem('onboarding_data');
+      if (onboardingData) {
+        const data = JSON.parse(onboardingData);
+        data.pregnancy_status = newStatus;
+        
+        // Update pregnancy-specific data
+        if (newStatus === 'pregnant' && pregnancyWeek) {
+          data.pregnancy_week = pregnancyWeek;
+        } else if (newStatus !== 'pregnant') {
+          delete data.pregnancy_week;
+        }
+        
+        localStorage.setItem('onboarding_data', JSON.stringify(data));
+        console.log('Onboarding data updated:', data);
+      }
+    } catch (error) {
+      console.error('Error updating onboarding data:', error);
+    }
   }
 
   /**
@@ -369,27 +583,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
   // Pregnancy Progress
   viewPregnancyDetails() {
     this.router.navigate(['/tabs/school']);
-    this.showToast('Opening pregnancy week details...');
+    this.showToast('Opening baby development details...');
   }
 
   // Get current baby size data
   getCurrentBabySize() {
-    const currentData = this.babySizeData.find(data => data.week === this.pregnancyWeek);
+    const currentData = this.babyDevelopmentService.getAllBabySizeData().find(data => data.week === this.pregnancyWeek);
     if (currentData) {
-      this.babySize = currentData.size;
-      this.babyWeight = currentData.weight;
       return currentData;
     }
-    return this.babySizeData[8]; // Default to week 12 (lime)
+    return this.babyDevelopmentService.getAllBabySizeData()[8]; // Default to week 12 (lime)
   }
 
   // Update pregnancy week and recalculate progress
   updatePregnancyWeek(week: number) {
     this.pregnancyWeek = week;
     this.pregnancyProgress = (week / 40) * 100;
-    const babyData = this.getCurrentBabySize();
-    this.babySize = babyData.size;
-    this.babyWeight = babyData.weight;
+    // Baby size data is now automatically computed via getters
   }
 
   // Get baby length based on week
@@ -620,11 +830,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // Quick Actions with proper functionality
   async onActionClick(action: string) {
+    console.log('🔍 onActionClick called with action:', action, 'isPregnant:', this.isPregnant);
+    
     switch(action) {
       case 'pregnant':
+        console.log('🔍 Pregnant case triggered');
         if (this.isPregnant) {
+          console.log('🔍 User is pregnant, showing not pregnant dialog');
           await this.handleNotPregnantUpdate();
         } else {
+          console.log('🔍 User is not pregnant, showing pregnancy dialog');
           await this.handlePregnancyUpdate();
         }
         break;
@@ -648,6 +863,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // Handle "I became pregnant" action
   async handlePregnancyUpdate() {
+    console.log('🔍 handlePregnancyUpdate called');
+    
     const alert = await this.alertController.create({
       header: '🎉 Congratulations!',
       message: 'This is wonderful news! Let\'s update your status and guide you through the next steps.',
@@ -660,17 +877,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
         {
           text: 'Update Status',
           handler: async () => {
+            console.log('🔍 User clicked Update Status');
             await this.updatePregnancyStatus();
           }
         }
       ]
     });
 
+    console.log('🔍 Presenting alert dialog');
     await alert.present();
   }
 
   // Handle "I'm not pregnant anymore" action
   async handleNotPregnantUpdate() {
+    console.log('handleNotPregnantUpdate called - Current status:', this.userStatus, 'isPregnant:', this.isPregnant);
+    
     const alert = await this.alertController.create({
       header: 'Update Status',
       message: 'Are you sure you want to change your status back to "Trying to Conceive"?',
@@ -683,6 +904,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         {
           text: 'Update Status',
           handler: async () => {
+            console.log('User confirmed status update');
             await this.updateNotPregnantStatus();
           }
         }
@@ -700,10 +922,22 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.isPregnant = false;
       this.isPostpartum = false;
       
+      // Reset pregnancy-related data
+      this.pregnancyWeek = 0;
+      this.pregnancyProgress = 0;
+      
       // Save to persistent storage
       this.cycleSettings.setUserStatus('Trying to Conceive');
       this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(false);
+      this.cycleSettings.setPregnancyWeek(0);
+      this.cycleSettings.setPregnancyProgress(0);
+      
+      // Update onboarding data in localStorage
+      this.updateOnboardingData('trying');
+      
+      // Refresh the display to show cycle tracking
+      this.refreshDisplay();
       
       const successAlert = await this.alertController.create({
         header: '✅ Status Updated!',
@@ -717,6 +951,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
       });
 
       await successAlert.present();
+      
+      // Show success toast
+      this.showToast('Status updated successfully! You can now track your cycle.', 'success');
+      
     } catch (error) {
       console.error('Error updating status:', error);
       this.showToast('Error updating status. Please try again.', 'danger');
@@ -725,45 +963,60 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   // Update pregnancy status
   async updatePregnancyStatus() {
+    console.log('🔍 updatePregnancyStatus called');
     try {
-      // First ask for last period date to calculate pregnancy week
-      const lmpAlert = await this.alertController.create({
-        header: '🤰 Last Period Date',
-        message: 'Please enter the date of your last menstrual period (LMP) to calculate your current pregnancy week.',
-        inputs: [
-          {
-            name: 'lastPeriod',
-            type: 'date',
-            placeholder: 'Last menstrual period date',
-            label: 'LMP Date'
-          }
-        ],
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel'
-          },
-          {
-            text: 'Calculate & Update',
-            handler: async (data) => {
-              if (data.lastPeriod) {
-                await this.calculateAndUpdatePregnancyStatus(data.lastPeriod);
-              } else {
-                this.showToast('Please enter your last period date', 'warning');
+      // Check if we have last period date from onboarding
+      const lastPeriodFromOnboarding = this.cycleSettings.lastPeriodStartDate();
+      console.log('🔍 lastPeriodFromOnboarding:', lastPeriodFromOnboarding);
+      debugger;
+      
+      if (lastPeriodFromOnboarding) {
+        // Use onboarding data to automatically calculate pregnancy week
+        console.log('🔍 Using last period date from onboarding:', lastPeriodFromOnboarding);
+        await this.calculateAndUpdatePregnancyStatus(lastPeriodFromOnboarding);
+      } else {
+        console.log('🔍 No onboarding data, showing date picker');
+        // Ask for last period date if not available from onboarding
+        const lmpAlert = await this.alertController.create({
+          header: '🤰 Last Period Date',
+          message: 'Please enter the date of your last menstrual period (LMP) to calculate your current pregnancy week.',
+          inputs: [
+            {
+              name: 'lastPeriod',
+              type: 'date',
+              placeholder: 'Last menstrual period date',
+              label: 'LMP Date'
+            }
+          ],
+          buttons: [
+            {
+              text: 'Cancel',
+              role: 'cancel'
+            },
+            {
+              text: 'Calculate & Update',
+              handler: async (data) => {
+                if (data.lastPeriod) {
+                  await this.calculateAndUpdatePregnancyStatus(data.lastPeriod);
+                } else {
+                  this.showToast('Please enter your last period date', 'warning');
+                }
               }
             }
-          }
-        ]
-      });
+          ]
+        });
 
-      await lmpAlert.present();
+        await lmpAlert.present();
+      }
     } catch (error) {
+      console.error('Error in updatePregnancyStatus:', error);
       await this.showToast('Failed to update status. Please try again.', 'danger');
     }
   }
 
   // Calculate pregnancy week and update status
   private async calculateAndUpdatePregnancyStatus(lastPeriod: string) {
+    debugger;
     try {
       // Calculate pregnancy week based on LMP
       const lmpDate = new Date(lastPeriod);
@@ -793,10 +1046,20 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.cycleSettings.setPregnancyWeek(pregnancyWeek);
       this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
       
+      // Update onboarding data in localStorage
+      this.updateOnboardingData('pregnant', pregnancyWeek);
+      
+      // Refresh the display to show pregnancy progress
+      this.refreshDisplay();
+      
+      // Get current baby size for display
+      const currentBaby = this.babyDevelopmentService.getCurrentBabySize();
+      const babySizeText = currentBaby ? currentBaby.size : 'Unknown';
+      
       // Show results
       const successAlert = await this.alertController.create({
         header: '🎉 Congratulations!',
-        message: `You are currently in week ${pregnancyWeek} of your pregnancy!\n\nYour pregnancy progress has been updated and you can now track your journey.`,
+        message: `You are currently in week ${pregnancyWeek} of your pregnancy!\n\nYour baby is the size of a ${babySizeText}.\n\nYour pregnancy progress has been updated and you can now track your journey.`,
         buttons: [
           {
             text: 'View Pregnancy Progress',
@@ -1450,11 +1713,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
   
   updateBabySize() {
-    const babyData = this.babySizeData.find(data => data.week === this.pregnancyWeek);
-    if (babyData) {
-      this.babySize = babyData.size;
-      this.babyWeight = babyData.weight;
-    }
+    // Baby size data is now automatically computed via getters
+    // No need to manually update as it's reactive to pregnancyWeek changes
   }
   
   // Utility method to show toast messages

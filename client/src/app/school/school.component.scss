@@ -1,14 +1,23 @@
-// School Page Styles
-.school-content {
+// Baby Development Page Styles
+.baby-development-content {
   --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
 }
 
+.not-pregnant-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 // Hero Section
-.school-hero {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  backdrop-filter: blur(10px);
+.hero-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
   border-radius: 0 0 30px 30px;
   padding: 40px 20px 60px;
   margin-bottom: 20px;
@@ -26,688 +35,442 @@
     pointer-events: none;
   }
 
-  .hero-content {
-    text-align: center;
+  .week-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
     position: relative;
     z-index: 2;
+
+    ion-button {
+      --color: white;
+      --background: rgba(255, 255, 255, 0.2);
+      --border-radius: 50%;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      --padding-top: 12px;
+      --padding-bottom: 12px;
+      width: 48px;
+      height: 48px;
+      transition: all 0.3s ease;
+
+      &:hover:not([disabled]) {
+        --background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+      }
+
+      &[disabled] {
+        --color: rgba(255, 255, 255, 0.3);
+        --background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .week-info {
+      text-align: center;
+
+      .week-number {
+        color: white;
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        letter-spacing: -1px;
+      }
+
+      .week-label {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        margin: 0;
+        font-weight: 400;
+        text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+}
+
+// Baby Size Card
+.baby-size-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 25px;
+  padding: 30px;
+  margin: 0 20px 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+    pointer-events: none;
   }
 
-  .hero-title {
-    color: white;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin: 0 0 10px 0;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    letter-spacing: -0.5px;
+  .size-display {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 25px;
+
+    .size-icon {
+      font-size: 4rem;
+      margin-bottom: 15px;
+      display: block;
+      animation: bounce 2s infinite;
+    }
+
+    .size-name {
+      color: white;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .size-description {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+      margin: 0;
+      font-weight: 400;
+      line-height: 1.4;
+    }
   }
 
-  .hero-subtitle {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.1rem;
-    margin: 0 0 30px 0;
-    font-weight: 400;
-    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-  }
-
-  .hero-stats {
+  .size-details {
     display: flex;
     justify-content: space-around;
     gap: 20px;
-    margin-top: 30px;
+    position: relative;
+    z-index: 2;
 
-    .stat {
-      text-align: center;
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 15px;
+      flex: 1;
 
-      .stat-number {
-        display: block;
-        color: white;
+      ion-icon {
+        color: #feca57;
         font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 5px;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       }
 
-      .stat-label {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-        font-weight: 400;
+      .detail-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        .detail-label {
+          color: rgba(255, 255, 255, 0.7);
+          font-size: 0.9rem;
+          font-weight: 500;
+          margin-bottom: 2px;
+        }
+
+        .detail-value {
+          color: white;
+          font-size: 1.1rem;
+          font-weight: 600;
+        }
       }
     }
   }
 }
 
-// Section Titles
-.section-title {
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 30px 20px 20px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  position: relative;
+// Development Section
+.development-section {
+  margin: 0 20px 25px;
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 40px;
-    height: 3px;
-    background: linear-gradient(90deg, #ff6b6b, #feca57);
-    border-radius: 2px;
-  }
-}
-
-// Progress Section
-.progress-section {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 25px;
-  margin: 0 20px 30px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-
-  .progress-header {
+  .section-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-
-    .section-title {
-      margin: 0;
-      font-size: 1.3rem;
-
-      &::after {
-        display: none;
-      }
-    }
-
-    .progress-stats {
-      text-align: right;
-
-      .completed {
-        color: #4caf50;
-        font-size: 1.5rem;
-        font-weight: 700;
-      }
-
-      .total {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 1.2rem;
-        font-weight: 500;
-      }
-
-      .label {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-        display: block;
-        margin-top: 5px;
-      }
-    }
-  }
-
-  .progress-bar {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
-    height: 12px;
-    overflow: hidden;
+    gap: 10px;
     margin-bottom: 15px;
 
-    .progress-fill {
-      background: linear-gradient(90deg, #4caf50, #45a049);
-      height: 100%;
-      border-radius: 15px;
-      transition: width 0.5s ease;
-      position: relative;
+    ion-icon {
+      color: #4caf50;
+      font-size: 1.5rem;
+    }
 
-      &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        animation: shimmer 2s infinite;
-      }
+    h3 {
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
   }
 
-  .progress-text {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1rem;
-    font-weight: 500;
-    margin: 0;
-    text-align: center;
-  }
-}
-
-// Featured Courses
-.featured-courses {
-  padding: 0 20px 30px;
-
-  .course-card {
+  .fact-card {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(15px);
     border-radius: 20px;
-    overflow: hidden;
+    padding: 20px;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-    transition: all 0.3s ease;
-    cursor: pointer;
+    border-left: 4px solid #4caf50;
 
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    &.featured {
-      border: 2px solid #feca57;
-    }
-
-    .course-badge {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: linear-gradient(135deg, #feca57, #ffb300);
+    .fact-text {
       color: white;
-      padding: 5px 12px;
-      border-radius: 15px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      z-index: 2;
-    }
-
-    .course-image {
-      height: 200px;
-      overflow: hidden;
-      position: relative;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-      }
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.3));
-      }
-    }
-
-    .course-content {
-      padding: 20px;
-
-      .course-title {
-        color: white;
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin: 0 0 10px 0;
-      }
-
-      .course-description {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.95rem;
-        margin: 0 0 15px 0;
-        line-height: 1.4;
-      }
-
-      .course-meta {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-
-        span {
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 0.85rem;
-          font-weight: 500;
-        }
-
-        .level {
-          background: rgba(255, 255, 255, 0.2);
-          padding: 3px 8px;
-          border-radius: 10px;
-          color: white;
-        }
-      }
-
-      .enroll-btn {
-        --background: linear-gradient(135deg, #4caf50, #45a049);
-        --color: white;
-        --border-radius: 15px;
-        --padding-start: 20px;
-        --padding-end: 20px;
-        --padding-top: 12px;
-        --padding-bottom: 12px;
-        font-weight: 600;
-        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-      }
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0;
+      font-weight: 400;
     }
   }
 }
 
-// Course Categories
-.course-categories {
-  padding: 0 20px 30px;
+// Fun Facts Section
+.fun-facts-section {
+  margin: 0 20px 25px;
 
-  .category-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+
+    ion-icon {
+      color: #feca57;
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
   }
 
-  .category-card {
+  .fact-card.fun {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 4px solid #feca57;
+
+    .fact-text {
+      color: white;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0;
+      font-weight: 400;
+    }
+  }
+}
+
+// Timeline Section
+.timeline-section {
+  margin: 0 20px 25px;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+
+    ion-icon {
+      color: #ff6b6b;
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 0;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .timeline-card {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(15px);
     border-radius: 20px;
     padding: 25px;
-    text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    cursor: pointer;
 
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .category-icon {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, #ff6b6b, #feca57);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 15px;
-
-      ion-icon {
-        color: white;
-        font-size: 1.8rem;
-      }
-    }
-
-    .category-name {
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-    }
-
-    .category-count {
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 0.9rem;
-      margin: 0;
-    }
-  }
-}
-
-// Popular Courses
-.popular-courses {
-  padding: 0 20px 30px;
-
-  .course-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .course-item {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .course-thumbnail {
-      width: 80px;
-      height: 80px;
+    .progress-bar {
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 15px;
+      height: 12px;
       overflow: hidden;
-      flex-shrink: 0;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-
-    .course-info {
-      flex: 1;
-
-      .course-name {
-        color: white;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0 0 5px 0;
-      }
-
-      .course-instructor {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-        margin: 0 0 8px 0;
-      }
-
-      .course-rating {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-
-        .stars {
-          color: #feca57;
-          font-size: 0.9rem;
-        }
-
-        .rating-text {
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 0.8rem;
-        }
-      }
-
-      .course-details {
-        display: flex;
-        gap: 15px;
-
-        span {
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 0.8rem;
-        }
-
-        .price {
-          color: #4caf50;
-          font-weight: 600;
-        }
-      }
-    }
-
-    ion-button {
-      --background: linear-gradient(135deg, #4caf50, #45a049);
-      --color: white;
-      --border-radius: 12px;
-      --padding-start: 15px;
-      --padding-end: 15px;
-      --padding-top: 8px;
-      --padding-bottom: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
-      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-    }
-  }
-}
-
-// Learning Paths
-.learning-paths {
-  padding: 0 20px 30px;
-
-  .path-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .path-header {
-      display: flex;
-      align-items: center;
-      gap: 15px;
       margin-bottom: 15px;
+      position: relative;
 
-      .path-icon {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+      .progress-fill {
+        background: linear-gradient(90deg, #ff6b6b, #feca57);
+        height: 100%;
         border-radius: 15px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+        transition: width 0.5s ease;
+        position: relative;
 
-        ion-icon {
-          color: white;
-          font-size: 1.5rem;
-        }
-      }
-
-      .path-info {
-        flex: 1;
-
-        .path-name {
-          color: white;
-          font-size: 1.2rem;
-          font-weight: 600;
-          margin: 0 0 5px 0;
-        }
-
-        .path-description {
-          color: rgba(255, 255, 255, 0.8);
-          font-size: 0.9rem;
-          margin: 0;
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+          animation: shimmer 2s infinite;
         }
       }
     }
 
-    .path-progress {
+    .progress-labels {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 10px;
 
-      .path-stats {
-        .completed-courses {
-          color: #4caf50;
-          font-size: 1.1rem;
-          font-weight: 700;
-        }
-
-        .total-courses {
-          color: rgba(255, 255, 255, 0.7);
-          font-size: 0.9rem;
-          margin-left: 5px;
-        }
+      .current-week {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 700;
       }
 
-      ion-button {
-        --background: linear-gradient(135deg, #ff6b6b, #feca57);
-        --color: white;
-        --border-radius: 12px;
-        --padding-start: 15px;
-        --padding-end: 15px;
-        --padding-top: 8px;
-        --padding-bottom: 8px;
-        font-size: 0.9rem;
+      .total-weeks {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
         font-weight: 500;
-        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
       }
+    }
+
+    .progress-percentage {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      font-weight: 500;
+      text-align: center;
     }
   }
 }
 
-// Certificates Section
-.certificates-section {
+// Quick Actions
+.quick-actions {
   padding: 0 20px 40px;
-  margin-bottom: 8rem;
+  display: flex;
+  gap: 15px;
 
-  .certificate-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+  ion-button {
+    flex: 1;
+    --border-radius: 15px;
+    --padding-start: 20px;
+    --padding-end: 20px;
+    --padding-top: 15px;
+    --padding-bottom: 15px;
+    font-weight: 600;
+    font-size: 1rem;
+
+    &[fill="outline"] {
+      --color: white;
+      --border-color: rgba(255, 255, 255, 0.3);
+      --background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+
+      &:hover:not([disabled]) {
+        --background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+    }
+
+    &[fill="solid"] {
+      --background: linear-gradient(135deg, #4caf50, #45a049);
+      --color: white;
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+
+      &:hover:not([disabled]) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+      }
+    }
+
+    &[disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 25px;
+  margin: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  h2 {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin: 0 0 30px 0;
+  }
+
+  ion-button {
+    --background: linear-gradient(135deg, #4caf50, #45a049);
+    --color: white;
+    --border-radius: 15px;
+    --padding-start: 30px;
+    --padding-end: 30px;
+    --padding-top: 15px;
+    --padding-bottom: 15px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .certificate-icon {
-      width: 50px;
-      height: 50px;
-      background: linear-gradient(135deg, #feca57, #ffb300);
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      ion-icon {
-        color: white;
-        font-size: 1.5rem;
-      }
-    }
-
-    .certificate-info {
-      flex: 1;
-
-      .certificate-name {
-        color: white;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0 0 5px 0;
-      }
-
-      .certificate-date {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.85rem;
-        margin: 0 0 5px 0;
-      }
-
-      .certificate-description {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.9rem;
-        margin: 0;
-      }
-    }
-
-    ion-button {
-      --color: #feca57;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-  }
-}
-
-// Floating Action Button
-ion-fab {
-  ion-fab-button {
-    --background: linear-gradient(135deg, #ff6b6b, #feca57);
-    --color: white;
-    --border-radius: 50%;
-    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: scale(1.1);
-      box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
-    }
-  }
-}
-
-// Responsive Design
-@media (max-width: 480px) {
-  .school-hero {
-    padding: 30px 15px 50px;
-
-    .hero-title {
-      font-size: 2rem;
-    }
-
-    .hero-subtitle {
-      font-size: 1rem;
-    }
-
-    .hero-stats {
-      gap: 15px;
-
-      .stat {
-        .stat-number {
-          font-size: 1.3rem;
-        }
-
-        .stat-label {
-          font-size: 0.8rem;
-        }
-      }
-    }
-  }
-
-  .section-title {
-    font-size: 1.3rem;
-    margin: 25px 15px 15px;
-  }
-
-  .progress-section,
-  .featured-courses,
-  .course-categories,
-  .popular-courses,
-  .learning-paths,
-  .certificates-section {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-
-  .category-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .course-item {
-    flex-direction: column;
-    text-align: center;
-
-    .course-thumbnail {
-      margin-bottom: 15px;
-    }
-
-    .course-info {
-      text-align: center;
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
     }
   }
 }
 
 // Animations
-@keyframes fadeInUp {
+@keyframes rotate {
   from {
-    opacity: 0;
-    transform: translateY(30px);
+    transform: rotate(0deg);
   }
   to {
-    opacity: 1;
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
     transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
   }
 }
 
@@ -720,22 +483,121 @@ ion-fab {
   }
 }
 
-.school-hero,
-.progress-section,
-.featured-courses,
-.course-categories,
-.popular-courses,
-.learning-paths,
-.certificates-section {
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Apply animations
+.hero-section,
+.baby-size-card,
+.development-section,
+.fun-facts-section,
+.timeline-section,
+.quick-actions {
   animation: fadeInUp 0.6s ease-out;
 }
 
-.course-card,
-.category-card,
-.course-item,
-.path-card,
-.certificate-card {
-  animation: fadeInUp 0.4s ease-out;
+// Responsive Design
+@media (max-width: 480px) {
+  .hero-section {
+    padding: 30px 15px 50px;
+
+    .week-indicator {
+      gap: 15px;
+
+      .week-info {
+        .week-number {
+          font-size: 2.5rem;
+        }
+
+        .week-label {
+          font-size: 1rem;
+        }
+      }
+
+      ion-button {
+        width: 40px;
+        height: 40px;
+        --padding-start: 10px;
+        --padding-end: 10px;
+        --padding-top: 10px;
+        --padding-bottom: 10px;
+      }
+    }
+  }
+
+  .baby-size-card {
+    margin: 0 15px 20px;
+    padding: 25px;
+
+    .size-display {
+      .size-icon {
+        font-size: 3rem;
+      }
+
+      .size-name {
+        font-size: 1.8rem;
+      }
+
+      .size-description {
+        font-size: 1rem;
+      }
+    }
+
+    .size-details {
+      flex-direction: column;
+      gap: 15px;
+
+      .detail-item {
+        justify-content: center;
+        text-align: center;
+
+        .detail-content {
+          align-items: center;
+        }
+      }
+    }
+  }
+
+  .development-section,
+  .fun-facts-section,
+  .timeline-section {
+    margin: 0 15px 20px;
+  }
+
+  .quick-actions {
+    padding: 0 15px 30px;
+    flex-direction: column;
+
+    ion-button {
+      --padding-top: 12px;
+      --padding-bottom: 12px;
+    }
+  }
+
+  .empty-state {
+    margin: 15px;
+    padding: 30px 15px;
+
+    .empty-icon {
+      font-size: 3rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
 }
 
 // Loading States

@@ -9,6 +9,63 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+/* Baby Development Modal Styles */
+.baby-development-modal {
+  .baby-development-info {
+    .baby-size {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #e8f5e8;
+      border-radius: 12px;
+      border: 2px solid #4caf50;
+      
+      h3 {
+        font-size: 24px;
+        margin: 0 0 12px 0;
+        color: #2e7d32;
+        font-weight: bold;
+      }
+      
+      p {
+        margin: 8px 0;
+        font-size: 16px;
+        color: #333;
+      }
+    }
+    
+    .development-facts, .fun-facts {
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      border-left: 4px solid #2196f3;
+      
+      h4 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1976d2;
+      }
+      
+      p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #333;
+      }
+    }
+    
+    .fun-facts {
+      border-left-color: #ff9800;
+      
+      h4 {
+        color: #f57c00;
+      }
+    }
+  }
+}
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 

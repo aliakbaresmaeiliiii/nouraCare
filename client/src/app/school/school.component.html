@@ -3,347 +3,120 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Pregnancy School</ion-title>
+    <ion-title>Baby Development</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openNotifications()">
-        <ion-icon name="notifications-outline"></ion-icon>
+      <ion-button (click)="openQuickMenu()">
+        <ion-icon name="menu"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="school-content">
+<ion-content class="baby-development-content" *ngIf="isPregnant">
   <!-- Hero Section -->
-  <div class="school-hero">
-    <div class="hero-content">
-      <h1 class="hero-title">Pregnancy School</h1>
-      <p class="hero-subtitle">Learn everything about pregnancy & motherhood</p>
-      <div class="hero-stats">
-        <div class="stat">
-          <span class="stat-number">24</span>
-          <span class="stat-label">Courses</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number">500+</span>
-          <span class="stat-label">Students</span>
-        </div>
-        <div class="stat">
-          <span class="stat-number">4.9★</span>
-          <span class="stat-label">Rating</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Progress Tracker -->
-  <div class="progress-section">
-    <div class="progress-header">
-      <h2 class="section-title">Your Learning Progress</h2>
-      <div class="progress-stats">
-        <span class="completed">12</span>
-        <span class="total">/ 24</span>
-        <span class="label">courses completed</span>
-      </div>
-    </div>
-    <div class="progress-bar">
-      <div class="progress-fill" style="width: 50%"></div>
-    </div>
-    <p class="progress-text">50% Complete - Keep going! 🎉</p>
-  </div>
-
-  <!-- Featured Courses -->
-  <div class="featured-courses">
-    <h2 class="section-title">Featured Courses</h2>
-    
-    <div class="course-card featured" (click)="enrollCourse('pregnancy-basics')">
-      <div class="course-badge">Featured</div>
-      <div class="course-image">
-        <img src="assets/images/doctor.jpg" alt="Pregnancy Basics">
-      </div>
-      <div class="course-content">
-        <h3 class="course-title">Pregnancy Basics 101</h3>
-        <p class="course-description">Essential knowledge for first-time mothers</p>
-        <div class="course-meta">
-          <span class="duration">⏱️ 2 hours</span>
-          <span class="lessons">📚 8 lessons</span>
-          <span class="level">Beginner</span>
-        </div>
-        <ion-button expand="block" fill="solid" class="enroll-btn">
-          Start Learning
-        </ion-button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Course Categories -->
-  <div class="course-categories">
-    <h2 class="section-title">Course Categories</h2>
-    
-    <div class="category-grid">
-      <div class="category-card" (click)="browseCategory('health')">
-        <div class="category-icon">
-          <ion-icon name="medical"></ion-icon>
-        </div>
-        <h3 class="category-name">Health & Wellness</h3>
-        <p class="category-count">8 courses</p>
-      </div>
-
-      <div class="category-card" (click)="browseCategory('nutrition')">
-        <div class="category-icon">
-          <ion-icon name="nutrition"></ion-icon>
-        </div>
-        <h3 class="category-name">Nutrition</h3>
-        <p class="category-count">6 courses</p>
-      </div>
-
-      <div class="category-card" (click)="browseCategory('fitness')">
-        <div class="category-icon">
-          <ion-icon name="fitness"></ion-icon>
-        </div>
-        <h3 class="category-name">Exercise</h3>
-        <p class="category-count">5 courses</p>
-      </div>
-
-      <div class="category-card" (click)="browseCategory('mental')">
-        <div class="category-icon">
-          <ion-icon name="heart"></ion-icon>
-        </div>
-        <h3 class="category-name">Mental Health</h3>
-        <p class="category-count">4 courses</p>
-      </div>
-
-      <div class="category-card" (click)="browseCategory('baby')">
-        <div class="category-icon">
-          <ion-icon name="baby"></ion-icon>
-        </div>
-        <h3 class="category-name">Baby Care</h3>
-        <p class="category-count">7 courses</p>
-      </div>
-
-      <div class="category-card" (click)="browseCategory('parenting')">
-        <div class="category-icon">
-          <ion-icon name="people"></ion-icon>
-        </div>
-        <h3 class="category-name">Parenting</h3>
-        <p class="category-count">6 courses</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Popular Courses -->
-  <div class="popular-courses">
-    <h2 class="section-title">Popular Courses</h2>
-    
-    <div class="course-list">
-      <div class="course-item" (click)="enrollCourse('nutrition')">
-        <div class="course-thumbnail">
-          <img src="assets/images/nurse.png" alt="Nutrition">
-        </div>
-        <div class="course-info">
-          <h3 class="course-name">Pregnancy Nutrition Guide</h3>
-          <p class="course-instructor">Dr. Sarah Johnson</p>
-          <div class="course-rating">
-            <span class="stars">⭐⭐⭐⭐⭐</span>
-            <span class="rating-text">4.9 (234 reviews)</span>
-          </div>
-          <div class="course-details">
-            <span class="duration">1.5 hours</span>
-            <span class="lessons">6 lessons</span>
-            <span class="price">Free</span>
-          </div>
-        </div>
-        <ion-button fill="outline" size="small">
-          Enroll
-        </ion-button>
-      </div>
-
-      <div class="course-item" (click)="enrollCourse('exercise')">
-        <div class="course-thumbnail">
-          <img src="assets/images/doctor.jpg" alt="Exercise">
-        </div>
-        <div class="course-info">
-          <h3 class="course-name">Safe Pregnancy Exercises</h3>
-          <p class="course-instructor">Dr. Emily Rodriguez</p>
-          <div class="course-rating">
-            <span class="stars">⭐⭐⭐⭐⭐</span>
-            <span class="rating-text">4.8 (189 reviews)</span>
-          </div>
-          <div class="course-details">
-            <span class="duration">2 hours</span>
-            <span class="lessons">8 lessons</span>
-            <span class="price">Free</span>
-          </div>
-        </div>
-        <ion-button fill="outline" size="small">
-          Enroll
-        </ion-button>
-      </div>
-
-      <div class="course-item" (click)="enrollCourse('mental-health')">
-        <div class="course-thumbnail">
-          <img src="assets/images/nurse.png" alt="Mental Health">
-        </div>
-        <div class="course-info">
-          <h3 class="course-name">Mental Wellness During Pregnancy</h3>
-          <p class="course-instructor">Dr. Lisa Chen</p>
-          <div class="course-rating">
-            <span class="stars">⭐⭐⭐⭐⭐</span>
-            <span class="rating-text">4.9 (156 reviews)</span>
-          </div>
-          <div class="course-details">
-            <span class="duration">1 hour</span>
-            <span class="lessons">4 lessons</span>
-            <span class="price">Free</span>
-          </div>
-        </div>
-        <ion-button fill="outline" size="small">
-          Enroll
-        </ion-button>
-      </div>
-
-      <div class="course-item" (click)="enrollCourse('baby-care')">
-        <div class="course-thumbnail">
-          <img src="assets/images/doctor.jpg" alt="Baby Care">
-        </div>
-        <div class="course-info">
-          <h3 class="course-name">Newborn Care Essentials</h3>
-          <p class="course-instructor">Dr. Maria Garcia</p>
-          <div class="course-rating">
-            <span class="stars">⭐⭐⭐⭐⭐</span>
-            <span class="rating-text">4.9 (312 reviews)</span>
-          </div>
-          <div class="course-details">
-            <span class="duration">2.5 hours</span>
-            <span class="lessons">10 lessons</span>
-            <span class="price">Free</span>
-          </div>
-        </div>
-        <ion-button fill="outline" size="small">
-          Enroll
-        </ion-button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Learning Paths -->
-  <div class="learning-paths">
-    <h2 class="section-title">Learning Paths</h2>
-    
-    <div class="path-card" (click)="continuePath('first-time')">
-      <div class="path-header">
-        <div class="path-icon">
-          <ion-icon name="star"></ion-icon>
-        </div>
-        <div class="path-info">
-          <h3 class="path-name">First-Time Mother Path</h3>
-          <p class="path-description">Complete guide for first-time mothers</p>
-        </div>
-      </div>
-      <div class="path-progress">
-        <div class="path-stats">
-          <span class="completed-courses">8/12</span>
-          <span class="total-courses">courses completed</span>
-        </div>
-        <ion-button fill="outline" size="small">
-          Continue
-        </ion-button>
-      </div>
-    </div>
-
-    <div class="path-card" (click)="continuePath('active')">
-      <div class="path-header">
-        <div class="path-icon">
-          <ion-icon name="fitness"></ion-icon>
-        </div>
-        <div class="path-info">
-          <h3 class="path-name">Active Pregnancy Path</h3>
-          <p class="path-description">Stay fit and healthy during pregnancy</p>
-        </div>
-      </div>
-      <div class="path-progress">
-        <div class="path-stats">
-          <span class="completed-courses">5/8</span>
-          <span class="total-courses">courses completed</span>
-        </div>
-        <ion-button fill="outline" size="small">
-          Continue
-        </ion-button>
-      </div>
-    </div>
-
-    <div class="path-card" (click)="continuePath('nutrition')">
-      <div class="path-header">
-        <div class="path-icon">
-          <ion-icon name="nutrition"></ion-icon>
-        </div>
-        <div class="path-info">
-          <h3 class="path-name">Nutrition Mastery Path</h3>
-          <p class="path-description">Master pregnancy nutrition and meal planning</p>
-        </div>
-      </div>
-      <div class="path-progress">
-        <div class="path-stats">
-          <span class="completed-courses">3/6</span>
-          <span class="total-courses">courses completed</span>
-        </div>
-        <ion-button fill="outline" size="small">
-          Continue
-        </ion-button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Certificates -->
-  <div class="certificates-section">
-    <h2 class="section-title">Your Certificates</h2>
-    
-    <div class="certificate-card" (click)="viewCertificate('nutrition')">
-      <div class="certificate-icon">
-        <ion-icon name="ribbon"></ion-icon>
-      </div>
-      <div class="certificate-info">
-        <h3 class="certificate-name">Pregnancy Nutrition Expert</h3>
-        <p class="certificate-date">Earned on March 15, 2024</p>
-        <p class="certificate-description">Completed 6 nutrition courses with distinction</p>
-      </div>
-      <ion-button fill="clear" size="small">
-        View
+  <div class="hero-section">
+    <div class="week-indicator">
+      <ion-button fill="clear" (click)="previousWeek()" [disabled]="pregnancyWeek <= 4">
+        <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
-    </div>
-
-    <div class="certificate-card" (click)="viewCertificate('fitness')">
-      <div class="certificate-icon">
-        <ion-icon name="ribbon"></ion-icon>
+      <div class="week-info">
+        <h1 class="week-number">Week {{ pregnancyWeek }}</h1>
+        <p class="week-label">of Pregnancy</p>
       </div>
-      <div class="certificate-info">
-        <h3 class="certificate-name">Prenatal Fitness Specialist</h3>
-        <p class="certificate-date">Earned on February 28, 2024</p>
-        <p class="certificate-description">Completed 5 fitness courses with distinction</p>
-      </div>
-      <ion-button fill="clear" size="small">
-        View
-      </ion-button>
-    </div>
-
-    <div class="certificate-card" (click)="viewCertificate('mental')">
-      <div class="certificate-icon">
-        <ion-icon name="ribbon"></ion-icon>
-      </div>
-      <div class="certificate-info">
-        <h3 class="certificate-name">Mental Wellness Advocate</h3>
-        <p class="certificate-date">Earned on January 20, 2024</p>
-        <p class="certificate-description">Completed 4 mental health courses with distinction</p>
-      </div>
-      <ion-button fill="clear" size="small">
-        View
+      <ion-button fill="clear" (click)="nextWeek()" [disabled]="pregnancyWeek >= 40">
+        <ion-icon name="chevron-forward"></ion-icon>
       </ion-button>
     </div>
   </div>
 
-  <!-- Floating Action Button -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="openQuickMenu()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  <!-- Baby Size Card -->
+  <div class="baby-size-card">
+    <div class="size-display">
+      <div class="size-icon">🍋</div>
+      <h2 class="size-name">{{ currentBaby?.size || 'Unknown' }}</h2>
+      <p class="size-description">{{ currentBaby?.description || 'Your baby is growing beautifully!' }}</p>
+    </div>
+    
+    <div class="size-details">
+      <div class="detail-item">
+        <ion-icon name="scale-outline"></ion-icon>
+        <div class="detail-content">
+          <span class="detail-label">Weight</span>
+          <span class="detail-value">{{ currentBaby?.weight || 'Unknown' }}</span>
+        </div>
+      </div>
+      
+      <div class="detail-item">
+        <ion-icon name="resize-outline"></ion-icon>
+        <div class="detail-content">
+          <span class="detail-label">Length</span>
+          <span class="detail-value">{{ getBabyLength() }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Development Facts -->
+  <div class="development-section">
+    <div class="section-header">
+      <ion-icon name="flask-outline"></ion-icon>
+      <h3>This Week's Development</h3>
+    </div>
+    <div class="fact-card">
+      <p class="fact-text">{{ getBabyDevelopmentFacts(pregnancyWeek) }}</p>
+    </div>
+  </div>
+
+  <!-- Fun Facts -->
+  <div class="fun-facts-section">
+    <div class="section-header">
+      <ion-icon name="star-outline"></ion-icon>
+      <h3>Amazing Facts</h3>
+    </div>
+    <div class="fact-card fun">
+      <p class="fact-text">{{ getFunFacts(pregnancyWeek) }}</p>
+    </div>
+  </div>
+
+  <!-- Progress Timeline -->
+  <div class="timeline-section">
+    <div class="section-header">
+      <ion-icon name="time-outline"></ion-icon>
+      <h3>Pregnancy Progress</h3>
+    </div>
+    <div class="timeline-card">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="(pregnancyWeek / 40) * 100"></div>
+      </div>
+      <div class="progress-labels">
+        <span class="current-week">Week {{ pregnancyWeek }}</span>
+        <span class="total-weeks">of 40 weeks</span>
+      </div>
+      <div class="progress-percentage">{{ getProgressPercentage() }}% Complete</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <ion-button expand="block" fill="outline" (click)="previousWeek()" [disabled]="pregnancyWeek <= 4">
+      <ion-icon name="chevron-back" slot="start"></ion-icon>
+      Previous Week
+    </ion-button>
+    <ion-button expand="block" fill="solid" (click)="nextWeek()" [disabled]="pregnancyWeek >= 40">
+      Next Week
+      <ion-icon name="chevron-forward" slot="end"></ion-icon>
+    </ion-button>
+  </div>
+</ion-content>
+
+<!-- Not Pregnant State -->
+<ion-content class="not-pregnant-content" *ngIf="!isPregnant">
+  <div class="empty-state">
+    <div class="empty-icon">🤰</div>
+    <h2>No Active Pregnancy</h2>
+    <p>You're not currently tracking a pregnancy. Start your journey by updating your status in the home screen.</p>
+    <ion-button expand="block" fill="solid" (click)="goToHome()">
+      Go to Home
+    </ion-button>
+  </div>
 </ion-content>

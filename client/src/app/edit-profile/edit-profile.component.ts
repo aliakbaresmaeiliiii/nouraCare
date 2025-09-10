@@ -407,7 +407,7 @@ export class EditProfileComponent implements OnInit {
   onSubmit() {
     const formValues = this.form.value;
     const id = this.userInfoStore.user.id;
-
+debugger;
     // Show loading state
     this.showLoadingAlert('Saving profile...');
 
