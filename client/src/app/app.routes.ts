@@ -132,6 +132,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'symptoms-tracker',
+    loadComponent: () =>
+      import('./symptoms-tracker/symptoms-tracker.component').then(
+        (m) => m.SymptomsTrackerComponent
+      ),
+  },
+  {
     path: 'tabs',
     component: LayoutComponent,
     // loadComponent: () =>

@@ -43,6 +43,12 @@ export class AuthController {
     if (!body.email) {
       throw new BadRequestException('Email is required');
     }
+
     return this.authService.login(body.email);
+
+  
   }
+
+
 }
+

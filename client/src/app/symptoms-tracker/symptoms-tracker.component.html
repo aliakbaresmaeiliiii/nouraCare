@@ -1,0 +1,237 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Symptom Tracker</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="saveSymptoms()">
+        <ion-icon name="checkmark-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="symptoms-tracker-content">
+  <!-- Date Selector -->
+  <div class="date-selector">
+    <ion-datetime 
+      [value]="selectedDate"
+      presentation="date"
+      [max]="maxDate"
+      (ionChange)="onDateChange($event)">
+    </ion-datetime>
+  </div>
+
+  <!-- Quick Mood & Energy Selector -->
+  <div class="quick-selectors">
+    <div class="selector-card">
+      <h3>How's your mood today?</h3>
+      <div class="mood-selector">
+        <ion-button 
+          *ngFor="let mood of ['excellent', 'good', 'okay', 'poor', 'terrible']"
+          [fill]="currentMood === mood ? 'solid' : 'outline'"
+          [color]="currentMood === mood ? 'primary' : 'medium'"
+          size="small"
+          (click)="currentMood = mood">
+          {{ getMoodEmoji(mood) }}
+          <span class="mood-label">{{ mood | titlecase }}</span>
+        </ion-button>
+      </div>
+    </div>
+
+    <div class="selector-card">
+      <h3>Energy Level</h3>
+      <div class="energy-selector">
+        <ion-button 
+          *ngFor="let energy of ['high', 'medium', 'low']"
+          [fill]="currentEnergy === energy ? 'solid' : 'outline'"
+          [color]="currentEnergy === energy ? 'secondary' : 'medium'"
+          size="small"
+          (click)="currentEnergy = energy">
+          {{ getEnergyEmoji(energy) }}
+          <span class="energy-label">{{ energy | titlecase }}</span>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <ion-segment [(ngModel)]="activeTab" (ionChange)="setActiveTab($event)">
+      <ion-segment-button value="today">
+        <ion-icon name="today-outline"></ion-icon>
+        <ion-label>Today</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="history">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <ion-label>History</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    
+    <!-- Today's Symptoms Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'today'">
+      
+      <!-- Selected Symptoms -->
+      <div class="selected-symptoms" *ngIf="selectedSymptoms.length > 0">
+        <h3>Your Symptoms Today</h3>
+        <div class="symptom-list">
+          <div class="symptom-item" *ngFor="let symptom of selectedSymptoms">
+            <div class="symptom-info">
+              <ion-icon [name]="symptom.icon" class="symptom-icon"></ion-icon>
+              <div class="symptom-details">
+                <h4>{{ symptom.name }}</h4>
+                <ion-chip [color]="getSeverityColor(symptom.severity)" size="small">
+                  {{ symptom.severity | titlecase }}
+                </ion-chip>
+                <p *ngIf="symptom.notes" class="symptom-note">{{ symptom.notes }}</p>
+              </div>
+            </div>
+            <div class="symptom-actions">
+              <ion-button fill="clear" size="small" (click)="updateSymptomSeverity(symptom)">
+                <ion-icon name="medical-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" size="small" (click)="addSymptomNote(symptom)">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" size="small" color="danger" (click)="removeSymptom(symptom.id)">
+                <ion-icon name="close-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Symptoms -->
+      <div class="add-symptoms">
+        <h3>Add Symptoms</h3>
+        
+        <!-- Physical Symptoms -->
+        <div class="symptom-category">
+          <h4>Physical Symptoms</h4>
+          <div class="symptom-grid">
+            <div 
+              class="symptom-card" 
+              *ngFor="let symptom of getSymptomsByCategory('Physical')"
+              [class.selected]="isSymptomSelected(symptom.id)"
+              (click)="toggleSymptom(symptom)">
+              <ion-icon [name]="symptom.icon" class="category-icon"></ion-icon>
+              <span>{{ symptom.name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Digestive Symptoms -->
+        <div class="symptom-category">
+          <h4>Digestive Symptoms</h4>
+          <div class="symptom-grid">
+            <div 
+              class="symptom-card" 
+              *ngFor="let symptom of getSymptomsByCategory('Digestive')"
+              [class.selected]="isSymptomSelected(symptom.id)"
+              (click)="toggleSymptom(symptom)">
+              <ion-icon [name]="symptom.icon" class="category-icon"></ion-icon>
+              <span>{{ symptom.name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emotional Symptoms -->
+        <div class="symptom-category">
+          <h4>Emotional Symptoms</h4>
+          <div class="symptom-grid">
+            <div 
+              class="symptom-card" 
+              *ngFor="let symptom of getSymptomsByCategory('Emotional')"
+              [class.selected]="isSymptomSelected(symptom.id)"
+              (click)="toggleSymptom(symptom)">
+              <ion-icon [name]="symptom.icon" class="category-icon"></ion-icon>
+              <span>{{ symptom.name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- General Symptoms -->
+        <div class="symptom-category">
+          <h4>General Symptoms</h4>
+          <div class="symptom-grid">
+            <div 
+              class="symptom-card" 
+              *ngFor="let symptom of getSymptomsByCategory('General')"
+              [class.selected]="isSymptomSelected(symptom.id)"
+              (click)="toggleSymptom(symptom)">
+              <ion-icon [name]="symptom.icon" class="category-icon"></ion-icon>
+              <span>{{ symptom.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes Section -->
+      <div class="notes-section">
+        <h3>Additional Notes</h3>
+        <ion-textarea
+          [value]="notes"
+          (ionInput)="onNotesChange($event)"
+          placeholder="How are you feeling overall? Any other observations..."
+          rows="4"
+          class="notes-textarea">
+        </ion-textarea>
+      </div>
+    </div>
+
+    <!-- History Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'history'">
+      <div class="history-content" *ngIf="dailySymptomsHistory.length > 0; else noHistory">
+        <div class="history-item" *ngFor="let day of dailySymptomsHistory">
+          <div class="history-date">
+            <h4>{{ day.date | date:'MMM dd' }}</h4>
+            <p>{{ day.date | date:'EEEE' }}</p>
+          </div>
+          <div class="history-summary">
+            <div class="summary-item">
+              <span class="summary-label">Mood:</span>
+              <span class="summary-value">{{ getMoodEmoji(day.mood) }} {{ day.mood | titlecase }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Energy:</span>
+              <span class="summary-value">{{ getEnergyEmoji(day.energy) }} {{ day.energy | titlecase }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Symptoms:</span>
+              <span class="summary-value">{{ day.symptoms.length }} tracked</span>
+            </div>
+          </div>
+          <div class="history-symptoms" *ngIf="day.symptoms.length > 0">
+            <ion-chip 
+              *ngFor="let symptom of day.symptoms" 
+              [color]="getSeverityColor(symptom.severity)"
+              size="small">
+              {{ symptom.name }}
+            </ion-chip>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noHistory>
+        <div class="no-history">
+          <ion-icon name="calendar-outline" size="large"></ion-icon>
+          <h3>No History Yet</h3>
+          <p>Start tracking your symptoms to see your history here.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Save Button -->
+  <div class="save-section">
+    <ion-button expand="block" fill="solid" (click)="saveSymptoms()">
+      <ion-icon name="save-outline" slot="start"></ion-icon>
+      Save Today's Symptoms
+    </ion-button>
+  </div>
+</ion-content>

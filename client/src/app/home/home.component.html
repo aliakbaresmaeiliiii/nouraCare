@@ -1,87 +1,4 @@
 <ion-content class="home-content">
-  <!-- Hero Section -->
-  <!-- <div class="hero-section">
-    <div class="hero-content"> -->
-      <!-- <h1 class="hero-title">{{ 'home.welcomeTitle' | translate }}</h1> -->
-      
-      <!-- User Status Badge -->
-      <!-- <div class="user-status-badge" (click)="updateUserStatus()">
-        <ion-icon name="checkmark-circle" class="status-icon"></ion-icon>
-        <span class="status-text">{{ userStatus }}</span>
-        <ion-icon name="chevron-down" class="status-arrow"></ion-icon>
-      </div> -->
-      
-      <!-- Personalized Welcome Message -->
-      <!-- <div class="welcome-message" *ngIf="welcomeMessage">
-        <p class="message-text">{{ welcomeMessage }}</p>
-        <ion-button fill="clear" size="small" (click)="generateMessages()">
-          <ion-icon name="refresh" slot="start"></ion-icon>
-          {{ 'home.newMessage' | translate }}
-        </ion-button>
-      </div> -->
-      
-      <!-- Daily Inspirational Message -->
-      <!-- <div class="daily-message" *ngIf="dailyMessage">
-        <div class="message-card">
-          <ion-icon name="heart" class="message-icon"></ion-icon>
-          <p class="daily-text">{{ dailyMessage }}</p>
-          <ion-button fill="clear" size="small" (click)="refreshDailyMessage()">
-            <ion-icon name="refresh" slot="start"></ion-icon>
-            {{ 'home.refresh' | translate }}
-          </ion-button>
-        </div>
-      </div> -->
-
-      <!-- Quick Stats -->
-      <!-- <div class="quick-stats">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <ion-icon name="calendar"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <div class="stat-number">{{ cycleDay }}</div>
-            <div class="stat-label">{{ 'home.cycleDay' | translate }}</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <ion-icon name="thermometer"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <div class="stat-number">{{ temperature }}°C</div>
-            <div class="stat-label">{{ 'home.temperature' | translate }}</div>
-          </div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon">
-            <ion-icon name="heart"></ion-icon>
-          </div>
-          <div class="stat-info">
-            <div class="stat-number">{{ mood }}</div>
-            <div class="stat-label">{{ 'home.mood' | translate }}</div>
-          </div>
-        </div>
-      </div> -->
-
-      <!-- <div class="hero-actions">
-        <ion-button expand="block" fill="solid" class="track-btn" (click)="openDailyTracking()">
-          <ion-icon name="calendar" slot="start"></ion-icon>
-          {{ 'home.trackToday' | translate }}
-        </ion-button>
-        <ion-button expand="block" fill="outline" class="calendar-btn" (click)="openCalendarView()">
-          <ion-icon name="calendar-outline" slot="start"></ion-icon>
-          {{ 'home.viewCalendar' | translate }}
-        </ion-button>
-      </div> -->
-    <!-- </div> -->
-    <!-- <div class="hero-decoration">
-      <div class="floating-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-      </div>
-    </div> -->
-  <!-- </div> -->
 
   <!-- Default State - Log Period Section -->
   <div class="log-period-section" *ngIf="!userStatus || userStatus === 'Not Set'">
@@ -293,6 +210,72 @@
     </div>
   </div>
 
+  <!-- Symptom Tracking Section -->
+  <div class="symptom-tracking-section" *ngIf="isPregnant">
+    <div class="section-header">
+      <h2 class="section-title">Track Your Symptoms</h2>
+      <p class="section-subtitle">Monitor your daily pregnancy journey</p>
+    </div>
+    <div class="symptom-carousel">
+      <div class="swiper symptomSwiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div class="symptom-card">
+              <div class="symptom-icon">
+                <ion-icon name="medical-outline"></ion-icon>
+              </div>
+              <h3 class="symptom-title">Daily Symptoms</h3>
+              <p class="symptom-description">Track your symptoms and mood</p>
+              <ion-button fill="solid" size="small" class="symptom-action" (click)="openSymptomsTracking()">
+                Track Today
+              </ion-button>
+            </div>
+          </div>
+          
+          <div class="swiper-slide">
+            <div class="symptom-card">
+              <div class="symptom-icon">
+                <ion-icon name="calendar-outline"></ion-icon>
+              </div>
+              <h3 class="symptom-title">Week Details</h3>
+              <p class="symptom-description">Learn about your pregnancy week</p>
+              <ion-button fill="solid" size="small" class="symptom-action" (click)="viewPregnancyDetails()">
+                View Details
+              </ion-button>
+            </div>
+          </div>
+          
+          <div class="swiper-slide">
+            <div class="symptom-card">
+              <div class="symptom-icon">
+                <ion-icon name="heart-outline"></ion-icon>
+              </div>
+              <h3 class="symptom-title">Baby Growth</h3>
+              <p class="symptom-description">See your baby's development</p>
+              <ion-button fill="solid" size="small" class="symptom-action" (click)="navigateToSchool()">
+                Learn More
+              </ion-button>
+            </div>
+          </div>
+          
+          <div class="swiper-slide">
+            <div class="symptom-card">
+              <div class="symptom-icon">
+                <ion-icon name="nutrition-outline"></ion-icon>
+              </div>
+              <h3 class="symptom-title">Nutrition Tips</h3>
+              <p class="symptom-description">What to eat this week</p>
+              <ion-button fill="solid" size="small" class="symptom-action" (click)="openNutritionGuide()">
+                Get Tips
+              </ion-button>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Quick Actions Section -->
   <div class="quick-actions-section">
     <div class="section-header">
@@ -391,6 +374,8 @@
       </div>
     </div>
   </div>
+
+  
 
   <!-- Tools Section -->
   <div class="tools-section">

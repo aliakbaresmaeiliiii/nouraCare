@@ -31,6 +31,7 @@ model user {
 
   // Relations
   addresses                 Address[]
+  trackDays                 TrackDay[]
 }
 
 enum Status {
@@ -65,4 +66,19 @@ model Address {
   district    District? @relation(fields: [districtId], references: [id])
   addressLine String
   createdAt   DateTime @default(now())
+}
+
+model TrackDay {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      user     @relation(fields: [userId], references: [id])
+  date      DateTime
+  mood      String?  // JSON string for mood data
+  energy    String?  // JSON string for energy data
+  symptoms  String?  // JSON string array for symptoms
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([userId, date], map: "unique_user_date")
 }

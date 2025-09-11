@@ -1186,47 +1186,21 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Open symptoms tracking
   async openSymptomsTracking() {
-    const alert = await this.alertController.create({
-      header: '📝 Track Your Symptoms',
-      message: 'How are you feeling today? Let\'s track your symptoms and mood.',
-      inputs: [
-        {
-          name: 'mood',
-          type: 'radio',
-          label: '😊 Great',
-          value: 'great'
-        },
-        {
-          name: 'mood',
-          type: 'radio',
-          label: '😐 Okay',
-          value: 'okay'
-        },
-        {
-          name: 'mood',
-          type: 'radio',
-          label: '😔 Not Great',
-          value: 'not_great'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Track Symptoms',
-          handler: async (data) => {
-            if (data.mood) {
-              await this.trackSymptoms(data.mood);
-            }
-          }
-        }
-      ]
-    });
-
-    await alert.present();
+    this.router.navigate(['/symptoms-tracker']);
+    this.showToast('Opening symptom tracker...');
   }
+
+  // Navigate to school (baby development)
+  navigateToSchool() {
+    this.router.navigate(['/tabs/school']);
+    this.showToast('Opening baby development...');
+  }
+
+  // Open nutrition guide
+  openNutritionGuide() {
+    this.showToast('Nutrition guide coming soon...');
+  }
+
 
   // Track symptoms
   async trackSymptoms(mood: string) {
