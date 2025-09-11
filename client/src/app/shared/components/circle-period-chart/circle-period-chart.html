@@ -5,8 +5,18 @@
     <p class="chart-subtitle">Track your fertility and cycle phases</p>
   </div>
 
+  <!-- Loading Indicator -->
+   @if (isLoading) {
+
+     <div class="loading-indicator" >
+       <ion-spinner name="crescent"></ion-spinner>
+       <p>Loading your cycle data...</p>
+      </div>
+    }
+
   <!-- Main Chart -->
-  <div class="chart-wrapper">
+   @if (!isLoading) {
+  <div class="chart-wrapper" >
     <svg viewBox="50 50 500 500" class="cycle-chart" aria-label="Period Cycle Chart">
       <!-- Background gradient -->
       <defs>
@@ -131,44 +141,54 @@
         </g>
 
         <!-- Cycle Phase Marks -->
-        <!-- Period Mark -->
-        <g class="phase-mark period-mark">
-          <circle r="12" fill="#ef4444" opacity="0.9" [attr.cx]="getPhaseMarkX(0, cycleLength)"
-            [attr.cy]="getPhaseMarkY(0, cycleLength)"></circle>
+        <!-- Period Mark - Dynamic based on current cycle day -->
+        <g class="phase-mark period-mark" *ngIf="isInPeriod">
+          <circle r="12" fill="#ef4444" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
+            [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
-            [attr.x]="getPhaseMarkX(0, cycleLength)" [attr.y]="getPhaseMarkY(0, cycleLength)">
-            P
+            [attr.x]="getPhaseMarkX(todayCycleDay - 1, cycleLength)" [attr.y]="getPhaseMarkY(todayCycleDay - 1, cycleLength)">
+            {{ todayCycleDay }}
           </text>
         </g>
 
-        <!-- Fertile Window Mark -->
-        <g class="phase-mark fertile-mark">
-          <circle r="12" fill="#10b981" opacity="0.9" [attr.cx]="getPhaseMarkX(ovulationDay - 3, cycleLength)"
-            [attr.cy]="getPhaseMarkY(ovulationDay - 3, cycleLength)"></circle>
+        <!-- Today Marker - Shows current position in cycle -->
+        <g class="phase-mark today-mark" *ngIf="!isInPeriod">
+          <circle r="10" fill="#3b82f6" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
+            [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
+          <text text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="700" fill="white"
+            [attr.x]="getPhaseMarkX(todayCycleDay - 1, cycleLength)" [attr.y]="getPhaseMarkY(todayCycleDay - 1, cycleLength)">
+            {{ todayCycleDay }}
+          </text>
+        </g>
+
+        <!-- Fertile Window Mark - Dynamic -->
+        <g class="phase-mark fertile-mark" *ngIf="isInFertileWindow && !isInPeriod">
+          <circle r="12" fill="#10b981" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
+            [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
-            [attr.x]="getPhaseMarkX(ovulationDay - 3, cycleLength)"
-            [attr.y]="getPhaseMarkY(ovulationDay - 3, cycleLength)">
+            [attr.x]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
+            [attr.y]="getPhaseMarkY(todayCycleDay - 1, cycleLength)">
             F
           </text>
         </g>
 
-        <!-- Ovulation Mark -->
-        <g class="phase-mark ovulation-mark">
-          <circle r="12" fill="#f59e0b" opacity="0.9" [attr.cx]="getPhaseMarkX(ovulationDay, cycleLength)"
-            [attr.cy]="getPhaseMarkY(ovulationDay, cycleLength)"></circle>
+        <!-- Ovulation Mark - Dynamic -->
+        <g class="phase-mark ovulation-mark" *ngIf="isOvulationDay && !isInPeriod">
+          <circle r="12" fill="#f59e0b" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
+            [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
-            [attr.x]="getPhaseMarkX(ovulationDay, cycleLength)" [attr.y]="getPhaseMarkY(ovulationDay, cycleLength)">
+            [attr.x]="getPhaseMarkX(todayCycleDay - 1, cycleLength)" [attr.y]="getPhaseMarkY(todayCycleDay - 1, cycleLength)">
             O
           </text>
         </g>
 
-        <!-- PMS Mark -->
-        <g class="phase-mark pms-mark">
-          <circle r="12" fill="#8b5cf6" opacity="0.9" [attr.cx]="getPhaseMarkX(cycleLength - 5, cycleLength)"
-            [attr.cy]="getPhaseMarkY(cycleLength - 5, cycleLength)"></circle>
+        <!-- PMS Mark - Dynamic -->
+        <g class="phase-mark pms-mark" *ngIf="isInPMS && !isInPeriod">
+          <circle r="12" fill="#8b5cf6" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
+            [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="700" fill="white"
-            [attr.x]="getPhaseMarkX(cycleLength - 5, cycleLength)"
-            [attr.y]="getPhaseMarkY(cycleLength - 5, cycleLength)">
+            [attr.x]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
+            [attr.y]="getPhaseMarkY(todayCycleDay - 1, cycleLength)">
             PMS
           </text>
         </g>
@@ -256,8 +276,10 @@
       </g>
     </svg>
   </div>
+  }
 
   <!-- Legend -->
+  @if (!isLoading) {
   <div class="cycle-legend">
     <div class="legend-item">
       <div class="legend-dot period-dot"></div>
@@ -267,25 +289,25 @@
     <div class="legend-item">
       <div class="legend-dot fertility-dot"></div>
       <span class="legend-label">Fertile Window</span>
-      <span class="legend-duration">{{ fertileWindowLength }} days</span>
+      <span class="legend-duration">{{ fertileWindowEnd - fertileWindowStart + 1 }} days</span>
     </div>
     <div class="legend-item">
       <div class="legend-dot ">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="#10b981">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="#f59e0b">
           <path
             d="M12 21s-5.05-4.35-8.28-7.57C1.43 11.14 1.43 7.07 4.1 4.4a5.66 5.66 0 0 1 8 0L12 4.7l-.1-.1a5.66 5.66 0 0 1 8 0c2.67 2.67 2.67 6.74 0 9.41C17.05 16.65 12 21 12 21z" />
         </svg>
-
       </div>
       <span class="legend-label">Ovulation</span>
-      <span class="legend-duration">1 day</span>
+      <span class="legend-duration">Day {{ ovulationDay }}</span>
     </div>
     <div class="legend-item">
       <div class="legend-dot pms-dot"></div>
       <span class="legend-label">PMS</span>
-      <span class="legend-duration">{{ pmsLength }} days</span>
+      <span class="legend-duration">{{ pmsEnd - pmsStart + 1 }} days</span>
     </div>
   </div>
+}
 </div>
 
 

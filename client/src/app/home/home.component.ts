@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject, ViewChild } from '@angular/core';
+import { ViewWillEnter } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import Swiper from 'swiper';
@@ -7,6 +8,7 @@ import { CirclePeriodChart } from '../shared/components/circle-period-chart/circ
 import { MessageService } from '../shared/services/message.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import { BabyDevelopmentService } from '../shared/services/baby-development.service';
+import { UserInfoService } from '../shared/services/user-info.service';
 import { SharedModule } from '../shared/shared-module';
 
 @Component({
@@ -17,9 +19,12 @@ import { SharedModule } from '../shared/shared-module';
   imports:[SharedModule, CirclePeriodChart],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
+  private userInfoService = inject(UserInfoService);
+  
+  @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
   
   welcomeMessage: string = '';
   dailyMessage: string = '';
@@ -303,6 +308,85 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Called when the page is about to enter
+   * This ensures the chart is refreshed when returning from other pages
+   */
+  ionViewWillEnter() {
+    console.log('🏠 Home page entering, refreshing chart...'); // Debug log
+    
+    // Check both local storage and API data
+    const userInfo = this.userInfoService.getCurrentUserInfo();
+    console.log('🔍 Current service state:');
+    console.log('- API User Info:', userInfo);
+    console.log('- Local Last Period Start:', this.cycleSettings.lastPeriodStartDate());
+    console.log('- Local Cycle Length:', this.cycleSettings.cycleLength());
+    console.log('- Local Period Length:', this.cycleSettings.periodLength());
+    
+    // Always fetch fresh data from API when entering home page
+    this.refreshChartWithFreshData();
+  }
+
+  /**
+   * Refresh chart with fresh data from API
+   */
+  private refreshChartWithFreshData() {
+    console.log('🔄 Fetching fresh data from API for chart...');
+    
+    // Get user ID
+    const userId = this.getCurrentUserId();
+    
+    // Fetch fresh data from API
+    this.userInfoService.getUserOnboardingData(userId).subscribe({
+      next: (userInfo) => {
+        console.log('✅ Fresh API data received for chart:', userInfo);
+        
+        // Update the chart with fresh data
+        setTimeout(() => {
+          if (this.periodChart) {
+            console.log('📊 Updating chart with fresh API data...');
+            this.periodChart.debugState(); // Debug current state
+            this.periodChart.refreshChart();
+            this.periodChart.debugState(); // Debug state after refresh
+          } else {
+            console.log('⚠️ Period chart not found');
+          }
+        }, 100);
+      },
+      error: (error) => {
+        console.log('⚠️ Failed to fetch fresh API data, using cached data:', error);
+        
+        // Fallback to cached data
+        setTimeout(() => {
+          if (this.periodChart) {
+            console.log('📊 Refreshing chart with cached data...');
+            this.periodChart.debugState();
+            this.periodChart.refreshChart();
+            this.periodChart.debugState();
+          } else {
+            console.log('⚠️ Period chart not found');
+          }
+        }, 100);
+      }
+    });
+  }
+
+  /**
+   * Get current user ID from localStorage
+   */
+  private getCurrentUserId(): number {
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        const parsed = JSON.parse(userInfo);
+        return parsed.userId || parsed.id || 1;
+      }
+    } catch (error) {
+      console.error('Error getting current user ID:', error);
+    }
+    return 1; // Default user ID
+  }
+
+  /**
    * Test method to debug button clicks
    */
   testButtonClick() {
@@ -314,6 +398,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
     this.showToast('Test button clicked!', 'success');
   }
+
+  /**
+   * Test method to manually refresh the chart
+   */
+  testChartRefresh() {
+    console.log('🧪 Testing chart refresh...');
+    if (this.periodChart) {
+      this.periodChart.debugState();
+      this.periodChart.refreshChart();
+      this.periodChart.debugState();
+    } else {
+      console.log('⚠️ Chart not found');
+    }
+  }
+
 
   /**
    * Get baby development facts for specific week

@@ -8,7 +8,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../shared/services/user';
 import { ActivatedRoute } from '@angular/router';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import { UserInfoService } from '../shared/services/user-info.service';
 import { ImageUrlService } from '../shared/services/image-url.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
@@ -19,6 +22,7 @@ import { ImageUrlService } from '../shared/services/image-url.service';
 export class EditProfileComponent implements OnInit {
   userService = inject(User);
   cycleSettings = inject(CycleSettingsService);
+  userInfoService = inject(UserInfoService);
   route = inject(ActivatedRoute);
   private imageUrlService = inject(ImageUrlService);
   profileImage: string | null = null;
@@ -75,7 +79,6 @@ export class EditProfileComponent implements OnInit {
   message: string = '';
   name = '';
   @ViewChild(IonModal) modal!: IonModal;
-  userInfoStore: any;
 
   statusOptions = [
     { label: 'I am planning to get pregnant', value: 'PLANNING_PREGNANCY' },
@@ -104,9 +107,7 @@ export class EditProfileComponent implements OnInit {
 
   ngOnInit() {
     console.log('=== Component Initialization ===');
-    this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    console.log('User info store:', this.userInfoStore);
-
+    
     // Check initial form state
     this.checkFormControlState();
 
@@ -127,43 +128,97 @@ export class EditProfileComponent implements OnInit {
     });
 
     // Load existing user data from API and patch the form
-    try {
-      const id = this.userInfoStore?.user?.id;
-      if (id) {
-        this.userService.getUser(String(id)).subscribe((res: any) => {
-          // Map server fields to form controls
-          const patch: any = {
-            name: res?.name ?? '',
-            email: res?.email ?? '',
-            birthday: res?.birthday ?? '',
-            menstrualCycleDay: res?.menstrualCycleLength ?? 28,
-            periodUsual: res?.periodDuration ?? 5,
-            lastPeriodStartDate: res?.lastPeriodStartDate ?? null,
-            profileImage: res?.profileImage ?? '',
-            status: res?.status ?? null,
-          };
-          this.form.patchValue(patch);
-
-          // Set profile image with proper URL
-          this.profileImage = this.imageUrlService.getImageUrl(res?.profileImage);
-
-          // Check form state after patch
-          setTimeout(() => {
-            this.checkFormControlState();
-          }, 100);
-
-          // reflect last period start in the local startDate for the readonly input
-          this.startDate = patch.lastPeriodStartDate;
-        });
-
-
-      }
-    } catch { }
-
-    // Initialize picker days array
+    this.loadUserDataFromAPI();
 
     // Initialize picker days array
     this.updatePickerDays();
+  }
+
+  private loadUserDataFromAPI() {
+    try {
+      // Get current user info from UserInfoService
+      const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+      if (currentUserInfo?.userId) {
+        // Fetch both user table data and onboarding data in parallel
+        this.fetchUserDataAndOnboardingData(currentUserInfo.userId);
+      } else {
+        console.error('No user info available');
+      }
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
+  }
+
+  private fetchUserDataAndOnboardingData(userId: number) {
+    // Fetch user table data (name, email, birthday, profile image, etc.)
+    const userData$ = this.userService.getUser(String(userId));
+    
+    // Fetch onboarding data (cycle settings)
+    const onboardingData$ = this.userInfoService.getUserOnboardingData(userId);
+
+    // Use forkJoin to fetch both in parallel
+    forkJoin({
+      userData: userData$,
+      onboardingData: onboardingData$.pipe(
+        // If onboarding data fails, provide default values
+        catchError(() => of({
+          cycleLength: 28,
+          periodLength: 5,
+          lastPeriodDate: null
+        }))
+      )
+    }).subscribe({
+      next: (data) => {
+        console.log('User table data:', data.userData);
+        console.log('Onboarding data:', data.onboardingData);
+        
+        // Merge both data sources
+        const mergedData = {
+          // User table data
+          name: data.userData?.name || '',
+          email: data.userData?.email || '',
+          birthday: data.userData?.birthday || '',
+          profileImage: data.userData?.profileImage || '',
+          status: data.userData?.status || null,
+          // Onboarding data
+          cycleLength: data.onboardingData?.cycleLength || 28,
+          periodLength: data.onboardingData?.periodLength || 5,
+          lastPeriodDate: data.onboardingData?.lastPeriodDate || null
+        };
+        
+        this.patchFormWithUserData(mergedData);
+      },
+      error: (error) => {
+        console.error('Failed to load user data:', error);
+      }
+    });
+  }
+
+  private patchFormWithUserData(userData: any) {
+    // Map server fields to form controls
+    const patch: any = {
+      name: userData?.name ?? '',
+      email: userData?.email ?? '',
+      birthday: userData?.birthday ?? '',
+      menstrualCycleDay: userData?.cycleLength ?? userData?.menstrualCycleLength ?? 28,
+      periodUsual: userData?.periodLength ?? userData?.periodDuration ?? 5,
+      lastPeriodStartDate: userData?.lastPeriodDate ?? userData?.lastPeriodStartDate ?? null,
+      profileImage: userData?.profileImage ?? '',
+      status: userData?.status ?? null,
+    };
+    
+    this.form.patchValue(patch);
+
+    // Set profile image with proper URL
+    this.profileImage = this.imageUrlService.getImageUrl(userData?.profileImage);
+
+    // Reflect last period start in the local startDate for the readonly input
+    this.startDate = patch.lastPeriodStartDate;
+
+    // Check form state after patch
+    setTimeout(() => {
+      this.checkFormControlState();
+    }, 100);
   }
 
 
@@ -406,8 +461,15 @@ export class EditProfileComponent implements OnInit {
 
   onSubmit() {
     const formValues = this.form.value;
-    const id = this.userInfoStore.user.id;
-debugger;
+    const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+    const id = currentUserInfo?.userId;
+    
+    if (!id) {
+      console.error('No user ID available');
+      alert('User not found. Please try again.');
+      return;
+    }
+    
     // Show loading state
     this.showLoadingAlert('Saving profile...');
 
@@ -424,9 +486,21 @@ debugger;
     } catch { }
 
     // Persist locally for the app chart
+    console.log('💾 Saving cycle settings:', {
+      cycleLength: formValues.menstrualCycleDay ?? 28,
+      periodLength: formValues.periodUsual ?? 5,
+      lastPeriodStart: formValues.lastPeriodStartDate ?? null
+    });
+    
     this.cycleSettings.setCycleLength(formValues.menstrualCycleDay ?? 28);
     this.cycleSettings.setPeriodLength(formValues.periodUsual ?? 5);
     this.cycleSettings.setLastPeriodStart(formValues.lastPeriodStartDate ?? null);
+    
+    console.log('✅ Cycle settings saved. Current state:', {
+      cycleLength: this.cycleSettings.cycleLength(),
+      periodLength: this.cycleSettings.periodLength(),
+      lastPeriodStart: this.cycleSettings.lastPeriodStartDate()
+    });
 
     // Map form to server DTO field names
     const payload: any = {
@@ -440,8 +514,10 @@ debugger;
       lastPeriodStartDate: formValues.lastPeriodStartDate,
     };
 
-    this.userService.updateUserInfo(id, payload).subscribe({
+    this.userService.updateUserInfo(String(id), payload).subscribe({
       next: (res: any) => {
+        // Also update the UserInfoService with the new data
+        this.updateUserInfoService(formValues);
         this.showSuccessAlert('Profile updated successfully!');
       },
       error: (error: any) => {
@@ -449,6 +525,47 @@ debugger;
         this.showErrorAlert('Failed to update profile. Please try again.');
       }
     });
+  }
+
+  /**
+   * Update UserInfoService with the new data from form
+   */
+  private updateUserInfoService(formValues: any) {
+    const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+    if (currentUserInfo) {
+      const updatedUserInfo = {
+        ...currentUserInfo,
+        cycleLength: formValues.menstrualCycleDay || 28,
+        periodLength: formValues.periodUsual || 5,
+        lastPeriodDate: formValues.lastPeriodStartDate || null,
+        updatedAt: new Date().toISOString()
+      };
+      
+      console.log('🔄 Updating UserInfoService with new data:', updatedUserInfo);
+      this.userInfoService.userInfo.set(updatedUserInfo);
+      
+      // Also update localStorage for consistency
+      localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
+    } else {
+      console.log('⚠️ No current user info found, creating new one');
+      // Create a new user info object
+      const newUserInfo = {
+        id: 1, // This should come from the actual user ID
+        userId: 1,
+        pregnancyStatus: 'tracking' as const,
+        cycleLength: formValues.menstrualCycleDay || 28,
+        periodLength: formValues.periodUsual || 5,
+        lastPeriodDate: formValues.lastPeriodStartDate || null,
+        healthGoals: [],
+        notificationsEnabled: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      console.log('🆕 Creating new user info:', newUserInfo);
+      this.userInfoService.userInfo.set(newUserInfo);
+      localStorage.setItem('userInfo', JSON.stringify(newUserInfo));
+    }
   }
 
   async confirmCrop() {
@@ -472,7 +589,8 @@ debugger;
       const blob = await this.canvasToBlob(canvas);
       console.log('Blob created:', blob.size, 'bytes, type:', blob.type);
 
-      const id = this.userInfoStore?.user?.id;
+      const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+      const id = currentUserInfo?.userId;
       if (!id) {
         console.error('No user ID available');
         alert('User not found. Please try again.');

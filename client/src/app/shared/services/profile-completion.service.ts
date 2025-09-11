@@ -1,14 +1,21 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { ImageUrlService } from './image-url.service';
+import { UserInfoService } from './user-info.service';
+import { User } from './user';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ProfileCompletionService {
     private imageUrlService = inject(ImageUrlService);
+    private userInfoService = inject(UserInfoService);
+    private userService = inject(User);
 
     // Signal to store user data
     private userData = signal<any>({});
+    private isLoading = signal<boolean>(false);
 
     // Computed signal for profile completion percentage
     public profileCompletion = computed(() => {
@@ -17,12 +24,129 @@ export class ProfileCompletionService {
         return completion;
     });
 
+    // Getter for loading state
+    get loading() {
+        return this.isLoading();
+    }
+
+    // Getter for current user data
+    get currentUserData() {
+        return this.userData();
+    }
+
+    // Individual field completion getters
+    get isNameCompleted(): boolean {
+        const user = this.userData();
+        return !!(user?.name && user.name.trim() !== '');
+    }
+
+    get isEmailCompleted(): boolean {
+        const user = this.userData();
+        return !!(user?.email && user.email.trim() !== '');
+    }
+
+    get isBirthdayCompleted(): boolean {
+        const user = this.userData();
+        return !!(user?.birthday && user.birthday.trim() !== '');
+    }
+
+    get isProfileImageCompleted(): boolean {
+        const user = this.userData();
+        return !!(user?.profileImage && user.profileImage.trim() !== '');
+    }
+
+    get isStatusCompleted(): boolean {
+        const user = this.userData();
+        return !!(user?.status && user.status.trim() !== '');
+    }
+
+    get isCycleLengthCompleted(): boolean {
+        const user = this.userData();
+        return !!(user?.menstrualCycleLength && user.menstrualCycleLength > 0);
+    }
+
+    get isPeriodDurationCompleted(): boolean {
+        const user = this.userData();
+        return !!(user?.periodDuration && user.periodDuration > 0);
+    }
+
+    get isLastPeriodCompleted(): boolean {
+        const user = this.userData();
+        return !!(user?.lastPeriodStartDate && user.lastPeriodStartDate.trim() !== '');
+    }
+
     // Method to update user data
     updateUserData(user: any) {
         this.userData.set(user);
     }
 
-    // Method to refresh from localStorage
+    // Method to refresh from API
+    refreshFromAPI() {
+        this.isLoading.set(true);
+        
+        try {
+            const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+            if (currentUserInfo?.userId) {
+                this.fetchUserDataFromAPI(currentUserInfo.userId);
+            } else {
+                console.error('No user info available');
+                this.isLoading.set(false);
+            }
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+            this.isLoading.set(false);
+        }
+    }
+
+    // Method to fetch user data from API
+    private fetchUserDataFromAPI(userId: number) {
+        // Fetch user table data (name, email, birthday, profile image, etc.)
+        const userData$ = this.userService.getUser(String(userId));
+        
+        // Fetch onboarding data (cycle settings)
+        const onboardingData$ = this.userInfoService.getUserOnboardingData(userId);
+
+        // Use forkJoin to fetch both in parallel
+        forkJoin({
+            userData: userData$,
+            onboardingData: onboardingData$.pipe(
+                // If onboarding data fails, provide default values
+                catchError(() => of({
+                    cycleLength: 28,
+                    periodLength: 5,
+                    lastPeriodDate: null
+                }))
+            )
+        }).subscribe({
+            next: (data) => {
+                console.log('ProfileCompletionService - User table data:', data.userData);
+                console.log('ProfileCompletionService - Onboarding data:', data.onboardingData);
+                
+                // Merge both data sources
+                const mergedData = {
+                    // User table data
+                    name: data.userData?.name || '',
+                    email: data.userData?.email || '',
+                    birthday: data.userData?.birthday || '',
+                    profileImage: data.userData?.profileImage || '',
+                    status: data.userData?.status || null,
+                    // Onboarding data
+                    menstrualCycleLength: data.onboardingData?.cycleLength || 28,
+                    periodDuration: data.onboardingData?.periodLength || 5,
+                    lastPeriodStartDate: data.onboardingData?.lastPeriodDate || null
+                };
+                
+                this.updateUserData(mergedData);
+                this.isLoading.set(false);
+            },
+            error: (error) => {
+                console.error('ProfileCompletionService - Failed to load user data:', error);
+                this.isLoading.set(false);
+            }
+        });
+    }
+
+    // Method to refresh from localStorage (fallback)
     refreshFromStorage() {
         try {
             const userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');

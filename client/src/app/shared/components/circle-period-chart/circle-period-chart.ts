@@ -1,8 +1,10 @@
-import { Component, effect, inject, Input, ViewChild, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, effect, inject, Input, ViewChild, OnInit, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonDatetime } from '@ionic/angular';
 import { SharedModule } from '../../shared-module';
 import { CycleSettingsService } from '../../services/cycle-settings.service';
+import { UserInfoService } from '../../services/user-info.service';
+import { environment } from '../../../../environments/environment';
 
 export interface Segment {
   label: string; // نام بخش، مثلا "پریود"
@@ -21,6 +23,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   @ViewChild('periodCalendar') periodCalendar!: IonDatetime;
   router = inject(Router);
   private cycleSettings = inject(CycleSettingsService);
+  private userInfoService = inject(UserInfoService);
+  private cdr = inject(ChangeDetectorRef);
   // Configuration inputs
   @Input() cycleLength: number = 28; // total cycle length in days
   @Input() periodLength: number = 5; // menstruation length in days
@@ -32,6 +36,83 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   // User selections
   startDate: string | null = null; // last period start (YYYY-MM-DD)
   endDate: string | null = null; // last period end (YYYY-MM-DD)
+
+  // Loading state
+  isLoading = false;
+
+  // Period status
+  get isInPeriod(): boolean {
+    return this.todayCycleDay >= 1 && this.todayCycleDay <= this.periodLength;
+  }
+
+  // Cycle phase calculations based on standard cycle science
+  get fertileWindowStart(): number {
+    // Fertile window typically starts 5 days before ovulation
+    return Math.max(1, this.ovulationDay - 5);
+  }
+
+  get fertileWindowEnd(): number {
+    // Fertile window ends 1 day after ovulation
+    return Math.min(this.cycleLength, this.ovulationDay + 1);
+  }
+
+  get isInFertileWindow(): boolean {
+    return this.todayCycleDay >= this.fertileWindowStart && this.todayCycleDay <= this.fertileWindowEnd;
+  }
+
+  get isOvulationDay(): boolean {
+    return this.todayCycleDay === this.ovulationDay;
+  }
+
+  get pmsStart(): number {
+    // PMS typically starts 5-7 days before next period
+    return Math.max(1, this.cycleLength - 6);
+  }
+
+  get pmsEnd(): number {
+    return this.cycleLength;
+  }
+
+  get isInPMS(): boolean {
+    return this.todayCycleDay >= this.pmsStart && this.todayCycleDay <= this.pmsEnd;
+  }
+
+  // Reactive effects - must be field initializers for injection context
+  private watchUserInfo = effect(() => {
+    const userInfo = this.userInfoService.userInfo();
+    if (userInfo) {
+      console.log('🔄 User info changed from API:', userInfo);
+      this.cycleLength = userInfo.cycleLength || 28;
+      this.periodLength = userInfo.periodLength || 5;
+      this.startDate = userInfo.lastPeriodDate || null;
+      if (this.startDate) {
+        this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+      }
+      this.recomputeEverything();
+    }
+  });
+
+  private watchCycleLength = effect(() => {
+    const v = this.cycleSettings.cycleLength();
+    console.log('🔄 Cycle length changed (local):', v);
+    this.onCycleLengthChange(v as number);
+  });
+
+  private watchPeriodLength = effect(() => {
+    const v = this.cycleSettings.periodLength();
+    console.log('🔄 Period length changed (local):', v);
+    this.onPeriodLengthChange(v as number);
+  });
+
+  private watchLastPeriodStart = effect(() => {
+    const v = this.cycleSettings.lastPeriodStartDate();
+    console.log('🔄 Last period start changed (local):', v);
+    this.startDate = (v as string) || null;
+    if (this.startDate) {
+      this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+    }
+    this.recomputeEverything();
+  });
 
   // Today
   todayDate: Date = new Date();
@@ -129,33 +210,103 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    // initialize from shared settings, stay reactive
-    this.cycleLength = this.cycleSettings.cycleLength();
-    this.periodLength = this.cycleSettings.periodLength();
-    const lp = this.cycleSettings.lastPeriodStartDate();
-    if (lp) this.startDate = lp;
-    this.recomputeEverything();
+    // Load data from API first, then fallback to local storage
+    this.loadDataFromAPI();
   }
 
-  // watch for changes (must be in injection context; field initializers are OK)
-  private watchCycleLength = effect(() => {
-    const v = this.cycleSettings.cycleLength();
-    this.onCycleLengthChange(v as number);
-  });
+  /**
+   * Load data from API (UserInfoService) with fallback to local storage
+   */
+  private loadDataFromAPI() {
+    console.log('🔄 loadDataFromAPI called');
+    
+    // Always fetch fresh data from API first
+    console.log('🌐 Always fetching fresh data from API...');
+    this.fetchDataFromAPI();
+  }
 
-  private watchPeriodLength = effect(() => {
-    const v = this.cycleSettings.periodLength();
-    this.onPeriodLengthChange(v as number);
-  });
+  /**
+   * Fetch fresh data from API
+   */
+  private fetchDataFromAPI() {
+    this.isLoading = true;
+    
+    // Get user ID from localStorage or use default
+    const userId = this.getCurrentUserId();
+    
+    this.userInfoService.getUserOnboardingData(userId).subscribe({
+      next: (userInfo) => {
+        this.cycleLength = userInfo.cycleLength || 28;
+        this.periodLength = userInfo.periodLength || 5;
+        this.startDate = userInfo.lastPeriodDate || null;
+        this.isLoading = false;
+        this.recomputeEverything();
+      },
+      error: (error) => {
+        // Fallback to local storage
+        this.cycleLength = this.cycleSettings.cycleLength();
+        this.periodLength = this.cycleSettings.periodLength();
+        const lp = this.cycleSettings.lastPeriodStartDate();
+        this.startDate = lp || null;
+        this.isLoading = false;
+        this.recomputeEverything();
+      }
+    });
+  }
 
-  private watchLastPeriodStart = effect(() => {
-    const v = this.cycleSettings.lastPeriodStartDate();
-    this.startDate = (v as string) || null;
-    if (this.startDate) {
-      this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+  /**
+   * Get current user ID from localStorage
+   */
+  private getCurrentUserId(): number {
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      
+      if (userInfo) {
+        const parsed = JSON.parse(userInfo);  
+        
+        const userId = parsed.userId || parsed.id || parsed.user?.id || 1;
+        return userId;
+      }
+    } catch (error) {
+      console.error('❌ Error getting current user ID:', error);
     }
-    this.recomputeEverything();
-  });
+    
+    return 1; // Default user ID
+  }
+
+
+  /**
+   * Public method to manually refresh the chart
+   * This can be called from parent components when data changes
+   */
+  public refreshChart() {
+    // Always fetch fresh data from API
+    this.fetchDataFromAPI();
+  }
+
+  /**
+   * Debug method to check current state
+   */
+  public debugState() {
+    console.log('🔍 Chart Debug State:');
+    console.log('- Cycle Length:', this.cycleLength);
+    console.log('- Period Length:', this.periodLength);
+    console.log('- Start Date:', this.startDate);
+    console.log('- End Date:', this.endDate);
+    console.log('- Today Cycle Day:', this.todayCycleDay);
+    console.log('- Service Last Period:', this.cycleSettings.lastPeriodStartDate());
+    console.log('- Service Cycle Length:', this.cycleSettings.cycleLength());
+    console.log('- Service Period Length:', this.cycleSettings.periodLength());
+  }
+
+  /**
+   * Force complete reinitialization of the chart
+   */
+  public forceReinitialize() {
+    console.log('🔄 Force reinitializing chart...');
+    this.ngOnInit();
+  }
+
 
   dashArray(len: number): string {
     // len is in "days" relative to cycleLength
@@ -584,5 +735,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
     // positions for today & ovulation
     this.updatePositions();
+    
+    // Force change detection to update the view
+    this.cdr.detectChanges();
   }
 }

@@ -27,6 +27,23 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     const completion = this.profileCompletionService.profileCompletion();
     return completion;
   }
+
+  // Getter methods for field completion status
+  get isNameCompleted(): boolean {
+    return this.profileCompletionService.isNameCompleted;
+  }
+
+  get isEmailCompleted(): boolean {
+    return this.profileCompletionService.isEmailCompleted;
+  }
+
+  get isBirthdayCompleted(): boolean {
+    return this.profileCompletionService.isBirthdayCompleted;
+  }
+
+  get currentUserData(): any {
+    return this.profileCompletionService.currentUserData;
+  }
   selectedTab = 'first';
   // swiperEl = viewChild('swiperContainer');
   router = inject(Router);
@@ -38,7 +55,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   profileImage: string | null = null;
   private userService = inject(User);
   private imageUrlService = inject(ImageUrlService);
-  private profileCompletionService = inject(ProfileCompletionService);
+  public profileCompletionService = inject(ProfileCompletionService);
   
   userInfo = signal<any[]>([
     {
@@ -220,11 +237,15 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   }
 
   ionViewWillEnter(): void {
-    // Refresh profile data when entering the page
+    // Refresh profile data from API when entering the page
     this.refreshProfileData();
   }
 
     ngOnInit(): void {
+    // Load profile data from API
+    this.profileCompletionService.refreshFromAPI();
+    
+    // Also load from localStorage for immediate display
     try {
       this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const u = this.userInfoStore?.user || {};
@@ -233,7 +254,6 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.birthday = u.birthday || '';
       this.city = u.city || '';
       this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
-      // Don't initialize service here - wait for API data
     } catch (error) {
       console.error('ProfileComponent - Error loading from localStorage:', error);
     }

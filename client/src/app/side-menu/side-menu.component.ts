@@ -119,22 +119,22 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   }
 
   ionViewWillEnter(): void {
-    // Refresh profile data when entering the page
+    // Refresh profile data from API when entering the page
     this.loadUserProfile();
   }
 
   private loadUserProfile() {
-    // Load user profile from localStorage or service
+    // Load user profile from API
+    this.profileCompletionService.refreshFromAPI();
+    
+    // Also try to get basic user info from localStorage for immediate display
     try {
       const userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const user = userInfoStore?.user || {};
       this.userName = user.name || this.userName;
       this.userProfileImage = this.imageUrlService.getImageUrl(user.profileImage);
-      
-      // Update the service with user data
-      this.profileCompletionService.updateUserData(user);
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      console.error('Error loading user profile from localStorage:', error);
     }
   }
 }

@@ -30,7 +30,6 @@ export class UserInfoService {
     const userId = this.getCurrentUserId();
     const payload = this.transformOnboardingData(onboardingData);
     
-    console.log('Saving onboarding data for user:', userId, payload);
     
     // Call the real API endpoint
     return this.http.post<UserInfo>(`${environment.apiEndPoint}user/${userId}/onboarding`, payload).pipe(
