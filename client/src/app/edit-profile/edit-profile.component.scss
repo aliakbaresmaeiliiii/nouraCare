@@ -213,17 +213,22 @@ ion-modal ion-toolbar {
   }
   
   .datetime-button {
-    --color: #667eea;
+    --color: #c4d3ff;
     font-weight: 500;
   }
   
   .cycle-select {
-    --color: #1e293b;
+    --color: white;
     font-weight: 500;
   }
-  
+
+  // Ensure select text is white
+  ::ng-deep .cycle-select .select-text {
+    color: white !important;
+  }
+
   .date-button {
-    --background: #667eea;
+    --background: #c4d3ff;
     --color: white;
     --border-radius: 8px;
     font-size: 14px;
@@ -247,7 +252,7 @@ ion-modal ion-toolbar {
     margin: 0 0 20px 0;
     
     .status-value {
-      color: #667eea;
+      color: #c4d3ff;
       font-weight: 600;
     }
   }
@@ -269,7 +274,7 @@ ion-modal ion-toolbar {
       }
       
       .status-radio {
-        --color: #667eea;
+        --color: #c4d3ff;
         --color-checked: #667eea;
       }
       
@@ -361,7 +366,7 @@ ion-modal ion-toolbar {
   padding: 20px;
   
   .city-button {
-    --color: #667eea;
+    --color: #c4d3ff;
     font-weight: 500;
     text-transform: none;
     
@@ -380,7 +385,7 @@ ion-modal ion-toolbar {
     margin-top: 20px;
     
     .location-button {
-      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --background: linear-gradient(135deg, #c4d3ff 0%, #764ba2 100%);
       --color: white;
       --border-radius: 12px;
       font-weight: 500;
