@@ -1,0 +1,399 @@
+.week-detail-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+.week-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.week-number {
+  font-size: 4rem;
+  font-weight: bold;
+  margin-right: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.week-info {
+  flex: 1;
+}
+
+.week-title {
+  font-size: 1.8rem;
+  margin: 0 0 5px 0;
+  font-weight: 600;
+}
+
+.week-subtitle {
+  font-size: 1rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.baby-size-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.size-emoji {
+  font-size: 3rem;
+  margin-right: 20px;
+}
+
+.size-info h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+}
+
+.baby-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.9rem;
+}
+
+.week-navigation {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+}
+
+.tab-navigation {
+  background: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+ion-segment {
+  --background: transparent;
+}
+
+ion-segment-button {
+  --color: #666;
+  --color-checked: #ffffff;
+  --indicator-color: #667eea;
+  --background-checked: #667eea;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  font-size: 0.8rem;
+}
+
+ion-segment-button.segment-button-checked {
+  --color: #ffffff;
+  --background: #667eea;
+}
+
+ion-segment-button.segment-button-checked ion-label {
+  color: #ffffff !important;
+}
+
+ion-segment-button.segment-button-checked ion-icon {
+  color: #ffffff !important;
+}
+
+ion-segment-button ion-icon {
+  margin-bottom: 4px;
+}
+
+.tab-content {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: calc(100vh - 300px);
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-card {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-icon {
+  font-size: 1.5rem;
+  margin-right: 10px;
+  color: #667eea;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.development-list, .symptoms-list, .fun-facts,
+.food-list, .avoid-list, .supplements-list,
+.activities-list, .relaxation-list, .preparation-list,
+.appointments-list, .tests-list, .concerns-list,
+.tips-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.development-item, .symptom-item, .fact-item,
+.food-item, .avoid-item, .supplement-item,
+.activity-item, .relaxation-item, .preparation-item,
+.appointment-item, .test-item, .concern-item,
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.check-icon, .food-icon, .activity-icon {
+  color: #4CAF50;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.symptom-dot {
+  color: #FF9800;
+  font-size: 0.8rem;
+  margin-top: 6px;
+}
+
+.star-icon {
+  color: #FFD700;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.avoid-icon {
+  color: #F44336;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.supplement-icon, .test-icon {
+  color: #2196F3;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.relaxation-icon {
+  color: #9C27B0;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.preparation-icon {
+  color: #FF5722;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.appointment-icon {
+  color: #607D8B;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.concern-icon {
+  color: #FF9800;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.tip-star {
+  color: #FFD700;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.intimacy-status {
+  margin-bottom: 20px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.status-indicator.safe {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+  border: 2px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-indicator.caution {
+  background: rgba(255, 152, 0, 0.1);
+  color: #FF9800;
+  border: 2px solid rgba(255, 152, 0, 0.3);
+}
+
+.intimacy-tips, .intimacy-positions {
+  margin-top: 20px;
+}
+
+.intimacy-tips h4, .intimacy-positions h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.tip-item, .position-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.tip-icon {
+  color: #FFD700;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.position-icon {
+  color: #E91E63;
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.tips-section {
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin-top: 20px;
+}
+
+.tips-section .section-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.tips-section .section-header h3 {
+  color: #333;
+}
+
+.tips-section .section-icon {
+  color: #667eea;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .week-number {
+    font-size: 3rem;
+  }
+  
+  .week-title {
+    font-size: 1.5rem;
+  }
+  
+  .baby-size-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .size-emoji {
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+  
+  .baby-stats {
+    justify-content: center;
+  }
+  
+  ion-segment-button {
+    font-size: 0.7rem;
+  }
+  
+  .tab-content {
+    padding: 15px;
+  }
+  
+  .section-card {
+    padding: 15px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .tab-content {
+    background: #1a1a1a;
+  }
+  
+  .section-card {
+    background: #2d2d2d;
+    border-color: rgba(255,255,255,0.1);
+  }
+  
+  .section-header h3 {
+    color: #fff;
+  }
+  
+  .section-header {
+    border-bottom-color: rgba(255,255,255,0.1);
+  }
+  
+  .tips-section .section-card {
+    background: rgba(45, 45, 45, 0.95);
+  }
+}

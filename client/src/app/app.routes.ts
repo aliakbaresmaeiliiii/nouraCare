@@ -125,6 +125,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'week-detail',
+    loadComponent: () =>
+      import('./week-detail/week-detail.component').then(
+        (m) => m.WeekDetailComponent
+      ),
+  },
+  {
     path: 'tabs',
     component: LayoutComponent,
     // loadComponent: () =>

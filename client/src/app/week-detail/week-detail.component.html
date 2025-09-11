@@ -1,0 +1,302 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Week {{ pregnancyWeek }} Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showToast('Week ' + pregnancyWeek + ' Information')">
+        <ion-icon name="information-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="week-detail-content" *ngIf="weekData">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="week-header">
+      <div class="week-number">{{ weekData.week }}</div>
+      <div class="week-info">
+        <h1 class="week-title">{{ weekData.title }}</h1>
+        <p class="week-subtitle">Week {{ weekData.week }} of Pregnancy</p>
+      </div>
+    </div>
+    
+    <!-- Baby Size Card -->
+    <div class="baby-size-card">
+      <div class="size-emoji">👶</div>
+      <div class="size-info">
+        <h3>Baby Size: {{ weekData.babySize }}</h3>
+        <div class="baby-stats">
+          <div class="stat">
+            <ion-icon name="scale-outline"></ion-icon>
+            <span>{{ weekData.babyWeight }}</span>
+          </div>
+          <div class="stat">
+            <ion-icon name="resize-outline"></ion-icon>
+            <span>{{ weekData.babyLength }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Week Navigation -->
+    <div class="week-navigation">
+      <ion-button fill="clear" (click)="previousWeek()" [disabled]="pregnancyWeek <= 4">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        Previous Week
+      </ion-button>
+      <ion-button fill="clear" (click)="nextWeek()" [disabled]="pregnancyWeek >= 40">
+        Next Week
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <ion-segment [(ngModel)]="activeTab" (ionChange)="setActiveTab($event)">
+      <ion-segment-button value="development">
+        <ion-icon name="leaf-outline"></ion-icon>
+        <ion-label>Development</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="nutrition">
+        <ion-icon name="nutrition-outline"></ion-icon>
+        <ion-label>Nutrition</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="activities">
+        <ion-icon name="fitness-outline"></ion-icon>
+        <ion-label>Activities</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="intimacy">
+        <ion-icon name="heart-outline"></ion-icon>
+        <ion-label>Intimacy</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="medical">
+        <ion-icon name="medical-outline"></ion-icon>
+        <ion-label>Medical</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    
+    <!-- Development Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'development'">
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="leaf-outline" class="section-icon"></ion-icon>
+          <h3>Baby Development</h3>
+        </div>
+        <div class="development-list">
+          <div class="development-item" *ngFor="let item of weekData.development">
+            <ion-icon name="checkmark-circle" class="check-icon"></ion-icon>
+            <span>{{ item }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="warning-outline" class="section-icon"></ion-icon>
+          <h3>Common Symptoms</h3>
+        </div>
+        <div class="symptoms-list">
+          <div class="symptom-item" *ngFor="let symptom of weekData.symptoms">
+            <ion-icon name="ellipse" class="symptom-dot"></ion-icon>
+            <span>{{ symptom }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="bulb-outline" class="section-icon"></ion-icon>
+          <h3>Fun Facts</h3>
+        </div>
+        <div class="fun-facts">
+          <div class="fact-item" *ngFor="let fact of weekData.funFacts">
+            <ion-icon name="star-outline" class="star-icon"></ion-icon>
+            <span>{{ fact }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nutrition Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'nutrition'">
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="restaurant-outline" class="section-icon"></ion-icon>
+          <h3>Foods to Eat</h3>
+        </div>
+        <div class="food-list">
+          <div class="food-item" *ngFor="let food of weekData.nutrition.foods">
+            <ion-icon name="checkmark-circle" class="food-icon"></ion-icon>
+            <span>{{ food }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="close-circle-outline" class="section-icon avoid-icon"></ion-icon>
+          <h3>Foods to Avoid</h3>
+        </div>
+        <div class="avoid-list">
+          <div class="avoid-item" *ngFor="let avoid of weekData.nutrition.avoid">
+            <ion-icon name="close-circle" class="avoid-icon"></ion-icon>
+            <span>{{ avoid }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="medical-outline" class="section-icon"></ion-icon>
+          <h3>Supplements</h3>
+        </div>
+        <div class="supplements-list">
+          <div class="supplement-item" *ngFor="let supplement of weekData.nutrition.supplements">
+            <ion-icon name="medical" class="supplement-icon"></ion-icon>
+            <span>{{ supplement }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activities Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'activities'">
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="fitness-outline" class="section-icon"></ion-icon>
+          <h3>Exercise & Fitness</h3>
+        </div>
+        <div class="activities-list">
+          <div class="activity-item" *ngFor="let exercise of weekData.activities.exercise">
+            <ion-icon name="checkmark-circle" class="activity-icon"></ion-icon>
+            <span>{{ exercise }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="flower-outline" class="section-icon"></ion-icon>
+          <h3>Relaxation & Self-Care</h3>
+        </div>
+        <div class="relaxation-list">
+          <div class="relaxation-item" *ngFor="let relaxation of weekData.activities.relaxation">
+            <ion-icon name="leaf" class="relaxation-icon"></ion-icon>
+            <span>{{ relaxation }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="list-outline" class="section-icon"></ion-icon>
+          <h3>Preparation Tasks</h3>
+        </div>
+        <div class="preparation-list">
+          <div class="preparation-item" *ngFor="let prep of weekData.activities.preparation">
+            <ion-icon name="clipboard" class="preparation-icon"></ion-icon>
+            <span>{{ prep }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Intimacy Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'intimacy'">
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="heart-outline" class="section-icon"></ion-icon>
+          <h3>Intimacy & Sex</h3>
+        </div>
+        <div class="intimacy-status">
+          <div class="status-indicator" [class.safe]="weekData.intimacy.safe" [class.caution]="!weekData.intimacy.safe">
+            <ion-icon [name]="weekData.intimacy.safe ? 'checkmark-circle' : 'warning'"></ion-icon>
+            <span>{{ weekData.intimacy.safe ? 'Safe for Intimacy' : 'Use Caution' }}</span>
+          </div>
+        </div>
+        
+        <div class="intimacy-tips">
+          <h4>Tips & Guidelines</h4>
+          <div class="tip-item" *ngFor="let tip of weekData.intimacy.tips">
+            <ion-icon name="bulb-outline" class="tip-icon"></ion-icon>
+            <span>{{ tip }}</span>
+          </div>
+        </div>
+
+        <div class="intimacy-positions" *ngIf="weekData.intimacy.positions.length > 0">
+          <h4>Comfortable Positions</h4>
+          <div class="position-item" *ngFor="let position of weekData.intimacy.positions">
+            <ion-icon name="heart" class="position-icon"></ion-icon>
+            <span>{{ position }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medical Tab -->
+    <div class="tab-panel" *ngIf="activeTab === 'medical'">
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="calendar-outline" class="section-icon"></ion-icon>
+          <h3>Appointments</h3>
+        </div>
+        <div class="appointments-list">
+          <div class="appointment-item" *ngFor="let appointment of weekData.medical.appointments">
+            <ion-icon name="calendar" class="appointment-icon"></ion-icon>
+            <span>{{ appointment }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="flask-outline" class="section-icon"></ion-icon>
+          <h3>Tests & Screenings</h3>
+        </div>
+        <div class="tests-list">
+          <div class="test-item" *ngFor="let test of weekData.medical.tests">
+            <ion-icon name="flask" class="test-icon"></ion-icon>
+            <span>{{ test }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header">
+          <ion-icon name="warning-outline" class="section-icon"></ion-icon>
+          <h3>Things to Watch For</h3>
+        </div>
+        <div class="concerns-list">
+          <div class="concern-item" *ngFor="let concern of weekData.medical.concerns">
+            <ion-icon name="alert-circle" class="concern-icon"></ion-icon>
+            <span>{{ concern }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips Section -->
+  <div class="tips-section">
+    <div class="section-card">
+      <div class="section-header">
+        <ion-icon name="bulb-outline" class="section-icon"></ion-icon>
+        <h3>This Week's Tips</h3>
+      </div>
+      <div class="tips-list">
+        <div class="tip-item" *ngFor="let tip of weekData.tips">
+          <ion-icon name="star" class="tip-star"></ion-icon>
+          <span>{{ tip }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>

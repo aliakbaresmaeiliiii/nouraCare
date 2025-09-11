@@ -681,8 +681,8 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Pregnancy Progress
   viewPregnancyDetails() {
-    this.router.navigate(['/tabs/school']);
-    this.showToast('Opening baby development details...');
+    this.router.navigate(['/week-detail'], { queryParams: { week: this.pregnancyWeek } });
+    this.showToast('Opening week ' + this.pregnancyWeek + ' details...');
   }
 
   // Get current baby size data
