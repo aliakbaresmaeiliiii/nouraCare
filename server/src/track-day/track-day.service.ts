@@ -1,21 +1,19 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { CreateTrackDayDto, UpdateTrackDayDto } from './dto/track-day.dto';
+import { PrismaService } from '../prisma/services/prisma.service';
 
 @Injectable()
 export class TrackDayService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createTrackDay(userId: number, createTrackDayDto: CreateTrackDayDto) {
     const { date, mood, energy, symptoms, notes } = createTrackDayDto;
 
     // Check if track day already exists for this user and date
-    const existingTrackDay = await this.prisma.trackDay.findUnique({
+    const existingTrackDay = await this.prisma.trackDay.findFirst({
       where: {
-        unique_user_date: {
-          userId,
-          date: new Date(date),
-        },
+        userId,
+        date: new Date(date),
       },
     });
 
@@ -40,7 +38,7 @@ export class TrackDayService {
 
     const trackDay = await this.prisma.trackDay.findUnique({
       where: {
-        unique_user_date: {
+        userId_date: {
           userId,
           date: new Date(date),
         },
@@ -53,7 +51,7 @@ export class TrackDayService {
 
     return this.prisma.trackDay.update({
       where: {
-        unique_user_date: {
+        userId_date: {
           userId,
           date: new Date(date),
         },
@@ -67,14 +65,16 @@ export class TrackDayService {
     });
   }
 
-  async getTrackDay(userId: number, date: string) {
-    const trackDay = await this.prisma.trackDay.findUnique({
+  async getSymptomsRange(userId: number, startDate: string, endDate: string) {
+    const trackDay = await this.prisma.trackDay.findMany({
       where: {
-        unique_user_date: {
-          userId,
-          date: new Date(date),
+        userId,
+        date: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
         },
       },
+      orderBy: { date: 'desc' },
     });
 
     if (!trackDay) {
@@ -82,10 +82,12 @@ export class TrackDayService {
     }
 
     return {
-      ...trackDay,
-      mood: trackDay.mood ? JSON.parse(trackDay.mood) : null,
-      energy: trackDay.energy ? JSON.parse(trackDay.energy) : null,
-      symptoms: trackDay.symptoms ? JSON.parse(trackDay.symptoms) : null,
+      ...trackDay.map(trackDay => ({
+        ...trackDay,
+        mood: trackDay.mood ? JSON.parse(trackDay.mood) : null,
+        energy: trackDay.energy ? JSON.parse(trackDay.energy) : null,
+        symptoms: trackDay.symptoms ? JSON.parse(trackDay.symptoms) : null,
+      })),
     };
   }
 
@@ -115,7 +117,7 @@ export class TrackDayService {
   async deleteTrackDay(userId: number, date: string) {
     const trackDay = await this.prisma.trackDay.findUnique({
       where: {
-        unique_user_date: {
+        userId_date: {
           userId,
           date: new Date(date),
         },
@@ -128,7 +130,7 @@ export class TrackDayService {
 
     return this.prisma.trackDay.delete({
       where: {
-        unique_user_date: {
+        userId_date: {
           userId,
           date: new Date(date),
         },

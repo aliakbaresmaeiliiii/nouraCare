@@ -2,6 +2,10 @@ import { Component, OnInit, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController, AlertController } from '@ionic/angular';
 import { SharedModule } from '../shared/shared-module';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { TrackDay } from './track-day';
 
 interface SymptomData {
   id: string;
@@ -34,6 +38,9 @@ export class SymptomsTrackerComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
+  private fb = inject(FormBuilder);
+  private http = inject(HttpClient);
+  private trackService = inject(TrackDay);
 
   selectedDate: string = new Date().toISOString().split('T')[0];
   maxDate: string = new Date().toISOString();
@@ -42,6 +49,9 @@ export class SymptomsTrackerComponent implements OnInit {
   selectedSymptoms: SymptomData[] = [];
   notes: string = '';
   activeTab: string = 'today';
+
+  // Reactive Form
+  symptomsForm!: FormGroup;
 
   // Available symptoms based on pregnancy stage
   availableSymptoms = [
@@ -79,6 +89,7 @@ export class SymptomsTrackerComponent implements OnInit {
   dailySymptomsHistory: DailySymptoms[] = [];
 
   ngOnInit() {
+    this.initializeForm();
     this.route.queryParams.subscribe(params => {
       if (params['date']) {
         this.selectedDate = params['date'];
@@ -87,23 +98,57 @@ export class SymptomsTrackerComponent implements OnInit {
     this.loadTodayData();
   }
 
+  initializeForm() {
+    this.symptomsForm = this.fb.group({
+      date: [this.selectedDate, Validators.required],
+      mood: ['good', Validators.required],
+      energy: ['medium', Validators.required],
+      symptoms: this.fb.array([]),
+      notes: [''],
+      pregnancyWeek: [this.getCurrentPregnancyWeek()]
+    });
+  }
+
   onDateChange(event: any) {
     this.selectedDate = event.detail.value;
+    this.symptomsForm.patchValue({ date: this.selectedDate });
+    this.symptomsForm.get('date')?.markAsTouched();
     this.loadTodayData();
   }
 
   onNotesChange(event: any) {
     this.notes = event.detail.value;
+    this.symptomsForm.patchValue({ notes: this.notes });
+    this.symptomsForm.get('notes')?.markAsTouched();
+  }
+
+  onMoodChange(mood: string) {
+    this.currentMood = mood;
+    this.symptomsForm.patchValue({ mood: mood });
+    this.symptomsForm.get('mood')?.markAsTouched();
+  }
+
+  onEnergyChange(energy: string) {
+    this.currentEnergy = energy;
+    this.symptomsForm.patchValue({ energy: energy });
+    this.symptomsForm.get('energy')?.markAsTouched();
   }
 
   loadTodayData() {
     // Load existing data for today if available
     const todayData = this.dailySymptomsHistory.find(d => d.date === this.selectedDate);
     if (todayData) {
-      this.currentMood = todayData.mood;
-      this.currentEnergy = todayData.energy;
-      this.selectedSymptoms = todayData.symptoms;
-      this.notes = todayData.notes;
+      // Parse JSON strings if they exist
+      this.currentMood = typeof todayData.mood === 'string' 
+        ? JSON.parse(todayData.mood) 
+        : todayData.mood;
+      this.currentEnergy = typeof todayData.energy === 'string' 
+        ? JSON.parse(todayData.energy) 
+        : todayData.energy;
+      this.selectedSymptoms = typeof todayData.symptoms === 'string' 
+        ? JSON.parse(todayData.symptoms) 
+        : (todayData.symptoms || []);
+      this.notes = todayData.notes || '';
     } else {
       this.resetForm();
     }
@@ -138,6 +183,26 @@ export class SymptomsTrackerComponent implements OnInit {
       };
       this.selectedSymptoms.push(newSymptom);
     }
+
+    // Update form array
+    this.updateSymptomsFormArray();
+  }
+
+  updateSymptomsFormArray() {
+    const symptomsArray = this.symptomsForm.get('symptoms') as FormArray;
+    symptomsArray.clear();
+
+    this.selectedSymptoms.forEach(symptom => {
+      symptomsArray.push(this.fb.group({
+        id: [symptom.id],
+        name: [symptom.name],
+        category: [symptom.category],
+        icon: [symptom.icon],
+        severity: [symptom.severity],
+        notes: [symptom.notes || ''],
+        timestamp: [symptom.timestamp]
+      }));
+    });
   }
 
   isSymptomSelected(symptomId: string): boolean {
@@ -227,6 +292,33 @@ export class SymptomsTrackerComponent implements OnInit {
 
   async saveSymptoms() {
     try {
+      // Update form with current values
+      this.symptomsForm.patchValue({
+        date: this.selectedDate,
+        mood: this.currentMood,
+        energy: this.currentEnergy,
+        notes: this.notes,
+        pregnancyWeek: this.getCurrentPregnancyWeek()
+      });
+
+      // Validate form
+      if (this.symptomsForm.invalid) {
+        await this.showToast('Please fill in all required fields', 'warning');
+        return;
+      }
+
+      // Prepare API data
+      const formData = this.symptomsForm.value;
+      const apiData = {
+        ...formData,
+        userId: this.getUserId(), // Get from localStorage or auth service
+        timestamp: new Date().toISOString()
+      };
+
+      // Send to API
+      await this.sendSymptomsToAPI(apiData);
+
+      // Update local history with API-compatible format
       const dailyData: DailySymptoms = {
         date: this.selectedDate,
         mood: this.currentMood as any,
@@ -234,27 +326,68 @@ export class SymptomsTrackerComponent implements OnInit {
         symptoms: [...this.selectedSymptoms],
         notes: this.notes
       };
-      debugger;
-      // Update or add to history
+
+      // Convert to API format (JSON strings for symptoms, mood, energy)
+      const apiFormattedData = {
+        ...dailyData,
+        symptoms: JSON.stringify(dailyData.symptoms),
+        mood: JSON.stringify(dailyData.mood),
+        energy: JSON.stringify(dailyData.energy)
+      };
+
       const existingIndex = this.dailySymptomsHistory.findIndex(d => d.date === this.selectedDate);
       if (existingIndex >= 0) {
-        this.dailySymptomsHistory[existingIndex] = dailyData;
-      } else {
-        this.dailySymptomsHistory.push(dailyData);
+        this.dailySymptomsHistory[existingIndex] = apiFormattedData as unknown as DailySymptoms;
+      } else {  
+        this.dailySymptomsHistory.push(apiFormattedData as unknown as DailySymptoms);
       }
 
       // Show success message
       await this.showToast('✅ Symptoms saved successfully!', 'success');
 
       // Show summary of what was saved
-      await this.showSaveSummary(dailyData);
+      // await this.showSaveSummary(dailyData);
+
+      // Refresh home page data
+      this.refreshHomePageData();
 
       // Navigate back to home
       this.navCtrl.back();
 
     } catch (error) {
+      console.error('Error saving symptoms:', error);
       await this.showToast('❌ Failed to save symptoms. Please try again.', 'danger');
     }
+  }
+
+  sendSymptomsToAPI(data: any) {
+    try {
+      this.trackService.createSymptoms(this.getUserId(), data).subscribe((response) => {
+
+      });
+
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  }
+
+  getUserId(): string {
+    try {
+      const userInfo = localStorage.getItem('userInfo');
+      if (userInfo) {
+        const parsed = JSON.parse(userInfo);
+        return parsed.user?.id || parsed.id || 'anonymous';
+      }
+    } catch (error) {
+      console.error('Error getting user ID:', error);
+    }
+    return 'anonymous';
+  }
+
+  refreshHomePageData() {
+    // Trigger a custom event to refresh home page data
+    window.dispatchEvent(new CustomEvent('symptomsUpdated'));
   }
 
   async showSaveSummary(data: DailySymptoms) {

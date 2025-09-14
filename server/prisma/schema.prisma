@@ -73,12 +73,12 @@ model TrackDay {
   userId    Int
   user      user     @relation(fields: [userId], references: [id])
   date      DateTime
-  mood      String?  // JSON string for mood data
-  energy    String?  // JSON string for energy data
-  symptoms  String?  // JSON string array for symptoms
-  notes     String?
+  mood      String?  @db.Text // JSON string for mood data
+  energy    String?  @db.Text // JSON string for energy data
+  symptoms  String?  @db.Text // JSON string array for symptoms
+  notes     String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  @@unique([userId, date], map: "unique_user_date")
+  @@unique([userId, date], map: "userId_date")
 }

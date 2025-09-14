@@ -29,17 +29,19 @@ export class TrackDayController {
     return this.trackDayService.createTrackDay(userIdNumber, createTrackDayDto);
   }
 
-  @Get(':userId/:date')
-  async getTrackDay(
+
+@Get(':userId/range')
+async getSymptomsRange(
     @Param('userId') userId: string,
-    @Param('date') date: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string
   ) {
     const userIdNumber = parseInt(userId);
     if (isNaN(userIdNumber)) {
       throw new BadRequestException('Invalid user ID');
     }
 
-    return this.trackDayService.getTrackDay(userIdNumber, date);
+    return this.trackDayService.getSymptomsRange(userIdNumber, startDate, endDate);
   }
 
   @Put(':userId/:date')
@@ -56,30 +58,31 @@ export class TrackDayController {
     return this.trackDayService.updateTrackDay(userIdNumber, date, updateTrackDayDto);
   }
 
-  @Delete(':userId/:date')
+  @Delete(':userId/range')
   async deleteTrackDay(
     @Param('userId') userId: string,
-    @Param('date') date: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
   ) {
     const userIdNumber = parseInt(userId);
     if (isNaN(userIdNumber)) {
       throw new BadRequestException('Invalid user ID');
     }
 
-    return this.trackDayService.deleteTrackDay(userIdNumber, date);
+    // return this.trackDayService.deleteTrackDay(userIdNumber, startDate, endDate);
   }
 
-  @Get(':userId')
+  @Get(':userId/range')
   async getTrackDaysByUser(
     @Param('userId') userId: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
   ) {
     const userIdNumber = parseInt(userId);
     if (isNaN(userIdNumber)) {
       throw new BadRequestException('Invalid user ID');
     }
 
-    return this.trackDayService.getTrackDaysByUser(userIdNumber, startDate, endDate);
+    // return this.trackDayService.getSymptomsRange(userIdNumber, startDate, endDate);
   }
 }

@@ -1,0 +1,154 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Symptoms Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="editDay()" *ngIf="dayData">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="symptoms-detail-container">
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <ion-icon name="hourglass-outline" class="loading-icon"></ion-icon>
+      <p>Loading symptoms data...</p>
+    </div>
+
+    <!-- No Data State -->
+    <div class="no-data-state" *ngIf="!loading && !dayData">
+      <ion-icon name="calendar-outline" class="no-data-icon"></ion-icon>
+      <h2>No Data Found</h2>
+      <p>No symptoms data found for {{ formatDate(selectedDate) }}</p>
+      <ion-button fill="solid" (click)="editDay()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Track Symptoms
+      </ion-button>
+    </div>
+
+    <!-- Day Data -->
+    <div class="day-data" *ngIf="!loading && dayData">
+
+      <!-- Date Header -->
+      <div class="date-header">
+        <h1 class="date-title">{{ formatDate(selectedDate) }}</h1>
+        <p class="date-subtitle">{{ selectedDate }}</p>
+      </div>
+
+      <!-- Mood & Energy Summary -->
+      <ion-card class="summary-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="heart-outline" class="card-icon"></ion-icon>
+            Daily Summary
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="summary-icon">
+                <ion-icon [name]="getMoodIcon(dayData.mood)" class="mood-icon"></ion-icon>
+
+              </div>
+              <div class="summary-content">
+                <h3>Mood</h3>
+                <p class="summary-value">{{ dayData.mood | titlecase }}</p>
+              </div>
+            </div>
+
+            <div class="summary-item">
+              <div class="summary-icon">
+                <ion-icon [name]="getEnergyIcon(dayData.energy)" class="energy-icon"></ion-icon>
+              </div>
+              <div class="summary-content">
+                <h3>Energy Level</h3>
+                <p class="summary-value">{{ dayData.energy | titlecase }}</p>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Symptoms List -->
+      <ion-card class="symptoms-card" *ngIf="dayData.symptoms && dayData.symptoms.length > 0">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="medical-outline" class="card-icon"></ion-icon>
+            Symptoms ({{ dayData.symptoms.length }})
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="symptoms-list">
+            <div class="symptom-item" *ngFor="let symptom of dayData.symptoms">
+              <div class="symptom-header">
+                <div class="symptom-info">
+                  <ion-icon [name]="symptom.icon" class="symptom-icon"></ion-icon>
+                  <div class="symptom-details">
+                    <h4 class="symptom-name">{{ symptom.name }}</h4>
+                    <p class="symptom-category">{{ symptom.category }}</p>
+                  </div>
+                </div>
+                <ion-badge [color]="getSeverityColor(symptom.severity)" class="severity-badge">
+                  {{ symptom.severity | titlecase }}
+                </ion-badge>
+              </div>
+
+              <div class="symptom-description" *ngIf="symptom.notes">
+                <p>{{ symptom.notes }}</p>
+              </div>
+
+              <div class="symptom-notes" *ngIf="symptom.notes">
+                <ion-note>
+                  <ion-icon name="document-text-outline" slot="start"></ion-icon>
+                  {{ symptom.notes }}
+                </ion-note>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- No Symptoms -->
+      <ion-card class="no-symptoms-card" *ngIf="!dayData.symptoms || dayData.symptoms.length === 0">
+        <ion-card-content>
+          <div class="no-symptoms-content">
+            <ion-icon name="checkmark-circle-outline" class="no-symptoms-icon"></ion-icon>
+            <h3>No Symptoms Recorded</h3>
+            <p>You had a symptom-free day!</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Notes Section -->
+      <ion-card class="notes-card" *ngIf="dayData.notes">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="document-text-outline" class="card-icon"></ion-icon>
+            Daily Notes
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="notes-content">
+            <p>{{ dayData.notes }}</p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <ion-button fill="outline" expand="block" (click)="editDay()">
+          <ion-icon name="create-outline" slot="start"></ion-icon>
+          Edit This Day
+        </ion-button>
+      </div>
+
+    </div>
+
+  </div>
+</ion-content>

@@ -348,12 +348,30 @@ ion-segment-button ion-icon {
   }
 }
 
+// Form Validation
+.form-validation {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  text-align: center;
+  
+  ion-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
 .save-section {
   padding: 25px 20px;
   background: white;
   margin: 20px;
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+
+  ion-button[disabled] {
+    --background: #f0f0f0;
+    --color: #999;
+    opacity: 0.6;
+  }
 }
 
 /* Responsive Design */

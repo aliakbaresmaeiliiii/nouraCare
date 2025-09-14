@@ -1,0 +1,86 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Symptoms History</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="trackNewSymptoms()">
+        <ion-icon name="add-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="symptoms-history-container">
+    
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <ion-icon name="hourglass-outline" class="loading-icon"></ion-icon>
+      <p>Loading symptoms history...</p>
+    </div>
+
+    <!-- No Data State -->
+    <div class="no-data-state" *ngIf="!loading && symptomsHistory.length === 0">
+      <ion-icon name="calendar-outline" class="no-data-icon"></ion-icon>
+      <h2>No History Found</h2>
+      <p>You haven't tracked any symptoms yet. Start tracking to see your history here.</p>
+      <ion-button fill="solid" (click)="trackNewSymptoms()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Start Tracking
+      </ion-button>
+    </div>
+
+    <!-- Symptoms History List -->
+    <div class="symptoms-history-list" *ngIf="!loading && symptomsHistory.length > 0">
+      
+      <!-- Header -->
+      <div class="history-header">
+        <h2>Your Symptoms History</h2>
+        <p>{{ symptomsHistory.length }} days tracked</p>
+      </div>
+
+      <!-- History Items -->
+      <div class="history-item" *ngFor="let day of symptomsHistory" (click)="viewDayDetails(day.date)">
+        <div class="item-header">
+          <div class="date-info">
+            <h3 class="day-name">{{ getDayName(day.date) }}</h3>
+            <p class="date-formatted">{{ formatDate(day.date) }}</p>
+          </div>
+          <div class="mood-energy-badge">
+            <div class="mood-info">
+              <ion-icon [name]="getMoodIcon(day.mood)" class="mood-icon"></ion-icon>
+              <span class="mood-text">{{ day.mood | titlecase }}</span>
+            </div>
+            <div class="energy-info">
+              <ion-icon [name]="getEnergyIcon(day.energy)" class="energy-icon"></ion-icon>
+              <span class="energy-text">{{ day.energy | titlecase }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="symptoms-preview" *ngIf="day.symptoms && day.symptoms.length > 0">
+          <div class="symptom-tag" *ngFor="let symptom of day.symptoms.slice(0, 3)">
+            <ion-icon [name]="symptom.icon" class="symptom-icon"></ion-icon>
+            <span class="symptom-name">{{ symptom.name }}</span>
+          </div>
+          <div class="more-symptoms" *ngIf="day.symptoms.length > 3">
+            +{{ day.symptoms.length - 3 }} more
+          </div>
+        </div>
+        
+        <div class="no-symptoms-preview" *ngIf="!day.symptoms || day.symptoms.length === 0">
+          <ion-icon name="checkmark-circle-outline" class="no-symptoms-icon"></ion-icon>
+          <span class="no-symptoms-text">No symptoms</span>
+        </div>
+        
+        <div class="item-footer">
+          <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</ion-content>

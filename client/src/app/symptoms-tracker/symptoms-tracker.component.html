@@ -13,15 +13,27 @@
 </ion-header>
 
 <ion-content class="symptoms-tracker-content">
-  <!-- Date Selector -->
-  <div class="date-selector">
-    <ion-datetime 
-      [value]="selectedDate"
-      presentation="date"
-      [max]="maxDate"
-      (ionChange)="onDateChange($event)">
-    </ion-datetime>
-  </div>
+  <!-- Reactive Form -->
+  <form [formGroup]="symptomsForm" (ngSubmit)="saveSymptoms()">
+    
+    <!-- Hidden Form Controls -->
+    <ion-input formControlName="mood" type="hidden"></ion-input>
+    <ion-input formControlName="energy" type="hidden"></ion-input>
+    <ion-input formControlName="pregnancyWeek" type="hidden"></ion-input>
+    
+    <!-- Date Selector -->
+    <div class="date-selector">
+      <ion-datetime 
+        [value]="selectedDate"
+        presentation="date"
+        [max]="maxDate"
+        (ionChange)="onDateChange($event)">
+      </ion-datetime>
+      <!-- Form Validation -->
+      <div class="form-validation" *ngIf="symptomsForm.get('date')?.invalid && symptomsForm.get('date')?.touched">
+        <ion-text color="danger">Please select a valid date</ion-text>
+      </div>
+    </div>
 
   <!-- Quick Mood & Energy Selector -->
   <div class="quick-selectors">
@@ -33,10 +45,15 @@
           [fill]="currentMood === mood ? 'solid' : 'outline'"
           [color]="currentMood === mood ? 'primary' : 'medium'"
           size="small"
-          (click)="currentMood = mood">
+          type="button"
+          (click)="onMoodChange(mood)">
           {{ getMoodEmoji(mood) }}
           <span class="mood-label">{{ mood | titlecase }}</span>
         </ion-button>
+      </div>
+      <!-- Mood Validation -->
+      <div class="form-validation" *ngIf="symptomsForm.get('mood')?.invalid && symptomsForm.get('mood')?.touched">
+        <ion-text color="danger">Please select your mood</ion-text>
       </div>
     </div>
 
@@ -48,17 +65,22 @@
           [fill]="currentEnergy === energy ? 'solid' : 'outline'"
           [color]="currentEnergy === energy ? 'secondary' : 'medium'"
           size="small"
-          (click)="currentEnergy = energy">
+          type="button"
+          (click)="onEnergyChange(energy)">
           {{ getEnergyEmoji(energy) }}
           <span class="energy-label">{{ energy | titlecase }}</span>
         </ion-button>
+      </div>
+      <!-- Energy Validation -->
+      <div class="form-validation" *ngIf="symptomsForm.get('energy')?.invalid && symptomsForm.get('energy')?.touched">
+        <ion-text color="danger">Please select your energy level</ion-text>
       </div>
     </div>
   </div>
 
   <!-- Tab Navigation -->
   <div class="tab-navigation">
-    <ion-segment [(ngModel)]="activeTab" (ionChange)="setActiveTab($event)">
+    <ion-segment [(ngModel)]="activeTab" [ngModelOptions]="{standalone: true}" (ionChange)="setActiveTab($event)">
       <ion-segment-button value="today">
         <ion-icon name="today-outline"></ion-icon>
         <ion-label>Today</ion-label>
@@ -227,11 +249,13 @@
     </div>
   </div>
 
-  <!-- Save Button -->
-  <div class="save-section">
-    <ion-button expand="block" fill="solid" (click)="saveSymptoms()">
-      <ion-icon name="save-outline" slot="start"></ion-icon>
-      Save Today's Symptoms
-    </ion-button>
-  </div>
+    <!-- Save Button -->
+    <div class="save-section">
+      <ion-button expand="block" fill="solid" type="submit" [disabled]="symptomsForm.invalid">
+        <ion-icon name="save-outline" slot="start"></ion-icon>
+        Save Today's Symptoms
+      </ion-button>
+    </div>
+    
+  </form>
 </ion-content>

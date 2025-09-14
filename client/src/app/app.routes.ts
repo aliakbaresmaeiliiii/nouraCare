@@ -139,6 +139,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'symptoms-detail',
+    loadComponent: () =>
+      import('./symptoms-detail/symptoms-detail.component').then(
+        (m) => m.SymptomsDetailComponent
+      ),
+  },
+  {
+    path: 'symptoms-history',
+    loadComponent: () =>
+      import('./symptoms-history/symptoms-history.component').then(
+        (m) => m.SymptomsHistoryComponent
+      ),
+  },
+  {
     path: 'tabs',
     component: LayoutComponent,
     // loadComponent: () =>

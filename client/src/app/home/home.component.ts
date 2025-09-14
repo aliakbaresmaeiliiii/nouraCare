@@ -3,6 +3,7 @@ import { ViewWillEnter } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import Swiper from 'swiper';
+import { forkJoin } from 'rxjs';
 import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-picker-page/period-date-picker-page.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
 import { MessageService } from '../shared/services/message.service';
@@ -10,6 +11,8 @@ import { CycleSettingsService } from '../shared/services/cycle-settings.service'
 import { BabyDevelopmentService } from '../shared/services/baby-development.service';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { SharedModule } from '../shared/shared-module';
+import { TrackDay } from '../symptoms-tracker/track-day';
+import { SymptomsDto } from '../shared/models/symptoms.dto';
 
 @Component({
   selector: 'app-home',
@@ -23,7 +26,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
-  
+  private trackDayService = inject(TrackDay);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
   
   welcomeMessage: string = '';
@@ -154,6 +157,39 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
           },
         });
       }
+
+      // Initialize Symptoms Swiper
+      const symptomsSwiperElement = document.querySelector('.symptomsSwiper');
+      if (symptomsSwiperElement) {
+        var symptomsSwiper = new Swiper('.symptomsSwiper', {
+          slidesPerView: 1,
+          spaceBetween: 10,
+          centeredSlides: true,
+          loop: false,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          autoplay: {
+            delay: 3000,
+            disableOnInteraction: false,
+          },
+          breakpoints: {
+            640: {
+              slidesPerView: 1.2,
+              spaceBetween: 15,
+            },
+            768: {
+              slidesPerView: 1.5,
+              spaceBetween: 20,
+            },
+            1024: {
+              slidesPerView: 2,
+              spaceBetween: 25,
+            },
+          },
+        });
+      }
     } catch (error) {
       console.error('Swiper initialization error:', error);
     }
@@ -163,16 +199,16 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     this.generateMessages();
     this.loadPersistedData();
     this.checkOnboardingStatus();
+    this.loadTodaySymptoms();
+    this.loadRecentSymptomsDays();
+    this.initializeHealthTip();
     
-    // Debug: Log current status
-    console.log('🔍 ngOnInit - Current status:', {
-      userStatus: this.userStatus,
-      isPregnant: this.isPregnant,
-      isPostpartum: this.isPostpartum,
-      pregnancyWeek: this.pregnancyWeek
-    });
+    // Listen for symptoms updates
+    // window.addEventListener('symptomsUpdated', () => {
+    //   this.loadTodaySymptoms();
+    //   this.loadRecentSymptomsDays();
+    // });
     
-    // Onboarding is now handled before reaching this component
   }
 
   /**
@@ -200,8 +236,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     
     // Baby development data is automatically loaded by the service
     // and will be computed based on the current pregnancy week
-    console.log('Current pregnancy week:', this.pregnancyWeek);
-    console.log('Current baby size:', this.babySize);
   }
 
   /**
@@ -214,7 +248,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     if (onboardingCompleted === 'true' && onboardingData) {
       try {
         const data = JSON.parse(onboardingData);
-        console.log('Onboarding data found:', data);
         
         // Update user status based on onboarding data
         if (data.pregnancy_status === 'pregnant') {
@@ -270,17 +303,11 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
           this.updateCycleDay();
         }
         
-        console.log('User status updated from onboarding:', this.userStatus);
-        console.log('Is pregnant:', this.isPregnant);
-        console.log('Is postpartum:', this.isPostpartum);
-        console.log('Pregnancy week:', this.pregnancyWeek);
-        console.log('Current baby size:', this.babySize);
         
       } catch (error) {
         console.error('Error parsing onboarding data:', error);
       }
     } else {
-      console.log('No onboarding data found, using default state');
     }
   }
 
@@ -304,7 +331,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   refreshDisplay() {
     this.loadPersistedData();
     this.checkOnboardingStatus();
-    console.log('Display refreshed - Status:', this.userStatus, 'Pregnant:', this.isPregnant);
   }
 
   /**
@@ -312,15 +338,9 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
    * This ensures the chart is refreshed when returning from other pages
    */
   ionViewWillEnter() {
-    console.log('🏠 Home page entering, refreshing chart...'); // Debug log
     
     // Check both local storage and API data
     const userInfo = this.userInfoService.getCurrentUserInfo();
-    console.log('🔍 Current service state:');
-    console.log('- API User Info:', userInfo);
-    console.log('- Local Last Period Start:', this.cycleSettings.lastPeriodStartDate());
-    console.log('- Local Cycle Length:', this.cycleSettings.cycleLength());
-    console.log('- Local Period Length:', this.cycleSettings.periodLength());
     
     // Always fetch fresh data from API when entering home page
     this.refreshChartWithFreshData();
@@ -330,7 +350,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
    * Refresh chart with fresh data from API
    */
   private refreshChartWithFreshData() {
-    console.log('🔄 Fetching fresh data from API for chart...');
     
     // Get user ID
     const userId = this.getCurrentUserId();
@@ -338,32 +357,26 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     // Fetch fresh data from API
     this.userInfoService.getUserOnboardingData(userId).subscribe({
       next: (userInfo) => {
-        console.log('✅ Fresh API data received for chart:', userInfo);
         
         // Update the chart with fresh data
         setTimeout(() => {
           if (this.periodChart) {
-            console.log('📊 Updating chart with fresh API data...');
             this.periodChart.debugState(); // Debug current state
             this.periodChart.refreshChart();
             this.periodChart.debugState(); // Debug state after refresh
           } else {
-            console.log('⚠️ Period chart not found');
           }
         }, 100);
       },
       error: (error) => {
-        console.log('⚠️ Failed to fetch fresh API data, using cached data:', error);
         
         // Fallback to cached data
         setTimeout(() => {
           if (this.periodChart) {
-            console.log('📊 Refreshing chart with cached data...');
             this.periodChart.debugState();
             this.periodChart.refreshChart();
             this.periodChart.debugState();
           } else {
-            console.log('⚠️ Period chart not found');
           }
         }, 100);
       }
@@ -378,7 +391,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       const userInfo = localStorage.getItem('userInfo');
       if (userInfo) {
         const parsed = JSON.parse(userInfo);
-        return parsed.userId || parsed.id || 1;
+        return parsed.userId || parsed.user?.id || parsed.id || 1;
       }
     } catch (error) {
       console.error('Error getting current user ID:', error);
@@ -390,12 +403,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
    * Test method to debug button clicks
    */
   testButtonClick() {
-    console.log('🔍 TEST BUTTON CLICKED!');
-    console.log('🔍 Current status:', {
-      userStatus: this.userStatus,
-      isPregnant: this.isPregnant,
-      isPostpartum: this.isPostpartum
-    });
     this.showToast('Test button clicked!', 'success');
   }
 
@@ -403,13 +410,11 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
    * Test method to manually refresh the chart
    */
   testChartRefresh() {
-    console.log('🧪 Testing chart refresh...');
     if (this.periodChart) {
       this.periodChart.debugState();
       this.periodChart.refreshChart();
       this.periodChart.debugState();
     } else {
-      console.log('⚠️ Chart not found');
     }
   }
 
@@ -526,7 +531,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
         }
         
         localStorage.setItem('onboarding_data', JSON.stringify(data));
-        console.log('Onboarding data updated:', data);
       }
     } catch (error) {
       console.error('Error updating onboarding data:', error);
@@ -929,16 +933,12 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Quick Actions with proper functionality
   async onActionClick(action: string) {
-    console.log('🔍 onActionClick called with action:', action, 'isPregnant:', this.isPregnant);
     
     switch(action) {
       case 'pregnant':
-        console.log('🔍 Pregnant case triggered');
         if (this.isPregnant) {
-          console.log('🔍 User is pregnant, showing not pregnant dialog');
           await this.handleNotPregnantUpdate();
         } else {
-          console.log('🔍 User is not pregnant, showing pregnancy dialog');
           await this.handlePregnancyUpdate();
         }
         break;
@@ -962,7 +962,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Handle "I became pregnant" action
   async handlePregnancyUpdate() {
-    console.log('🔍 handlePregnancyUpdate called');
     
     const alert = await this.alertController.create({
       header: '🎉 Congratulations!',
@@ -983,13 +982,11 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       ]
     });
 
-    console.log('🔍 Presenting alert dialog');
     await alert.present();
   }
 
   // Handle "I'm not pregnant anymore" action
   async handleNotPregnantUpdate() {
-    console.log('handleNotPregnantUpdate called - Current status:', this.userStatus, 'isPregnant:', this.isPregnant);
     
     const alert = await this.alertController.create({
       header: 'Update Status',
@@ -1003,7 +1000,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
         {
           text: 'Update Status',
           handler: async () => {
-            console.log('User confirmed status update');
             await this.updateNotPregnantStatus();
           }
         }
@@ -1062,19 +1058,14 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Update pregnancy status
   async updatePregnancyStatus() {
-    console.log('🔍 updatePregnancyStatus called');
     try {
       // Check if we have last period date from onboarding
       const lastPeriodFromOnboarding = this.cycleSettings.lastPeriodStartDate();
-      console.log('🔍 lastPeriodFromOnboarding:', lastPeriodFromOnboarding);
-      debugger;
       
       if (lastPeriodFromOnboarding) {
         // Use onboarding data to automatically calculate pregnancy week
-        console.log('🔍 Using last period date from onboarding:', lastPeriodFromOnboarding);
         await this.calculateAndUpdatePregnancyStatus(lastPeriodFromOnboarding);
       } else {
-        console.log('🔍 No onboarding data, showing date picker');
         // Ask for last period date if not available from onboarding
         const lmpAlert = await this.alertController.create({
           header: '🤰 Last Period Date',
@@ -1115,7 +1106,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Calculate pregnancy week and update status
   private async calculateAndUpdatePregnancyStatus(lastPeriod: string) {
-    debugger;
     try {
       // Calculate pregnancy week based on LMP
       const lmpDate = new Date(lastPeriod);
@@ -1199,6 +1189,193 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   // Open nutrition guide
   openNutritionGuide() {
     this.showToast('Nutrition guide coming soon...');
+  }
+
+  // Symptoms Summary Methods
+  todaySymptoms: SymptomsDto = {} as SymptomsDto;
+
+  loadTodaySymptoms() {
+    const today = new Date().toISOString().split('T')[0];
+    this.trackDayService.getSymptomsRange(this.getCurrentUserId(),today, today).subscribe({
+      next: (data) => {
+        console.log('🔍 Today symptoms from API:', data);
+        if (data && data.length > 0) {
+          // API returns an array, get the first (most recent) entry
+          const todayData = data[0];
+          debugger;
+          this.todaySymptoms = {
+            ...todayData,
+            symptoms: typeof todayData.symptoms === 'string' 
+              ? JSON.parse(todayData.symptoms) 
+              : todayData.symptoms,
+            mood: typeof todayData.mood === 'string' 
+              ? JSON.parse(todayData.mood) 
+              : todayData.mood,
+            energy: typeof todayData.energy === 'string' 
+              ? JSON.parse(todayData.energy) 
+              : todayData.energy
+          };
+        } else {
+          this.todaySymptoms = {} as SymptomsDto;
+        }
+      },
+      error: (error) => {
+        console.log('🔍 No symptoms data for today (404 is normal):', error.status);
+        this.todaySymptoms = {} as SymptomsDto;
+      }
+    });
+  }
+
+  getMoodIcon(mood: string): string {
+    const moodIcons: { [key: string]: string } = {
+      'excellent': 'happy-outline',
+      'good': 'happy-outline',
+      'okay': 'remove-outline',
+      'poor': 'sad-outline',
+      'terrible': 'sad-outline'
+    };
+    return moodIcons[mood] || 'remove-outline';
+  }
+
+  getEnergyIcon(energy: string): string {
+    const energyIcons: { [key: string]: string } = {
+      'high': 'flash-outline',
+      'medium': 'battery-half-outline',
+      'low': 'battery-dead-outline'
+    };
+    return energyIcons[energy] || 'help-outline';
+  }
+
+  getSeverityColor(severity: string): string {
+    const severityColors: { [key: string]: string } = {
+      'mild': 'success',
+      'moderate': 'warning',
+      'severe': 'danger'
+    };
+    return severityColors[severity] || 'medium';
+  }
+
+  viewSymptomsHistory() {
+    this.router.navigate(['/symptoms-history']);
+  }
+
+  // Daily Insights Methods
+  getCurrentCycleDay(): number {
+    // Calculate current cycle day based on last period
+    const lastPeriod = localStorage.getItem('lastPeriodDate');
+    if (lastPeriod) {
+      const lastPeriodDate = new Date(lastPeriod);
+      const today = new Date();
+      const diffTime = Math.abs(today.getTime() - lastPeriodDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.min(diffDays, 28); // Cap at 28 days
+    }
+    return 1;
+  }
+
+  getPregnancyChance(): string {
+    const cycleDay = this.getCurrentCycleDay();
+    if (cycleDay >= 10 && cycleDay <= 17) {
+      return 'Higher chance';
+    } else if (cycleDay >= 6 && cycleDay <= 9 || cycleDay >= 18 && cycleDay <= 22) {
+      return 'Medium chance';
+    } else {
+      return 'Lower chance';
+    }
+  }
+
+  // Static health tip to avoid ExpressionChangedAfterItHasBeenCheckedError
+  healthTip: string = 'Stay hydrated and get enough sleep';
+
+  getHealthTip(): string {
+    return this.healthTip;
+  }
+
+  initializeHealthTip() {
+    const tips = [
+      'Stay hydrated and get enough sleep',
+      'Include iron-rich foods in your diet',
+      'Practice gentle exercise regularly',
+      'Track your symptoms daily',
+      'Listen to your body\'s signals'
+    ];
+    this.healthTip = tips[Math.floor(Math.random() * tips.length)];
+  }
+
+  // Symptoms History Methods
+  recentSymptomsDays: any[] = [];
+
+  getRecentSymptomsDays(): any[] {
+    return this.recentSymptomsDays;
+  }
+
+  loadRecentSymptomsDays() {
+    // Skip loading recent days - only show today's data
+    this.recentSymptomsDays = [];
+    console.log('🔍 Skipping recent days - showing only today\'s data');
+  }
+
+  getDayName(dateString: string): string {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return 'Today';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', { weekday: 'short' });
+    }
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  }
+
+  viewDayDetails(date: string) {
+    this.router.navigate(['/symptoms-detail'], {
+      queryParams: { date: date }
+    });
+  }
+
+  // Test method to add sample data
+  addTestSymptomsData() {
+    const testData = [
+      {
+        date: new Date().toISOString().split('T')[0],
+        mood: JSON.stringify('good'),
+        energy: JSON.stringify('medium'),
+        symptoms: JSON.stringify([
+          { id: 'breast_tenderness', name: 'Breast Tenderness', icon: 'heart-outline', severity: 'mild' },
+          { id: 'shortness_breath', name: 'Shortness of Breath', icon: 'airplane-outline', severity: 'mild' },
+          { id: 'nasal_congestion', name: 'Nasal Congestion', icon: 'airplane-outline', severity: 'mild' },
+          { id: 'baby_movements', name: 'Baby Movements', icon: 'hand-left-outline', severity: 'mild' },
+          { id: 'swelling', name: 'Swelling (Edema)', icon: 'water-outline', severity: 'mild' },
+          { id: 'headache', name: 'Headache', icon: 'medical-outline', severity: 'mild' }
+        ]),
+        notes: 'Feeling good today with some mild symptoms'
+      },
+      {
+        date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        mood: JSON.stringify('okay'),
+        energy: JSON.stringify('low'),
+        symptoms: JSON.stringify([
+          { id: 'fatigue', name: 'Fatigue', icon: 'bed-outline', severity: 'moderate' },
+          { id: 'morning_sickness', name: 'Morning Sickness', icon: 'restaurant-outline', severity: 'mild' }
+        ]),
+        notes: 'Feeling tired yesterday'
+      }
+    ];
+    
+    localStorage.setItem('dailySymptomsHistory', JSON.stringify(testData));
+    this.loadTodaySymptoms();
+    this.showToast('Test data added! Check the swiper now.', 'success');
   }
 
 
@@ -1615,7 +1792,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Handle period date selection from the date picker modal
   onPeriodDateSelected(periodRange: PeriodDateRange) {
-    console.log('Period date selected:', periodRange);
     this.showToast('Period logged successfully!', 'success');
     
     // Update user status to "Trying to Conceive" to show the period chart
