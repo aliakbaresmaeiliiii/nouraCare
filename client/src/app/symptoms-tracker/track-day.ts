@@ -10,10 +10,10 @@ export class TrackDay {
   httpClient = inject(HttpClient);
   apiUrl = environment.apiEndPoint + 'track-day';
 
-  getSymptoms(userId: number, date?: string): Observable<any[]> {
-    const today = date || new Date().toISOString().split('T')[0];
-    return this.httpClient.get<any[]>(`${this.apiUrl}/${userId}/${today}`);
-  }
+  // getSymptoms(userId: number, date?: string): Observable<any[]> {
+  //   const today = date || new Date().toISOString().split('T')[0];
+  //   return this.httpClient.get<any[]>(`${this.apiUrl}/${userId}/${today}`);
+  // }
 
   // Get multiple days at once (if you implement this endpoint)
   getSymptomsRange(userId: number, startDate: string, endDate: string): Observable<any[]> {

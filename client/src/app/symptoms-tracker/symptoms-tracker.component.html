@@ -15,12 +15,6 @@
 <ion-content class="symptoms-tracker-content">
   <!-- Reactive Form -->
   <form [formGroup]="symptomsForm" (ngSubmit)="saveSymptoms()">
-    
-    <!-- Hidden Form Controls -->
-    <ion-input formControlName="mood" type="hidden"></ion-input>
-    <ion-input formControlName="energy" type="hidden"></ion-input>
-    <ion-input formControlName="pregnancyWeek" type="hidden"></ion-input>
-    
     <!-- Date Selector -->
     <div class="date-selector">
       <ion-datetime 

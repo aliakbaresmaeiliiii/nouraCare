@@ -315,29 +315,60 @@
     </div>
   </div>
 
-  <!-- No Data Card -->
-  @if(!todaySymptoms ) {
-  <div class="symptom-history-card add-new-card">
-    <div class="add-new-content">
-      <ion-icon name="add-circle-outline" class="add-icon"></ion-icon>
-      <h3 class="add-title">Track Today</h3>
-      <p class="add-description">Log your symptoms and mood</p>
-      <ion-button fill="solid" size="small" (click)="openSymptomsTracking()">
-        <ion-icon name="medical-outline" slot="start"></ion-icon>
-        Start Tracking
-      </ion-button>
+  <!-- Symptoms Detail Swiper -->
+  @if(todaySymptoms && todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0) {
+
+  <div class="symptoms-detail-swiper-section">
+    <div class="section-header">
+      <h2 class="section-title">Today's Symptoms Detail</h2>
+      <p class="section-subtitle">Swipe to see all your symptoms</p>
+    </div>
+    
+    <div class="swiper symptomsDetailSwiper">
+      <div class="swiper-wrapper">
+        @for (symptom of todaySymptoms.symptoms; track symptom.id) {
+        <div class="swiper-slide">
+          <div class="symptom-detail-card">
+            <div class="symptom-header">
+              <div class="symptom-icon-large">
+                <ion-icon [name]="symptom.icon" class="symptom-main-icon"></ion-icon>
+              </div>
+              <div class="symptom-info">
+                <h3 class="symptom-name">{{ symptom.name }}</h3>
+                <span class="symptom-category">{{ symptom.category }}</span>
+              </div>
+            </div>
+            
+            <div class="symptom-details">
+              <div class="severity-badge" [ngClass]="'severity-' + symptom.severity">
+                <ion-icon name="pulse-outline" class="severity-icon"></ion-icon>
+                <span class="severity-text">{{ symptom.severity | titlecase }}</span>
+              </div>
+              
+              @if(symptom.notes) {
+              <div class="symptom-notes">
+                <ion-icon name="document-text-outline" class="notes-icon"></ion-icon>
+                <span class="notes-text">{{ symptom.notes }}</span>
+              </div>
+              }
+            </div>
+            
+            <div class="symptom-footer">
+              <div class="symptom-time">
+                <ion-icon name="time-outline" class="time-icon"></ion-icon>
+                <span class="time-text">Tracked today</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      <div class="swiper-pagination"></div>
     </div>
   </div>
   }
 
-  <!-- View History Button -->
-  <div class="py-4 text-center ">
-    <ion-button fill="clear" class="border-2 border-gray-300 rounded-lg bg-gray-200" size="small"
-      (click)="viewSymptomsHistory()">
-      <ion-icon name="calendar-outline" slot="start"></ion-icon>
-      View Symptoms History
-    </ion-button>
-  </div>
+ 
 </div>
 }
   <!-- Quick Actions Section -->

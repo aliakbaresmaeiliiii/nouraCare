@@ -33,43 +33,59 @@ export class SymptomsHistoryComponent implements OnInit {
       const date = new Date(today);
       date.setDate(today.getDate() - i);
       const dateString = date.toISOString().split('T')[0];
-      
+
       promises.push(
-        this.trackDayService.getSymptoms(userId, dateString).toPromise()
-      );
-    }
-    
-    Promise.all(promises).then((results) => {
-      this.symptomsHistory = results
-        .map((data, index) => {
-          if (data && data.length > 0) {
-            const dayData = data[0];
-            const date = new Date(today);
-            date.setDate(today.getDate() - index);
-            
-            return {
-              ...dayData,
-              date: date.toISOString().split('T')[0],
-              symptoms: typeof dayData.symptoms === 'string' 
-                ? JSON.parse(dayData.symptoms) 
-                : dayData.symptoms,
-              mood: typeof dayData.mood === 'string' 
-                ? JSON.parse(dayData.mood) 
-                : dayData.mood,
-              energy: typeof dayData.energy === 'string' 
-                ? JSON.parse(dayData.energy) 
-                : dayData.energy
-            };
+        this.trackDayService.getSymptomsRange(userId, dateString, dateString).subscribe({
+          next: (data) => {
+            this.symptomsHistory.push(data[0]);
+          },
+          error: (error) => {
+            console.error('Error loading symptoms history:', error);
+          },
+          complete: () => {
+            this.loading = false;
+            console.log('🔍 Symptoms history loaded:', this.symptomsHistory);
           }
-          return null;
         })
-        .filter(day => day !== null);
+      );
+
       
-      this.loading = false;
-    }).catch((error) => {
-      console.error('Error loading symptoms history:', error);
-      this.loading = false;
-    });
+    //   promises.push(
+    //     this.trackDayService.getSymptoms(userId, dateString).toPromise()
+    //   );
+    // }
+    
+    // Promise.all(promises).then((results) => {
+    //   this.symptomsHistory = results
+    //     .map((data, index) => {
+    //       if (data && data.length > 0) {
+    //         const dayData = data[0];
+    //         const date = new Date(today);
+    //         date.setDate(today.getDate() - index);
+            
+    //         return {
+    //           ...dayData,
+    //           date: date.toISOString().split('T')[0],
+    //           symptoms: typeof dayData.symptoms === 'string' 
+    //             ? JSON.parse(dayData.symptoms) 
+    //             : dayData.symptoms,
+    //           mood: typeof dayData.mood === 'string' 
+    //             ? JSON.parse(dayData.mood) 
+    //             : dayData.mood,
+    //           energy: typeof dayData.energy === 'string' 
+    //             ? JSON.parse(dayData.energy) 
+    //             : dayData.energy
+    //         };
+    //       }
+    //       return null;
+    //     })
+    //     .filter(day => day !== null);
+      
+    //   this.loading = false;
+    // }).catch((error) => {
+    //   console.error('Error loading symptoms history:', error);
+    //   this.loading = false;
+    };
   }
 
   getCurrentUserId(): number {

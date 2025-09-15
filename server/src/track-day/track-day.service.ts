@@ -66,7 +66,7 @@ export class TrackDayService {
   }
 
   async getSymptomsRange(userId: number, startDate: string, endDate: string) {
-    const trackDay = await this.prisma.trackDay.findMany({
+    const trackDay = await this.  prisma.trackDay.findMany({
       where: {
         userId,
         date: {

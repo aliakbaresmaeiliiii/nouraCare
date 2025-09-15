@@ -190,6 +190,41 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
           },
         });
       }
+
+      // Initialize Symptoms Detail Swiper
+      setTimeout(() => {
+        const symptomsDetailSwiperElement = document.querySelector('.symptomsDetailSwiper');
+        if (symptomsDetailSwiperElement) {
+          var symptomsDetailSwiper = new Swiper('.symptomsDetailSwiper', {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            centeredSlides: true,
+            loop: false,
+            pagination: {
+              el: '.swiper-pagination',
+              clickable: true,
+            },
+            autoplay: {
+              delay: 4000,
+              disableOnInteraction: false,
+            },
+            breakpoints: {
+              640: {
+                slidesPerView: 1.2,
+                spaceBetween: 25,
+              },
+              768: {
+                slidesPerView: 1.5,
+                spaceBetween: 30,
+              },
+              1024: {
+                slidesPerView: 2,
+                spaceBetween: 35,
+              },
+            },
+          });
+        }
+      }, 100);
     } catch (error) {
       console.error('Swiper initialization error:', error);
     }
@@ -1198,26 +1233,29 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     const today = new Date().toISOString().split('T')[0];
     this.trackDayService.getSymptomsRange(this.getCurrentUserId(),today, today).subscribe({
       next: (data) => {
-        console.log('🔍 Today symptoms from API:', data);
-        if (data && data.length > 0) {
-          // API returns an array, get the first (most recent) entry
-          const todayData = data[0];
-          debugger;
-          this.todaySymptoms = {
-            ...todayData,
-            symptoms: typeof todayData.symptoms === 'string' 
-              ? JSON.parse(todayData.symptoms) 
-              : todayData.symptoms,
-            mood: typeof todayData.mood === 'string' 
-              ? JSON.parse(todayData.mood) 
-              : todayData.mood,
-            energy: typeof todayData.energy === 'string' 
-              ? JSON.parse(todayData.energy) 
-              : todayData.energy
-          };
-        } else {
-          this.todaySymptoms = {} as SymptomsDto;
-        }
+
+        this.todaySymptoms = data[0] as SymptomsDto;
+        debugger;
+        // if (data) {
+        //   // API returns an array, get the first (most recent) entry
+        //   const todayData = data[0];
+        //   this.todaySymptoms = {
+        //     ...todayData,
+        //     symptoms: typeof todayData.symptoms === 'string' 
+        //       ? JSON.parse(todayData.symptoms) 
+        //       : todayData.symptoms,
+        //     mood: typeof todayData.mood === 'string' 
+        //       ? JSON.parse(todayData.mood) 
+        //       : todayData.mood,
+        //     energy: typeof todayData.energy === 'string' 
+        //       ? JSON.parse(todayData.energy) 
+        //       : todayData.energy
+        //   };
+        // } else {
+        //   this.todaySymptoms = {} as SymptomsDto;
+        // }
+        console.log('🔍 Today symptoms from API:', this.todaySymptoms);
+
       },
       error: (error) => {
         console.log('🔍 No symptoms data for today (404 is normal):', error.status);
