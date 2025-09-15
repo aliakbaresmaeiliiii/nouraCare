@@ -27,8 +27,8 @@ export class AppComponent implements OnInit {
   private handleInitialRouting() {
     // Check if user is authenticated (has data in localStorage)
     if (this.onboardingStateService.isUserAuthenticated()) {
-      // User has existing data, redirect to login page
-      this.router.navigate(['/sign-in']);
+      // User has existing data, redirect to home page
+      this.router.navigate(['/tabs/home']);
     }
     // Otherwise, let the default routing handle it (which goes to onboarding)
   }

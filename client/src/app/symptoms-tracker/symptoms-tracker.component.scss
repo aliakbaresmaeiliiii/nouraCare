@@ -1,457 +1,362 @@
 .symptoms-tracker-content {
-  --background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --background: #ffffff;
+  padding: 0;
+  margin: 0;
 }
 
-.date-selector {
-  background: white;
-  padding: 25px;
-  margin: 20px;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
+// Modal Handle
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  margin: 8px auto 0 auto;
 }
 
-.date-selector ion-datetime {
-  --background: #f8f9fa;
-  --color: #2c3e50;
-  --color-selected: #667eea;
-  --color-today: #667eea;
-  border-radius: 15px;
-  padding: 20px;
-  font-weight: 600;
-  border: 2px solid #e9ecef;
-}
-
-.quick-selectors {
-  padding: 25px;
-  background: white;
-  margin: 0 20px 20px 20px;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-.selector-card {
-  margin-bottom: 25px;
-  
-  h3 {
-    margin: 0 0 20px 0;
-    color: #2c3e50;
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-align: center;
-  }
-}
-
-.mood-selector, .energy-selector {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.mood-label, .energy-label {
-  margin-left: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.tab-navigation {
-  background: white;
-  padding: 15px 20px;
-  margin: 0 20px 20px 20px;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-ion-segment {
-  --background: transparent;
-}
-
-ion-segment-button {
-  --color: #666;
-  --color-checked: #ffffff;
-  --indicator-color: #667eea;
-  --background-checked: #667eea;
-  --padding-top: 8px;
-  --padding-bottom: 8px;
-  font-size: 0.8rem;
-}
-
-ion-segment-button.segment-button-checked {
-  --color: #ffffff;
-  --background: #667eea;
-}
-
-ion-segment-button.segment-button-checked ion-label {
-  color: #ffffff !important;
-}
-
-ion-segment-button.segment-button-checked ion-icon {
-  color: #ffffff !important;
-}
-
-ion-segment-button ion-icon {
-  margin-bottom: 4px;
-}
-
-.tab-content {
-  padding: 20px;
-  background: transparent;
-  min-height: calc(100vh - 200px);
-}
-
-.tab-panel {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.selected-symptoms {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-  
-  h3 {
-    margin: 0 0 15px 0;
-    color: #333;
-    font-size: 1.2rem;
-  }
-}
-
-.symptom-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.symptom-item {
+// Header
+.tracker-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  border-left: 4px solid #667eea;
-}
-
-.symptom-info {
-  display: flex;
-  align-items: center;
-  flex: 1;
-}
-
-.symptom-icon {
-  font-size: 1.5rem;
-  margin-right: 15px;
-  color: #667eea;
-}
-
-.symptom-details {
-  flex: 1;
-  
-  h4 {
-    margin: 0 0 5px 0;
-    color: #333;
-    font-size: 1rem;
-  }
-  
-  .symptom-note {
-    margin: 5px 0 0 0;
-    color: #666;
-    font-size: 0.9rem;
-    font-style: italic;
-  }
-}
-
-.symptom-actions {
-  display: flex;
-  gap: 5px;
-}
-
-.add-symptoms {
+  padding: 16px 20px;
   background: white;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
   
-  h3 {
-    margin: 0 0 20px 0;
-    color: #333;
-    font-size: 1.2rem;
+  .back-button, .next-button {
+    --color: #000000;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+  
+  .header-content {
+    text-align: center;
+    flex: 1;
+    
+    .header-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #000000;
+      margin: 0;
+      line-height: 1.2;
+    }
+    
+    .header-subtitle {
+      font-size: 14px;
+      color: #666666;
+      margin: 4px 0 0 0;
+      font-weight: 500;
+    }
   }
 }
 
-.symptom-category {
-  margin-bottom: 25px;
+// Search Section
+.search-section {
+  padding: 16px 20px;
+  background: white;
   
-  h4 {
-    margin: 0 0 15px 0;
-    color: #555;
-    font-size: 1rem;
-    font-weight: 600;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #f0f0f0;
+  .search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 12px 16px;
+    
+    .search-icon {
+      font-size: 20px;
+      color: #999999;
+      margin-right: 12px;
+    }
+    
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      color: #333333;
+      outline: none;
+      
+      &::placeholder {
+        color: #999999;
+      }
+    }
   }
 }
 
-.symptom-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
+// Categories Section
+.categories-section {
+  padding: 0 20px 20px 20px;
+  background: white;
+  
+  .categories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    
+    .categories-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #000000;
+      margin: 0;
+    }
+    
+    .edit-button {
+      --color: #ec4899;
+      --padding-start: 0;
+      --padding-end: 0;
+      
+      .edit-text {
+        font-size: 16px;
+        font-weight: 600;
+      }
+    }
+  }
 }
 
-.symptom-card {
+// Category Groups
+.category-group {
+  margin-bottom: 32px;
+  
+  .category-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 16px 0;
+  }
+  
+  .chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+// Chips
+.chip {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 20px 15px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 15px;
-  border: 2px solid transparent;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+  position: relative;
   
   &:hover {
-    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    background: #f1f3f4;
   }
   
   &.selected {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.2) 100%);
-    border-color: #667eea;
-    color: #667eea;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    background: #fef2f2;
+    border-color: #f87171;
+    
+    .chip-icon {
+      color: #dc2626;
+    }
+    
+    .chip-text {
+      color: #dc2626;
+    }
+    
+    .check-icon {
+      color: #dc2626;
+      font-size: 16px;
+    }
   }
   
-  .category-icon {
-    font-size: 2rem;
-    margin-bottom: 12px;
-    color: #667eea;
+  .chip-icon {
+    font-size: 16px;
+    color: #dc2626;
   }
   
-  span {
-    font-size: 0.9rem;
-    font-weight: 600;
-    line-height: 1.3;
-    color: #ffffff;
+  .chip-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .check-icon {
+    font-size: 14px;
+    color: #dc2626;
+    margin-left: 4px;
   }
 }
 
+// Sex Drive Chips (Pink Theme)
+.category-group:first-of-type .chip {
+  background: #fdf2f8;
+  border-color: #fce7f3;
+  
+  .chip-icon {
+    color: #ec4899;
+  }
+  
+  .chip-text {
+    color: #be185d;
+  }
+  
+  &.selected {
+    background: #fce7f3;
+    border-color: #ec4899;
+    
+    .chip-icon, .chip-text, .check-icon {
+      color: #be185d;
+    }
+  }
+}
+
+// Mood Chips (Orange Theme)
+.category-group:nth-of-type(2) .chip {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  
+  .chip-icon {
+    color: #ea580c;
+  }
+  
+  .chip-text {
+    color: #c2410c;
+  }
+  
+  &.selected {
+    background: #fed7aa;
+    border-color: #ea580c;
+    
+    .chip-icon, .chip-text, .check-icon {
+      color: #c2410c;
+    }
+  }
+}
+
+// Physical Symptoms Chips (Blue Theme)
+.category-group:nth-of-type(3) .chip {
+  background: #eff6ff;
+  border-color: #dbeafe;
+  
+  .chip-icon {
+    color: #2563eb;
+  }
+  
+  .chip-text {
+    color: #1d4ed8;
+  }
+  
+  &.selected {
+    background: #dbeafe;
+    border-color: #2563eb;
+    
+    .chip-icon, .chip-text, .check-icon {
+      color: #1d4ed8;
+    }
+  }
+}
+
+// Notes Section
 .notes-section {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  margin-top: 32px;
   
-  h3 {
-    margin: 0 0 15px 0;
-    color: #333;
-    font-size: 1.2rem;
-  }
-}
-
-.notes-textarea {
-  --background: #f8f9fa;
-  --border-radius: 10px;
-  --padding: 15px;
-  border: 1px solid #e9ecef;
-}
-
-.history-content {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.history-item {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.history-date {
-  margin-bottom: 15px;
-  
-  h4 {
-    margin: 0 0 5px 0;
-    color: #333;
-    font-size: 1.1rem;
-  }
-  
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 0.9rem;
-  }
-}
-
-.history-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 15px;
-}
-
-.summary-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  
-  .summary-label {
-    color: #666;
-    font-size: 0.9rem;
-  }
-  
-  .summary-value {
-    color: #333;
-    font-weight: 500;
-    font-size: 0.9rem;
-  }
-}
-
-.history-symptoms {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.no-history {
-  text-align: center;
-  padding: 40px 20px;
-  color: #666;
-  
-  ion-icon {
-    font-size: 4rem;
-    margin-bottom: 20px;
-    color: #ccc;
-  }
-  
-  h3 {
-    margin: 0 0 10px 0;
-    color: #333;
-  }
-  
-  p {
-    margin: 0;
-    font-size: 0.9rem;
-  }
-}
-
-// Form Validation
-.form-validation {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  text-align: center;
-  
-  ion-text {
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-}
-
-.save-section {
-  padding: 25px 20px;
-  background: white;
-  margin: 20px;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-
-  ion-button[disabled] {
-    --background: #f0f0f0;
-    --color: #999;
-    opacity: 0.6;
-  }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .symptom-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  }
-  
-  .mood-selector, .energy-selector {
-    justify-content: center;
-  }
-  
-  .symptom-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .symptom-actions {
-    align-self: flex-end;
-  }
-  
-  .history-summary {
-    gap: 5px;
-  }
-  
-  .summary-item {
-    font-size: 0.8rem;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .symptoms-tracker-content {
-    --background: #1a1a1a;
-  }
-  
-  .date-selector,
-  .quick-selectors,
-  .tab-navigation,
-  .selected-symptoms,
-  .add-symptoms,
-  .notes-section,
-  .history-item,
-  .save-section {
-    background: #2d2d2d;
-    color: #fff;
-  }
-  
-  .symptom-card {
-    background: #3d3d3d;
-    color: #fff;
-    
-    &:hover {
-      background: #4d4d4d;
-    }
-    
-    &.selected {
-      background: rgba(102, 126, 234, 0.2);
-    }
-  }
-  
-  .symptom-item {
-    background: #3d3d3d;
+  .category-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 16px 0;
   }
   
   .notes-textarea {
-    --background: #3d3d3d;
-    --color: #fff;
+    --background: #f8f9fa;
+    --border-radius: 12px;
+    --padding: 16px;
+    --color: #374151;
+    border: 1px solid #e2e8f0;
+    font-size: 16px;
+    line-height: 1.5;
+    
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+}
+
+// Save Section
+.save-section {
+  padding: 20px;
+  background: white;
+  
+  .save-button {
+    --background: #667eea;
+    --color: #ffffff;
+    --border-radius: 12px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: none;
+    
+    ion-icon {
+      font-size: 20px;
+      margin-right: 8px;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .tracker-header {
+    padding: 12px 16px;
+    
+    .header-title {
+      font-size: 20px;
+    }
+    
+    .header-subtitle {
+      font-size: 13px;
+    }
   }
   
-  h3, h4 {
-    color: #fff !important;
+  .search-section {
+    padding: 12px 16px;
   }
   
-  .summary-label {
-    color: #ccc !important;
+  .categories-section {
+    padding: 0 16px 16px 16px;
   }
   
-  .summary-value {
-    color: #fff !important;
+  .chip {
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
+    
+    .chip-icon {
+      margin-right: 6px;
+      font-size: 16px;
+    }
+    
+    .chip-text {
+      font-size: 14px;
+    }
+    
+    .check-icon {
+      margin-left: 6px;
+      font-size: 14px;
+    }
+  }
+  
+  .save-section {
+    padding: 16px;
   }
 }

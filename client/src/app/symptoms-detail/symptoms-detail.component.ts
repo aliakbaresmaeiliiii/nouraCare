@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonButton, IonIcon, IonChip, IonText, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonLabel, IonNote, IonBadge } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
-import { TrackDay } from '../symptoms-tracker/track-day';
+import { TrackDataService } from '../shared/services/track-data.service';
 import { SharedModule } from '../shared/shared-module';
 import { SymptomsDto } from '../shared/models/symptoms.dto';
 
@@ -16,7 +16,7 @@ import { SymptomsDto } from '../shared/models/symptoms.dto';
 export class SymptomsDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private trackDayService = inject(TrackDay);
+  private trackDataService = inject(TrackDataService);
 
   selectedDate: string = '';
   dayData: SymptomsDto = {} as SymptomsDto;
@@ -35,7 +35,7 @@ export class SymptomsDetailComponent implements OnInit {
     this.loading = true;
     const userId = this.getCurrentUserId();
 
-    this.trackDayService.getSymptomsRange(userId, this.selectedDate, this.selectedDate).subscribe({
+    this.trackDataService.getTrackDay(userId, this.selectedDate).subscribe({
       next: (data) => {
         debugger
         console.log('🔍 Recent symptoms days:', data);

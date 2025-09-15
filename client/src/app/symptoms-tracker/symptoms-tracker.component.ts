@@ -1,29 +1,13 @@
-import { Component, OnInit, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, inject, CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, ToastController, AlertController } from '@ionic/angular';
 import { SharedModule } from '../shared/shared-module';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { TrackDay } from './track-day';
+import { TrackDataService } from '../shared/services/track-data.service';
+import { DailySymptoms, SymptomData, SYMPTOMS_CONFIG } from '../shared/constants/symptoms-config';
 
-interface SymptomData {
-  id: string;
-  name: string;
-  category: string;
-  icon: string;
-  severity: 'mild' | 'moderate' | 'severe';
-  notes?: string;
-  timestamp: Date;
-}
 
-interface DailySymptoms {
-  date: string;
-  mood: 'excellent' | 'good' | 'okay' | 'poor' | 'terrible';
-  energy: 'high' | 'medium' | 'low';
-  symptoms: SymptomData[];
-  notes: string;
-}
 
 @Component({
   selector: 'app-symptoms-tracker',
@@ -40,50 +24,32 @@ export class SymptomsTrackerComponent implements OnInit {
   private alertController = inject(AlertController);
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
-  private trackService = inject(TrackDay);
+  private trackDataService = inject(TrackDataService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+  selectedDate: string = this.getLocalDateString();
 
-  selectedDate: string = new Date().toISOString().split('T')[0];
   maxDate: string = new Date().toISOString();
   currentMood: string = 'good';
   currentEnergy: string = 'medium';
   selectedSymptoms: SymptomData[] = [];
   notes: string = '';
+  selectedItems: Set<string> = new Set();
+  isUpdateMode: boolean = false;
+  existingData: any = null;
+
+  // Use shared symptoms configuration
+  sexDriveOptions = SYMPTOMS_CONFIG.sexDriveOptions;
+  moodOptions = SYMPTOMS_CONFIG.moodOptions;
+  physicalSymptoms = SYMPTOMS_CONFIG.physicalSymptoms;
+  availableSymptoms = SYMPTOMS_CONFIG.availableSymptoms;
+
   activeTab: string = 'today';
 
   // Reactive Form
   symptomsForm!: FormGroup;
 
-  // Available symptoms based on pregnancy stage
-  availableSymptoms = [
-    // First Trimester Symptoms
-    { id: 'morning_sickness', name: 'Morning Sickness', category: 'Digestive', icon: 'restaurant-outline', trimester: [1, 2, 3] },
-    { id: 'fatigue', name: 'Fatigue', category: 'General', icon: 'bed-outline', trimester: [1, 2, 3] },
-    { id: 'breast_tenderness', name: 'Breast Tenderness', category: 'Physical', icon: 'heart-outline', trimester: [1, 2] },
-    { id: 'frequent_urination', name: 'Frequent Urination', category: 'Physical', icon: 'water-outline', trimester: [1, 2, 3] },
-    { id: 'food_aversions', name: 'Food Aversions', category: 'Digestive', icon: 'close-circle-outline', trimester: [1, 2] },
-    { id: 'mood_swings', name: 'Mood Swings', category: 'Emotional', icon: 'happy-outline', trimester: [1, 2, 3] },
 
-    // Second Trimester Symptoms
-    { id: 'back_pain', name: 'Back Pain', category: 'Physical', icon: 'medical-outline', trimester: [2, 3] },
-    { id: 'leg_cramps', name: 'Leg Cramps', category: 'Physical', icon: 'fitness-outline', trimester: [2, 3] },
-    { id: 'heartburn', name: 'Heartburn', category: 'Digestive', icon: 'flame-outline', trimester: [2, 3] },
-    { id: 'nasal_congestion', name: 'Nasal Congestion', category: 'Physical', icon: 'airplane-outline', trimester: [2, 3] },
-    { id: 'baby_movements', name: 'Baby Movements', category: 'Physical', icon: 'hand-left-outline', trimester: [2, 3] },
-
-    // Third Trimester Symptoms
-    { id: 'shortness_breath', name: 'Shortness of Breath', category: 'Physical', icon: 'airplane-outline', trimester: [3] },
-    { id: 'swelling', name: 'Swelling (Edema)', category: 'Physical', icon: 'water-outline', trimester: [3] },
-    { id: 'braxton_hicks', name: 'Braxton Hicks', category: 'Physical', icon: 'pulse-outline', trimester: [3] },
-    { id: 'sleep_difficulties', name: 'Sleep Difficulties', category: 'General', icon: 'moon-outline', trimester: [3] },
-    { id: 'nesting_instinct', name: 'Nesting Instinct', category: 'Emotional', icon: 'home-outline', trimester: [3] },
-
-    // General Symptoms
-    { id: 'headache', name: 'Headache', category: 'Physical', icon: 'medical-outline', trimester: [1, 2, 3] },
-    { id: 'dizziness', name: 'Dizziness', category: 'Physical', icon: 'refresh-outline', trimester: [1, 2, 3] },
-    { id: 'constipation', name: 'Constipation', category: 'Digestive', icon: 'restaurant-outline', trimester: [1, 2, 3] },
-    { id: 'anxiety', name: 'Anxiety', category: 'Emotional', icon: 'heart-outline', trimester: [1, 2, 3] },
-    { id: 'cravings', name: 'Food Cravings', category: 'Digestive', icon: 'restaurant-outline', trimester: [1, 2, 3] }
-  ];
 
   // Historical data (in real app, this would come from a service/database)
   dailySymptomsHistory: DailySymptoms[] = [];
@@ -92,10 +58,231 @@ export class SymptomsTrackerComponent implements OnInit {
     this.initializeForm();
     this.route.queryParams.subscribe(params => {
       if (params['date']) {
-        this.selectedDate = params['date'];
+        // Ensure date is in local format (YYYY-MM-DD)
+        const dateParam = params['date'];
+        const date = new Date(dateParam);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        this.selectedDate = `${year}-${month}-${day}`;
+      }
+      if (params['mode'] === 'update') {
+        this.isUpdateMode = true;
+        this.loadExistingData();
+      } else {
+        this.loadTodayData();
       }
     });
-    this.loadTodayData();
+  }
+
+  // New methods for chip-based design
+  isSelected(itemId: string): boolean {
+    const isSelected = this.selectedItems.has(itemId);
+    // Only log occasionally to avoid spam
+    if (Math.random() < 0.1) { // Log only 10% of calls
+      console.log(`🔍 isSelected(${itemId}):`, isSelected, 'selectedItems:', Array.from(this.selectedItems));
+    }
+    return isSelected;
+  }
+
+  toggleSelection(itemId: string): void {
+    if (this.selectedItems.has(itemId)) {
+      this.selectedItems.delete(itemId);
+    } else {
+      this.selectedItems.add(itemId);
+    }
+  }
+
+  convertSelectedItemsToSymptoms(): any[] {
+    const allOptions = [
+      ...this.sexDriveOptions,
+      ...this.moodOptions,
+      ...this.physicalSymptoms
+    ];
+
+    const symptoms = Array.from(this.selectedItems).map(itemId => {
+      const option = allOptions.find(opt => opt.id === itemId);
+      console.log(`🔍 Processing itemId: ${itemId}, found option:`, option);
+      if (option) {
+        return {
+          id: option.id,
+          name: option.name,
+          icon: option.icon,
+          category: this.getCategoryForItem(itemId),
+          severity: 'mild' // Default severity
+        };
+      }
+      return null;
+    }).filter(symptom => symptom !== null);
+
+    console.log('🔍 Final symptoms array:', symptoms);
+    return symptoms;
+  }
+
+  getCategoryForItem(itemId: string): string {
+    if (this.sexDriveOptions.find(opt => opt.id === itemId)) {
+      return 'Sex and Sex Drive';
+    } else if (this.moodOptions.find(opt => opt.id === itemId)) {
+      return 'Mood';
+    } else if (this.physicalSymptoms.find(opt => opt.id === itemId)) {
+      return 'Physical Symptoms';
+    }
+    return 'General';
+  }
+
+  getPregnancyProgress(): string {
+    // Calculate pregnancy progress based on stored data
+    const lastPeriod = localStorage.getItem('lastPeriodDate');
+    if (lastPeriod) {
+      const lastPeriodDate = new Date(lastPeriod);
+      const today = new Date();
+      const diffTime = Math.abs(today.getTime() - lastPeriodDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      const weeks = Math.floor(diffDays / 7);
+      const days = diffDays % 7;
+      return `${weeks} weeks, ${days} day${days !== 1 ? 's' : ''}`;
+    }
+    return '2 weeks, 1 day'; // Default fallback
+  }
+
+  goBack(): void {
+    this.router.navigate(['/tabs/home']);
+  }
+
+  loadExistingData(): void {
+    const userId = this.getCurrentUserId();
+    console.log('🔍 Loading existing data for userId:', userId, 'date:', this.selectedDate);
+    
+    this.trackDataService.getTrackDay(userId, this.selectedDate).subscribe({
+      next: (data) => {
+        console.log('🔍 API Response:', data);
+        if (data && data.length > 0) {
+          this.existingData = data[0];
+          console.log('🔍 Found existing data:', this.existingData);
+          this.populateFormWithExistingData();
+        } else {
+          console.log('🔍 No existing data found');
+        }
+      },
+      error: (error) => {
+        console.error('Error loading existing data:', error);
+        this.showToast(`Failed to load existing data: ${error.message}`, 'danger', {duration: 3000});
+      }
+    });
+  }
+
+  populateFormWithExistingData(): void {
+    if (this.existingData) {
+      console.log('🔍 Existing data received:', this.existingData);
+      
+      // Parse the data
+      let symptoms;
+      if (typeof this.existingData.symptoms === 'string') {
+        try {
+          symptoms = JSON.parse(this.existingData.symptoms);
+          console.log('🔍 Parsed symptoms from string:', symptoms);
+        } catch (error) {
+          console.error('🔍 Error parsing symptoms string:', error);
+          symptoms = this.existingData.symptoms;
+        }
+      } else {
+        symptoms = this.existingData.symptoms;
+        console.log('🔍 Symptoms already parsed:', symptoms);
+      }
+
+      const mood = typeof this.existingData.mood === 'string'
+        ? JSON.parse(this.existingData.mood)
+        : this.existingData.mood;
+
+      const energy = typeof this.existingData.energy === 'string'
+        ? JSON.parse(this.existingData.energy)
+        : this.existingData.energy;
+
+      console.log('🔍 Parsed symptoms:', symptoms);
+      console.log('🔍 Parsed mood:', mood);
+      console.log('🔍 Parsed energy:', energy);
+
+      // Set form values
+      this.currentMood = mood;
+      this.currentEnergy = energy;
+      this.notes = this.existingData.notes || '';
+
+      // Populate selected items based on symptoms
+      this.selectedItems.clear();
+      this.selectedSymptoms = [];
+      if (symptoms && Array.isArray(symptoms)) {
+        console.log('🔍 Processing symptoms array with', symptoms.length, 'items');
+        symptoms.forEach((symptom: any) => {
+          console.log('🔍 Adding symptom to selectedItems:', symptom.id, 'symptom object:', symptom);
+          this.selectedItems.add(symptom.id);
+          // Also populate selectedSymptoms array for form compatibility
+          this.selectedSymptoms.push({
+            id: symptom.id,
+            name: symptom.name,
+            category: symptom.category || this.getCategoryForItem(symptom.id),
+            icon: symptom.icon,
+            severity: symptom.severity || 'mild',
+            notes: symptom.notes || '',
+            timestamp: new Date()
+          });
+        });
+      } else {
+        console.log('🔍 No symptoms array found or symptoms is not an array:', symptoms);
+      }
+
+      console.log('🔍 Final selectedItems:', Array.from(this.selectedItems));
+      console.log('🔍 Final selectedSymptoms:', this.selectedSymptoms);
+
+      // Update form
+      this.symptomsForm.patchValue({
+        date: this.selectedDate,
+        mood: mood,
+        energy: energy,
+        notes: this.notes
+      });
+
+      // Update symptoms form array
+      this.updateSymptomsFormArray();
+
+      // Force change detection to update the UI
+      this.cdr.detectChanges();
+      
+      console.log('🔍 UI should now show selected chips for:', Array.from(this.selectedItems));
+      
+      // Additional verification - check a few specific items
+      setTimeout(() => {
+        console.log('🔍 Verification after 100ms:');
+        console.log('🔍 selectedItems Set:', this.selectedItems);
+        console.log('🔍 selectedItems size:', this.selectedItems.size);
+        
+        Array.from(this.selectedItems).forEach(itemId => {
+          console.log(`🔍 ${itemId} should be selected:`, this.isSelected(itemId));
+        });
+        
+        // Test a few common items
+        const testItems = ['headache', 'fatigue', 'mood_swings', 'breast_tenderness'];
+        testItems.forEach(itemId => {
+          console.log(`🔍 Test ${itemId}:`, this.isSelected(itemId));
+        });
+      }, 100);
+    }
+  }
+
+  getCurrentUserId(): number {
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsed = JSON.parse(userData);
+      return parsed.user?.id || parsed.id || 30; // fallback to 30
+    }
+    return 30; // fallback
+  }
+
+  getLocalDateString(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   initializeForm() {
@@ -110,7 +297,16 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   onDateChange(event: any) {
-    this.selectedDate = event.detail.value;
+    // Ensure date is in local format (YYYY-MM-DD)
+    const dateValue = event.detail.value;
+    if (dateValue) {
+      // Convert to local date format
+      const date = new Date(dateValue);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      this.selectedDate = `${year}-${month}-${day}`;
+    }
     this.symptomsForm.patchValue({ date: this.selectedDate });
     this.symptomsForm.get('date')?.markAsTouched();
     this.loadTodayData();
@@ -139,14 +335,14 @@ export class SymptomsTrackerComponent implements OnInit {
     const todayData = this.dailySymptomsHistory.find(d => d.date === this.selectedDate);
     if (todayData) {
       // Parse JSON strings if they exist
-      this.currentMood = typeof todayData.mood === 'string' 
-        ? JSON.parse(todayData.mood) 
+      this.currentMood = typeof todayData.mood === 'string'
+        ? JSON.parse(todayData.mood)
         : todayData.mood;
-      this.currentEnergy = typeof todayData.energy === 'string' 
-        ? JSON.parse(todayData.energy) 
+      this.currentEnergy = typeof todayData.energy === 'string'
+        ? JSON.parse(todayData.energy)
         : todayData.energy;
-      this.selectedSymptoms = typeof todayData.symptoms === 'string' 
-        ? JSON.parse(todayData.symptoms) 
+      this.selectedSymptoms = typeof todayData.symptoms === 'string'
+        ? JSON.parse(todayData.symptoms)
         : (todayData.symptoms || []);
       this.notes = todayData.notes || '';
     } else {
@@ -307,16 +503,26 @@ export class SymptomsTrackerComponent implements OnInit {
         return;
       }
 
-      // Prepare API data
-      const formData = this.symptomsForm.value;
+      // Convert selected chips to symptoms array
+      const selectedSymptoms = this.convertSelectedItemsToSymptoms();
+
+
       const apiData = {
-        ...formData,
-        userId: this.getUserId(), // Get from localStorage or auth service
+        userId: this.getUserId(),
+        symptoms: selectedSymptoms,
+        mood: this.currentMood,
+        energy: this.currentEnergy,
+        notes: this.notes,
+        date: this.selectedDate,
         timestamp: new Date().toISOString()
       };
 
-      // Send to API
-      await this.sendSymptomsToAPI(apiData);
+
+      if (this.isUpdateMode) {
+        await this.updateSymptomsInAPI(apiData);
+      } else {
+        await this.sendSymptomsToAPI(apiData);
+      }
 
       // Update local history with API-compatible format
       const dailyData: DailySymptoms = {
@@ -338,7 +544,7 @@ export class SymptomsTrackerComponent implements OnInit {
       const existingIndex = this.dailySymptomsHistory.findIndex(d => d.date === this.selectedDate);
       if (existingIndex >= 0) {
         this.dailySymptomsHistory[existingIndex] = apiFormattedData as unknown as DailySymptoms;
-      } else {  
+      } else {
         this.dailySymptomsHistory.push(apiFormattedData as unknown as DailySymptoms);
       }
 
@@ -362,12 +568,62 @@ export class SymptomsTrackerComponent implements OnInit {
 
   sendSymptomsToAPI(data: any) {
     try {
-      this.trackService.createSymptoms(this.getUserId(), data).subscribe((response) => {
+      this.trackDataService.createSymptoms(this.getUserId(), data).subscribe((response) => {
+        // Store in local service for quick access
+        this.trackDataService.saveTrackData({
+          id: response.id,
+          userId: parseInt(this.getUserId()),
+          date: data.date,
+          symptoms: data.symptoms,
+          mood: data.mood,
+          energy: data.energy,
+          notes: data.notes,
+          createdAt: response.createdAt,
+          updatedAt: response.updatedAt
+        });
 
+        // Show success message
+        this.showToast('Symptoms saved successfully!', 'success');
+
+        // Navigate back
+        this.goBack();
       });
 
     } catch (error) {
       console.error('API Error:', error);
+      this.showToast('Failed to save symptoms', 'danger');
+      throw error;
+    }
+  }
+
+  updateSymptomsInAPI(data: any) {
+    try {
+      this.trackDataService.updateSymptoms(this.getUserId(), this.selectedDate, data).subscribe((response) => {
+        console.log('Symptoms updated successfully:', response);
+
+        // Update in local service
+        this.trackDataService.saveTrackData({
+          id: response.id,
+          userId: parseInt(this.getUserId()),
+          date: data.date,
+          symptoms: data.symptoms,
+          mood: data.mood,
+          energy: data.energy,
+          notes: data.notes,
+          createdAt: response.createdAt,
+          updatedAt: response.updatedAt
+        });
+
+        // Show success message
+        this.showToast('Symptoms updated successfully!', 'success');
+
+        // Navigate back
+        this.goBack();
+      });
+
+    } catch (error) {
+      console.error('Update API Error:', error);
+      this.showToast('Failed to update symptoms', 'danger');
       throw error;
     }
   }
@@ -460,14 +716,11 @@ export class SymptomsTrackerComponent implements OnInit {
     return energyEmojis[energy] || '🔋';
   }
 
-  goBack() {
-    this.navCtrl.back();
-  }
 
-  async showToast(message: string, color: string = 'primary') {
+  async showToast(message: string, color: string = 'primary', options: any = {}) {
     const toast = await this.toastController.create({
       message: message,
-      duration: 2000,
+      duration: options.duration || 2000,
       position: 'bottom',
       color: color
     });
@@ -484,5 +737,61 @@ export class SymptomsTrackerComponent implements OnInit {
     const currentWeek = this.getCurrentPregnancyWeek();
     const trimester = currentWeek <= 12 ? 1 : currentWeek <= 28 ? 2 : 3;
     return this.availableSymptoms.filter(s => s.trimester.includes(trimester));
+  }
+
+  // Test method to verify selection is working
+  testSelection() {
+    console.log('🔍 Testing selection...');
+    console.log('🔍 selectedItems:', Array.from(this.selectedItems));
+    console.log('🔍 selectedItems size:', this.selectedItems.size);
+    
+    // Test a few items
+    const testItems = ['headache', 'fatigue', 'mood_swings'];
+    testItems.forEach(itemId => {
+      console.log(`🔍 ${itemId} is selected:`, this.isSelected(itemId));
+    });
+  }
+
+  // Method to manually test adding items
+  testAddItems() {
+    console.log('🔍 Manually adding test items...');
+    this.selectedItems.add('headache');
+    this.selectedItems.add('fatigue');
+    this.selectedItems.add('mood_swings');
+    console.log('🔍 After manual add:', Array.from(this.selectedItems));
+    this.cdr.detectChanges();
+  }
+
+  // Method to simulate the exact data from your API
+  testWithRealData() {
+    console.log('🔍 Testing with real API data...');
+    
+    // Clear existing data
+    this.selectedItems.clear();
+    
+    // Add the exact symptoms from your API data
+    const realSymptoms = [
+      'unprotected_sex', 'low_sex_drive', 'high_sex_drive',
+      'calm', 'mood_swings', 'anxious', 'obsessive', 'confused',
+      'morning_sickness', 'fatigue', 'cramps'
+    ];
+    
+    realSymptoms.forEach(symptomId => {
+      this.selectedItems.add(symptomId);
+      console.log(`🔍 Added ${symptomId} to selectedItems`);
+    });
+    
+    console.log('🔍 Final selectedItems:', Array.from(this.selectedItems));
+    console.log('🔍 selectedItems size:', this.selectedItems.size);
+    
+    // Force UI update
+    this.cdr.detectChanges();
+    
+    // Test a few items
+    setTimeout(() => {
+      realSymptoms.slice(0, 3).forEach(itemId => {
+        console.log(`🔍 ${itemId} should be selected:`, this.isSelected(itemId));
+      });
+    }, 100);
   }
 }

@@ -214,163 +214,86 @@
 
   <!-- Today's Symptoms Section -->
   @if(isPregnant) {
-  <div class="symptoms-history-section">
-    <!-- <div class="section-header">
-      <h2 class="section-title">Today's Symptoms</h2>
-      <p class="section-subtitle">Your daily health overview</p>
-    </div> -->
 
-  <!-- My Daily Insights Section -->
-  <div class="daily-insights-section">
-    <div class="section-header">
-      <h2 class="section-title">My daily insights • Today</h2>
-    </div>
-    
-    <div class="insights-cards-container">
-      <!-- Today's Mood Card -->
-      <div class="insight-card mood-card" (click)="openSymptomsTracking()">
-        <div class="card-content">
-          <h3 class="card-title">Today's Mood</h3>
-          <div class="mood-display">
-            @if(todaySymptoms && todaySymptoms.mood) {
-              <div class="mood-icon-large">
-                <ion-icon [name]="getMoodIcon(todaySymptoms.mood)" class="mood-icon"></ion-icon>
-              </div>
-              <span class="mood-text">{{ todaySymptoms.mood | titlecase }}</span>
-            } @else {
-              <div class="add-mood">
-                <ion-icon name="add-outline" class="add-icon"></ion-icon>
-                <span class="add-text">Log your mood</span>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Energy Level Card -->
-      <div class="insight-card energy-card">
-        <div class="card-content">
-          <h3 class="card-title">Energy Level</h3>
-          <div class="energy-display">
-            @if(todaySymptoms && todaySymptoms.energy) {
-              <div class="energy-icon-large">
-                <ion-icon [name]="getEnergyIcon(todaySymptoms.energy)" class="energy-icon"></ion-icon>
-              </div>
-              <span class="energy-text">{{ todaySymptoms.energy | titlecase }}</span>
-            } @else {
-              <div class="no-energy">
-                <ion-icon name="battery-dead-outline" class="no-energy-icon"></ion-icon>
-                <span class="no-energy-text">Not tracked</span>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Symptoms Count Card -->
-      <div class="insight-card symptoms-count-card">
-        <div class="card-content">
-          <h3 class="card-title">Symptoms Today</h3>
-          <div class="symptoms-count-display">
-            @if(todaySymptoms && todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0) {
-              <div class="count-number">{{ todaySymptoms.symptoms.length }}</div>
-              <span class="count-label">symptoms logged</span>
-              <div class="symptoms-preview">
-                @for (symptom of todaySymptoms.symptoms.slice(0, 2); track symptom.id) {
-                  <div class="mini-symptom-tag">
-                    <ion-icon [name]="symptom.icon" class="mini-icon"></ion-icon>
-                    <span class="mini-name">{{ symptom.name }}</span>
-                  </div>
-                }
-                @if(todaySymptoms.symptoms.length > 2) {
-                  <div class="more-count">+{{ todaySymptoms.symptoms.length - 2 }}</div>
-                }
-              </div>
-            } @else {
-              <div class="no-symptoms">
-                <ion-icon name="checkmark-circle-outline" class="no-symptoms-icon"></ion-icon>
-                <span class="no-symptoms-text">No symptoms</span>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions Card -->
-      <div class="insight-card actions-card">
-        <div class="card-content">
-          <h3 class="card-title">Quick Actions</h3>
-          <div class="actions-preview">
-            <div class="action-item" (click)="openSymptomsTracking()">
-              <ion-icon name="create-outline" class="action-icon"></ion-icon>
-              <span class="action-text">Update Today</span>
-            </div>
-            <div class="action-item" (click)="viewSymptomsHistory()">
-              <ion-icon name="calendar-outline" class="action-icon"></ion-icon>
-              <span class="action-text">View History</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="flex justify-start text-2xl font-bold py-4 pl-2">
+    My daily insights
   </div>
 
-  <!-- Symptoms Detail Swiper -->
-  @if(todaySymptoms && todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0) {
+  <div class="trackSymptomsSwiper tools-carousel mt-4">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide main-insights-card">
+        <div class="flex flex-col justify-around h-full ">
+          <div class="flex justify-start">
+            @if(todaySymptoms?.symptoms && todaySymptoms.symptoms.length > 0) {
+            @for (symptom of todaySymptoms.symptoms.slice(0, 3); track symptom.id; let i = $index) {
+            @if(symptom.icon) {
+            <ion-icon [name]="symptom.icon" [class]="i > 0 ? '-ml-2' : ''"
+              class="border-2 border-white bg-[#F8683A] rounded-full p-1 text-white drop-shadow-2xl  text-2xl"></ion-icon>
+            }
+            }
+            }
 
-  <div class="symptoms-detail-swiper-section">
-    <div class="section-header">
-      <h2 class="section-title">Today's Symptoms Detail</h2>
-      <p class="section-subtitle">Swipe to see all your symptoms</p>
-    </div>
-    
-    <div class="swiper symptomsDetailSwiper">
-      <div class="swiper-wrapper">
-        @for (symptom of todaySymptoms.symptoms; track symptom.id) {
-        <div class="swiper-slide">
-          <div class="symptom-detail-card">
-            <div class="symptom-header">
-              <div class="symptom-icon-large">
-                <ion-icon [name]="symptom.icon" class="symptom-main-icon"></ion-icon>
-              </div>
-              <div class="symptom-info">
-                <h3 class="symptom-name">{{ symptom.name }}</h3>
-                <span class="symptom-category">{{ symptom.category }}</span>
-              </div>
+            @if(todaySymptoms?.symptoms && todaySymptoms.symptoms.length > 3) {
+            <div class="w-6 h-6 border-2 border-white bg-white rounded-full flex items-center justify-center -ml-1"
+              (click)="openSymptomsTrackingForUpdate()">
+              <span class="text-black border-2 border-white bg-gray-200  rounded-full p-2 text-sm z-50">+{{
+                todaySymptoms.symptoms.length - 3 }}</span>
             </div>
-            
-            <div class="symptom-details">
-              <div class="severity-badge" [ngClass]="'severity-' + symptom.severity">
-                <ion-icon name="pulse-outline" class="severity-icon"></ion-icon>
-                <span class="severity-text">{{ symptom.severity | titlecase }}</span>
-              </div>
-              
-              @if(symptom.notes) {
-              <div class="symptom-notes">
-                <ion-icon name="document-text-outline" class="notes-icon"></ion-icon>
-                <span class="notes-text">{{ symptom.notes }}</span>
-              </div>
-              }
+            } @else {
+            <!-- Default icons when no symptoms -->
+            <div class="w-6 h-6 border-2 border-white bg-white rounded-full flex items-center justify-center">
+              <ion-icon name="heart-outline" class="text-black"></ion-icon>
             </div>
-            
-            <div class="symptom-footer">
-              <div class="symptom-time">
-                <ion-icon name="time-outline" class="time-icon"></ion-icon>
-                <span class="time-text">Tracked today</span>
-              </div>
+            <div class="w-6 h-6 border-2 border-white bg-white rounded-full flex items-center justify-center -ml-3">
+              <ion-icon name="lock-closed-outline" class="text-black"></ion-icon>
             </div>
+            <div class="w-6 h-6 border-2 border-white bg-white rounded-full flex items-center justify-center -ml-3"
+              (click)="openSymptomsTrackingForUpdate()">
+              <span class="text-black">+{{ getTotalAvailableSymptoms() }}</span>
+            </div>
+            }
+          </div>
+          <div class="">
+            <!-- <ion-button fill="" class="add-button border-2 rounded-full " (click)="openSymptomsTracking()"> -->
+            <ion-icon name="add" class="add-icon bg-[#F8683A] rounded-full  p-2"
+              (click)="openSymptomsTracking()"></ion-icon>
           </div>
         </div>
-        }
       </div>
-      <div class="swiper-pagination"></div>
+      <div class="swiper-slide">
+        <!-- Card 1: Learn the ups and downs of your cycle -->
+        <div class="rounded-2xl p-4 m-1 bg-gradient-to-t from-purple-600 to-pink-400 flex flex-col justify-between">
+          <div class="text-white font-bold text-md leading-tight">
+            Learn the ups and downs of your cycle
+          </div>
+
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <!-- Card 2: Your guide to checkups -->
+        <div class="rounded-2xl  p-4 m-1 bg-purple-100 flex flex-col justify-between">
+          <div class="text-black font-bold text-md leading-tight">
+            Your guide to checkups
+          </div>
+
+        </div>
+      </div>
+      <div class="swiper-slide">
+        <!-- Card 3: First Trimester Nutrition -->
+        <div class="rounded-2xl p-6 p-4 m-1 bg-blue-800 flex flex-col justify-between">
+          <div class="text-white font-bold text-md leading-tight">
+            First Trimester Nutrition
+          </div>
+
+        </div>
+      </div>
+
+
     </div>
+    <div class="swiper-pagination"></div>
   </div>
+
   }
-
- 
-</div>
-}
   <!-- Quick Actions Section -->
   <div class="quick-actions-section">
     <div class="section-header">

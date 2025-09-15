@@ -1,255 +1,155 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="bg-white shadow-sm">
+  <ion-toolbar class="bg-white">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button (click)="goBack()" class="text-gray-600"></ion-back-button>
     </ion-buttons>
-    <ion-title>Symptom Tracker</ion-title>
+    <ion-title class="text-gray-800 font-semibold">Track Symptoms</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="saveSymptoms()">
-        <ion-icon name="checkmark-outline"></ion-icon>
+      <ion-button fill="clear" class="text-gray-600">
+        <ion-icon name="create-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="symptoms-tracker-content">
-  <!-- Reactive Form -->
-  <form [formGroup]="symptomsForm" (ngSubmit)="saveSymptoms()">
-    <!-- Date Selector -->
-    <div class="date-selector">
-      <ion-datetime 
-        [value]="selectedDate"
-        presentation="date"
-        [max]="maxDate"
-        (ionChange)="onDateChange($event)">
-      </ion-datetime>
-      <!-- Form Validation -->
-      <div class="form-validation" *ngIf="symptomsForm.get('date')?.invalid && symptomsForm.get('date')?.touched">
-        <ion-text color="danger">Please select a valid date</ion-text>
-      </div>
-    </div>
-
-  <!-- Quick Mood & Energy Selector -->
-  <div class="quick-selectors">
-    <div class="selector-card">
-      <h3>How's your mood today?</h3>
-      <div class="mood-selector">
-        <ion-button 
-          *ngFor="let mood of ['excellent', 'good', 'okay', 'poor', 'terrible']"
-          [fill]="currentMood === mood ? 'solid' : 'outline'"
-          [color]="currentMood === mood ? 'primary' : 'medium'"
-          size="small"
-          type="button"
-          (click)="onMoodChange(mood)">
-          {{ getMoodEmoji(mood) }}
-          <span class="mood-label">{{ mood | titlecase }}</span>
-        </ion-button>
-      </div>
-      <!-- Mood Validation -->
-      <div class="form-validation" *ngIf="symptomsForm.get('mood')?.invalid && symptomsForm.get('mood')?.touched">
-        <ion-text color="danger">Please select your mood</ion-text>
-      </div>
-    </div>
-
-    <div class="selector-card">
-      <h3>Energy Level</h3>
-      <div class="energy-selector">
-        <ion-button 
-          *ngFor="let energy of ['high', 'medium', 'low']"
-          [fill]="currentEnergy === energy ? 'solid' : 'outline'"
-          [color]="currentEnergy === energy ? 'secondary' : 'medium'"
-          size="small"
-          type="button"
-          (click)="onEnergyChange(energy)">
-          {{ getEnergyEmoji(energy) }}
-          <span class="energy-label">{{ energy | titlecase }}</span>
-        </ion-button>
-      </div>
-      <!-- Energy Validation -->
-      <div class="form-validation" *ngIf="symptomsForm.get('energy')?.invalid && symptomsForm.get('energy')?.touched">
-        <ion-text color="danger">Please select your energy level</ion-text>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tab Navigation -->
-  <div class="tab-navigation">
-    <ion-segment [(ngModel)]="activeTab" [ngModelOptions]="{standalone: true}" (ionChange)="setActiveTab($event)">
-      <ion-segment-button value="today">
-        <ion-icon name="today-outline"></ion-icon>
-        <ion-label>Today</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="history">
-        <ion-icon name="calendar-outline"></ion-icon>
-        <ion-label>History</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </div>
-
-  <!-- Tab Content -->
-  <div class="tab-content">
-    
-    <!-- Today's Symptoms Tab -->
-    <div class="tab-panel" *ngIf="activeTab === 'today'">
+<ion-content class="bg-gray-50">
+  <!-- Modal Handle -->
+  <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mt-2 mb-4"></div>
+  
+  <!-- Header -->
+  <div class="bg-white mx-4 rounded-2xl shadow-sm p-6 mb-4">
+    <div class="flex items-center justify-between">
+      <ion-button fill="clear" class="text-gray-600 p-2" (click)="goBack()">
+        <ion-icon name="chevron-back-outline" class="text-xl"></ion-icon>
+      </ion-button>
       
-      <!-- Selected Symptoms -->
-      <div class="selected-symptoms" *ngIf="selectedSymptoms.length > 0">
-        <h3>Your Symptoms Today</h3>
-        <div class="symptom-list">
-          <div class="symptom-item" *ngFor="let symptom of selectedSymptoms">
-            <div class="symptom-info">
-              <ion-icon [name]="symptom.icon" class="symptom-icon"></ion-icon>
-              <div class="symptom-details">
-                <h4>{{ symptom.name }}</h4>
-                <ion-chip [color]="getSeverityColor(symptom.severity)" size="small">
-                  {{ symptom.severity | titlecase }}
-                </ion-chip>
-                <p *ngIf="symptom.notes" class="symptom-note">{{ symptom.notes }}</p>
-              </div>
-            </div>
-            <div class="symptom-actions">
-              <ion-button fill="clear" size="small" (click)="updateSymptomSeverity(symptom)">
-                <ion-icon name="medical-outline"></ion-icon>
-              </ion-button>
-              <ion-button fill="clear" size="small" (click)="addSymptomNote(symptom)">
-                <ion-icon name="create-outline"></ion-icon>
-              </ion-button>
-              <ion-button fill="clear" size="small" color="danger" (click)="removeSymptom(symptom.id)">
-                <ion-icon name="close-outline"></ion-icon>
-              </ion-button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Add Symptoms -->
-      <div class="add-symptoms">
-        <h3>Add Symptoms</h3>
-        
-        <!-- Physical Symptoms -->
-        <div class="symptom-category">
-          <h4>Physical Symptoms</h4>
-          <div class="symptom-grid">
-            <div 
-              class="symptom-card" 
-              *ngFor="let symptom of getSymptomsByCategory('Physical')"
-              [class.selected]="isSymptomSelected(symptom.id)"
-              (click)="toggleSymptom(symptom)">
-              <ion-icon [name]="symptom.icon" class="category-icon"></ion-icon>
-              <span>{{ symptom.name }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Digestive Symptoms -->
-        <div class="symptom-category">
-          <h4>Digestive Symptoms</h4>
-          <div class="symptom-grid">
-            <div 
-              class="symptom-card" 
-              *ngFor="let symptom of getSymptomsByCategory('Digestive')"
-              [class.selected]="isSymptomSelected(symptom.id)"
-              (click)="toggleSymptom(symptom)">
-              <ion-icon [name]="symptom.icon" class="category-icon"></ion-icon>
-              <span>{{ symptom.name }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Emotional Symptoms -->
-        <div class="symptom-category">
-          <h4>Emotional Symptoms</h4>
-          <div class="symptom-grid">
-            <div 
-              class="symptom-card" 
-              *ngFor="let symptom of getSymptomsByCategory('Emotional')"
-              [class.selected]="isSymptomSelected(symptom.id)"
-              (click)="toggleSymptom(symptom)">
-              <ion-icon [name]="symptom.icon" class="category-icon"></ion-icon>
-              <span>{{ symptom.name }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- General Symptoms -->
-        <div class="symptom-category">
-          <h4>General Symptoms</h4>
-          <div class="symptom-grid">
-            <div 
-              class="symptom-card" 
-              *ngFor="let symptom of getSymptomsByCategory('General')"
-              [class.selected]="isSymptomSelected(symptom.id)"
-              (click)="toggleSymptom(symptom)">
-              <ion-icon [name]="symptom.icon" class="category-icon"></ion-icon>
-              <span>{{ symptom.name }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Notes Section -->
-      <div class="notes-section">
-        <h3>Additional Notes</h3>
-        <ion-textarea
-          [value]="notes"
-          (ionInput)="onNotesChange($event)"
-          placeholder="How are you feeling overall? Any other observations..."
-          rows="4"
-          class="notes-textarea">
-        </ion-textarea>
-      </div>
-    </div>
-
-    <!-- History Tab -->
-    <div class="tab-panel" *ngIf="activeTab === 'history'">
-      <div class="history-content" *ngIf="dailySymptomsHistory.length > 0; else noHistory">
-        <div class="history-item" *ngFor="let day of dailySymptomsHistory">
-          <div class="history-date">
-            <h4>{{ day.date | date:'MMM dd' }}</h4>
-            <p>{{ day.date | date:'EEEE' }}</p>
-          </div>
-          <div class="history-summary">
-            <div class="summary-item">
-              <span class="summary-label">Mood:</span>
-              <span class="summary-value">{{ getMoodEmoji(day.mood) }} {{ day.mood | titlecase }}</span>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">Energy:</span>
-              <span class="summary-value">{{ getEnergyEmoji(day.energy) }} {{ day.energy | titlecase }}</span>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">Symptoms:</span>
-              <span class="summary-value">{{ day.symptoms.length }} tracked</span>
-            </div>
-          </div>
-          <div class="history-symptoms" *ngIf="day.symptoms.length > 0">
-            <ion-chip 
-              *ngFor="let symptom of day.symptoms" 
-              [color]="getSeverityColor(symptom.severity)"
-              size="small">
-              {{ symptom.name }}
-            </ion-chip>
-          </div>
-        </div>
+      <div class="text-center">
+        <h1 class="text-xl font-bold text-gray-800">Today</h1>
+        <p class="text-sm text-gray-500">{{ getPregnancyProgress() }}</p>
       </div>
       
-      <ng-template #noHistory>
-        <div class="no-history">
-          <ion-icon name="calendar-outline" size="large"></ion-icon>
-          <h3>No History Yet</h3>
-          <p>Start tracking your symptoms to see your history here.</p>
-        </div>
-      </ng-template>
-    </div>
-  </div>
-
-    <!-- Save Button -->
-    <div class="save-section">
-      <ion-button expand="block" fill="solid" type="submit" [disabled]="symptomsForm.invalid">
-        <ion-icon name="save-outline" slot="start"></ion-icon>
-        Save Today's Symptoms
+      <ion-button fill="clear" class="text-gray-600 p-2">
+        <ion-icon name="chevron-forward-outline" class="text-xl"></ion-icon>
       </ion-button>
     </div>
-    
-  </form>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="mx-4 mb-6">
+    <div class="relative">
+      <ion-icon name="search-outline" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></ion-icon>
+      <input type="text" placeholder="Search symptoms..." 
+             class="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-pink-400 focus:outline-none text-gray-700">
+    </div>
+  </div>
+
+  <!-- Categories Section -->
+  <div class="mx-4 mb-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-800">Categories</h2>
+      <ion-button fill="clear" class="text-pink-500 font-medium">
+        <span class="text-sm">Edit</span>
+      </ion-button>
+    </div>
+
+    <!-- Sex and Sex Drive Category -->
+    <div class="bg-white rounded-2xl shadow-sm p-4 mb-4">
+      <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+        <ion-icon name="heart-outline" class="text-pink-500 mr-2"></ion-icon>
+        Sex and sex drive
+      </h3>
+      <div class="flex flex-wrap gap-2">
+        <div class="chip bg-pink-50 border border-pink-200 text-pink-700 hover:bg-pink-100 transition-colors duration-200" 
+             [class.bg-pink-500]="isSelected(item.id)"
+             [class.text-white]="isSelected(item.id)"
+             [class.border-pink-500]="isSelected(item.id)"
+             *ngFor="let item of sexDriveOptions" 
+             (click)="toggleSelection(item.id)">
+          <ion-icon [name]="item.icon" class="chip-icon"></ion-icon>
+          <span class="chip-text">{{ item.name }}</span>
+          <ion-icon name="checkmark" class="check-icon" *ngIf="isSelected(item.id)"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mood Category -->
+    <div class="bg-white rounded-2xl shadow-sm p-4 mb-4">
+      <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+        <ion-icon name="happy-outline" class="text-orange-500 mr-2"></ion-icon>
+        Mood
+      </h3>
+      <div class="flex flex-wrap gap-2">
+        <div class="chip bg-orange-50 border border-orange-200 text-orange-700 hover:bg-orange-100 transition-colors duration-200" 
+             [class.bg-orange-500]="isSelected(item.id)"
+             [class.text-white]="isSelected(item.id)"
+             [class.border-orange-500]="isSelected(item.id)"
+             *ngFor="let item of moodOptions" 
+             (click)="toggleSelection(item.id)">
+          <ion-icon [name]="item.icon" class="chip-icon"></ion-icon>
+          <span class="chip-text">{{ item.name }}</span>
+          <ion-icon name="checkmark" class="check-icon" *ngIf="isSelected(item.id)"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Physical Symptoms Category -->
+    <div class="bg-white rounded-2xl shadow-sm p-4 mb-4">
+      <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+        <ion-icon name="medical-outline" class="text-blue-500 mr-2"></ion-icon>
+        Physical Symptoms
+      </h3>
+      <div class="flex flex-wrap gap-2">
+        <div class="chip bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 transition-colors duration-200" 
+             [class.bg-blue-500]="isSelected(item.id)"
+             [class.text-white]="isSelected(item.id)"
+             [class.border-blue-500]="isSelected(item.id)"
+             *ngFor="let item of physicalSymptoms" 
+             (click)="toggleSelection(item.id)">
+          <ion-icon [name]="item.icon" class="chip-icon"></ion-icon>
+          <span class="chip-text">{{ item.name }}</span>
+          <ion-icon name="checkmark" class="check-icon" *ngIf="isSelected(item.id)"></ion-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Notes -->
+    <div class="bg-white rounded-2xl shadow-sm p-4 mb-6">
+      <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+        <ion-icon name="document-text-outline" class="text-gray-500 mr-2"></ion-icon>
+        Additional Notes
+      </h3>
+      <ion-textarea
+        [value]="notes"
+        (ionInput)="onNotesChange($event)"
+        placeholder="How are you feeling overall? Any other observations..."
+        rows="3"
+        class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-pink-400 focus:outline-none resize-none text-gray-700">
+      </ion-textarea>
+    </div>
+  </div>
+
+  <!-- Test Buttons (for debugging) -->
+  <div class="mx-4 mb-4" *ngIf="isUpdateMode">
+    <div class="flex flex-wrap gap-2">
+      <ion-button fill="outline" size="small" (click)="testSelection()">
+        Test Selection
+      </ion-button>
+      <ion-button fill="outline" size="small" (click)="testAddItems()">
+        Test Add Items
+      </ion-button>
+      <ion-button fill="outline" size="small" (click)="testWithRealData()">
+        Test Real Data
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Save Button -->
+  <div class="mx-4 mb-8">
+    <ion-button expand="block" fill="solid" 
+                class="bg-gradient-to-r from-pink-500 to-pink-600 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200" 
+                (click)="saveSymptoms()">
+      <ion-icon name="checkmark-outline" slot="start" class="text-lg"></ion-icon>
+      Save Today's Symptoms
+    </ion-button>
+  </div>
 </ion-content>

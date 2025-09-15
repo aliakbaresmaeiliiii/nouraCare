@@ -4,7 +4,7 @@ import { PrismaService } from '../prisma/services/prisma.service';
 
 @Injectable()
 export class TrackDayService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async createTrackDay(userId: number, createTrackDayDto: CreateTrackDayDto) {
     const { date, mood, energy, symptoms, notes } = createTrackDayDto;
@@ -65,16 +65,14 @@ export class TrackDayService {
     });
   }
 
-  async getSymptomsRange(userId: number, startDate: string, endDate: string) {
-    const trackDay = await this.  prisma.trackDay.findMany({
+  async getTrackDay(userId: number, date: string) {
+    const trackDay = await this.prisma.trackDay.findUnique({
       where: {
-        userId,
-        date: {
-          gte: new Date(startDate),
-          lte: new Date(endDate),
+        userId_date: {
+          userId,
+          date: new Date(date),
         },
       },
-      orderBy: { date: 'desc' },
     });
 
     if (!trackDay) {
@@ -82,12 +80,10 @@ export class TrackDayService {
     }
 
     return {
-      ...trackDay.map(trackDay => ({
-        ...trackDay,
-        mood: trackDay.mood ? JSON.parse(trackDay.mood) : null,
-        energy: trackDay.energy ? JSON.parse(trackDay.energy) : null,
-        symptoms: trackDay.symptoms ? JSON.parse(trackDay.symptoms) : null,
-      })),
+      ...trackDay,
+      mood: trackDay.mood ? JSON.parse(trackDay.mood) : null,
+      energy: trackDay.energy ? JSON.parse(trackDay.energy) : null,
+      symptoms: trackDay.symptoms ? JSON.parse(trackDay.symptoms) : null,
     };
   }
 

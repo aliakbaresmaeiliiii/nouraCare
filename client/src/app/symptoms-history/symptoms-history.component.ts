@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SharedModule } from '../shared/shared-module';
-import { TrackDay } from '../symptoms-tracker/track-day';
+import { TrackDataService } from '../shared/services/track-data.service';
 
 @Component({
   selector: 'app-symptoms-history',
@@ -12,7 +12,7 @@ import { TrackDay } from '../symptoms-tracker/track-day';
 })
 export class SymptomsHistoryComponent implements OnInit {
   private router = inject(Router);
-  private trackDayService = inject(TrackDay);
+  private trackDataService = inject(TrackDataService);
 
   symptomsHistory: any[] = [];
   loading: boolean = true;
@@ -35,7 +35,7 @@ export class SymptomsHistoryComponent implements OnInit {
       const dateString = date.toISOString().split('T')[0];
 
       promises.push(
-        this.trackDayService.getSymptomsRange(userId, dateString, dateString).subscribe({
+        this.trackDataService.getTrackDay(userId, dateString).subscribe({
           next: (data) => {
             this.symptomsHistory.push(data[0]);
           },

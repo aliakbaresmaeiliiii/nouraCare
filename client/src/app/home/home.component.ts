@@ -1,73 +1,73 @@
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject, ViewChild } from '@angular/core';
-import { ViewWillEnter } from '@ionic/angular';
+import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ToastController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, ToastController, ViewWillEnter } from '@ionic/angular';
 import Swiper from 'swiper';
-import { forkJoin } from 'rxjs';
 import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-picker-page/period-date-picker-page.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
-import { MessageService } from '../shared/services/message.service';
-import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import { SymptomsDto } from '../shared/models/symptoms.dto';
 import { BabyDevelopmentService } from '../shared/services/baby-development.service';
+import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import { MessageService } from '../shared/services/message.service';
+import { TrackDataService } from '../shared/services/track-data.service';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { SharedModule } from '../shared/shared-module';
-import { TrackDay } from '../symptoms-tracker/track-day';
-import { SymptomsDto } from '../shared/models/symptoms.dto';
+import { addIcons } from 'ionicons';
+import { add } from 'ionicons/icons';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   standalone: true,
-  imports:[SharedModule, CirclePeriodChart],
+  imports: [SharedModule, CirclePeriodChart],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
-  private trackDayService = inject(TrackDay);
+  private trackDataService = inject(TrackDataService);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
-  
+
   welcomeMessage: string = '';
   dailyMessage: string = '';
   userName: string = 'Ali'; // This would come from your user service
-  
+
   // User Status and Progress
   userStatus: string = 'Not Set'; // Default state
   isPregnant: boolean = false; // Set to false by default
   isPostpartum: boolean = false;
-  
+
   // Cycle tracking
   currentCycleDay: number = 0;
   periodStartDate: Date | null = null;
   periodLength: number = 5;
   pregnancyWeek: number = 12;
   pregnancyProgress: number = 30; // percentage
-  
+
   // Dynamic baby size data - now computed from service
   get babySize(): string {
     const currentBaby = this.babyDevelopmentService.getCurrentBabySize();
     return currentBaby?.size || 'Lime 🍋';
   }
-  
+
   get babyWeight(): string {
     const currentBaby = this.babyDevelopmentService.getCurrentBabySize();
     return currentBaby?.weight || '45g';
   }
-  
+
   get babyDescription(): string {
     const currentBaby = this.babyDevelopmentService.getCurrentBabySize();
     return currentBaby?.description || 'Zesty lime size';
   }
-  
+
   // Pregnancy tracker properties
   pregnancyStartDate: string = '2024-01-01';
   pregnancyDays: number = 84; // 12 weeks * 7 days
   minDate: string = '2023-01-01';
   maxDate: string = '2025-12-31';
   currentWeekOffset: number = 0; // For scrolling weeks
-  
+
   // Postpartum tracking
   postpartumWeek: number = 1;
   babyAge: string = '1 week old';
@@ -75,7 +75,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   postpartumBabyLength: string = '50cm';
   feedingMethod: string = 'Breastfeeding';
   sleepPattern: string = 'Every 2-3 hours';
-  
+
   // Postpartum recovery data
   postpartumData: any[] = [
     { week: 1, recovery: 'Physical Healing', symptoms: ['Bleeding', 'Cramping', 'Fatigue'], tips: 'Rest as much as possible, stay hydrated' },
@@ -87,15 +87,15 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     { week: 8, recovery: 'New Normal', symptoms: ['Finding Balance', 'Identity Shift'], tips: 'Embrace the journey, be patient with yourself' },
     { week: 12, recovery: 'Thriving', symptoms: ['Confidence Building', 'Routine Established'], tips: 'You\'re doing great! Keep going!' }
   ];
-  
+
   // Baby size data is now managed by BabyDevelopmentService
   // Access via: this.babyDevelopmentService.getAllBabySizeData()
-  
+
   // Quick Stats
   cycleDay: number = 14;
   temperature: number = 36.8;
   mood: string = 'Happy';
-  
+
   // Appointments
   upcomingAppointments: any[] = [
     {
@@ -120,114 +120,68 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     private toastController: ToastController,
     private modalController: ModalController,
     private messageService: MessageService,
-  ) { }
+  ) {
+    addIcons({ add });
+  }
 
   ngAfterViewInit() {
-    try {
-      // Initialize Swiper only if the element exists
-      const swiperElement = document.querySelector('.mySwiper');
-      if (swiperElement) {
-        var swiper = new Swiper('.mySwiper', {
-          slidesPerView: 2,
-          spaceBetween: 5,
-          centeredSlides: false,
-          loop: false,
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-            dynamicBullets: true,
-          },
-          breakpoints: {
-            480: {
-              slidesPerView: 2,
-              spaceBetween: 15,
-            },
-            640: {
-              slidesPerView: 3,
-              spaceBetween: 20,
-            },
-            768: {
-              slidesPerView: 2.5,
-              spaceBetween: 20,
-            },
-            1024: {
-              slidesPerView: 3,
-              spaceBetween: 25,
-            },
-          },
-        });
-      }
 
-      // Initialize Symptoms Swiper
-      const symptomsSwiperElement = document.querySelector('.symptomsSwiper');
-      if (symptomsSwiperElement) {
-        var symptomsSwiper = new Swiper('.symptomsSwiper', {
-          slidesPerView: 1,
-          spaceBetween: 10,
-          centeredSlides: true,
-          loop: false,
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
+    // Initialize Swiper only if the element exists
+    const swiperElement = document.querySelector('.mySwiper');
+    if (swiperElement) {
+      var swiper = new Swiper('.mySwiper', {
+        slidesPerView: 2,
+        spaceBetween: 5,
+        centeredSlides: false,
+        loop: false,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+          dynamicBullets: true,
+        },
+        breakpoints: {
+          480: {
+            slidesPerView: 2,
+            spaceBetween: 15,
           },
-          autoplay: {
-            delay: 3000,
-            disableOnInteraction: false,
-          },
-          breakpoints: {
-            640: {
-              slidesPerView: 1.2,
-              spaceBetween: 15,
-            },
-            768: {
-              slidesPerView: 1.5,
-              spaceBetween: 20,
-            },
-            1024: {
-              slidesPerView: 2,
-              spaceBetween: 25,
-            },
-          },
-        });
-      }
-
-      // Initialize Symptoms Detail Swiper
-      setTimeout(() => {
-        const symptomsDetailSwiperElement = document.querySelector('.symptomsDetailSwiper');
-        if (symptomsDetailSwiperElement) {
-          var symptomsDetailSwiper = new Swiper('.symptomsDetailSwiper', {
-            slidesPerView: 1,
+          640: {
+            slidesPerView: 3,
             spaceBetween: 20,
-            centeredSlides: true,
-            loop: false,
-            pagination: {
-              el: '.swiper-pagination',
-              clickable: true,
-            },
-            autoplay: {
-              delay: 4000,
-              disableOnInteraction: false,
-            },
-            breakpoints: {
-              640: {
-                slidesPerView: 1.2,
-                spaceBetween: 25,
-              },
-              768: {
-                slidesPerView: 1.5,
-                spaceBetween: 30,
-              },
-              1024: {
-                slidesPerView: 2,
-                spaceBetween: 35,
-              },
-            },
-          });
-        }
-      }, 100);
-    } catch (error) {
-      console.error('Swiper initialization error:', error);
+          },
+          768: {
+            slidesPerView: 2.5,
+            spaceBetween: 20,
+          },
+          1024: {
+            slidesPerView: 3,
+            spaceBetween: 25,
+          },
+        },
+      });
     }
+
+    var swiper = new Swiper(".trackSymptomsSwiper", {
+      slidesPerView: 3,
+      spaceBetween: 10,
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+      breakpoints: {
+        640: {
+          slidesPerView: 2,
+          spaceBetween: 20,
+        },
+        768: {
+          slidesPerView: 4,
+          spaceBetween: 40,
+        },
+        1024: {
+          slidesPerView: 5,
+          spaceBetween: 50,
+        },
+      },
+    });
   }
 
   ngOnInit() {
@@ -237,13 +191,13 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     this.loadTodaySymptoms();
     this.loadRecentSymptomsDays();
     this.initializeHealthTip();
-    
+
     // Listen for symptoms updates
     // window.addEventListener('symptomsUpdated', () => {
     //   this.loadTodaySymptoms();
     //   this.loadRecentSymptomsDays();
     // });
-    
+
   }
 
   /**
@@ -254,21 +208,21 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     this.userStatus = this.cycleSettings.userStatus();
     this.isPregnant = this.cycleSettings.isPregnant();
     this.isPostpartum = this.cycleSettings.isPostpartum();
-    
+
     // Load pregnancy data
     this.pregnancyWeek = this.cycleSettings.pregnancyWeek();
     this.pregnancyProgress = this.cycleSettings.pregnancyProgress();
-    
+
     // Load period data
     const lastPeriodStart = this.cycleSettings.lastPeriodStartDate();
     if (lastPeriodStart) {
       this.periodStartDate = new Date(lastPeriodStart);
       this.updateCycleDay();
     }
-    
+
     // Load cycle settings
     this.periodLength = this.cycleSettings.periodLength();
-    
+
     // Baby development data is automatically loaded by the service
     // and will be computed based on the current pregnancy week
   }
@@ -279,17 +233,17 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   private checkOnboardingStatus() {
     const onboardingCompleted = localStorage.getItem('onboarding_completed');
     const onboardingData = localStorage.getItem('onboarding_data');
-    
+
     if (onboardingCompleted === 'true' && onboardingData) {
       try {
         const data = JSON.parse(onboardingData);
-        
+
         // Update user status based on onboarding data
         if (data.pregnancy_status === 'pregnant') {
           this.userStatus = 'Pregnant';
           this.isPregnant = true;
           this.isPostpartum = false;
-          
+
           // Set pregnancy week if provided
           if (data.pregnancy_week) {
             this.pregnancyWeek = data.pregnancy_week;
@@ -297,34 +251,34 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
             this.cycleSettings.setPregnancyWeek(data.pregnancy_week);
             this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
           }
-          
+
           // Update cycle settings
           this.cycleSettings.setUserStatus('Pregnant');
           this.cycleSettings.setPregnancyStatus(true);
           this.cycleSettings.setPostpartumStatus(false);
-          
+
         } else if (data.pregnancy_status === 'postpartum') {
           this.userStatus = 'Postpartum';
           this.isPregnant = false;
           this.isPostpartum = true;
-          
+
           // Update cycle settings
           this.cycleSettings.setUserStatus('Postpartum');
           this.cycleSettings.setPregnancyStatus(false);
           this.cycleSettings.setPostpartumStatus(true);
-          
+
         } else {
           // Trying to conceive or tracking
           this.userStatus = 'Trying to Conceive';
           this.isPregnant = false;
           this.isPostpartum = false;
-          
+
           // Update cycle settings
           this.cycleSettings.setUserStatus('Trying to Conceive');
           this.cycleSettings.setPregnancyStatus(false);
           this.cycleSettings.setPostpartumStatus(false);
         }
-        
+
         // Set cycle data if provided
         if (data.cycle_length) {
           this.cycleSettings.setCycleLength(data.cycle_length);
@@ -337,8 +291,8 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
           this.periodStartDate = new Date(data.last_period);
           this.updateCycleDay();
         }
-        
-        
+
+
       } catch (error) {
         console.error('Error parsing onboarding data:', error);
       }
@@ -352,10 +306,10 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   generateMessages() {
     // Generate welcome message with user's name
     this.welcomeMessage = this.messageService.generateWelcomeMessage(this.userName);
-    
+
     // Generate daily inspirational message
     this.dailyMessage = this.messageService.generateDailyMessage();
-    
+
     // You can also generate pregnancy-specific messages if needed
     // this.dailyMessage = this.messageService.generatePregnancyDailyMessage(28);
   }
@@ -373,10 +327,10 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
    * This ensures the chart is refreshed when returning from other pages
    */
   ionViewWillEnter() {
-    
+
     // Check both local storage and API data
     const userInfo = this.userInfoService.getCurrentUserInfo();
-    
+
     // Always fetch fresh data from API when entering home page
     this.refreshChartWithFreshData();
   }
@@ -385,14 +339,14 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
    * Refresh chart with fresh data from API
    */
   private refreshChartWithFreshData() {
-    
+
     // Get user ID
     const userId = this.getCurrentUserId();
-    
+
     // Fetch fresh data from API
     this.userInfoService.getUserOnboardingData(userId).subscribe({
       next: (userInfo) => {
-        
+
         // Update the chart with fresh data
         setTimeout(() => {
           if (this.periodChart) {
@@ -404,7 +358,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
         }, 100);
       },
       error: (error) => {
-        
+
         // Fallback to cached data
         setTimeout(() => {
           if (this.periodChart) {
@@ -557,14 +511,14 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       if (onboardingData) {
         const data = JSON.parse(onboardingData);
         data.pregnancy_status = newStatus;
-        
+
         // Update pregnancy-specific data
         if (newStatus === 'pregnant' && pregnancyWeek) {
           data.pregnancy_week = pregnancyWeek;
         } else if (newStatus !== 'pregnant') {
           delete data.pregnancy_week;
         }
-        
+
         localStorage.setItem('onboarding_data', JSON.stringify(data));
       }
     } catch (error) {
@@ -624,7 +578,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
             this.cycleSettings.setUserStatus('Pregnant');
             this.cycleSettings.setPregnancyStatus(true);
             this.cycleSettings.setPostpartumStatus(false);
-            
+
             // Ask for pregnancy week
             const weekAlert = await this.alertController.create({
               header: '🎉 Congratulations!',
@@ -671,7 +625,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
             this.cycleSettings.setUserStatus('Postpartum');
             this.cycleSettings.setPregnancyStatus(false);
             this.cycleSettings.setPostpartumStatus(true);
-            
+
             // Ask for postpartum week
             const weekAlert = await this.alertController.create({
               header: '👶 Welcome to Postpartum!',
@@ -968,8 +922,8 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Quick Actions with proper functionality
   async onActionClick(action: string) {
-    
-    switch(action) {
+
+    switch (action) {
       case 'pregnant':
         if (this.isPregnant) {
           await this.handleNotPregnantUpdate();
@@ -997,7 +951,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Handle "I became pregnant" action
   async handlePregnancyUpdate() {
-    
+
     const alert = await this.alertController.create({
       header: '🎉 Congratulations!',
       message: 'This is wonderful news! Let\'s update your status and guide you through the next steps.',
@@ -1022,7 +976,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Handle "I'm not pregnant anymore" action
   async handleNotPregnantUpdate() {
-    
+
     const alert = await this.alertController.create({
       header: 'Update Status',
       message: 'Are you sure you want to change your status back to "Trying to Conceive"?',
@@ -1051,24 +1005,24 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       this.userStatus = 'Trying to Conceive';
       this.isPregnant = false;
       this.isPostpartum = false;
-      
+
       // Reset pregnancy-related data
       this.pregnancyWeek = 0;
       this.pregnancyProgress = 0;
-      
+
       // Save to persistent storage
       this.cycleSettings.setUserStatus('Trying to Conceive');
       this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(false);
       this.cycleSettings.setPregnancyWeek(0);
       this.cycleSettings.setPregnancyProgress(0);
-      
+
       // Update onboarding data in localStorage
       this.updateOnboardingData('trying');
-      
+
       // Refresh the display to show cycle tracking
       this.refreshDisplay();
-      
+
       const successAlert = await this.alertController.create({
         header: '✅ Status Updated!',
         message: 'Your status has been updated back to "Trying to Conceive". You can now track your cycle again.',
@@ -1081,10 +1035,10 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await successAlert.present();
-      
+
       // Show success toast
       this.showToast('Status updated successfully! You can now track your cycle.', 'success');
-      
+
     } catch (error) {
       console.error('Error updating status:', error);
       this.showToast('Error updating status. Please try again.', 'danger');
@@ -1096,7 +1050,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     try {
       // Check if we have last period date from onboarding
       const lastPeriodFromOnboarding = this.cycleSettings.lastPeriodStartDate();
-      
+
       if (lastPeriodFromOnboarding) {
         // Use onboarding data to automatically calculate pregnancy week
         await this.calculateAndUpdatePregnancyStatus(lastPeriodFromOnboarding);
@@ -1147,39 +1101,39 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       const today = new Date();
       const daysDifference = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
       const pregnancyWeek = Math.floor(daysDifference / 7) + 1;
-      
+
       // Validate pregnancy week (should be between 4-40 weeks)
       if (pregnancyWeek < 4 || pregnancyWeek > 40) {
         await this.showToast('Invalid date. Please enter a valid LMP date (4-40 weeks ago).', 'warning');
         return;
       }
-      
+
       // Update pregnancy status
       this.userStatus = 'Pregnant';
       this.isPregnant = true;
       this.isPostpartum = false;
-      
+
       // Update pregnancy week and progress
       this.pregnancyWeek = pregnancyWeek;
       this.pregnancyProgress = (pregnancyWeek / 40) * 100;
-      
+
       // Save to persistent storage
       this.cycleSettings.setUserStatus('Pregnant');
       this.cycleSettings.setPregnancyStatus(true);
       this.cycleSettings.setPostpartumStatus(false);
       this.cycleSettings.setPregnancyWeek(pregnancyWeek);
       this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
-      
+
       // Update onboarding data in localStorage
       this.updateOnboardingData('pregnant', pregnancyWeek);
-      
+
       // Refresh the display to show pregnancy progress
       this.refreshDisplay();
-      
+
       // Get current baby size for display
       const currentBaby = this.babyDevelopmentService.getCurrentBabySize();
       const babySizeText = currentBaby ? currentBaby.size : 'Unknown';
-      
+
       // Show results
       const successAlert = await this.alertController.create({
         header: '🎉 Congratulations!',
@@ -1202,7 +1156,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
       await successAlert.present();
       await this.showToast(`Pregnancy week ${pregnancyWeek} calculated successfully!`, 'success');
-      
+
     } catch (error) {
       console.error('Error calculating pregnancy week:', error);
       await this.showToast('Failed to calculate pregnancy week', 'danger');
@@ -1210,9 +1164,21 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   }
 
   // Open symptoms tracking
-  async openSymptomsTracking() {
+  openSymptomsTracking() {
     this.router.navigate(['/symptoms-tracker']);
     this.showToast('Opening symptom tracker...');
+  }
+
+  // Open symptoms tracking for update mode
+  openSymptomsTrackingForUpdate() {
+    const today = this.getCurrentDate();
+    this.router.navigate(['/symptoms-tracker'], {
+      queryParams: {
+        date: today,
+        mode: 'update'
+      }
+    });
+    this.showToast('Opening symptom tracker for update...');
   }
 
   // Navigate to school (baby development)
@@ -1231,31 +1197,35 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   loadTodaySymptoms() {
     const today = new Date().toISOString().split('T')[0];
-    this.trackDayService.getSymptomsRange(this.getCurrentUserId(),today, today).subscribe({
+
+    // First try to get from local service (faster)
+    const localData = this.trackDataService.getTodayTrackData();
+    if (localData) {
+      this.todaySymptoms = localData as SymptomsDto;
+      console.log('🔍 Today symptoms from local service:', this.todaySymptoms);
+      return;
+    }
+
+    // If not found locally, fetch from API
+    this.trackDataService.getTrackDay(this.getCurrentUserId(), today).subscribe({
       next: (data) => {
+        if (data && data.length > 0) {
+          this.todaySymptoms = data[0] as SymptomsDto;
 
-        this.todaySymptoms = data[0] as SymptomsDto;
-        debugger;
-        // if (data) {
-        //   // API returns an array, get the first (most recent) entry
-        //   const todayData = data[0];
-        //   this.todaySymptoms = {
-        //     ...todayData,
-        //     symptoms: typeof todayData.symptoms === 'string' 
-        //       ? JSON.parse(todayData.symptoms) 
-        //       : todayData.symptoms,
-        //     mood: typeof todayData.mood === 'string' 
-        //       ? JSON.parse(todayData.mood) 
-        //       : todayData.mood,
-        //     energy: typeof todayData.energy === 'string' 
-        //       ? JSON.parse(todayData.energy) 
-        //       : todayData.energy
-        //   };
-        // } else {
-        //   this.todaySymptoms = {} as SymptomsDto;
-        // }
+          // Store in local service for future use
+          this.trackDataService.saveTrackData({
+            id: data[0].id,
+            userId: this.getCurrentUserId(),
+            date: today,
+            symptoms: data[0].symptoms,
+            mood: data[0].mood,
+            energy: data[0].energy,
+            notes: data[0].notes,
+            createdAt: data[0].createdAt,
+            updatedAt: data[0].updatedAt
+          });
+        }
         console.log('🔍 Today symptoms from API:', this.todaySymptoms);
-
       },
       error: (error) => {
         console.log('🔍 No symptoms data for today (404 is normal):', error.status);
@@ -1358,7 +1328,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-    
+
     if (date.toDateString() === today.toDateString()) {
       return 'Today';
     } else if (date.toDateString() === yesterday.toDateString()) {
@@ -1370,9 +1340,9 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
     });
   }
 
@@ -1410,7 +1380,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
         notes: 'Feeling tired yesterday'
       }
     ];
-    
+
     localStorage.setItem('dailySymptomsHistory', JSON.stringify(testData));
     this.loadTodaySymptoms();
     this.showToast('Test data added! Check the swiper now.', 'success');
@@ -1427,7 +1397,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       };
 
       await this.showToast(`${moodEmoji[mood]} Symptoms tracked successfully!`, 'success');
-      
+
     } catch (error) {
       await this.showToast('Failed to track symptoms. Please try again.', 'danger');
     }
@@ -1477,7 +1447,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       };
 
       await this.showToast(`Opening ${typeNames[type]} booking...`, 'success');
-      
+
       const successAlert = await this.alertController.create({
         header: '✅ Appointment Booking',
         message: `You're being redirected to book your ${typeNames[type]} appointment.`,
@@ -1485,7 +1455,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await successAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open appointment booking. Please try again.', 'danger');
     }
@@ -1495,7 +1465,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async navigateToCommunity() {
     try {
       await this.showToast('Joining community...', 'success');
-      
+
       const communityAlert = await this.alertController.create({
         header: '👥 Join Our Community',
         message: 'Connect with other women on similar journeys. Share experiences, ask questions, and find support.',
@@ -1515,7 +1485,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await communityAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to join community. Please try again.', 'danger');
     }
@@ -1525,7 +1495,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async viewCounselorSchedule() {
     try {
       await this.showToast('Opening counselor schedule...', 'success');
-      
+
       const scheduleAlert = await this.alertController.create({
         header: '👩‍⚕️ Counselor Schedule',
         message: 'View available appointment slots with our expert counselors.',
@@ -1545,7 +1515,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await scheduleAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open schedule. Please try again.', 'danger');
     }
@@ -1555,7 +1525,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async bookExpertConsultation() {
     try {
       await this.showToast('Opening expert consultation booking...', 'success');
-      
+
       const consultationAlert = await this.alertController.create({
         header: '👨‍⚕️ Expert Consultation',
         message: 'Book a consultation with our specialized experts in prenatal care, nutrition, and mental health.',
@@ -1575,7 +1545,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await consultationAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open consultation booking. Please try again.', 'danger');
     }
@@ -1629,7 +1599,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async openFertilityCalculator() {
     try {
       await this.showToast('Opening fertility calculator...', 'success');
-      
+
       const calculatorAlert = await this.alertController.create({
         header: '🧮 Fertility Calculator',
         message: 'Calculate your most fertile days based on your cycle length and last period date.',
@@ -1648,7 +1618,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await calculatorAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open fertility calculator. Please try again.', 'danger');
     }
@@ -1657,7 +1627,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async openNutritionTracker() {
     try {
       await this.showToast('Opening nutrition tracker...', 'success');
-      
+
       const nutritionAlert = await this.alertController.create({
         header: '🥗 Nutrition Tracker',
         message: 'Track your daily nutrition intake, including vitamins, minerals, and food groups essential for pregnancy.',
@@ -1676,7 +1646,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await nutritionAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open nutrition tracker. Please try again.', 'danger');
     }
@@ -1685,7 +1655,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async openExercisePlanner() {
     try {
       await this.showToast('Opening exercise planner...', 'success');
-      
+
       const exerciseAlert = await this.alertController.create({
         header: '🏃‍♀️ Exercise Planner',
         message: 'Get personalized exercise recommendations safe for each trimester of pregnancy.',
@@ -1704,7 +1674,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await exerciseAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open exercise planner. Please try again.', 'danger');
     }
@@ -1713,7 +1683,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async openMedicationReminder() {
     try {
       await this.showToast('Opening medication reminder...', 'success');
-      
+
       const medicationAlert = await this.alertController.create({
         header: '💊 Medication Reminder',
         message: 'Set reminders for your prenatal vitamins and medications to ensure you never miss a dose.',
@@ -1732,7 +1702,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await medicationAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open medication reminder. Please try again.', 'danger');
     }
@@ -1742,7 +1712,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async openFeedingTracker() {
     try {
       await this.showToast('Opening feeding tracker...', 'success');
-      
+
       const feedingAlert = await this.alertController.create({
         header: '🍼 Feeding Tracker',
         message: 'Track your baby\'s feeding schedule, duration, and patterns to ensure proper nutrition.',
@@ -1761,7 +1731,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await feedingAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open feeding tracker. Please try again.', 'danger');
     }
@@ -1770,7 +1740,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   async openSleepTracker() {
     try {
       await this.showToast('Opening sleep tracker...', 'success');
-      
+
       const sleepAlert = await this.alertController.create({
         header: '😴 Sleep Tracker',
         message: 'Monitor your baby\'s sleep patterns, duration, and quality to establish healthy sleep habits.',
@@ -1789,7 +1759,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       });
 
       await sleepAlert.present();
-      
+
     } catch (error) {
       await this.showToast('Failed to open sleep tracker. Please try again.', 'danger');
     }
@@ -1797,17 +1767,37 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Helper methods for pregnancy tracker
   getWeeksArray(): number[] {
-    return Array.from({length: 40}, (_, i) => i + 1);
+    return Array.from({ length: 40 }, (_, i) => i + 1);
   }
-  
+
   getCurrentDate(): string {
-    return new Date().toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
+    return new Date().toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   }
-  
+
+  getTotalAvailableSymptoms(): number {
+    // Get total count of available symptoms from the tracker
+    // This should match the total count from symptoms-tracker component
+    const sexDriveOptions = [
+      'masturbation', 'no_sex', 'protected_sex', 'unprotected_sex', 'high_sex_drive', 'low_sex_drive'
+    ];
+
+    const moodOptions = [
+      'calm', 'happy', 'energetic', 'frisky', 'mood_swings', 'irritated', 'sad', 'anxious',
+      'depressed', 'guilty', 'obsessive', 'low_energy', 'apathetic', 'confused', 'self_critical'
+    ];
+
+    const physicalSymptoms = [
+      'breast_tenderness', 'headache', 'leg_cramps', 'back_pain', 'morning_sickness',
+      'heartburn', 'fatigue', 'nausea', 'bloating', 'cramps'
+    ];
+
+    return sexDriveOptions.length + moodOptions.length + physicalSymptoms.length;
+  }
+
 
 
   // Open period date picker modal
@@ -1831,143 +1821,143 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   // Handle period date selection from the date picker modal
   onPeriodDateSelected(periodRange: PeriodDateRange) {
     this.showToast('Period logged successfully!', 'success');
-    
+
     // Update user status to "Trying to Conceive" to show the period chart
     this.userStatus = 'Trying to Conceive';
     this.isPregnant = false;
     this.isPostpartum = false;
-    
+
     // Set the period start date and update cycle day
     this.periodStartDate = periodRange.startDate;
     this.updateCycleDay();
-    
+
     // Save to persistent storage
     this.cycleSettings.setUserStatus('Trying to Conceive');
     this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
     this.cycleSettings.setLastPeriodStart(periodRange.startDate.toISOString().split('T')[0]);
   }
-  
+
   showPregnancyDetails() {
     this.viewPregnancyDetails();
   }
-  
+
   getWeekDays(): any[] {
     const today = new Date();
     const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
     const days = [];
-    
+
     // Get the start of the current week (Sunday)
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - currentDay);
-    
+
     for (let i = 0; i < 7; i++) {
       const dayDate = new Date(startOfWeek);
       dayDate.setDate(startOfWeek.getDate() + i);
-      
+
       days.push({
         date: dayDate.getDate(),
-        isSelected: dayDate.getDate() === today.getDate() && 
-                   dayDate.getMonth() === today.getMonth() &&
-                   dayDate.getFullYear() === today.getFullYear(),
+        isSelected: dayDate.getDate() === today.getDate() &&
+          dayDate.getMonth() === today.getMonth() &&
+          dayDate.getFullYear() === today.getFullYear(),
         fullDate: dayDate
       });
     }
-    
+
     return days;
   }
-  
+
   selectDay(day: any) {
     // Update all days to not selected
     this.getWeekDays().forEach(d => d.isSelected = false);
-    
+
     // Set the clicked day as selected
     day.isSelected = true;
-    
+
     // Calculate pregnancy progress based on selected date
     const selectedDate = day.fullDate;
     const pregnancyStartDate = new Date(this.pregnancyStartDate);
     const diffTime = Math.abs(selectedDate.getTime() - pregnancyStartDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     this.pregnancyDays = diffDays;
     this.pregnancyWeek = Math.floor(diffDays / 7);
     this.pregnancyProgress = (this.pregnancyWeek / 40) * 100;
-    
+
     // Update baby size data
     this.updateBabySize();
   }
-  
+
   getWeeksForDisplay(): any[][] {
     const weeks = [];
     const today = new Date();
-    
+
     // Generate 8 weeks (4 weeks before current + current week + 3 weeks after)
     for (let weekOffset = -4; weekOffset <= 3; weekOffset++) {
       const weekStart = new Date(today);
       weekStart.setDate(today.getDate() - today.getDay() + (weekOffset * 7));
-      
+
       const weekDays = [];
       for (let i = 0; i < 7; i++) {
         const dayDate = new Date(weekStart);
         dayDate.setDate(weekStart.getDate() + i);
-        
+
         weekDays.push({
           date: dayDate.getDate(),
-          isSelected: dayDate.getDate() === today.getDate() && 
-                     dayDate.getMonth() === today.getMonth() &&
-                     dayDate.getFullYear() === today.getFullYear(),
-          isToday: dayDate.getDate() === today.getDate() && 
-                   dayDate.getMonth() === today.getMonth() &&
-                   dayDate.getFullYear() === today.getFullYear(),
+          isSelected: dayDate.getDate() === today.getDate() &&
+            dayDate.getMonth() === today.getMonth() &&
+            dayDate.getFullYear() === today.getFullYear(),
+          isToday: dayDate.getDate() === today.getDate() &&
+            dayDate.getMonth() === today.getMonth() &&
+            dayDate.getFullYear() === today.getFullYear(),
           fullDate: dayDate
         });
       }
       weeks.push(weekDays);
     }
-    
+
     return weeks;
   }
-  
+
   previousWeek() {
     this.currentWeekOffset--;
     // Trigger change detection
     this.getWeeksForDisplay();
   }
-  
+
   nextWeek() {
     this.currentWeekOffset++;
     // Trigger change detection
     this.getWeeksForDisplay();
   }
-  
+
   selectWeek(week: number) {
     this.pregnancyWeek = week;
     this.pregnancyProgress = (week / 40) * 100;
     this.pregnancyDays = week * 7;
     this.updateBabySize();
-    
+
     // Calculate the start date based on selected week
     const today = new Date();
     const daysToSubtract = this.pregnancyDays;
     const startDate = new Date(today.getTime() - (daysToSubtract * 24 * 60 * 60 * 1000));
     this.pregnancyStartDate = startDate.toISOString().split('T')[0];
   }
-  
+
   onDateChange(event: any) {
     const selectedDate = new Date(event.detail.value);
     const today = new Date();
     const diffTime = Math.abs(today.getTime() - selectedDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     this.pregnancyDays = diffDays;
     this.pregnancyWeek = Math.floor(diffDays / 7);
     this.pregnancyProgress = (this.pregnancyWeek / 40) * 100;
-    
+
     // Update baby size data
     this.updateBabySize();
   }
-  
+
   getBabyDevelopment(week: number): string {
     // Realistic baby development stages with more detail
     if (week <= 4) return '🥚'; // Fertilized egg
@@ -1981,7 +1971,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     if (week <= 36) return '👶'; // Near term
     return '👶'; // Full term
   }
-  
+
   getBabyEmoji(week: number): string {
     const emojis = [
       '🌱', '🌱', '🌱', '🌱', // Weeks 1-4
@@ -1995,15 +1985,15 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
       '🎃', '🎃', '🎃', '🎃', // Weeks 33-36
       '🍉', '🍉', '🍉', '🍉'  // Weeks 37-40
     ];
-    
+
     return emojis[Math.min(week - 1, emojis.length - 1)] || '👶';
   }
-  
+
   updateBabySize() {
     // Baby size data is now automatically computed via getters
     // No need to manually update as it's reactive to pregnancyWeek changes
   }
-  
+
   // Utility method to show toast messages
   async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
     const toast = await this.toastController.create({
@@ -2046,7 +2036,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     const startDate = new Date(this.periodStartDate);
     const diffTime = Math.abs(today.getTime() - startDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     this.currentCycleDay = diffDays + 1; // +1 because day 1 is the start date
   }
 }
