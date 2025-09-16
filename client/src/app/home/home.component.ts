@@ -162,23 +162,23 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
     var swiper = new Swiper(".trackSymptomsSwiper", {
       slidesPerView: 3,
-      spaceBetween: 10,
+      spaceBetween: 3,
       pagination: {
         el: ".swiper-pagination",
         clickable: true,
       },
       breakpoints: {
         640: {
-          slidesPerView: 2,
-          spaceBetween: 20,
+          slidesPerView: 1,
+          spaceBetween: 10,
         },
         768: {
-          slidesPerView: 4,
-          spaceBetween: 40,
+          slidesPerView: 2,
+          spaceBetween: 10,
         },
         1024: {
-          slidesPerView: 5,
-          spaceBetween: 50,
+          slidesPerView: 3,
+          spaceBetween: 10,
         },
       },
     });

@@ -36,7 +36,7 @@ export class SymptomsTrackerComponent implements OnInit {
   notes: string = '';
   selectedItems: Set<string> = new Set();
   isUpdateMode: boolean = false;
-  existingData: any = null;
+  existingData: any;
 
   // Use shared symptoms configuration
   sexDriveOptions = SYMPTOMS_CONFIG.sexDriveOptions;
@@ -77,12 +77,7 @@ export class SymptomsTrackerComponent implements OnInit {
 
   // New methods for chip-based design
   isSelected(itemId: string): boolean {
-    const isSelected = this.selectedItems.has(itemId);
-    // Only log occasionally to avoid spam
-    if (Math.random() < 0.1) { // Log only 10% of calls
-      console.log(`🔍 isSelected(${itemId}):`, isSelected, 'selectedItems:', Array.from(this.selectedItems));
-    }
-    return isSelected;
+    return this.selectedItems.has(itemId);
   }
 
   toggleSelection(itemId: string): void {
@@ -151,94 +146,48 @@ export class SymptomsTrackerComponent implements OnInit {
 
   loadExistingData(): void {
     const userId = this.getCurrentUserId();
-    console.log('🔍 Loading existing data for userId:', userId, 'date:', this.selectedDate);
-    
-    this.trackDataService.getTrackDay(userId, this.selectedDate).subscribe({
-      next: (data) => {
-        console.log('🔍 API Response:', data);
-        if (data && data.length > 0) {
-          this.existingData = data[0];
-          console.log('🔍 Found existing data:', this.existingData);
+
+      this.trackDataService.getTrackDay(userId, this.selectedDate).subscribe({
+        next: (data) => {
+          this.existingData = data;
           this.populateFormWithExistingData();
-        } else {
-          console.log('🔍 No existing data found');
-        }
-      },
+        },
       error: (error) => {
         console.error('Error loading existing data:', error);
-        this.showToast(`Failed to load existing data: ${error.message}`, 'danger', {duration: 3000});
+        this.showToast(`Failed to load existing data: ${error.message}`, 'danger', { duration: 3000 });
       }
     });
   }
 
   populateFormWithExistingData(): void {
     if (this.existingData) {
-      console.log('🔍 Existing data received:', this.existingData);
-      
-      // Parse the data
-      let symptoms;
-      if (typeof this.existingData.symptoms === 'string') {
-        try {
-          symptoms = JSON.parse(this.existingData.symptoms);
-          console.log('🔍 Parsed symptoms from string:', symptoms);
-        } catch (error) {
-          console.error('🔍 Error parsing symptoms string:', error);
-          symptoms = this.existingData.symptoms;
-        }
-      } else {
-        symptoms = this.existingData.symptoms;
-        console.log('🔍 Symptoms already parsed:', symptoms);
-      }
-
-      const mood = typeof this.existingData.mood === 'string'
-        ? JSON.parse(this.existingData.mood)
-        : this.existingData.mood;
-
-      const energy = typeof this.existingData.energy === 'string'
-        ? JSON.parse(this.existingData.energy)
-        : this.existingData.energy;
-
-      console.log('🔍 Parsed symptoms:', symptoms);
-      console.log('🔍 Parsed mood:', mood);
-      console.log('🔍 Parsed energy:', energy);
-
-      // Set form values
-      this.currentMood = mood;
-      this.currentEnergy = energy;
+      // Set form values directly from API data
+      this.currentMood = this.existingData.mood;
+      this.currentEnergy = this.existingData.energy;
       this.notes = this.existingData.notes || '';
 
-      // Populate selected items based on symptoms
+      // Clear and populate selected items
       this.selectedItems.clear();
       this.selectedSymptoms = [];
-      if (symptoms && Array.isArray(symptoms)) {
-        console.log('🔍 Processing symptoms array with', symptoms.length, 'items');
-        symptoms.forEach((symptom: any) => {
-          console.log('🔍 Adding symptom to selectedItems:', symptom.id, 'symptom object:', symptom);
-          this.selectedItems.add(symptom.id);
-          // Also populate selectedSymptoms array for form compatibility
-          this.selectedSymptoms.push({
-            id: symptom.id,
-            name: symptom.name,
-            category: symptom.category || this.getCategoryForItem(symptom.id),
-            icon: symptom.icon,
-            severity: symptom.severity || 'mild',
-            notes: symptom.notes || '',
-            timestamp: new Date()
-          });
-        });
-      } else {
-        console.log('🔍 No symptoms array found or symptoms is not an array:', symptoms);
-      }
+      // Add mood and energy to selectedItems
+      this.selectedItems.add(this.existingData.mood);
+      this.selectedItems.add(this.existingData.energy);
 
-      console.log('🔍 Final selectedItems:', Array.from(this.selectedItems));
-      console.log('🔍 Final selectedSymptoms:', this.selectedSymptoms);
+      // Add symptoms to selectedItems
+      if (this.existingData.symptoms && Array.isArray(this.existingData.symptoms)) {
+        this.existingData.symptoms.forEach((symptom: any) => {
+          this.selectedItems.add(symptom.id);
+          this.selectedSymptoms.push(symptom);
+        });
+      }
 
       // Update form
       this.symptomsForm.patchValue({
         date: this.selectedDate,
-        mood: mood,
-        energy: energy,
-        notes: this.notes
+        mood: this.existingData.mood,
+        energy: this.existingData.energy,
+        notes: this.notes,
+        symptoms: this.selectedSymptoms
       });
 
       // Update symptoms form array
@@ -246,25 +195,6 @@ export class SymptomsTrackerComponent implements OnInit {
 
       // Force change detection to update the UI
       this.cdr.detectChanges();
-      
-      console.log('🔍 UI should now show selected chips for:', Array.from(this.selectedItems));
-      
-      // Additional verification - check a few specific items
-      setTimeout(() => {
-        console.log('🔍 Verification after 100ms:');
-        console.log('🔍 selectedItems Set:', this.selectedItems);
-        console.log('🔍 selectedItems size:', this.selectedItems.size);
-        
-        Array.from(this.selectedItems).forEach(itemId => {
-          console.log(`🔍 ${itemId} should be selected:`, this.isSelected(itemId));
-        });
-        
-        // Test a few common items
-        const testItems = ['headache', 'fatigue', 'mood_swings', 'breast_tenderness'];
-        testItems.forEach(itemId => {
-          console.log(`🔍 Test ${itemId}:`, this.isSelected(itemId));
-        });
-      }, 100);
     }
   }
 
@@ -308,6 +238,7 @@ export class SymptomsTrackerComponent implements OnInit {
       this.selectedDate = `${year}-${month}-${day}`;
     }
     this.symptomsForm.patchValue({ date: this.selectedDate });
+
     this.symptomsForm.get('date')?.markAsTouched();
     this.loadTodayData();
   }
@@ -333,7 +264,12 @@ export class SymptomsTrackerComponent implements OnInit {
   loadTodayData() {
     // Load existing data for today if available
     const todayData = this.dailySymptomsHistory.find(d => d.date === this.selectedDate);
+
     if (todayData) {
+      this.isSelected(todayData.mood);
+      this.isSelected(todayData.energy);
+      this.isSelected(todayData.notes);
+      this.isSelected(todayData.date);
       // Parse JSON strings if they exist
       this.currentMood = typeof todayData.mood === 'string'
         ? JSON.parse(todayData.mood)
@@ -341,6 +277,8 @@ export class SymptomsTrackerComponent implements OnInit {
       this.currentEnergy = typeof todayData.energy === 'string'
         ? JSON.parse(todayData.energy)
         : todayData.energy;
+      this.isSelected(todayData.notes);
+      this.isSelected(todayData.date);
       this.selectedSymptoms = typeof todayData.symptoms === 'string'
         ? JSON.parse(todayData.symptoms)
         : (todayData.symptoms || []);
@@ -739,59 +677,13 @@ export class SymptomsTrackerComponent implements OnInit {
     return this.availableSymptoms.filter(s => s.trimester.includes(trimester));
   }
 
-  // Test method to verify selection is working
-  testSelection() {
-    console.log('🔍 Testing selection...');
-    console.log('🔍 selectedItems:', Array.from(this.selectedItems));
-    console.log('🔍 selectedItems size:', this.selectedItems.size);
-    
-    // Test a few items
-    const testItems = ['headache', 'fatigue', 'mood_swings'];
-    testItems.forEach(itemId => {
-      console.log(`🔍 ${itemId} is selected:`, this.isSelected(itemId));
-    });
-  }
 
   // Method to manually test adding items
   testAddItems() {
-    console.log('🔍 Manually adding test items...');
     this.selectedItems.add('headache');
     this.selectedItems.add('fatigue');
     this.selectedItems.add('mood_swings');
-    console.log('🔍 After manual add:', Array.from(this.selectedItems));
     this.cdr.detectChanges();
   }
 
-  // Method to simulate the exact data from your API
-  testWithRealData() {
-    console.log('🔍 Testing with real API data...');
-    
-    // Clear existing data
-    this.selectedItems.clear();
-    
-    // Add the exact symptoms from your API data
-    const realSymptoms = [
-      'unprotected_sex', 'low_sex_drive', 'high_sex_drive',
-      'calm', 'mood_swings', 'anxious', 'obsessive', 'confused',
-      'morning_sickness', 'fatigue', 'cramps'
-    ];
-    
-    realSymptoms.forEach(symptomId => {
-      this.selectedItems.add(symptomId);
-      console.log(`🔍 Added ${symptomId} to selectedItems`);
-    });
-    
-    console.log('🔍 Final selectedItems:', Array.from(this.selectedItems));
-    console.log('🔍 selectedItems size:', this.selectedItems.size);
-    
-    // Force UI update
-    this.cdr.detectChanges();
-    
-    // Test a few items
-    setTimeout(() => {
-      realSymptoms.slice(0, 3).forEach(itemId => {
-        console.log(`🔍 ${itemId} should be selected:`, this.isSelected(itemId));
-      });
-    }, 100);
-  }
 }

@@ -215,7 +215,7 @@
   <!-- Today's Symptoms Section -->
   @if(isPregnant) {
 
-  <div class="flex justify-start text-2xl font-bold py-4 pl-2">
+  <div class="flex justify-start text-2xl font-bold py-4 pl-4">
     My daily insights
   </div>
 
@@ -240,17 +240,9 @@
                 todaySymptoms.symptoms.length - 3 }}</span>
             </div>
             } @else {
-            <!-- Default icons when no symptoms -->
-            <div class="w-6 h-6 border-2 border-white bg-white rounded-full flex items-center justify-center">
-              <ion-icon name="heart-outline" class="text-black"></ion-icon>
-            </div>
-            <div class="w-6 h-6 border-2 border-white bg-white rounded-full flex items-center justify-center -ml-3">
-              <ion-icon name="lock-closed-outline" class="text-black"></ion-icon>
-            </div>
-            <div class="w-6 h-6 border-2 border-white bg-white rounded-full flex items-center justify-center -ml-3"
-              (click)="openSymptomsTrackingForUpdate()">
-              <span class="text-black">+{{ getTotalAvailableSymptoms() }}</span>
-            </div>
+           <div class="text-black">
+            Log your symptoms
+           </div>
             }
           </div>
           <div class="">
@@ -270,23 +262,24 @@
         </div>
       </div>
       <div class="swiper-slide">
-        <!-- Card 2: Your guide to checkups -->
-        <div class="rounded-2xl  p-4 m-1 bg-purple-100 flex flex-col justify-between">
-          <div class="text-black font-bold text-md leading-tight">
-            Your guide to checkups
+        <!-- Card 1: Learn the ups and downs of your cycle -->
+        <div class="rounded-2xl p-4 m-1 bg-gradient-to-t from-purple-600 to-pink-400 flex flex-col justify-between">
+          <div class="text-white font-bold text-md leading-tight">
+            Learn the ups and downs of your cycle
           </div>
 
         </div>
       </div>
       <div class="swiper-slide">
-        <!-- Card 3: First Trimester Nutrition -->
-        <div class="rounded-2xl p-6 p-4 m-1 bg-blue-800 flex flex-col justify-between">
+        <!-- Card 1: Learn the ups and downs of your cycle -->
+        <div class="rounded-2xl p-4 m-1 bg-gradient-to-t from-purple-600 to-pink-400 flex flex-col justify-between">
           <div class="text-white font-bold text-md leading-tight">
-            First Trimester Nutrition
+            Learn the ups and downs of your cycle
           </div>
 
         </div>
       </div>
+
 
 
     </div>

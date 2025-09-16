@@ -350,10 +350,13 @@
       font-size: 14px;
     }
     
-    .check-icon {
-      margin-left: 6px;
-      font-size: 14px;
-    }
+  .check-icon {
+    margin-left: 6px;
+    font-size: 14px;
+    opacity: 1;
+    visibility: visible;
+    display: inline-block;
+  }
   }
   
   .save-section {

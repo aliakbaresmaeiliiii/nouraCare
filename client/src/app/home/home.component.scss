@@ -1684,9 +1684,6 @@ ion-fab {
     .details-btn {
       --color: #ff6b35;
       --border-color: #ff6b35;
-      --border-radius: 25px;
-      --padding-start: 2rem;
-      --padding-end: 2rem;
       font-weight: 600;
       background: white;
 
@@ -2411,7 +2408,7 @@ ion-fab {
   border-radius: 10px;
   justify-content: center;
   margin-left: 10px;
-  margin-right: 10px;
+  margin-right: 0px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 

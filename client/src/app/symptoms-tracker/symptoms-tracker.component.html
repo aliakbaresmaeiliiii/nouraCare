@@ -15,19 +15,19 @@
 <ion-content class="bg-gray-50">
   <!-- Modal Handle -->
   <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mt-2 mb-4"></div>
-  
+
   <!-- Header -->
   <div class="bg-white mx-4 rounded-2xl shadow-sm p-6 mb-4">
     <div class="flex items-center justify-between">
       <ion-button fill="clear" class="text-gray-600 p-2" (click)="goBack()">
         <ion-icon name="chevron-back-outline" class="text-xl"></ion-icon>
       </ion-button>
-      
+
       <div class="text-center">
         <h1 class="text-xl font-bold text-gray-800">Today</h1>
         <p class="text-sm text-gray-500">{{ getPregnancyProgress() }}</p>
       </div>
-      
+
       <ion-button fill="clear" class="text-gray-600 p-2">
         <ion-icon name="chevron-forward-outline" class="text-xl"></ion-icon>
       </ion-button>
@@ -37,9 +37,10 @@
   <!-- Search Bar -->
   <div class="mx-4 mb-6">
     <div class="relative">
-      <ion-icon name="search-outline" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></ion-icon>
-      <input type="text" placeholder="Search symptoms..." 
-             class="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-pink-400 focus:outline-none text-gray-700">
+      <ion-icon name="search-outline"
+        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></ion-icon>
+      <input type="text" placeholder="Search symptoms..."
+        class="w-full pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:border-pink-400 focus:outline-none text-gray-700">
     </div>
   </div>
 
@@ -59,12 +60,11 @@
         Sex and sex drive
       </h3>
       <div class="flex flex-wrap gap-2">
-        <div class="chip bg-pink-50 border border-pink-200 text-pink-700 hover:bg-pink-100 transition-colors duration-200" 
-             [class.bg-pink-500]="isSelected(item.id)"
-             [class.text-white]="isSelected(item.id)"
-             [class.border-pink-500]="isSelected(item.id)"
-             *ngFor="let item of sexDriveOptions" 
-             (click)="toggleSelection(item.id)">
+        <div
+          class="chip bg-pink-50 border border-pink-200 text-pink-700 hover:bg-pink-100 transition-colors duration-200"
+          [class.bg-pink-500]="isSelected(item.id)" [class.text-white]="isSelected(item.id)"
+          [class.border-pink-500]="isSelected(item.id)" *ngFor="let item of sexDriveOptions"
+          (click)="toggleSelection(item.id)">
           <ion-icon [name]="item.icon" class="chip-icon"></ion-icon>
           <span class="chip-text">{{ item.name }}</span>
           <ion-icon name="checkmark" class="check-icon" *ngIf="isSelected(item.id)"></ion-icon>
@@ -79,16 +79,17 @@
         Mood
       </h3>
       <div class="flex flex-wrap gap-2">
-        <div class="chip bg-orange-50 border border-orange-200 text-orange-700 hover:bg-orange-100 transition-colors duration-200" 
-             [class.bg-orange-500]="isSelected(item.id)"
-             [class.text-white]="isSelected(item.id)"
-             [class.border-orange-500]="isSelected(item.id)"
-             *ngFor="let item of moodOptions" 
-             (click)="toggleSelection(item.id)">
+        @for (item of moodOptions; track $index) {
+
+        <div
+          class="chip bg-orange-50 border border-orange-200 text-orange-700 hover:bg-orange-100 transition-colors duration-200"
+          [class.bg-orange-500]="isSelected(item.id)" [class.text-white]="isSelected(item.id)"
+          [class.border-orange-500]="isSelected(item.id)" (click)="toggleSelection(item.id)">
           <ion-icon [name]="item.icon" class="chip-icon"></ion-icon>
           <span class="chip-text">{{ item.name }}</span>
           <ion-icon name="checkmark" class="check-icon" *ngIf="isSelected(item.id)"></ion-icon>
         </div>
+        }
       </div>
     </div>
 
@@ -99,16 +100,16 @@
         Physical Symptoms
       </h3>
       <div class="flex flex-wrap gap-2">
-        <div class="chip bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 transition-colors duration-200" 
-             [class.bg-blue-500]="isSelected(item.id)"
-             [class.text-white]="isSelected(item.id)"
-             [class.border-blue-500]="isSelected(item.id)"
-             *ngFor="let item of physicalSymptoms" 
-             (click)="toggleSelection(item.id)">
+        @for (item of physicalSymptoms; track $index) {
+        <div
+          class="chip bg-blue-50 border border-blue-200 text-blue-700 hover:bg-blue-100 transition-colors duration-200"
+          [class.bg-blue-500]="isSelected(item.id)" [class.text-white]="isSelected(item.id)"
+          [class.border-blue-500]="isSelected(item.id)" (click)="toggleSelection(item.id)">
           <ion-icon [name]="item.icon" class="chip-icon"></ion-icon>
           <span class="chip-text">{{ item.name }}</span>
           <ion-icon name="checkmark" class="check-icon" *ngIf="isSelected(item.id)"></ion-icon>
         </div>
+        }
       </div>
     </div>
 
@@ -118,36 +119,20 @@
         <ion-icon name="document-text-outline" class="text-gray-500 mr-2"></ion-icon>
         Additional Notes
       </h3>
-      <ion-textarea
-        [value]="notes"
-        (ionInput)="onNotesChange($event)"
-        placeholder="How are you feeling overall? Any other observations..."
-        rows="3"
+      <ion-textarea [value]="notes" (ionInput)="onNotesChange($event)"
+        placeholder="How are you feeling overall? Any other observations..." rows="3"
         class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-pink-400 focus:outline-none resize-none text-gray-700">
       </ion-textarea>
     </div>
   </div>
 
-  <!-- Test Buttons (for debugging) -->
-  <div class="mx-4 mb-4" *ngIf="isUpdateMode">
-    <div class="flex flex-wrap gap-2">
-      <ion-button fill="outline" size="small" (click)="testSelection()">
-        Test Selection
-      </ion-button>
-      <ion-button fill="outline" size="small" (click)="testAddItems()">
-        Test Add Items
-      </ion-button>
-      <ion-button fill="outline" size="small" (click)="testWithRealData()">
-        Test Real Data
-      </ion-button>
-    </div>
-  </div>
+
 
   <!-- Save Button -->
   <div class="mx-4 mb-8">
-    <ion-button expand="block" fill="solid" 
-                class="bg-gradient-to-r from-pink-500 to-pink-600 text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200" 
-                (click)="saveSymptoms()">
+    <ion-button expand="block" fill="solid"
+      class=" text-white font-semibold py-4 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200"
+      (click)="saveSymptoms()">
       <ion-icon name="checkmark-outline" slot="start" class="text-lg"></ion-icon>
       Save Today's Symptoms
     </ion-button>
