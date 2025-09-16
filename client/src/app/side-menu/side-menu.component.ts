@@ -64,7 +64,9 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
     const item = this.menuItemsTop[index];
     
     // Add navigation logic for specific menu items
-    if (item.label === 'menu.blockedUsers') {
+    if (item.label === 'menu.myFavorites') {
+      await this.router.navigate(['/my-favorites']);
+    } else if (item.label === 'menu.blockedUsers') {
       await this.router.navigate(['/blocked-users']);
     } else if (item.label === 'menu.savedInformation') {
       await this.router.navigate(['/saved-information']);

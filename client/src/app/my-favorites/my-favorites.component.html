@@ -1,0 +1,204 @@
+<ion-header class="modern-header">
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" class="back-btn">
+        <ion-icon name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="header-title">My Favorites</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="clearAllFavorites()" fill="clear" class="clear-btn" *ngIf="favoriteStats.totalFavorites > 0">
+        <ion-icon name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="favorites-content">
+  
+  <!-- Modern Hero Section -->
+  <div class="favorites-hero">
+    <div class="hero-background">
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+      <div class="gradient-orb orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="heart"></ion-icon>
+      </div>
+      <h1 class="hero-title">Your Favorites</h1>
+      <p class="hero-subtitle">All your saved content in one place</p>
+      
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">{{ favoriteStats.totalFavorites }}</div>
+          <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ favoriteStats.articleCount }}</div>
+          <div class="stat-label">Articles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ favoriteStats.doctorCount }}</div>
+          <div class="stat-label">Doctors</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ favoriteStats.toolCount + favoriteStats.tipCount }}</div>
+          <div class="stat-label">Others</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search and Filters Section -->
+  <div class="search-filters-section" *ngIf="favoriteStats.totalFavorites > 0">
+    <!-- Search Bar -->
+    <div class="search-container">
+      <ion-searchbar
+        placeholder="Search your favorites..."
+        (ionInput)="onSearchChange($event)"
+        [value]="searchTerm"
+        class="modern-search">
+      </ion-searchbar>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="filter-pills">
+      <div class="pill-container">
+        <div 
+          class="filter-pill" 
+          *ngFor="let category of categories"
+          [class.active]="selectedCategory === category.value"
+          (click)="onCategoryChange(category.value)">
+          <ion-icon [name]="category.icon"></ion-icon>
+          <span>{{ category.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sort Options -->
+    <div class="sort-section">
+      <ion-select
+        [value]="selectedSort"
+        (ionChange)="onSortChange($event)"
+        interface="popover"
+        placeholder="Sort by"
+        class="sort-select">
+        <ion-select-option *ngFor="let option of sortOptions" [value]="option.value">
+          {{ option.label }}
+        </ion-select-option>
+      </ion-select>
+      
+      <div class="results-count">
+        <span class="count">{{ filteredFavorites.length }}</span>
+        <span class="label">{{ filteredFavorites.length === 1 ? 'item' : 'items' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading your favorites...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="showEmptyState && !isLoading">
+    <div class="empty-content">
+      <div class="empty-icon">
+        <ion-icon name="heart-outline"></ion-icon>
+      </div>
+      <h2>No Favorites Yet</h2>
+      <p>Start adding items to your favorites by tapping the heart icon on articles, doctors, and tools you love.</p>
+      <div class="empty-actions">
+        <ion-button expand="block" fill="solid" class="explore-btn" (click)="router.navigate(['/tabs/insights'])">
+          <ion-icon name="compass-outline" slot="start"></ion-icon>
+          Explore Content
+        </ion-button>
+        <ion-button expand="block" fill="outline" class="doctors-btn" (click)="router.navigate(['/doctors'])">
+          <ion-icon name="medical-outline" slot="start"></ion-icon>
+          Find Doctors
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Results State -->
+  <div class="no-results" *ngIf="!isLoading && !showEmptyState && filteredFavorites.length === 0 && favoriteStats.totalFavorites > 0">
+    <div class="no-results-content">
+      <ion-icon name="search-outline"></ion-icon>
+      <h3>No Results Found</h3>
+      <p *ngIf="searchTerm">No favorites match "{{ searchTerm }}"</p>
+      <p *ngIf="!searchTerm && selectedCategory !== 'all'">No {{ selectedCategory }}s in your favorites</p>
+      <ion-button fill="outline" (click)="searchTerm = ''; selectedCategory = 'all'; applyFilters()">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Show All
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Favorites Grid -->
+  <div class="favorites-grid" *ngIf="!isLoading && !showEmptyState && filteredFavorites.length > 0">
+    <div 
+      class="favorite-card" 
+      *ngFor="let favorite of filteredFavorites; trackBy: trackByFavoriteId"
+      (click)="openFavoriteItem(favorite)">
+      
+      <!-- Card Background -->
+      <div class="card-background" [style.background]="favorite.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+        <div class="card-overlay"></div>
+      </div>
+
+      <!-- Card Content -->
+      <div class="card-content">
+        
+        <!-- Header -->
+        <div class="card-header">
+          <div class="type-badge" [style.background-color]="getTypeColor(favorite.type)">
+            <ion-icon [name]="getTypeIcon(favorite.type)"></ion-icon>
+            <span>{{ favorite.type | titlecase }}</span>
+          </div>
+          <ion-button 
+            fill="clear" 
+            size="small" 
+            class="remove-btn"
+            (click)="removeFavorite(favorite, $event)">
+            <ion-icon name="heart" class="heart-filled"></ion-icon>
+          </ion-button>
+        </div>
+
+        <!-- Image (if available) -->
+        <div class="card-image" *ngIf="favorite.image">
+          <img [src]="favorite.image" [alt]="favorite.title" loading="lazy">
+        </div>
+
+        <!-- Text Content -->
+        <div class="card-text">
+          <h3 class="card-title">{{ favorite.title }}</h3>
+          <p class="card-description" *ngIf="favorite.description">
+            {{ favorite.description.length > 80 ? (favorite.description.substring(0, 80) + '...') : favorite.description }}
+          </p>
+          <div class="card-meta">
+            <span class="category" *ngIf="favorite.category">{{ favorite.category }}</span>
+            <span class="date">{{ formatDate(favorite.dateAdded) }}</span>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="card-actions">
+          <ion-button 
+            fill="solid" 
+            size="small" 
+            class="open-btn"
+            (click)="openFavoriteItem(favorite); $event.stopPropagation()">
+            <ion-icon name="arrow-forward" slot="end"></ion-icon>
+            Open
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ion-content>

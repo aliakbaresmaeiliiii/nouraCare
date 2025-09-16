@@ -167,6 +167,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'my-favorites',
+    loadComponent: () =>
+      import('./my-favorites/my-favorites.component').then(
+        (m) => m.MyFavoritesComponent
+      ),
+  },
+  {
     path: 'tabs',
     component: LayoutComponent,
     // loadComponent: () =>

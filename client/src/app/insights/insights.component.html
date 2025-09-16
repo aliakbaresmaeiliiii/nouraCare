@@ -58,8 +58,8 @@
       <ion-searchbar placeholder="Search" class="insights-search">
       </ion-searchbar>
       <div class="search-icons">
-        <ion-button fill="clear" class="bookmark-btn">
-          <ion-icon name="bookmark-outline"></ion-icon>
+        <ion-button fill="clear" class="bookmark-btn" (click)="router.navigate(['/my-favorites'])">
+          <ion-icon name="heart-outline"></ion-icon>
         </ion-button>
         <ion-button fill="clear" class="notification-btn">
           <ion-icon name="notifications-outline"></ion-icon>
@@ -76,9 +76,10 @@
     </div>
 
     <div class="articles-scroll">
-      <div class="article-card" *ngFor="let article of nutritionNeedToKnow" (click)="openArticle(article)"
-        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-        [class.unlocked]="isPremiumUnlocked">
+       <div class="article-card" *ngFor="let article of nutritionNeedToKnow" (click)="openArticle(article)"
+         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
+         [attr.data-article-id]="article.id">
         <div class="card-image">
           <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
           <!-- Premium Lock Overlay -->
@@ -88,6 +89,11 @@
           <!-- Premium Unlocked Badge -->
           <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
             <ion-icon name="diamond"></ion-icon>
+          </div>
+          <!-- Favorite Button -->
+          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
+            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
+                      [class.favorited]="isFavorite(article.id)"></ion-icon>
           </div>
         </div>
         <div class="card-content">
@@ -109,9 +115,10 @@
     </div>
 
     <div class="articles-scroll">
-      <div class="article-card" *ngFor="let article of allAboutYourBaby" (click)="openArticle(article)"
-        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-        [class.unlocked]="isPremiumUnlocked">
+       <div class="article-card" *ngFor="let article of allAboutYourBaby" (click)="openArticle(article)"
+         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
+         [attr.data-article-id]="article.id">
         <div class="card-image">
           <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
           <!-- Premium Lock Overlay -->
@@ -121,6 +128,11 @@
           <!-- Premium Unlocked Badge -->
           <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
             <ion-icon name="diamond"></ion-icon>
+          </div>
+          <!-- Favorite Button -->
+          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
+            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
+                      [class.favorited]="isFavorite(article.id)"></ion-icon>
           </div>
         </div>
         <div class="card-content">
@@ -142,9 +154,10 @@
     </div>
 
     <div class="articles-scroll">
-      <div class="article-card" *ngFor="let article of pregnancyPopular" (click)="openArticle(article)"
-        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-        [class.unlocked]="isPremiumUnlocked">
+       <div class="article-card" *ngFor="let article of pregnancyPopular" (click)="openArticle(article)"
+         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
+         [attr.data-article-id]="article.id">
         <div class="card-image">
           <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
           <!-- Premium Lock Overlay -->
@@ -154,6 +167,11 @@
           <!-- Premium Unlocked Badge -->
           <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
             <ion-icon name="diamond"></ion-icon>
+          </div>
+          <!-- Favorite Button -->
+          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
+            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
+                      [class.favorited]="isFavorite(article.id)"></ion-icon>
           </div>
         </div>
         <div class="card-content">
@@ -175,9 +193,10 @@
     </div>
 
     <div class="articles-scroll">
-      <div class="article-card" *ngFor="let article of pregnancySexPleasure" (click)="openArticle(article)"
-        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-        [class.unlocked]="isPremiumUnlocked">
+       <div class="article-card" *ngFor="let article of pregnancySexPleasure" (click)="openArticle(article)"
+         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
+         [attr.data-article-id]="article.id">
         <div class="card-image">
           <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
           <!-- Premium Lock Overlay -->
@@ -187,6 +206,11 @@
           <!-- Premium Unlocked Badge -->
           <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
             <ion-icon name="diamond"></ion-icon>
+          </div>
+          <!-- Favorite Button -->
+          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
+            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
+                      [class.favorited]="isFavorite(article.id)"></ion-icon>
           </div>
         </div>
         <div class="card-content">
@@ -208,9 +232,10 @@
     </div>
 
     <div class="articles-scroll">
-      <div class="article-card" *ngFor="let article of pregnancyBodySigns" (click)="openArticle(article)"
-        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-        [class.unlocked]="isPremiumUnlocked">
+       <div class="article-card" *ngFor="let article of pregnancyBodySigns" (click)="openArticle(article)"
+         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
+         [attr.data-article-id]="article.id">
         <div class="card-image">
           <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
           <!-- Premium Lock Overlay -->
@@ -220,6 +245,11 @@
           <!-- Premium Unlocked Badge -->
           <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
             <ion-icon name="diamond"></ion-icon>
+          </div>
+          <!-- Favorite Button -->
+          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
+            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
+                      [class.favorited]="isFavorite(article.id)"></ion-icon>
           </div>
         </div>
         <div class="card-content">

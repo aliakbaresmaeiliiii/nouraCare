@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { IonicModule, ToastController } from '@ionic/angular';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FavoritesService } from '../shared/services/favorites.service';
+import { Subject, takeUntil } from 'rxjs';
 
 interface ArticleCard {
   id: string;
@@ -19,11 +21,15 @@ interface ArticleCard {
   standalone: true,
   imports: [IonicModule, CommonModule]
 })
-export class InsightsComponent implements OnInit {
+export class InsightsComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
 
   // Premium state
   isPremiumUnlocked = false;
   showUnlockAnimation = false;
+
+  // Article highlighting
+  highlightedArticleId: string | null = null;
 
   // Premium banner
   premiumBanner = {
@@ -169,9 +175,30 @@ export class InsightsComponent implements OnInit {
     }
   ];
 
-  constructor(private router: Router) { }
+   router = inject(Router);
+  private favoritesService = inject(FavoritesService);
+  private toastController = inject(ToastController);
+  private activatedRoute = inject(ActivatedRoute);
 
-  ngOnInit() {}
+  ngOnInit() {
+    // Check for query parameters to highlight specific articles
+    this.activatedRoute.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        if (params['highlightArticle']) {
+          this.highlightedArticleId = params['highlightArticle'];
+          // Auto-scroll to the highlighted article after a short delay
+          setTimeout(() => {
+            this.scrollToHighlightedArticle();
+          }, 500);
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   // Close premium banner
   closePremiumBanner() {
@@ -220,5 +247,80 @@ export class InsightsComponent implements OnInit {
       baby: 'assets/images/welcome2.jpg'
     };
     return fallbacks[category as keyof typeof fallbacks] || 'assets/images/heart.png';
+  }
+
+  // Check if article is favorite
+  isFavorite(articleId: string): boolean {
+    // This is a synchronous check - could be improved with reactive approach
+    let isFav = false;
+    this.favoritesService.isFavorite(articleId).subscribe(result => {
+      isFav = result;
+    });
+    return isFav;
+  }
+
+  // Check if article should be highlighted
+  isHighlighted(articleId: string): boolean {
+    return this.highlightedArticleId === articleId;
+  }
+
+  // Scroll to highlighted article
+  private scrollToHighlightedArticle() {
+    if (this.highlightedArticleId) {
+      const element = document.querySelector(`[data-article-id="${this.highlightedArticleId}"]`);
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+        // Add a temporary highlight effect
+        element.classList.add('highlighted-article');
+        setTimeout(() => {
+          element.classList.remove('highlighted-article');
+          this.highlightedArticleId = null;
+        }, 3000);
+      }
+    }
+  }
+
+  // Toggle favorite status
+  async toggleFavorite(article: ArticleCard, event: Event) {
+    event.stopPropagation();
+    
+    const favoriteItem = {
+      id: article.id,
+      type: 'article' as const,
+      title: article.title,
+      description: `${article.category} article`,
+      image: article.image,
+      category: article.category,
+      gradient: article.gradient,
+      data: article
+    };
+
+    this.favoritesService.toggleFavorite(favoriteItem);
+    
+    const isNowFavorite = await this.checkIfFavorite(article.id);
+    const message = isNowFavorite ? 'Added to favorites' : 'Removed from favorites';
+    
+    this.showToast(message);
+  }
+
+  private async checkIfFavorite(articleId: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.favoritesService.isFavorite(articleId).subscribe(isFav => {
+        resolve(isFav);
+      });
+    });
+  }
+
+  private async showToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      position: 'bottom',
+      color: 'success'
+    });
+    await toast.present();
   }
 }
