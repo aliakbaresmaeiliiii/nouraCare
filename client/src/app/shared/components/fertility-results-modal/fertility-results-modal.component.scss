@@ -1,0 +1,301 @@
+.fertility-results-content {
+  --background: linear-gradient(135deg, #f8f9ff 0%, #fff5f5 100%);
+}
+
+.results-container {
+  padding: 20px;
+  max-width: 100%;
+}
+
+// Header Section
+.results-header {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .success-icon {
+    margin-bottom: 15px;
+    
+    ion-icon {
+      font-size: 48px;
+    }
+  }
+  
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    font-size: 16px;
+  }
+}
+
+// Fertile Days Section
+.fertile-days-section {
+  margin-bottom: 30px;
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 20px;
+    
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin-bottom: 5px;
+    }
+    
+    p {
+      color: var(--ion-color-medium);
+      font-size: 14px;
+    }
+  }
+  
+  .fertile-days-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+    
+    .fertile-day {
+      .day-card {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+        border: 2px solid #c8e6c9;
+        border-radius: 16px;
+        padding: 16px 8px;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        
+        &.peak-day {
+          background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+          border-color: #ffb74d;
+          box-shadow: 0 4px 12px rgba(255, 183, 77, 0.3);
+          
+          &::before {
+            content: '⭐';
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            font-size: 14px;
+          }
+        }
+        
+        .day-date {
+          font-weight: 600;
+          font-size: 14px;
+          color: var(--ion-color-dark);
+          margin-bottom: 8px;
+        }
+        
+        .fertility-level {
+          font-size: 12px;
+          font-weight: 500;
+          padding: 4px 8px;
+          border-radius: 12px;
+          
+          &:contains('Peak') {
+            background: rgba(255, 183, 77, 0.2);
+            color: #f57c00;
+          }
+          
+          &:not(:contains('Peak')) {
+            background: rgba(76, 175, 80, 0.2);
+            color: #388e3c;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Key Dates Section
+.key-dates-section {
+  margin-bottom: 30px;
+  display: grid;
+  gap: 16px;
+  
+  .date-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    &.ovulation-card {
+      background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+      border-color: rgba(255, 193, 7, 0.3);
+    }
+    
+    &.period-card {
+      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+      border-color: rgba(233, 30, 99, 0.3);
+    }
+    
+    .date-icon {
+      margin-right: 16px;
+      
+      ion-icon {
+        font-size: 32px;
+      }
+    }
+    
+    .date-info {
+      flex: 1;
+      
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin-bottom: 4px;
+      }
+      
+      .date-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--ion-color-dark);
+        margin-bottom: 4px;
+      }
+      
+      .date-description {
+        font-size: 13px;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+// Tips Section
+.tips-section {
+  margin-bottom: 30px;
+  
+  .tip-card {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    
+    ion-icon {
+      font-size: 24px;
+      margin-right: 16px;
+      margin-top: 4px;
+    }
+    
+    .tip-content {
+      flex: 1;
+      
+      h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+        margin-bottom: 12px;
+      }
+      
+      ul {
+        margin: 0;
+        padding-left: 16px;
+        
+        li {
+          font-size: 14px;
+          color: var(--ion-color-dark);
+          margin-bottom: 6px;
+          line-height: 1.4;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Disclaimer
+.disclaimer {
+  background: rgba(158, 158, 158, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: flex-start;
+  
+  ion-icon {
+    font-size: 20px;
+    margin-right: 12px;
+    margin-top: 2px;
+  }
+  
+  p {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// Footer Actions
+ion-footer {
+  ion-toolbar {
+    --background: white;
+    --border-color: rgba(0, 0, 0, 0.1);
+    
+    .action-buttons {
+      padding: 16px;
+      
+      .secondary-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+        
+        ion-button {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .fertile-days-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .key-dates-section {
+    .date-card {
+      .date-icon {
+        ion-icon {
+          font-size: 28px;
+        }
+      }
+      
+      .date-info {
+        .date-value {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Animation
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+:host {
+  animation: slideInUp 0.3s ease-out;
+}

@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import { ToolsService, 
@@ -32,6 +32,7 @@ import { SharedModule } from '../shared/shared-module';
 })
 export class ToolsComponent implements OnInit {
   private cycleSettings = inject(CycleSettingsService);
+  private route = inject(ActivatedRoute);
 
   // User data
   currentUserId: number = 1; // This should come from auth service
@@ -63,6 +64,32 @@ export class ToolsComponent implements OnInit {
 
   ngOnInit() {
     this.loadTodayStats();
+    
+    // Check if we need to auto-open a specific tool
+    this.route.queryParams.subscribe(params => {
+      if (params['openTool']) {
+        setTimeout(() => {
+          this.handleAutoOpenTool(params['openTool']);
+        }, 500); // Small delay to ensure component is fully loaded
+      }
+    });
+  }
+
+  // Handle auto-opening tools from navigation
+  private async handleAutoOpenTool(toolName: string) {
+    switch (toolName) {
+      case 'fertility':
+        await this.openFertilityCalculator();
+        break;
+      case 'symptoms':
+        await this.openSymptomTracker();
+        break;
+      case 'cycle':
+        await this.openCycleTracker();
+        break;
+      default:
+        console.log('Unknown tool:', toolName);
+    }
   }
 
   // Load today's statistics

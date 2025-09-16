@@ -1,0 +1,112 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>🧮 Fertility Calculator Results</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="fertility-results-content">
+  <div class="results-container">
+    
+    <!-- Header Section -->
+    <div class="results-header">
+      <div class="success-icon">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+      </div>
+      <h2>Your Fertility Window</h2>
+      <p>Based on your {{ results.cycleLength }}-day cycle</p>
+    </div>
+
+    <!-- Fertile Days Section -->
+    <div class="fertile-days-section">
+      <div class="section-header">
+        <h3>🌟 Most Fertile Days</h3>
+        <p>Your highest chance of conception</p>
+      </div>
+      <div class="fertile-days-grid">
+        <div class="fertile-day" *ngFor="let day of results.fertileDays; let i = index">
+          <div class="day-card" [class.peak-day]="i === 2 || i === 3">
+            <div class="day-date">{{ day }}</div>
+            <div class="fertility-level" *ngIf="i === 2 || i === 3">Peak</div>
+            <div class="fertility-level" *ngIf="i !== 2 && i !== 3">High</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Dates Section -->
+    <div class="key-dates-section">
+      <div class="date-card ovulation-card">
+        <div class="date-icon">
+          <ion-icon name="egg" color="warning"></ion-icon>
+        </div>
+        <div class="date-info">
+          <h4>Ovulation Day</h4>
+          <p class="date-value">{{ results.ovulationDay }}</p>
+          <span class="date-description">Peak fertility day</span>
+        </div>
+      </div>
+
+      <div class="date-card period-card">
+        <div class="date-icon">
+          <ion-icon name="calendar" color="danger"></ion-icon>
+        </div>
+        <div class="date-info">
+          <h4>Next Period</h4>
+          <p class="date-value">{{ results.nextPeriod }}</p>
+          <span class="date-description">Expected start date</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div class="tips-section">
+      <div class="tip-card">
+        <ion-icon name="bulb" color="tertiary"></ion-icon>
+        <div class="tip-content">
+          <h4>💡 Pro Tips</h4>
+          <ul>
+            <li>Track your symptoms daily for more accurate predictions</li>
+            <li>Consider using ovulation predictor kits</li>
+            <li>Monitor cervical mucus changes</li>
+            <li>Maintain a healthy lifestyle</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <ion-icon name="information-circle-outline" color="medium"></ion-icon>
+      <p>These are estimates based on your cycle data. Individual cycles may vary. Consult your healthcare provider for personalized advice.</p>
+    </div>
+
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="action-buttons">
+      <ion-button expand="block" fill="solid" color="primary" (click)="trackSymptoms()">
+        <ion-icon name="medical" slot="start"></ion-icon>
+        Track Symptoms
+      </ion-button>
+      
+      <div class="secondary-actions">
+        <ion-button fill="outline" size="small" (click)="setReminder()">
+          <ion-icon name="notifications" slot="start"></ion-icon>
+          Set Reminder
+        </ion-button>
+        
+        <ion-button fill="outline" size="small" (click)="exportResults()">
+          <ion-icon name="share" slot="start"></ion-icon>
+          Share Results
+        </ion-button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-footer>

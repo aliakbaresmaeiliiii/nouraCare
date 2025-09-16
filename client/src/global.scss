@@ -9,63 +9,6 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
-/* Baby Development Modal Styles */
-.baby-development-modal {
-  .baby-development-info {
-    .baby-size {
-      text-align: center;
-      margin-bottom: 20px;
-      padding: 16px;
-      background: #e8f5e8;
-      border-radius: 12px;
-      border: 2px solid #4caf50;
-      
-      h3 {
-        font-size: 24px;
-        margin: 0 0 12px 0;
-        color: #2e7d32;
-        font-weight: bold;
-      }
-      
-      p {
-        margin: 8px 0;
-        font-size: 16px;
-        color: #333;
-      }
-    }
-    
-    .development-facts, .fun-facts {
-      margin-bottom: 16px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #f8f9fa;
-      border-left: 4px solid #2196f3;
-      
-      h4 {
-        margin: 0 0 8px 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: #1976d2;
-      }
-      
-      p {
-        margin: 0;
-        font-size: 14px;
-        line-height: 1.5;
-        color: #333;
-      }
-    }
-    
-    .fun-facts {
-      border-left-color: #ff9800;
-      
-      h4 {
-        color: #f57c00;
-      }
-    }
-  }
-}
-
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
@@ -82,35 +25,164 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-@font-face {
-  font-family: "Roboto";
-  src: url("/assets/fonts/Roboto/Roboto-VariableFont_wdth_wght.ttf")
-    format("truetype-variations");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
+
+
+/* Custom Modal Styles */
+.fertility-results-modal,
+.pregnancy-results-modal {
+  --height: auto;
+  --max-height: 90vh;
+  --border-radius: 20px 20px 0 0;
+  --backdrop-opacity: 0.4;
+  
+  ion-modal {
+    --height: auto;
+    --max-height: 90vh;
+    --border-radius: 20px 20px 0 0;
+    
+    &::part(content) {
+      border-radius: 20px 20px 0 0;
+      overflow: hidden;
+    }
+  }
 }
 
-@font-face {
-  font-family: "Inter";
-  src: url("/assets/fonts/Roboto/Roboto-VariableFont_wght.ttf")
-    format("truetype-variations");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
+/* Bottom Sheet Modal Animation */
+@media (max-width: 768px) {
+  .fertility-results-modal,
+  .pregnancy-results-modal {
+    --width: 100%;
+    --height: auto;
+    --max-height: 90vh;
+    --min-height: 50vh;
+    
+    ion-modal {
+      --width: 100%;
+      --height: auto;
+      --max-height: 90vh;
+      --min-height: 50vh;
+      
+      &::part(content) {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        height: auto;
+        max-height: 90vh;
+        min-height: 50vh;
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        transition: transform 0.3s ease-out;
+      }
+      
+      &.modal-open::part(content) {
+        transform: translateY(0);
+      }
+    }
+  }
 }
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* Desktop Modal Styling */
+@media (min-width: 769px) {
+  .fertility-results-modal,
+  .pregnancy-results-modal {
+    --width: 600px;
+    --height: auto;
+    --max-height: 80vh;
+    --border-radius: 16px;
+    
+    ion-modal {
+      --width: 600px;
+      --height: auto;
+      --max-height: 80vh;
+      --border-radius: 16px;
+      
+      &::part(content) {
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+}
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-// @import '@ionic/angular/css/palettes/dark.class.css';
+/* Custom Scrollbar */
+.fertility-results-content,
+.pregnancy-results-content {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--ion-color-primary);
+    border-radius: 3px;
+    
+    &:hover {
+      background: var(--ion-color-primary-shade);
+    }
+  }
+}
 
-/* Mapbox GL JS CSS */
-@import 'mapbox-gl/dist/mapbox-gl.css';
+/* Enhanced Button Styles */
+.fertility-results-modal,
+.pregnancy-results-modal {
+  ion-button {
+    --border-radius: 12px;
+    font-weight: 600;
+    
+    &[fill="solid"] {
+      --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+      
+      &:hover {
+        --box-shadow: 0 6px 16px rgba(var(--ion-color-primary-rgb), 0.4);
+        transform: translateY(-1px);
+      }
+    }
+    
+    &[fill="outline"] {
+      --border-width: 2px;
+      
+      &:hover {
+        --background: rgba(var(--ion-color-primary-rgb), 0.05);
+      }
+    }
+  }
+}
 
+/* Loading Animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.loading-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  .fertility-results-modal,
+  .pregnancy-results-modal {
+    ion-modal::part(content) {
+      transition: none;
+    }
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

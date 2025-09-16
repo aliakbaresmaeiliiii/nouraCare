@@ -1,9 +1,13 @@
 import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ModalController, ToastController, ViewWillEnter } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { add } from 'ionicons/icons';
 import Swiper from 'swiper';
 import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-picker-page/period-date-picker-page.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
+import { FertilityResults, FertilityResultsModalComponent } from '../shared/components/fertility-results-modal/fertility-results-modal.component';
+import { PregnancyResults, PregnancyResultsModalComponent } from '../shared/components/pregnancy-results-modal/pregnancy-results-modal.component';
 import { SymptomsDto } from '../shared/models/symptoms.dto';
 import { BabyDevelopmentService } from '../shared/services/baby-development.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
@@ -11,8 +15,6 @@ import { MessageService } from '../shared/services/message.service';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { SharedModule } from '../shared/shared-module';
-import { addIcons } from 'ionicons';
-import { add } from 'ionicons/icons';
 
 @Component({
   selector: 'app-home',
@@ -1598,21 +1600,26 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   // Health Tools Methods
   async openFertilityCalculator() {
     try {
-      await this.showToast('Opening fertility calculator...', 'success');
-
       const calculatorAlert = await this.alertController.create({
         header: '🧮 Fertility Calculator',
         message: 'Calculate your most fertile days based on your cycle length and last period date.',
         buttons: [
           {
             text: 'Open Calculator',
-            handler: () => {
-              this.router.navigate(['/tools']);
+            handler: async () => {
+              await this.showToast('Opening fertility calculator...', 'success');
+              // Navigate to tools page and trigger fertility calculator
+              this.router.navigate(['/tools'], { 
+                queryParams: { openTool: 'fertility' }
+              });
             }
           },
           {
             text: 'Continue',
-            role: 'cancel'
+            handler: async () => {
+              // Show inline fertility calculator
+              await this.showInlineFertilityCalculator();
+            }
           }
         ]
       });
@@ -1621,6 +1628,665 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
     } catch (error) {
       await this.showToast('Failed to open fertility calculator. Please try again.', 'danger');
+    }
+  }
+
+  // Inline fertility calculator (Continue option)
+  async showInlineFertilityCalculator() {
+    try {
+      // Check if user is pregnant
+      const isPregnant = this.cycleSettings.isPregnant();
+      
+      if (isPregnant) {
+        await this.showPregnancyWeekCalculator();
+      } else {
+        await this.showRegularFertilityCalculator();
+      }
+    } catch (error) {
+      await this.showToast('Failed to open calculator. Please try again.', 'danger');
+    }
+  }
+
+  // Regular fertility calculator for non-pregnant users
+  async showRegularFertilityCalculator() {
+    const alert = await this.alertController.create({
+      header: '🧮 Fertility Calculator',
+      message: 'Calculate your most fertile days based on your cycle length and last period date.',
+      inputs: [
+        {
+          name: 'cycleLength',
+          type: 'number',
+          placeholder: 'Cycle length (days)',
+          min: 21,
+          max: 35,
+          value: 28
+        },
+        {
+          name: 'lastPeriod',
+          type: 'date',
+          placeholder: 'Last period start date'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Calculate',
+          handler: async (data) => {
+            if (data.cycleLength && data.lastPeriod) {
+              await this.calculateFertileDays(data.cycleLength, data.lastPeriod);
+            } else {
+              await this.showToast('Please fill in all fields', 'warning');
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Pregnancy week calculator for pregnant users
+  async showPregnancyWeekCalculator() {
+    const alert = await this.alertController.create({
+      header: '🤰 Pregnancy Week Calculator',
+      message: 'Calculate your current pregnancy week based on your last menstrual period (LMP) date.',
+      inputs: [
+        {
+          name: 'lastPeriod',
+          type: 'date',
+          placeholder: 'Last menstrual period date'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Calculate Week',
+          handler: async (data) => {
+            if (data.lastPeriod) {
+              await this.calculatePregnancyWeek(data.lastPeriod);
+            } else {
+              await this.showToast('Please enter your LMP date', 'warning');
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Calculate fertile days
+  private async calculateFertileDays(cycleLength: number, lastPeriod: string) {
+    try {
+      const lastPeriodDate = new Date(lastPeriod);
+      const today = new Date();
+      
+      // Calculate ovulation day (typically 14 days before next period)
+      const ovulationDay = new Date(lastPeriodDate);
+      ovulationDay.setDate(ovulationDay.getDate() + cycleLength - 14);
+      
+      // Calculate fertile window (5 days before ovulation + ovulation day)
+      const fertileStart = new Date(ovulationDay);
+      fertileStart.setDate(fertileStart.getDate() - 5);
+      
+      const fertileEnd = new Date(ovulationDay);
+      fertileEnd.setDate(fertileEnd.getDate() + 1);
+      
+      // Calculate next period
+      const nextPeriod = new Date(lastPeriodDate);
+      nextPeriod.setDate(nextPeriod.getDate() + cycleLength);
+      
+      // Format dates
+      const formatDate = (date: Date) => {
+        return date.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          year: 'numeric'
+        });
+      };
+      
+      // Create fertile days array
+      const fertileDays = [];
+      const currentDate = new Date(fertileStart);
+      while (currentDate <= fertileEnd) {
+        fertileDays.push(formatDate(new Date(currentDate)));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      // Prepare results data
+      const results: FertilityResults = {
+        fertileDays,
+        ovulationDay: formatDate(ovulationDay),
+        nextPeriod: formatDate(nextPeriod),
+        cycleLength,
+        lastPeriodDate: formatDate(lastPeriodDate)
+      };
+      
+      // Show results in beautiful modal
+      const modal = await this.modalController.create({
+        component: FertilityResultsModalComponent,
+        componentProps: {
+          results: results
+        },
+        presentingElement: await this.modalController.getTop(),
+        canDismiss: true,
+        showBackdrop: true,
+        backdropDismiss: true,
+        cssClass: 'fertility-results-modal'
+      });
+      
+      await modal.present();
+      
+      const { data } = await modal.onWillDismiss();
+      
+      // Handle modal actions
+      if (data?.action) {
+        switch (data.action) {
+          case 'trackSymptoms':
+            await this.openSymptomsTracking();
+            break;
+          case 'setReminder':
+            await this.setFertilityReminder(results);
+            break;
+          case 'exportResults':
+            await this.exportFertilityResults(results);
+            break;
+        }
+      }
+      
+      await this.showToast('Fertile days calculated successfully!', 'success');
+      
+    } catch (error) {
+      console.error('Error calculating fertile days:', error);
+      await this.showToast('Failed to calculate fertile days', 'danger');
+    }
+  }
+
+  // Calculate pregnancy week
+  private async calculatePregnancyWeek(lastPeriod: string) {
+    try {
+      const lmpDate = new Date(lastPeriod);
+      const today = new Date();
+      const daysDifference = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+      const pregnancyWeek = Math.floor(daysDifference / 7);
+      
+      // Validate pregnancy week
+      if (pregnancyWeek < 4 || pregnancyWeek > 42) {
+        await this.showToast('Invalid date. Please enter a valid LMP date (4-42 weeks ago).', 'warning');
+        return;
+      }
+      
+      // Calculate due date
+      const dueDate = new Date(lmpDate);
+      dueDate.setDate(dueDate.getDate() + 280); // 40 weeks
+      
+      // Calculate remaining weeks
+      const remainingWeeks = Math.max(0, 40 - pregnancyWeek);
+      
+      // Calculate trimester
+      const trimester = pregnancyWeek <= 13 ? 1 : pregnancyWeek <= 27 ? 2 : 3;
+      
+      // Calculate progress percentage
+      const progressPercentage = Math.round((pregnancyWeek / 40) * 100);
+      
+      const formatDate = (date: Date) => {
+        return date.toLocaleDateString('en-US', { 
+          month: 'long', 
+          day: 'numeric',
+          year: 'numeric'
+        });
+      };
+      
+      // Prepare results data
+      const results: PregnancyResults = {
+        pregnancyWeek,
+        dueDate: formatDate(dueDate),
+        remainingWeeks,
+        progressPercentage,
+        trimester,
+        lastPeriodDate: formatDate(lmpDate),
+        daysSinceConception: Math.max(0, daysDifference - 14) // Conception typically 14 days after LMP
+      };
+      
+      // Show results in beautiful modal
+      const modal = await this.modalController.create({
+        component: PregnancyResultsModalComponent,
+        componentProps: {
+          results: results
+        },
+        presentingElement: await this.modalController.getTop(),
+        canDismiss: true,
+        showBackdrop: true,
+        backdropDismiss: true,
+        cssClass: 'pregnancy-results-modal'
+      });
+      
+      await modal.present();
+      
+      const { data } = await modal.onWillDismiss();
+      
+      // Handle modal actions
+      if (data?.action) {
+        switch (data.action) {
+          case 'updateProfile':
+            this.cycleSettings.setPregnancyWeek(pregnancyWeek);
+            await this.showToast('Pregnancy week updated in your profile!', 'success');
+            break;
+          case 'trackSymptoms':
+            await this.openSymptomsTracking();
+            break;
+          case 'setAppointment':
+            await this.showToast('Appointment booking coming soon!', 'warning');
+            break;
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error calculating pregnancy week:', error);
+      await this.showToast('Failed to calculate pregnancy week', 'danger');
+    }
+  }
+
+  // Set fertility reminder
+  private async setFertilityReminder(results: FertilityResults) {
+    try {
+      const reminderAlert = await this.alertController.create({
+        header: '🔔 Set Fertility Reminder',
+        message: 'Choose when you\'d like to be reminded about your fertile window:',
+        inputs: [
+          {
+            name: 'reminderType',
+            type: 'radio',
+            label: '1 day before fertile window',
+            value: '1day',
+            checked: true
+          },
+          {
+            name: 'reminderType',
+            type: 'radio',
+            label: '2 days before fertile window',
+            value: '2days'
+          },
+          {
+            name: 'reminderType',
+            type: 'radio',
+            label: 'On ovulation day',
+            value: 'ovulation'
+          },
+          {
+            name: 'reminderType',
+            type: 'radio',
+            label: 'Daily during fertile window',
+            value: 'daily'
+          }
+        ],
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Set Reminder',
+            handler: async (data) => {
+              if (data) {
+                await this.scheduleFertilityReminder(results, data);
+              }
+            }
+          }
+        ]
+      });
+
+      await reminderAlert.present();
+    } catch (error) {
+      console.error('Error setting fertility reminder:', error);
+      await this.showToast('Failed to set reminder', 'danger');
+    }
+  }
+
+  // Schedule fertility reminder
+  private async scheduleFertilityReminder(results: FertilityResults, reminderType: string) {
+    try {
+      // Calculate reminder dates
+      const ovulationDate = new Date(results.ovulationDay);
+      const fertileStartDate = new Date(results.fertileDays[0]);
+      
+      let reminderDate: Date;
+      let reminderMessage: string;
+
+      switch (reminderType) {
+        case '1day':
+          reminderDate = new Date(fertileStartDate);
+          reminderDate.setDate(reminderDate.getDate() - 1);
+          reminderMessage = `🌟 Your fertile window starts tomorrow! Get ready for your most fertile days.`;
+          break;
+        case '2days':
+          reminderDate = new Date(fertileStartDate);
+          reminderDate.setDate(reminderDate.getDate() - 2);
+          reminderMessage = `🌟 Your fertile window starts in 2 days! Time to prepare.`;
+          break;
+        case 'ovulation':
+          reminderDate = ovulationDate;
+          reminderMessage = `🥚 Today is your ovulation day! Peak fertility time.`;
+          break;
+        case 'daily':
+          reminderMessage = `🌟 You're in your fertile window! Today is a high fertility day.`;
+          break;
+        default:
+          reminderDate = new Date(fertileStartDate);
+          reminderMessage = `🌟 Your fertile window is starting!`;
+      }
+
+      // Store reminder in localStorage (in a real app, you'd use proper notification scheduling)
+      const reminders = JSON.parse(localStorage.getItem('fertilityReminders') || '[]');
+      
+      if (reminderType === 'daily') {
+        // Add daily reminders for each fertile day
+        results.fertileDays.forEach((day, index) => {
+          const dayDate = new Date(day);
+          reminders.push({
+            id: `fertility_daily_${index}_${Date.now()}`,
+            date: dayDate.toISOString().split('T')[0],
+            message: `🌟 Day ${index + 1} of your fertile window! High fertility day.`,
+            type: 'fertility',
+            isActive: true,
+            createdAt: new Date().toISOString()
+          });
+        });
+      } else {
+        reminders.push({
+          id: `fertility_${reminderType}_${Date.now()}`,
+          date: reminderDate!.toISOString().split('T')[0],
+          message: reminderMessage,
+          type: 'fertility',
+          isActive: true,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      localStorage.setItem('fertilityReminders', JSON.stringify(reminders));
+
+      // Show success message
+      const successAlert = await this.alertController.create({
+        header: '✅ Reminder Set!',
+        message: `Your fertility reminder has been scheduled. You'll be notified at the right time to maximize your chances of conception.`,
+        buttons: [
+          {
+            text: 'View All Reminders',
+            handler: () => {
+              this.showAllReminders();
+            }
+          },
+          {
+            text: 'Done',
+            role: 'cancel'
+          }
+        ]
+      });
+
+      await successAlert.present();
+      await this.showToast('Fertility reminder set successfully! 🔔', 'success');
+
+    } catch (error) {
+      console.error('Error scheduling reminder:', error);
+      await this.showToast('Failed to schedule reminder', 'danger');
+    }
+  }
+
+  // Show all reminders
+  private async showAllReminders() {
+    try {
+      const reminders = JSON.parse(localStorage.getItem('fertilityReminders') || '[]');
+      const activeReminders = reminders.filter((r: any) => r.isActive);
+
+      if (activeReminders.length === 0) {
+        await this.showToast('No active reminders found', 'warning');
+        return;
+      }
+
+      const remindersList = activeReminders.map((reminder: any) => {
+        const date = new Date(reminder.date).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+        return `• ${date}: ${reminder.message}`;
+      }).join('\n');
+
+      const remindersAlert = await this.alertController.create({
+        header: '🔔 Your Fertility Reminders',
+        message: `Active reminders:\n\n${remindersList}`,
+        buttons: [
+          {
+            text: 'Clear All',
+            handler: () => {
+              this.clearAllReminders();
+            }
+          },
+          {
+            text: 'Done',
+            role: 'cancel'
+          }
+        ]
+      });
+
+      await remindersAlert.present();
+    } catch (error) {
+      console.error('Error showing reminders:', error);
+      await this.showToast('Failed to load reminders', 'danger');
+    }
+  }
+
+  // Clear all reminders
+  private async clearAllReminders() {
+    try {
+      const confirmAlert = await this.alertController.create({
+        header: 'Clear All Reminders',
+        message: 'Are you sure you want to clear all fertility reminders?',
+        buttons: [
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Clear All',
+            handler: () => {
+              localStorage.removeItem('fertilityReminders');
+              this.showToast('All reminders cleared', 'success');
+            }
+          }
+        ]
+      });
+
+      await confirmAlert.present();
+    } catch (error) {
+      console.error('Error clearing reminders:', error);
+      await this.showToast('Failed to clear reminders', 'danger');
+    }
+  }
+
+  // Export fertility results
+  private async exportFertilityResults(results: FertilityResults) {
+    try {
+      const shareText = `🧮 Elahiiiiiiiiiiii My Fertility Calendar
+
+📅 Cycle Information:
+• Cycle Length: ${results.cycleLength} days
+• Last Period: ${results.lastPeriodDate}
+
+🌟 Most Fertile Days:
+${results.fertileDays.map(day => `• ${day}`).join('\n')}
+
+🥚 Ovulation Day: ${results.ovulationDay}
+📅 Next Period Expected: ${results.nextPeriod}
+
+💡 These are estimates based on cycle data. Track symptoms daily for better accuracy!
+
+Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
+
+      // Check if we're on mobile and if Web Share API is supported
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isHTTPS = window.location.protocol === 'https:';
+      const canShare = 'share' in navigator && (isHTTPS || window.location.hostname === 'localhost');
+
+      if (canShare) {
+        try {
+          await navigator.share({
+            title: 'My Fertility Calendar',
+            text: shareText
+          });
+          await this.showToast('Results shared successfully!', 'success');
+        } catch (shareError) {
+          console.log('Native share failed, using fallback:', shareError);
+          await this.fallbackShare(shareText, isMobile);
+        }
+      } else {
+        await this.fallbackShare(shareText, isMobile);
+      }
+    } catch (error) {
+      console.error('Error sharing results:', error);
+      await this.showToast('Failed to share results', 'danger');
+    }
+  }
+
+  // Fallback share methods
+  private async fallbackShare(shareText: string, isMobile: boolean) {
+    try {
+      if (isMobile) {
+        // Mobile fallback: Show options for different sharing methods
+        const shareAlert = await this.alertController.create({
+          header: '📤 Share Results',
+          message: 'Choose how you\'d like to share your fertility results:',
+          buttons: [
+            {
+              text: '📋 Copy to Clipboard',
+              handler: async () => {
+                await this.copyToClipboard(shareText);
+              }
+            },
+            {
+              text: '📱 SMS/WhatsApp',
+              handler: () => {
+                this.shareViaSMS(shareText);
+              }
+            },
+            {
+              text: '📧 Email',
+              handler: () => {
+                this.shareViaEmail(shareText);
+              }
+            },
+            {
+              text: 'Cancel',
+              role: 'cancel'
+            }
+          ]
+        });
+        await shareAlert.present();
+      } else {
+        // Desktop fallback: Copy to clipboard
+        await this.copyToClipboard(shareText);
+      }
+    } catch (error) {
+      console.error('Fallback share failed:', error);
+      await this.showToast('Unable to share. Please try again.', 'danger');
+    }
+  }
+
+  // Copy to clipboard with better error handling
+  private async copyToClipboard(text: string) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        await this.showToast('Results copied to clipboard!', 'success');
+      } else {
+        // Fallback for older browsers or insecure contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          await this.showToast('Results copied to clipboard!', 'success');
+        } catch (err) {
+          await this.showToast('Please manually copy the text from the alert', 'warning');
+          // Show the text in an alert for manual copying
+          const textAlert = await this.alertController.create({
+            header: '📋 Copy This Text',
+            message: `<div style="font-family: monospace; font-size: 12px; text-align: left; white-space: pre-line; max-height: 300px; overflow-y: auto;">${text}</div>`,
+            buttons: ['OK']
+          });
+          await textAlert.present();
+        }
+        
+        document.body.removeChild(textArea);
+      }
+    } catch (error) {
+      console.error('Copy to clipboard failed:', error);
+      await this.showToast('Copy failed. Please try another method.', 'danger');
+    }
+  }
+
+  // Share via SMS/WhatsApp (mobile)
+  private shareViaSMS(text: string) {
+    try {
+      const encodedText = encodeURIComponent(text);
+      // Try WhatsApp first (more popular), then fallback to SMS
+      const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+      const smsUrl = `sms:?body=${encodedText}`;
+      
+      // Try WhatsApp first
+      window.open(whatsappUrl, '_blank');
+      
+      // Fallback to SMS after a short delay if WhatsApp doesn't work
+      setTimeout(() => {
+        const fallbackAlert = this.alertController.create({
+          header: '📱 Alternative Sharing',
+          message: 'If WhatsApp didn\'t open, you can try SMS instead.',
+          buttons: [
+            {
+              text: 'Open SMS',
+              handler: () => {
+                window.open(smsUrl, '_blank');
+              }
+            },
+            {
+              text: 'Cancel',
+              role: 'cancel'
+            }
+          ]
+        });
+        fallbackAlert.then(alert => alert.present());
+      }, 2000);
+      
+    } catch (error) {
+      console.error('SMS share failed:', error);
+      this.showToast('Unable to open messaging app', 'danger');
+    }
+  }
+
+  // Share via Email
+  private shareViaEmail(text: string) {
+    try {
+      const subject = encodeURIComponent('My Fertility Calendar Results');
+      const body = encodeURIComponent(text);
+      const emailUrl = `mailto:?subject=${subject}&body=${body}`;
+      
+      window.open(emailUrl, '_blank');
+      this.showToast('Opening email app...', 'success');
+    } catch (error) {
+      console.error('Email share failed:', error);
+      this.showToast('Unable to open email app', 'danger');
     }
   }
 

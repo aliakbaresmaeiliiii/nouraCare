@@ -1,0 +1,171 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-title>🤰 Pregnancy Week Calculator</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="pregnancy-results-content">
+  <div class="results-container">
+    
+    <!-- Header Section -->
+    <div class="results-header">
+      <div class="pregnancy-icon">
+        <div class="week-badge">
+          <span class="week-number">{{ results.pregnancyWeek }}</span>
+          <span class="week-label">weeks</span>
+        </div>
+      </div>
+      <h2>{{ getTrimesterName() }}</h2>
+      <p>You're {{ results.progressPercentage }}% through your pregnancy journey!</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-section">
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="results.progressPercentage"></div>
+          <div class="progress-marker" [style.left.%]="results.progressPercentage">
+            <span>{{ results.pregnancyWeek }}w</span>
+          </div>
+        </div>
+        <div class="progress-labels">
+          <span>0 weeks</span>
+          <span>40 weeks</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Baby Size Section -->
+    <div class="baby-size-section">
+      <div class="size-card">
+        <div class="size-visual">
+          <div class="fruit-emoji">{{ getBabySize().emoji }}</div>
+          <div class="size-comparison">
+            <h3>Size of a {{ getBabySize().fruit }}</h3>
+            <p>{{ getBabySize().description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Information Grid -->
+    <div class="info-grid">
+      <div class="info-card due-date-card">
+        <div class="info-icon">
+          <ion-icon name="calendar" color="primary"></ion-icon>
+        </div>
+        <div class="info-content">
+          <h4>Due Date</h4>
+          <p class="info-value">{{ results.dueDate }}</p>
+          <span class="info-subtitle">Estimated delivery</span>
+        </div>
+      </div>
+
+      <div class="info-card remaining-card">
+        <div class="info-icon">
+          <ion-icon name="time" color="tertiary"></ion-icon>
+        </div>
+        <div class="info-content">
+          <h4>Weeks Left</h4>
+          <p class="info-value">{{ results.remainingWeeks }}</p>
+          <span class="info-subtitle">Until due date</span>
+        </div>
+      </div>
+
+      <div class="info-card trimester-card">
+        <div class="info-icon">
+          <ion-icon name="fitness" color="success"></ion-icon>
+        </div>
+        <div class="info-content">
+          <h4>Trimester</h4>
+          <p class="info-value">{{ results.trimester }}</p>
+          <span class="info-subtitle">of 3</span>
+        </div>
+      </div>
+
+      <div class="info-card conception-card">
+        <div class="info-icon">
+          <ion-icon name="heart" color="danger"></ion-icon>
+        </div>
+        <div class="info-content">
+          <h4>Days Since</h4>
+          <p class="info-value">{{ results.daysSinceConception }}</p>
+          <span class="info-subtitle">Conception</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly Milestones -->
+    <div class="milestones-section">
+      <div class="milestone-card">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <div class="milestone-content">
+          <h4>🎯 This Week's Milestones</h4>
+          <ul>
+            <li *ngIf="results.pregnancyWeek >= 8">Baby's heart is beating regularly</li>
+            <li *ngIf="results.pregnancyWeek >= 12">Risk of miscarriage significantly decreases</li>
+            <li *ngIf="results.pregnancyWeek >= 16">You might start feeling baby's movements</li>
+            <li *ngIf="results.pregnancyWeek >= 20">Anatomy scan can reveal baby's gender</li>
+            <li *ngIf="results.pregnancyWeek >= 24">Baby's hearing is developing</li>
+            <li *ngIf="results.pregnancyWeek >= 28">Baby's eyes can open and close</li>
+            <li *ngIf="results.pregnancyWeek >= 32">Baby is gaining weight rapidly</li>
+            <li *ngIf="results.pregnancyWeek >= 37">Baby is considered full-term</li>
+            <li *ngIf="results.pregnancyWeek < 8">Your baby's major organs are forming</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Health Tips -->
+    <div class="tips-section">
+      <div class="tip-card">
+        <ion-icon name="medical" color="tertiary"></ion-icon>
+        <div class="tip-content">
+          <h4>💡 Health Tips for Week {{ results.pregnancyWeek }}</h4>
+          <ul>
+            <li>Take prenatal vitamins daily</li>
+            <li>Stay hydrated - aim for 8-10 glasses of water</li>
+            <li>Get adequate rest and sleep</li>
+            <li>Maintain regular prenatal appointments</li>
+            <li>Track your symptoms and baby's movements</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <ion-icon name="information-circle-outline" color="medium"></ion-icon>
+      <p>This calculation is based on your last menstrual period (LMP). Due dates can vary by ±2 weeks. Always consult your healthcare provider for accurate pregnancy dating and personalized care.</p>
+    </div>
+
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="action-buttons">
+      <ion-button expand="block" fill="solid" color="secondary" (click)="updateProfile()">
+        <ion-icon name="person" slot="start"></ion-icon>
+        Update My Profile
+      </ion-button>
+      
+      <div class="secondary-actions">
+        <ion-button fill="outline" size="small" (click)="trackSymptoms()">
+          <ion-icon name="medical" slot="start"></ion-icon>
+          Track Symptoms
+        </ion-button>
+        
+        <ion-button fill="outline" size="small" (click)="setAppointment()">
+          <ion-icon name="calendar" slot="start"></ion-icon>
+          Book Appointment
+        </ion-button>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-footer>
