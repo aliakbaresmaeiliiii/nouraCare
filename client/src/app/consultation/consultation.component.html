@@ -35,6 +35,87 @@
     </div>
   </div>
 
+ 
+
+  <!-- Available Specialists -->
+  <div class="specialists-section">
+    <div class="section-header">
+      <h2 class="section-title">Available Specialists</h2>
+    </div>
+    
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading doctors...</p>
+    </div>
+
+    <!-- Doctors List -->
+    <div class="doctors-grid" *ngIf="!isLoading && doctors.length > 0">
+      <div class="specialist-card" *ngFor="let doctor of doctors" (click)="bookWithDoctor(doctor)">
+        <div class="specialist-avatar">
+          <img [src]="doctor.profileImageUrl || 'assets/images/doctor-placeholder.jpg'" [alt]="doctor.fullName">
+          <div class="online-indicator" [class.offline]="doctor.consultationType === 'IN_PERSON'"></div>
+        </div>
+        <div class="specialist-info">
+          <h3 class="specialist-name">{{ doctor.fullName }}</h3>
+          <p class="specialist-specialty">{{ doctor.specialty }}</p>
+          <div class="specialist-details">
+            <span class="rating" *ngIf="doctor.rating">⭐ {{ doctor.rating }}/5</span>
+            <span class="experience">{{ doctor.experienceYears }}+ years experience</span>
+          </div>
+          <div class="specialist-availability">
+            <span class="available" *ngIf="doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH'">Available Online</span>
+            <span class="available" *ngIf="doctor.consultationType === 'IN_PERSON' || doctor.consultationType === 'BOTH'">In-Person Available</span>
+            <span class="fee" *ngIf="doctor.fee">${{ doctor.fee }}</span>
+          </div>
+          <div class="specialist-location" *ngIf="doctor.location">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>{{ doctor.location }}</span>
+          </div>
+          <div class="specialist-clinic" *ngIf="doctor.clinicName">
+            <ion-icon name="business-outline"></ion-icon>
+            <span>{{ doctor.clinicName }}</span>
+          </div>
+          <div class="consultation-type">
+            <span class="type-badge" [class]="doctor.consultationType.toLowerCase()">
+              {{ getConsultationTypeLabel(doctor.consultationType) }}
+            </span>
+          </div>
+        </div>
+        <div class="specialist-actions">
+          <ion-button fill="solid" size="small" class="book-btn" (click)="bookWithDoctor(doctor); $event.stopPropagation()">
+            Book Now
+          </ion-button>
+          <ion-button fill="outline" size="small" (click)="viewDoctorProfile(doctor); $event.stopPropagation()">
+            View Profile
+          </ion-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Show More Button -->
+    <div class="show-more-section" *ngIf="!isLoading && doctors.length > 0">
+      <ion-button expand="block" fill="outline" class="show-more-btn" (click)="showAllDoctors()">
+        <ion-icon name="chevron-down" slot="start"></ion-icon>
+        View All Doctors
+        <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      </ion-button>
+      <p class="show-more-text">See more specialists and their availability</p>
+    </div>
+
+    <!-- No Doctors State -->
+    <div class="no-doctors" *ngIf="!isLoading && doctors.length === 0">
+      <ion-icon name="medical-outline"></ion-icon>
+      <h3>No Doctors Found</h3>
+      <p *ngIf="searchTerm">No doctors match your search criteria. Try adjusting your search terms.</p>
+      <p *ngIf="!searchTerm">No doctors are currently available. Please check back later or contact support.</p>
+      <ion-button fill="solid" (click)="loadDoctors()">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Refresh
+      </ion-button>
+    </div>
+  </div>
+
   <!-- Quick Booking -->
   <div class="quick-booking">
     <h2 class="section-title">Quick Booking</h2>
@@ -47,232 +128,6 @@
         <ion-icon name="nutrition" slot="start"></ion-icon>
         Nutrition Consultation
       </ion-button>
-      <ion-button expand="block" fill="outline" class="booking-btn" (click)="bookFitnessConsultation()">
-        <ion-icon name="fitness" slot="start"></ion-icon>
-        Fitness Consultation
-      </ion-button>
-      <ion-button expand="block" fill="outline" class="booking-btn" (click)="bookMentalHealthSupport()">
-        <ion-icon name="heart" slot="start"></ion-icon>
-        Mental Health Support
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Available Specialists -->
-  <div class="specialists-section">
-    <h2 class="section-title">Available Specialists</h2>
-    
-    <div class="specialist-card" (click)="bookSpecialist('sarah')">
-      <div class="specialist-avatar">
-        <img src="assets/images/doctor.jpg" alt="Dr. Sarah Johnson">
-        <div class="online-indicator"></div>
-      </div>
-      <div class="specialist-info">
-        <h3 class="specialist-name">Dr. Sarah Johnson</h3>
-        <p class="specialist-specialty">Obstetrician & Gynecologist</p>
-        <div class="specialist-details">
-          <span class="rating">⭐ 4.9 (127 reviews)</span>
-          <span class="experience">15+ years experience</span>
-        </div>
-        <div class="specialist-availability">
-          <span class="available">Available Today</span>
-          <span class="next-slot">Next: 2:00 PM</span>
-        </div>
-        <div class="specialist-tags">
-          <span class="tag">Prenatal Care</span>
-          <span class="tag">High Risk</span>
-        </div>
-      </div>
-      <ion-button fill="outline" size="small" class="book-btn">
-        Book Now
-      </ion-button>
-    </div>
-
-    <div class="specialist-card" (click)="bookSpecialist('michael')">
-      <div class="specialist-avatar">
-        <img src="assets/images/nurse.png" alt="Dr. Michael Chen">
-        <div class="online-indicator"></div>
-      </div>
-      <div class="specialist-info">
-        <h3 class="specialist-name">Dr. Michael Chen</h3>
-        <p class="specialist-specialty">Pregnancy Nutritionist</p>
-        <div class="specialist-details">
-          <span class="rating">⭐ 4.8 (89 reviews)</span>
-          <span class="experience">12+ years experience</span>
-        </div>
-        <div class="specialist-availability">
-          <span class="available">Available Tomorrow</span>
-          <span class="next-slot">Next: 10:00 AM</span>
-        </div>
-        <div class="specialist-tags">
-          <span class="tag">Nutrition</span>
-          <span class="tag">Diet Plans</span>
-        </div>
-      </div>
-      <ion-button fill="outline" size="small" class="book-btn">
-        Book Now
-      </ion-button>
-    </div>
-
-    <div class="specialist-card" (click)="bookSpecialist('emily')">
-      <div class="specialist-avatar">
-        <img src="assets/images/doctor.jpg" alt="Dr. Emily Rodriguez">
-        <div class="online-indicator"></div>
-      </div>
-      <div class="specialist-info">
-        <h3 class="specialist-name">Dr. Emily Rodriguez</h3>
-        <p class="specialist-specialty">Prenatal Fitness Expert</p>
-        <div class="specialist-details">
-          <span class="rating">⭐ 4.9 (156 reviews)</span>
-          <span class="experience">8+ years experience</span>
-        </div>
-        <div class="specialist-availability">
-          <span class="available">Available Today</span>
-          <span class="next-slot">Next: 4:30 PM</span>
-        </div>
-        <div class="specialist-tags">
-          <span class="tag">Exercise</span>
-          <span class="tag">Yoga</span>
-        </div>
-      </div>
-      <ion-button fill="outline" size="small" class="book-btn">
-        Book Now
-      </ion-button>
-    </div>
-
-    <div class="specialist-card" (click)="bookSpecialist('david')">
-      <div class="specialist-avatar">
-        <img src="assets/images/nurse.png" alt="Dr. David Wilson">
-        <div class="online-indicator offline"></div>
-      </div>
-      <div class="specialist-info">
-        <h3 class="specialist-name">Dr. David Wilson</h3>
-        <p class="specialist-specialty">Mental Health Specialist</p>
-        <div class="specialist-details">
-          <span class="rating">⭐ 4.7 (203 reviews)</span>
-          <span class="experience">10+ years experience</span>
-        </div>
-        <div class="specialist-availability">
-          <span class="unavailable">Available Next Week</span>
-          <span class="next-slot">Next: Monday 9:00 AM</span>
-        </div>
-        <div class="specialist-tags">
-          <span class="tag">Counseling</span>
-          <span class="tag">Stress</span>
-        </div>
-      </div>
-      <ion-button fill="outline" size="small" class="book-btn" disabled>
-        Book Later
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Upcoming Appointments -->
-  <div class="appointments-section">
-    <h2 class="section-title">Upcoming Appointments</h2>
-    
-    <div class="appointment-card" (click)="viewAppointment('prenatal')">
-      <div class="appointment-icon">
-        <ion-icon name="medical"></ion-icon>
-      </div>
-      <div class="appointment-details">
-        <h3 class="appointment-type">Prenatal Checkup</h3>
-        <p class="appointment-specialist">Dr. Sarah Johnson</p>
-        <div class="appointment-time">
-          <ion-icon name="time-outline"></ion-icon>
-          <span>Tomorrow, 10:00 AM</span>
-        </div>
-        <div class="appointment-location">
-          <ion-icon name="location-outline"></ion-icon>
-          <span>Women's Health Clinic - Room 3</span>
-        </div>
-        <div class="appointment-status">
-          <span class="status confirmed">Confirmed</span>
-        </div>
-      </div>
-      <ion-button fill="clear" size="small" class="reschedule-btn" (click)="rescheduleAppointment('prenatal')">
-        Reschedule
-      </ion-button>
-    </div>
-
-    <div class="appointment-card" (click)="viewAppointment('nutrition')">
-      <div class="appointment-icon">
-        <ion-icon name="nutrition"></ion-icon>
-      </div>
-      <div class="appointment-details">
-        <h3 class="appointment-type">Nutrition Consultation</h3>
-        <p class="appointment-specialist">Dr. Michael Chen</p>
-        <div class="appointment-time">
-          <ion-icon name="time-outline"></ion-icon>
-          <span>Friday, 2:30 PM</span>
-        </div>
-        <div class="appointment-location">
-          <ion-icon name="location-outline"></ion-icon>
-          <span>Nutrition Center - Room 1</span>
-        </div>
-        <div class="appointment-status">
-          <span class="status pending">Pending Confirmation</span>
-        </div>
-      </div>
-      <ion-button fill="clear" size="small" class="reschedule-btn" (click)="rescheduleAppointment('nutrition')">
-        Reschedule
-      </ion-button>
-    </div>
-
-    <div class="no-appointments" *ngIf="false">
-      <ion-icon name="calendar-outline"></ion-icon>
-      <h3>No Upcoming Appointments</h3>
-      <p>Book your first consultation to get started</p>
-      <ion-button fill="solid" (click)="bookDoctorAppointment()">
-        Book Now
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Consultation Types -->
-  <div class="consultation-types">
-    <h2 class="section-title">Consultation Types</h2>
-    
-    <div class="type-grid">
-      <div class="type-card" (click)="selectConsultationType('prenatal')">
-        <div class="type-icon">
-          <ion-icon name="medical"></ion-icon>
-        </div>
-        <h3 class="type-name">Prenatal Care</h3>
-        <p class="type-description">Regular checkups and monitoring</p>
-        <div class="type-duration">30-45 min</div>
-        <div class="type-price">$150</div>
-      </div>
-
-      <div class="type-card" (click)="selectConsultationType('nutrition')">
-        <div class="type-icon">
-          <ion-icon name="nutrition"></ion-icon>
-        </div>
-        <h3 class="type-name">Nutrition Planning</h3>
-        <p class="type-description">Personalized meal plans</p>
-        <div class="type-duration">45-60 min</div>
-        <div class="type-price">$120</div>
-      </div>
-
-      <div class="type-card" (click)="selectConsultationType('fitness')">
-        <div class="type-icon">
-          <ion-icon name="fitness"></ion-icon>
-        </div>
-        <h3 class="type-name">Exercise Guidance</h3>
-        <p class="type-description">Safe pregnancy workouts</p>
-        <div class="type-duration">30-40 min</div>
-        <div class="type-price">$100</div>
-      </div>
-
-      <div class="type-card" (click)="selectConsultationType('mental')">
-        <div class="type-icon">
-          <ion-icon name="heart"></ion-icon>
-        </div>
-        <h3 class="type-name">Mental Health</h3>
-        <p class="type-description">Emotional support & counseling</p>
-        <div class="type-duration">50-60 min</div>
-        <div class="type-price">$180</div>
-      </div>
     </div>
   </div>
 

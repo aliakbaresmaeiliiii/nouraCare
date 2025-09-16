@@ -1,0 +1,230 @@
+<ion-header class="modern-header">
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" class="back-btn">
+        <ion-icon name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="header-title">Find Doctors</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="clearFilters()" fill="clear" class="filter-btn">
+        <ion-icon name="funnel-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="doctors-content">
+
+  <!-- Modern Hero Section -->
+  <div class="modern-hero">
+    <div class="hero-background">
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+      <div class="gradient-orb orb-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-icon">
+        <ion-icon name="medical"></ion-icon>
+      </div>
+      <h1 class="hero-title">Discover Your Perfect Doctor</h1>
+      <p class="hero-subtitle">Connect with world-class healthcare professionals tailored to your needs</p>
+      <div class="hero-metrics">
+        <div class="metric">
+          <div class="metric-number">{{ doctors.length }}+</div>
+          <div class="metric-label">Expert Doctors</div>
+        </div>
+        <div class="metric">
+          <div class="metric-number">98%</div>
+          <div class="metric-label">Success Rate</div>
+        </div>
+        <div class="metric">
+          <div class="metric-number">4.9★</div>
+          <div class="metric-label">Patient Rating</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modern Search Section -->
+  <div class="search-section">
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <ion-searchbar placeholder="Search doctors, specialties, locations..." (ionInput)="searchDoctors($event)"
+          [value]="searchTerm" class="modern-search">
+        </ion-searchbar>
+      </div>
+    </div>
+
+    <!-- Modern Filter Pills -->
+    <div class="filter-pills">
+      <div class="pill-container">
+        <div class="filter-pill" [class.active]="selectedSpecialty !== 'all'" (click)="toggleSpecialtyFilter()">
+          <ion-icon name="medical-outline"></ion-icon>
+          <span>Specialty</span>
+          <ion-icon name="chevron-down" class="dropdown-icon"></ion-icon>
+        </div>
+
+        <div class="filter-pill" [class.active]="selectedConsultationType !== 'all'"
+          (click)="toggleConsultationFilter()">
+          <ion-icon name="videocam-outline"></ion-icon>
+          <span>Consultation</span>
+          <ion-icon name="chevron-down" class="dropdown-icon"></ion-icon>
+        </div>
+
+        @if(hasActiveFilters()) {
+        <div class="filter-pill clear-pill" (click)="clearFilters()">
+          <ion-icon name="close-circle"></ion-icon>
+          <span>Clear</span>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="results-summary">
+      <div class="results-count">
+        <span class="count">{{ filteredDoctors.length }}</span>
+        <span class="label">doctors available</span>
+      </div>
+      <div class="sort-option">
+        <ion-icon name="swap-vertical"></ion-icon>
+        <span>Best Match</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if(isLoading) {
+  <div class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading doctors...</p>
+  </div>
+  }
+  <!-- Modern Doctors Grid -->
+  @if(!isLoading && filteredDoctors.length > 0) {
+  <div class="doctors-grid">
+    <div class="doctor-card" *ngFor="let doctor of filteredDoctors" (click)="bookWithDoctor(doctor)">
+
+      <!-- Card Glow Effect -->
+      <div class="card-glow"></div>
+
+      <!-- Doctor Avatar Section -->
+      <div class="doctor-avatar-section">
+        <div class="avatar-container">
+          <img [src]="doctor.profileImageUrl || 'assets/images/doctor-placeholder.jpg'" [alt]="doctor.fullName">
+          <div class="avatar-ring"></div>
+          <div class="status-indicator"
+            [class.online]="doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH'">
+            <ion-icon name="checkmark"></ion-icon>
+          </div>
+        </div>
+
+        <div class="consultation-type-badge" [class]="doctor.consultationType.toLowerCase()">
+          <ion-icon [name]="getConsultationIcon(doctor.consultationType)"></ion-icon>
+          <span>{{ getConsultationTypeLabel(doctor.consultationType) }}</span>
+        </div>
+      </div>
+
+      <!-- Doctor Info Section -->
+      <div class="doctor-info-section">
+        <div class="doctor-header-info">
+          <h3 class="doctor-name">{{ doctor.fullName }}</h3>
+          @if(doctor.rating) {
+          <div class="rating-container">
+            <div class="stars">
+              @for (item of getStars(doctor.rating || 0); track $index) {
+              @if(item) {
+              <ion-icon name="star"></ion-icon>
+              }
+              }
+            </div>
+            <span class="rating-number">{{ doctor.rating }}</span>
+          </div>
+          }
+        </div>
+
+        <p class="doctor-specialty">{{ doctor.specialty }}</p>
+
+        <div class="doctor-meta">
+          <div class="meta-item">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ doctor.experienceYears }}+ years</span>
+          </div>
+          @if(doctor.location) {
+          <div class="meta-item">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>{{ doctor.location }}</span>
+          </div>
+          }
+        </div>
+
+        <div class="doctor-description">
+          <p>{{ doctor.about.substring(0, 100) }}{{ doctor.about.length > 100 ? '...' : '' }}</p>
+        </div>
+      </div>
+
+      <!-- Price Section -->
+      <div class="price-section">
+        <div class="price-container">
+          <span class="price">${{ doctor.fee }}</span>
+          <span class="price-label">per consultation</span>
+        </div>
+        <div class="availability">
+          <div class="availability-dot"></div>
+          <span>Available today</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-section">
+        <ion-button fill="solid" expand="block" class="book-btn"
+          (click)="bookWithDoctor(doctor); $event.stopPropagation()">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          Book Consultation
+        </ion-button>
+
+        <div class="secondary-actions">
+          <ion-button fill="clear" size="small" class="secondary-btn"
+            (click)="viewDoctorProfile(doctor); $event.stopPropagation()">
+            <ion-icon name="person-outline"></ion-icon>
+          </ion-button>
+
+          @if(doctor.contactPhone) {
+          <ion-button fill="clear" size="small" class="secondary-btn" (click)="$event.stopPropagation()"
+            [href]="'tel:' + doctor.contactPhone">
+            <ion-icon name="call-outline"></ion-icon>
+          </ion-button>
+          }
+          <ion-button fill="clear" size="small" class="secondary-btn" (click)="$event.stopPropagation()">
+            <ion-icon name="heart-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+  <!-- No Results State -->
+  @if(!isLoading && filteredDoctors.length === 0) {
+  <div class="no-results">
+    <div class="no-results-content">
+      <ion-icon name="search-outline"></ion-icon>
+      <h3>No Doctors Found</h3>
+      @if(searchTerm || selectedSpecialty !== 'all' || selectedConsultationType !== 'all') {
+      <p>
+        No doctors match your current search and filter criteria.
+      </p>
+      }
+      @if(!searchTerm && selectedSpecialty === 'all' && selectedConsultationType === 'all') {
+      <p>
+        No doctors are currently available.
+      </p>
+      <ion-button fill="outline" (click)="clearFilters()">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Clear Filters
+      </ion-button>
+      }
+    </div>
+  </div>
+  }
+</ion-content>

@@ -7,6 +7,7 @@ import { UserModule } from './users/user.module';
 import { GeoModule } from './geo/geo.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { TrackDayModule } from './track-day/track-day.module';
+import { DoctorsModule } from './doctors/doctors.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TrackDayModule } from './track-day/track-day.module';
     GeoModule,
     OnboardingModule,
     TrackDayModule,
+    DoctorsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,0 +1,256 @@
+<ion-content class="doctor-profile-content">
+  
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading doctor profile...</p>
+    </div>
+  </div>
+
+  <!-- Doctor Profile -->
+  <div *ngIf="!isLoading && doctor" class="profile-container">
+    
+    <!-- Header Section -->
+    <div class="profile-header">
+      <div class="header-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+      </div>
+      
+      <div class="header-content">
+        <div class="header-actions">
+          <ion-button fill="clear" class="back-btn" (click)="goBack()">
+            <ion-icon name="chevron-back"></ion-icon>
+          </ion-button>
+          <div class="action-buttons">
+            <ion-button fill="clear" class="action-btn" (click)="shareProfile()">
+              <ion-icon name="share-outline"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" class="action-btn">
+              <ion-icon name="heart-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <div class="doctor-main-info">
+          <div class="doctor-avatar">
+            <img [src]="doctor.profileImageUrl || 'assets/images/doctor.jpg'" [alt]="doctor.fullName">
+            <div class="avatar-ring"></div>
+            <div class="online-status">
+              <ion-icon name="checkmark"></ion-icon>
+            </div>
+          </div>
+          
+          <div class="doctor-details">
+            <h1 class="doctor-name">{{ doctor.fullName }}</h1>
+            <p class="doctor-specialty">{{ doctor.specialty }}</p>
+            
+            <div class="doctor-stats">
+              <div class="stat-item">
+                <div class="stat-value">{{ doctor.rating }}/5</div>
+                <div class="stat-label">Rating</div>
+                <div class="stars">
+                  <ion-icon name="star" *ngFor="let star of getStars(doctor.rating || 0)"></ion-icon>
+                </div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-value">{{ doctor.experienceYears }}+</div>
+                <div class="stat-label">Years Experience</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-value">500+</div>
+                <div class="stat-label">Patients</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="consultation-info">
+          <div class="consultation-type">
+            <ion-icon [name]="getConsultationIcon(doctor.consultationType)"></ion-icon>
+            <span>{{ getConsultationTypeLabel(doctor.consultationType) }}</span>
+          </div>
+          <div class="consultation-fee">
+            <span class="fee-amount">${{ doctor.fee }}</span>
+            <span class="fee-label">per consultation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <div class="tab-buttons">
+        <button 
+          class="tab-btn" 
+          [class.active]="selectedTab === 'about'"
+          (click)="selectTab('about')">
+          About
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="selectedTab === 'reviews'"
+          (click)="selectTab('reviews')">
+          Reviews
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="selectedTab === 'schedule'"
+          (click)="selectTab('schedule')">
+          Schedule
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      
+      <!-- About Tab -->
+      <div class="tab-panel" *ngIf="selectedTab === 'about'">
+        <div class="about-section">
+          <div class="section-card">
+            <h3 class="section-title">
+              <ion-icon name="person-outline"></ion-icon>
+              About Doctor
+            </h3>
+            <p class="about-text">{{ doctor.about }}</p>
+          </div>
+
+          <div class="section-card">
+            <h3 class="section-title">
+              <ion-icon name="location-outline"></ion-icon>
+              Clinic Information
+            </h3>
+            <div class="clinic-info">
+              <div class="info-item" *ngIf="doctor.clinicName">
+                <ion-icon name="business-outline"></ion-icon>
+                <span>{{ doctor.clinicName }}</span>
+              </div>
+              <div class="info-item" *ngIf="doctor.location">
+                <ion-icon name="map-outline"></ion-icon>
+                <span>{{ doctor.location }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-card">
+            <h3 class="section-title">
+              <ion-icon name="school-outline"></ion-icon>
+              Specializations
+            </h3>
+            <div class="specializations">
+              <div class="spec-tag">{{ doctor.specialty }}</div>
+              <div class="spec-tag">High-Risk Pregnancy</div>
+              <div class="spec-tag">Fertility Treatment</div>
+              <div class="spec-tag">Prenatal Care</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews Tab -->
+      <div class="tab-panel" *ngIf="selectedTab === 'reviews'">
+        <div class="reviews-section">
+          <div class="reviews-summary">
+            <div class="rating-overview">
+              <div class="overall-rating">
+                <span class="rating-number">{{ doctor.rating }}</span>
+                <div class="rating-stars">
+                  <ion-icon name="star" *ngFor="let star of getStars(doctor.rating || 0)"></ion-icon>
+                </div>
+              </div>
+              <div class="rating-details">
+                <p>Based on {{ reviews.length || 0 }} verified reviews</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="reviews-list">
+            <div class="review-card" *ngFor="let review of reviews || []">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    <span>{{ review.patientName.charAt(0) }}</span>
+                  </div>
+                  <div class="reviewer-details">
+                    <h4 class="reviewer-name">{{ review.patientName }}</h4>
+                    <div class="review-meta">
+                      <div class="review-stars">
+                        <ion-icon name="star" *ngFor="let star of getStars(review.rating || 0)"></ion-icon>
+                      </div>
+                      <span class="review-date">{{ review.date | date:'MMM d, y' }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="verified-badge" *ngIf="review.verified">
+                  <ion-icon name="checkmark-circle"></ion-icon>
+                  <span>Verified</span>
+                </div>
+              </div>
+              <p class="review-comment">{{ review.comment }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Tab -->
+      <div class="tab-panel" *ngIf="selectedTab === 'schedule'">
+        <div class="schedule-section">
+          <div class="schedule-header">
+            <h3>Available Time Slots</h3>
+            <p>Select your preferred appointment time</p>
+          </div>
+
+          <div class="time-slots">
+            <div 
+              class="time-slot" 
+              *ngFor="let slot of availableSlots"
+              [class.unavailable]="!slot.available"
+              (click)="slot.available && bookAppointment(slot)">
+              <div class="slot-time">{{ slot.time }}</div>
+              <div class="slot-status" *ngIf="slot.available">
+                <span class="available-text">Available</span>
+                <span class="slot-price" *ngIf="slot.price">${{ slot.price }}</span>
+              </div>
+              <div class="slot-status unavailable-text" *ngIf="!slot.available">
+                Booked
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="floating-actions">
+      <ion-button 
+        class="book-appointment-btn" 
+        expand="block" 
+        (click)="bookAppointment()">
+        <ion-icon name="calendar-outline" slot="start"></ion-icon>
+        Book Appointment
+      </ion-button>
+      
+      <div class="contact-buttons">
+        <ion-button 
+          class="contact-btn phone-btn" 
+          fill="outline"
+          (click)="contactDoctor('phone')"
+          *ngIf="doctor.contactPhone">
+          <ion-icon name="call-outline"></ion-icon>
+        </ion-button>
+        <ion-button 
+          class="contact-btn message-btn" 
+          fill="outline"
+          (click)="contactDoctor('email')"
+          *ngIf="doctor.contactEmail">
+          <ion-icon name="mail-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+</ion-content>

@@ -82,3 +82,32 @@ model TrackDay {
 
   @@unique([userId, date], map: "userId_date")
 }
+
+model Doctors {
+  id                String           @id @default(uuid())
+  fullName          String
+  specialty         String
+  experienceYears   Int
+  about             String           @db.Text
+  rating            Float            @default(0.0)
+  profileImageUrl   String?
+  clinicName        String?
+  location          String?
+  contactEmail      String?
+  contactPhone      String?
+  consultationType  ConsultationType
+  fee               Float?
+  availableSlots    Json?
+  licenseNumber     String?   
+  licenseDocument   String?  
+  isVerified        Boolean   
+  verifiedAt        DateTime? 
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+enum ConsultationType {
+  ONLINE
+  IN_PERSON
+  BOTH
+}

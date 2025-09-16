@@ -153,6 +153,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'doctors',
+    loadComponent: () =>
+      import('./doctors/doctors.component').then(
+        (m) => m.DoctorsComponent
+      ),
+  },
+  {
+    path: 'doctor/:id',
+    loadComponent: () =>
+      import('./doctor-profile/doctor-profile.component').then(
+        (m) => m.DoctorProfileComponent
+      ),
+  },
+  {
     path: 'tabs',
     component: LayoutComponent,
     // loadComponent: () =>
@@ -164,9 +178,9 @@ export const routes: Routes = [
           import('./home/home.component').then((m) => m.HomeComponent),
       },
       {
-        path: 'tools',
+        path: 'insights',
         loadComponent: () =>
-          import('./tools/tools.component').then((m) => m.ToolsComponent),
+          import('./insights/insights.component').then((m) => m.InsightsComponent),
       },
       {
         path: 'social',
@@ -178,7 +192,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./consultation/consultation.component').then((m) => m.ConsultationComponent),
       },
-            {
+      {
         path: 'school',
         loadComponent: () =>
           import('./school/school.component').then((m) => m.SchoolComponent),

@@ -219,71 +219,89 @@
     My daily insights
   </div>
 
-  <div class="trackSymptomsSwiper tools-carousel mt-4">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide main-insights-card">
-        <div class="flex flex-col justify-around h-full ">
-          <div class="flex justify-start">
-            @if(todaySymptoms?.symptoms && todaySymptoms.symptoms.length > 0) {
-            @for (symptom of todaySymptoms.symptoms.slice(0, 3); track symptom.id; let i = $index) {
-            @if(symptom.icon) {
-            <ion-icon [name]="symptom.icon" [class]="i > 0 ? '-ml-2' : ''"
-              class="border-2 border-white bg-[#F8683A] rounded-full p-1 text-white drop-shadow-2xl  text-2xl"></ion-icon>
-            }
-            }
-            }
-
-            @if(todaySymptoms?.symptoms && todaySymptoms.symptoms.length > 3) {
-            <div class="w-6 h-6 border-2 border-white bg-white rounded-full flex items-center justify-center -ml-1"
-              (click)="openSymptomsTrackingForUpdate()">
-              <span class="text-black border-2 border-white bg-gray-200  rounded-full p-2 text-sm z-50">+{{
-                todaySymptoms.symptoms.length - 3 }}</span>
-            </div>
+  <!-- Track Symptoms Horizontal Scroll -->
+  <div class="symptoms-scroll-container mt-4">
+    <div class="symptoms-scroll">
+      
+      <!-- Main Symptoms Tracking Card -->
+      <div class="symptom-card main-symptom-card">
+        <div class="symptom-card-content">
+          <div class="symptoms-display">
+            @if(todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0) {
+              <div class="symptom-icons">
+                @for (symptom of todaySymptoms.symptoms.slice(0, 3); track symptom.id; let i = $index) {
+                  @if(symptom.icon) {
+                    <div class="symptom-icon-wrapper" [class.overlap]="i > 0">
+                      <ion-icon [name]="symptom.icon" class="symptom-icon"></ion-icon>
+                    </div>
+                  }
+                }
+                @if(todaySymptoms.symptoms && todaySymptoms.symptoms.length > 3) {
+                  <div class="symptom-more" (click)="openSymptomsTrackingForUpdate()">
+                    <span class="more-count">+{{ todaySymptoms.symptoms.length - 3 }}</span>
+                  </div>
+                }
+              </div>
             } @else {
-           <div class="text-black">
-            Log your symptoms
-           </div>
+              <div class="no-symptoms">
+                <span>Log your symptoms</span>
+              </div>
             }
           </div>
-          <div class="">
-            <!-- <ion-button fill="" class="add-button border-2 rounded-full " (click)="openSymptomsTracking()"> -->
-            <ion-icon name="add" class="add-icon bg-[#F8683A] rounded-full  p-2"
-              (click)="openSymptomsTracking()"></ion-icon>
+          <div class="add-symptom-action">
+            <div class="add-symptom-btn" (click)="openSymptomsTracking()">
+              <ion-icon name="add" class="add-icon"></ion-icon>
+            </div>
           </div>
         </div>
       </div>
-      <div class="swiper-slide">
-        <!-- Card 1: Learn the ups and downs of your cycle -->
-        <div class="rounded-2xl p-4 m-1 bg-gradient-to-t from-purple-600 to-pink-400 flex flex-col justify-between">
-          <div class="text-white font-bold text-md leading-tight">
+
+      <!-- Insight Cards -->
+      <div class="symptom-card insight-card">
+        <div class="insight-content">
+          <div class="insight-text">
             Learn the ups and downs of your cycle
           </div>
-
-        </div>
-      </div>
-      <div class="swiper-slide">
-        <!-- Card 1: Learn the ups and downs of your cycle -->
-        <div class="rounded-2xl p-4 m-1 bg-gradient-to-t from-purple-600 to-pink-400 flex flex-col justify-between">
-          <div class="text-white font-bold text-md leading-tight">
-            Learn the ups and downs of your cycle
+          <div class="insight-icon">
+            <ion-icon name="trending-up"></ion-icon>
           </div>
-
         </div>
       </div>
-      <div class="swiper-slide">
-        <!-- Card 1: Learn the ups and downs of your cycle -->
-        <div class="rounded-2xl p-4 m-1 bg-gradient-to-t from-purple-600 to-pink-400 flex flex-col justify-between">
-          <div class="text-white font-bold text-md leading-tight">
-            Learn the ups and downs of your cycle
+
+      <div class="symptom-card insight-card">
+        <div class="insight-content">
+          <div class="insight-text">
+            Track your mood patterns
           </div>
-
+          <div class="insight-icon">
+            <ion-icon name="happy"></ion-icon>
+          </div>
         </div>
       </div>
 
+      <div class="symptom-card insight-card">
+        <div class="insight-content">
+          <div class="insight-text">
+            Monitor your health journey
+          </div>
+          <div class="insight-icon">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+        </div>
+      </div>
 
+      <div class="symptom-card insight-card">
+        <div class="insight-content">
+          <div class="insight-text">
+            Understand your body better
+          </div>
+          <div class="insight-icon">
+            <ion-icon name="body"></ion-icon>
+          </div>
+        </div>
+      </div>
 
     </div>
-    <div class="swiper-pagination"></div>
   </div>
 
   }
@@ -358,104 +376,183 @@
     </div>
   </div>
 
-  <!-- Daily Tips Section -->
-  <div class="tips-section">
+  <!-- Modern Daily Tips Section -->
+  <div class="modern-tips-section">
     <div class="section-header">
-      <h2 class="section-title">{{ 'home.todaysWisdom' | translate }}</h2>
-      <p class="section-subtitle">{{ 'home.expertAdvice' | translate }}</p>
-    </div>
-    <div class="tip-card">
-      <div class="tip-header">
-        <div class="counselor-avatar">
-          <img src="assets/images/nurse.png" alt="Counselor" />
-        </div>
-        <div class="tip-info">
-          <h3 class="tip-title">{{ 'home.tipTitle' | translate }}</h3>
-          <p class="tip-author">{{ 'home.tipAuthor' | translate }}</p>
+      <div class="header-content">
+       
+        <div class="header-text">
+          <h2 class="section-title">{{ 'home.todaysWisdom' | translate }}</h2>
+          <p class="section-subtitle">{{ 'home.expertAdvice' | translate }}</p>
         </div>
       </div>
-      <div class="tip-content">
-        <p class="tip-text">
-          <strong>{{ 'home.tip1Title' | translate }}</strong> – {{ 'home.tip1Desc' | translate }}<br>
-          <strong>{{ 'home.tip2Title' | translate }}</strong> – {{ 'home.tip2Desc' | translate }}<br>
-          <strong>{{ 'home.tip3Title' | translate }}</strong> – {{ 'home.tip3Desc' | translate }}
-        </p>
-        <ion-button fill="outline" class="tip-action" (click)="viewCounselorSchedule()">
-          <ion-icon name="time-outline" slot="start"></ion-icon>
-          {{ 'home.viewSchedule' | translate }}
-        </ion-button>
+    </div>
+    
+    <div class="modern-tip-card">
+      <div class="card-background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+      </div>
+      
+      <div class="tip-main-content">
+        <div class="expert-profile">
+          <div class="expert-avatar-container">
+            <div class="avatar-ring"></div>
+            <img src="assets/images/nurse.png" alt="Counselor" class="expert-avatar" />
+            <div class="verified-badge">
+              <ion-icon name="checkmark"></ion-icon>
+            </div>
+          </div>
+          <div class="expert-details">
+            <h3 class="expert-name">{{ 'home.tipTitle' | translate }}</h3>
+            <p class="expert-title">{{ 'home.tipAuthor' | translate }}</p>
+            <div class="expert-rating">
+              <div class="stars">
+                <ion-icon name="star"></ion-icon>
+                <ion-icon name="star"></ion-icon>
+                <ion-icon name="star"></ion-icon>
+                <ion-icon name="star"></ion-icon>
+                <ion-icon name="star"></ion-icon>
+              </div>
+              <span class="rating-text">5.0 • Expert</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tips-content">
+          <div class="tip-item">
+            <div class="tip-icon">
+              <ion-icon name="nutrition-outline"></ion-icon>
+            </div>
+            <div class="tip-text">
+              <h4>{{ 'home.tip1Title' | translate }}</h4>
+              <p>{{ 'home.tip1Desc' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="tip-icon">
+              <ion-icon name="fitness-outline"></ion-icon>
+            </div>
+            <div class="tip-text">
+              <h4>{{ 'home.tip2Title' | translate }}</h4>
+              <p>{{ 'home.tip2Desc' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="tip-item">
+            <div class="tip-icon">
+              <ion-icon name="heart-outline"></ion-icon>
+            </div>
+            <div class="tip-text">
+              <h4>{{ 'home.tip3Title' | translate }}</h4>
+              <p>{{ 'home.tip3Desc' | translate }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip-actions">
+          <ion-button fill="solid" class="primary-action" (click)="viewCounselorSchedule()">
+            <ion-icon name="calendar-outline" slot="start"></ion-icon>
+            {{ 'home.viewSchedule' | translate }}
+          </ion-button>
+          <ion-button fill="outline" class="secondary-action" (click)="bookExpertConsultation()">
+            <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
+            Ask Question
+          </ion-button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Tools Section -->
+  <!-- Tools Horizontal Scroll Section -->
   <div class="tools-section">
     <div class="section-header">
       <h2 class="section-title">{{ 'home.healthTools' | translate }}</h2>
       <p class="section-subtitle">{{ 'home.essentialTools' | translate }}</p>
     </div>
-    <div class="tools-carousel">
-      <div class="swiper mySwiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide">
-            <div class="tool-card">
-              <div class="tool-icon">
-                <ion-icon name="calculator-outline"></ion-icon>
-              </div>
+    
+    <div class="tools-scroll-container">
+      <div class="tools-scroll">
+        
+        <div class="tool-card">
+          <div class="tool-content">
+            <div class="tool-icon">
+              <ion-icon name="calculator-outline"></ion-icon>
+            </div>
+            <div class="tool-info">
               <h3 class="tool-title">{{ 'home.toolFertility' | translate }}</h3>
               <p class="tool-description">{{ 'home.toolFertilityDesc' | translate }}</p>
-              <ion-button fill="solid" size="small" class="tool-action" (click)="openFertilityCalculator()">
-                {{ 'home.useTool' | translate }}
-              </ion-button>
             </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="tool-card">
-              <div class="tool-icon">
-                <ion-icon name="nutrition-outline"></ion-icon>
-              </div>
-              <h3 class="tool-title">{{ 'home.toolNutrition' | translate }}</h3>
-              <p class="tool-description">{{ 'home.toolNutritionDesc' | translate }}</p>
-              <ion-button fill="solid" size="small" class="tool-action" (click)="openNutritionTracker()">
-                {{ 'home.useTool' | translate }}
-              </ion-button>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="tool-card">
-              <div class="tool-icon">
-                <ion-icon name="fitness-outline"></ion-icon>
-              </div>
-              <h3 class="tool-title">{{ 'home.toolExercise' | translate }}</h3>
-              <p class="tool-description">{{ 'home.toolExerciseDesc' | translate }}</p>
-              <ion-button fill="solid" size="small" class="tool-action" (click)="openExercisePlanner()">
-                {{ 'home.useTool' | translate }}
-              </ion-button>
-            </div>
-          </div>
-
-          <div class="swiper-slide">
-            <div class="tool-card">
-              <div class="tool-icon">
-                <ion-icon name="medkit-outline"></ion-icon>
-              </div>
-              <h3 class="tool-title">{{ 'home.toolMedication' | translate }}</h3>
-              <p class="tool-description">{{ 'home.toolMedicationDesc' | translate }}</p>
-              <ion-button fill="solid" size="small" class="tool-action" (click)="openMedicationReminder()">
+            <div class="tool-action">
+              <ion-button fill="solid" size="small" class="use-tool-btn" (click)="openFertilityCalculator()">
+                <ion-icon name="play" slot="start"></ion-icon>
                 {{ 'home.useTool' | translate }}
               </ion-button>
             </div>
           </div>
         </div>
-        <div class="swiper-pagination"></div>
+
+        <div class="tool-card">
+          <div class="tool-content">
+            <div class="tool-icon nutrition">
+              <ion-icon name="nutrition-outline"></ion-icon>
+            </div>
+            <div class="tool-info">
+              <h3 class="tool-title">{{ 'home.toolNutrition' | translate }}</h3>
+              <p class="tool-description">{{ 'home.toolNutritionDesc' | translate }}</p>
+            </div>
+            <div class="tool-action">
+              <ion-button fill="solid" size="small" class="use-tool-btn" (click)="openNutritionTracker()">
+                <ion-icon name="play" slot="start"></ion-icon>
+                {{ 'home.useTool' | translate }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-content">
+            <div class="tool-icon fitness">
+              <ion-icon name="fitness-outline"></ion-icon>
+            </div>
+            <div class="tool-info">
+              <h3 class="tool-title">{{ 'home.toolExercise' | translate }}</h3>
+              <p class="tool-description">{{ 'home.toolExerciseDesc' | translate }}</p>
+            </div>
+            <div class="tool-action">
+              <ion-button fill="solid" size="small" class="use-tool-btn" (click)="openExercisePlanner()">
+                <ion-icon name="play" slot="start"></ion-icon>
+                {{ 'home.useTool' | translate }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool-card">
+          <div class="tool-content">
+            <div class="tool-icon medication">
+              <ion-icon name="medkit-outline"></ion-icon>
+            </div>
+            <div class="tool-info">
+              <h3 class="tool-title">{{ 'home.toolMedication' | translate }}</h3>
+              <p class="tool-description">{{ 'home.toolMedicationDesc' | translate }}</p>
+            </div>
+            <div class="tool-action">
+              <ion-button fill="solid" size="small" class="use-tool-btn" (click)="openMedicationReminder()">
+                <ion-icon name="play" slot="start"></ion-icon>
+                {{ 'home.useTool' | translate }}
+              </ion-button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
   <!-- Expert Profile Section -->
-  <div class="expert-section">
+  <!-- <div class="expert-section">
     <div class="section-header">
       <h2 class="section-title">{{ 'home.meetExperts' | translate }}</h2>
       <p class="section-subtitle">{{ 'home.specializedCare' | translate }}</p>
@@ -485,7 +582,7 @@
         </ion-button>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- Upcoming Appointments Section -->
   <div class="appointments-section">

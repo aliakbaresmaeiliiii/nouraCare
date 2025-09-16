@@ -1,0 +1,237 @@
+<ion-content class="insights-content">
+
+  <!-- Premium Unlock Animation Overlay -->
+  <div class="unlock-animation-overlay" *ngIf="showUnlockAnimation">
+    <div class="unlock-animation">
+      <div class="unlock-particles">
+        @for (item of [1,2,3,4,5,6,7,8,9,10,11,12]; track $index) {
+          <div class="particle"></div>
+        }
+      </div>
+      <div class="unlock-icon">
+        <ion-icon name="lock-open" class="unlock-icon-main"></ion-icon>
+      </div>
+      <div class="unlock-text">
+        <h2>Premium Unlocked!</h2>
+        <p>Access to 1000+ expert articles</p>
+      </div>
+      <div class="unlock-success">
+        <ion-icon name="checkmark-circle" class="success-check"></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Banner -->
+  <div class="premium-banner" *ngIf="premiumBanner.isVisible && !showUnlockAnimation">
+    <div class="banner-content">
+      <div class="banner-icon">
+        <ion-icon [name]="isPremiumUnlocked ? 'lock-open' : 'lock-closed'"></ion-icon>
+      </div>
+      <div class="banner-text">
+        <p>{{ isPremiumUnlocked ? 'Premium Active - All articles unlocked!' : premiumBanner.title }}</p>
+      </div>
+      <div class="banner-toggle">
+        <ion-toggle [checked]="isPremiumUnlocked" (ionChange)="togglePremium()"></ion-toggle>
+      </div>
+    </div>
+  </div>
+
+  <!-- Premium Success Banner -->
+  <div class="premium-success-banner" *ngIf="isPremiumUnlocked && !premiumBanner.isVisible">
+    <div class="success-content">
+      <div class="success-icon">
+        <ion-icon name="diamond"></ion-icon>
+      </div>
+      <div class="success-text">
+        <h3>Premium Active</h3>
+        <p>Enjoy unlimited access to expert content</p>
+      </div>
+      <div class="success-badge">
+        <span>PRO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <div class="search-container">
+      <ion-searchbar placeholder="Search" class="insights-search">
+      </ion-searchbar>
+      <div class="search-icons">
+        <ion-button fill="clear" class="bookmark-btn">
+          <ion-icon name="bookmark-outline"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" class="notification-btn">
+          <ion-icon name="notifications-outline"></ion-icon>
+          <div class="notification-badge">1</div>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nutrition need to know -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Nutrition need to know</h2>
+    </div>
+
+    <div class="articles-scroll">
+      <div class="article-card" *ngFor="let article of nutritionNeedToKnow" (click)="openArticle(article)"
+        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+        [class.unlocked]="isPremiumUnlocked">
+        <div class="card-image">
+          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <!-- Premium Lock Overlay -->
+          <div class="premium-lock" *ngIf="article.isPremium && !isPremiumUnlocked">
+            <ion-icon name="lock-closed"></ion-icon>
+          </div>
+          <!-- Premium Unlocked Badge -->
+          <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
+            <ion-icon name="diamond"></ion-icon>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">{{ article.title }}</h3>
+          <div class="premium-indicator" *ngIf="article.isPremium">
+            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
+              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All about your baby -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">All about your baby</h2>
+    </div>
+
+    <div class="articles-scroll">
+      <div class="article-card" *ngFor="let article of allAboutYourBaby" (click)="openArticle(article)"
+        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+        [class.unlocked]="isPremiumUnlocked">
+        <div class="card-image">
+          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <!-- Premium Lock Overlay -->
+          <div class="premium-lock" *ngIf="article.isPremium && !isPremiumUnlocked">
+            <ion-icon name="lock-closed"></ion-icon>
+          </div>
+          <!-- Premium Unlocked Badge -->
+          <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
+            <ion-icon name="diamond"></ion-icon>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">{{ article.title }}</h3>
+          <div class="premium-indicator" *ngIf="article.isPremium">
+            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
+              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Most popular in Pregnancy -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Most popular in Pregnancy</h2>
+    </div>
+
+    <div class="articles-scroll">
+      <div class="article-card" *ngFor="let article of pregnancyPopular" (click)="openArticle(article)"
+        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+        [class.unlocked]="isPremiumUnlocked">
+        <div class="card-image">
+          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <!-- Premium Lock Overlay -->
+          <div class="premium-lock" *ngIf="article.isPremium && !isPremiumUnlocked">
+            <ion-icon name="lock-closed"></ion-icon>
+          </div>
+          <!-- Premium Unlocked Badge -->
+          <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
+            <ion-icon name="diamond"></ion-icon>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">{{ article.title }}</h3>
+          <div class="premium-indicator" *ngIf="article.isPremium">
+            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
+              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pregnancy sex and pleasure -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Pregnancy sex and pleasure</h2>
+    </div>
+
+    <div class="articles-scroll">
+      <div class="article-card" *ngFor="let article of pregnancySexPleasure" (click)="openArticle(article)"
+        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+        [class.unlocked]="isPremiumUnlocked">
+        <div class="card-image">
+          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <!-- Premium Lock Overlay -->
+          <div class="premium-lock" *ngIf="article.isPremium && !isPremiumUnlocked">
+            <ion-icon name="lock-closed"></ion-icon>
+          </div>
+          <!-- Premium Unlocked Badge -->
+          <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
+            <ion-icon name="diamond"></ion-icon>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">{{ article.title }}</h3>
+          <div class="premium-indicator" *ngIf="article.isPremium">
+            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
+              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pregnancy body signs explained -->
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Pregnancy body signs explained</h2>
+    </div>
+
+    <div class="articles-scroll">
+      <div class="article-card" *ngFor="let article of pregnancyBodySigns" (click)="openArticle(article)"
+        [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
+        [class.unlocked]="isPremiumUnlocked">
+        <div class="card-image">
+          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <!-- Premium Lock Overlay -->
+          <div class="premium-lock" *ngIf="article.isPremium && !isPremiumUnlocked">
+            <ion-icon name="lock-closed"></ion-icon>
+          </div>
+          <!-- Premium Unlocked Badge -->
+          <div class="premium-unlocked" *ngIf="article.isPremium && isPremiumUnlocked">
+            <ion-icon name="diamond"></ion-icon>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">{{ article.title }}</h3>
+          <div class="premium-indicator" *ngIf="article.isPremium">
+            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
+              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ion-content>

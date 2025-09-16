@@ -1,0 +1,727 @@
+// Insights Page Styles
+.insights-content {
+  --background: #1a1a1a;
+  background: #1a1a1a;
+  color: white;
+  padding: 0;
+}
+
+// Premium Unlock Animation Overlay
+.unlock-animation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease-out;
+
+  .unlock-animation {
+    text-align: center;
+    position: relative;
+    padding: 40px;
+
+    .unlock-particles {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 200px;
+      height: 200px;
+
+      .particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        border-radius: 50%;
+        animation: explode 2s ease-out forwards;
+
+        &:nth-child(1) { animation-delay: 0.1s; transform: rotate(0deg); }
+        &:nth-child(2) { animation-delay: 0.15s; transform: rotate(30deg); }
+        &:nth-child(3) { animation-delay: 0.2s; transform: rotate(60deg); }
+        &:nth-child(4) { animation-delay: 0.25s; transform: rotate(90deg); }
+        &:nth-child(5) { animation-delay: 0.3s; transform: rotate(120deg); }
+        &:nth-child(6) { animation-delay: 0.35s; transform: rotate(150deg); }
+        &:nth-child(7) { animation-delay: 0.4s; transform: rotate(180deg); }
+        &:nth-child(8) { animation-delay: 0.45s; transform: rotate(210deg); }
+        &:nth-child(9) { animation-delay: 0.5s; transform: rotate(240deg); }
+        &:nth-child(10) { animation-delay: 0.55s; transform: rotate(270deg); }
+        &:nth-child(11) { animation-delay: 0.6s; transform: rotate(300deg); }
+        &:nth-child(12) { animation-delay: 0.65s; transform: rotate(330deg); }
+      }
+    }
+
+    .unlock-icon {
+      margin-bottom: 24px;
+      animation: unlockBounce 1s ease-out;
+
+      .unlock-icon-main {
+        font-size: 80px;
+        color: #ffd700;
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+      }
+    }
+
+    .unlock-text {
+      margin-bottom: 32px;
+      animation: slideUp 1s ease-out 0.5s both;
+
+      h2 {
+        font-size: 32px;
+        font-weight: 800;
+        color: white;
+        margin: 0 0 8px 0;
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      p {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+      }
+    }
+
+    .unlock-success {
+      animation: successPop 0.8s ease-out 1.2s both;
+
+      .success-check {
+        font-size: 60px;
+        color: #10b981;
+        filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4));
+      }
+    }
+  }
+}
+
+// Premium Banner
+.premium-banner {
+  background: linear-gradient(135deg, #8b5a9f 0%, #6b4c93 100%);
+  margin: 16px;
+  border-radius: 16px;
+  padding: 16px 20px;
+  position: relative;
+  transition: all 0.3s ease;
+  
+  .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    .banner-icon {
+      flex-shrink: 0;
+      
+      ion-icon {
+        font-size: 24px;
+        color: white;
+        transition: all 0.3s ease;
+      }
+    }
+    
+    .banner-text {
+      flex: 1;
+      
+      p {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: white;
+        line-height: 1.3;
+        transition: all 0.3s ease;
+      }
+    }
+    
+    .banner-toggle {
+      flex-shrink: 0;
+      
+      ion-toggle {
+        --background: rgba(255, 255, 255, 0.3);
+        --background-checked: white;
+        --handle-background: white;
+        --handle-background-checked: #8b5a9f;
+      }
+    }
+  }
+}
+
+// Premium Success Banner
+.premium-success-banner {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  margin: 16px;
+  border-radius: 16px;
+  padding: 50px 20px;
+  position: relative;
+  animation: slideDown 0.5s ease-out;
+  
+  .success-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    
+    .success-icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      ion-icon {
+        font-size: 24px;
+        color: white;
+        animation: sparkle 2s ease-in-out infinite;
+      }
+    }
+    
+    .success-text {
+      flex: 1;
+      
+      h3 {
+        margin: 0 0 4px 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: white;
+      }
+      
+      p {
+        margin: 0;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+    
+    .success-badge {
+      flex-shrink: 0;
+      
+      span {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}
+
+// Search Section
+.search-section {
+  padding: 0 16px 16px;
+  
+  .search-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    .insights-search {
+      flex: 1;
+      --background: rgba(255, 255, 255, 0.1);
+      --color: white;
+      --placeholder-color: rgba(255, 255, 255, 0.6);
+      --border-radius: 12px;
+      --box-shadow: none;
+      
+      .searchbar-input {
+        font-size: 16px;
+      }
+    }
+    
+    .search-icons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .bookmark-btn,
+      .notification-btn {
+        --color: white;
+        --background: transparent;
+        --border-radius: 12px;
+        width: 44px;
+        height: 44px;
+        position: relative;
+        
+        ion-icon {
+          font-size: 24px;
+        }
+      }
+      
+      .notification-btn {
+        .notification-badge {
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: #ff4757;
+          color: white;
+          border-radius: 50%;
+          width: 18px;
+          height: 18px;
+          font-size: 12px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// Section Styles
+.section {
+  margin-bottom: 32px;
+  
+  .section-header {
+    padding: 0 16px 16px;
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin: 0;
+      line-height: 1.2;
+    }
+  }
+  
+  .articles-scroll {
+    display: flex;
+    gap: 16px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    
+    // Hide scrollbar
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+// Article Cards
+.article-card {
+  flex-shrink: 0;
+  width: 280px;
+  height: 200px;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  // Ensure minimum width for last card
+  &:last-child {
+    margin-right: 16px;
+  }
+
+  // Locked state
+  &.locked {
+    opacity: 0.6;
+    
+    .card-image {
+      filter: grayscale(50%) blur(1px);
+      
+      img {
+        transform: scale(1.1);
+      }
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      
+      .card-image img {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // Unlocked state with animation
+  &.unlocked {
+    animation: unlockGlow 0.6s ease-out;
+    
+    .premium-unlocked {
+      animation: diamondSparkle 1s ease-out;
+    }
+  }
+  
+  .card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.3s ease;
+    }
+
+    // Premium Lock Overlay
+    .premium-lock {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      
+      ion-icon {
+        font-size: 24px;
+        color: white;
+        animation: lockPulse 2s ease-in-out infinite;
+      }
+    }
+
+    // Premium Unlocked Badge
+    .premium-unlocked {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(45deg, #ffd700, #ffed4e);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+      
+      ion-icon {
+        font-size: 16px;
+        color: white;
+      }
+    }
+  }
+  
+  &:hover .card-image img {
+    transform: scale(1.05);
+  }
+  
+  .card-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      margin: 0 0 8px 0;
+      line-height: 1.3;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .premium-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .premium-badge {
+        background: linear-gradient(45deg, #8b5a9f, #6b4c93);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+
+        &.unlocked {
+          background: linear-gradient(45deg, #ffd700, #ffed4e);
+          color: #1a1a1a;
+          animation: premiumGlow 0.6s ease-out;
+        }
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .premium-banner {
+    margin: 12px;
+    padding: 14px 16px;
+    
+    .banner-content {
+      gap: 12px;
+      
+      .banner-text p {
+        font-size: 15px;
+      }
+      
+      .banner-icon ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+  
+  .search-section {
+    padding: 0 12px 12px;
+    
+    .search-container {
+      gap: 8px;
+      
+      .search-icons {
+        gap: 4px;
+        
+        .bookmark-btn,
+        .notification-btn {
+          width: 40px;
+          height: 40px;
+          
+          ion-icon {
+            font-size: 20px;
+          }
+        }
+      }
+    }
+  }
+  
+  .section {
+    margin-bottom: 28px;
+    
+    .section-header {
+      padding: 0 12px 12px;
+      
+      .section-title {
+        font-size: 18px;
+      }
+    }
+    
+    .articles-scroll {
+      gap: 12px;
+      padding: 0 12px;
+    }
+  }
+  
+  .article-card {
+    width: 240px;
+    height: 180px;
+    
+    &:last-child {
+      margin-right: 12px;
+    }
+    
+    .card-content {
+      padding: 16px;
+      
+      .card-title {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+// Extra small screens
+@media (max-width: 480px) {
+  .premium-banner {
+    margin-top: 5rem;
+
+    .banner-content {
+      .banner-text p {
+        font-size: 14px;
+      }
+    }
+  }
+  
+  .article-card {
+    width: 200px;
+    height: 160px;
+    
+    .card-content {
+      padding: 14px;
+      
+      .card-title {
+        font-size: 15px;
+      }
+    }
+  }
+}
+
+// Premium Unlock Animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes explode {
+  0% {
+    transform: translateX(0) translateY(0) scale(0);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100px) translateY(0) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes unlockBounce {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes successPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+  50% { 
+    transform: scale(1.1) rotate(180deg);
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes lockPulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes unlockGlow {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+@keyframes diamondSparkle {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes premiumGlow {
+  0% {
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  }
+}
+
+// Animation for cards appearing
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.article-card {
+  animation: slideInFromRight 0.6s ease-out;
+}
+
+// Staggered animation
+.article-card:nth-child(1) { animation-delay: 0.1s; }
+.article-card:nth-child(2) { animation-delay: 0.2s; }
+.article-card:nth-child(3) { animation-delay: 0.3s; }
+.article-card:nth-child(4) { animation-delay: 0.4s; }
+.article-card:nth-child(5) { animation-delay: 0.5s; }

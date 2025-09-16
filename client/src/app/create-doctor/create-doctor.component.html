@@ -1,0 +1,254 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Create Doctor Profile</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="resetForm()" fill="clear">
+        <ion-icon name="refresh"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="create-doctor-content">
+  <form [formGroup]="doctorForm" (ngSubmit)="onSubmit()">
+    
+    <!-- Header Section -->
+    <div class="form-header">
+      <div class="header-icon">
+        <ion-icon name="medical" color="primary"></ion-icon>
+      </div>
+      <h2>Add New Doctor</h2>
+      <p>Create a comprehensive doctor profile for patient consultations</p>
+    </div>
+
+    <!-- Basic Information Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <ion-icon name="person" color="primary"></ion-icon>
+        <h3>Basic Information</h3>
+      </div>
+
+      <!-- Full Name -->
+      <ion-item [class.error]="hasFieldError('fullName')">
+        <ion-label position="stacked">Full Name *</ion-label>
+        <ion-input
+          formControlName="fullName"
+          placeholder="Dr. Sarah Johnson"
+          type="text"
+          maxlength="100">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasFieldError('fullName')">
+        {{ getFieldError('fullName') }}
+      </div>
+
+      <!-- Specialty -->
+      <ion-item [class.error]="hasFieldError('specialty')">
+        <ion-label position="stacked">Specialty *</ion-label>
+        <ion-select
+          formControlName="specialty"
+          placeholder="Select specialty"
+          (ionChange)="onSpecialtyChange($event)">
+          <ion-select-option *ngFor="let specialty of specialties" [value]="specialty">
+            {{ specialty }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div class="error-message" *ngIf="hasFieldError('specialty')">
+        {{ getFieldError('specialty') }}
+      </div>
+
+      <!-- Experience Years -->
+      <ion-item [class.error]="hasFieldError('experienceYears')">
+        <ion-label position="stacked">Years of Experience *</ion-label>
+        <ion-input
+          formControlName="experienceYears"
+          placeholder="10"
+          type="number"
+          min="0"
+          max="50">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasFieldError('experienceYears')">
+        {{ getFieldError('experienceYears') }}
+      </div>
+
+      <!-- About -->
+      <ion-item [class.error]="hasFieldError('about')">
+        <ion-label position="stacked">About Doctor *</ion-label>
+        <ion-textarea
+          formControlName="about"
+          placeholder="Describe the doctor's expertise, experience, and approach to patient care..."
+          rows="4"
+          maxlength="1000">
+        </ion-textarea>
+      </ion-item>
+      <div class="error-message" *ngIf="hasFieldError('about')">
+        {{ getFieldError('about') }}
+      </div>
+    </div>
+
+    <!-- Professional Details Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <ion-icon name="briefcase" color="secondary"></ion-icon>
+        <h3>Professional Details</h3>
+      </div>
+
+      <!-- Rating -->
+      <ion-item [class.error]="hasFieldError('rating')">
+        <ion-label position="stacked">Rating (Optional)</ion-label>
+        <ion-input
+          formControlName="rating"
+          placeholder="4.5"
+          type="number"
+          min="0"
+          max="5"
+          step="0.1">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasFieldError('rating')">
+        {{ getFieldError('rating') }}
+      </div>
+
+      <!-- Profile Image URL -->
+      <ion-item>
+        <ion-label position="stacked">Profile Image URL (Optional)</ion-label>
+        <ion-input
+          formControlName="profileImageUrl"
+          placeholder="https://example.com/doctor-photo.jpg"
+          type="url">
+        </ion-input>
+      </ion-item>
+
+      <!-- Clinic Name -->
+      <ion-item>
+        <ion-label position="stacked">Clinic Name (Optional)</ion-label>
+        <ion-input
+          formControlName="clinicName"
+          placeholder="Women's Health Center"
+          type="text"
+          maxlength="200">
+        </ion-input>
+      </ion-item>
+
+      <!-- Location -->
+      <ion-item>
+        <ion-label position="stacked">Location (Optional)</ion-label>
+        <ion-input
+          formControlName="location"
+          placeholder="New York, NY"
+          type="text"
+          maxlength="200">
+        </ion-input>
+      </ion-item>
+    </div>
+
+    <!-- Contact Information Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <ion-icon name="call" color="tertiary"></ion-icon>
+        <h3>Contact Information</h3>
+      </div>
+
+      <!-- Contact Email -->
+      <ion-item [class.error]="hasFieldError('contactEmail')">
+        <ion-label position="stacked">Email (Optional)</ion-label>
+        <ion-input
+          formControlName="contactEmail"
+          placeholder="doctor@clinic.com"
+          type="email">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasFieldError('contactEmail')">
+        {{ getFieldError('contactEmail') }}
+      </div>
+
+      <!-- Contact Phone -->
+      <ion-item>
+        <ion-label position="stacked">Phone (Optional)</ion-label>
+        <ion-input
+          formControlName="contactPhone"
+          placeholder="+1 (555) 123-4567"
+          type="tel">
+        </ion-input>
+      </ion-item>
+    </div>
+
+    <!-- Consultation Details Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <ion-icon name="videocam" color="success"></ion-icon>
+        <h3>Consultation Details</h3>
+      </div>
+
+      <!-- Consultation Type -->
+      <ion-item [class.error]="hasFieldError('consultationType')">
+        <ion-label position="stacked">Consultation Type *</ion-label>
+        <ion-select
+          formControlName="consultationType"
+          placeholder="Select consultation type"
+          (ionChange)="onConsultationTypeChange($event)">
+          <ion-select-option *ngFor="let type of consultationTypes" [value]="type.value">
+            {{ type.label }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+      <div class="error-message" *ngIf="hasFieldError('consultationType')">
+        {{ getFieldError('consultationType') }}
+      </div>
+
+      <!-- Fee -->
+      <ion-item [class.error]="hasFieldError('fee')">
+        <ion-label position="stacked">Consultation Fee (Optional)</ion-label>
+        <ion-input
+          formControlName="fee"
+          placeholder="200"
+          type="number"
+          min="0">
+        </ion-input>
+      </ion-item>
+      <div class="error-message" *ngIf="hasFieldError('fee')">
+        {{ getFieldError('fee') }}
+      </div>
+    </div>
+
+    <!-- Form Summary -->
+    <div class="form-summary" *ngIf="doctorForm.valid">
+      <div class="summary-card">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <h4>Ready to Create Profile</h4>
+        <p>All required information has been provided. Click "Create Doctor" to add this profile to the consultation directory.</p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="form-actions">
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="!doctorForm.valid || isLoading"
+        color="primary">
+        <ion-icon name="medical" slot="start"></ion-icon>
+        <span *ngIf="!isLoading">Create Doctor</span>
+        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="medium"
+        (click)="resetForm()"
+        [disabled]="isLoading">
+        <ion-icon name="refresh" slot="start"></ion-icon>
+        Reset Form
+      </ion-button>
+    </div>
+
+  </form>
+</ion-content>

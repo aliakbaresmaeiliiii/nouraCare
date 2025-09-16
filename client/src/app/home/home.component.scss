@@ -877,70 +877,387 @@
   }
 }
 
-// Tips Section
-.tips-section {
+// Modern Tips Section
+.modern-tips-section {
   padding: 0 1rem 2rem;
 
-  .tip-card {
-    background: white;
-    border-radius: 20px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    margin: 0 0.5rem;
-
-    .tip-header {
+  .section-header {
+    .header-content {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 0 8px;
 
-      .counselor-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 3px solid #e2e8f0;
+      .header-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
 
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
+        ion-icon {
+          font-size: 24px;
+          color: white;
         }
       }
 
-      .tip-info {
+      .header-text {
         flex: 1;
 
-        .tip-title {
-          font-size: 1.1rem;
-          font-weight: 600;
+        .section-title {
+          font-size: 1.5rem;
+          font-weight: 700;
           color: #1e293b;
-          margin: 0 0 0.25rem 0;
-          line-height: 1.3;
+          margin: 0 0 4px 0;
         }
 
-        .tip-author {
+        .section-subtitle {
           font-size: 0.9rem;
           color: #64748b;
           margin: 0;
-          font-style: italic;
+        }
+      }
+    }
+  }
+
+  .modern-tip-card {
+    position: relative;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 24px;
+    overflow: hidden;
+    margin: 0 0.5rem;
+    box-shadow: 0 16px 40px rgba(102, 126, 234, 0.2);
+
+    .card-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      .gradient-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(40px);
+        opacity: 0.3;
+        animation: float 8s ease-in-out infinite;
+
+        &.orb-1 {
+          width: 120px;
+          height: 120px;
+          background: linear-gradient(45deg, #fbbf24, #f59e0b);
+          top: -30px;
+          right: -30px;
+          animation-delay: 0s;
+        }
+
+        &.orb-2 {
+          width: 80px;
+          height: 80px;
+          background: linear-gradient(45deg, #10b981, #059669);
+          bottom: -20px;
+          left: -20px;
+          animation-delay: 4s;
         }
       }
     }
 
-    .tip-content {
-      .tip-text {
-        font-size: 0.95rem;
-        color: #475569;
-        line-height: 1.6;
-        margin: 0 0 1.5rem 0;
+    .tip-main-content {
+      position: relative;
+      z-index: 2;
+      padding: 32px 24px;
+      color: white;
+
+      .expert-profile {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 32px;
+
+        .expert-avatar-container {
+          position: relative;
+
+          .avatar-ring {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            width: 76px;
+            height: 76px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #fbbf24, #f59e0b, #10b981) border-box;
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            animation: rotate 4s linear infinite;
+          }
+
+          .expert-avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            object-fit: cover;
+            position: relative;
+            z-index: 2;
+          }
+
+          .verified-badge {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 24px;
+            height: 24px;
+            background: #10b981;
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+
+            ion-icon {
+              font-size: 12px;
+              color: white;
+            }
+          }
+        }
+
+        .expert-details {
+          flex: 1;
+
+          .expert-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 4px 0;
+          }
+
+          .expert-title {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 0 8px 0;
+          }
+
+          .expert-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .stars {
+              display: flex;
+              gap: 2px;
+
+              ion-icon {
+                font-size: 14px;
+                color: #fbbf24;
+              }
+            }
+
+            .rating-text {
+              font-size: 0.8rem;
+              color: rgba(255, 255, 255, 0.7);
+              font-weight: 500;
+            }
+          }
+        }
       }
 
-      .tip-action {
-        --color: #667eea;
-        --border-color: #667eea;
-        --border-radius: 12px;
-        font-weight: 500;
+      .tips-content {
+        margin-bottom: 32px;
+
+        .tip-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+          margin-bottom: 24px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+
+          .tip-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+
+            ion-icon {
+              font-size: 20px;
+              color: white;
+            }
+          }
+
+          .tip-text {
+            flex: 1;
+
+            h4 {
+              font-size: 1rem;
+              font-weight: 600;
+              color: white;
+              margin: 0 0 6px 0;
+              line-height: 1.3;
+            }
+
+            p {
+              font-size: 0.9rem;
+              color: rgba(255, 255, 255, 0.8);
+              margin: 0;
+              line-height: 1.4;
+            }
+          }
+        }
+      }
+
+      .tip-actions {
+        display: flex;
+        gap: 12px;
+
+        .primary-action {
+          --background: rgba(255, 255, 255, 0.2);
+          --color: white;
+          --border-radius: 16px;
+          --padding-top: 16px;
+          --padding-bottom: 16px;
+          flex: 1;
+          font-weight: 600;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+
+          &:hover {
+            --background: rgba(255, 255, 255, 0.25);
+          }
+        }
+
+        .secondary-action {
+          --border-color: rgba(255, 255, 255, 0.4);
+          --color: white;
+          --border-radius: 16px;
+          --padding-top: 16px;
+          --padding-bottom: 16px;
+          flex: 1;
+          font-weight: 600;
+
+          &:hover {
+            --background: rgba(255, 255, 255, 0.1);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-20px) rotate(120deg); }
+  66% { transform: translateY(-10px) rotate(240deg); }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .modern-tips-section {
+    padding: 0 0.5rem 2rem;
+
+    .section-header .header-content {
+      gap: 12px;
+      margin-bottom: 20px;
+
+      .header-icon {
+        width: 40px;
+        height: 40px;
+
+        ion-icon {
+          font-size: 20px;
+        }
+      }
+
+      .header-text .section-title {
+        font-size: 1.3rem;
+      }
+    }
+
+    .modern-tip-card {
+      .tip-main-content {
+        padding: 24px 20px;
+
+        .expert-profile {
+          gap: 16px;
+          margin-bottom: 24px;
+
+          .expert-avatar-container {
+            .avatar-ring {
+              width: 64px;
+              height: 64px;
+              top: -3px;
+              left: -3px;
+            }
+
+            .expert-avatar {
+              width: 58px;
+              height: 58px;
+            }
+
+            .verified-badge {
+              width: 20px;
+              height: 20px;
+
+              ion-icon {
+                font-size: 10px;
+              }
+            }
+          }
+
+          .expert-details .expert-name {
+            font-size: 1.1rem;
+          }
+        }
+
+        .tips-content {
+          margin-bottom: 24px;
+
+          .tip-item {
+            gap: 12px;
+            margin-bottom: 20px;
+
+            .tip-icon {
+              width: 36px;
+              height: 36px;
+
+              ion-icon {
+                font-size: 16px;
+              }
+            }
+
+            .tip-text {
+              h4 {
+                font-size: 0.9rem;
+              }
+
+              p {
+                font-size: 0.8rem;
+              }
+            }
+          }
+        }
+
+        .tip-actions {
+          flex-direction: column;
+          gap: 8px;
+        }
       }
     }
   }
@@ -950,115 +1267,147 @@
 .tools-section {
   padding: 0 1rem 2rem;
 
-  .tools-carousel {
-    margin: 0;
-    overflow: hidden;
+  .tools-scroll-container {
+    padding: 0 16px;
+    margin-top: 16px;
+  }
 
-    .swiper {
-      padding: 0 0 3rem 0;
-      overflow: visible;
-
-      .swiper-wrapper {
-        align-items: stretch;
-      }
-
-      .swiper-slide {
-        height: auto;
-        display: flex;
-      }
+  .tools-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    
+    // Hide scrollbar
+    &::-webkit-scrollbar {
+      display: none;
     }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
-    .tool-card {
-      background: white;
-      border-radius: 20px;
-      padding: 1.5rem;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  .tool-card {
+    flex-shrink: 0;
+    width: 300px;
+    height: 180px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    &:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    &:last-child {
+      margin-right: 16px;
+    }
+    
+    .tool-content {
+      padding: 24px;
       height: 100%;
-      min-height: 200px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      border: 1px solid rgba(0, 0, 0, 0.05);
-
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-      }
-
+      
       .tool-icon {
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 1rem;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
+        
+        &.nutrition {
+          background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+        
+        &.fitness {
+          background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+        
+        &.medication {
+          background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+        
         ion-icon {
-          font-size: 28px;
+          font-size: 24px;
           color: white;
         }
       }
-
-      .tool-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1e293b;
-        margin: 0 0 0.75rem 0;
-        line-height: 1.3;
+      
+      .tool-info {
+        flex: 1;
+        text-align: left;
+        
+        .tool-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #2c3e50;
+          margin: 0 0 8px 0;
+          line-height: 1.3;
+        }
+        
+        .tool-description {
+          font-size: 13px;
+          color: #666;
+          margin: 0;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
       }
-
-      .tool-description {
-        font-size: 0.9rem;
-        color: #64748b;
-        margin: 0 0 1.5rem 0;
-        line-height: 1.5;
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
+      
       .tool-action {
-        --background: #10b981;
-        --color: white;
-        --border-radius: 12px;
-        --padding-start: 1rem;
-        --padding-end: 1rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-        height: 40px;
-        transition: all 0.3s ease;
-
-        &:hover {
-          --background: #059669;
-          transform: scale(1.05);
+        margin-top: 16px;
+        
+        .use-tool-btn {
+          --background: linear-gradient(45deg, #667eea, #764ba2);
+          --color: white;
+          --border-radius: 12px;
+          --padding-top: 12px;
+          --padding-bottom: 12px;
+          font-weight: 600;
+          font-size: 13px;
+          width: 100%;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          
+          &:hover {
+            --background: linear-gradient(45deg, #5a6fd8, #6a42a0);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+          }
+          
+          ion-icon {
+            font-size: 14px;
+          }
         }
       }
     }
+  }
 
-    // Swiper pagination styling
-    .swiper-pagination {
-      bottom: 0;
+  // Different gradients for each tool card
+  .tool-card:nth-child(2) .tool-content .tool-icon {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+  }
 
-      .swiper-pagination-bullet {
-        background: #cbd5e1;
-        opacity: 1;
-        width: 8px;
-        height: 8px;
-        margin: 0 4px;
-        transition: all 0.3s ease;
+  .tool-card:nth-child(3) .tool-content .tool-icon {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+  }
 
-        &.swiper-pagination-bullet-active {
-          background: #10b981;
-          transform: scale(1.2);
-        }
-      }
-    }
+  .tool-card:nth-child(4) .tool-content .tool-icon {
+    background: linear-gradient(135deg, #fa709a, #fee140);
   }
 
   // Responsive adjustments
@@ -2394,27 +2743,271 @@ ion-fab {
   }
 }
 
-.trackSymptomsSwiper {
-  width: 100%;
-  height: 160px;
-
+// Symptoms Horizontal Scroll Styles
+.symptoms-scroll-container {
+  padding: 0 16px;
+  margin-top: 16px;
 }
-.swiper-slide {
-  text-align: center;
-  font-size: 18px;
-  background: white;
+
+.symptoms-scroll {
   display: flex;
-  border: 1px solid #F8683A;
-  border-radius: 10px;
-  justify-content: center;
-  margin-left: 10px;
-  margin-right: 0px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+  
+  // Hide scrollbar
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.swiper-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.symptom-card {
+  flex-shrink: 0;
+  width: 280px;
+  height: 140px;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:last-child {
+    margin-right: 16px;
+  }
+}
+
+// Main Symptom Tracking Card
+.main-symptom-card {
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  box-shadow: 0 8px 24px rgba(255, 107, 107, 0.3);
+  
+  .symptom-card-content {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+  }
+  
+  .symptoms-display {
+    .symptom-icons {
+      display: flex;
+      align-items: center;
+      
+      .symptom-icon-wrapper {
+        position: relative;
+        
+        &.overlap {
+          margin-left: -8px;
+        }
+        
+        .symptom-icon {
+          width: 36px;
+          height: 36px;
+          background: #F8683A;
+          border: 2px solid white;
+          border-radius: 50%;
+          padding: 6px;
+          color: white;
+          font-size: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+      }
+      
+      .symptom-more {
+        width: 32px;
+        height: 32px;
+        background: white;
+        border: 2px solid white;
+        border-radius: 50%;
+        margin-left: -4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        
+        .more-count {
+          background: #f3f4f6;
+          color: #374151;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 600;
+        }
+      }
+    }
+    
+    .no-symptoms {
+      span {
+        color: white;
+        font-size: 16px;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .add-symptom-action {
+    display: flex;
+    justify-content: flex-end;
+    
+    .add-symptom-btn {
+      .add-icon {
+        background: #F8683A;
+        color: white;
+        border-radius: 50%;
+        padding: 8px;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(248, 104, 58, 0.4);
+        
+        &:hover {
+          transform: scale(1.1);
+          box-shadow: 0 6px 16px rgba(248, 104, 58, 0.5);
+        }
+      }
+    }
+  }
+}
+
+// Insight Cards
+.insight-card {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+  
+  .insight-content {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+    
+    .insight-text {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+    
+    .insight-icon {
+      display: flex;
+      justify-content: flex-end;
+      
+      ion-icon {
+        font-size: 28px;
+        opacity: 0.8;
+      }
+    }
+  }
+  
+  // Different gradient for each card
+  &:nth-child(3) {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    box-shadow: 0 8px 24px rgba(240, 147, 251, 0.3);
+  }
+  
+  &:nth-child(4) {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    box-shadow: 0 8px 24px rgba(79, 172, 254, 0.3);
+  }
+  
+  &:nth-child(5) {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    box-shadow: 0 8px 24px rgba(67, 233, 123, 0.3);
+  }
+  
+  &:nth-child(6) {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+    box-shadow: 0 8px 24px rgba(250, 112, 154, 0.3);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .symptoms-scroll-container {
+    padding: 0 12px;
+  }
+  
+  .symptoms-scroll {
+    gap: 12px;
+  }
+  
+  .symptom-card {
+    width: 240px;
+    height: 200px;
+    
+    &:last-child {
+      margin-right: 12px;
+    }
+  }
+  
+  .main-symptom-card .symptom-card-content {
+    padding: 16px;
+  }
+  
+  .insight-card .insight-content {
+    padding: 16px;
+    
+    .insight-text {
+      font-size: 14px;
+    }
+    
+    .insight-icon ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .symptom-card {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .main-symptom-card {
+    .symptom-card-content {
+      padding: 12px;
+    }
+    
+    .symptoms-display .symptom-icons .symptom-icon-wrapper .symptom-icon {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+      padding: 4px;
+    }
+    
+    .add-symptom-action .add-symptom-btn .add-icon {
+      font-size: 20px;
+      padding: 6px;
+    }
+  }
+  
+  .insight-card .insight-content {
+    padding: 12px;
+    
+    .insight-text {
+      font-size: 13px;
+    }
+    
+    .insight-icon ion-icon {
+      font-size: 20px;
+    }
+  }
 }

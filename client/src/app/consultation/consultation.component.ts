@@ -2,6 +2,8 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import { DoctorService } from '../shared/services/doctor.service';
+import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
 
 @Component({
   selector: 'app-consultation',
@@ -12,14 +14,326 @@ import { AlertController, ToastController } from '@ionic/angular';
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ConsultationComponent implements OnInit {
+  doctors: DoctorDto[] = [];
+  isLoading = false;
+  searchTerm = '';
 
   constructor(
     private router: Router,
     private alertController: AlertController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private doctorService: DoctorService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadDoctors();
+  }
+
+  // Load limited doctors for consultation page
+  async loadDoctors() {
+    this.isLoading = true;
+    // Create mock doctors for consultation page display
+    const mockDoctors: DoctorDto[] = [
+      {
+        id: 1,
+        fullName: 'Dr. Sarah Johnson',
+        specialty: 'Obstetrics & Gynecology',
+        experienceYears: 12,
+        about: 'Specialized in high-risk pregnancies and fertility treatments.',
+        rating: 4.8,
+        profileImageUrl: 'assets/images/doctor-sarah.jpg',
+        clinicName: 'Women\'s Health Center',
+        location: 'New York, NY',
+        contactEmail: 'sarah.johnson@whc.com',
+        contactPhone: '+1 (555) 123-4567',
+        consultationType: 'BOTH' as any,
+        fee: 200
+      },
+      {
+        id: 2,
+        fullName: 'Dr. Emily Rodriguez',
+        specialty: 'Maternal-Fetal Medicine',
+        experienceYears: 8,
+        about: 'Expert in prenatal care and fetal development monitoring.',
+        rating: 4.9,
+        profileImageUrl: 'assets/images/doctor-emily.jpg',
+        clinicName: 'Maternal Care Clinic',
+        location: 'Los Angeles, CA',
+        contactEmail: 'emily.rodriguez@mcc.com',
+        contactPhone: '+1 (555) 987-6543',
+        consultationType: 'ONLINE' as any,
+        fee: 180
+      }
+    ];
+    
+    // Show only 2 doctors on consultation page
+    this.doctors = mockDoctors;
+    this.isLoading = false;
+  }
+
+  // Navigate to doctors page
+  showAllDoctors() {
+    this.router.navigate(['/doctors']);
+  }
+
+
+  // Search doctors
+  searchDoctors(event: any) {
+    const query = event.target.value;
+    this.searchTerm = query;
+    
+    if (query && query.length > 2) {
+      this.doctorService.searchDoctors(query).subscribe({
+        next: (doctors) => {
+          this.doctors = doctors;
+        }
+      });
+    } else {
+      this.loadDoctors();
+    }
+  }
+
+  // Book appointment with specific doctor
+  async bookWithDoctor(doctor: DoctorDto) {
+    const alert = await this.alertController.create({
+      header: `Book with ${doctor.fullName}`,
+      message: `${doctor.specialty}\n\n${doctor.about.substring(0, 100)}...\n\nFee: $${doctor.fee || 'Contact for pricing'}`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Book Appointment',
+          handler: () => {
+            this.showBookingOptions(doctor);
+          }
+        },
+        {
+          text: 'View Profile',
+          handler: () => {
+            this.viewDoctorProfile(doctor);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Show booking options for doctor
+  async showBookingOptions(doctor: DoctorDto) {
+    const buttons: any[] = [];
+    
+    if (doctor.consultationType === ConsultationType.ONLINE || doctor.consultationType === ConsultationType.BOTH) {
+      buttons.push({
+        text: '💻 Online Consultation',
+        handler: () => {
+          this.bookAppointment(doctor, 'online');
+        }
+      });
+    }
+    
+    if (doctor.consultationType === ConsultationType.IN_PERSON || doctor.consultationType === ConsultationType.BOTH) {
+      buttons.push({
+        text: '🏥 In-Person Visit',
+        handler: () => {
+          this.bookAppointment(doctor, 'in-person');
+        }
+      });
+    }
+    
+    buttons.push({
+      text: 'Cancel',
+      role: 'cancel'
+    });
+
+    const alert = await this.alertController.create({
+      header: 'Choose Consultation Type',
+      message: `How would you like to consult with ${doctor.fullName}?`,
+      buttons: buttons
+    });
+
+    await alert.present();
+  }
+
+  // Book appointment
+  async bookAppointment(doctor: DoctorDto, type: string) {
+    const alert = await this.alertController.create({
+      header: 'Select Time Slot',
+      message: `Book ${type} consultation with ${doctor.fullName}`,
+      inputs: [
+        {
+          name: 'timeSlot',
+          type: 'radio',
+          label: 'Today - 2:00 PM',
+          value: 'today_2pm',
+          checked: true
+        },
+        {
+          name: 'timeSlot',
+          type: 'radio',
+          label: 'Today - 4:30 PM',
+          value: 'today_430pm'
+        },
+        {
+          name: 'timeSlot',
+          type: 'radio',
+          label: 'Tomorrow - 10:00 AM',
+          value: 'tomorrow_10am'
+        },
+        {
+          name: 'timeSlot',
+          type: 'radio',
+          label: 'Tomorrow - 2:00 PM',
+          value: 'tomorrow_2pm'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Confirm Booking',
+          handler: (data) => {
+            this.confirmBooking(doctor, type, data.timeSlot);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Confirm booking
+  async confirmBooking(doctor: DoctorDto, type: string, timeSlot: string) {
+    const timeLabels: { [key: string]: string } = {
+      'today_2pm': 'Today at 2:00 PM',
+      'today_430pm': 'Today at 4:30 PM',
+      'tomorrow_10am': 'Tomorrow at 10:00 AM',
+      'tomorrow_2pm': 'Tomorrow at 2:00 PM'
+    };
+
+    const alert = await this.alertController.create({
+      header: '✅ Booking Confirmed!',
+      message: `
+        <div style="text-align: left;">
+          <p><strong>Doctor:</strong> ${doctor.fullName}</p>
+          <p><strong>Specialty:</strong> ${doctor.specialty}</p>
+          <p><strong>Type:</strong> ${type === 'online' ? 'Online Consultation' : 'In-Person Visit'}</p>
+          <p><strong>Time:</strong> ${timeLabels[timeSlot]}</p>
+          <p><strong>Fee:</strong> $${doctor.fee || 'Contact for pricing'}</p>
+          ${doctor.location ? `<p><strong>Location:</strong> ${doctor.location}</p>` : ''}
+        </div>
+      `,
+      buttons: [
+        {
+          text: 'Add to Calendar',
+          handler: () => {
+            this.showToast('Appointment added to calendar!', 'success');
+          }
+        },
+        {
+          text: 'Done',
+          role: 'cancel'
+        }
+      ]
+    });
+
+    await alert.present();
+    await this.showToast(`Appointment booked with ${doctor.fullName}!`, 'success');
+  }
+
+  // View doctor profile
+  async viewDoctorProfile(doctor: DoctorDto) {
+    const alert = await this.alertController.create({
+      header: doctor.fullName,
+      message: `
+        <div style="text-align: left;">
+          <p><strong>Specialty:</strong> ${doctor.specialty}</p>
+          <p><strong>Experience:</strong> ${doctor.experienceYears} years</p>
+          ${doctor.rating ? `<p><strong>Rating:</strong> ${doctor.rating}/5 ⭐</p>` : ''}
+          ${doctor.clinicName ? `<p><strong>Clinic:</strong> ${doctor.clinicName}</p>` : ''}
+          ${doctor.location ? `<p><strong>Location:</strong> ${doctor.location}</p>` : ''}
+          <p><strong>About:</strong></p>
+          <p style="font-style: italic;">${doctor.about}</p>
+          <p><strong>Consultation Fee:</strong> $${doctor.fee || 'Contact for pricing'}</p>
+          <p><strong>Available:</strong> ${this.getConsultationTypeLabel(doctor.consultationType)}</p>
+        </div>
+      `,
+      buttons: [
+        {
+          text: 'Book Appointment',
+          handler: () => {
+            this.bookWithDoctor(doctor);
+          }
+        },
+        {
+          text: 'Contact',
+          handler: () => {
+            this.contactDoctor(doctor);
+          }
+        },
+        {
+          text: 'Close',
+          role: 'cancel'
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  // Contact doctor
+  async contactDoctor(doctor: DoctorDto) {
+    const buttons: any[] = [];
+    
+    if (doctor.contactEmail) {
+      buttons.push({
+        text: '📧 Email',
+        handler: () => {
+          window.open(`mailto:${doctor.contactEmail}`, '_blank');
+        }
+      });
+    }
+    
+    if (doctor.contactPhone) {
+      buttons.push({
+        text: '📞 Phone',
+        handler: () => {
+          window.open(`tel:${doctor.contactPhone}`, '_blank');
+        }
+      });
+    }
+    
+    buttons.push({
+      text: 'Cancel',
+      role: 'cancel'
+    });
+
+    const alert = await this.alertController.create({
+      header: `Contact ${doctor.fullName}`,
+      message: 'How would you like to contact this doctor?',
+      buttons: buttons
+    });
+
+    await alert.present();
+  }
+
+  // Get consultation type label
+  getConsultationTypeLabel(type: ConsultationType): string {
+    switch (type) {
+      case ConsultationType.ONLINE:
+        return 'Online Only';
+      case ConsultationType.IN_PERSON:
+        return 'In-Person Only';
+      case ConsultationType.BOTH:
+        return 'Online & In-Person';
+      default:
+        return 'Contact for details';
+    }
+  }
 
   // Quick Booking Methods
   async bookDoctorAppointment() {
