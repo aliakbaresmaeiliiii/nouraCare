@@ -174,6 +174,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'article/:id',
+    loadComponent: () =>
+      import('./article-detail/article-detail.component').then(
+        (m) => m.ArticleDetailComponent
+      ),
+  },
+  {
     path: 'tabs',
     component: LayoutComponent,
     // loadComponent: () =>

@@ -189,13 +189,8 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
     try {
       switch (item.type) {
         case 'article':
-          // Navigate back to insights page with article highlight
-          await this.router.navigate(['/tabs/insights'], { 
-            queryParams: { 
-              highlightArticle: item.id,
-              category: item.category 
-            } 
-          });
+          // Navigate to article detail page
+          await this.router.navigate(['/article', item.id]);
           this.showToast(`Opening article: ${item.title}`, 'success');
           break;
           

@@ -1,0 +1,163 @@
+<ion-header class="modern-header">
+  <ion-toolbar color="transparent">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" class="back-btn">
+        <ion-icon name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="header-title">Article</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleFavorite()" fill="clear" class="favorite-btn">
+        <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" 
+                  [class.favorited]="isFavorite"></ion-icon>
+      </ion-button>
+      <ion-button *ngIf="isMobile" (click)="shareArticle()" fill="clear" class="share-btn">
+        <ion-icon name="share-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="article-content">
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading article...</p>
+  </div>
+
+  <!-- Article Not Found -->
+  <div class="not-found-container" *ngIf="!isLoading && !article">
+    <div class="not-found-content">
+      <ion-icon name="document-outline"></ion-icon>
+      <h2>Article Not Found</h2>
+      <p>The article you're looking for doesn't exist or has been removed.</p>
+      <ion-button expand="block" fill="solid" (click)="goBack()">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        Back to Articles
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Article Content -->
+  <div class="article-container" *ngIf="!isLoading && article">
+    
+    <!-- Hero Section -->
+    <div class="article-hero">
+      <div class="hero-image">
+        <img [src]="article.image" [alt]="article.title" loading="lazy">
+        <div class="hero-overlay"></div>
+      </div>
+      <div class="hero-content">
+        <div class="article-meta">
+          <span class="category">{{ article.category }}</span>
+          <span class="read-time">{{ article.readTime }}</span>
+        </div>
+        <h1 class="article-title">{{ article.title }}</h1>
+        <p class="article-summary">{{ article.summary }}</p>
+        <div class="author-info">
+          <div class="author-avatar">
+            <ion-icon name="person-circle"></ion-icon>
+          </div>
+          <div class="author-details">
+            <span class="author-name">{{ article.author }}</span>
+            <span class="publish-date">{{ article.publishDate | date:'MMM d, y' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Article Body -->
+    <div class="article-body">
+      <div class="content-section" *ngFor="let section of article.content">
+        
+        <!-- Paragraph -->
+        <p class="content-paragraph" *ngIf="section.type === 'paragraph'">
+          {{ section.content }}
+        </p>
+
+        <!-- Heading -->
+        <h3 class="content-heading" *ngIf="section.type === 'heading'">
+          {{ section.content }}
+        </h3>
+
+        <!-- List -->
+        <div class="content-list" *ngIf="section.type === 'list'">
+          <p class="list-intro" *ngIf="section.content">{{ section.content }}</p>
+          <ul class="styled-list">
+            <li *ngFor="let item of section.items">{{ item }}</li>
+          </ul>
+        </div>
+
+        <!-- Quote -->
+        <blockquote class="content-quote" *ngIf="section.type === 'quote'">
+          <ion-icon name="quote" class="quote-icon"></ion-icon>
+          <p>{{ section.content }}</p>
+        </blockquote>
+
+        <!-- Image -->
+        <div class="content-image" *ngIf="section.type === 'image'">
+          <img [src]="section.content" [alt]="'Article image'" loading="lazy">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Article Footer -->
+    <div class="article-footer">
+      
+      <!-- Tags -->
+      <div class="article-tags">
+        <h4>Tags</h4>
+        <div class="tags-container">
+          <span class="tag" *ngFor="let tag of article.tags">{{ tag }}</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="article-actions">
+        <ion-button 
+          expand="block" 
+          fill="solid" 
+          class="favorite-action-btn"
+          (click)="toggleFavorite()">
+          <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" slot="start"></ion-icon>
+          {{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}
+        </ion-button>
+        
+        <ion-button 
+          *ngIf="isMobile"
+          expand="block" 
+          fill="outline" 
+          class="share-action-btn"
+          (click)="shareArticle()">
+          <ion-icon name="share-outline" slot="start"></ion-icon>
+          Share Article
+        </ion-button>
+      </div>
+
+      <!-- Related Articles -->
+      <div class="related-articles" *ngIf="article.relatedArticles && article.relatedArticles.length > 0">
+        <h4>You might also like</h4>
+        <div class="related-grid">
+          <div 
+            class="related-card" 
+            *ngFor="let relatedId of article.relatedArticles"
+            (click)="openRelatedArticle(relatedId)">
+            <div class="related-image">
+              <ion-icon name="document-text"></ion-icon>
+            </div>
+            <div class="related-content">
+              <h5>Related Article</h5>
+              <p>Discover more helpful content</p>
+            </div>
+            <ion-icon name="chevron-forward" class="related-arrow"></ion-icon>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</ion-content>

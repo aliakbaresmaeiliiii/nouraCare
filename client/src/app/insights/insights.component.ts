@@ -225,8 +225,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
 
   // Open article
   openArticle(article: ArticleCard) {
-    console.log('Opening article:', article.title);
-    // Navigate to article detail or show modal
+    this.router.navigate(['/article', article.id]);
   }
 
   // Handle image error
