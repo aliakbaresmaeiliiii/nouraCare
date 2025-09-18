@@ -66,8 +66,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
       this.selectedTitle = 'common.home';
     } else if (url.includes('/tabs/tools')) {
       this.selectedTitle = 'nav.tools';
-    } else if (url.includes('/tabs/social')) {
-      this.selectedTitle = 'nav.social';
+    } else if (url.includes('/tabs/SecretChats')) {
+      this.selectedTitle = 'nav.SecretChats';
     } else if (url.includes('/tabs/consultation')) {
       this.selectedTitle = 'nav.consultation';
     } else if (url.includes('/tabs/school')) {

@@ -197,7 +197,7 @@ export const routes: Routes = [
           import('./insights/insights.component').then((m) => m.InsightsComponent),
       },
       {
-        path: 'social',
+        path: 'SecretChats',
         loadComponent: () =>
           import('./social/social.component').then((m) => m.SocialComponent),
       },
