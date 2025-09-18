@@ -35,7 +35,7 @@
             ],
             "styles": [
               "src/global.scss",
-              "styles.css",
+              
               "src/theme/variables.scss",
                "node_modules/swiper/swiper-bundle.min.css"
 

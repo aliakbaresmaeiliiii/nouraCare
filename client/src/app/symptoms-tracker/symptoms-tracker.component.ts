@@ -11,8 +11,8 @@ import { DailySymptoms, SymptomData, SYMPTOMS_CONFIG } from '../shared/constants
 
 @Component({
   selector: 'app-symptoms-tracker',
-  templateUrl: './symptoms-tracker.component.html',
-  styleUrls: ['./symptoms-tracker.component.scss'],
+  templateUrl: './symptoms-tracker-simple.html',
+  styleUrls: ['./symptoms-tracker-simple.scss'],
   standalone: true,
   imports: [SharedModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -48,6 +48,16 @@ export class SymptomsTrackerComponent implements OnInit {
 
   // Reactive Form
   symptomsForm!: FormGroup;
+
+  // New UI state properties
+  categoriesExpanded = {
+    physical: true,
+    mood: false,
+    intimacy: false
+  };
+  
+  allCategoriesExpanded = false;
+  quickSymptoms = new Set<string>();
 
 
 
@@ -435,19 +445,30 @@ export class SymptomsTrackerComponent implements OnInit {
         pregnancyWeek: this.getCurrentPregnancyWeek()
       });
 
-      // Validate form
-      if (this.symptomsForm.invalid) {
-        await this.showToast('Please fill in all required fields', 'warning');
+      // Check if any symptoms are selected
+      if (!this.hasAnySelection()) {
+        await this.showToast('Please select at least one symptom to track', 'warning');
         return;
       }
 
       // Convert selected chips to symptoms array
       const selectedSymptoms = this.convertSelectedItemsToSymptoms();
+      
+      // Add quick symptoms to the list
+      const quickSymptomsArray = Array.from(this.quickSymptoms).map(symptom => ({
+        id: symptom,
+        name: this.getSymptomName(symptom),
+        icon: this.getSymptomIcon(symptom),
+        category: 'Quick',
+        severity: 'mild'
+      }));
 
+      // Combine all symptoms
+      const allSymptoms = [...selectedSymptoms, ...quickSymptomsArray];
 
       const apiData = {
         userId: this.getUserId(),
-        symptoms: selectedSymptoms,
+        symptoms: allSymptoms,
         mood: this.currentMood,
         energy: this.currentEnergy,
         notes: this.notes,
@@ -487,7 +508,7 @@ export class SymptomsTrackerComponent implements OnInit {
       }
 
       // Show success message
-      await this.showToast('✅ Symptoms saved successfully!', 'success');
+      await this.showToast(`✅ ${allSymptoms.length} symptoms saved successfully!`, 'success');
 
       // Show summary of what was saved
       // await this.showSaveSummary(dailyData);
@@ -582,6 +603,151 @@ export class SymptomsTrackerComponent implements OnInit {
   refreshHomePageData() {
     // Trigger a custom event to refresh home page data
     window.dispatchEvent(new CustomEvent('symptomsUpdated'));
+  }
+
+  // New modern UI methods
+  getFormattedDate(): string {
+    const date = new Date(this.selectedDate);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'short', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  }
+
+  getDayProgress(): number {
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+    const total = endOfDay.getTime() - startOfDay.getTime();
+    const elapsed = now.getTime() - startOfDay.getTime();
+    return Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+  }
+
+  previousDay(): void {
+    const date = new Date(this.selectedDate);
+    date.setDate(date.getDate() - 1);
+    this.selectedDate = this.formatDateForInput(date);
+    this.loadDayData();
+  }
+
+  nextDay(): void {
+    const date = new Date(this.selectedDate);
+    date.setDate(date.getDate() + 1);
+    this.selectedDate = this.formatDateForInput(date);
+    this.loadDayData();
+  }
+
+  openDatePicker(): void {
+    // Implementation for date picker modal
+    console.log('Open date picker');
+  }
+
+  selectMood(moodId: string): void {
+    this.currentMood = moodId;
+  }
+
+  getMoodOptions(): any[] {
+    return [
+      { id: 'great', name: 'Great', emoji: '😊' },
+      { id: 'good', name: 'Good', emoji: '🙂' },
+      { id: 'okay', name: 'Okay', emoji: '😐' },
+      { id: 'not_great', name: 'Not Great', emoji: '😔' },
+      { id: 'terrible', name: 'Terrible', emoji: '😢' }
+    ];
+  }
+
+  toggleQuickSymptom(symptom: string): void {
+    if (this.quickSymptoms.has(symptom)) {
+      this.quickSymptoms.delete(symptom);
+    } else {
+      this.quickSymptoms.add(symptom);
+    }
+  }
+
+  isQuickSymptomSelected(symptom: string): boolean {
+    return this.quickSymptoms.has(symptom);
+  }
+
+  toggleCategory(category: keyof typeof this.categoriesExpanded): void {
+    this.categoriesExpanded[category] = !this.categoriesExpanded[category];
+  }
+
+  toggleAllCategories(): void {
+    this.allCategoriesExpanded = !this.allCategoriesExpanded;
+    Object.keys(this.categoriesExpanded).forEach(key => {
+      this.categoriesExpanded[key as keyof typeof this.categoriesExpanded] = this.allCategoriesExpanded;
+    });
+  }
+
+  getSelectedCount(category: string): number {
+    let count = 0;
+    switch (category) {
+      case 'physical':
+        count = this.physicalSymptoms.filter(s => this.isSelected(s.id)).length;
+        break;
+      case 'mood':
+        count = this.moodOptions.filter(s => this.isSelected(s.id)).length;
+        break;
+      case 'intimacy':
+        count = this.sexDriveOptions.filter(s => this.isSelected(s.id)).length;
+        break;
+    }
+    return count;
+  }
+
+  hasAnySelection(): boolean {
+    return this.selectedItems.size > 0 || this.quickSymptoms.size > 0;
+  }
+
+  getTotalSelections(): number {
+    return this.selectedItems.size + this.quickSymptoms.size;
+  }
+
+  startVoiceInput(): void {
+    // Implementation for voice input
+    console.log('Start voice input');
+  }
+
+  viewHistory(): void {
+    this.router.navigate(['/symptoms-history']);
+  }
+
+  private formatDateForInput(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private loadDayData(): void {
+    // Load data for the selected day
+    console.log('Loading data for:', this.selectedDate);
+  }
+
+  getSymptomName(symptom: string): string {
+    const symptomNames: { [key: string]: string } = {
+      'fatigue': 'Fatigue',
+      'nausea': 'Nausea',
+      'headache': 'Headache',
+      'cramps': 'Cramps'
+    };
+    return symptomNames[symptom] || symptom;
+  }
+
+  getSymptomIcon(symptom: string): string {
+    const symptomIcons: { [key: string]: string } = {
+      'fatigue': 'bed-outline',
+      'nausea': 'medical-outline',
+      'headache': 'headset-outline',
+      'cramps': 'heart-outline'
+    };
+    return symptomIcons[symptom] || 'medical-outline';
+  }
+
+  getCurrentMoodName(): string {
+    const mood = this.getMoodOptions().find(m => m.id === this.currentMood);
+    return mood?.name || '';
   }
 
   async showSaveSummary(data: DailySymptoms) {
