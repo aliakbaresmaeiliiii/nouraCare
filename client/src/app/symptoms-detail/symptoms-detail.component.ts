@@ -37,7 +37,6 @@ export class SymptomsDetailComponent implements OnInit {
 
     this.trackDataService.getTrackDay(userId, this.selectedDate).subscribe({
       next: (data) => {
-        debugger
         console.log('🔍 Recent symptoms days:', data);
         this.dayData = data[0];
         this.loading = false;

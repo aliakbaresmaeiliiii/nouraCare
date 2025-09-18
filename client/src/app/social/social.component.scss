@@ -422,6 +422,18 @@ ion-footer {
   border: none;
 }
 
+// Modal Wrapper
+:host ::ng-deep .create-post-modal-wrapper {
+  --backdrop-opacity: 0.8;
+  
+  .modal-wrapper {
+    --height: 100%;
+    --width: 100%;
+    --border-radius: 0;
+    --box-shadow: none;
+  }
+}
+
 // Responsive adjustments
 @media (max-width: 480px) {
   .header-section {

@@ -1,0 +1,201 @@
+<div class="post-detail-modal">
+  
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">08:49</span>
+    <div class="center-logo">
+      <ion-icon name="infinite" class="logo-icon"></ion-icon>
+    </div>
+    <div class="right-status">
+      <ion-icon name="cellular" class="signal-icon"></ion-icon>
+      <span class="network">5G</span>
+      <ion-icon name="battery-half" class="battery-icon"></ion-icon>
+      <span class="battery-percent">75%</span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <ion-button fill="clear" class="back-btn" (click)="goBack()">
+      <ion-icon name="chevron-back"></ion-icon>
+    </ion-button>
+    
+    <div class="header-right">
+      <ion-button fill="clear" class="notification-btn" (click)="openNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
+      </ion-button>
+      <span class="date-text">Today</span>
+    </div>
+  </div>
+
+  <!-- Post Content -->
+  <div class="post-content">
+    <div class="post-header">
+      <div class="user-avatar">
+        <ion-icon name="happy-outline"></ion-icon>
+      </div>
+      <div class="post-info">
+        <h3 class="post-title">{{ postData?.content || 'Hello alo' }}</h3>
+        <div class="post-category">
+          <ion-chip color="medium" class="category-chip">
+            <ion-label>{{ postData?.category?.name || 'Pregnancy tests' }}</ion-label>
+          </ion-chip>
+        </div>
+        <div class="post-engagement">
+          <ion-button fill="clear" class="engagement-btn">
+            <ion-icon name="heart-outline"></ion-icon>
+            <span class="engagement-count">0</span>
+          </ion-button>
+          <ion-button fill="clear" class="engagement-btn">
+            <ion-icon name="paper-plane-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Options -->
+  <div class="filter-section">
+    <ion-button 
+      [class.active]="selectedFilter === 'top'"
+      class="filter-btn"
+      (click)="selectFilter('top')">
+      Top
+    </ion-button>
+    <ion-button 
+      [class.active]="selectedFilter === 'newest'"
+      class="filter-btn"
+      (click)="selectFilter('newest')">
+      Newest
+    </ion-button>
+    <ion-button 
+      [class.active]="selectedFilter === 'my'"
+      class="filter-btn"
+      (click)="selectFilter('my')">
+      My
+    </ion-button>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer">
+    <ion-icon name="information-circle-outline" class="info-icon"></ion-icon>
+    <span class="disclaimer-text">Replies aren't medically verified</span>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="comments.length === 0">
+    <div class="empty-illustration">
+      <div class="clouds">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+      </div>
+      <div class="leaves">
+        <div class="leaf leaf-1"></div>
+        <div class="leaf leaf-2"></div>
+        <div class="leaf leaf-3"></div>
+      </div>
+      <div class="paper-plane">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+      </div>
+      <div class="speech-bubble">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+      </div>
+    </div>
+    
+    <div class="empty-message">
+      <h3 class="empty-title">It is quiet here!</h3>
+      <p class="empty-subtitle">You can leave your totally anonymous comment right now.</p>
+    </div>
+  </div>
+
+  <!-- Comments List -->
+  <div class="comments-section" *ngIf="comments.length > 0">
+    <div class="comment-item" *ngFor="let comment of comments">
+      <div class="comment-avatar">
+        <ion-icon name="happy-outline"></ion-icon>
+      </div>
+      <div class="comment-content">
+        <div class="comment-header">
+          <span class="comment-author">{{ comment.author }}</span>
+          <span class="comment-time">Just now</span>
+        </div>
+        <div class="comment-actions">
+          <ion-button fill="clear" class="like-btn" (click)="likeComment(comment.id)">
+            <ion-icon name="heart-outline"></ion-icon>
+            <span class="like-text">Like</span>
+          </ion-button>
+        </div>
+        <p class="comment-text">{{ comment.content }}</p>
+        
+        <!-- Reply Input for this comment -->
+        <div class="reply-input-section">
+          <ion-input 
+            [(ngModel)]="newReply[comment.id]"
+            placeholder="Write a reply..."
+            class="reply-input">
+          </ion-input>
+          <ion-button 
+            [disabled]="!newReply[comment.id].trim() || isSubmittingReply[comment.id]"
+            class="reply-send-btn"
+            (click)="submitReply(comment.id)">
+            @if (isSubmittingReply[comment.id]) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              <ion-icon name="arrow-up"></ion-icon>
+            }
+          </ion-button>
+        </div>
+
+        <!-- Replies -->
+        <div class="replies-section" *ngIf="comment.replies.length > 0">
+          <div class="reply-item" *ngFor="let reply of comment.replies">
+            <div class="reply-avatar">
+              <ion-icon name="person-circle-outline"></ion-icon>
+            </div>
+            <div class="reply-content">
+              <div class="reply-header">
+                <span class="reply-author">{{ reply.author }}</span>
+                <span class="reply-time">{{ reply.createdAt | date:'short' }}</span>
+              </div>
+              <div class="reply-actions">
+                <ion-button fill="clear" class="reply-like-btn" (click)="likeReply(comment.id, reply.id)">
+                  <ion-icon name="heart-outline"></ion-icon>
+                  <span class="reply-like-text">Like</span>
+                </ion-button>
+              </div>
+              <p class="reply-text">{{ reply.content }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comment Input -->
+  <div class="comment-input-section">
+    <ion-button fill="clear" class="camera-btn">
+      <ion-icon name="camera-outline"></ion-icon>
+    </ion-button>
+    
+    <div class="input-container">
+      <ion-input 
+        [(ngModel)]="newComment"
+        placeholder="Write a comment..."
+        class="comment-input">
+      </ion-input>
+    </div>
+    
+    <ion-button 
+      [disabled]="!newComment.trim() || isSubmittingComment"
+      class="send-btn"
+      (click)="submitComment()">
+      @if (isSubmittingComment) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        <ion-icon name="arrow-up"></ion-icon>
+      }
+    </ion-button>
+  </div>
+
+</div>

@@ -92,8 +92,48 @@ export class SocialComponent implements OnInit {
     this.showToast('Opening notifications...', 'primary');
   }
 
-  createNewPost() {
-    this.showToast('Creating new post...', 'success');
+  async createNewPost() {
+    const { CreatePostModalComponent } = await import('../shared/components/create-post-modal/create-post-modal.component');
+    
+    const modal = await this.modalController.create({
+      component: CreatePostModalComponent,
+      cssClass: 'create-post-modal-wrapper',
+      backdropDismiss: false
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onDidDismiss();
+
+    if (role === 'success' && data) {
+      // Add the new post to the feed
+      this.addNewPostToFeed(data);
+    }
+  }
+
+  private addNewPostToFeed(postData: any) {
+    const newPost = {
+      id: Date.now().toString(),
+      username: 'You',
+      userAvatar: 'assets/images/user-avatar.png',
+      content: postData.content,
+      image: postData.images && postData.images.length > 0 ? URL.createObjectURL(postData.images[0]) : undefined,
+      createdAt: new Date(),
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      isLiked: false,
+      isBookmarked: false,
+      isFeatured: false,
+      isOnline: true,
+      category: 'General'
+    };
+
+    // Add to the beginning of the posts array
+    this.posts.unshift(newPost);
+    this.filteredPosts.unshift(newPost);
+    
+    this.showToast('Post created successfully! 🎉', 'success');
   }
 
   startDiscussion() {

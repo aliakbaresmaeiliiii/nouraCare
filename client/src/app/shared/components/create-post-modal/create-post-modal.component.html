@@ -1,0 +1,87 @@
+<div class="create-post-modal">
+
+  <!-- Modal Header -->
+  <div class="modal-header">
+    <ion-button fill="clear" class="close-btn" (click)="closeModal()">
+      <ion-icon name="close"></ion-icon>
+    </ion-button>
+
+    <h2 class="modal-title">New post</h2>
+
+    <!-- Empty space for centering -->
+    <div class="header-spacer"></div>
+  </div>
+
+  <!-- Modal Content -->
+  <div class="modal-content">
+
+    <!-- User Avatar -->
+    <div class="user-section">
+      <div class="user-avatar">
+        <ion-icon name="person-circle"></ion-icon>
+      </div>
+    </div>
+
+    <!-- Post Input Area -->
+    <div class="post-input-section">
+      <textarea id="post-content" [(ngModel)]="postContent" (ngModelChange)="onContentChange()"
+        (ionFocus)="focusTextarea()" class="post-textarea" placeholder="What's on your mind?" rows="12"
+        maxlength="{{maxCharacters}}">
+      </textarea>
+    </div>
+
+    <!-- Selected Category Display -->
+    @if (selectedCategory) {
+    <div class="selected-category">
+      <ion-chip color="primary">
+        <ion-icon name="bookmark"></ion-icon>
+        <ion-label>{{ selectedCategory.name }}</ion-label>
+      </ion-chip>
+    </div>
+    }
+
+    <!-- Selected Images Preview -->
+
+    @if (selectedImages.length > 0) {
+    <div class="images-preview">
+      @for (image of selectedImages; track $index) {
+      <div class="image-item">
+        <img [src]="image" [alt]="'Selected image ' + ($index + 1)">
+        <ion-button fill="clear" class="remove-image-btn" (click)="removeImage($index)">
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-button>
+      </div>
+      }
+    </div>
+    }
+
+  </div>
+
+  <!-- Modal Footer -->
+  <div class="modal-footer">
+
+    <!-- Media Button -->
+    <ion-button fill="clear" class="media-btn" (click)="triggerImageSelect()">
+      <ion-icon name="image-outline"></ion-icon>
+    </ion-button>
+
+    <!-- Character Count (if needed) -->
+    @if (characterCount > 1500) {
+    <div class="character-count">
+      {{ characterCount }}/{{ maxCharacters }}
+    </div>
+    }
+
+    <!-- Post Button -->
+    <ion-button [disabled]="!canPost() || isSubmitting" class="post-btn" (click)="submitPost()">
+      @if (isSubmitting) {
+      <ion-spinner name="crescent"></ion-spinner>
+      }
+      @else {
+      <span>Post</span>
+      }
+    </ion-button>
+
+  </div>
+
+</div>

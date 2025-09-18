@@ -1,0 +1,295 @@
+// Create Post Modal - Exact Match to Image
+.create-post-modal {
+  background: #2a2a2a;
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+// Modal Header
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1rem 0.5rem;
+  background: #2a2a2a;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  .close-btn {
+    --color: #ffffff;
+    --background: transparent;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    text-align: center;
+    flex: 1;
+  }
+
+  .header-spacer {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+// Modal Content
+.modal-content {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+// User Section
+.user-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+
+  .user-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #00ff88, #00cc6a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 28px;
+      color: white;
+    }
+  }
+}
+
+// Post Input Section
+.post-input-section {
+  flex: 1;
+  margin-top: 1rem;
+
+  .post-textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ffffff;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    resize: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    min-height: 300px;
+
+    &::placeholder {
+      color: #888888;
+      font-size: 1.1rem;
+    }
+
+    &:focus {
+      outline: none;
+      border: none;
+    }
+  }
+}
+
+// Images Preview
+.images-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-top: 1rem;
+
+  .image-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 1;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-image-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      --color: #ffffff;
+      --background: rgba(0, 0, 0, 0.6);
+      --border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      backdrop-filter: blur(10px);
+
+      ion-icon {
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+// Modal Footer
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #2a2a2a;
+  border-top: 1px solid #3a3a3a;
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+
+  .media-btn {
+    --color: #ffffff;
+    --background: transparent;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+
+    ion-icon {
+      font-size: 24px;
+    }
+
+    &:hover {
+      --background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .character-count {
+    font-size: 0.9rem;
+    color: #888;
+    margin-left: auto;
+    margin-right: 1rem;
+
+    &.warning {
+      color: #ff9500;
+    }
+
+    &.error {
+      color: #ff4757;
+    }
+  }
+
+  .post-btn {
+    --background: #ff4d6d;
+    --color: #ffffff;
+    --border-radius: 20px;
+    --padding-top: 12px;
+    --padding-bottom: 12px;
+    --padding-start: 24px;
+    --padding-end: 24px;
+    font-weight: 600;
+    font-size: 1rem;
+    min-width: 80px;
+    height: 44px;
+
+    &:disabled {
+      --background: #555555;
+      --color: #888888;
+    }
+
+    &:not(:disabled):hover {
+      --background: #ff3355;
+      transform: scale(1.02);
+    }
+
+    ion-spinner {
+      width: 20px;
+      height: 20px;
+      --color: #ffffff;
+    }
+  }
+}
+
+// Animation for modal entrance
+.create-post-modal {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 0.75rem;
+  }
+
+  .modal-footer {
+    padding: 0.75rem;
+  }
+
+  .post-input-section .post-textarea {
+    font-size: 1rem;
+    min-height: 250px;
+
+    &::placeholder {
+      font-size: 1rem;
+    }
+  }
+
+  .images-preview {
+    grid-template-columns: 1fr;
+    
+    &.multiple {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+// Character count color states
+.character-count {
+  &.warning {
+    color: #ff9500 !important;
+  }
+
+  &.error {
+    color: #ff4757 !important;
+  }
+}
+
+// Focus states
+.post-textarea:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+// Selected Category Display
+.selected-category {
+  padding: 0.5rem 1rem;
+  
+  ion-chip {
+    --background: rgba(59, 130, 246, 0.2);
+    --color: #3b82f6;
+    border: 1px solid #3b82f6;
+    
+    ion-icon {
+      margin-right: 0.25rem;
+    }
+  }
+}
