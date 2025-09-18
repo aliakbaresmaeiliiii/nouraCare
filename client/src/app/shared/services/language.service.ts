@@ -17,7 +17,8 @@ export class LanguageService {
   private readonly languages: Language[] = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'zh', name: '中文', flag: '🇨🇳' },
-    { code: 'ms', name: 'Bahasa Malaysia', flag: '🇲🇾' }
+    { code: 'ms', name: 'Bahasa Malaysia', flag: '🇲🇾' },
+    { code: 'fa', name: 'فارسی', flag: '🇮🇷' }
   ];
 
   constructor(private appRef: ApplicationRef) {
@@ -43,7 +44,7 @@ export class LanguageService {
       document.documentElement.lang = languageCode;
       
       // Update document direction for RTL languages if needed
-      if (languageCode === 'ar' || languageCode === 'he') {
+      if (languageCode === 'ar' || languageCode === 'he' || languageCode === 'fa') {
         document.documentElement.dir = 'rtl';
       } else {
         document.documentElement.dir = 'ltr';

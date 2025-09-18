@@ -1,150 +1,208 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar color="primary" class="settings-header">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="tabs" class="back-button" (click)="goBack()"></ion-back-button>
-    </ion-buttons>
-    <ion-title class="header-title">Settings</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" class="search-button">
-        <ion-icon name="search-outline"></ion-icon>
+<ion-content class="beautiful-settings">
+  <!-- Beautiful Header -->
+  <div class="settings-header">
+    <div class="header-background">
+      <div class="header-pattern"></div>
+    </div>
+    <div class="header-content">
+      <ion-button fill="clear" class="back-btn" (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
       </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="settings-content">
-  <div class="container">
-    <!-- Loading State -->
-    @if (isLoading) {
-      <div class="loading-state">
-        <ion-spinner name="crescent"></ion-spinner>
-        <p>Loading settings...</p>
+      <div class="header-info">
+        <h1 class="header-title">Settings</h1>
+        <p class="header-subtitle">Customize your experience</p>
       </div>
-    }
-
-    <!-- Error State -->
-    @if (errorMessage) {
-      <div class="error-state">
-        <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
-        <p>{{ errorMessage }}</p>
-        <ion-button fill="outline" (click)="loadSettings()">Retry</ion-button>
-      </div>
-    }
-
-    <!-- Settings Content -->
-    @if (!isLoading && !errorMessage) {
-      <!-- Account Settings -->
-      <div class="settings-section">
-        <h2 class="section-title">Account</h2>
-        <ion-list class="settings-list">
-          @for (setting of accountSettings; track setting.id) {
-            <ion-item 
-              button 
-              (click)="onSettingClick(setting)"
-              class="setting-item">
-              <ion-icon [name]="setting.icon" slot="start" class="setting-icon"></ion-icon>
-              <ion-label class="setting-label">
-                <h3 class="setting-title">{{ setting.title }}</h3>
-                @if (setting.subtitle) {
-                  <p class="setting-subtitle">{{ setting.subtitle }}</p>
-                }
-              </ion-label>
-              @if (setting.type === 'link') {
-                <ion-icon name="chevron-forward-outline" slot="end" class="chevron-icon"></ion-icon>
-              }
-            </ion-item>
-          }
-        </ion-list>
-      </div>
-
-      <!-- App Settings -->
-      <div class="settings-section">
-        <h2 class="section-title">App</h2>
-        <ion-list class="settings-list">
-          @for (setting of appSettings; track setting.id) {
-            <ion-item 
-              button 
-              (click)="onSettingClick(setting)"
-              class="setting-item">
-              <ion-icon [name]="setting.icon" slot="start" class="setting-icon"></ion-icon>
-              <ion-label class="setting-label">
-                <h3 class="setting-title">{{ setting.title }}</h3>
-                @if (setting.subtitle) {
-                  <p class="setting-subtitle">{{ setting.subtitle }}</p>
-                }
-              </ion-label>
-              @if (setting.type === 'toggle') {
-                <ion-toggle 
-                  [checked]="setting.value" 
-                  slot="end"
-                  (ionChange)="onSettingClick(setting)"
-                  class="setting-toggle">
-                </ion-toggle>
-              } @else if (setting.type === 'link') {
-                <ion-icon name="chevron-forward-outline" slot="end" class="chevron-icon"></ion-icon>
-              }
-            </ion-item>
-          }
-        </ion-list>
-      </div>
-
-      <!-- Support & About -->
-      <div class="settings-section">
-        <h2 class="section-title">Support & About</h2>
-        <ion-list class="settings-list">
-          @for (setting of supportSettings; track setting.id) {
-            <ion-item 
-              button 
-              (click)="onSettingClick(setting)"
-              class="setting-item">
-              <ion-icon [name]="setting.icon" slot="start" class="setting-icon"></ion-icon>
-              <ion-label class="setting-label">
-                <h3 class="setting-title">{{ setting.title }}</h3>
-                @if (setting.subtitle) {
-                  <p class="setting-subtitle">{{ setting.subtitle }}</p>
-                }
-              </ion-label>
-              @if (setting.type === 'link') {
-                <ion-icon name="chevron-forward-outline" slot="end" class="chevron-icon"></ion-icon>
-              }
-            </ion-item>
-          }
-        </ion-list>
-      </div>
-
-      <!-- Account Actions -->
-      <div class="settings-section">
-        <h2 class="section-title">Account Actions</h2>
-        <ion-list class="settings-list">
-          @for (setting of accountActions; track setting.id) {
-            <ion-item 
-              button 
-              (click)="onSettingClick(setting)"
-              class="setting-item"
-              [class.danger-item]="setting.id === 'delete'">
-              <ion-icon [name]="setting.icon" slot="start" class="setting-icon"></ion-icon>
-              <ion-label class="setting-label">
-                <h3 class="setting-title">{{ setting.title }}</h3>
-                @if (setting.subtitle) {
-                  <p class="setting-subtitle">{{ setting.subtitle }}</p>
-                }
-              </ion-label>
-            </ion-item>
-          }
-        </ion-list>
-      </div>
-
-      <!-- Logout Button -->
-      <div class="logout-section">
-        <ion-button 
-          expand="block" 
-          fill="outline" 
-          color="medium"
-          class="logout-button">
-          <ion-icon name="log-out-outline" slot="start"></ion-icon>
-          Log Out
-        </ion-button>
-      </div>
-    }
+      <ion-button fill="clear" class="search-btn">
+        <ion-icon name="search"></ion-icon>
+      </ion-button>
+    </div>
   </div>
+
+  <!-- User Profile Card -->
+  <div class="user-profile-card">
+    <div class="profile-avatar">
+      <img src="assets/images/user-avatar.png" alt="User" onerror="this.style.display='none'">
+      <ion-icon name="person-circle" *ngIf="!hasUserAvatar"></ion-icon>
+      <div class="avatar-badge">
+        <ion-icon name="checkmark"></ion-icon>
+      </div>
+    </div>
+    <div class="profile-info">
+      <h3 class="profile-name">Sarah Johnson</h3>
+      <p class="profile-email">sarah.johnson@email.com</p>
+      <div class="profile-status">
+        <div class="status-indicator"></div>
+        <span class="status-text">Premium Member</span>
+      </div>
+    </div>
+    <ion-button fill="clear" class="edit-profile-btn">
+      <ion-icon name="create"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <div class="action-card" (click)="onSettingClick(accountSettings[0])">
+      <div class="action-icon profile-icon">
+        <ion-icon name="person"></ion-icon>
+      </div>
+      <span class="action-label">Profile</span>
+    </div>
+    <div class="action-card" (click)="onSettingClick(appSettings[0])">
+      <div class="action-icon language-icon">
+        <ion-icon name="language"></ion-icon>
+      </div>
+      <span class="action-label">Language</span>
+    </div>
+    <div class="action-card" (click)="onSettingClick(accountSettings[1])">
+      <div class="action-icon security-icon">
+        <ion-icon name="shield"></ion-icon>
+      </div>
+      <span class="action-label">Security</span>
+    </div>
+    <div class="action-card" (click)="onSettingClick(accountSettings[2])">
+      <div class="action-icon notification-icon">
+        <ion-icon name="notifications"></ion-icon>
+      </div>
+      <span class="action-label">Notifications</span>
+    </div>
+  </div>
+
+  <!-- Settings Sections -->
+  <div class="settings-sections">
+    <!-- Personal Settings -->
+    <div class="settings-group">
+      <div class="group-header">
+        <h2 class="group-title">Personal</h2>
+        <div class="group-decoration"></div>
+      </div>
+      <div class="settings-cards">
+        @for (setting of accountSettings; track setting.id) {
+        <div class="setting-card" (click)="onSettingClick(setting)">
+          <div class="card-icon" [class]="'icon-' + setting.id">
+            <ion-icon [name]="setting.icon"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">{{ setting.title }}</h3>
+            <p class="card-subtitle">{{ setting.subtitle }}</p>
+          </div>
+          <div class="card-action">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- App Preferences -->
+    <div class="settings-group">
+      <div class="group-header">
+        <h2 class="group-title">Preferences</h2>
+        <div class="group-decoration"></div>
+      </div>
+      <div class="settings-cards">
+        @for (setting of appSettings; track setting.id) {
+        <div class="setting-card" (click)="onSettingClick(setting)">
+          <div class="card-icon" [class]="'icon-' + setting.id">
+            <ion-icon [name]="setting.icon"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">{{ setting.title }}</h3>
+            <p class="card-subtitle">{{ setting.subtitle }}</p>
+          </div>
+          <div class="card-action">
+            @if (setting.type === 'toggle') {
+            <ion-list [inset]="true">
+
+              <ion-item>
+                <ion-toggle [(ngModel)]="paletteToggle" (ionChange)="toggleChange($event)" justify="space-between">Dark
+                  Mode</ion-toggle>
+              </ion-item>
+            </ion-list>
+            } @else {
+            <ion-icon name="chevron-forward"></ion-icon>
+            }
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Support & Help -->
+    <div class="settings-group">
+      <div class="group-header">
+        <h2 class="group-title">Support</h2>
+        <div class="group-decoration"></div>
+      </div>
+      <div class="settings-cards">
+        @for (setting of supportSettings; track setting.id) {
+        <div class="setting-card" (click)="onSettingClick(setting)">
+          <div class="card-icon" [class]="'icon-' + setting.id">
+            <ion-icon [name]="setting.icon"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">{{ setting.title }}</h3>
+            <p class="card-subtitle">{{ setting.subtitle }}</p>
+          </div>
+          <div class="card-action">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Account Management -->
+    <div class="settings-group">
+      <div class="group-header">
+        <h2 class="group-title">Account</h2>
+        <div class="group-decoration"></div>
+      </div>
+      <div class="settings-cards">
+        @for (setting of accountActions; track setting.id) {
+        <div class="setting-card" [class]="'danger-card'" (click)="onSettingClick(setting)">
+          <div class="card-icon" [class]="'icon-' + setting.id">
+            <ion-icon [name]="setting.icon"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">{{ setting.title }}</h3>
+            <p class="card-subtitle">{{ setting.subtitle }}</p>
+          </div>
+          <div class="card-action">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout Section -->
+  <div class="logout-section">
+    <ion-button expand="block" fill="outline" class="logout-button" (click)="logout()">
+      <ion-icon name="log-out" slot="start"></ion-icon>
+      Sign Out
+    </ion-button>
+  </div>
+
+  <!-- Loading Overlay -->
+  @if (isLoading) {
+  <div class="loading-overlay">
+    <div class="loading-content">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p class="loading-text">Loading settings...</p>
+    </div>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (errorMessage) {
+  <div class="error-overlay">
+    <div class="error-content">
+      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+      <p class="error-text">{{ errorMessage }}</p>
+      <ion-button fill="solid" (click)="loadSettings()">Try Again</ion-button>
+    </div>
+  </div>
+  }
 </ion-content>

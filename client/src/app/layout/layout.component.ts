@@ -24,7 +24,6 @@ import { Subscription } from 'rxjs';
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LayoutComponent implements OnInit, OnDestroy {
-  paletteToggle = false;
   selectedTitle = 'Home';
   private languageSubscription!: Subscription;
 
@@ -57,9 +56,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleChange(event: any) {
-    this.paletteToggle = event.detail.checked;
-  }
+
 
   private updateTitle(url: string) {
     if (url.includes('/tabs/home')) {

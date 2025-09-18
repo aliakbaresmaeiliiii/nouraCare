@@ -1,8 +1,8 @@
-// Dark Theme Social Page - Exact Match to Image
-.social-content.dark-theme {
-  --background: #1a1a1a;
-  background: #1a1a1a;
-  color: #ffffff;
+// Social Page Styles
+.social-content {
+  --background: #f8fafc;
+  background: #f8fafc;
+  color: #1e293b;
   min-height: 90vh;
 }
 
@@ -12,7 +12,7 @@
   align-items: center;
   padding: 1rem 1rem 0.5rem;
   gap: 1rem;
-  background: #1a1a1a;
+  background: #ffffff;
   position: fixed;
   top: 3rem;
   left: 0;
@@ -41,7 +41,7 @@
     flex: 1;
 
     .search-bar {
-      background: #2a2a2a;
+      background: #f1f5f9;
       border-radius: 25px;
       padding: 0.75rem 1rem;
       display: flex;
@@ -50,7 +50,7 @@
 
       .search-icon {
         font-size: 18px;
-        color: #888;
+        color: #64748b;
       }
 
       .search-input {
@@ -58,11 +58,11 @@
         background: transparent;
         border: none;
         outline: none;
-        color: #ccc;
+        color: #475569;
         font-size: 1rem;
 
         &::placeholder {
-          color: #888;
+          color: #64748b;
         }
       }
     }
@@ -85,7 +85,7 @@
 // Filter Tabs
 .filter-tabs {
   padding: 1rem 1rem 0;
-  background: #1a1a1a;
+  background: #ffffff;
   position: fixed;
   top:117px;
   left: 0;
@@ -106,7 +106,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      background: #2a2a2a;
+      background: #f1f5f9;
       border-radius: 25px;
       padding: 0.75rem 1.25rem;
       cursor: pointer;
@@ -124,7 +124,7 @@
       }
 
       &:not(.active) {
-        color: #ccc;
+        color: #475569;
 
         &:hover {
           background: #3a3a3a;
@@ -133,7 +133,7 @@
 
       ion-icon {
         font-size: 16px;
-        color: #ccc;
+        color: #475569;
       }
 
       span {
@@ -153,7 +153,7 @@
   margin-top: 192px; // Space for fixed header and tabs
 
   .post-card {
-    background: #1a1a1a;
+    background: #ffffff;
     border-radius: 0;
     padding: 0;
     border: none;
@@ -199,7 +199,7 @@
 
           .post-time {
             font-size: 0.9rem;
-            color: #888;
+            color: #64748b;
             font-weight: 400;
           }
 
@@ -222,7 +222,7 @@
 
       .post-text {
         font-size: 1rem;
-        color: #ffffff;
+        color: #1e293b;
         line-height: 1.5;
         margin: 0 0 1rem 0;
         font-weight: 400;
@@ -244,8 +244,8 @@
         margin-bottom: 1rem;
 
         .category-tag {
-          background: #2a2a2a;
-          color: #ccc;
+          background: #f1f5f9;
+          color: #475569;
           padding: 0.5rem 1rem;
           border-radius: 20px;
           font-size: 0.85rem;
@@ -259,7 +259,7 @@
       align-items: center;
       gap: 1rem;
       padding-bottom: 1.5rem;
-      border-bottom: 1px solid #2a2a2a;
+      border-bottom: 1px solid #e2e8f0;
 
       .action-btn {
         --color: #ccc;
@@ -282,12 +282,12 @@
 
         ion-icon {
           font-size: 20px;
-          color: #ccc;
+          color: #475569;
         }
 
         span {
           font-size: 0.9rem;
-          color: #ccc;
+          color: #475569;
           font-weight: 500;
         }
 
@@ -346,9 +346,9 @@
 // Bottom Navigation
 .bottom-nav {
   .nav-toolbar {
-    --background: #1a1a1a;
+    --background: #ffffff;
     --color: #ccc;
-    border-top: 1px solid #2a2a2a;
+    border-top: 1px solid #e2e8f0;
     padding: 0;
 
     .nav-items {
@@ -379,30 +379,30 @@
         }
 
         &:not(.active) {
-          color: #888;
+          color: #64748b;
 
           &:hover {
-            color: #ccc;
+            color: #475569;
 
             ion-icon {
-              color: #ccc;
+              color: #475569;
             }
 
             span {
-              color: #ccc;
+              color: #475569;
             }
           }
         }
 
         ion-icon {
           font-size: 24px;
-          color: #888;
+          color: #64748b;
         }
 
         span {
           font-size: 0.8rem;
           font-weight: 500;
-          color: #888;
+          color: #64748b;
         }
       }
     }

@@ -354,80 +354,155 @@
   }
 }
 
-// Pregnancy Section
+// Incredible Pregnancy Section Design
 .pregnancy-section {
   padding: 0 1.5rem 2rem;
 
   .pregnancy-hero {
-    background: linear-gradient(135deg, #ff6b9d, #f06292);
-    border-radius: 24px;
-    padding: 2rem;
+    position: relative;
+    background: linear-gradient(135deg, #ff6b9d 0%, #c44569 50%, #ff6b9d 100%);
+    border-radius: 32px;
+    padding: 2.5rem;
     color: white;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(255, 107, 157, 0.3);
 
-    .pregnancy-header {
-      text-align: center;
-      margin-bottom: 2rem;
+    .hero-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+    }
 
-      .pregnancy-title {
-        font-size: 1.8rem;
-        font-weight: 800;
-        margin: 0 0 0.5rem 0;
+    .floating-elements {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+
+      .heart, .star {
+        position: absolute;
+        font-size: 1.5rem;
+        animation: gentleFloat 4s ease-in-out infinite;
+        opacity: 0.7;
       }
 
-      .pregnancy-subtitle {
-        font-size: 1rem;
-        opacity: 0.9;
-        margin: 0;
+      .heart-1 { top: 15%; left: 10%; animation-delay: 0s; }
+      .heart-2 { top: 25%; right: 15%; animation-delay: 1s; }
+      .heart-3 { top: 60%; left: 20%; animation-delay: 2s; }
+      .star-1 { top: 40%; right: 25%; animation-delay: 0.5s; }
+      .star-2 { top: 70%; left: 15%; animation-delay: 1.5s; }
+    }
+
+    .pregnancy-header {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      margin-bottom: 2.5rem;
+
+      .header-content {
+        .pregnancy-title {
+          font-size: 2rem;
+          font-weight: 800;
+          margin: 0 0 0.5rem 0;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .pregnancy-subtitle {
+          font-size: 1rem;
+          opacity: 0.9;
+          margin: 0 0 1rem 0;
+          font-weight: 500;
+        }
+
+        .milestone-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(10px);
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+
+          ion-icon {
+            font-size: 1rem;
+            color: #ffd700;
+          }
+
+          span {
+            font-size: 0.875rem;
+            font-weight: 600;
+          }
+        }
       }
     }
 
     .pregnancy-progress {
+      position: relative;
+      z-index: 2;
       display: flex;
       align-items: center;
       gap: 2rem;
 
-      .progress-ring {
-        position: relative;
-        width: 120px;
-        height: 120px;
+      .progress-container {
+        .progress-ring {
+          position: relative;
+          width: 140px;
+          height: 140px;
 
-        .progress-svg {
-          width: 100%;
-          height: 100%;
-          transform: rotate(-90deg);
+          .progress-svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
 
-          .progress-bg {
-            fill: none;
-            stroke: rgba(255, 255, 255, 0.2);
-            stroke-width: 8;
+            .progress-bg {
+              fill: none;
+              stroke: rgba(255, 255, 255, 0.2);
+              stroke-width: 10;
+            }
+
+            .progress-bar {
+              fill: none;
+              stroke: url(#progressGradient);
+              stroke-width: 10;
+              stroke-linecap: round;
+              transition: stroke-dashoffset 0.8s ease;
+              filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+            }
           }
 
-          .progress-bar {
-            fill: none;
-            stroke: white;
-            stroke-width: 8;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 0.5s ease;
-          }
-        }
+          .progress-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
 
-        .progress-content {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          text-align: center;
+            .week-display {
+              .progress-week {
+                display: block;
+                font-size: 2.5rem;
+                font-weight: 900;
+                line-height: 1;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              }
 
-          .progress-week {
-            display: block;
-            font-size: 2rem;
-            font-weight: 800;
-          }
+              .progress-label {
+                font-size: 0.875rem;
+                opacity: 0.8;
+                font-weight: 500;
+              }
+            }
 
-          .progress-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
+            .progress-percentage {
+              font-size: 0.75rem;
+              opacity: 0.7;
+              margin-top: 0.25rem;
+              font-weight: 600;
+            }
           }
         }
       }
@@ -439,35 +514,269 @@
         gap: 1rem;
 
         .stat-card {
+          position: relative;
           display: flex;
           align-items: center;
           gap: 1rem;
           background: rgba(255, 255, 255, 0.15);
-          backdrop-filter: blur(10px);
-          border-radius: 12px;
-          padding: 1rem;
+          backdrop-filter: blur(15px);
+          border-radius: 16px;
+          padding: 1.25rem;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
 
-          ion-icon {
-            font-size: 24px;
-            color: white;
+          &:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+          }
+
+          .stat-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            ion-icon {
+              font-size: 1.25rem;
+              color: white;
+            }
           }
 
           .stat-info {
+            flex: 1;
+
             .stat-value {
               display: block;
-              font-size: 1.2rem;
+              font-size: 1.25rem;
               font-weight: 700;
+              margin-bottom: 0.25rem;
             }
 
             .stat-label {
-              font-size: 0.9rem;
+              font-size: 0.875rem;
               opacity: 0.8;
+              font-weight: 500;
             }
+          }
+
+          .stat-decoration {
+            font-size: 1.25rem;
+            opacity: 0.6;
           }
         }
       }
     }
   }
+
+  .baby-development-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .card-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+
+      .baby-pattern {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 20% 20%, rgba(255, 107, 157, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(196, 69, 105, 0.1) 0%, transparent 50%);
+      }
+    }
+
+    .baby-visual {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      margin-bottom: 2rem;
+
+      .baby-illustration {
+        .baby-container {
+          position: relative;
+          display: inline-block;
+
+          .baby-size-indicator {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px rgba(255, 107, 157, 0.3);
+
+            .baby-icon {
+              font-size: 2rem;
+              margin-bottom: 0.25rem;
+            }
+
+            .size-text {
+              font-size: 0.75rem;
+              color: white;
+              font-weight: 600;
+            }
+          }
+
+          .growth-ring {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 2px solid rgba(255, 107, 157, 0.3);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+          }
+        }
+      }
+    }
+
+    .baby-info {
+      position: relative;
+      z-index: 2;
+
+      .info-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        .baby-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #333333;
+          margin: 0;
+        }
+
+        .week-badge {
+          background: linear-gradient(135deg, #ff6b9d, #c44569);
+          color: white;
+          padding: 0.25rem 0.75rem;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          font-weight: 600;
+        }
+      }
+
+      .baby-details {
+        margin-bottom: 1.5rem;
+
+        .baby-size {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #ff6b9d;
+          margin: 0 0 0.5rem 0;
+        }
+
+        .baby-description {
+          font-size: 0.875rem;
+          color: #666666;
+          line-height: 1.5;
+          margin: 0;
+        }
+      }
+
+      .baby-measurements {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+
+        .measurement-card {
+          flex: 1;
+          background: rgba(255, 107, 157, 0.05);
+          border-radius: 12px;
+          padding: 1rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          border: 1px solid rgba(255, 107, 157, 0.1);
+
+          .measurement-icon {
+            width: 2rem;
+            height: 2rem;
+            background: linear-gradient(135deg, #ff6b9d, #c44569);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            ion-icon {
+              font-size: 1rem;
+              color: white;
+            }
+          }
+
+          .measurement-content {
+            .measurement-value {
+              display: block;
+              font-size: 1rem;
+              font-weight: 600;
+              color: #333333;
+              margin-bottom: 0.125rem;
+            }
+
+            .measurement-label {
+              font-size: 0.75rem;
+              color: #666666;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+      .development-highlights {
+        .highlight-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: rgba(76, 175, 80, 0.1);
+          border-radius: 8px;
+          padding: 0.75rem;
+          border: 1px solid rgba(76, 175, 80, 0.2);
+
+          ion-icon {
+            color: #4caf50;
+            font-size: 1rem;
+          }
+
+          span {
+            font-size: 0.875rem;
+            color: #2e7d32;
+            font-weight: 500;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes gentleFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
 
   .baby-development-card {
     background: white;
@@ -544,7 +853,6 @@
       }
     }
   }
-}
 
 // Quick Actions Section
 .quick-actions-section {

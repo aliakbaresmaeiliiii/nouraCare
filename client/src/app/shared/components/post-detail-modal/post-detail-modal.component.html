@@ -1,55 +1,73 @@
-<div class="post-detail-modal">
+<div class="pregnancy-journey-modal">
   
-  <!-- Status Bar -->
-  <div class="status-bar">
-    <span class="time">08:49</span>
-    <div class="center-logo">
-      <ion-icon name="infinite" class="logo-icon"></ion-icon>
+  <!-- Beautiful Header -->
+  <div class="pregnancy-header">
+    <div class="header-background">
+      <div class="floating-hearts">
+        <div class="heart heart-1">💕</div>
+        <div class="heart heart-2">💖</div>
+        <div class="heart heart-3">💗</div>
+        <div class="heart heart-4">💝</div>
+      </div>
     </div>
-    <div class="right-status">
-      <ion-icon name="cellular" class="signal-icon"></ion-icon>
-      <span class="network">5G</span>
-      <ion-icon name="battery-half" class="battery-icon"></ion-icon>
-      <span class="battery-percent">75%</span>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <div class="header">
+    
     <ion-button fill="clear" class="back-btn" (click)="goBack()">
-      <ion-icon name="chevron-back"></ion-icon>
+      <ion-icon name="arrow-back"></ion-icon>
     </ion-button>
     
-    <div class="header-right">
-      <ion-button fill="clear" class="notification-btn" (click)="openNotifications()">
-        <ion-icon name="notifications-outline"></ion-icon>
-      </ion-button>
-      <span class="date-text">Today</span>
+    <div class="header-content">
+      <div class="pregnancy-icon">
+        <ion-icon name="heart"></ion-icon>
+      </div>
+      <h2 class="modal-title">Pregnancy Journey</h2>
+      <p class="header-subtitle">Share your beautiful moments</p>
     </div>
+    
+    <ion-button fill="clear" class="notification-btn">
+      <ion-icon name="notifications-outline"></ion-icon>
+    </ion-button>
   </div>
 
-  <!-- Post Content -->
-  <div class="post-content">
-    <div class="post-header">
-      <div class="user-avatar">
-        <ion-icon name="happy-outline"></ion-icon>
+  <!-- Pregnancy Post Content -->
+  <div class="pregnancy-post-content">
+    <div class="post-card">
+      <div class="post-header">
+        <div class="user-avatar">
+          <div class="avatar-circle">
+            <ion-icon name="person-circle"></ion-icon>
+          </div>
+          <div class="online-indicator"></div>
+        </div>
+        <div class="post-info">
+          <div class="author-info">
+            <h3 class="author-name">Sarah Johnson</h3>
+            <span class="post-time">2 hours ago</span>
+          </div>
+          <div class="post-category">
+            <ion-chip class="pregnancy-chip">
+              <ion-icon name="heart"></ion-icon>
+              <ion-label>{{ postData?.category?.name || 'Pregnancy Journey' }}</ion-label>
+            </ion-chip>
+          </div>
+        </div>
       </div>
-      <div class="post-info">
-        <h3 class="post-title">{{ postData?.content || 'Hello alo' }}</h3>
-        <div class="post-category">
-          <ion-chip color="medium" class="category-chip">
-            <ion-label>{{ postData?.category?.name || 'Pregnancy tests' }}</ion-label>
-          </ion-chip>
-        </div>
-        <div class="post-engagement">
-          <ion-button fill="clear" class="engagement-btn">
-            <ion-icon name="heart-outline"></ion-icon>
-            <span class="engagement-count">0</span>
-          </ion-button>
-          <ion-button fill="clear" class="engagement-btn">
-            <ion-icon name="paper-plane-outline"></ion-icon>
-          </ion-button>
-        </div>
+      
+      <div class="post-text">
+        <p>{{ postData?.content || 'Feeling so grateful for this beautiful journey! Every kick reminds me of the miracle growing inside me. 💕' }}</p>
+      </div>
+      
+      <div class="post-engagement">
+        <ion-button fill="clear" class="engagement-btn">
+          <ion-icon name="heart"></ion-icon>
+          <span class="engagement-count">24</span>
+        </ion-button>
+        <ion-button fill="clear" class="engagement-btn">
+          <ion-icon name="chatbubble-outline"></ion-icon>
+          <span class="engagement-count">8</span>
+        </ion-button>
+        <ion-button fill="clear" class="engagement-btn">
+          <ion-icon name="share-outline"></ion-icon>
+        </ion-button>
       </div>
     </div>
   </div>
@@ -82,30 +100,27 @@
     <span class="disclaimer-text">Replies aren't medically verified</span>
   </div>
 
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="comments.length === 0">
+  <!-- Beautiful Empty State -->
+  <div class="pregnancy-empty-state" *ngIf="comments.length === 0">
     <div class="empty-illustration">
-      <div class="clouds">
-        <div class="cloud cloud-1"></div>
-        <div class="cloud cloud-2"></div>
-        <div class="cloud cloud-3"></div>
+      <div class="floating-elements">
+        <div class="baby-bottle">🍼</div>
+        <div class="stork">🕊️</div>
+        <div class="teddy-bear">🧸</div>
+        <div class="stars">
+          <div class="star star-1">✨</div>
+          <div class="star star-2">⭐</div>
+          <div class="star star-3">✨</div>
+        </div>
       </div>
-      <div class="leaves">
-        <div class="leaf leaf-1"></div>
-        <div class="leaf leaf-2"></div>
-        <div class="leaf leaf-3"></div>
-      </div>
-      <div class="paper-plane">
-        <ion-icon name="paper-plane-outline"></ion-icon>
-      </div>
-      <div class="speech-bubble">
+      <div class="main-icon">
         <ion-icon name="chatbubbles-outline"></ion-icon>
       </div>
     </div>
     
     <div class="empty-message">
-      <h3 class="empty-title">It is quiet here!</h3>
-      <p class="empty-subtitle">You can leave your totally anonymous comment right now.</p>
+      <h3 class="empty-title">Share Your Journey!</h3>
+      <p class="empty-subtitle">Connect with other expecting mothers and share your beautiful pregnancy moments.</p>
     </div>
   </div>
 
@@ -172,30 +187,32 @@
     </div>
   </div>
 
-  <!-- Comment Input -->
-  <div class="comment-input-section">
-    <ion-button fill="clear" class="camera-btn">
-      <ion-icon name="camera-outline"></ion-icon>
-    </ion-button>
-    
+  <!-- Beautiful Comment Input -->
+  <div class="pregnancy-comment-input">
     <div class="input-container">
-      <ion-input 
-        [(ngModel)]="newComment"
-        placeholder="Write a comment..."
-        class="comment-input">
-      </ion-input>
+      <div class="input-wrapper">
+        <ion-button fill="clear" class="attachment-btn">
+          <ion-icon name="camera"></ion-icon>
+        </ion-button>
+        
+        <ion-input 
+          [(ngModel)]="newComment"
+          placeholder="Share your pregnancy experience..."
+          class="pregnancy-input">
+        </ion-input>
+        
+        <ion-button 
+          [disabled]="!newComment.trim() || isSubmittingComment"
+          class="send-btn"
+          (click)="submitComment()">
+          @if (isSubmittingComment) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <ion-icon name="heart"></ion-icon>
+          }
+        </ion-button>
+      </div>
     </div>
-    
-    <ion-button 
-      [disabled]="!newComment.trim() || isSubmittingComment"
-      class="send-btn"
-      (click)="submitComment()">
-      @if (isSubmittingComment) {
-        <ion-spinner name="crescent"></ion-spinner>
-      } @else {
-        <ion-icon name="arrow-up"></ion-icon>
-      }
-    </ion-button>
   </div>
 
 </div>

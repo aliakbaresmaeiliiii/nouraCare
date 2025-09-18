@@ -6,12 +6,6 @@
     <!-- Shared header -->
     <ion-header>
       <ion-toolbar>
-        <ion-toggle
-        class="mr-1"
-        slot="end"
-          [(ngModel)]="paletteToggle"
-          (ionChange)="toggleChange($event)"
-        ></ion-toggle>
         <app-header-language-switcher slot="end"></app-header-language-switcher>
         <ion-buttons slot="start">
           <ion-menu-button></ion-menu-button>

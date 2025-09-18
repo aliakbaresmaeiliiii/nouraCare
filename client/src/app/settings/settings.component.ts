@@ -22,9 +22,10 @@ interface SettingItem {
 })
 export class SettingsComponent implements OnInit {
   private router = inject(Router);
-
+  paletteToggle = false;
   isLoading = false;
   errorMessage = '';
+  hasUserAvatar = false;
 
   // Account Settings
   accountSettings: SettingItem[] = [
@@ -172,17 +173,23 @@ export class SettingsComponent implements OnInit {
     }, 500);
   }
 
+  initializeDarkPalette(isDark: boolean) {
+    this.paletteToggle = isDark;
+  }
+  toggleChange(event: CustomEvent) {
+    this.paletteToggle = event.detail.checked;
+  }
   loadSavedSettings() {
     const savedTheme = localStorage.getItem('darkMode');
     const savedAutoSync = localStorage.getItem('autoSync');
-    
+
     if (savedTheme) {
       const themeSetting = this.appSettings.find(s => s.id === 'theme');
       if (themeSetting) {
         themeSetting.value = savedTheme === 'true';
       }
     }
-    
+
     if (savedAutoSync) {
       const autoSyncSetting = this.appSettings.find(s => s.id === 'autoSync');
       if (autoSyncSetting) {
@@ -192,6 +199,7 @@ export class SettingsComponent implements OnInit {
   }
 
   onSettingClick(setting: SettingItem) {
+    debugger
     if (setting.type === 'toggle') {
       if (setting.action) {
         setting.action();
@@ -208,6 +216,7 @@ export class SettingsComponent implements OnInit {
     if (themeSetting) {
       themeSetting.value = !themeSetting.value;
       localStorage.setItem('darkMode', themeSetting.value.toString());
+
       this.showSuccessAlert(`Dark mode ${themeSetting.value ? 'enabled' : 'disabled'}`);
     }
   }
@@ -245,6 +254,15 @@ export class SettingsComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/tabs']);
+  }
+
+  logout() {
+    if (confirm('Are you sure you want to sign out?')) {
+      // Clear user data and navigate to login
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userData');
+      this.router.navigate(['/welcome']);
+    }
   }
 
   private showSuccessAlert(message: string): void {

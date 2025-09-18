@@ -114,69 +114,137 @@
 
   <!-- Pregnancy Progress Section (Enhanced) -->
   <div class="pregnancy-section" *ngIf="isPregnant">
+    <!-- Beautiful Pregnancy Hero -->
     <div class="pregnancy-hero">
-      <div class="pregnancy-header">
-        <h2 class="pregnancy-title">Your Pregnancy Journey</h2>
-        <p class="pregnancy-subtitle">Week {{ pregnancyWeek }} of 40</p>
+      <div class="hero-background">
+        <div class="floating-elements">
+          <div class="heart heart-1">💕</div>
+          <div class="heart heart-2">💖</div>
+          <div class="heart heart-3">💗</div>
+          <div class="star star-1">✨</div>
+          <div class="star star-2">⭐</div>
+        </div>
       </div>
       
+      <div class="pregnancy-header">
+        <div class="header-content">
+          <h2 class="pregnancy-title">Your Beautiful Journey</h2>
+          <p class="pregnancy-subtitle">Week {{ pregnancyWeek }} of 40 • {{ getTrimester() }}</p>
+          <div class="milestone-badge">
+            <ion-icon name="trophy"></ion-icon>
+            <span>{{ getMilestone() }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Stunning Progress Ring -->
       <div class="pregnancy-progress">
-        <div class="progress-ring">
-          <svg class="progress-svg" viewBox="0 0 120 120">
-            <circle class="progress-bg" cx="60" cy="60" r="54"></circle>
-            <circle class="progress-bar" cx="60" cy="60" r="54" 
-                    [style.stroke-dasharray]="getProgressCircumference()"
-                    [style.stroke-dashoffset]="getProgressOffset()"></circle>
-          </svg>
-          <div class="progress-content">
-            <span class="progress-week">{{ pregnancyWeek }}</span>
-            <span class="progress-label">weeks</span>
-    </div>
-  </div>
+        <div class="progress-container">
+          <div class="progress-ring">
+            <svg class="progress-svg" viewBox="0 0 140 140">
+              <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#c44569;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <circle class="progress-bg" cx="70" cy="70" r="60"></circle>
+              <circle class="progress-bar" cx="70" cy="70" r="60" 
+                      [style.stroke-dasharray]="getProgressCircumference()"
+                      [style.stroke-dashoffset]="getProgressOffset()"></circle>
+            </svg>
+            <div class="progress-content">
+              <div class="week-display">
+                <span class="progress-week">{{ pregnancyWeek }}</span>
+                <span class="progress-label">weeks</span>
+              </div>
+              <div class="progress-percentage">{{ getProgressPercentage() }}%</div>
+            </div>
+          </div>
+        </div>
 
+        <!-- Beautiful Stats Cards -->
         <div class="pregnancy-stats">
-          <div class="stat-card">
-            <ion-icon name="heart-outline"></ion-icon>
+          <div class="stat-card days-card">
+            <div class="stat-icon">
+              <ion-icon name="heart"></ion-icon>
+            </div>
             <div class="stat-info">
               <span class="stat-value">{{ getDaysRemaining() }}</span>
               <span class="stat-label">days to go</span>
             </div>
+            <div class="stat-decoration">💕</div>
           </div>
           
-          <div class="stat-card">
-            <ion-icon name="calendar-outline"></ion-icon>
+          <div class="stat-card due-card">
+            <div class="stat-icon">
+              <ion-icon name="calendar"></ion-icon>
+            </div>
             <div class="stat-info">
               <span class="stat-value">{{ getDueDate() }}</span>
               <span class="stat-label">due date</span>
             </div>
+            <div class="stat-decoration">📅</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Baby Development Card -->
+    <!-- Incredible Baby Development Card -->
     <div class="baby-development-card">
+      <div class="card-background">
+        <div class="baby-pattern"></div>
+      </div>
+      
       <div class="baby-visual">
         <div class="baby-illustration">
-          <div class="baby-size-indicator" [class]="'week-' + pregnancyWeek">
-            {{ getCurrentBabySize().size.split(' ')[1] }}
+          <div class="baby-container">
+            <div class="baby-size-indicator" [class]="'week-' + pregnancyWeek">
+              <div class="baby-icon">👶</div>
+              <div class="size-text">{{ getCurrentBabySize().size.split(' ')[1] }}</div>
+            </div>
+            <div class="growth-ring"></div>
           </div>
         </div>
       </div>
       
       <div class="baby-info">
-        <h3 class="baby-title">Your Baby This Week</h3>
-        <p class="baby-size">Size of {{ getCurrentBabySize().size.split(' ')[0] }}</p>
-        <p class="baby-description">{{ getCurrentBabySize().description }}</p>
+        <div class="info-header">
+          <h3 class="baby-title">Your Little Miracle</h3>
+          <div class="week-badge">Week {{ pregnancyWeek }}</div>
+        </div>
+        
+        <div class="baby-details">
+          <p class="baby-size">Size of {{ getCurrentBabySize().size.split(' ')[0] }}</p>
+          <p class="baby-description">{{ getCurrentBabySize().description }}</p>
+        </div>
         
         <div class="baby-measurements">
-          <div class="measurement">
-            <ion-icon name="scale-outline"></ion-icon>
-            <span>{{ babyWeight }}</span>
+          <div class="measurement-card weight-card">
+            <div class="measurement-icon">
+              <ion-icon name="scale"></ion-icon>
+            </div>
+            <div class="measurement-content">
+              <span class="measurement-value">{{ babyWeight }}</span>
+              <span class="measurement-label">Weight</span>
+            </div>
           </div>
-          <div class="measurement">
-            <ion-icon name="resize-outline"></ion-icon>
-            <span>{{ getBabyLength() }}</span>
+          
+          <div class="measurement-card length-card">
+            <div class="measurement-icon">
+              <ion-icon name="resize"></ion-icon>
+            </div>
+            <div class="measurement-content">
+              <span class="measurement-value">{{ getBabyLength() }}</span>
+              <span class="measurement-label">Length</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="development-highlights">
+          <div class="highlight-item">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <span>Major development milestone reached</span>
           </div>
         </div>
       </div>

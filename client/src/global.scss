@@ -9,6 +9,145 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+// Import RTL support for Persian language
+@import 'rtl.scss';
+
+// Beautiful Typography System
+:root {
+  // Font Families
+  --font-primary: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-secondary: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-persian: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
+  --font-display: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  // Font Weights
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+  
+  // Font Sizes
+  --font-size-xs: 0.75rem;    // 12px
+  --font-size-sm: 0.875rem;  // 14px
+  --font-size-base: 1rem;    // 16px
+  --font-size-lg: 1.125rem;  // 18px
+  --font-size-xl: 1.25rem;   // 20px
+  --font-size-2xl: 1.5rem;   // 24px
+  --font-size-3xl: 1.875rem; // 30px
+  --font-size-4xl: 2.25rem;  // 36px
+  --font-size-5xl: 3rem;     // 48px
+  
+  // Line Heights
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+}
+
+// Global Font Application
+* {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+// Body typography
+body {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Headings with beautiful typography
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-extrabold);
+}
+
+h2 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+}
+
+h3 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+h4 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+h5 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+h6 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+}
+
+// Button typography
+ion-button {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.025em;
+}
+
+// Input typography
+ion-input, ion-textarea {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+}
+
+// Card typography
+ion-card {
+  font-family: var(--font-primary);
+}
+
+// Persian language specific fonts
+[lang="fa"], [dir="rtl"] {
+  * {
+    font-family: var(--font-persian);
+  }
+  
+  body {
+    font-family: var(--font-persian);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-persian);
+  }
+  
+  ion-button {
+    font-family: var(--font-persian);
+  }
+  
+  ion-input, ion-textarea {
+    font-family: var(--font-persian);
+  }
+  
+  ion-card {
+    font-family: var(--font-persian);
+  }
+}
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
@@ -26,6 +165,17 @@
 @import "@ionic/angular/css/flex-utils.css";
 
 
+
+/**
+ * Ionic Dark Palette
+ * -----------------------------------------------------
+ * For more information, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import '@ionic/angular/css/palettes/dark.always.css'; */
+// @import '@ionic/angular/css/palettes/dark.class.css';
+@import '@ionic/angular/css/palettes/dark.system.css';
 
 /* Custom Modal Styles */
 .fertility-results-modal,
@@ -185,4 +335,7 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+ion-item {
+  --transition: none;
 }
