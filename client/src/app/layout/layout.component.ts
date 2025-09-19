@@ -7,7 +7,11 @@ import {
   construct, 
   people, 
   calendar, 
-  school 
+  school,
+  bulb,
+  menu,
+  notifications,
+  personCircle
 } from 'ionicons/icons';
 import { SharedModule } from '../shared/shared-module';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
@@ -26,13 +30,15 @@ import { Subscription } from 'rxjs';
 export class LayoutComponent implements OnInit, OnDestroy {
   selectedTitle = 'Home';
   private languageSubscription!: Subscription;
+  hasNotifications = true; // This would come from a notifications service
+  hasUserAvatar = false; // This would come from user service
 
   constructor(
     private router: Router,
     private languageService: LanguageService
   ) {
     // Register the icons
-    addIcons({ home, construct, people, calendar, school });
+    addIcons({ home, construct, people, calendar, school, bulb, menu, notifications, personCircle });
   }
 
   ngOnInit() {
@@ -61,8 +67,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
   private updateTitle(url: string) {
     if (url.includes('/tabs/home')) {
       this.selectedTitle = 'common.home';
-    } else if (url.includes('/tabs/tools')) {
-      this.selectedTitle = 'nav.tools';
+    } else if (url.includes('/tabs/insights')) {
+      this.selectedTitle = 'nav.insights';
     } else if (url.includes('/tabs/SecretChats')) {
       this.selectedTitle = 'nav.SecretChats';
     } else if (url.includes('/tabs/consultation')) {
@@ -72,5 +78,23 @@ export class LayoutComponent implements OnInit, OnDestroy {
     } else {
       this.selectedTitle = 'common.home';
     }
+  }
+
+  // New methods for the modern header
+  getPageIcon(): string {
+    if (this.selectedTitle.includes('home')) return 'home-outline';
+    if (this.selectedTitle.includes('insights')) return 'bulb-outline';
+    if (this.selectedTitle.includes('SecretChats')) return 'people-outline';
+    if (this.selectedTitle.includes('consultation')) return 'calendar-outline';
+    if (this.selectedTitle.includes('school')) return 'school-outline';
+    return 'home-outline';
+  }
+
+  openNotifications(): void {
+    this.router.navigate(['/notifications']);
+  }
+
+  openProfile(): void {
+    this.router.navigate(['/profile']);
   }
 }

@@ -3,14 +3,43 @@
 
   <!-- Main layout -->
   <div class="ion-page" id="main-content">
-    <!-- Shared header -->
-    <ion-header>
-      <ion-toolbar>
-        <app-header-language-switcher slot="end"></app-header-language-switcher>
-        <ion-buttons slot="start">
-          <ion-menu-button></ion-menu-button>
+    <!-- Modern Header -->
+    <ion-header class="modern-header">
+      <ion-toolbar class="header-toolbar">
+        <!-- Left side - Menu button -->
+        <ion-buttons slot="start" class="header-left">
+          <ion-menu-button class="menu-button">
+            <ion-icon name="menu-outline"></ion-icon>
+          </ion-menu-button>
         </ion-buttons>
-        <ion-title>{{ selectedTitle | translate }}</ion-title>
+
+        <!-- Center - Title with icon -->
+        <div class="header-center">
+          <div class="title-container">
+            <ion-icon [name]="getPageIcon()" class="page-icon"></ion-icon>
+            <ion-title class="page-title">{{ selectedTitle | translate }}</ion-title>
+          </div>
+        </div>
+
+        <!-- Right side - Actions -->
+        <div slot="end" class="header-right">
+          <!-- Notifications -->
+          <ion-button fill="clear" class="header-action" (click)="openNotifications()">
+            <ion-icon name="notifications-outline"></ion-icon>
+            <div class="notification-badge" *ngIf="hasNotifications">3</div>
+          </ion-button>
+          
+          <!-- Language Switcher -->
+          <app-header-language-switcher></app-header-language-switcher>
+          
+          <!-- Profile -->
+          <ion-button fill="clear" class="header-action" (click)="openProfile()">
+            <div class="profile-avatar">
+              <img src="assets/images/user-avatar.png" alt="Profile" onerror="this.style.display='none'">
+              <ion-icon name="person-circle-outline" *ngIf="!hasUserAvatar"></ion-icon>
+            </div>
+          </ion-button>
+        </div>
       </ion-toolbar>
     </ion-header>
 
@@ -18,26 +47,41 @@
     <ion-tabs>
       <!-- <ion-router-outlet></ion-router-outlet> -->
       
-      <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="home" href="tabs/home">
-          <ion-icon name="home"></ion-icon>
-          {{ 'common.home' | translate }}
+      <!-- User-Friendly Tab Bar -->
+      <ion-tab-bar slot="bottom" class="modern-tab-bar">
+        <ion-tab-button tab="home" href="tabs/home" class="tab-button" role="tab" aria-label="Home">
+          <div class="tab-content">
+            <ion-icon name="home-outline" class="tab-icon" aria-hidden="true"></ion-icon>
+            <span class="tab-label">{{ 'common.home' | translate }}</span>
+          </div>
         </ion-tab-button>
-        <ion-tab-button tab="insights" href="tabs/insights">
-          <ion-icon name="bulb"></ion-icon>
-          {{ 'nav.insights' | translate }}
+        
+        <ion-tab-button tab="insights" href="tabs/insights" class="tab-button" role="tab" aria-label="Insights">
+          <div class="tab-content">
+            <ion-icon name="bulb-outline" class="tab-icon" aria-hidden="true"></ion-icon>
+            <span class="tab-label">{{ 'nav.insights' | translate }}</span>
+          </div>
         </ion-tab-button>
-        <ion-tab-button tab="SecretChats" href="tabs/SecretChats">
-          <ion-icon name="people"></ion-icon>
-          {{ 'nav.SecretChats' | translate }}
+        
+        <ion-tab-button tab="SecretChats" href="tabs/SecretChats" class="tab-button" role="tab" aria-label="Community">
+          <div class="tab-content">
+            <ion-icon name="people-outline" class="tab-icon" aria-hidden="true"></ion-icon>
+            <span class="tab-label">{{ 'nav.SecretChats' | translate }}</span>
+          </div>
         </ion-tab-button>
-        <ion-tab-button tab="consultation" href="tabs/consultation">
-          <ion-icon name="calendar"></ion-icon>
-          {{ 'nav.consultation' | translate }}
+        
+        <ion-tab-button tab="consultation" href="tabs/consultation" class="tab-button" role="tab" aria-label="Consultation">
+          <div class="tab-content">
+            <ion-icon name="calendar-outline" class="tab-icon" aria-hidden="true"></ion-icon>
+            <span class="tab-label">{{ 'nav.consultation' | translate }}</span>
+          </div>
         </ion-tab-button>
-        <ion-tab-button tab="school" href="tabs/school">
-          <ion-icon name="school"></ion-icon>
-          {{ 'nav.school' | translate }}
+        
+        <ion-tab-button tab="school" href="tabs/school" class="tab-button" role="tab" aria-label="Education">
+          <div class="tab-content">
+            <ion-icon name="school-outline" class="tab-icon" aria-hidden="true"></ion-icon>
+            <span class="tab-label">{{ 'nav.school' | translate }}</span>
+          </div>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>

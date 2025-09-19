@@ -12,6 +12,23 @@
 // Import RTL support for Persian language
 @import 'rtl.scss';
 
+// Liquid Glass System for Dialogs (iOS 16 Style)
+:root {
+  // Glass Effect Variables
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-bg-solid: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --glass-backdrop: blur(20px);
+  --glass-border-radius: 20px;
+  
+  // Dark Glass Variables
+  --glass-bg-dark: rgba(0, 0, 0, 0.1);
+  --glass-bg-solid-dark: rgba(0, 0, 0, 0.95);
+  --glass-border-dark: rgba(255, 255, 255, 0.1);
+  --glass-shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
 // Beautiful Typography System
 :root {
   // Font Families
@@ -338,4 +355,597 @@ ion-card {
 }
 ion-item {
   --transition: none;
+}
+
+/* ========================================
+   LIQUID GLASS SYSTEM FOR ALL DIALOGS
+   iOS 16 Style Glass Morphism
+   ======================================== */
+
+// Base Glass Effect Classes
+.liquid-glass {
+  background: var(--glass-bg-solid);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-border-radius);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.liquid-glass-dark {
+  background: var(--glass-bg-solid-dark);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border-dark);
+  border-radius: var(--glass-border-radius);
+  box-shadow: var(--glass-shadow-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.liquid-glass-dark::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+// Modal Overrides for Liquid Glass
+ion-modal {
+  --backdrop-opacity: 0.4;
+  
+  &::part(content) {
+    background: transparent;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  
+  .modal-wrapper {
+    background: transparent;
+  }
+  
+  .modal-content {
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--glass-border-radius);
+    box-shadow: var(--glass-shadow);
+    margin: 20px;
+    padding: 24px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+// Alert Dialog Glass Effect
+ion-alert {
+  .alert-wrapper {
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .alert-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .alert-head {
+    background: transparent;
+    padding: 20px 20px 10px 20px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .alert-title {
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+  
+  .alert-message {
+    background: transparent;
+    padding: 10px 20px 20px 20px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .alert-button-group {
+    background: transparent;
+    padding: 0 20px 20px 20px;
+    position: relative;
+    z-index: 2;
+    
+    .alert-button {
+      background: var(--glass-bg-solid);
+      backdrop-filter: var(--glass-backdrop);
+      -webkit-backdrop-filter: var(--glass-backdrop);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      margin: 4px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
+
+// Action Sheet Glass Effect
+ion-action-sheet {
+  .action-sheet-wrapper {
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px 24px 0 0;
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .action-sheet-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .action-sheet-container {
+    background: transparent;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .action-sheet-title {
+    background: transparent;
+    padding: 20px 20px 10px 20px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+  
+  .action-sheet-group {
+    background: transparent;
+    
+    .action-sheet-button {
+      background: transparent;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+      
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+}
+
+// Popover Glass Effect
+ion-popover {
+  .popover-wrapper {
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .popover-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .popover-content {
+    background: transparent;
+    position: relative;
+    z-index: 2;
+  }
+}
+
+// Toast Glass Effect
+ion-toast {
+  .toast-wrapper {
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+    position: relative;
+    margin: 16px;
+  }
+  
+  .toast-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .toast-container {
+    background: transparent;
+    position: relative;
+    z-index: 2;
+  }
+}
+
+// Loading Glass Effect
+ion-loading {
+  .loading-wrapper {
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
+    position: relative;
+    padding: 24px;
+  }
+  
+  .loading-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .loading-content {
+    background: transparent;
+    position: relative;
+    z-index: 2;
+  }
+}
+
+// Custom Modal Components Glass Effect
+.modal-glass {
+  background: var(--glass-bg-solid);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-border-radius);
+  box-shadow: var(--glass-shadow);
+  padding: 24px;
+  margin: 20px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-glass::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.modal-glass .modal-header {
+  background: transparent;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.modal-glass .modal-header h2 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.modal-glass .modal-body {
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.modal-glass .modal-footer {
+  background: transparent;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+// Button Glass Effects
+.glass-button {
+  background: var(--glass-bg-solid);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--glass-shadow);
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+}
+
+// Card Glass Effects
+.glass-card {
+  background: var(--glass-bg-solid);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-border-radius);
+  box-shadow: var(--glass-shadow);
+  padding: 20px;
+  margin: 16px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass-card .card-header {
+  background: transparent;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.glass-card .card-content {
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+// Dark Mode Glass Effects
+@media (prefers-color-scheme: dark) {
+  ion-modal .modal-content {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  ion-modal .modal-content::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  
+  ion-alert .alert-wrapper {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  ion-alert .alert-wrapper::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  
+  ion-action-sheet .action-sheet-wrapper {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  ion-action-sheet .action-sheet-wrapper::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  
+  ion-popover .popover-wrapper {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  ion-popover .popover-wrapper::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  
+  ion-toast .toast-wrapper {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  ion-toast .toast-wrapper::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  
+  ion-loading .loading-wrapper {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  ion-loading .loading-wrapper::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  
+  .modal-glass {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  .modal-glass::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  
+  .glass-button {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  .glass-button::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+  
+  .glass-card {
+    background: var(--glass-bg-solid-dark);
+    border: 1px solid var(--glass-border-dark);
+    box-shadow: var(--glass-shadow-dark);
+  }
+  
+  .glass-card::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  }
+}
+
+// Responsive Glass Effects
+@media (max-width: 768px) {
+  ion-modal .modal-content {
+    margin: 16px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+  
+  .modal-glass {
+    margin: 16px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+  
+  ion-alert .alert-wrapper {
+    border-radius: 20px;
+    margin: 16px;
+  }
+  
+  ion-action-sheet .action-sheet-wrapper {
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+@media (max-width: 480px) {
+  ion-modal .modal-content {
+    margin: 12px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .modal-glass {
+    margin: 12px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  ion-alert .alert-wrapper {
+    border-radius: 16px;
+    margin: 12px;
+  }
+  
+  ion-action-sheet .action-sheet-wrapper {
+    border-radius: 16px 16px 0 0;
+  }
 }
