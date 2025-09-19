@@ -1,219 +1,397 @@
 .notifications-header {
-  --background: var(--ion-color-primary);
+  --background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
   --color: white;
   
   .back-button {
     --color: white;
+    --icon-font-size: 20px;
   }
   
   .header-title {
-    font-weight: 600;
-    font-size: 1.2rem;
+    font-weight: 700;
+    font-size: 1.3rem;
+    letter-spacing: -0.5px;
   }
   
   .action-button {
     --color: white;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    
+    ion-icon {
+      font-size: 20px;
+    }
   }
 }
 
 .notifications-content {
-  --background: var(--ion-color-light);
+  --background: #f8fafc;
   
   .container {
-    padding: 16px;
+    padding: 20px 16px;
     max-width: 600px;
     margin: 0 auto;
   }
 }
 
+// Stats Header
+.stats-header {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 0 4px;
+  
+  .stats-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    .stats-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--ion-color-dark);
+      line-height: 1;
+      
+      &.unread {
+        color: var(--ion-color-primary);
+      }
+    }
+    
+    .stats-label {
+      font-size: 0.75rem;
+      color: var(--ion-color-medium);
+      font-weight: 500;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+// Quick Actions
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  
+  ion-button {
+    --border-radius: 12px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    
+    ion-icon {
+      font-size: 16px;
+    }
+    
+    &[disabled] {
+      opacity: 0.5;
+    }
+  }
+}
+
+// Filter Section
 .filter-section {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   
   .filter-segment {
     --background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
     
     .filter-button {
       --background: white;
       --background-checked: var(--ion-color-primary);
       --color: var(--ion-color-medium);
       --color-checked: white;
-      --indicator-color: var(--ion-color-primary);
+      --indicator-color: transparent;
+      --border-radius: 12px;
+      --padding-top: 12px;
+      --padding-bottom: 12px;
+      min-height: 48px;
       
       .filter-icon {
-        font-size: 16px;
-        margin-right: 4px;
+        font-size: 18px;
+        margin-right: 6px;
       }
       
       .filter-label {
-        font-size: 0.8rem;
-        font-weight: 500;
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: -0.3px;
       }
     }
   }
 }
 
+// Unread Toggle
 .unread-toggle-section {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   
   .toggle-item {
     --background: white;
-    --border-radius: 12px;
-    --padding-start: 16px;
+    --border-radius: 16px;
+    --padding-start: 20px;
     --padding-end: 16px;
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    
+    .toggle-icon {
+      font-size: 20px;
+      color: var(--ion-color-primary);
+      margin-right: 12px;
+    }
     
     .toggle-label {
-      font-size: 0.9rem;
-      font-weight: 500;
+      font-size: 0.95rem;
+      font-weight: 600;
       color: var(--ion-color-dark);
     }
     
     .unread-toggle {
-      --background: var(--ion-color-light);
+      --background: #e2e8f0;
       --background-checked: var(--ion-color-primary);
       --handle-background: white;
       --handle-background-checked: white;
+      --handle-width: 20px;
+      --handle-height: 20px;
+      --handle-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
   }
 }
 
+// Loading State
 .loading-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   text-align: center;
   
-  ion-spinner {
-    margin-bottom: 16px;
-    --color: var(--ion-color-primary);
+  .loading-animation {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    
+    .loading-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--ion-color-primary);
+      animation: loading-bounce 1.4s infinite ease-in-out both;
+      
+      &:nth-child(1) { animation-delay: -0.32s; }
+      &:nth-child(2) { animation-delay: -0.16s; }
+      &:nth-child(3) { animation-delay: 0s; }
+    }
   }
   
   p {
     color: var(--ion-color-medium);
     margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
   }
 }
 
+@keyframes loading-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+// Error State
 .error-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   text-align: center;
   
   .error-icon {
-    font-size: 48px;
+    font-size: 64px;
     color: var(--ion-color-danger);
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+  }
+  
+  h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 12px 0;
   }
   
   p {
     color: var(--ion-color-medium);
-    margin: 0 0 16px 0;
+    margin: 0 0 24px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .retry-button {
+    --border-radius: 12px;
+    font-weight: 600;
+    
+    ion-icon {
+      font-size: 18px;
+    }
   }
 }
 
+// Empty State
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 80px 20px;
   text-align: center;
   
-  .empty-icon {
-    font-size: 64px;
-    color: var(--ion-color-medium);
-    margin-bottom: 16px;
+  .empty-illustration {
+    margin-bottom: 24px;
+    
+    .empty-icon {
+      font-size: 80px;
+      color: #cbd5e1;
+    }
   }
   
   h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.4rem;
+    font-weight: 700;
     color: var(--ion-color-dark);
-    margin: 0 0 8px 0;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
   }
   
   p {
     font-size: 1rem;
     color: var(--ion-color-medium);
     margin: 0;
+    line-height: 1.5;
+    max-width: 280px;
   }
 }
 
+// Notifications Section
 .notifications-section {
   .notifications-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     padding: 0 4px;
     
     .notifications-title {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.2rem;
+      font-weight: 700;
       color: var(--ion-color-dark);
       margin: 0;
+      letter-spacing: -0.5px;
     }
     
     .unread-badge {
-      font-size: 0.75rem;
-      font-weight: 500;
-      padding: 4px 8px;
-      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 16px;
     }
   }
 }
 
+// Notifications List
 .notifications-list {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
   
   .notification-item {
-    --padding-start: 16px;
-    --padding-end: 16px;
-    --padding-top: 16px;
-    --padding-bottom: 16px;
+    --padding-start: 0;
+    --padding-end: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
     --background: white;
-    --border-color: var(--ion-color-light);
+    --border-color: #f1f5f9;
+    --inner-padding-end: 0;
+    margin-bottom: 12px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
     
-    &:last-child {
-      --border-style: none;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
     
     &.unread {
-      --background: rgba(var(--ion-color-primary-rgb), 0.05);
-      border-left: 4px solid var(--ion-color-primary);
+      --background: rgba(var(--ion-color-primary-rgb), 0.03);
+      border-left: 6px solid var(--ion-color-primary);
+      
+      .notification-indicator.unread {
+        background: var(--ion-color-primary);
+      }
     }
     
     &.high-priority {
-      --background: rgba(var(--ion-color-danger-rgb), 0.05);
-      border-left: 4px solid var(--ion-color-danger);
+      --background: rgba(var(--ion-color-danger-rgb), 0.03);
+      border-left: 6px solid var(--ion-color-danger);
+    }
+    
+    &.medium-priority {
+      --background: rgba(var(--ion-color-warning-rgb), 0.03);
+      border-left: 6px solid var(--ion-color-warning);
+    }
+    
+    &.low-priority {
+      --background: rgba(var(--ion-color-success-rgb), 0.03);
+      border-left: 6px solid var(--ion-color-success);
+    }
+    
+    .notification-indicator {
+      position: absolute;
+      top: 50%;
+      left: -3px;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: transparent;
+      transition: background 0.3s ease;
+      
+      &.unread {
+        background: var(--ion-color-primary);
+      }
     }
     
     .notification-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      margin-right: 12px;
-      background: var(--ion-color-light);
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      margin: 20px 16px 20px 20px;
+      background: #f8fafc;
+      flex-shrink: 0;
       
       ion-icon {
-        font-size: 20px;
-        color: var(--ion-color-medium);
+        font-size: 24px;
+        color: #64748b;
       }
       
       &.icon-success {
@@ -249,66 +427,86 @@
     
     .notification-label {
       flex: 1;
+      margin: 20px 16px 20px 0;
       
       .notification-header {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
         
         .notification-title {
           font-size: 1rem;
-          font-weight: 600;
+          font-weight: 700;
           color: var(--ion-color-dark);
           margin: 0;
           flex: 1;
+          line-height: 1.3;
+          letter-spacing: -0.3px;
         }
         
         .notification-time {
-          font-size: 0.75rem;
+          font-size: 0.8rem;
           color: var(--ion-color-medium);
-          margin-left: 8px;
+          margin-left: 12px;
+          white-space: nowrap;
+          font-weight: 500;
         }
       }
       
       .notification-message {
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         color: var(--ion-color-medium);
-        margin: 0 0 8px 0;
+        margin: 0 0 12px 0;
         line-height: 1.4;
       }
       
       .action-button {
-        --padding-start: 0;
-        --padding-end: 0;
-        font-size: 0.8rem;
-        font-weight: 500;
+        --border-radius: 10px;
+        --padding-start: 16px;
+        --padding-end: 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
         margin: 0;
-        height: auto;
-        min-height: auto;
+        height: 36px;
       }
+    }
+    
+    .priority-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
     }
     
     .notification-actions {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      margin-left: 8px;
+      gap: 8px;
+      margin: 20px 16px 20px 0;
       
       .read-button,
       .delete-button {
         --padding-start: 8px;
         --padding-end: 8px;
-        --padding-top: 4px;
-        --padding-bottom: 4px;
-        font-size: 0.75rem;
+        --padding-top: 6px;
+        --padding-bottom: 6px;
+        font-size: 0.8rem;
         margin: 0;
-        height: auto;
+        height: 32px;
         min-height: auto;
+        --border-radius: 8px;
         
         ion-icon {
-          font-size: 16px;
+          font-size: 18px;
         }
+      }
+      
+      .read-button {
+        --color: var(--ion-color-success);
       }
     }
   }
@@ -317,41 +515,63 @@
 // Responsive design
 @media (max-width: 480px) {
   .notifications-content .container {
-    padding: 12px;
+    padding: 16px 12px;
+  }
+  
+  .stats-header {
+    gap: 20px;
+    
+    .stats-item .stats-number {
+      font-size: 1.6rem;
+    }
+  }
+  
+  .quick-actions {
+    flex-direction: column;
+    gap: 8px;
   }
   
   .filter-segment .filter-button {
     .filter-icon {
-      font-size: 14px;
+      font-size: 16px;
     }
     
     .filter-label {
-      font-size: 0.7rem;
+      font-size: 0.75rem;
     }
   }
   
   .notification-item {
-    --padding-start: 12px !important;
-    --padding-end: 12px !important;
-    
     .notification-icon {
-      width: 36px !important;
-      height: 36px !important;
-      margin-right: 10px !important;
+      width: 44px !important;
+      height: 44px !important;
+      margin: 16px 12px 16px 16px !important;
       
       ion-icon {
-        font-size: 18px !important;
+        font-size: 22px !important;
       }
     }
     
     .notification-label {
-      .notification-header .notification-title {
-        font-size: 0.95rem !important;
+      margin: 16px 12px 16px 0 !important;
+      
+      .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        
+        .notification-time {
+          margin-left: 0 !important;
+        }
       }
       
       .notification-message {
-        font-size: 0.8rem !important;
+        font-size: 0.85rem !important;
       }
+    }
+    
+    .notification-actions {
+      margin: 16px 12px 16px 0 !important;
     }
   }
 }
@@ -359,52 +579,85 @@
 // Dark mode support
 @media (prefers-color-scheme: dark) {
   .notifications-content {
-    --background: var(--ion-color-dark);
+    --background: #0f172a;
+  }
+  
+  .stats-header .stats-number {
+    color: white !important;
   }
   
   .filter-segment {
-    background: var(--ion-color-dark-shade);
+    background: #1e293b;
+    border-color: #334155;
     
     .filter-button {
-      --background: var(--ion-color-dark-shade);
-      --color: var(--ion-color-light);
+      --background: #1e293b;
+      --color: #cbd5e1;
     }
   }
   
   .toggle-item {
-    --background: var(--ion-color-dark-shade);
+    --background: #1e293b;
+    border-color: #334155;
     
     .toggle-label {
       color: white;
     }
   }
   
-  .notifications-list {
-    background: var(--ion-color-dark-shade);
+  .notification-item {
+    --background: #1e293b;
+    --border-color: #334155;
+    border-color: #334155;
     
-    .notification-item {
-      --background: var(--ion-color-dark-shade);
-      --border-color: var(--ion-color-dark-tint);
+    .notification-title {
+      color: white !important;
+    }
+    
+    .notification-message {
+      color: #cbd5e1 !important;
+    }
+    
+    .notification-time {
+      color: #94a3b8 !important;
+    }
+    
+    .notification-icon {
+      background: #334155 !important;
       
-      .notification-title {
-        color: white;
-      }
-      
-      .notification-message {
-        color: var(--ion-color-light);
-      }
-      
-      .notification-time {
-        color: var(--ion-color-light);
+      ion-icon {
+        color: #cbd5e1 !important;
       }
     }
   }
   
-  .notifications-header .notifications-title {
+  .empty-state h3 {
     color: white;
   }
   
-  .empty-state h3 {
-    color: white;
+  .empty-state p {
+    color: #94a3b8;
+  }
+}
+
+// Animation for notification items
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-item {
+  animation: slideIn 0.4s ease-out;
+  
+  @for $i from 1 through 20 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
   }
 }

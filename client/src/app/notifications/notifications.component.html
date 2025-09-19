@@ -17,6 +17,30 @@
 
 <ion-content class="notifications-content">
   <div class="container">
+    <!-- Header with Stats -->
+    <div class="stats-header">
+      <div class="stats-item">
+        <span class="stats-number">{{ notifications.length }}</span>
+        <span class="stats-label">Total</span>
+      </div>
+      <div class="stats-item" *ngIf="unreadCount > 0">
+        <span class="stats-number unread">{{ unreadCount }}</span>
+        <span class="stats-label">Unread</span>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <ion-button fill="outline" size="small" (click)="markAllAsRead()" [disabled]="unreadCount === 0">
+        <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+        Mark All Read
+      </ion-button>
+      <ion-button fill="outline" size="small" color="danger" (click)="clearAllNotifications()" [disabled]="notifications.length === 0">
+        <ion-icon name="trash-outline" slot="start"></ion-icon>
+        Clear All
+      </ion-button>
+    </div>
+
     <!-- Filter Section -->
     <div class="filter-section">
       <ion-segment 
@@ -35,6 +59,7 @@
     <!-- Unread Toggle -->
     <div class="unread-toggle-section">
       <ion-item lines="none" class="toggle-item">
+        <ion-icon name="mail-unread-outline" slot="start" class="toggle-icon"></ion-icon>
         <ion-label class="toggle-label">Show unread only</ion-label>
         <ion-toggle 
           [(ngModel)]="showUnreadOnly" 
@@ -47,8 +72,12 @@
     <!-- Loading State -->
     @if (isLoading) {
       <div class="loading-state">
-        <ion-spinner name="crescent"></ion-spinner>
-        <p>Loading notifications...</p>
+        <div class="loading-animation">
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+          <div class="loading-dot"></div>
+        </div>
+        <p>Loading your notifications...</p>
       </div>
     }
 
@@ -56,18 +85,24 @@
     @if (errorMessage) {
       <div class="error-state">
         <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+        <h3>Something went wrong</h3>
         <p>{{ errorMessage }}</p>
-        <ion-button fill="outline" (click)="loadNotifications()">Retry</ion-button>
+        <ion-button fill="solid" (click)="loadNotifications()" class="retry-button">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Try Again
+        </ion-button>
       </div>
     }
 
     <!-- Empty State -->
     @if (!isLoading && !errorMessage && filteredNotifications.length === 0) {
       <div class="empty-state">
-        <ion-icon name="notifications-outline" class="empty-icon"></ion-icon>
+        <div class="empty-illustration">
+          <ion-icon name="notifications-off-outline" class="empty-icon"></ion-icon>
+        </div>
         <h3>No Notifications</h3>
         <p>
-          {{ showUnreadOnly ? 'You have no unread notifications.' : 'You\'re all caught up!' }}
+          {{ showUnreadOnly ? 'You have no unread notifications.' : 'You\'re all caught up! Everything looks good.' }}
         </p>
       </div>
     }
@@ -91,8 +126,13 @@
               (click)="onNotificationClick(notification)"
               class="notification-item"
               [class.unread]="!notification.isRead"
-              [class.high-priority]="notification.priority === 'high'">
+              [class.high-priority]="notification.priority === 'high'"
+              [class.medium-priority]="notification.priority === 'medium'"
+              [class.low-priority]="notification.priority === 'low'">
               
+              <!-- Notification Status Indicator -->
+              <div class="notification-indicator" [class.unread]="!notification.isRead"></div>
+
               <!-- Notification Icon -->
               <div class="notification-icon" [class]="'icon-' + notification.type">
                 <ion-icon [name]="notification.icon || getTypeIcon(notification.type)"></ion-icon>
@@ -108,7 +148,7 @@
                 
                 @if (notification.actionText) {
                   <ion-button 
-                    fill="clear" 
+                    fill="solid" 
                     size="small"
                     [color]="getTypeColor(notification.type)"
                     class="action-button"
@@ -117,6 +157,11 @@
                   </ion-button>
                 }
               </ion-label>
+
+              <!-- Notification Priority Badge -->
+              @if (notification.priority === 'high') {
+                <ion-badge color="danger" class="priority-badge">High</ion-badge>
+              }
 
               <!-- Notification Actions -->
               <div class="notification-actions">
