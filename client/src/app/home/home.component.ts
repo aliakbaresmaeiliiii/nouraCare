@@ -15,6 +15,8 @@ import { MessageService } from '../shared/services/message.service';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { SharedModule } from '../shared/shared-module';
+import { HomeDataService } from './services/home-data.service';
+import { HomeUIService } from './services/home-ui.service';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +31,8 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
   private trackDataService = inject(TrackDataService);
+  private homeDataService = inject(HomeDataService);
+  private homeUIService = inject(HomeUIService);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
 
   welcomeMessage: string = '';
@@ -1226,11 +1230,10 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
     // Always fetch fresh data from API to ensure we have the latest symptoms
     this.trackDataService.getTrackDay(this.getCurrentUserId(), today).subscribe({
-      next: (data) => {
+      next: (data:any) => {
         this.isLoadingWellness = false;
-        
-        if (data && data.length > 0) {
-          const rawData = data[0];
+        if (data ) {
+          const rawData = data;
           
           // Parse symptoms if they're stored as JSON string
           let parsedSymptoms = rawData.symptoms;
