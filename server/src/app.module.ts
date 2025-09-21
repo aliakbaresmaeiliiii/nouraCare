@@ -8,6 +8,7 @@ import { GeoModule } from './geo/geo.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { TrackDayModule } from './track-day/track-day.module';
 import { DoctorsModule } from './doctors/doctors.module';
+import { SecretChatsModule } from './secret-chats/secret-chats.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { DoctorsModule } from './doctors/doctors.module';
     OnboardingModule,
     TrackDayModule,
     DoctorsModule,
+    SecretChatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

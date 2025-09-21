@@ -1,13 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { SecretChatsService } from 'src/app/secret-chats/services/secret-chat';
+import { PostCategory } from 'src/app/secret-chats/secret.chats.dto';
 
-export interface PostCategory {
-  id: string;
-  name: string;
-  description?: string;
-  icon?: string;
-}
 
 @Component({
   selector: 'app-category-selection-modal',
@@ -19,65 +15,21 @@ export interface PostCategory {
 export class CategorySelectionModalComponent implements OnInit {
 
   private modalController = inject(ModalController);
-
+  private secretChatsService = inject(SecretChatsService);
   selectedCategory: PostCategory | null = null;
 
   // Categories matching the image
-  categories: PostCategory[] = [
-    {
-      id: 'trying-to-conceive',
-      name: 'Trying to conceive',
-      description: 'Questions and support for conception journey'
-    },
-    {
-      id: 'pregnancy-tests',
-      name: 'Pregnancy tests',
-      description: 'Testing experiences and questions'
-    },
-    {
-      id: 'ovulation',
-      name: 'Ovulation',
-      description: 'Tracking and understanding ovulation'
-    },
-    {
-      id: 'pregnancy',
-      name: 'Pregnancy',
-      description: 'General pregnancy discussions'
-    },
-    {
-      id: '1st-trimester',
-      name: '1st trimester',
-      description: 'First trimester experiences and questions'
-    },
-    {
-      id: '2nd-trimester',
-      name: '2nd trimester',
-      description: 'Second trimester discussions'
-    },
-    {
-      id: '3rd-trimester',
-      name: '3rd trimester',
-      description: 'Third trimester experiences'
-    },
-    {
-      id: 'parenthood',
-      name: 'Parenthood',
-      description: 'Life with your little one'
-    },
-    {
-      id: 'postpartum',
-      name: 'Postpartum',
-      description: 'Recovery and postpartum life'
-    },
-    {
-      id: 'relationships',
-      name: 'Relationships',
-      description: 'Partner and family relationships'
-    }
-  ];
+  categories = signal<PostCategory[]>([]);
 
   ngOnInit() {
-    debugger
+    this.getCategories();
+  }
+
+  getCategories() {
+    this.secretChatsService.getCategories().subscribe((categories: any) => {
+      debugger;
+      this.categories.set(categories.data)
+    });
   }
 
   // Category selection
@@ -115,7 +67,7 @@ export class CategorySelectionModalComponent implements OnInit {
       'postpartum': 'medical',
       'relationships': 'heart-circle'
     };
-    
+
     return iconMap[categoryId] || 'bookmark';
   }
 }

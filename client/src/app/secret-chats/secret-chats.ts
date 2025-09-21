@@ -20,11 +20,11 @@ interface Post {
   category?: string;
   poll?: {
     question: string;
-    options: Array<{text: string, percentage: number, votes: number}>;
+    options: Array<{ text: string, percentage: number, votes: number }>;
     totalVotes: number;
     userVote?: number;
   };
-  recentComments?: Array<{username: string, text: string}>;
+  recentComments?: Array<{ username: string, text: string }>;
 }
 
 interface FeaturedStory {
@@ -38,15 +38,15 @@ interface FeaturedStory {
 }
 
 @Component({
-  selector: 'app-social',
-  templateUrl: './social.component.html',
-  styleUrls: ['./social.component.scss'],
+  selector: 'app-secret-chats',
+  templateUrl: './secret-chats.html',
+  styleUrls: ['./secret-chats.scss'],
   standalone: true,
   imports: [SharedModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class SocialComponent implements OnInit {
-  
+export class SecretChatsComponent implements OnInit {
+
   private router = inject(Router);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
@@ -62,8 +62,8 @@ export class SocialComponent implements OnInit {
   activeTopic = 'pregnancy';
 
   // Data
-  posts: Post[] = [];
-  filteredPosts: Post[] = [];
+  secretChats: any[] = [];
+  filteredSecretChats: any[] = [];
   featuredStory: FeaturedStory | null = null;
 
   ngOnInit() {
@@ -94,7 +94,7 @@ export class SocialComponent implements OnInit {
 
   async createNewPost() {
     const { CreatePostModalComponent } = await import('../shared/components/create-post-modal/create-post-modal.component');
-    
+
     const modal = await this.modalController.create({
       component: CreatePostModalComponent,
       cssClass: 'create-post-modal-wrapper',
@@ -104,7 +104,6 @@ export class SocialComponent implements OnInit {
     await modal.present();
 
     const { data, role } = await modal.onDidDismiss();
-
     if (role === 'success' && data) {
       // Add the new post to the feed
       this.addNewPostToFeed(data);
@@ -130,9 +129,9 @@ export class SocialComponent implements OnInit {
     };
 
     // Add to the beginning of the posts array
-    this.posts.unshift(newPost);
-    this.filteredPosts.unshift(newPost);
-    
+    this.secretChats.unshift(newPost);
+    this.filteredSecretChats.unshift(newPost);
+
     this.showToast('Post created successfully! 🎉', 'success');
   }
 
@@ -237,27 +236,28 @@ export class SocialComponent implements OnInit {
   }
 
   private loadPosts() {
-    this.isLoadingPosts = true;
-    setTimeout(() => {
-      this.posts = [
-        {
-          id: '1',
-          username: 'Sarah M.',
-          userAvatar: 'assets/images/user-sarah.png',
-          content: 'Just found out I\'m expecting! 🎉 Any first-time moms want to connect?',
-          createdAt: new Date(),
-          likes: 24,
-          comments: 8,
-          shares: 3,
-          isLiked: false,
-          isBookmarked: false,
-          isFeatured: true,
-          isOnline: true,
-          category: 'Pregnancy'
-        }
-      ];
-      this.filteredPosts = [...this.posts];
-      this.isLoadingPosts = false;
-    }, 1000);
+    this.isLoadingPosts = true; 
+    //   setTimeout(() => {
+    //     this.posts = [
+    //       {
+    //         id: '1',
+    //         username: 'Sarah M.',
+    //         userAvatar: 'assets/images/user-sarah.png',
+    //         content: 'Just found out I\'m expecting! 🎉 Any first-time moms want to connect?',
+    //         createdAt: new Date(),
+    //         likes: 24,
+    //         comments: 8,
+    //         shares: 3,
+    //         isLiked: false,
+    //         isBookmarked: false,
+    //         isFeatured: true,
+    //         isOnline: true,
+    //         category: 'Pregnancy'
+    //       }
+    //     ];
+    //     this.filteredPosts = [...this.posts];
+    //     this.isLoadingPosts = false;
+    //   }, 1000);
+    // }
   }
 }

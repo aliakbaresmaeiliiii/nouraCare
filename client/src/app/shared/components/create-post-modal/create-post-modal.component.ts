@@ -2,8 +2,9 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
-import { CategorySelectionModalComponent, PostCategory } from '../category-selection-modal/category-selection-modal.component';
+import { CategorySelectionModalComponent } from '../category-selection-modal/category-selection-modal.component';
 import { PostDetailModalComponent } from '../post-detail-modal/post-detail-modal.component';
+import { PostCategory } from 'src/app/secret-chats/secret.chats.dto';
 
 @Component({
   selector: 'app-create-post-modal',

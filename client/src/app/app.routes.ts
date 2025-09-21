@@ -199,7 +199,7 @@ export const routes: Routes = [
       {
         path: 'SecretChats',
         loadComponent: () =>
-          import('./social/social.component').then((m) => m.SocialComponent),
+          import('./secret-chats/secret-chats').then((m) => m.SecretChatsComponent),
       },
       {
         path: 'consultation',
