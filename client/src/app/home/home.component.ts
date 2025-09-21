@@ -195,10 +195,10 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     this.initializeHealthTip();
 
     // Listen for symptoms updates
-    // window.addEventListener('symptomsUpdated', () => {
-    //   this.loadTodaySymptoms();
-    //   this.loadRecentSymptomsDays();
-    // });
+    window.addEventListener('symptomsUpdated', () => {
+      this.loadTodaySymptoms();
+      this.loadRecentSymptomsDays();
+    });
 
   }
 
@@ -335,6 +335,28 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
     // Always fetch fresh data from API when entering home page
     this.refreshChartWithFreshData();
+    
+    // Load today's symptoms data from API
+    this.loadTodaySymptoms();
+    this.loadRecentSymptomsDays();
+    
+    // Refresh wellness data
+    this.refreshWellnessData();
+  }
+
+  /**
+   * Refresh wellness data from API
+   */
+  private refreshWellnessData() {
+    console.log('🔄 Refreshing wellness data from API...');
+    
+    // Force refresh today's symptoms
+    this.loadTodaySymptoms();
+    
+    // Load recent symptoms for the wellness section
+    this.loadRecentSymptomsDays();
+    
+    console.log('✅ Wellness data refreshed');
   }
 
   /**
@@ -1196,42 +1218,115 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Symptoms Summary Methods
   todaySymptoms: SymptomsDto = {} as SymptomsDto;
+  isLoadingWellness: boolean = false;
 
   loadTodaySymptoms() {
     const today = new Date().toISOString().split('T')[0];
+    this.isLoadingWellness = true;
 
-    // First try to get from local service (faster)
-    const localData = this.trackDataService.getTodayTrackData();
-    if (localData) {
-      this.todaySymptoms = localData as SymptomsDto;
-      console.log('🔍 Today symptoms from local service:', this.todaySymptoms);
-      return;
-    }
-
-    // If not found locally, fetch from API
+    // Always fetch fresh data from API to ensure we have the latest symptoms
     this.trackDataService.getTrackDay(this.getCurrentUserId(), today).subscribe({
       next: (data) => {
+        this.isLoadingWellness = false;
+        
         if (data && data.length > 0) {
-          this.todaySymptoms = data[0] as SymptomsDto;
+          const rawData = data[0];
+          
+          // Parse symptoms if they're stored as JSON string
+          let parsedSymptoms = rawData.symptoms;
+          if (typeof rawData.symptoms === 'string') {
+            try {
+              parsedSymptoms = JSON.parse(rawData.symptoms);
+            } catch (e) {
+              console.warn('Failed to parse symptoms JSON:', e);
+              parsedSymptoms = [];
+            }
+          }
+          
+          // Ensure symptoms is an array
+          if (!Array.isArray(parsedSymptoms)) {
+            parsedSymptoms = [];
+          }
+
+          this.todaySymptoms = {
+            userId: rawData.userId || this.getCurrentUserId(),
+            date: rawData.date || today,
+            mood: rawData.mood || '',
+            energy: rawData.energy || '',
+            symptoms: parsedSymptoms,
+            notes: rawData.notes || ''
+          } as SymptomsDto;
 
           // Store in local service for future use
           this.trackDataService.saveTrackData({
-            id: data[0].id,
+            id: rawData.id,
             userId: this.getCurrentUserId(),
             date: today,
-            symptoms: data[0].symptoms,
-            mood: data[0].mood,
-            energy: data[0].energy,
-            notes: data[0].notes,
-            createdAt: data[0].createdAt,
-            updatedAt: data[0].updatedAt
+            symptoms: parsedSymptoms,
+            mood: rawData.mood,
+            energy: rawData.energy,
+            notes: rawData.notes,
+            createdAt: rawData.createdAt,
+            updatedAt: rawData.updatedAt
           });
+          
+          console.log('✅ Today symptoms loaded from API:', this.todaySymptoms);
+        } else {
+          // No data for today, initialize empty
+          this.todaySymptoms = {
+            userId: this.getCurrentUserId(),
+            date: today,
+            mood: '',
+            energy: '',
+            symptoms: [],
+            notes: ''
+          } as SymptomsDto;
+          console.log('📝 No symptoms data for today, initialized empty');
         }
-        console.log('🔍 Today symptoms from API:', this.todaySymptoms);
       },
       error: (error) => {
-        console.log('🔍 No symptoms data for today (404 is normal):', error.status);
-        this.todaySymptoms = {} as SymptomsDto;
+        this.isLoadingWellness = false;
+        console.log('⚠️ Error loading today symptoms:', error.status);
+        
+        // Fallback to local data if API fails
+        const localData = this.trackDataService.getTodayTrackData();
+        if (localData) {
+          // Parse symptoms if they're stored as JSON string
+          let parsedSymptoms = localData.symptoms;
+          if (typeof localData.symptoms === 'string') {
+            try {
+              parsedSymptoms = JSON.parse(localData.symptoms);
+            } catch (e) {
+              console.warn('Failed to parse local symptoms JSON:', e);
+              parsedSymptoms = [];
+            }
+          }
+          
+          // Ensure symptoms is an array
+          if (!Array.isArray(parsedSymptoms)) {
+            parsedSymptoms = [];
+          }
+
+          this.todaySymptoms = {
+            userId: localData.userId || this.getCurrentUserId(),
+            date: localData.date || today,
+            mood: localData.mood || '',
+            energy: localData.energy || '',
+            symptoms: parsedSymptoms,
+            notes: localData.notes || ''
+          } as SymptomsDto;
+          console.log('🔄 Fallback to local symptoms data:', this.todaySymptoms);
+        } else {
+          // Initialize empty if no local data
+          this.todaySymptoms = {
+            userId: this.getCurrentUserId(),
+            date: today,
+            mood: '',
+            energy: '',
+            symptoms: [],
+            notes: ''
+          } as SymptomsDto;
+        }
       }
     });
   }

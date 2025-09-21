@@ -23,6 +23,12 @@
       <div class="date-display" (click)="openDatePicker()">
         <h1>{{ getFormattedDate() }}</h1>
         <p>{{ getPregnancyProgress() }}</p>
+        @if (hasDataForDate) {
+          <div class="data-indicator">
+            <ion-icon name="checkmark-circle" color="success"></ion-icon>
+            <span>Data exists</span>
+          </div>
+        }
       </div>
       
       <ion-button fill="clear" class="nav-btn" (click)="nextDay()">
@@ -43,13 +49,14 @@
   <div class="mood-section">
     <h3>How are you feeling?</h3>
     <div class="mood-options">
-      <div class="mood-item" 
-           *ngFor="let mood of getMoodOptions()" 
-           [class.selected]="currentMood === mood.id"
-           (click)="selectMood(mood.id)">
-        <span class="emoji">{{ mood.emoji }}</span>
-        <span class="label">{{ mood.name }}</span>
-      </div>
+      @for (mood of getMoodOptions(); track mood.id) {
+        <div class="mood-item" 
+             [class.selected]="currentMood === mood.id"
+             (click)="selectMood(mood.id)">
+          <span class="emoji">{{ mood.emoji }}</span>
+          <span class="label">{{ mood.name }}</span>
+        </div>
+      }
     </div>
   </div>
 
@@ -57,13 +64,14 @@
   <div class="quick-symptoms">
     <h3>Quick Symptoms</h3>
     <div class="quick-grid">
-      <div class="quick-item" 
-           *ngFor="let symptom of ['fatigue', 'nausea', 'headache', 'cramps']"
-           [class.selected]="isQuickSymptomSelected(symptom)"
-           (click)="toggleQuickSymptom(symptom)">
-        <ion-icon [name]="getSymptomIcon(symptom)"></ion-icon>
-        <span>{{ getSymptomName(symptom) }}</span>
-      </div>
+      @for (symptom of ['fatigue', 'nausea', 'headache', 'cramps']; track symptom) {
+        <div class="quick-item" 
+             [class.selected]="isQuickSymptomSelected(symptom)"
+             (click)="toggleQuickSymptom(symptom)">
+          <ion-icon [name]="getSymptomIcon(symptom)"></ion-icon>
+          <span>{{ getSymptomName(symptom) }}</span>
+        </div>
+      }
     </div>
   </div>
 
@@ -75,14 +83,17 @@
     <div class="category">
       <h4>Physical Symptoms</h4>
       <div class="symptoms-list">
-        <div class="symptom-item" 
-             *ngFor="let symptom of physicalSymptoms" 
-             [class.selected]="isSelected(symptom.id)"
-             (click)="toggleSelection(symptom.id)">
-          <ion-icon [name]="symptom.icon"></ion-icon>
-          <span>{{ symptom.name }}</span>
-          <ion-icon name="checkmark" *ngIf="isSelected(symptom.id)"></ion-icon>
-        </div>
+        @for (symptom of physicalSymptoms; track symptom.id) {
+          <div class="symptom-item" 
+               [class.selected]="isSelected(symptom.id)"
+               (click)="toggleSelection(symptom.id)">
+            <ion-icon [name]="symptom.icon"></ion-icon>
+            <span>{{ symptom.name }}</span>
+            @if (isSelected(symptom.id)) {
+              <ion-icon name="checkmark"></ion-icon>
+            }
+          </div>
+        }
       </div>
     </div>
 
@@ -90,14 +101,17 @@
     <div class="category">
       <h4>Mood & Emotional</h4>
       <div class="symptoms-list">
-        <div class="symptom-item" 
-             *ngFor="let symptom of moodOptions" 
-             [class.selected]="isSelected(symptom.id)"
-             (click)="toggleSelection(symptom.id)">
-          <ion-icon [name]="symptom.icon"></ion-icon>
-          <span>{{ symptom.name }}</span>
-          <ion-icon name="checkmark" *ngIf="isSelected(symptom.id)"></ion-icon>
-        </div>
+        @for (symptom of moodOptions; track symptom.id) {
+          <div class="symptom-item" 
+               [class.selected]="isSelected(symptom.id)"
+               (click)="toggleSelection(symptom.id)">
+            <ion-icon [name]="symptom.icon"></ion-icon>
+            <span>{{ symptom.name }}</span>
+            @if (isSelected(symptom.id)) {
+              <ion-icon name="checkmark"></ion-icon>
+            }
+          </div>
+        }
       </div>
     </div>
 
@@ -105,14 +119,17 @@
     <div class="category">
       <h4>Intimacy & Sex Drive</h4>
       <div class="symptoms-list">
-        <div class="symptom-item" 
-             *ngFor="let symptom of sexDriveOptions" 
-             [class.selected]="isSelected(symptom.id)"
-             (click)="toggleSelection(symptom.id)">
-          <ion-icon [name]="symptom.icon"></ion-icon>
-          <span>{{ symptom.name }}</span>
-          <ion-icon name="checkmark" *ngIf="isSelected(symptom.id)"></ion-icon>
-        </div>
+        @for (symptom of sexDriveOptions; track symptom.id) {
+          <div class="symptom-item" 
+               [class.selected]="isSelected(symptom.id)"
+               (click)="toggleSelection(symptom.id)">
+            <ion-icon [name]="symptom.icon"></ion-icon>
+            <span>{{ symptom.name }}</span>
+            @if (isSelected(symptom.id)) {
+              <ion-icon name="checkmark"></ion-icon>
+            }
+          </div>
+        }
       </div>
     </div>
   </div>
@@ -129,30 +146,32 @@
   </div>
 
   <!-- Summary Section -->
-  <div class="summary-section" *ngIf="hasAnySelection()">
-    <h3>
-      <ion-icon name="list-outline"></ion-icon>
-      Summary
-    </h3>
-    <div class="summary-content">
-      <div class="summary-item">
-        <span class="summary-label">Mood:</span>
-        <span class="summary-value">{{ getCurrentMoodName() }}</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">Quick Symptoms:</span>
-        <span class="summary-value">{{ quickSymptoms.size }} selected</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">Detailed Symptoms:</span>
-        <span class="summary-value">{{ selectedItems.size }} selected</span>
-      </div>
-      <div class="summary-item">
-        <span class="summary-label">Total:</span>
-        <span class="summary-value">{{ getTotalSelections() }} symptoms</span>
+  @if (hasAnySelection()) {
+    <div class="summary-section">
+      <h3>
+        <ion-icon name="list-outline"></ion-icon>
+        Summary
+      </h3>
+      <div class="summary-content">
+        <div class="summary-item">
+          <span class="summary-label">Mood:</span>
+          <span class="summary-value">{{ getCurrentMoodName() }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Quick Symptoms:</span>
+          <span class="summary-value">{{ quickSymptoms.size }} selected</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Detailed Symptoms:</span>
+          <span class="summary-value">{{ selectedItems.size }} selected</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total:</span>
+          <span class="summary-value">{{ getTotalSelections() }} symptoms</span>
+        </div>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Save Button -->
   <div class="save-section">
@@ -161,13 +180,15 @@
       fill="solid"
       [disabled]="!hasAnySelection()"
       (click)="saveSymptoms()">
-      <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-      Save Symptoms ({{ getTotalSelections() }})
+      <ion-icon [name]="hasDataForDate ? 'refresh-outline' : 'checkmark-outline'" slot="start"></ion-icon>
+      {{ hasDataForDate ? 'Update' : 'Save' }} Symptoms ({{ getTotalSelections() }})
     </ion-button>
     
-    <div class="save-info" *ngIf="hasAnySelection()">
-      <ion-icon name="information-circle-outline"></ion-icon>
-      <span>Ready to save your symptoms for {{ getFormattedDate() }}</span>
-    </div>
+    @if (hasAnySelection()) {
+      <div class="save-info">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <span>Ready to save your symptoms for {{ getFormattedDate() }}</span>
+      </div>
+    }
   </div>
 </ion-content>

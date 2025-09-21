@@ -1,16 +1,13 @@
-<ion-header>
-  <ion-toolbar color="secondary">
-    <ion-title>🤰 Pregnancy Week Calculator</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="dismiss()">
-        <ion-icon name="close"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="pregnancy-results-content">
-  <div class="results-container">
+<div class="modal-glass pregnancy-results-modal">
+  <div class="modal-header">
+    <h2>🤰 Pregnancy Week Calculator</h2>
+    <button class="close-button" (click)="dismiss()">
+      <ion-icon name="close"></ion-icon>
+    </button>
+  </div>
+  
+  <div class="modal-body">
+    <div class="results-container">
     
     <!-- Header Section -->
     <div class="results-header">
@@ -144,28 +141,23 @@
       <p>This calculation is based on your last menstrual period (LMP). Due dates can vary by ±2 weeks. Always consult your healthcare provider for accurate pregnancy dating and personalized care.</p>
     </div>
 
-  </div>
-</ion-content>
-
-<ion-footer>
-  <ion-toolbar>
-    <div class="action-buttons">
-      <ion-button expand="block" fill="solid" color="secondary" (click)="updateProfile()">
-        <ion-icon name="person" slot="start"></ion-icon>
-        Update My Profile
-      </ion-button>
-      
-      <div class="secondary-actions">
-        <ion-button fill="outline" size="small" (click)="trackSymptoms()">
-          <ion-icon name="medical" slot="start"></ion-icon>
-          Track Symptoms
-        </ion-button>
-        
-        <ion-button fill="outline" size="small" (click)="setAppointment()">
-          <ion-icon name="calendar" slot="start"></ion-icon>
-          Book Appointment
-        </ion-button>
-      </div>
     </div>
-  </ion-toolbar>
-</ion-footer>
+  </div>
+  
+  <div class="modal-footer">
+    <button class="glass-button primary" (click)="updateProfile()">
+      <ion-icon name="person"></ion-icon>
+      Update My Profile
+    </button>
+    
+    <button class="glass-button secondary" (click)="trackSymptoms()">
+      <ion-icon name="medical"></ion-icon>
+      Track Symptoms
+    </button>
+    
+    <button class="glass-button secondary" (click)="setAppointment()">
+      <ion-icon name="calendar"></ion-icon>
+      Book Appointment
+    </button>
+  </div>
+</div>

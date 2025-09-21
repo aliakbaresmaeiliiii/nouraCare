@@ -4,6 +4,16 @@ import { IonicModule, AlertController, ToastController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DoctorService } from '../shared/services/doctor.service';
 import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
+import { Share } from '@capacitor/share';
+
+// Extend Window interface to include Capacitor
+declare global {
+  interface Window {
+    Capacitor?: {
+      isNativePlatform(): boolean;
+    };
+  }
+}
 
 @Component({
   selector: 'app-doctor-profile',
@@ -114,27 +124,37 @@ export class DoctorProfileComponent implements OnInit {
     });
     await toast.present();
   }
+  isMobile = false;
 
-  async shareProfile() {
+  shareDoctorProfile() {
+    if (!this.doctor || !this.isMobile) return;
     if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${this.doctor?.fullName} - Doctor Profile`,
-          text: `Check out ${this.doctor?.fullName}, ${this.doctor?.specialty}`,
-          url: window.location.href
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-      }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      const toast = await this.toastController.create({
-        message: 'Profile link copied to clipboard!',
-        duration: 2000,
-        color: 'success',
-        position: 'bottom'
+      navigator.share({
+        title: this.doctor.fullName,
+        text: this.doctor.about,
+        url: window.location.href,
+      }).catch(err => {
+        console.log('Error sharing:', err);
+        // Fallback to clipboard on mobile if share fails
+        this.copyToClipboard();
       });
-      await toast.present();
+    } else {
+      // Fallback for mobile devices without Web Share API
+      this.copyToClipboard();
+    }
+  }
+
+  private copyToClipboard() {
+    if (!this.doctor) return;
+    
+    const shareText = `${this.doctor.fullName}\n\n${this.doctor.about}\n\n${window.location.href}`;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareText).then(() => {
+        console.log('Doctor profile link copied to clipboard');
+      }).catch(err => {
+        console.log('Failed to copy to clipboard:', err);
+      });
     }
   }
 

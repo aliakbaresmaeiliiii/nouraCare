@@ -138,6 +138,7 @@ export class EditProfileComponent implements OnInit {
     try {
       // Get current user info from UserInfoService
       const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+      debugger;
       if (currentUserInfo?.userId) {
         // Fetch both user table data and onboarding data in parallel
         this.fetchUserDataAndOnboardingData(currentUserInfo.userId);
@@ -152,6 +153,7 @@ export class EditProfileComponent implements OnInit {
   private fetchUserDataAndOnboardingData(userId: number) {
     // Fetch user table data (name, email, birthday, profile image, etc.)
     const userData$ = this.userService.getUser(String(userId));
+    debugger;
     
     // Fetch onboarding data (cycle settings)
     const onboardingData$ = this.userInfoService.getUserOnboardingData(userId);

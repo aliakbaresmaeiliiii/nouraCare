@@ -6,6 +6,8 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { DailySymptoms, SymptomData, SYMPTOMS_CONFIG } from '../shared/constants/symptoms-config';
+import { SymptomsDataService } from './services/symptoms-data.service';
+import { SymptomsUIService } from './services/symptoms-ui.service';
 
 
 
@@ -27,7 +29,9 @@ export class SymptomsTrackerComponent implements OnInit {
   private trackDataService = inject(TrackDataService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-  selectedDate: string = this.getLocalDateString();
+  private symptomsDataService = inject(SymptomsDataService);
+  private symptomsUIService = inject(SymptomsUIService);
+  selectedDate: string = this.symptomsUIService.getLocalDateString();
 
   maxDate: string = new Date().toISOString();
   currentMood: string = 'good';
@@ -37,6 +41,7 @@ export class SymptomsTrackerComponent implements OnInit {
   selectedItems: Set<string> = new Set();
   isUpdateMode: boolean = false;
   existingData: any;
+  hasDataForDate: boolean = false;
 
   // Use shared symptoms configuration
   sexDriveOptions = SYMPTOMS_CONFIG.sexDriveOptions;
@@ -99,29 +104,7 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   convertSelectedItemsToSymptoms(): any[] {
-    const allOptions = [
-      ...this.sexDriveOptions,
-      ...this.moodOptions,
-      ...this.physicalSymptoms
-    ];
-
-    const symptoms = Array.from(this.selectedItems).map(itemId => {
-      const option = allOptions.find(opt => opt.id === itemId);
-      console.log(`🔍 Processing itemId: ${itemId}, found option:`, option);
-      if (option) {
-        return {
-          id: option.id,
-          name: option.name,
-          icon: option.icon,
-          category: this.getCategoryForItem(itemId),
-          severity: 'mild' // Default severity
-        };
-      }
-      return null;
-    }).filter(symptom => symptom !== null);
-
-    console.log('🔍 Final symptoms array:', symptoms);
-    return symptoms;
+    return this.symptomsDataService.convertSelectedItemsToSymptoms(this.selectedItems);
   }
 
   getCategoryForItem(itemId: string): string {
@@ -303,6 +286,16 @@ export class SymptomsTrackerComponent implements OnInit {
     this.currentEnergy = 'medium';
     this.selectedSymptoms = [];
     this.notes = '';
+    this.selectedItems.clear();
+    this.quickSymptoms.clear();
+    this.hasDataForDate = false;
+    
+    // Update form
+    this.symptomsForm.patchValue({
+      mood: this.currentMood,
+      energy: this.currentEnergy,
+      notes: this.notes
+    });
   }
 
   setActiveTab(tab: any) {
@@ -434,7 +427,7 @@ export class SymptomsTrackerComponent implements OnInit {
     this.selectedSymptoms = this.selectedSymptoms.filter(s => s.id !== symptomId);
   }
 
-  async saveSymptoms() {
+   saveSymptoms() {
     try {
       // Update form with current values
       this.symptomsForm.patchValue({
@@ -447,40 +440,28 @@ export class SymptomsTrackerComponent implements OnInit {
 
       // Check if any symptoms are selected
       if (!this.hasAnySelection()) {
-        await this.showToast('Please select at least one symptom to track', 'warning');
+         this.showToast('Please select at least one symptom to track', 'warning');
         return;
       }
 
       // Convert selected chips to symptoms array
       const selectedSymptoms = this.convertSelectedItemsToSymptoms();
       
-      // Add quick symptoms to the list
-      const quickSymptomsArray = Array.from(this.quickSymptoms).map(symptom => ({
-        id: symptom,
-        name: this.getSymptomName(symptom),
-        icon: this.getSymptomIcon(symptom),
-        category: 'Quick',
-        severity: 'mild'
-      }));
-
-      // Combine all symptoms
-      const allSymptoms = [...selectedSymptoms, ...quickSymptomsArray];
-
-      const apiData = {
+      const apiData = this.symptomsDataService.createApiPayload({
         userId: this.getUserId(),
-        symptoms: allSymptoms,
-        mood: this.currentMood,
-        energy: this.currentEnergy,
+        selectedItems: this.selectedItems,
+        quickSymptoms: this.quickSymptoms,
+        currentMood: this.currentMood,
+        currentEnergy: this.currentEnergy,
         notes: this.notes,
-        date: this.selectedDate,
-        timestamp: new Date().toISOString()
-      };
+        selectedDate: this.selectedDate
+      });
 
 
       if (this.isUpdateMode) {
-        await this.updateSymptomsInAPI(apiData);
+         this.updateSymptomsInAPI(apiData);
       } else {
-        await this.sendSymptomsToAPI(apiData);
+         this.sendSymptomsToAPI(apiData);
       }
 
       // Update local history with API-compatible format
@@ -508,7 +489,7 @@ export class SymptomsTrackerComponent implements OnInit {
       }
 
       // Show success message
-      await this.showToast(`✅ ${allSymptoms.length} symptoms saved successfully!`, 'success');
+       this.showToast(`✅ Symptoms saved successfully!`, 'success');
 
       // Show summary of what was saved
       // await this.showSaveSummary(dailyData);
@@ -521,31 +502,43 @@ export class SymptomsTrackerComponent implements OnInit {
 
     } catch (error) {
       console.error('Error saving symptoms:', error);
-      await this.showToast('❌ Failed to save symptoms. Please try again.', 'danger');
+       this.showToast('❌ Failed to save symptoms. Please try again.', 'danger');
     }
   }
 
   sendSymptomsToAPI(data: any) {
     try {
-      this.trackDataService.createSymptoms(this.getUserId(), data).subscribe((response) => {
-        // Store in local service for quick access
-        this.trackDataService.saveTrackData({
-          id: response.id,
-          userId: parseInt(this.getUserId()),
-          date: data.date,
-          symptoms: data.symptoms,
-          mood: data.mood,
-          energy: data.energy,
-          notes: data.notes,
-          createdAt: response.createdAt,
-          updatedAt: response.updatedAt
-        });
+      this.trackDataService.createSymptoms(this.getUserId(), data).subscribe({
+        next: (response) => {
+          // Store in local service for quick access
+          this.trackDataService.saveTrackData({
+            id: response.id,
+            userId: parseInt(this.getUserId()),
+            date: data.date,
+            symptoms: data.symptoms,
+            mood: data.mood,
+            energy: data.energy,
+            notes: data.notes,
+            createdAt: response.createdAt,
+            updatedAt: response.updatedAt
+          });
 
-        // Show success message
-        this.showToast('Symptoms saved successfully!', 'success');
+          // Show success message
+          this.showToast('Symptoms saved successfully!', 'success');
 
-        // Navigate back
-        this.goBack();
+          // Navigate back
+          this.router.navigate(['/tabs/home'])
+        },
+        error: (error) => {
+          console.error('API Error:', error);
+          
+          // Check if it's a 409 Conflict error (day already exists)
+          if (error.status === 409 && error.error?.message?.includes('already exists')) {
+            this.handleExistingDayConflict(data.date);
+          } else {
+            this.showToast('Failed to save symptoms', 'danger');
+          }
+        }
       });
 
     } catch (error) {
@@ -558,7 +551,6 @@ export class SymptomsTrackerComponent implements OnInit {
   updateSymptomsInAPI(data: any) {
     try {
       this.trackDataService.updateSymptoms(this.getUserId(), this.selectedDate, data).subscribe((response) => {
-        console.log('Symptoms updated successfully:', response);
 
         // Update in local service
         this.trackDataService.saveTrackData({
@@ -577,13 +569,113 @@ export class SymptomsTrackerComponent implements OnInit {
         this.showToast('Symptoms updated successfully!', 'success');
 
         // Navigate back
-        this.goBack();
+        this.router.navigate(['/tabs/home'])
       });
 
     } catch (error) {
       console.error('Update API Error:', error);
       this.showToast('Failed to update symptoms', 'danger');
       throw error;
+    }
+  }
+
+  handleExistingDayConflict(date: string) {
+    // Fetch existing data for this date
+    this.trackDataService.getTrackDay(parseInt(this.getUserId()), date).subscribe({
+      next: (existingData) => {
+        if (existingData && existingData.length > 0) {
+          // Show the existing data to the user
+          this.showExistingDayAlert(existingData[0], date);
+        } else {
+          this.showToast('Day already exists but no data found', 'warning');
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching existing day data:', error);
+        this.showToast('Day already exists. Please try updating instead.', 'warning');
+      }
+    });
+  }
+
+  async showExistingDayAlert(existingData: any, date: string) {
+    const alert = await this.alertController.create({
+      header: 'Day Already Tracked',
+      message: `You have already tracked symptoms for ${date}. Would you like to view or update the existing data?`,
+      buttons: [
+        {
+          text: 'View Data',
+          handler: () => {
+            this.loadExistingDataFromAPI(existingData);
+          }
+        },
+        {
+          text: 'Update Data',
+          handler: () => {
+            this.loadExistingDataFromAPI(existingData);
+            this.isUpdateMode = true;
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  loadExistingDataFromAPI(existingData: any) {
+    this.existingData = existingData;
+    
+    // Use service to load data
+    const result = this.symptomsDataService.loadFromAPI(existingData);
+    
+    // Apply the result to component state
+    this.currentMood = result.currentMood;
+    this.currentEnergy = result.currentEnergy;
+    this.notes = result.notes;
+    this.selectedItems = result.selectedItems;
+    this.quickSymptoms = result.quickSymptoms;
+    this.selectedSymptoms = result.selectedSymptoms;
+    this.hasDataForDate = result.hasDataForDate;
+    
+    // Set the form values
+    this.symptomsForm.patchValue({
+      mood: this.currentMood,
+      energy: this.currentEnergy,
+      notes: this.notes
+    });
+
+    this.showToast(`Data loaded for ${this.getFormattedDate()}`, 'success');
+    this.cdr.detectChanges();
+  }
+
+  loadExistingDataFromService(existingData: any) {
+    this.resetForm();
+    
+    if (existingData) {
+      // Use service to load data
+      const result = this.symptomsDataService.loadFromLocalService(existingData);
+      
+      // Apply the result to component state
+      this.currentMood = result.currentMood;
+      this.currentEnergy = result.currentEnergy;
+      this.notes = result.notes;
+      this.selectedItems = result.selectedItems;
+      this.quickSymptoms = result.quickSymptoms;
+      this.selectedSymptoms = result.selectedSymptoms;
+      this.hasDataForDate = result.hasDataForDate;
+      
+      // Update form with loaded data
+      this.symptomsForm.patchValue({
+        mood: this.currentMood,
+        energy: this.currentEnergy,
+        notes: this.notes
+      });
+      
+      this.showToast(`Data loaded for ${this.getFormattedDate()}`, 'success');
+      this.cdr.detectChanges();
     }
   }
 
@@ -607,12 +699,7 @@ export class SymptomsTrackerComponent implements OnInit {
 
   // New modern UI methods
   getFormattedDate(): string {
-    const date = new Date(this.selectedDate);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+    return this.symptomsUIService.getFormattedDate(this.selectedDate);
   }
 
   getDayProgress(): number {
@@ -640,7 +727,6 @@ export class SymptomsTrackerComponent implements OnInit {
 
   openDatePicker(): void {
     // Implementation for date picker modal
-    console.log('Open date picker');
   }
 
   selectMood(moodId: string): void {
@@ -648,13 +734,7 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   getMoodOptions(): any[] {
-    return [
-      { id: 'great', name: 'Great', emoji: '😊' },
-      { id: 'good', name: 'Good', emoji: '🙂' },
-      { id: 'okay', name: 'Okay', emoji: '😐' },
-      { id: 'not_great', name: 'Not Great', emoji: '😔' },
-      { id: 'terrible', name: 'Terrible', emoji: '😢' }
-    ];
+    return this.symptomsUIService.getMoodOptions();
   }
 
   toggleQuickSymptom(symptom: string): void {
@@ -706,48 +786,82 @@ export class SymptomsTrackerComponent implements OnInit {
 
   startVoiceInput(): void {
     // Implementation for voice input
-    console.log('Start voice input');
   }
 
   viewHistory(): void {
     this.router.navigate(['/symptoms-history']);
   }
 
-  private formatDateForInput(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  private   formatDateForInput(date: Date): string {
+    return this.symptomsUIService.formatDateForInput(date);
   }
 
   private loadDayData(): void {
     // Load data for the selected day
-    console.log('Loading data for:', this.selectedDate);
+    
+    // First try to get data from API
+    const userId = this.getUserId();
+    if (userId && userId !== 'anonymous') {
+        this.trackDataService.getTrackDay(parseInt(userId), this.selectedDate).subscribe({
+          next: (apiData) => {
+            
+            // Check if we have data (could be object or array)
+            if (apiData) {
+              // If it's an array, take the first element, otherwise use the object directly
+              const dataToLoad = Array.isArray(apiData) ? apiData[0] : apiData;
+              
+              if (dataToLoad && (dataToLoad.symptoms || dataToLoad.mood || dataToLoad.energy || dataToLoad.notes)) {
+                this.loadExistingDataFromAPI(dataToLoad);
+              } else {
+                // Fallback to local storage if no meaningful API data
+                const existingData = this.trackDataService.getTrackDataByDate(this.selectedDate);
+                if (existingData) {
+                  this.loadExistingDataFromService(existingData);
+                } else {
+                  this.resetForm();
+                }
+              }
+            } else {
+              // Fallback to local storage if no API data
+              const existingData = this.trackDataService.getTrackDataByDate(this.selectedDate);
+              if (existingData) {
+                this.loadExistingDataFromService(existingData);
+              } else {
+                this.resetForm();
+              }
+            }
+          },
+        error: (error) => {
+          // Fallback to local storage if API fails
+          const existingData = this.trackDataService.getTrackDataByDate(this.selectedDate);
+          if (existingData) {
+            this.loadExistingDataFromService(existingData);
+          } else {
+            this.resetForm();
+          }
+        }
+      });
+    } else {
+      // Fallback to local storage if no user ID
+      const existingData = this.trackDataService.getTrackDataByDate(this.selectedDate);
+      if (existingData) {
+        this.loadExistingDataFromService(existingData);
+      } else {
+        this.resetForm();
+      }
+    }
   }
 
   getSymptomName(symptom: string): string {
-    const symptomNames: { [key: string]: string } = {
-      'fatigue': 'Fatigue',
-      'nausea': 'Nausea',
-      'headache': 'Headache',
-      'cramps': 'Cramps'
-    };
-    return symptomNames[symptom] || symptom;
+    return this.symptomsUIService.getSymptomName(symptom);
   }
 
   getSymptomIcon(symptom: string): string {
-    const symptomIcons: { [key: string]: string } = {
-      'fatigue': 'bed-outline',
-      'nausea': 'medical-outline',
-      'headache': 'headset-outline',
-      'cramps': 'heart-outline'
-    };
-    return symptomIcons[symptom] || 'medical-outline';
+    return this.symptomsUIService.getSymptomIcon(symptom);
   }
 
   getCurrentMoodName(): string {
-    const mood = this.getMoodOptions().find(m => m.id === this.currentMood);
-    return mood?.name || '';
+    return this.symptomsUIService.getCurrentMoodName(this.currentMood);
   }
 
   async showSaveSummary(data: DailySymptoms) {
@@ -801,23 +915,11 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   getMoodEmoji(mood: string): string {
-    const moodEmojis: Record<string, string> = {
-      'excellent': '😄',
-      'good': '😊',
-      'okay': '😐',
-      'poor': '😔',
-      'terrible': '😢'
-    };
-    return moodEmojis[mood] || '😐';
+    return this.symptomsUIService.getMoodEmoji(mood);
   }
 
   getEnergyEmoji(energy: string): string {
-    const energyEmojis: Record<string, string> = {
-      'high': '⚡',
-      'medium': '🔋',
-      'low': '🔋'
-    };
-    return energyEmojis[energy] || '🔋';
+    return this.symptomsUIService.getEnergyEmoji(energy);
   }
 
 
@@ -831,10 +933,8 @@ export class SymptomsTrackerComponent implements OnInit {
     await toast.present();
   }
 
-  // Get current pregnancy week (you might want to inject a service for this)
   getCurrentPregnancyWeek(): number {
-    // This should come from your pregnancy tracking service
-    return 20; // Example value
+    return this.symptomsUIService.getCurrentPregnancyWeek();
   }
 
   getRelevantSymptoms() {

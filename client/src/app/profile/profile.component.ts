@@ -12,6 +12,16 @@ import { Router } from '@angular/router';
 import { User } from '../shared/services/user';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
+import { Share } from '@capacitor/share';
+
+// Extend Window interface to include Capacitor
+declare global {
+  interface Window {
+    Capacitor?: {
+      isNativePlatform(): boolean;
+    };
+  }
+}
 
 
 @Component({
@@ -105,22 +115,34 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       const shareData = {
         title: 'My Profile - Gahvareh',
         text: `Check out my profile on Gahvareh! I'm ${this.name || 'a user'} and my profile is ${this.percent}% complete.`,
-        url: window.location.href, // Share the current profile page URL
+        url: window.location.href,
       };
 
-      // Try to use native Web Share API
-      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
-        console.log('Profile shared successfully using native share');
-      } else {
-        // Fallback: Copy to clipboard and show alert
-        const shareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
-        await this.copyToClipboard(shareText);
-        this.showShareSuccessAlert();
+      // Try Web Share API first (works on mobile browsers)
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          return;
+        } catch (error) {
+          console.log('Web Share API failed:', error);
+        }
       }
+
+      // Try Capacitor Share plugin (for native apps)
+      try {
+        await Share.share(shareData);
+        return;
+      } catch (error) {
+        console.log('Capacitor Share failed:', error);
+      }
+
+      // Fallback: Copy to clipboard
+      const shareText = `${shareData.title}\n${shareData.text}\n${shareData.url}`;
+      await this.copyToClipboard(shareText);
+      this.showShareSuccessAlert();
     } catch (error) {
       console.error('Error sharing profile:', error);
-      // Fallback: Copy to clipboard
+      // Final fallback: Copy to clipboard
       try {
         const fallbackText = `My Profile - Gahvareh\nCheck out my profile: ${window.location.href}`;
         await this.copyToClipboard(fallbackText);
@@ -220,6 +242,46 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
         alert.remove();
       }
     }, 3000);
+  }
+
+  private showShareNotSupportedAlert() {
+    const alert = document.createElement('div');
+    alert.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff9800;
+      color: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 300px;
+      animation: slideIn 0.3s ease-out;
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    alert.innerHTML = `📱 Share feature works best on mobile devices. Link copied to clipboard!`;
+    document.body.appendChild(alert);
+
+    // Also copy to clipboard
+    const shareText = `My Profile - Gahvareh\nCheck out my profile: ${window.location.href}`;
+    this.copyToClipboard(shareText);
+
+    setTimeout(() => {
+      if (alert.parentNode) {
+        alert.remove();
+      }
+    }, 4000);
   }
 
   // Method to refresh profile data and progress when returning from edit profile

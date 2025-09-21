@@ -1454,6 +1454,29 @@
       .symptoms-display {
         flex: 1;
 
+        .loading-wellness {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem 1rem;
+          text-align: center;
+          
+          ion-spinner {
+            --color: #ec4899;
+            width: 32px;
+            height: 32px;
+            margin-bottom: 1rem;
+          }
+          
+          p {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin: 0;
+            font-weight: 500;
+          }
+        }
+
         .symptoms-visual {
           .symptom-indicators {
             display: flex;

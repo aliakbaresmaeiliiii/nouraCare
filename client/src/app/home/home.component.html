@@ -28,7 +28,7 @@
             <p class="user-status">{{ getGreetingMessage() }}</p>
           </div>
         </div>
-        
+
         <div class="header-actions">
           <ion-button fill="clear" class="action-btn" (click)="openNotifications()">
             <ion-icon name="notifications-outline"></ion-icon>
@@ -54,7 +54,7 @@
             <ion-icon name="chevron-forward-outline"></ion-icon>
           </ion-button>
         </div>
-        
+
         <!-- Progress Bar -->
         <div class="progress-section" *ngIf="isPregnant || isPostpartum">
           <div class="progress-info">
@@ -395,35 +395,42 @@
     <div class="symptoms-tracker">
       <div class="symptoms-main-card">
         <div class="symptoms-display">
-          <div class="symptoms-visual"
-            *ngIf="todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0; else noSymptomsTemplate">
+          <!-- Loading State -->
+          @if (isLoadingWellness) {
+          <div class="loading-wellness">
+            <ion-spinner name="crescent"></ion-spinner>
+            <p>Loading today's wellness data...</p>
+          </div>
+          }
+          <!-- Symptoms Data -->
+          @if (!isLoadingWellness && todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0) {
+          <div class="symptoms-visual">
             <div class="symptom-indicators">
-              <div class="symptom-bubble" *ngFor="let symptom of todaySymptoms.symptoms.slice(0, 4); let i = index"
-                [class]="'bubble-' + (i + 1)">
-                <ion-icon [name]="symptom.icon"></ion-icon>
+              @for (item of todaySymptoms.symptoms.slice(0, todaySymptoms.symptoms.length > 4 ? 4 : todaySymptoms.symptoms.length); track $index; let i = $index) {
+              <div class="symptom-bubble" [class]="'bubble-' + (i + 1)">
+                <ion-icon [name]="item.icon"></ion-icon>
               </div>
-              <div class="more-symptoms" *ngIf="todaySymptoms.symptoms.length > 4"
-                (click)="openSymptomsTrackingForUpdate()">
+              @if (todaySymptoms.symptoms.length > 4 && i === 3) {
+              <div class="more-symptoms" (click)="openSymptomsTrackingForUpdate()">
                 <span>+{{ todaySymptoms.symptoms.length - 4 }}</span>
               </div>
+              }
+              }
             </div>
             <div class="symptoms-summary">
               <h3>{{ todaySymptoms.symptoms.length }} symptoms logged</h3>
-              <p>Tap to view or add more</p>
             </div>
           </div>
-
-          <ng-template #noSymptomsTemplate>
-            <div class="no-symptoms-state">
-              <div class="no-symptoms-icon">
-                <ion-icon name="add-circle-outline"></ion-icon>
-              </div>
-              <h3>No symptoms logged today</h3>
-              <p>Tap to add how you're feeling</p>
+          } @else if (!isLoadingWellness) {
+          <div class="no-symptoms-state">
+            <div class="no-symptoms-icon">
+              <ion-icon name="add-circle-outline"></ion-icon>
             </div>
-          </ng-template>
+            <h3>No symptoms logged today</h3>
+            <p>Tap to add how you're feeling</p>
+          </div>
+          }
         </div>
-
         <div class="symptoms-action">
           <ion-button fill="clear" class="add-symptom-btn" (click)="openSymptomsTracking()">
             <ion-icon name="add" slot="icon-only"></ion-icon>

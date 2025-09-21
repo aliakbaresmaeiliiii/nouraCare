@@ -44,14 +44,18 @@
     </div>
     
     <!-- Loading State -->
-    <div class="loading-container" *ngIf="isLoading">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Loading doctors...</p>
-    </div>
+    @if (isLoading) {
+      <div class="loading-container">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading doctors...</p>
+      </div>
+    }
 
     <!-- Doctors List -->
-    <div class="doctors-grid" *ngIf="!isLoading && doctors.length > 0">
-      <div class="specialist-card" *ngFor="let doctor of doctors" (click)="bookWithDoctor(doctor)">
+    @if (!isLoading && doctors.length > 0) {
+      <div class="doctors-grid">
+        @for (doctor of doctors; track doctor.id) {
+          <div class="specialist-card" (click)="bookWithDoctor(doctor)">
         <div class="specialist-avatar">
           <img [src]="doctor.profileImageUrl || 'assets/images/doctor-placeholder.jpg'" [alt]="doctor.fullName">
           <div class="online-indicator" [class.offline]="doctor.consultationType === 'IN_PERSON'"></div>
@@ -60,22 +64,34 @@
           <h3 class="specialist-name">{{ doctor.fullName }}</h3>
           <p class="specialist-specialty">{{ doctor.specialty }}</p>
           <div class="specialist-details">
-            <span class="rating" *ngIf="doctor.rating">⭐ {{ doctor.rating }}/5</span>
+            @if (doctor.rating) {
+              <span class="rating">⭐ {{ doctor.rating }}/5</span>
+            }
             <span class="experience">{{ doctor.experienceYears }}+ years experience</span>
           </div>
           <div class="specialist-availability">
-            <span class="available" *ngIf="doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH'">Available Online</span>
-            <span class="available" *ngIf="doctor.consultationType === 'IN_PERSON' || doctor.consultationType === 'BOTH'">In-Person Available</span>
-            <span class="fee" *ngIf="doctor.fee">${{ doctor.fee }}</span>
+            @if (doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH') {
+              <span class="available">Available Online</span>
+            }
+            @if (doctor.consultationType === 'IN_PERSON' || doctor.consultationType === 'BOTH') {
+              <span class="available">In-Person Available</span>
+            }
+            @if (doctor.fee) {
+              <span class="fee">${{ doctor.fee }}</span>
+            }
           </div>
-          <div class="specialist-location" *ngIf="doctor.location">
-            <ion-icon name="location-outline"></ion-icon>
-            <span>{{ doctor.location }}</span>
-          </div>
-          <div class="specialist-clinic" *ngIf="doctor.clinicName">
-            <ion-icon name="business-outline"></ion-icon>
-            <span>{{ doctor.clinicName }}</span>
-          </div>
+          @if (doctor.location) {
+            <div class="specialist-location">
+              <ion-icon name="location-outline"></ion-icon>
+              <span>{{ doctor.location }}</span>
+            </div>
+          }
+          @if (doctor.clinicName) {
+            <div class="specialist-clinic">
+              <ion-icon name="business-outline"></ion-icon>
+              <span>{{ doctor.clinicName }}</span>
+            </div>
+          }
           <div class="consultation-type">
             <span class="type-badge" [class]="doctor.consultationType.toLowerCase()">
               {{ getConsultationTypeLabel(doctor.consultationType) }}
@@ -90,30 +106,40 @@
             View Profile
           </ion-button>
         </div>
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- Show More Button -->
-    <div class="show-more-section" *ngIf="!isLoading && doctors.length > 0">
+    @if (!isLoading && doctors.length > 0) {
+      <div class="show-more-section">
       <ion-button expand="block" fill="outline" class="show-more-btn" (click)="showAllDoctors()">
         <ion-icon name="chevron-down" slot="start"></ion-icon>
         View All Doctors
         <ion-icon name="arrow-forward" slot="end"></ion-icon>
       </ion-button>
       <p class="show-more-text">See more specialists and their availability</p>
-    </div>
+      </div>
+    }
 
     <!-- No Doctors State -->
-    <div class="no-doctors" *ngIf="!isLoading && doctors.length === 0">
+    @if (!isLoading && doctors.length === 0) {
+      <div class="no-doctors">
       <ion-icon name="medical-outline"></ion-icon>
       <h3>No Doctors Found</h3>
-      <p *ngIf="searchTerm">No doctors match your search criteria. Try adjusting your search terms.</p>
-      <p *ngIf="!searchTerm">No doctors are currently available. Please check back later or contact support.</p>
+      @if (searchTerm) {
+        <p>No doctors match your search criteria. Try adjusting your search terms.</p>
+      }
+      @if (!searchTerm) {
+        <p>No doctors are currently available. Please check back later or contact support.</p>
+      }
       <ion-button fill="solid" (click)="loadDoctors()">
         <ion-icon name="refresh" slot="start"></ion-icon>
         Refresh
       </ion-button>
-    </div>
+      </div>
+    }
   </div>
 
   <!-- Quick Booking -->
