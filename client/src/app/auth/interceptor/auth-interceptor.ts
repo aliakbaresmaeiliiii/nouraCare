@@ -18,15 +18,40 @@ export class AuthInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<any>> {
     // Add authorization header
     const token = localStorage.getItem('access_token');
+    let modifiedReq = req;
+    
     if (token) {
-      req = req.clone({
+      // Add Authorization header with Bearer token
+      modifiedReq = req.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      // NOTE: Adding user ID as a header is generally NOT recommended for security reasons.
+      // The user ID should be extracted from the JWT token on the backend, not sent from the frontend.
+      // This is provided as an example only if specifically required.
+      try {
+        // Extract payload from JWT token (base64 encoded)
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const userId = payload.sub || payload.userId || payload.id;
+        
+        if (userId) {
+          // Add user ID as a custom header
+          modifiedReq = modifiedReq.clone({
+            setHeaders: {
+              'X-User-ID': userId.toString(),
+            },
+          });
+          
+          console.log('🔐 Auth interceptor: Added X-User-ID header:', userId);
+        }
+      } catch (error) {
+        console.error('❌ Failed to extract user ID from token:', error);
+      }
     }
 
-    return next.handle(req).pipe(
+    return next.handle(modifiedReq).pipe(
       map((event: HttpEvent<any>) => {
         if (event instanceof HttpResponse) {
           // Handle successful responses

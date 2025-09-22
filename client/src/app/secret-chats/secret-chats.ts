@@ -1,7 +1,17 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
-import { AlertController, ToastController, ActionSheetController, ModalController } from '@ionic/angular';
+import {
+  AlertController,
+  ToastController,
+  ActionSheetController,
+  ModalController,
+} from '@ionic/angular';
 import { SecretChatsService } from './services/secret-chat.service';
 import { SecretChat, CreateSecretChatDto } from './secret.chats.dto';
 
@@ -13,10 +23,9 @@ import { SecretChat, CreateSecretChatDto } from './secret.chats.dto';
   styleUrls: ['./secret-chats.scss', './secret-chats-additional.scss'],
   standalone: true,
   imports: [SharedModule],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SecretChatsComponent implements OnInit {
-
   private router = inject(Router);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
@@ -57,17 +66,29 @@ export class SecretChatsComponent implements OnInit {
 
     // Check if user has access to create posts
     if (!this.canUserCreatePosts()) {
-      this.showToast('You need to be a member of a chat to create posts', 'warning');
+      this.showToast(
+        'You need to be a member of a chat to create posts',
+        'warning'
+      );
       this.showNoChatsDialog();
       return;
     }
 
-    const selectedChat = this.availableChats.find(chat => chat.id === this.selectedChatId);
+    const selectedChat = this.availableChats.find(
+      (chat) => chat.id === this.selectedChatId
+    );
     const userRole = this.getCurrentUserRole(selectedChat);
 
-    console.log('👤 Creating post as:', userRole, 'in chat:', selectedChat?.name);
+    console.log(
+      '👤 Creating post as:',
+      userRole,
+      'in chat:',
+      selectedChat?.name
+    );
 
-    const { CreatePostModalComponent } = await import('../shared/components/create-post-modal/create-post-modal.component');
+    const { CreatePostModalComponent } = await import(
+      '../shared/components/create-post-modal/create-post-modal.component'
+    );
 
     const modal = await this.modalController.create({
       component: CreatePostModalComponent,
@@ -77,8 +98,8 @@ export class SecretChatsComponent implements OnInit {
         selectedChatId: this.selectedChatId,
         selectedChatName: selectedChat?.name || 'Community Feed',
         availableChats: this.availableChats,
-        currentUserRole: userRole
-      }
+        currentUserRole: userRole,
+      },
     });
 
     await modal.present();
@@ -86,7 +107,7 @@ export class SecretChatsComponent implements OnInit {
     const { data, role } = await modal.onDidDismiss();
     if (role === 'success' && data) {
       console.log('✅ Post creation confirmed:', data);
-      
+
       // Add the new post to the feed
       this.addNewPostToFeed(data);
     }
@@ -94,22 +115,25 @@ export class SecretChatsComponent implements OnInit {
 
   getUserChats(page: number = 1) {
     this.secretChatsService.getUserChats().subscribe({
-      next: (response:any) => {
+      next: (response: any) => {
         console.log('📋 User chats loaded:', response);
-        
+
         // Extract chats from response.data
         const chats = response.data || response;
-        
+
         if (chats && Array.isArray(chats) && chats.length > 0) {
           // Store available chats (only chats where user is a member)
           this.availableChats = chats;
-          
+
           // Use the first chat's ID
           this.selectedChatId = chats[0].id;
           console.log('🎯 Selected chatId:', this.selectedChatId);
           console.log('📝 Chat name:', chats[0].name);
-          console.log('👥 User role in this chat:', chats[0].currentUserRole || 'MEMBER');
-          
+          console.log(
+            '👥 User role in this chat:',
+            chats[0].currentUserRole || 'MEMBER'
+          );
+
           // Now load posts for this chat
           this.loadPosts(page);
         } else {
@@ -121,14 +145,14 @@ export class SecretChatsComponent implements OnInit {
         console.error('❌ Failed to load user chats:', error);
         this.showToast('Failed to load chats', 'danger');
         this.showNoChatsDialog();
-      }
+      },
     });
   }
 
   private addNewPostToFeed(postData: any) {
     console.log('✅ Post created successfully:', postData);
     this.showToast('Post created successfully! 🎉', 'success');
-    
+
     // Reload posts from API to get the latest data
     this.loadPosts(1);
   }
@@ -166,7 +190,7 @@ export class SecretChatsComponent implements OnInit {
       duration: 2000,
       color,
       position: 'bottom',
-      cssClass: 'ios-modern-toast'
+      cssClass: 'ios-modern-toast',
     });
     await toast.present();
   }
@@ -174,14 +198,40 @@ export class SecretChatsComponent implements OnInit {
   // Placeholder methods for template
   toggleLike(post: any, event: Event) {
     event.stopPropagation();
-    this.showToast('Like toggled!', 'success');
+    
+    // Optimistically update UI for better user experience
+    const wasLiked = post.isLiked;
+    post.isLiked = !wasLiked;
+    post._count.likes = (post._count?.likes || 0) + (wasLiked ? -1 : 1);
+    
+    this.secretChatsService.togglePostLike(post.id).subscribe({
+      next: (response: { liked: boolean }) => {
+        console.log('✅ Like toggled:', response);
+        
+        // Update with actual server response
+        post.isLiked = response.liked;
+        
+        // Adjust count based on actual server response
+        if (response.liked !== !wasLiked) {
+          post._count.likes = (post._count?.likes || 0) + (response.liked ? 1 : -1);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Failed to toggle like:', error);
+        
+        // Revert optimistic update on error
+        post.isLiked = wasLiked;
+        post._count.likes = (post._count?.likes || 0) + (wasLiked ? 1 : -1);
+        
+        this.showToast('Failed to toggle like', 'danger');
+      },
+    });
   }
 
   openComments(post: any, event: Event) {
     event.stopPropagation();
     this.showToast('Opening comments...', 'primary');
   }
-
 
   bookmarkPost(post: any, event: Event) {
     event.stopPropagation();
@@ -221,55 +271,56 @@ export class SecretChatsComponent implements OnInit {
 
   loadMorePosts() {
     if (this.isLoadingPosts) return;
-    
+
     console.log('📥 Loading more posts...');
     this.isLoadingPosts = true;
-    
+
     // صفحه بعدی رو بخون (فعلاً ساده نگه داشتم)
     const currentCount = this.secretChats.length;
     const nextPage = Math.floor(currentCount / 20) + 1;
 
     // Don't reload chats, just load more posts
-    this.secretChatsService.getChatPosts(this.selectedChatId, nextPage, 20).subscribe({
-      next: (response) => {
-        console.log('✅ More posts loaded:', response);
-        
-        const newPosts = response.data || response;
-        if (Array.isArray(newPosts) && newPosts.length > 0) {
-          this.secretChats = [...this.secretChats, ...newPosts];
-          this.filteredSecretChats = [...this.secretChats];
-          this.showToast(`${newPosts.length} more posts loaded`, 'success');
-        } else {
-          this.hasMorePosts = false;
-          this.showToast('No more posts', 'warning');
-        }
-        
-        this.isLoadingPosts = false;
-      },
-      error: (error) => {
-        console.error('❌ Failed to load more posts:', error);
-        this.isLoadingPosts = false;
-        this.showToast('Failed to load more posts', 'danger');
-      }
-    });
-  }
+    this.secretChatsService
+      .getChatPosts(this.selectedChatId, nextPage, 20)
+      .subscribe({
+        next: (response) => {
+          console.log('✅ More posts loaded:', response);
 
+          const newPosts = response.data || response;
+          if (Array.isArray(newPosts) && newPosts.length > 0) {
+            this.secretChats = [...this.secretChats, ...newPosts];
+            this.filteredSecretChats = [...this.secretChats];
+            this.showToast(`${newPosts.length} more posts loaded`, 'success');
+          } else {
+            this.hasMorePosts = false;
+            this.showToast('No more posts', 'warning');
+          }
+
+          this.isLoadingPosts = false;
+        },
+        error: (error) => {
+          console.error('❌ Failed to load more posts:', error);
+          this.isLoadingPosts = false;
+          this.showToast('Failed to load more posts', 'danger');
+        },
+      });
+  }
 
   getTimeAgo(date: string | Date): string {
     if (!date) return 'Unknown';
-    
+
     const now = new Date();
     const postDate = new Date(date);
     const diffMs = now.getTime() - postDate.getTime();
     const diffMins = Math.floor(diffMs / (1000 * 60));
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
+
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m`;
     if (diffHours < 24) return `${diffHours}h`;
     if (diffDays < 7) return `${diffDays}d`;
-    
+
     return postDate.toLocaleDateString();
   }
 
@@ -286,7 +337,12 @@ export class SecretChatsComponent implements OnInit {
 
   getInitials(name: string | undefined): string {
     if (!name) return 'U';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
   }
 
   showPostMenu(post: any, event: Event) {
@@ -324,8 +380,10 @@ export class SecretChatsComponent implements OnInit {
     }
 
     const currentUserId = this.getCurrentUserId();
-    const membership = chat.members.find((member: any) => member.userId === currentUserId);
-    
+    const membership = chat.members.find(
+      (member: any) => member.userId === currentUserId
+    );
+
     return membership ? membership.role : 'NOT_MEMBER';
   }
 
@@ -338,22 +396,23 @@ export class SecretChatsComponent implements OnInit {
   private async showNoChatsDialog() {
     const alert = await this.alertController.create({
       header: '🏠 No Chats Available',
-      message: 'You need to join or create a chat to start posting. Would you like to create a new chat?',
+      message:
+        'You need to join or create a chat to start posting. Would you like to create a new chat?',
       cssClass: 'ios-modern-alert',
       buttons: [
         {
           text: 'Not Now',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'Create Chat',
           cssClass: 'primary',
           handler: () => {
             this.createNewChat();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -367,34 +426,37 @@ export class SecretChatsComponent implements OnInit {
         {
           name: 'name',
           type: 'text',
-          placeholder: 'Chat name (e.g., "Pregnancy Support")'
+          placeholder: 'Chat name (e.g., "Pregnancy Support")',
         },
         {
           name: 'description',
           type: 'textarea',
-          placeholder: 'Brief description of this chat...'
-        }
+          placeholder: 'Brief description of this chat...',
+        },
       ],
       buttons: [
         {
           text: 'Cancel',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'Create',
           cssClass: 'primary',
           handler: (data) => {
             if (data.name && data.name.trim()) {
-              this.submitNewChat(data.name.trim(), data.description?.trim() || '');
+              this.submitNewChat(
+                data.name.trim(),
+                data.description?.trim() || ''
+              );
               return true;
             } else {
               this.showToast('Please enter a chat name', 'warning');
               return false;
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -416,7 +478,7 @@ export class SecretChatsComponent implements OnInit {
     const createChatDto: CreateSecretChatDto = {
       name,
       description,
-      isGroup: true
+      isGroup: true,
     };
 
     console.log('📤 Sending chat creation request:', createChatDto);
@@ -425,11 +487,11 @@ export class SecretChatsComponent implements OnInit {
       next: (newChat) => {
         console.log('✅ Chat created successfully:', newChat);
         this.showToast(`Chat "${name}" created successfully! 🎉`, 'success');
-        
+
         // Add to available chats and select it
         this.availableChats.push(newChat);
         this.selectedChatId = newChat.id;
-        
+
         // Load posts for the new chat
         this.loadPosts(1);
       },
@@ -439,17 +501,20 @@ export class SecretChatsComponent implements OnInit {
           status: error.status,
           statusText: error.statusText,
           message: error.message,
-          error: error.error
+          error: error.error,
         });
-        
+
         if (error.status === 401) {
           this.showToast('Please log in to create chats', 'danger');
         } else if (error.status === 403) {
-          this.showToast('You do not have permission to create chats', 'danger');
+          this.showToast(
+            'You do not have permission to create chats',
+            'danger'
+          );
         } else {
           this.showToast('Failed to create chat. Please try again.', 'danger');
         }
-      }
+      },
     });
   }
 
@@ -462,29 +527,41 @@ export class SecretChatsComponent implements OnInit {
 
     this.isLoadingPosts = true;
     console.log('📥 Loading posts from API for chat:', this.selectedChatId);
-    
+
     // از API پست‌ها رو بخون
-    this.secretChatsService.getChatPosts(this.selectedChatId, page, 20).subscribe({
-      next: (response) => {
-        console.log('✅ Posts loaded successfully:', response);
-        
-        // اگر response.data داره، اونو استفاده کن
-        const posts = response.data || response;
-        this.secretChats = Array.isArray(posts) ? posts : [];
-        this.filteredSecretChats = [...this.secretChats];
-        
-        this.isLoadingPosts = false;
-        this.showToast(`${this.secretChats.length} posts loaded`, 'success');
-      },
-      error: (error) => {
-        console.error('❌ Failed to load posts:', error);
-        this.isLoadingPosts = false;
-        
-        // اگر API کار نکرد، پست‌های تست نشون بده
-        this.secretChats = [];
-        this.filteredSecretChats = [];
-        this.showToast('Failed to load posts', 'danger');
-      }
-    });
+    this.secretChatsService
+      .getChatPosts(this.selectedChatId, page, 20)
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Posts loaded successfully:', response);
+
+          // اگر response.data داره، اونو استفاده کن
+          const posts = response.data || response;
+          // Ensure each post has the required properties for UI
+          this.secretChats = Array.isArray(posts) ? posts.map(post => ({
+            ...post,
+            isLiked: post.isLiked || false,
+            // Ensure _count object exists with proper defaults
+            _count: {
+              ...post._count, // spread existing _count properties first
+              likes: (post._count?.likes ?? 0), // then ensure likes has proper default
+              comments: (post._count?.comments ?? 0) // then ensure comments has proper default
+            }
+          })) : [];
+          this.filteredSecretChats = [...this.secretChats];
+
+          this.isLoadingPosts = false;
+          this.showToast(`${this.secretChats.length} posts loaded`, 'success');
+        },
+        error: (error) => {
+          console.error('❌ Failed to load posts:', error);
+          this.isLoadingPosts = false;
+
+          // اگر API کار نکرد، پست‌های تست نشون بده
+          this.secretChats = [];
+          this.filteredSecretChats = [];
+          this.showToast('Failed to load posts', 'danger');
+        },
+      });
   }
 }
