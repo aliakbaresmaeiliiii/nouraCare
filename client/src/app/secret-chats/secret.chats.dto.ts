@@ -69,6 +69,13 @@ export enum MemberRole {
     url: string;
     type: MediaType;
     caption?: string;
+    order: number;
+    size?: number;
+    filename?: string;
+  }
+
+  export interface CreatePostMediaNestedDto {
+    create: CreatePostMediaDto[];
   }
   
   export interface CreatePostDto {
@@ -76,7 +83,8 @@ export enum MemberRole {
     chatId: string;
     categoryId?: string; // NEW: Optional category
     isAnonymous?: boolean;
-    media?: CreatePostMediaDto[];
+    media?: CreatePostMediaDto[]; // Direct array as expected by backend
+    id?: number;
   }
   
   export interface CreateCommentDto {

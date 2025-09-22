@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { SecretChatsService } from './secret-chat.service';
+import { FileUpload } from './file-upload';
 
-describe('SecretChat', () => {
-  let service: SecretChatsService;
+describe('FileUpload', () => {
+  let service: FileUpload;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(SecretChatsService);
+    service = TestBed.inject(FileUpload);
   });
 
   it('should be created', () => {

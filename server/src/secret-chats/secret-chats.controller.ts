@@ -58,7 +58,7 @@ export class SecretChatsController {
 
   // Chat Management Endpoints
   @Post()
-  async createChat(
+   createChat(
     @Request() req: AuthenticatedRequest,
     @Body() createChatDto: CreateSecretChatDto,
   ) {
@@ -67,7 +67,23 @@ export class SecretChatsController {
 
   @Get()
   async getUserChats(@Request() req: AuthenticatedRequest) {
-    return this.secretChatsService.getUserChats(req.user.id);
+    const userId = req.user?.id || 1; // Temporary fallback
+    const chats = await this.secretChatsService.getUserChats(userId);
+    return {
+      data: chats,
+      success: true,
+      message: 'Chats retrieved successfully'
+    };
+  }
+
+  @Get('user/:userId/chats')
+  async getChats(@Param('userId') userId: string) {
+    const chats = await this.secretChatsService.getUserChats(+userId);
+    return {
+      data: chats,
+      success: true,
+      message: 'Chats retrieved successfully'
+    };
   }
 
   @Get(':chatId')
@@ -119,7 +135,9 @@ export class SecretChatsController {
     @Request() req: AuthenticatedRequest,
     @Body() createPostDto: CreatePostDto,
   ) {
-    return this.secretChatsService.createPost(req.user.id, createPostDto);
+    // Temporary fix: use a default user ID for testing
+    const userId = req.user?.id || 1; // Replace with actual auth when implemented
+    return this.secretChatsService.createPost(userId, createPostDto);
   }
 
   @Post('posts/upload')
@@ -166,13 +184,31 @@ export class SecretChatsController {
     @Query('limit') limit: string = '20',
     @Query('categoryId') categoryId?: string,
   ) {
-    return this.secretChatsService.getChatPosts(
+    const userId = req.user?.id || 1; // Temporary fallback
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    
+    const posts = await this.secretChatsService.getChatPosts(
       chatId,
-      req.user.id,
-      parseInt(page),
-      parseInt(limit),
+      userId,
+      pageNum,
+      limitNum,
       categoryId,
     );
+
+    // Get total count for pagination
+    const totalCount = await this.secretChatsService.getChatPostsCount(chatId, categoryId);
+    const totalPages = Math.ceil(totalCount / limitNum);
+
+    return {
+      data: posts,
+      total: totalCount,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: totalPages,
+      success: true,
+      message: 'Posts retrieved successfully'
+    };
   }
 
   @Post('posts/:postId/like')

@@ -112,6 +112,9 @@ export class AuthService {
       },
     });
 
+    // Auto-join main community chat after verification
+    await this.autoJoinCommunityChat(updatedUser.id);
+
     return { 
       message: 'Email verified successfully',
       user: {
@@ -182,5 +185,44 @@ export class AuthService {
       if (notifications.toLowerCase() === 'no' || notifications.toLowerCase() === 'false') return false;
     }
     return undefined;
+  }
+
+  private async autoJoinCommunityChat(userId: number) {
+    try {
+      // Find the main community chat
+      const communityChat = await this.prisma.secretChat.findFirst({
+        where: {
+          name: 'Main Community',
+          isGroup: true,
+        },
+      });
+
+      if (communityChat) {
+        // Check if user is already a member
+        const existingMember = await this.prisma.chatMember.findUnique({
+          where: {
+            chatId_userId: {
+              chatId: communityChat.id,
+              userId: userId,
+            },
+          },
+        });
+
+        if (!existingMember) {
+          // Add user to community chat
+          await this.prisma.chatMember.create({
+            data: {
+              chatId: communityChat.id,
+              userId: userId,
+              role: 'MEMBER',
+            },
+          });
+          console.log(`✅ User ${userId} auto-joined Main Community chat`);
+        }
+      }
+    } catch (error) {
+      console.error('Error auto-joining community chat:', error);
+      // Don't throw error - registration should still succeed
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEventType } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { 
   SecretChat, 
@@ -11,7 +11,8 @@ import {
   ApiResponse,
   PaginatedResponse 
 } from '../secret.chats.dto';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, throwError } from 'rxjs';
+import { map, catchError, filter } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -35,7 +36,7 @@ export class SecretChatsService {
   /**
    * Get all chats for current user
    */
-  getChats(): Observable<SecretChat[]> {
+  getUserChats(): Observable<SecretChat[]> {
     return this.http.get<SecretChat[]>(`${this.baseUrl}`);
   }
 
@@ -50,6 +51,10 @@ export class SecretChatsService {
    * Create new chat
    */
   createChat(chatData: CreateSecretChatDto): Observable<SecretChat> {
+    console.log('🌐 SecretChatsService.createChat called with:', chatData);
+    console.log('🎯 POST URL:', `${this.baseUrl}`);
+    console.log('🔐 Token in localStorage:', localStorage.getItem('access_token') ? 'EXISTS' : 'MISSING');
+    
     return this.http.post<SecretChat>(`${this.baseUrl}`, chatData);
   }
 
@@ -62,11 +67,67 @@ export class SecretChatsService {
     return this.http.get<PaginatedResponse<Post>>(`${this.baseUrl}/${chatId}/posts?page=${page}&limit=${limit}`);
   }
 
+
+  /**
+   * Upload media file with progress tracking
+   */
+  uploadMedia(file: File): Observable<{ url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return this.http.post<{ url: string }>(`${this.baseUrl}/posts/upload`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    }).pipe(
+      filter(event => event.type === HttpEventType.Response),
+      map(event => (event as any).body as { url: string }),
+      catchError(error => {
+        console.error('Media upload failed:', error);
+        return throwError(() => new Error(`Upload failed: ${error.message || error}`));
+      })
+    );
+  }
+
+  /**
+   * Upload multiple media files
+   */
+  uploadMultipleMedia(files: File[]): Observable<{ url: string }[]> {
+    const uploads = files.map(file => this.uploadMedia(file));
+    return forkJoin(uploads);
+  }
+
+  /**
+   * Legacy method - use uploadMedia instead
+   * @deprecated
+   */
+  uploadFile(file: File): Observable<{ url: string }> {
+    return this.uploadMedia(file);
+  }
+
   /**
    * Create new post in chat
    */
   createPost(postData: CreatePostDto): Observable<Post> {
-    return this.http.post<Post>(`${this.baseUrl}/posts`, postData);
+    console.log('🚀 SecretChatsService: Creating post with data:', postData);
+    console.log('🌐 Request URL:', `${this.baseUrl}/posts`);
+    
+    return this.http.post<Post>(`${this.baseUrl}/posts`, postData).pipe(
+      map(response => {
+        console.log('✅ Post created successfully:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('❌ Post creation failed in service:', error);
+        console.error('📋 Service error details:', {
+          url: `${this.baseUrl}/posts`,
+          status: error.status,
+          statusText: error.statusText,
+          error: error.error,
+          message: error.message
+        });
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -110,14 +171,6 @@ export class SecretChatsService {
 
   // ===== UTILITY METHODS =====
   
-  /**
-   * Upload media file
-   */
-  uploadMedia(file: File): Observable<{ url: string; type: string }> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.http.post<{ url: string; type: string }>(`${this.baseUrl}/upload`, formData);
-  }
 
   /**
    * Search posts by content or category

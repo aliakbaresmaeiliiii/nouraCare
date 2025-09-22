@@ -122,7 +122,18 @@ export class SecretChatsService {
                 profileImage: true,
               },
             },
-            media: true,
+            category: {
+              select: {
+                id: true,
+                name: true,
+                color: true,
+                icon: true,
+              },
+            },
+            media: {
+              take: 1,
+              orderBy: { order: 'asc' },
+            },
             _count: {
               select: {
                 comments: true,
@@ -144,11 +155,53 @@ export class SecretChatsService {
             },
           },
         },
+        _count: {
+          select: {
+            members: {
+              where: { leftAt: null },
+            },
+            posts: true,
+            messages: true,
+          },
+        },
       },
       orderBy: { updatedAt: 'desc' },
     });
 
-    return chats;
+    // Format the response for better client consumption
+    return chats.map(chat => {
+      const currentUserMember = chat.members.find(member => member.userId === userId);
+      const lastActivity = chat.posts[0] || chat.messages[0];
+      
+      return {
+        id: chat.id,
+        name: chat.name,
+        description: chat.description,
+        isGroup: chat.isGroup,
+        createdAt: chat.createdAt,
+        updatedAt: chat.updatedAt,
+        memberCount: chat._count.members,
+        postCount: chat._count.posts,
+        messageCount: chat._count.messages,
+        currentUserRole: currentUserMember?.role || 'MEMBER',
+        members: chat.members.map(member => ({
+          id: member.id,
+          userId: member.userId,
+          role: member.role,
+          joinedAt: member.joinedAt,
+          user: member.user,
+        })),
+        lastPost: chat.posts[0] || null,
+        lastMessage: chat.messages[0] || null,
+        lastActivity: lastActivity ? {
+          type: chat.posts[0] ? 'post' : 'message',
+          createdAt: lastActivity.createdAt,
+          preview: chat.posts[0] ? 
+            chat.posts[0].content?.substring(0, 100) + (chat.posts[0].content?.length > 100 ? '...' : '') :
+            chat.messages[0]?.content?.substring(0, 100) + (chat.messages[0]?.content?.length > 100 ? '...' : ''),
+        } : null,
+      };
+    });
   }
 
   async getChatById(chatId: string, userId: number) {
@@ -390,7 +443,7 @@ export class SecretChatsService {
         authorId: userId,
         categoryId: createPostDto.categoryId,
         isAnonymous: createPostDto.isAnonymous || false,
-        media: createPostDto.media
+        media: createPostDto.media[0]
           ? {
               create: createPostDto.media.map((media, index) => ({
                 url: media.url,
@@ -507,6 +560,17 @@ export class SecretChatsService {
       isLiked: post.likes.length > 0,
       likes: undefined, // Remove the likes array, we only needed it for checking
     }));
+  }
+
+  async getChatPostsCount(chatId: string, categoryId?: string) {
+    const where: any = { chatId: chatId };
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
+    return this.prismaService.post.count({
+      where,
+    });
   }
 
   async likePost(postId: string, userId: number) {

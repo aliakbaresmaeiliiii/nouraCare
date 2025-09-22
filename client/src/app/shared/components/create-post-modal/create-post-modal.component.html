@@ -1,15 +1,36 @@
 <div class="create-post-modal">
 
-  <!-- Modal Header -->
+  <!-- Modern Modal Header -->
   <div class="modal-header">
-    <ion-button fill="clear" class="close-btn" (click)="closeModal()">
-      <ion-icon name="close"></ion-icon>
-    </ion-button>
+    <!-- Left: Close Button -->
+    <div class="header-left">
+      <div class="close-button" (click)="closeModal()">
+        <div class="button-content">
+          <ion-icon name="chevron-down"></ion-icon>
+        </div>
+      </div>
+    </div>
 
-    <h2 class="modal-title">New post</h2>
+    <!-- Center: Title Section -->
+    <div class="header-center">
+      <h2 class="modal-title">Create Post</h2>
+      <div class="title-subtitle">
+        @if (selectedChatName) {
+          Posting to {{ selectedChatName }}
+        } @else {
+          Share your thoughts
+        }
+      </div>
+    </div>
 
-    <!-- Empty space for centering -->
-    <div class="header-spacer"></div>
+    <!-- Right: Draft Indicator -->
+    <div class="header-right">
+        @if (hasUnsavedChanges()) {
+        <div class="draft-indicator">
+          <ion-icon name="create-outline"></ion-icon>
+        </div>
+      }
+    </div>
   </div>
 
   <!-- Modal Content -->
@@ -33,54 +54,203 @@
     <!-- Selected Category Display -->
     @if (selectedCategory) {
     <div class="selected-category">
-      <ion-chip color="primary">
-        <ion-icon name="bookmark"></ion-icon>
-        <ion-label>{{ selectedCategory.name }}</ion-label>
-      </ion-chip>
+      <div class="category-card">
+        <div class="category-info">
+          <div class="category-icon">{{ selectedCategory.icon }}</div>
+          <div class="category-details">
+            <h4 class="category-name">{{ selectedCategory.name }}</h4>
+            <p class="category-desc">{{ selectedCategory.description }}</p>
+          </div>
+        </div>
+        <div class="category-actions">
+          <div class="change-category-btn" (click)="showCategorySelection()">
+            <ion-icon name="swap-horizontal"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+    } @else {
+    <!-- Category Selection Prompt -->
+    <div class="category-prompt">
+      <div class="prompt-card" (click)="showCategorySelection()">
+        <div class="prompt-content">
+          <ion-icon name="add-circle-outline" class="prompt-icon"></ion-icon>
+          <span class="prompt-text">Choose a category</span>
+          <ion-icon name="chevron-forward" class="prompt-arrow"></ion-icon>
+        </div>
+      </div>
     </div>
     }
 
-    <!-- Selected Images Preview -->
-
-    @if (selectedImages.length > 0) {
-    <div class="images-preview">
-      @for (image of selectedImages; track $index) {
-      <div class="image-item">
-        <img [src]="image" [alt]="'Selected image ' + ($index + 1)">
-        <ion-button fill="clear" class="remove-image-btn" (click)="removeImage($index)">
-          <ion-icon name="close-circle"></ion-icon>
-        </ion-button>
+    <!-- Instagram-Style Media Preview -->
+    @if (selectedMedia().length > 0) {
+    <div class="media-preview">
+      <!-- Instagram-style media counter and indicators - Moved to top -->
+      <div class="media-count">
+        <ion-chip class="media-counter">
+          <ion-icon name="images"></ion-icon>
+          <ion-label>{{ selectedMedia().length }} of {{ maxMediaFiles }}</ion-label>
+        </ion-chip>
+        
+        <!-- Carousel indicators for multiple media -->
+        @if (selectedMedia().length > 1) {
+        <div class="media-indicators">
+          @for (media of selectedMedia(); track $index) {
+          <div class="indicator" 
+               [class.active]="$index === currentMediaIndex"
+               (click)="goToMedia($index)"></div>
+          }
+        </div>
+        }
       </div>
-      }
+
+      <!-- Media Carousel -->
+      <div class="media-carousel" 
+           (touchstart)="onTouchStart($event)"
+           (touchmove)="onTouchMove($event)"
+           (touchend)="onTouchEnd($event)">
+        
+        <!-- Single media - full display -->
+        @if (selectedMedia().length === 1) {
+          <div class="media-item single-media" [class]="'media-' + selectedMedia()[0].type">
+            @if (selectedMedia()[0].type === MediaType.IMAGE) {
+              <img [src]="selectedMedia()[0].url" [alt]="selectedMedia()[0].name" class="media-preview-img">
+            } @else if (selectedMedia()[0].type === MediaType.VIDEO) {
+              <video [src]="selectedMedia()[0].url" class="media-preview-video" muted preload="metadata">
+                <source [src]="selectedMedia()[0].url" [type]="selectedMedia()[0].file.type">
+              </video>
+              <div class="video-overlay">
+                <ion-icon name="play" class="play-icon"></ion-icon>
+              </div>
+            }
+            
+            <!-- Media info overlay -->
+            <div class="media-info">
+              <span class="media-size">{{ formatFileSize(selectedMedia()[0].size) }}</span>
+              <span class="media-type">{{ selectedMedia()[0].type }}</span>
+            </div>
+            
+            <!-- Modern Remove button -->
+            <div class="remove-media-btn" (click)="removeMedia(0)">
+              <div class="remove-btn-content">
+                <ion-icon name="close"></ion-icon>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Multiple media - carousel -->
+        @if (selectedMedia().length > 1) {
+          <div class="media-slider" 
+               [style.transform]="'translateX(' + (-currentMediaIndex * 100) + '%)'">
+            @for (media of selectedMedia(); track $index) {
+              <div class="media-slide" [class]="'media-' + media.type">
+                @if (media.type === MediaType.IMAGE) {
+                  <img [src]="media.url" [alt]="media.name" class="media-preview-img">
+                } @else if (media.type === MediaType.VIDEO) {
+                  <video [src]="media.url" class="media-preview-video" muted preload="metadata">
+                    <source [src]="media.url" [type]="media.file.type">
+                  </video>
+                  <div class="video-overlay">
+                    <ion-icon name="play" class="play-icon"></ion-icon>
+                  </div>
+                }
+                
+                <!-- Media info overlay -->
+                <div class="media-info">
+                  <span class="media-size">{{ formatFileSize(media.size) }}</span>
+                  <span class="media-type">{{ media.type }}</span>
+                </div>
+                
+                <!-- Modern Remove button -->
+                <div class="remove-media-btn" (click)="removeMedia($index)">
+                  <div class="remove-btn-content">
+                    <ion-icon name="close"></ion-icon>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Navigation arrows -->
+          <div class="carousel-nav">
+            <div class="nav-btn prev-btn" 
+                 [class.disabled]="currentMediaIndex === 0"
+                 (click)="previousMedia()">
+              <ion-icon name="chevron-back"></ion-icon>
+            </div>
+            <div class="nav-btn next-btn" 
+                 [class.disabled]="currentMediaIndex === selectedMedia().length - 1"
+                 (click)="nextMedia()">
+              <ion-icon name="chevron-forward"></ion-icon>
+            </div>
+          </div>
+        }
+      </div>
     </div>
     }
 
   </div>
 
-  <!-- Modal Footer -->
+  <!-- Instagram-Style Modal Footer -->
   <div class="modal-footer">
 
-    <!-- Media Button -->
-    <ion-button fill="clear" class="media-btn" (click)="triggerImageSelect()">
-      <ion-icon name="image-outline"></ion-icon>
-    </ion-button>
-
-    <!-- Character Count (if needed) -->
-    @if (characterCount > 1500) {
-    <div class="character-count">
-      {{ characterCount }}/{{ maxCharacters }}
+    <!-- Left: Media Actions -->
+    <div class="media-actions">
+      <!-- Modern Media Button -->
+      <div class="action-button media-btn" 
+           [class.disabled]="selectedMedia().length >= maxMediaFiles"
+           (click)="selectedMedia().length < maxMediaFiles && showMediaOptions()">
+        <div class="button-content">
+          <ion-icon name="camera"></ion-icon>
+        </div>
+      </div>
+      
+      <!-- Anonymous Toggle -->
+      <div class="action-button anonymous-btn" 
+           [class.active]="isAnonymous"
+           (click)="isAnonymous = !isAnonymous">
+        <div class="button-content">
+          <ion-icon [name]="isAnonymous ? 'person-circle' : 'person-circle-outline'"></ion-icon>
+        </div>
+      </div>
     </div>
-    }
 
-    <!-- Post Button -->
-    <ion-button [disabled]="!canPost() || isSubmitting" class="post-btn" (click)="submitPost()">
-      @if (isSubmitting) {
-      <ion-spinner name="crescent"></ion-spinner>
+    <!-- Center: Info Section -->
+    <div class="footer-info">
+      <!-- Character Count -->
+      @if (characterCount > 0 || characterCount > 1500) {
+      <div class="character-count" 
+           [class.warning]="characterCount > 1500"
+           [class.error]="characterCount > maxCharacters">
+        {{ characterCount }}/{{ maxCharacters }}
+      </div>
       }
-      @else {
-      <span>Post</span>
+      
+      <!-- Media Count Mini -->
+      @if (selectedMedia().length > 0) {
+      <div class="media-count-mini">
+        <ion-icon name="images"></ion-icon>
+        <span>{{ selectedMedia().length }} media</span>
+      </div>
       }
-    </ion-button>
+    </div>
+
+    <!-- Right: Modern Share Button -->
+    <div class="share-button" 
+         [class.disabled]="!canPost()"
+         [class.loading]="isSubmitting"
+         (click)="canPost() && submitPost()">
+      <div class="button-content">
+        @if (isSubmitting) {
+          <ion-spinner name="crescent" class="spinner"></ion-spinner>
+          <span>Sharing...</span>
+        } @else {
+          <ion-icon name="send"></ion-icon>
+          <span>{{ selectedCategory ? 'Share' : 'Select Category' }}</span>
+        }
+      </div>
+    </div>
 
   </div>
 
