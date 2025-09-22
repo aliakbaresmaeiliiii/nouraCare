@@ -83,6 +83,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'forums/topic/:id',
+    loadComponent: () =>
+      import('./forums/topic-detail/topic-detail.component').then(
+        (m) => m.TopicDetailComponent
+      ),
+  },
+  {
     path: 'settings',
     loadComponent: () =>
       import('./settings/settings.component').then(

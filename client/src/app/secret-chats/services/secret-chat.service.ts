@@ -6,8 +6,10 @@ import {
   CreateSecretChatDto,
   CreatePostDto,
   CreateMessageDto,
+  CreateCommentDto,
   Post,
   ChatMessage,
+  Comment,
   ApiResponse,
   PaginatedResponse 
 } from '../secret.chats.dto';
@@ -135,6 +137,55 @@ export class SecretChatsService {
    */
   togglePostLike(postId: string): Observable<{ liked: boolean }> {
     return this.http.post<{ liked: boolean }>(`${this.baseUrl}/posts/${postId}/like`, {});
+  }
+
+  // ===== COMMENT ENDPOINTS =====
+  
+  /**
+   * Get comments for a specific post
+   */
+  getPostComments(postId: string, page: number = 1, limit: number = 50): Observable<PaginatedResponse<Comment>> {
+    return this.http.get<PaginatedResponse<Comment>>(`${this.baseUrl}/posts/${postId}/comments?page=${page}&limit=${limit}`);
+  }
+
+  /**
+   * Create a new comment on a post
+   */
+  createComment(commentData: CreateCommentDto): Observable<Comment> {
+    console.log('💬 SecretChatsService: Creating comment with data:', commentData);
+    console.log('🌐 Request URL:', `${this.baseUrl}/comments`);
+    
+    return this.http.post<Comment>(`${this.baseUrl}/comments`, commentData).pipe(
+      map(response => {
+        console.log('✅ Comment created successfully:', response);
+        return response;
+      }),
+      catchError(error => {
+        console.error('❌ Comment creation failed in service:', error);
+        console.error('📋 Service error details:', {
+          url: `${this.baseUrl}/comments`,
+          status: error.status,
+          statusText: error.statusText,
+          error: error.error,
+          message: error.message
+        });
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Like/Unlike a comment
+   */
+  toggleCommentLike(commentId: string): Observable<{ liked: boolean }> {
+    return this.http.post<{ liked: boolean }>(`${this.baseUrl}/comments/${commentId}/like`, {});
+  }
+
+  /**
+   * Delete a comment
+   */
+  deleteComment(commentId: string): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/comments/${commentId}`);
   }
 
   // ===== MESSAGE ENDPOINTS =====

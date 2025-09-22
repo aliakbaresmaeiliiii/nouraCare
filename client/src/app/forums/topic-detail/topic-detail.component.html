@@ -1,0 +1,156 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary" class="topic-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/forums" class="back-button" (click)="goBack()"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">Topic Discussion</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" class="share-button">
+        <ion-icon name="share-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="topic-content">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
+      <p class="loading-text">Loading topic...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !isLoading" class="error-container">
+      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+      <p class="error-text">{{ errorMessage }}</p>
+      <ion-button fill="outline" (click)="goBack()" class="back-button">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        Go Back
+      </ion-button>
+    </div>
+
+    <!-- Topic Content -->
+    <div *ngIf="topic && !isLoading" class="topic-card">
+      <div class="topic-header">
+        <div class="author-avatar">
+          <ion-avatar class="avatar">
+            <img [src]="topic.authorAvatar || 'assets/images/nurse.png'" 
+                 [alt]="topic.author"
+                 (error)="onImageError($event)">
+          </ion-avatar>
+        </div>
+        <div class="topic-info">
+          <div class="author-info">
+            <h3 class="author-name">{{ topic.author }}</h3>
+            <span class="topic-time">{{ formatRelativeTime(topic.createdAt) }}</span>
+          </div>
+          <div class="topic-meta">
+            <span class="category-badge">{{ topic.category }}</span>
+            @if (topic.isPinned) {
+            <ion-badge color="warning" class="pin-badge">
+              <ion-icon name="pin" class="badge-icon"></ion-icon>
+              Pinned
+            </ion-badge>
+            }
+          </div>
+        </div>
+      </div>
+      
+      <div class="topic-body">
+        <h1 class="topic-title">{{ topic.title }}</h1>
+        <p class="topic-content-text">{{ topic.content }}</p>
+        
+        <div class="topic-tags">
+          @for (tag of topic.tags; track tag) {
+          <ion-chip class="tag-chip">
+            <ion-label>{{ tag }}</ion-label>
+          </ion-chip>
+          }
+        </div>
+        
+        <div class="topic-stats">
+          <div class="stat">
+            <ion-icon name="chatbubbles-outline" class="stat-icon"></ion-icon>
+            <span class="stat-text">{{ topic.replies }} comments</span>
+          </div>
+          <div class="stat">
+            <ion-icon name="eye-outline" class="stat-icon"></ion-icon>
+            <span class="stat-text">{{ topic.views }} views</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div *ngIf="topic && !isLoading" class="comments-section">
+      <div class="comments-header">
+        <h2 class="comments-title">Comments ({{ comments.length }})</h2>
+      </div>
+
+      <!-- Empty Comments State -->
+      <div *ngIf="comments.length === 0" class="empty-comments">
+        <ion-icon name="chatbubbles-outline" class="empty-icon"></ion-icon>
+        <h3 class="empty-title">No Comments Yet</h3>
+        <p class="empty-text">Be the first to share your thoughts!</p>
+      </div>
+
+      <!-- Comments List -->
+      <ion-list *ngIf="comments.length > 0" class="comments-list">
+        @for (comment of comments; track comment.id) {
+        <ion-item class="comment-item">
+          <div class="comment-content">
+            <div class="comment-header">
+              <ion-avatar class="comment-avatar">
+                <img [src]="comment.author.profileImage || 'assets/images/nurse.png'" 
+                     [alt]="comment.author.name"
+                     (error)="onImageError($event)">
+              </ion-avatar>
+              <div class="comment-info">
+                <span class="comment-author">{{ comment.author.name }}</span>
+                <span class="comment-time">{{ formatRelativeTime(comment.createdAt) }}</span>
+              </div>
+            </div>
+            
+            <p class="comment-text">{{ comment.content }}</p>
+            
+            <div class="comment-actions">
+              <ion-button fill="clear" class="like-btn" (click)="likeComment(comment.id)">
+                <ion-icon [name]="comment.isLiked ? 'heart' : 'heart-outline'" 
+                         [class.liked]="comment.isLiked"></ion-icon>
+                <span class="like-count">{{ comment._count.likes }}</span>
+              </ion-button>
+              <ion-button fill="clear" class="reply-btn">
+                <ion-icon name="arrow-undo-outline"></ion-icon>
+                <span class="reply-text">Reply</span>
+              </ion-button>
+            </div>
+          </div>
+        </ion-item>
+        }
+      </ion-list>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Comment Input -->
+<ion-footer class="comment-footer" *ngIf="topic && !isLoading">
+  <div class="comment-input-container">
+    <ion-input 
+      [(ngModel)]="newComment"
+      placeholder="Write a comment..."
+      class="comment-input"
+      [disabled]="isSubmittingComment">
+    </ion-input>
+    <ion-button 
+      [disabled]="!newComment.trim() || isSubmittingComment"
+      class="send-button"
+      (click)="submitComment()">
+      @if (isSubmittingComment) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        <ion-icon name="send"></ion-icon>
+      }
+    </ion-button>
+  </div>
+</ion-footer>

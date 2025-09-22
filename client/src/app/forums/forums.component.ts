@@ -226,8 +226,8 @@ export class ForumsComponent implements OnInit {
   }
 
   openTopic(topic: ForumTopic) {
-    // TODO: Navigate to topic detail page
-    console.log('Opening topic:', topic);
+    // Navigate to topic detail page
+    this.router.navigate(['/forums/topic', topic.id]);
   }
 
   createNewTopic() {
