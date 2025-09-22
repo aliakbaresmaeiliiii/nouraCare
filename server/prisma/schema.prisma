@@ -42,6 +42,12 @@ model user {
   commentLikes              CommentLike[] @relation("CommentLikes")
   sentMessages              ChatMessage[] @relation("MessageSender")
   readMessages              MessageRead[] @relation("MessageReads")
+  
+  // Forum Relations
+  createdForums             Forum[]
+  forumThreads             ForumThread[]
+  forumPosts               ForumPost[]
+  forumPostLikes           ForumPostLike[]
 }
 
 enum Status {
@@ -170,6 +176,95 @@ model PostCategory {
   posts Post[]
 
   @@map("post_categories")
+}
+
+model ForumCategory {
+  id          String   @id @default(uuid())
+  name        String
+  description String   @db.Text
+  slug        String   @unique
+  color       String?  // Optional hex color for UI
+  icon        String?  // Optional icon name/url
+  order       Int      @default(0) // For custom ordering
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  forums Forum[]
+
+  @@map("forum_categories")
+}
+
+model Forum {
+  id          String        @id @default(uuid())
+  title       String
+  description String        @db.Text
+  categoryId  String
+  category    ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdById Int
+  createdBy   user          @relation(fields: [createdById], references: [id])
+  isPublic    Boolean       @default(true)
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  threads ForumThread[]
+
+  @@map("forums")
+}
+
+model ForumThread {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   @db.Text
+  forumId     String
+  forum       Forum    @relation(fields: [forumId], references: [id], onDelete: Cascade)
+  authorId    Int
+  author      user     @relation(fields: [authorId], references: [id])
+  isPinned    Boolean  @default(false)
+  isLocked    Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  posts ForumPost[]
+
+  @@map("forum_threads")
+}
+
+model ForumPost {
+  id        String      @id @default(uuid())
+  content   String      @db.Text
+  threadId  String
+  thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  authorId  Int
+  author    user        @relation(fields: [authorId], references: [id])
+  parentId  String?     // For nested replies
+  parent    ForumPost?  @relation("PostReplies", fields: [parentId], references: [id])
+  replies   ForumPost[] @relation("PostReplies")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  isDeleted Boolean     @default(false)
+
+  // Relations
+  likes ForumPostLike[]
+
+  @@map("forum_posts")
+}
+
+model ForumPostLike {
+  id       String    @id @default(uuid())
+  postId   String
+  post     ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId   Int
+  user     user      @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@map("forum_post_likes")
 }
 
 model Post {

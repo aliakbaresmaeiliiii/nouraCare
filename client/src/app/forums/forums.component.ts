@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
+import { ForumService } from '../shared/services/forum.service';
 
 interface ForumCategory {
   id: number;
@@ -39,7 +40,7 @@ interface ForumTopic {
 })
 export class ForumsComponent implements OnInit {
   private router = inject(Router);
-  
+  private forumsService = inject(ForumService);
   categories: ForumCategory[] = [];
   topics: ForumTopic[] = [];
   isLoading = false;
@@ -53,97 +54,24 @@ export class ForumsComponent implements OnInit {
   ngOnInit() {
     this.loadCategories();
     this.loadTopics();
+    this.fetchCategories();
   }
 
+  fetchCategories() {
+    this.forumsService.getCategories().subscribe({
+      next: (response: any) => {
+        console.log(response);
+        
+        this.categories = response.data || [];
+      },
+      error: (error: any) => {
+        console.error('Error loading categories:', error);
+      }
+    }); 
+  }
   loadCategories() {
     this.isLoading = true;
     this.errorMessage = '';
-    
-    // TODO: Replace with actual API call when backend is ready
-    // this.forumsService.getCategories().subscribe({
-    //   next: (response: any) => {
-    //     this.categories = response.data || [];
-    //     this.isLoading = false;
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error loading categories:', error);
-    //     this.errorMessage = 'Failed to load categories. Please try again.';
-    //     this.isLoading = false;
-    //   }
-    // });
-
-    // Mock data for now
-    setTimeout(() => {
-      this.categories = [
-        {
-          id: 1,
-          name: 'General Discussion',
-          description: 'General topics about women\'s health and wellness',
-          icon: 'chatbubbles-outline',
-          color: '#667eea',
-          topicsCount: 156,
-          postsCount: 1247,
-          lastActivity: '2024-01-15T10:30:00Z',
-          isPopular: true
-        },
-        {
-          id: 2,
-          name: 'Pregnancy & Fertility',
-          description: 'Discussions about pregnancy, fertility, and family planning',
-          icon: 'heart-outline',
-          color: '#ef4444',
-          topicsCount: 89,
-          postsCount: 567,
-          lastActivity: '2024-01-15T14:20:00Z',
-          isPopular: true
-        },
-        {
-          id: 3,
-          name: 'Mental Health',
-          description: 'Support and discussions about mental health and wellness',
-          icon: 'brain-outline',
-          color: '#8b5cf6',
-          topicsCount: 67,
-          postsCount: 423,
-          lastActivity: '2024-01-14T18:45:00Z',
-          isPopular: false
-        },
-        {
-          id: 4,
-          name: 'Nutrition & Fitness',
-          description: 'Healthy eating, exercise, and lifestyle tips',
-          icon: 'fitness-outline',
-          color: '#10b981',
-          topicsCount: 94,
-          postsCount: 612,
-          lastActivity: '2024-01-15T09:15:00Z',
-          isPopular: true
-        },
-        {
-          id: 5,
-          name: 'Medical Questions',
-          description: 'Ask questions and get advice from healthcare professionals',
-          icon: 'medical-outline',
-          color: '#f59e0b',
-          topicsCount: 123,
-          postsCount: 789,
-          lastActivity: '2024-01-15T16:30:00Z',
-          isPopular: true
-        },
-        {
-          id: 6,
-          name: 'Relationships',
-          description: 'Relationship advice and support',
-          icon: 'people-outline',
-          color: '#ec4899',
-          topicsCount: 78,
-          postsCount: 445,
-          lastActivity: '2024-01-14T20:10:00Z',
-          isPopular: false
-        }
-      ];
-      this.isLoading = false;
-    }, 1000);
   }
 
   loadTopics() {

@@ -9,6 +9,7 @@ import { OnboardingModule } from './onboarding/onboarding.module';
 import { TrackDayModule } from './track-day/track-day.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { SecretChatsModule } from './secret-chats/secret-chats.module';
+import { ForumModule } from './forum/forum.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SecretChatsModule } from './secret-chats/secret-chats.module';
     TrackDayModule,
     DoctorsModule,
     SecretChatsModule,
+    ForumModule,
   ],
   controllers: [AppController],
   providers: [AppService],
