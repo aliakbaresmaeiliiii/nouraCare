@@ -175,9 +175,14 @@ export class SettingsComponent implements OnInit {
 
   initializeDarkPalette(isDark: boolean) {
     this.paletteToggle = isDark;
+    this.toggleDarkPalette(isDark);
   }
   toggleChange(event: CustomEvent) {
-    this.paletteToggle = event.detail.checked;
+    this.toggleDarkPalette(event.detail.checked);
+  }
+
+  toggleDarkPalette(shouldAdd: boolean) {
+    document.documentElement.classList.toggle('ion-palette-dark', shouldAdd);
   }
   loadSavedSettings() {
     const savedTheme = localStorage.getItem('darkMode');
@@ -187,6 +192,9 @@ export class SettingsComponent implements OnInit {
       const themeSetting = this.appSettings.find(s => s.id === 'theme');
       if (themeSetting) {
         themeSetting.value = savedTheme === 'true';
+
+        // Apply saved theme using Ionic's native dark mode
+        document.body.classList.toggle('dark', themeSetting.value);
       }
     }
 
@@ -199,6 +207,7 @@ export class SettingsComponent implements OnInit {
   }
 
   onSettingClick(setting: SettingItem) {
+    debugger
     if (setting.type === 'toggle') {
       if (setting.action) {
         setting.action();
@@ -215,6 +224,9 @@ export class SettingsComponent implements OnInit {
     if (themeSetting) {
       themeSetting.value = !themeSetting.value;
       localStorage.setItem('darkMode', themeSetting.value.toString());
+
+      // Use Ionic's native dark mode
+      document.body.classList.toggle('dark', themeSetting.value);
 
       this.showSuccessAlert(`Dark mode ${themeSetting.value ? 'enabled' : 'disabled'}`);
     }

@@ -55,12 +55,10 @@ export class UserInfoService {
     // Call the real API endpoint
     return this.http.get<UserInfo>(`${environment.apiEndPoint}user/${targetUserId}/onboarding`).pipe(
       tap((response) => {
-        console.log('User onboarding data received:', response);
         // Update the signal with the response
         this.userInfo.set(response);
       }),
       catchError((error) => {
-        console.error('Error getting user onboarding data:', error);
         throw error;
       })
     );

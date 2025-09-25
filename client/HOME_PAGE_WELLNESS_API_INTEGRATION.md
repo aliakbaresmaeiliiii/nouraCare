@@ -70,7 +70,6 @@ isLoadingWellness: boolean = false;
 #### **4. Wellness Data Refresh Method**
 ```typescript
 private refreshWellnessData() {
-  console.log('🔄 Refreshing wellness data from API...');
   
   // Force refresh today's symptoms
   this.loadTodaySymptoms();

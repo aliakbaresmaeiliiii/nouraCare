@@ -9,6 +9,145 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+// Import RTL support for Persian language
+@use 'rtl.scss';
+
+// Beautiful Typography System
+:root {
+  // Font Families
+  --font-primary: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-secondary: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-persian: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
+  --font-display: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  // Font Weights
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+  
+  // Font Sizes
+  --font-size-xs: 0.75rem;    // 12px
+  --font-size-sm: 0.875rem;  // 14px
+  --font-size-base: 1rem;    // 16px
+  --font-size-lg: 1.125rem;  // 18px
+  --font-size-xl: 1.25rem;   // 20px
+  --font-size-2xl: 1.5rem;   // 24px
+  --font-size-3xl: 1.875rem; // 30px
+  --font-size-4xl: 2.25rem;  // 36px
+  --font-size-5xl: 3rem;     // 48px
+  
+  // Line Heights
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+}
+
+// Global Font Application
+* {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+// Body typography
+body {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Headings with beautiful typography
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-extrabold);
+}
+
+h2 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+}
+
+h3 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+h4 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+h5 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+h6 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+}
+
+// Button typography
+ion-button {
+  font-family: var(--font-secondary);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.025em;
+}
+
+// Input typography
+ion-input, ion-textarea {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-base);
+}
+
+// Card typography
+ion-card {
+  font-family: var(--font-primary);
+}
+
+// Persian language specific fonts
+[lang="fa"], [dir="rtl"] {
+  * {
+    font-family: var(--font-persian);
+  }
+  
+  body {
+    font-family: var(--font-persian);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-persian);
+  }
+  
+  ion-button {
+    font-family: var(--font-persian);
+  }
+  
+  ion-input, ion-textarea {
+    font-family: var(--font-persian);
+  }
+  
+  ion-card {
+    font-family: var(--font-persian);
+  }
+}
+
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";
 
@@ -25,391 +164,178 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/* Modern iOS Alert Styles - Global */
-:root {
-  --ios-blur-bg: rgba(255, 255, 255, 0.08);
-  --ios-blur-border: rgba(255, 255, 255, 0.12);
-  --ios-backdrop-blur: blur(40px);
-  --ios-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+
+
+/**
+ * Ionic Dark Palette
+ * -----------------------------------------------------
+ * For more information, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import '@ionic/angular/css/palettes/dark.always.css'; */
+@import '@ionic/angular/css/palettes/dark.class.css';
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
+/* Custom Modal Styles */
+.fertility-results-modal,
+.pregnancy-results-modal {
+  --height: auto;
+  --max-height: 90vh;
+  --border-radius: 20px 20px 0 0;
+  --backdrop-opacity: 0.4;
+  
+  ion-modal {
+    --height: auto;
+    --max-height: 90vh;
+    --border-radius: 20px 20px 0 0;
+    
+    &::part(content) {
+      border-radius: 20px 20px 0 0;
+      overflow: hidden;
+    }
+  }
 }
 
-/* Liquid Glass Alert */
-.ios-modern-alert {
-  --backdrop-opacity: 0.05 !important;
-  
-  .alert-wrapper {
-    /* Liquid Glass Background */
-    background: 
-      linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%),
-      linear-gradient(225deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%),
-      rgba(15, 15, 15, 0.7) !important;
+/* Bottom Sheet Modal Animation */
+@media (max-width: 768px) {
+  .fertility-results-modal,
+  .pregnancy-results-modal {
+    --width: 100%;
+    --height: auto;
+    --max-height: 90vh;
+    --min-height: 50vh;
     
-    /* Ultra Heavy Blur */
-    backdrop-filter: blur(60px) saturate(200%) brightness(1.1) !important;
-    -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(1.1) !important;
-    
-    /* Liquid Glass Border */
-    border: 1px solid transparent !important;
-    border-image: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.3) 0%, 
-      rgba(255, 255, 255, 0.1) 25%,
-      rgba(255, 255, 255, 0.05) 50%,
-      rgba(255, 255, 255, 0.15) 75%,
-      rgba(255, 255, 255, 0.25) 100%) 1 !important;
-    
-    border-radius: 20px !important;
-    
-    /* Liquid Glass Shadow */
-    box-shadow: 
-      0 25px 80px rgba(0, 0, 0, 0.6),
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset,
-      0 0 20px rgba(255, 255, 255, 0.03) inset !important;
-    
-    padding: 0 !important;
-    overflow: hidden !important;
-    max-width: 320px !important;
-    min-width: 320px !important;
-    
-    /* Liquid Animation */
-    animation: liquidFloat 6s ease-in-out infinite alternate !important;
-    transform-style: preserve-3d !important;
-    
-    /* Glass Refraction Effect */
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
-        linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.02) 50%, transparent 70%);
-      border-radius: 20px;
-      pointer-events: none;
-      z-index: 1;
-    }
-    
-    /* Liquid Ripple Effect */
-    &::after {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, 
-        rgba(255, 255, 255, 0.1) 0%,
-        transparent 25%,
-        transparent 75%,
-        rgba(255, 255, 255, 0.1) 100%);
-      border-radius: 22px;
-      z-index: -1;
-      animation: liquidRipple 4s linear infinite;
-    }
-    
-    .alert-head {
-      padding: 24px 20px 16px !important;
-      text-align: center !important;
-      background: 
-        linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
-      position: relative !important;
-      z-index: 2 !important;
+    ion-modal {
+      --width: 100%;
+      --height: auto;
+      --max-height: 90vh;
+      --min-height: 50vh;
       
-      /* Glass Shimmer */
-      &::before {
-        content: '';
+      &::part(content) {
         position: absolute;
-        top: 0;
+        bottom: 0;
         left: 0;
         right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, 
-          transparent 0%, 
-          rgba(255, 255, 255, 0.3) 50%, 
-          transparent 100%);
-        animation: shimmer 3s linear infinite;
+        top: auto;
+        height: auto;
+        max-height: 90vh;
+        min-height: 50vh;
+        border-radius: 20px 20px 0 0;
+        transform: translateY(100%);
+        transition: transform 0.3s ease-out;
       }
       
-      .alert-title {
-        color: #ffffff !important;
-        font-size: 18px !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-        line-height: 1.3 !important;
-        letter-spacing: -0.5px !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-        background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
-      }
-    }
-    
-    .alert-message {
-      padding: 16px 20px 24px !important;
-      text-align: center !important;
-      color: rgba(255, 255, 255, 0.85) !important;
-      font-size: 14px !important;
-      line-height: 1.4 !important;
-      margin: 0 !important;
-      letter-spacing: -0.1px !important;
-      position: relative !important;
-      z-index: 2 !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-    }
-    
-    .alert-button-group {
-      border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
-      display: flex !important;
-      background: 
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
-      position: relative !important;
-      z-index: 2 !important;
-      
-      .alert-button {
-        flex: 1 !important;
-        background: transparent !important;
-        border: none !important;
-        padding: 0 16px !important;
-        font-size: 17px !important;
-        font-weight: 400 !important;
-        transition: all 0.2s ease !important;
-        position: relative !important;
-        letter-spacing: -0.41px !important;
-        min-height: 44px !important;
-        color: #007AFF !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        
-        
-        &.alert-button-role-cancel {
-          color: rgba(255, 255, 255, 0.6) !important;
-        }
-        
-        &.primary {
-          color: #007AFF !important;
-          font-weight: 600 !important;
-        }
-        
-        &:active {
-          background: rgba(255, 255, 255, 0.1) !important;
-          transform: scale(0.96) !important;
-        }
-      }
-    }
-    
-    .alert-input-group {
-      padding: 0 16px 16px !important;
-      
-      .alert-input-wrapper {
-        background: rgba(255, 255, 255, 0.08) !important;
-        border: 0.5px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 8px !important;
-        margin-bottom: 12px !important;
-        
-        .alert-input {
-          background: transparent !important;
-          color: #ffffff !important;
-          padding: 12px !important;
-          font-size: 16px !important;
-          border: none !important;
-          
-          &::placeholder {
-            color: rgba(255, 255, 255, 0.4) !important;
-          }
-        }
+      &.modal-open::part(content) {
+        transform: translateY(0);
       }
     }
   }
 }
 
-/* Liquid Glass Action Sheet */
-.media-action-sheet {
-  --backdrop-opacity: 0.05 !important;
+/* Desktop Modal Styling */
+@media (min-width: 769px) {
+  .fertility-results-modal,
+  .pregnancy-results-modal {
+    --width: 600px;
+    --height: auto;
+    --max-height: 80vh;
+    --border-radius: 16px;
+    
+    ion-modal {
+      --width: 600px;
+      --height: auto;
+      --max-height: 80vh;
+      --border-radius: 16px;
+      
+      &::part(content) {
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+}
+
+/* Custom Scrollbar */
+.fertility-results-content,
+.pregnancy-results-content {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
   
-  .action-sheet-wrapper {
-    background: 
-      linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%),
-      rgba(15, 15, 15, 0.8) !important;
-    backdrop-filter: blur(60px) saturate(200%) brightness(1.1) !important;
-    -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(1.1) !important;
-    border-radius: 20px 20px 0 0 !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-bottom: none !important;
-    box-shadow: 
-      0 -20px 60px rgba(0, 0, 0, 0.6),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
-    margin: 8px 8px 0 !important;
-    animation: liquidPulse 4s ease-in-out infinite !important;
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--ion-color-primary);
+    border-radius: 3px;
     
-    .action-sheet-title {
-      color: rgba(255, 255, 255, 0.6) !important;
-      font-size: 13px !important;
-      font-weight: 400 !important;
-      padding: 12px 16px 8px !important;
-      text-align: center !important;
-      background: rgba(255, 255, 255, 0.02) !important;
-      border-bottom: 0.5px solid rgba(255, 255, 255, 0.06) !important;
-      letter-spacing: -0.08px !important;
+    &:hover {
+      background: var(--ion-color-primary-shade);
+    }
+  }
+}
+
+/* Enhanced Button Styles */
+.fertility-results-modal,
+.pregnancy-results-modal {
+  ion-button {
+    --border-radius: 12px;
+    font-weight: 600;
+    
+    &[fill="solid"] {
+      --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+      
+      &:hover {
+        --box-shadow: 0 6px 16px rgba(var(--ion-color-primary-rgb), 0.4);
+        transform: translateY(-1px);
+      }
     }
     
-    .action-sheet-group {
-      .action-sheet-button {
-        background: transparent !important;
-        color: #007AFF !important;
-        font-size: 20px !important;
-        font-weight: 400 !important;
-        padding: 16px !important;
-        border-bottom: 0.5px solid rgba(255, 255, 255, 0.04) !important;
-        transition: all 0.15s ease !important;
-        min-height: 56px !important;
-        letter-spacing: -0.45px !important;
-        
-        ion-icon {
-          color: #007AFF !important;
-          margin-right: 12px !important;
-          font-size: 24px !important;
-        }
-        
-        &.action-sheet-destructive {
-          color: #FF3B30 !important;
-          
-          ion-icon {
-            color: #FF3B30 !important;
-          }
-        }
-        
-        &:active {
-          background: rgba(255, 255, 255, 0.04) !important;
-        }
-        
-        &:last-child {
-          border-bottom: none !important;
-        }
+    &[fill="outline"] {
+      --border-width: 2px;
+      
+      &:hover {
+        --background: rgba(var(--ion-color-primary-rgb), 0.05);
       }
     }
   }
 }
 
-/* Liquid Glass Toast */
-.ios-modern-toast {
-  --background: 
-    linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%),
-    rgba(15, 15, 15, 0.8) !important;
-  --color: #ffffff !important;
-  
-  .toast-wrapper {
-    backdrop-filter: blur(60px) saturate(200%) brightness(1.1) !important;
-    -webkit-backdrop-filter: blur(60px) saturate(200%) brightness(1.1) !important;
-    border-radius: 16px !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 
-      0 15px 40px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset !important;
-    margin: 16px !important;
-    max-width: calc(100% - 32px) !important;
-    animation: liquidFloat 3s ease-in-out infinite alternate !important;
-    
-    .toast-message {
-      font-size: 15px !important;
-      font-weight: 400 !important;
-      letter-spacing: -0.24px !important;
-      padding: 12px 16px !important;
-    }
-    
-    .toast-button {
-      color: rgba(255, 255, 255, 0.6) !important;
-      font-size: 15px !important;
-    }
-  }
-}
-
-/* Backdrop blur support */
-@supports (backdrop-filter: blur(1px)) {
-  .ios-modern-alert .alert-wrapper,
-  .media-action-sheet .action-sheet-wrapper,
-  .ios-modern-toast .toast-wrapper {
-    background: rgba(28, 28, 30, 0.85) !important;
-  }
-}
-
-@supports not (backdrop-filter: blur(1px)) {
-  .ios-modern-alert .alert-wrapper,
-  .media-action-sheet .action-sheet-wrapper,
-  .ios-modern-toast .toast-wrapper {
-    background: rgba(28, 28, 30, 0.95) !important;
-  }
-}
-
-/* Liquid Glass Animations */
-@keyframes liquidFloat {
+/* Loading Animation */
+@keyframes pulse {
   0% {
-    transform: translateY(0px) rotateX(0deg) rotateY(0deg);
-    box-shadow: 
-      0 25px 80px rgba(0, 0, 0, 0.6),
-      0 8px 32px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset,
-      0 0 20px rgba(255, 255, 255, 0.03) inset;
-  }
-  100% {
-    transform: translateY(-2px) rotateX(1deg) rotateY(-1deg);
-    box-shadow: 
-      0 30px 90px rgba(0, 0, 0, 0.7),
-      0 12px 40px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.12) inset,
-      0 0 25px rgba(255, 255, 255, 0.05) inset;
-  }
-}
-
-@keyframes liquidRipple {
-  0% {
-    transform: rotate(0deg) scale(1);
-    opacity: 0.3;
-  }
-  25% {
-    transform: rotate(90deg) scale(1.02);
-    opacity: 0.5;
-  }
-  50% {
-    transform: rotate(180deg) scale(1);
-    opacity: 0.3;
-  }
-  75% {
-    transform: rotate(270deg) scale(0.98);
-    opacity: 0.5;
-  }
-  100% {
-    transform: rotate(360deg) scale(1);
-    opacity: 0.3;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  50% {
     opacity: 1;
   }
+  50% {
+    opacity: 0.5;
+  }
   100% {
-    transform: translateX(100%);
-    opacity: 0;
+    opacity: 1;
   }
 }
 
-@keyframes liquidPulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: brightness(1);
+.loading-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  .fertility-results-modal,
+  .pregnancy-results-modal {
+    ion-modal::part(content) {
+      transition: none;
+    }
   }
-  50% {
-    transform: scale(1.01);
-    filter: brightness(1.05);
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
+}
+ion-item {
+  --transition: none;
 }

@@ -62,7 +62,7 @@
     
     .view-button {
       --color: #6b7280;
-      --color-checked:#ffffff;
+      --color-checked:#1f2937;
       --indicator-color: #4f46e5;
       
       .view-icon {
@@ -78,21 +78,109 @@
 }
 
 .category-filter-section {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
   
-  .category-segment {
-    --background: transparent;
+  .filter-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
     
-    .category-button {
-      --color: #6b7280;
-      --color-checked: #ffffff;
-      --indicator-color: #4f46e5;
-      --border-radius: 20px;
-      
-      .category-label {
+    .filter-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .filter-actions {
+      .clear-button {
+        --color: #6b7280;
         font-size: 12px;
         font-weight: 500;
-        padding: 0 8px;
+        
+        &:hover {
+          --color: #4f46e5;
+        }
+      }
+    }
+  }
+  
+  .category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    
+    .filter-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      
+      &:hover {
+        background: #f1f5f9;
+        border-color: #d1d5db;
+        transform: translateY(-1px);
+      }
+      
+      &.active {
+        background: #4f46e5;
+        border-color: #4f46e5;
+        color: white;
+        
+        .chip-icon {
+          color: white;
+        }
+        
+        .chip-icon-wrapper {
+          background: rgba(255, 255, 255, 0.2) !important;
+          
+          .chip-icon {
+            color: white;
+          }
+        }
+      }
+      
+      .chip-icon {
+        font-size: 14px;
+        color: #6b7280;
+      }
+      
+      .chip-icon-wrapper {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        .chip-icon {
+          font-size: 12px;
+          color: white;
+        }
+      }
+      
+      .chip-text {
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      
+      .popular-indicator {
+        font-size: 12px;
+        color: #f59e0b;
       }
     }
   }

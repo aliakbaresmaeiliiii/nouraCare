@@ -15,8 +15,6 @@ import { MessageService } from '../shared/services/message.service';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { SharedModule } from '../shared/shared-module';
-import { HomeDataService } from './services/home-data.service';
-import { HomeUIService } from './services/home-ui.service';
 
 @Component({
   selector: 'app-home',
@@ -31,8 +29,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
   private trackDataService = inject(TrackDataService);
-  private homeDataService = inject(HomeDataService);
-  private homeUIService = inject(HomeUIService);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
 
   welcomeMessage: string = '';
@@ -199,10 +195,10 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     this.initializeHealthTip();
 
     // Listen for symptoms updates
-    window.addEventListener('symptomsUpdated', () => {
-      this.loadTodaySymptoms();
-      this.loadRecentSymptomsDays();
-    });
+    // window.addEventListener('symptomsUpdated', () => {
+    //   this.loadTodaySymptoms();
+    //   this.loadRecentSymptomsDays();
+    // });
 
   }
 
@@ -339,28 +335,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
     // Always fetch fresh data from API when entering home page
     this.refreshChartWithFreshData();
-    
-    // Load today's symptoms data from API
-    this.loadTodaySymptoms();
-    this.loadRecentSymptomsDays();
-    
-    // Refresh wellness data
-    this.refreshWellnessData();
-  }
-
-  /**
-   * Refresh wellness data from API
-   */
-  private refreshWellnessData() {
-    console.log('🔄 Refreshing wellness data from API...');
-    
-    // Force refresh today's symptoms
-    this.loadTodaySymptoms();
-    
-    // Load recent symptoms for the wellness section
-    this.loadRecentSymptomsDays();
-    
-    console.log('✅ Wellness data refreshed');
   }
 
   /**
@@ -1222,114 +1196,42 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   // Symptoms Summary Methods
   todaySymptoms: SymptomsDto = {} as SymptomsDto;
-  isLoadingWellness: boolean = false;
 
   loadTodaySymptoms() {
     const today = new Date().toISOString().split('T')[0];
-    this.isLoadingWellness = true;
 
-    // Always fetch fresh data from API to ensure we have the latest symptoms
+    // First try to get from local service (faster)
+    const localData = this.trackDataService.getTodayTrackData();
+    if (localData) {
+      this.todaySymptoms = localData as SymptomsDto;
+      console.log('🔍 Today symptoms from local service:', this.todaySymptoms);
+      return;
+    }
+
+    // If not found locally, fetch from API
     this.trackDataService.getTrackDay(this.getCurrentUserId(), today).subscribe({
-      next: (data:any) => {
-        this.isLoadingWellness = false;
-        if (data ) {
-          const rawData = data;
-          
-          // Parse symptoms if they're stored as JSON string
-          let parsedSymptoms = rawData.symptoms;
-          if (typeof rawData.symptoms === 'string') {
-            try {
-              parsedSymptoms = JSON.parse(rawData.symptoms);
-            } catch (e) {
-              console.warn('Failed to parse symptoms JSON:', e);
-              parsedSymptoms = [];
-            }
-          }
-          
-          // Ensure symptoms is an array
-          if (!Array.isArray(parsedSymptoms)) {
-            parsedSymptoms = [];
-          }
-
-          this.todaySymptoms = {
-            userId: rawData.userId || this.getCurrentUserId(),
-            date: rawData.date || today,
-            mood: rawData.mood || '',
-            energy: rawData.energy || '',
-            symptoms: parsedSymptoms,
-            notes: rawData.notes || ''
-          } as SymptomsDto;
+      next: (data) => {
+        if (data && data.length > 0) {
+          this.todaySymptoms = data[0] as SymptomsDto;
 
           // Store in local service for future use
           this.trackDataService.saveTrackData({
-            id: rawData.id,
+            id: data[0].id,
             userId: this.getCurrentUserId(),
             date: today,
-            symptoms: parsedSymptoms,
-            mood: rawData.mood,
-            energy: rawData.energy,
-            notes: rawData.notes,
-            createdAt: rawData.createdAt,
-            updatedAt: rawData.updatedAt
+            symptoms: data[0].symptoms,
+            mood: data[0].mood,
+            energy: data[0].energy,
+            notes: data[0].notes,
+            createdAt: data[0].createdAt,
+            updatedAt: data[0].updatedAt
           });
-          
-          console.log('✅ Today symptoms loaded from API:', this.todaySymptoms);
-        } else {
-          // No data for today, initialize empty
-          this.todaySymptoms = {
-            userId: this.getCurrentUserId(),
-            date: today,
-            mood: '',
-            energy: '',
-            symptoms: [],
-            notes: ''
-          } as SymptomsDto;
-          console.log('📝 No symptoms data for today, initialized empty');
         }
+        console.log('🔍 Today symptoms from API:', this.todaySymptoms);
       },
       error: (error) => {
-        this.isLoadingWellness = false;
-        console.log('⚠️ Error loading today symptoms:', error.status);
-        
-        // Fallback to local data if API fails
-        const localData = this.trackDataService.getTodayTrackData();
-        if (localData) {
-          // Parse symptoms if they're stored as JSON string
-          let parsedSymptoms = localData.symptoms;
-          if (typeof localData.symptoms === 'string') {
-            try {
-              parsedSymptoms = JSON.parse(localData.symptoms);
-            } catch (e) {
-              console.warn('Failed to parse local symptoms JSON:', e);
-              parsedSymptoms = [];
-            }
-          }
-          
-          // Ensure symptoms is an array
-          if (!Array.isArray(parsedSymptoms)) {
-            parsedSymptoms = [];
-          }
-
-          this.todaySymptoms = {
-            userId: localData.userId || this.getCurrentUserId(),
-            date: localData.date || today,
-            mood: localData.mood || '',
-            energy: localData.energy || '',
-            symptoms: parsedSymptoms,
-            notes: localData.notes || ''
-          } as SymptomsDto;
-          console.log('🔄 Fallback to local symptoms data:', this.todaySymptoms);
-        } else {
-          // Initialize empty if no local data
-          this.todaySymptoms = {
-            userId: this.getCurrentUserId(),
-            date: today,
-            mood: '',
-            energy: '',
-            symptoms: [],
-            notes: ''
-          } as SymptomsDto;
-        }
+        console.log('🔍 No symptoms data for today (404 is normal):', error.status);
+        this.todaySymptoms = {} as SymptomsDto;
       }
     });
   }
@@ -2939,38 +2841,6 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
   getProgressPercentage(): number {
     return Math.round((this.pregnancyWeek / 40) * 100);
-  }
-
-  // New Header Methods
-  getStatusIndicatorClass(): string {
-    if (this.isPregnant) return 'pregnant';
-    if (this.isPostpartum) return 'postpartum';
-    return 'tracking';
-  }
-
-  getProgressLabel(): string {
-    if (this.isPregnant) return 'Pregnancy Progress';
-    if (this.isPostpartum) return 'Recovery Progress';
-    return 'Cycle Progress';
-  }
-
-  getProgressValue(): string {
-    if (this.isPregnant) return `Week ${this.pregnancyWeek} of 40`;
-    if (this.isPostpartum) return `Week ${this.postpartumWeek} postpartum`;
-    return `Day ${this.currentCycleDay}`;
-  }
-
-  openNotifications(): void {
-    this.router.navigate(['/notifications']);
-  }
-
-  openSettings(): void {
-    this.router.navigate(['/settings']);
-  }
-
-  get hasNotifications(): boolean {
-    // This would come from a notifications service
-    return true; // For demo purposes
   }
 
 

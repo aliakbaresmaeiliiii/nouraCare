@@ -1,0 +1,291 @@
+// Extended Forum Schema - Integrating with existing Secret Chat system
+// Reusing Post and PostLike entities for both Secret Chat and Forum functionality
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User model (existing - no changes needed)
+model user {
+  id                        Int       @id @default(autoincrement())
+  email                     String    @unique(map: "User_email_key")
+  phone                     String    @unique(map: "User_phone_key")
+  verificationCode          String?
+  name                      String?
+  verificationCodeExpiresAt DateTime?
+  isVerified                Boolean   @default(false)
+  createdAt                 DateTime  @default(now())
+  profileImage              String?
+  status                    Status?
+  menstrualCycleLength      Int?
+  periodDuration            Int?
+  lastPeriodStartDate       DateTime?
+  birthday                  DateTime?  
+  city                      String?
+  pregnancyWeek             Int?
+  pregnancyProgress         String?
+  healthGoals               String?    // JSON string array
+  notificationsEnabled      Boolean    @default(true)
+  updatedAt                 DateTime   @default(now()) @updatedAt
+
+  // Relations
+  addresses                 Address[]
+  trackDays                 TrackDay[]
+  
+  // Secret Chats Relations
+  createdChats              SecretChat[] @relation("ChatCreatedBy")
+  chatMemberships           ChatMember[]
+  posts                     Post[]       @relation("PostAuthor")
+  comments                  Comment[]    @relation("CommentAuthor")
+  postLikes                 PostLike[]   @relation("PostLikes")
+  commentLikes              CommentLike[] @relation("CommentLikes")
+  sentMessages              ChatMessage[] @relation("MessageSender")
+  readMessages              MessageRead[] @relation("MessageReads")
+  
+  // Forum Relations (updated)
+  createdTopics             Topic[]      @relation("TopicAuthor")
+  forumPosts                Post[]       @relation("ForumPostAuthor")
+}
+
+enum Status {
+  PLANNING_PREGNANCY
+  PREGNANT
+  HAS_CHILD
+}
+
+// NEW: Category entity for Forum
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  description String   @db.Text
+  slug        String   @unique
+  color       String?  // Optional hex color for UI
+  icon        String?  // Optional icon name/url
+  order       Int      @default(0) // For custom ordering
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  topics Topic[]
+
+  @@map("categories")
+}
+
+// NEW: Topic entity that belongs to a Category
+model Topic {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @db.Text
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdById Int
+  createdBy   user     @relation("TopicAuthor", fields: [createdById], references: [id])
+  isPinned    Boolean  @default(false)
+  isLocked    Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  posts Post[]
+
+  @@map("topics")
+}
+
+// MODIFIED: Post entity - extended to support both Secret Chat and Forum
+model Post {
+  id          String     @id @default(uuid())
+  content     String?    @db.Text
+  // For Secret Chat posts
+  chatId      String?
+  chat        SecretChat? @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  // For Forum posts
+  topicId     String?
+  topic       Topic?     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  // Common fields
+  authorId    Int
+  author      user       @relation("PostAuthor", fields: [authorId], references: [id])
+  categoryId  String?    // Optional category (existing)
+  category    PostCategory? @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  isAnonymous Boolean    @default(false)
+
+  // Relations (existing)
+  media    PostMedia[]
+  comments Comment[]
+  likes    PostLike[]
+
+  // Validation: A post must belong to either a chat or a topic, but not both
+  @@map("posts")
+  @@unique([chatId, topicId])
+}
+
+// Existing models remain the same (reusing PostLike, Comment, etc.)
+model PostMedia {
+  id       String    @id @default(uuid())
+  postId   String
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  url      String
+  type     MediaType
+  caption  String?   @db.Text
+  order    Int       @default(0)
+  createdAt DateTime @default(now())
+
+  @@map("post_media")
+}
+
+model Comment {
+  id          String   @id @default(uuid())
+  content     String   @db.Text
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId    Int
+  author      user     @relation("CommentAuthor", fields: [authorId], references: [id])
+  parentId    String?  // For nested comments/replies
+  parent      Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     Comment[] @relation("CommentReplies")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isAnonymous Boolean  @default(false)
+
+  // Relations
+  likes CommentLike[]
+
+  @@map("comments")
+}
+
+model PostLike {
+  id       String   @id @default(uuid())
+  postId   String
+  post     Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId   Int
+  user     user     @relation("PostLikes", fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@map("post_likes")
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      user     @relation("CommentLikes", fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@map("comment_likes")
+}
+
+// Secret Chat models (existing - no changes needed)
+model SecretChat {
+  id          String   @id @default(uuid())
+  name        String?  // Optional chat name for group chats
+  description String?  @db.Text
+  isGroup     Boolean  @default(false)
+  createdById Int
+  createdBy   user     @relation("ChatCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members  ChatMember[]
+  posts    Post[]
+  messages ChatMessage[]
+
+  @@map("secret_chats")
+}
+
+model ChatMember {
+  id       String    @id @default(uuid())
+  chatId   String
+  chat     SecretChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  userId   Int
+  user     user      @relation(fields: [userId], references: [id])
+  role     MemberRole @default(MEMBER)
+  joinedAt DateTime  @default(now())
+  leftAt   DateTime?
+
+  @@unique([chatId, userId])
+  @@map("chat_members")
+}
+
+model ChatMessage {
+  id          String     @id @default(uuid())
+  content     String?    @db.Text
+  chatId      String
+  chat        SecretChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId    Int
+  sender      user       @relation("MessageSender", fields: [senderId], references: [id])
+  messageType MessageType @default(TEXT)
+  mediaUrl    String?
+  replyToId   String?    // For replying to messages
+  replyTo     ChatMessage? @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies     ChatMessage[] @relation("MessageReplies")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  isDeleted   Boolean    @default(false)
+  readBy      MessageRead[]
+
+  @@map("chat_messages")
+}
+
+model MessageRead {
+  id        String      @id @default(uuid())
+  messageId String
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      user        @relation("MessageReads", fields: [userId], references: [id])
+  readAt    DateTime    @default(now())
+
+  @@unique([messageId, userId])
+  @@map("message_reads")
+}
+
+// Existing enums (no changes needed)
+model PostCategory {
+  id          String @id // e.g., 'trying-to-conceive'
+  name        String // e.g., 'Trying to conceive'
+  description String @db.Text
+  color       String? // Optional hex color for UI
+  icon        String? // Optional icon name/url
+  order       Int     @default(0) // For custom ordering
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  posts Post[]
+
+  @@map("post_categories")
+}
+
+enum MemberRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+  SYSTEM
+}

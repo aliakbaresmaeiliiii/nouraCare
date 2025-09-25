@@ -1,10 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
 import { ForumService } from '../shared/services/forum.service';
+import { ForumThreadsService } from '../shared/services/forum-threads.service';
 
 interface ForumCategory {
-  id: number;
+  id: string;
   name: string;
   description: string;
   icon: string;
@@ -16,7 +17,7 @@ interface ForumCategory {
 }
 
 interface ForumTopic {
-  id: number;
+  id: string;
   title: string;
   content: string;
   author: string;
@@ -41,7 +42,10 @@ interface ForumTopic {
 export class ForumsComponent implements OnInit {
   private router = inject(Router);
   private forumsService = inject(ForumService);
-  categories: ForumCategory[] = [];
+  private forumThreadsService = inject(ForumThreadsService);
+
+  categories = signal<ForumCategory[]>([]) || [];
+
   topics: ForumTopic[] = [];
   isLoading = false;
   errorMessage = '';
@@ -49,7 +53,7 @@ export class ForumsComponent implements OnInit {
   selectedCategory = 'all';
   viewMode: 'categories' | 'topics' = 'categories';
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
     this.loadCategories();
@@ -60,14 +64,29 @@ export class ForumsComponent implements OnInit {
   fetchCategories() {
     this.forumsService.getCategories().subscribe({
       next: (response: any) => {
-        console.log(response);
-        
-        this.categories = response.data || [];
+        console.log('Categories response:', response);
+        if (response && response.success) {
+          this.isLoading = false;
+          // Map the backend data to our frontend interface
+          const categories = response.data.map((category: any) => ({
+            id: category.id,
+            name: category.name,
+            description: category.description,
+            icon: category.icon,
+            color: category.color,
+            topicsCount: category.forums?.length || 0,
+            postsCount: 0, // This would need to be calculated from forums data
+            lastActivity: category.updatedAt,
+            isPopular: false // You can set this based on some criteria
+          }));
+          this.categories.set(categories);
+        }
       },
       error: (error: any) => {
         console.error('Error loading categories:', error);
-      }
-    }); 
+        this.isLoading = false;
+      },
+    });
   }
   loadCategories() {
     this.isLoading = true;
@@ -75,64 +94,87 @@ export class ForumsComponent implements OnInit {
   }
 
   loadTopics() {
-    // TODO: Replace with actual API call when backend is ready
-    // this.forumsService.getTopics().subscribe({
-    //   next: (response: any) => {
-    //     this.topics = response.data || [];
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error loading topics:', error);
-    //   }
-    // });
-
+    this.forumThreadsService.getAllThreads().subscribe({
+      next: (response: any) => {
+        console.log('Forum threads response:', response);
+        if (response && response.success) {
+          this.isLoading = false;
+          // Map the backend data to our frontend interface
+          const threads = response.data.threads.map((thread: any) => ({
+            id: thread.id,
+            title: thread.title,
+            content: thread.content,
+            author: thread.author?.name || 'Anonymous',
+            authorAvatar: thread.author?.avatar || 'assets/images/nurse.png',
+            category: thread.category?.name || 'General Discussion',
+            replies: thread.repliesCount || 0,
+            views: thread.views || 0,
+            lastReply: thread.updatedAt,
+            isPinned: thread.isPinned || false,
+            isLocked: thread.isLocked || false,
+            tags: thread.tags || [],
+            createdAt: thread.createdAt
+          }));
+          this.topics = threads;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading topics:', error);
+        this.isLoading = false;
+      },
+    });
     // Mock data for now
-    this.topics = [
-      {
-        id: 1,
-        title: 'Best natural remedies for period cramps',
-        content: 'I\'ve been experiencing severe cramps lately and looking for natural remedies...',
-        author: 'Sarah Johnson',
-        authorAvatar: 'assets/images/nurse.png',
-        category: 'General Discussion',
-        replies: 23,
-        views: 156,
-        lastReply: '2024-01-15T10:30:00Z',
-        isPinned: true,
-        isLocked: false,
-        tags: ['period', 'cramps', 'natural-remedies'],
-        createdAt: '2024-01-10T14:20:00Z'
-      },
-      {
-        id: 2,
-        title: 'Pregnancy nutrition guide - what to eat and avoid',
-        content: 'I\'m in my first trimester and want to make sure I\'m eating right...',
-        author: 'Emily Chen',
-        authorAvatar: 'assets/images/nurse.png',
-        category: 'Pregnancy & Fertility',
-        replies: 45,
-        views: 289,
-        lastReply: '2024-01-15T14:20:00Z',
-        isPinned: false,
-        isLocked: false,
-        tags: ['pregnancy', 'nutrition', 'first-trimester'],
-        createdAt: '2024-01-12T09:15:00Z'
-      },
-      {
-        id: 3,
-        title: 'Dealing with anxiety during pregnancy',
-        content: 'I\'ve been feeling very anxious lately and it\'s affecting my sleep...',
-        author: 'Maria Rodriguez',
-        authorAvatar: 'assets/images/nurse.png',
-        category: 'Mental Health',
-        replies: 18,
-        views: 134,
-        lastReply: '2024-01-14T18:45:00Z',
-        isPinned: false,
-        isLocked: false,
-        tags: ['anxiety', 'pregnancy', 'mental-health'],
-        createdAt: '2024-01-13T11:30:00Z'
-      }
-    ];
+    // this.topics = [
+    //   {
+    //     id: 1,
+    //     title: 'Best natural remedies for period cramps',
+    //     content:
+    //       "I've been experiencing severe cramps lately and looking for natural remedies...",
+    //     author: 'Sarah Johnson',
+    //     authorAvatar: 'assets/images/nurse.png',
+    //     category: 'General Discussion',
+    //     replies: 23,
+    //     views: 156,
+    //     lastReply: '2025-09-21T10:30:00Z',
+    //     isPinned: true,
+    //     isLocked: false,
+    //     tags: ['period', 'cramps', 'natural-remedies'],
+    //     createdAt: '2025-09-22',
+    //   },
+    //   {
+    //     id: 2,
+    //     title: 'Pregnancy nutrition guide - what to eat and avoid',
+    //     content:
+    //       "I'm in my first trimester and want to make sure I'm eating right...",
+    //     author: 'Emily Chen',
+    //     authorAvatar: 'assets/images/nurse.png',
+    //     category: 'Pregnancy & Fertility',
+    //     replies: 45,
+    //     views: 289,
+    //     lastReply: '2025-09-22T14:20:00Z',
+    //     isPinned: false,
+    //     isLocked: false,
+    //     tags: ['pregnancy', 'nutrition', 'first-trimester'],
+    //      createdAt: '2025-09-22',
+
+    //   },
+    //   {
+    //     id: 3,
+    //     title: 'Dealing with anxiety during pregnancy',
+    //     content:
+    //       "I've been feeling very anxious lately and it's affecting my sleep...",
+    //     author: 'Maria Rodriguez',
+    //     authorAvatar: 'assets/images/nurse.png',
+    //     category: 'Mental Health',
+    //     replies: 18,
+    //     views: 134,
+    //     lastReply: '2024-01-14T18:45:00Z',
+    //     isPinned: false,
+    //     isLocked: false,
+    //     tags: ['anxiety', 'pregnancy', 'mental-health'],
+    //     createdAt: '2024-01-13T11:30:00Z',
+    //   },
+    // ];
   }
 
   onSearchChange(event: any) {
@@ -140,17 +182,64 @@ export class ForumsComponent implements OnInit {
   }
 
   onCategoryChange(category: string | number) {
-    this.selectedCategory = category.toString();
+    const categoryId = category.toString();
+    this.selectedCategory = categoryId;
+    
+    if (categoryId === 'all') {
+      this.loadTopics();
+    } else {
+      this.loadTopicsByCategory(categoryId);
+    }
   }
 
   switchViewMode(mode: string | number) {
-    this.viewMode = (mode.toString() as 'categories' | 'topics');
+    this.viewMode = mode.toString() as 'categories' | 'topics';
+    if (this.viewMode === 'topics') {
+      if (this.selectedCategory === 'all') {
+        this.loadTopics();
+      } else {
+        this.loadTopicsByCategory(this.selectedCategory);
+      }
+    }
   }
 
   openCategory(category: ForumCategory) {
-    this.selectedCategory = category.name;
+    this.selectedCategory = category.id;
     this.viewMode = 'topics';
-    // TODO: Load topics for this category
+    this.loadTopicsByCategory(category.id);
+  }
+
+  loadTopicsByCategory(categoryId: string) {
+    this.isLoading = true;
+    this.forumThreadsService.getThreadsByCategory(categoryId).subscribe({
+      next: (response: any) => {
+        console.log('Category threads response:', response);
+        if (response && response.success) {
+          this.isLoading = false;
+          // Map the backend data to our frontend interface
+          const threads = response.data.threads.map((thread: any) => ({
+            id: thread.id,
+            title: thread.title,
+            content: thread.content,
+            author: thread.author?.name || 'Anonymous',
+            authorAvatar: thread.author?.avatar || 'assets/images/nurse.png',
+            category: thread.category?.name || 'General Discussion',
+            replies: thread.repliesCount || 0,
+            views: thread.views || 0,
+            lastReply: thread.updatedAt,
+            isPinned: thread.isPinned || false,
+            isLocked: thread.isLocked || false,
+            tags: thread.tags || [],
+            createdAt: thread.createdAt
+          }));
+          this.topics = threads;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading category topics:', error);
+        this.isLoading = false;
+      },
+    });
   }
 
   openTopic(topic: ForumTopic) {
@@ -166,33 +255,39 @@ export class ForumsComponent implements OnInit {
   get filteredCategories(): ForumCategory[] {
     if (this.searchQuery.trim()) {
       const query = this.searchQuery.toLowerCase();
-      return this.categories.filter(category => 
-        category.name.toLowerCase().includes(query) ||
-        category.description.toLowerCase().includes(query)
+      return this.categories().filter(
+        (category) =>
+          category.name.toLowerCase().includes(query) ||
+          category.description.toLowerCase().includes(query)
       );
     }
-    return this.categories;
+    return this.categories();
   }
 
   get filteredTopics(): ForumTopic[] {
     let topics = this.topics;
-    
-    // Filter by category
+
+    // Filter by category (when category is selected by ID)
     if (this.selectedCategory !== 'all') {
-      topics = topics.filter(topic => topic.category === this.selectedCategory);
+      // Since we're now using category ID for selection, we need to handle this differently
+      // For now, we'll just return all topics when a specific category is selected
+      // as the backend should already be filtering by category
+      return topics;
     }
-    
+
     // Filter by search query
     if (this.searchQuery.trim()) {
       const query = this.searchQuery.toLowerCase();
-      topics = topics.filter(topic => 
-        topic.title.toLowerCase().includes(query) ||
-        topic.content.toLowerCase().includes(query) ||
-        topic.author.toLowerCase().includes(query) ||
-        topic.tags.some(tag => tag.toLowerCase().includes(query))
+      topics = topics.filter(
+        (topic) =>
+          topic.title.toLowerCase().includes(query) ||
+          topic.content.toLowerCase().includes(query) ||
+          topic.author.toLowerCase().includes(query) ||
+          topic.tags.some((tag) => tag.toLowerCase().includes(query))
       );
     }
     
+
     return topics;
   }
 
@@ -233,6 +328,46 @@ export class ForumsComponent implements OnInit {
     if (target) {
       target.src = 'assets/images/nurse.png';
     }
+  }
+
+  getCategoryIcon(categoryName: string): string {
+    const iconMap: { [key: string]: string } = {
+      'General Discussion': 'chatbubbles-outline',
+      'Pregnancy & Fertility': 'heart-outline',
+      'Mental Health': 'happy-outline',
+      'Health & Wellness': 'fitness-outline',
+      Relationships: 'people-outline',
+      Nutrition: 'nutrition-outline',
+      Exercise: 'barbell-outline',
+      Parenting: 'people-circle-outline',
+      'Medical Questions': 'medical-outline',
+      'Support Groups': 'people-circle-outline',
+      'Trying to conceive': 'heart-outline',
+      'Pregnancy tests': 'flask-outline',
+      Ovulation: 'calendar-outline',
+      Pregnancy: 'female-outline',
+      '1st trimester': 'leaf-outline',
+      '2nd trimester': 'flower-outline',
+      '3rd trimester': 'rose-outline',
+      Parenthood: 'baby-carriage-outline',
+      Postpartum: 'refresh-outline',
+    };
+
+    // Return the mapped icon or a default icon
+    return iconMap[categoryName] || 'help-circle-outline';
+  }
+
+  clearFilters(): void {
+    this.selectedCategory = 'all';
+    this.searchQuery = '';
+  }
+
+  getSelectedCategoryName(): string {
+    if (this.selectedCategory === 'all') {
+      return 'All Topics';
+    }
+    const category = this.categories().find(c => c.id === this.selectedCategory);
+    return category?.name || this.selectedCategory;
   }
 
   private showSuccessAlert(message: string): void {
