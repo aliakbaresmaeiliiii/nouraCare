@@ -6,8 +6,6 @@ import {
   Patch, 
   Param, 
   Delete, 
-  UsePipes, 
-  ValidationPipe,
   HttpCode,
   HttpStatus,
   Query,
@@ -22,8 +20,7 @@ export class ForumThreadsController {
   constructor(private readonly forumThreadsService: ForumThreadsService) {}
 
   @Post()
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async create(@Body() createForumThreadDto: CreateForumThreadDto, @Req() req) {
+  async create(@Body() createForumThreadDto: CreateForumThreadDto, @Req() req: any) {
     // In a real implementation, you would get the user ID from the authenticated request
     const authorId = req.user?.id || 1; // Default to user ID 1 for testing
     
@@ -111,11 +108,10 @@ export class ForumThreadsController {
   }
 
   @Patch(':id')
-  @UsePipes(new ValidationPipe({ transform: true }))
   async update(
     @Param('id') id: string,
     @Body() updateForumThreadDto: UpdateForumThreadDto,
-    @Req() req
+    @Req() req: any
   ) {
     // In a real implementation, you would get the user ID from the authenticated request
     const userId = req.user?.id || 1; // Default to user ID 1 for testing
@@ -130,7 +126,7 @@ export class ForumThreadsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string, @Req() req) {
+  async remove(@Param('id') id: string, @Req() req: any) {
     // In a real implementation, you would get the user ID from the authenticated request
     const userId = req.user?.id || 1; // Default to user ID 1 for testing
     

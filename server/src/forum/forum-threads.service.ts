@@ -102,6 +102,7 @@ export class ForumThreadsService {
   }
 
   async findOne(id: string) {
+    // First get the thread with basic info
     const thread = await this.prismaService.forumThread.findUnique({
       where: { id },
       include: {
@@ -117,23 +118,6 @@ export class ForumThreadsService {
             category: true,
           },
         },
-        posts: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
-              },
-            },
-            _count: {
-              select: {
-                likes: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
-        },
         _count: {
           select: {
             posts: true,
@@ -146,13 +130,54 @@ export class ForumThreadsService {
       throw new NotFoundException('Forum thread not found');
     }
 
+    // Then get all posts for this thread with proper nesting
+    const allPosts = await this.prismaService.forumPost.findMany({
+      where: { threadId: id },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            profileImage: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            replies: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    // Structure the posts hierarchically
+    const mainPosts = allPosts.filter(post => post.parentId === null);
+    const replies = allPosts.filter(post => post.parentId !== null);
+
+    // Add replies to their respective parent posts
+    const postsWithReplies = mainPosts.map(post => ({
+      ...post,
+      replies: replies
+        .filter(reply => reply.parentId === post.id)
+        .map(reply => ({
+          ...reply,
+          _count: {
+            likes: reply._count.likes,
+          },
+        })),
+    }));
+
     // Increment view count
     await this.prismaService.forumThread.update({
       where: { id },
       data: { viewCount: thread.viewCount + 1 },
     });
 
-    return thread;
+    return {
+      ...thread,
+      posts: postsWithReplies,
+    };
   }
 
   async update(id: string, updateForumThreadDto: UpdateForumThreadDto, userId: number) {

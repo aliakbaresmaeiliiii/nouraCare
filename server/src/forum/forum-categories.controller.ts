@@ -6,8 +6,6 @@ import {
   Patch, 
   Param, 
   Delete, 
-  UsePipes, 
-  ValidationPipe,
   HttpCode,
   HttpStatus 
 } from '@nestjs/common';
@@ -16,12 +14,10 @@ import { CreateForumCategoryDto } from './dto/create-forum-category.dto';
 import { UpdateForumCategoryDto } from './dto/update-forum-category.dto';
 
 @Controller('api/v1/forum-categories')
-
 export class ForumCategoriesController {
   constructor(private readonly forumCategoriesService: ForumCategoriesService) {}
 
   @Post()
-  @UsePipes(new ValidationPipe({ transform: true }))
   async create(@Body() createForumCategoryDto: CreateForumCategoryDto) {
     const category = await this.forumCategoriesService.create(createForumCategoryDto);
     return {
@@ -59,7 +55,6 @@ export class ForumCategoriesController {
   }
 
   @Patch(':id')
-  @UsePipes(new ValidationPipe({ transform: true }))
   async update(
     @Param('id') id: string,
     @Body() updateForumCategoryDto: UpdateForumCategoryDto,

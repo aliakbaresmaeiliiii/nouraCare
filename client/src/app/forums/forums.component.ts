@@ -105,7 +105,7 @@ export class ForumsComponent implements OnInit {
             title: thread.title,
             content: thread.content,
             author: thread.author?.name || 'Anonymous',
-            authorAvatar: thread.author?.avatar || 'assets/images/nurse.png',
+            authorAvatar: thread.author?.avatar || '/assets/images/nurse.png',
             category: thread.category?.name || 'General Discussion',
             replies: thread.repliesCount || 0,
             views: thread.views || 0,
@@ -222,7 +222,7 @@ export class ForumsComponent implements OnInit {
             title: thread.title,
             content: thread.content,
             author: thread.author?.name || 'Anonymous',
-            authorAvatar: thread.author?.avatar || 'assets/images/nurse.png',
+            authorAvatar: thread.author?.avatar || '/assets/images/nurse.png',
             category: thread.category?.name || 'General Discussion',
             replies: thread.repliesCount || 0,
             views: thread.views || 0,
@@ -326,7 +326,7 @@ export class ForumsComponent implements OnInit {
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
     if (target) {
-      target.src = 'assets/images/nurse.png';
+      target.src = '/assets/images/nurse.png';
     }
   }
 

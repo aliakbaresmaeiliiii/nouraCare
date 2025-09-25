@@ -5,7 +5,7 @@
     </ion-buttons>
     <ion-title class="header-title">Topic Discussion</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" class="share-button">
+      <ion-button fill="clear" class="share-button" (click)="shareTopic()">
         <ion-icon name="share-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -35,7 +35,7 @@
       <div class="topic-header">
         <div class="author-avatar">
           <ion-avatar class="avatar">
-            <img [src]="topic.authorAvatar || 'assets/images/nurse.png'" 
+            <img [src]="topic.authorAvatar || ''" 
                  [alt]="topic.author"
                  (error)="onImageError($event)">
           </ion-avatar>
@@ -96,7 +96,8 @@
       </div>
 
       <!-- Comments List -->
-      <ion-list *ngIf="comments.length > 0" class="comments-list">
+      @if (comments.length > 0) {
+      <ion-list  class="comments-list">
         @for (comment of comments; track comment.id) {
         <ion-item class="comment-item">
           <div class="comment-content">
@@ -129,6 +130,7 @@
         </ion-item>
         }
       </ion-list>
+      }
     </div>
   </div>
 </ion-content>

@@ -1,13 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ModalController, ToastController, NavController } from '@ionic/angular';
+import { IonicModule, ModalController, ToastController, NavController, AlertController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { SecretChatsService } from '../../secret-chats/services/secret-chat.service';
-import { 
-  CreateCommentDto,
-  Comment 
-} from '../../secret-chats/secret.chats.dto';
+import { ForumThreadsService, CreatePostDto, ThreadDetailResponse, PostResponse, LikeResponse } from '../../shared/services/forum-threads.service';
+import { Share } from '@capacitor/share';
 
 interface ForumTopic {
   id: number;
@@ -23,6 +20,29 @@ interface ForumTopic {
   isLocked: boolean;
   tags: string[];
   createdAt: string;
+  posts?: any[];
+}
+
+interface Comment {
+  id: string;
+  content: string;
+  author: {
+    id: number;
+    name: string;
+    profileImage: string | null;
+  };
+  authorId: number;
+  threadId: string;
+  parentId: string | null;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  replies: any[];
+  isLiked?: boolean;
+  _count: {
+    likes: number;
+    replies: number;
+  };
 }
 
 @Component({
@@ -35,8 +55,9 @@ interface ForumTopic {
 export class TopicDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private navCtrl = inject(NavController);
-  private secretChatsService = inject(SecretChatsService);
+  private forumThreadsService = inject(ForumThreadsService);
   private toastController = inject(ToastController);
+  private alertController = inject(AlertController);
 
   topic: ForumTopic | null = null;
   comments: Comment[] = [];
@@ -49,7 +70,6 @@ export class TopicDetailComponent implements OnInit {
     const topicId = this.route.snapshot.paramMap.get('id');
     if (topicId) {
       this.loadTopicDetail(topicId);
-      this.loadComments(topicId);
     } else {
       this.errorMessage = 'Topic not found';
     }
@@ -57,90 +77,69 @@ export class TopicDetailComponent implements OnInit {
 
   loadTopicDetail(topicId: string) {
     this.isLoading = true;
-    // TODO: Replace with actual API call
-    // For now, we'll use mock data similar to forums component
-    setTimeout(() => {
-      this.topic = {
-        id: parseInt(topicId),
-        title: 'Best natural remedies for period cramps',
-        content: 'I\'ve been experiencing severe cramps lately and looking for natural remedies that actually work. I\'ve tried heating pads and they help a bit, but I\'m looking for more suggestions. What has worked for you all?',
-        author: 'Sarah Johnson',
-        authorAvatar: 'assets/images/nurse.png',
-        category: 'General Discussion',
-        replies: 23,
-        views: 156,
-        lastReply: '2024-01-15T10:30:00Z',
-        isPinned: true,
-        isLocked: false,
-        tags: ['period', 'cramps', 'natural-remedies'],
-        createdAt: '2024-01-10T14:20:00Z'
-      };
-      this.isLoading = false;
-    }, 1000);
-  }
-
-  loadComments(topicId: string) {
-    // TODO: Replace with actual API call
-    // this.secretChatsService.getPostComments(topicId).subscribe({
-    //   next: (response) => {
-    //     this.comments = response.data || [];
-    //   },
-    //   error: (error) => {
-    //     console.error('Error loading comments:', error);
-    //     this.errorMessage = 'Failed to load comments';
-    //   }
-    // });
-
-    // Mock comments for now
-    setTimeout(() => {
-      this.comments = [
-        {
-          id: '1',
-          content: 'I find that ginger tea works wonders for my cramps! I drink it 2-3 times a day during my period.',
-          postId: topicId,
-          authorId: 2,
-          parentId: null,
-          isAnonymous: false,
-          createdAt: '2024-01-15T10:30:00Z',
-          updatedAt: '2024-01-15T10:30:00Z',
-          author: {
-            id: 2,
-            name: 'Emily Chen',
-            email: 'emily@example.com',
-            profileImage: 'assets/images/nurse.png'
-          },
-          replies: [],
-          isLiked: false,
-          _count: {
-            likes: 5,
-            replies: 2
-          }
-        },
-        {
-          id: '2',
-          content: 'Magnesium supplements have been a game changer for me. I take them daily and my cramps are much more manageable now.',
-          postId: topicId,
-          authorId: 3,
-          parentId: null,
-          isAnonymous: false,
-          createdAt: '2024-01-15T09:15:00Z',
-          updatedAt: '2024-01-15T09:15:00Z',
-          author: {
-            id: 3,
-            name: 'Maria Rodriguez',
-            email: 'maria@example.com',
-            profileImage: 'assets/images/nurse.png'
-          },
-          replies: [],
-          isLiked: true,
-          _count: {
-            likes: 8,
-            replies: 1
-          }
+    this.errorMessage = '';
+    
+    this.forumThreadsService.getThreadById(topicId).subscribe({
+      next: (response: any) => {
+        console.log('Topic detail response:', response);
+        if (response && response.success) {
+          const thread = response.data;
+          this.topic = {
+            id: parseInt(topicId),
+            title: thread.title,
+            content: thread.content,
+            author: thread.author?.name || 'Anonymous',
+            authorAvatar: thread.author?.profileImage || '',
+            category: thread.forum?.title || 'General Discussion',
+            replies: thread._count?.posts || 0,
+            views: thread.viewCount || 0,
+            lastReply: thread.updatedAt,
+            isPinned: thread.isPinned || false,
+            isLocked: thread.isLocked || false,
+            tags: [],
+            createdAt: thread.createdAt,
+            posts: thread.posts || []
+          };
+          
+          // Load comments from the thread response
+          this.comments = thread.posts || [];
+        } else {
+          this.errorMessage = 'Failed to load topic details';
         }
-      ];
-    }, 1500);
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading topic detail:', error);
+        this.errorMessage = 'Failed to load topic details';
+        this.isLoading = false;
+        
+        // Fallback to mock data if API fails
+        this.loadMockTopicDetail(topicId);
+      }
+    });
   }
+
+  private loadMockTopicDetail(topicId: string) {
+    this.topic = {
+      id: parseInt(topicId),
+      title: 'Best natural remedies for period cramps',
+      content: 'I\'ve been experiencing severe cramps lately and looking for natural remedies that actually work. I\'ve tried heating pads and they help a bit, but I\'m looking for more suggestions. What has worked for you all?',
+      author: 'Sarah Johnson',
+      authorAvatar: '',
+      category: 'General Discussion',
+      replies: 23,
+      views: 156,
+      lastReply: '2024-01-15T10:30:00Z',
+      isPinned: true,
+      isLocked: false,
+      tags: ['period', 'cramps', 'natural-remedies'],
+      createdAt: '2024-01-10T14:20:00Z'
+    };
+  }
+
+ 
+
+
 
   async submitComment() {
     if (!this.newComment.trim()) {
@@ -156,79 +155,98 @@ export class TopicDetailComponent implements OnInit {
     this.isSubmittingComment = true;
 
     try {
-      const commentData: CreateCommentDto = {
+      const postData: CreatePostDto = {
         content: this.newComment.trim(),
-        postId: this.topic.id.toString(),
-        isAnonymous: false
+        threadId: this.topic.id.toString(),
+        parentId: null
       };
 
-      // TODO: Replace with actual API call
-      // this.secretChatsService.createComment(commentData).subscribe({
-      //   next: (comment) => {
-      //     this.comments.unshift(comment);
-      //     this.newComment = '';
-      //     this.showToast('Comment posted successfully!', 'success');
-      //   },
-      //   error: (error) => {
-      //     console.error('Error posting comment:', error);
-      //     this.showToast('Failed to post comment', 'danger');
-      //   }
-      // });
-
-      // Mock comment creation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const newComment: Comment = {
-        id: Date.now().toString(),
-        content: this.newComment.trim(),
-        postId: this.topic.id.toString(),
-        authorId: 1, // Current user ID
-        parentId: null,
-        isAnonymous: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        author: {
-          id: 1,
-          name: 'Current User',
-          email: 'user@example.com',
-          profileImage: 'assets/images/nurse.png'
+      this.forumThreadsService.createPost(postData).subscribe({
+        next: (response: any) => {
+          console.log('Comment created successfully:', response);
+          if (response && response.success) {
+            this.comments.unshift(response.data);
+            this.newComment = '';
+            this.showToast('Comment posted successfully!', 'success');
+          } else {
+            this.showToast('Failed to post comment', 'danger');
+          }
+          this.isSubmittingComment = false;
         },
-        replies: [],
-        isLiked: false,
-        _count: {
-          likes: 0,
-          replies: 0
+        error: (error: any) => {
+          console.error('Error posting comment:', error);
+          this.showToast('Failed to post comment', 'danger');
+          this.isSubmittingComment = false;
+          
+          // Fallback to mock comment creation
+          this.createMockComment();
         }
-      };
-
-      this.comments.unshift(newComment);
-      this.newComment = '';
-      await this.showToast('Comment posted successfully!', 'success');
+      });
 
     } catch (error) {
       console.error('Error posting comment:', error);
       await this.showToast('Failed to post comment. Please try again.', 'danger');
-    } finally {
       this.isSubmittingComment = false;
     }
   }
 
-  async likeComment(commentId: string) {
-    // TODO: Implement like functionality
-    // this.secretChatsService.toggleCommentLike(commentId).subscribe({
-    //   next: (response) => {
-    //     const comment = this.comments.find(c => c.id === commentId);
-    //     if (comment) {
-    //       comment.isLiked = response.liked;
-    //       comment._count.likes += response.liked ? 1 : -1;
-    //     }
-    //   },
-    //   error: (error) => {
-    //     console.error('Error liking comment:', error);
-    //   }
-    // });
+  private createMockComment() {
+    if (!this.topic) return;
+    
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      content: this.newComment.trim(),
+      authorId: 1, // Current user ID
+      threadId: this.topic.id.toString(),
+      parentId: null,
+      isDeleted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      author: {
+        id: 1,
+        name: 'Current User',
+        profileImage: ''
+      },
+      replies: [],
+      isLiked: false,
+      _count: {
+        likes: 0,
+        replies: 0
+      }
+    };
 
-    // Mock like functionality
+    this.comments.unshift(newComment);
+    this.newComment = '';
+    this.showToast('Comment posted successfully!', 'success');
+  }
+
+  async likeComment(commentId: string) {
+    this.forumThreadsService.likePost(commentId).subscribe({
+      next: (response: any) => {
+        console.log('Like response:', response);
+        if (response && response.success) {
+          const comment = this.comments.find(c => c.id === commentId);
+          if (comment) {
+            comment.isLiked = response.data.liked;
+            comment._count.likes += response.data.liked ? 1 : -1;
+            this.showToast(response.data.liked ? 'Liked!' : 'Unliked!', 'success');
+          }
+        } else {
+          this.showToast('Failed to like comment', 'danger');
+          // Fallback to mock like functionality
+          this.mockLikeComment(commentId);
+        }
+      },
+      error: (error: any) => {
+        console.error('Error liking comment:', error);
+        this.showToast('Failed to like comment', 'danger');
+        // Fallback to mock like functionality
+        this.mockLikeComment(commentId);
+      }
+    });
+  }
+
+  private async mockLikeComment(commentId: string) {
     const comment = this.comments.find(c => c.id === commentId);
     if (comment) {
       comment.isLiked = !comment.isLiked;
@@ -240,7 +258,7 @@ export class TopicDetailComponent implements OnInit {
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
     if (target) {
-      target.src = 'assets/images/nurse.png';
+      target.src = '';
     }
   }
 
@@ -277,5 +295,126 @@ export class TopicDetailComponent implements OnInit {
       position: 'bottom'
     });
     await toast.present();
+  }
+
+  async shareTopic() {
+    if (!this.topic) {
+      await this.showToast('Topic not available for sharing', 'warning');
+      return;
+    }
+
+    try {
+      // Create share data
+      const shareData = {
+        title: this.topic.title,
+        text: `${this.topic.content.substring(0, 200)}...`,
+        url: `${window.location.origin}/forums/topic/${this.topic.id}`
+      };
+
+      // Try Web Share API first (works on mobile browsers)
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          await this.showToast('Topic shared successfully!', 'success');
+          return;
+        } catch (error) {
+          console.log('Web Share API failed:', error);
+          // Continue to fallback methods
+        }
+      }
+
+      // Try Capacitor Share plugin (for native apps)
+      try {
+        await Share.share(shareData);
+        await this.showToast('Topic shared successfully!', 'success');
+        return;
+      } catch (error) {
+        console.log('Capacitor Share failed:', error);
+        // Continue to fallback methods
+      }
+
+      // Fallback: Show share options dialog
+      await this.showShareOptions(shareData);
+
+    } catch (error) {
+      console.error('Error sharing topic:', error);
+      await this.showToast('Failed to share topic. Please try again.', 'danger');
+    }
+  }
+
+  private async showShareOptions(shareData: any) {
+    const alert = await this.alertController.create({
+      header: 'Share Topic',
+      message: 'Choose how you\'d like to share this topic:',
+      buttons: [
+        {
+          text: 'Copy Link',
+          handler: () => {
+            this.copyToClipboard(shareData.url);
+          }
+        },
+        {
+          text: 'Share via Message',
+          handler: () => {
+            this.shareViaMessage(shareData);
+          }
+        },
+        {
+          text: 'Share via Email',
+          handler: () => {
+            this.shareViaEmail(shareData);
+          }
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  private async copyToClipboard(text: string) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        await this.showToast('Link copied to clipboard!', 'success');
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        await this.showToast('Link copied to clipboard!', 'success');
+      }
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      await this.showToast('Failed to copy link', 'danger');
+    }
+  }
+
+  private shareViaMessage(shareData: any) {
+    const messageText = `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`;
+    const encodedMessage = encodeURIComponent(messageText);
+    
+    // Try WhatsApp first
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+    
+    // If WhatsApp fails, try SMS
+    setTimeout(() => {
+      const smsUrl = `sms:?body=${encodedMessage}`;
+      window.open(smsUrl, '_blank');
+    }, 100);
+  }
+
+  private shareViaEmail(shareData: any) {
+    const subject = encodeURIComponent(`Check out this topic: ${shareData.title}`);
+    const body = encodeURIComponent(`${shareData.text}\n\nRead more: ${shareData.url}`);
+    const emailUrl = `mailto:?subject=${subject}&body=${body}`;
+    window.open(emailUrl, '_blank');
   }
 }

@@ -56,9 +56,9 @@
       <div class="filter-header">
         <h3 class="filter-title">Filter by Category</h3>
         <div class="filter-actions">
-          <ion-button 
-            fill="clear" 
-            size="small" 
+          <ion-button
+            fill="clear"
+            size="small"
             (click)="clearFilters()"
             class="clear-button"
           >
@@ -66,21 +66,31 @@
           </ion-button>
         </div>
       </div>
-      
+
       <div class="category-filters">
-        <div class="filter-chip" 
-             [class.active]="selectedCategory === 'all'"
-             (click)="onCategoryChange('all')">
+        <div
+          class="filter-chip"
+          [class.active]="selectedCategory === 'all'"
+          (click)="onCategoryChange('all')"
+        >
           <ion-icon name="grid-outline" class="chip-icon"></ion-icon>
           <span class="chip-text">All Topics</span>
         </div>
-        
+
         @for (category of categories(); track category.id) {
-        <div class="filter-chip" 
-             [class.active]="selectedCategory === category.id"
-             (click)="onCategoryChange(category.id)">
-          <div class="chip-icon-wrapper" [style.background-color]="category.color">
-            <ion-icon [name]="getCategoryIcon(category.name)" class="chip-icon"></ion-icon>
+        <div
+          class="filter-chip"
+          [class.active]="selectedCategory === category.id"
+          (click)="onCategoryChange(category.id)"
+        >
+          <div
+            class="chip-icon-wrapper"
+            [style.background-color]="category.color"
+          >
+            <ion-icon
+              [name]="getCategoryIcon(category.name)"
+              class="chip-icon"
+            ></ion-icon>
           </div>
           <span class="chip-text">{{ category.name }}</span>
           @if (category.isPopular) {
@@ -133,7 +143,10 @@
               class="category-icon"
               [style.background-color]="category.color"
             >
-              <ion-icon [name]="getCategoryIcon(category.name)" class="icon"></ion-icon>
+              <ion-icon
+                [name]="getCategoryIcon(category.name)"
+                class="icon"
+              ></ion-icon>
             </div>
             @if (category.isPopular) {
             <div class="popular-badge">
@@ -212,7 +225,8 @@
       </div>
 
       <!-- Topics List -->
-      <ion-list *ngIf="filteredTopics.length > 0" class="topics-list">
+      @if (filteredTopics.length > 0) {
+      <ion-list class="topics-list">
         @for (topic of filteredTopics; track topic.id) {
         <ion-item class="topic-item" (click)="openTopic(topic)">
           <div class="topic-content">
@@ -231,7 +245,7 @@
               <div class="author-info">
                 <ion-avatar class="author-avatar">
                   <img
-                    [src]="topic.authorAvatar || 'assets/images/nurse.png'"
+                    [src]="topic.authorAvatar || '/assets/images/nurse.png'"
                     [alt]="topic.author"
                     (error)="onImageError($event)"
                   />
@@ -270,6 +284,7 @@
         </ion-item>
         }
       </ion-list>
+      }
     </div>
   </div>
 </ion-content>
