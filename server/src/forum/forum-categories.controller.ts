@@ -1,13 +1,13 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   HttpCode,
-  HttpStatus 
+  HttpStatus,
 } from '@nestjs/common';
 import { ForumCategoriesService } from './forum-categories.service';
 import { CreateForumCategoryDto } from './dto/create-forum-category.dto';
@@ -15,11 +15,15 @@ import { UpdateForumCategoryDto } from './dto/update-forum-category.dto';
 
 @Controller('api/v1/forum-categories')
 export class ForumCategoriesController {
-  constructor(private readonly forumCategoriesService: ForumCategoriesService) {}
+  constructor(
+    private readonly forumCategoriesService: ForumCategoriesService,
+  ) {}
 
   @Post()
   async create(@Body() createForumCategoryDto: CreateForumCategoryDto) {
-    const category = await this.forumCategoriesService.create(createForumCategoryDto);
+    const category = await this.forumCategoriesService.create(
+      createForumCategoryDto,
+    );
     return {
       success: true,
       message: 'Forum category created successfully',
@@ -59,7 +63,10 @@ export class ForumCategoriesController {
     @Param('id') id: string,
     @Body() updateForumCategoryDto: UpdateForumCategoryDto,
   ) {
-    const category = await this.forumCategoriesService.update(id, updateForumCategoryDto);
+    const category = await this.forumCategoriesService.update(
+      id,
+      updateForumCategoryDto,
+    );
     return {
       success: true,
       message: 'Forum category updated successfully',
@@ -89,7 +96,8 @@ export class ForumCategoriesController {
 
   @Get(':id/stats')
   async getCategoryStats(@Param('id') id: string) {
-    const categoryWithStats = await this.forumCategoriesService.getCategoryStats(id);
+    const categoryWithStats =
+      await this.forumCategoriesService.getCategoryStats(id);
     return {
       success: true,
       data: categoryWithStats,

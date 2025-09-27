@@ -14,7 +14,7 @@ import { CreateTrackDayDto, UpdateTrackDayDto } from './dto/track-day.dto';
 
 @Controller('api/v1/track-day')
 export class TrackDayController {
-  constructor(private trackDayService: TrackDayService) { }
+  constructor(private trackDayService: TrackDayService) {}
 
   @Post(':userId')
   async createTrackDay(
@@ -28,8 +28,6 @@ export class TrackDayController {
 
     return this.trackDayService.createTrackDay(userIdNumber, createTrackDayDto);
   }
-
-
 
   @Get(':userId/:date')
   async getTrackDay(
@@ -54,7 +52,11 @@ export class TrackDayController {
       throw new BadRequestException('Invalid user ID');
     }
 
-    return this.trackDayService.updateTrackDay(userIdNumber, trackDayId, updateTrackDayDto);
+    return this.trackDayService.updateTrackDay(
+      userIdNumber,
+      trackDayId,
+      updateTrackDayDto,
+    );
   }
 
   // @Delete(':userId/range')

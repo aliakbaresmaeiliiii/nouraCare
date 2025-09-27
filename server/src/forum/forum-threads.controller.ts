@@ -1,15 +1,15 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
   HttpCode,
   HttpStatus,
   Query,
-  Req
+  Req,
 } from '@nestjs/common';
 import { ForumThreadsService } from './forum-threads.service';
 import { CreateForumThreadDto } from './dto/create-forum-thread.dto';
@@ -20,11 +20,17 @@ export class ForumThreadsController {
   constructor(private readonly forumThreadsService: ForumThreadsService) {}
 
   @Post()
-  async create(@Body() createForumThreadDto: CreateForumThreadDto, @Req() req: any) {
+  async create(
+    @Body() createForumThreadDto: CreateForumThreadDto,
+    @Req() req: any,
+  ) {
     // In a real implementation, you would get the user ID from the authenticated request
     const authorId = req.user?.id || 1; // Default to user ID 1 for testing
-    
-    const thread = await this.forumThreadsService.create(createForumThreadDto, authorId);
+
+    const thread = await this.forumThreadsService.create(
+      createForumThreadDto,
+      authorId,
+    );
     return {
       success: true,
       message: 'Forum thread created successfully',
@@ -36,12 +42,12 @@ export class ForumThreadsController {
   async findAll(
     @Query('forumId') forumId?: string,
     @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20'
+    @Query('limit') limit: string = '20',
   ) {
     const result = await this.forumThreadsService.findAll(
       forumId,
       parseInt(page),
-      parseInt(limit)
+      parseInt(limit),
     );
     return {
       success: true,
@@ -53,12 +59,12 @@ export class ForumThreadsController {
   async findByCategory(
     @Param('categoryId') categoryId: string,
     @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20'
+    @Query('limit') limit: string = '20',
   ) {
     const result = await this.forumThreadsService.findByCategory(
       categoryId,
       parseInt(page),
-      parseInt(limit)
+      parseInt(limit),
     );
     return {
       success: true,
@@ -70,7 +76,7 @@ export class ForumThreadsController {
   async search(
     @Query('q') query: string,
     @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20'
+    @Query('limit') limit: string = '20',
   ) {
     if (!query) {
       return {
@@ -90,7 +96,7 @@ export class ForumThreadsController {
     const result = await this.forumThreadsService.search(
       query,
       parseInt(page),
-      parseInt(limit)
+      parseInt(limit),
     );
     return {
       success: true,
@@ -111,12 +117,16 @@ export class ForumThreadsController {
   async update(
     @Param('id') id: string,
     @Body() updateForumThreadDto: UpdateForumThreadDto,
-    @Req() req: any
+    @Req() req: any,
   ) {
     // In a real implementation, you would get the user ID from the authenticated request
     const userId = req.user?.id || 1; // Default to user ID 1 for testing
-    
-    const thread = await this.forumThreadsService.update(id, updateForumThreadDto, userId);
+
+    const thread = await this.forumThreadsService.update(
+      id,
+      updateForumThreadDto,
+      userId,
+    );
     return {
       success: true,
       message: 'Forum thread updated successfully',
@@ -129,7 +139,7 @@ export class ForumThreadsController {
   async remove(@Param('id') id: string, @Req() req: any) {
     // In a real implementation, you would get the user ID from the authenticated request
     const userId = req.user?.id || 1; // Default to user ID 1 for testing
-    
+
     await this.forumThreadsService.remove(id, userId);
     return {
       success: true,
@@ -142,7 +152,9 @@ export class ForumThreadsController {
     const thread = await this.forumThreadsService.togglePin(id);
     return {
       success: true,
-      message: thread.isPinned ? 'Thread pinned successfully' : 'Thread unpinned successfully',
+      message: thread.isPinned
+        ? 'Thread pinned successfully'
+        : 'Thread unpinned successfully',
       data: thread,
     };
   }
@@ -152,7 +164,9 @@ export class ForumThreadsController {
     const thread = await this.forumThreadsService.toggleLock(id);
     return {
       success: true,
-      message: thread.isLocked ? 'Thread locked successfully' : 'Thread unlocked successfully',
+      message: thread.isLocked
+        ? 'Thread locked successfully'
+        : 'Thread unlocked successfully',
       data: thread,
     };
   }

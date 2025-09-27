@@ -373,7 +373,7 @@ async function main() {
       data: {
         name: cityData.name,
         state: cityData.state,
-        districts: {
+        district: {
           create: cityData.districts
         }
       }

@@ -22,9 +22,10 @@ export class GeoController {
   }
 
   @Post('users/:id/addresses')
-  createAddress(@Param('id') id: string, @Body() createAddressDto: CreateAddressDto) {
+  createAddress(
+    @Param('id') id: string,
+    @Body() createAddressDto: CreateAddressDto,
+  ) {
     return this.geo.createAddress(+id, createAddressDto);
   }
 }
-
-

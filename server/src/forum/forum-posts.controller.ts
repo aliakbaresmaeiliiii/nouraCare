@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Put,
   HttpCode,
   HttpStatus,
   Query,
@@ -20,14 +21,22 @@ export class ForumPostsController {
   constructor(private readonly forumPostsService: ForumPostsService) {}
 
   @Post()
-  async create(@Body() createForumPostDto: CreateForumPostDto, @Req() req: any) {
+  async create(
+    @Body() createForumPostDto: CreateForumPostDto,
+    @Req() req: any,
+  ) {
     // In a real implementation, you would get the user ID from the authenticated request
     const authorId = req.user?.id || 1; // Default to user ID 1 for testing
 
-    const post = await this.forumPostsService.create(createForumPostDto, authorId);
+    const post = await this.forumPostsService.create(
+      createForumPostDto,
+      authorId,
+    );
     return {
       success: true,
-      message: createForumPostDto.parentId ? 'Reply created successfully' : 'Forum post created successfully',
+      message: createForumPostDto.parentId
+        ? 'Reply created successfully'
+        : 'Forum post created successfully',
       data: post,
     };
   }
@@ -84,7 +93,11 @@ export class ForumPostsController {
     // In a real implementation, you would get the user ID from the authenticated request
     const userId = req.user?.id || 1; // Default to user ID 1 for testing
 
-    const post = await this.forumPostsService.update(id, updateForumPostDto, userId);
+    const post = await this.forumPostsService.update(
+      id,
+      updateForumPostDto,
+      userId,
+    );
     return {
       success: true,
       message: 'Forum post updated successfully',
@@ -113,8 +126,45 @@ export class ForumPostsController {
     const post = await this.forumPostsService.toggleLike(id, userId);
     return {
       success: true,
-      message: post._count.likes > 0 ? 'Post liked successfully' : 'Post unliked successfully',
+      message:
+        post._count.likes > 0
+          ? 'Post liked successfully'
+          : 'Post unliked successfully',
       data: post,
+    };
+  }
+
+  @Put('comments/:id')
+  async editComment(
+    @Param('id') id: string,
+    @Body() body: { content: string },
+    @Req() req: any,
+  ) {
+    // In a real implementation, you would get the user from the authenticated request
+    const currentUser = req.user || { id: 1, role: 'USER' }; // Default for testing
+
+    const comment = await this.forumPostsService.editComment(
+      id,
+      body.content,
+      currentUser,
+    );
+    return {
+      success: true,
+      message: 'Comment updated successfully',
+      data: comment,
+    };
+  }
+
+  @Delete('comments/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteComment(@Param('id') id: string, @Req() req: any) {
+    // In a real implementation, you would get the user from the authenticated request
+    const currentUser = req.user || { id: 1, role: 'USER' }; // Default for testing
+
+    await this.forumPostsService.deleteComment(id, currentUser);
+    return {
+      success: true,
+      message: 'Comment deleted successfully',
     };
   }
 }

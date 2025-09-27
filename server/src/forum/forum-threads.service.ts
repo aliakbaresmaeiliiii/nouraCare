@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { CreateForumThreadDto } from './dto/create-forum-thread.dto';
 import { UpdateForumThreadDto } from './dto/update-forum-thread.dto';
@@ -55,7 +60,7 @@ export class ForumThreadsService {
 
   async findAll(forumId?: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
-    
+
     const where = forumId ? { forumId } : {};
 
     const [threads, total] = await Promise.all([
@@ -80,10 +85,7 @@ export class ForumThreadsService {
             },
           },
         },
-        orderBy: [
-          { isPinned: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
         skip,
         take: limit,
       }),
@@ -152,15 +154,15 @@ export class ForumThreadsService {
     });
 
     // Structure the posts hierarchically
-    const mainPosts = allPosts.filter(post => post.parentId === null);
-    const replies = allPosts.filter(post => post.parentId !== null);
+    const mainPosts = allPosts.filter((post) => post.parentId === null);
+    const replies = allPosts.filter((post) => post.parentId !== null);
 
     // Add replies to their respective parent posts
-    const postsWithReplies = mainPosts.map(post => ({
+    const postsWithReplies = mainPosts.map((post) => ({
       ...post,
       replies: replies
-        .filter(reply => reply.parentId === post.id)
-        .map(reply => ({
+        .filter((reply) => reply.parentId === post.id)
+        .map((reply) => ({
           ...reply,
           _count: {
             likes: reply._count.likes,
@@ -180,7 +182,11 @@ export class ForumThreadsService {
     };
   }
 
-  async update(id: string, updateForumThreadDto: UpdateForumThreadDto, userId: number) {
+  async update(
+    id: string,
+    updateForumThreadDto: UpdateForumThreadDto,
+    userId: number,
+  ) {
     const thread = await this.prismaService.forumThread.findUnique({
       where: { id },
     });
@@ -286,7 +292,11 @@ export class ForumThreadsService {
     });
   }
 
-  async findByCategory(categoryId: string, page: number = 1, limit: number = 20) {
+  async findByCategory(
+    categoryId: string,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const skip = (page - 1) * limit;
 
     const [threads, total] = await Promise.all([
@@ -315,10 +325,7 @@ export class ForumThreadsService {
             },
           },
         },
-        orderBy: [
-          { isPinned: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
         skip,
         take: limit,
       }),
@@ -372,10 +379,7 @@ export class ForumThreadsService {
             },
           },
         },
-        orderBy: [
-          { isPinned: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
         skip,
         take: limit,
       }),

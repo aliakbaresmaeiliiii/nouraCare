@@ -47,7 +47,7 @@ export class SecretChatsController {
     return {
       data: categories,
       success: true,
-      message: 'Categories retrieved successfully'
+      message: 'Categories retrieved successfully',
     };
   }
 
@@ -58,7 +58,7 @@ export class SecretChatsController {
 
   // Chat Management Endpoints
   @Post()
-   createChat(
+  createChat(
     @Request() req: AuthenticatedRequest,
     @Body() createChatDto: CreateSecretChatDto,
   ) {
@@ -72,7 +72,7 @@ export class SecretChatsController {
     return {
       data: chats,
       success: true,
-      message: 'Chats retrieved successfully'
+      message: 'Chats retrieved successfully',
     };
   }
 
@@ -82,7 +82,7 @@ export class SecretChatsController {
     return {
       data: chats,
       success: true,
-      message: 'Chats retrieved successfully'
+      message: 'Chats retrieved successfully',
     };
   }
 
@@ -100,7 +100,11 @@ export class SecretChatsController {
     @Request() req: AuthenticatedRequest,
     @Body() updateChatDto: UpdateChatDto,
   ) {
-    return this.secretChatsService.updateChat(chatId, req.user.id, updateChatDto);
+    return this.secretChatsService.updateChat(
+      chatId,
+      req.user.id,
+      updateChatDto,
+    );
   }
 
   @Post(':chatId/members')
@@ -118,7 +122,11 @@ export class SecretChatsController {
     @Param('userId') memberUserId: string,
     @Request() req: AuthenticatedRequest,
   ) {
-    return this.secretChatsService.removeMember(chatId, req.user.id, +memberUserId);
+    return this.secretChatsService.removeMember(
+      chatId,
+      req.user.id,
+      +memberUserId,
+    );
   }
 
   @Post(':chatId/leave')
@@ -141,38 +149,53 @@ export class SecretChatsController {
   }
 
   @Post('posts/upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: (_req, _file, cb) => {
-        const dir = join(process.cwd(), 'server', 'public', 'uploads', 'posts');
-        if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-      },
-      filename: (_req, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, unique + extname(file.originalname));
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          const dir = join(
+            process.cwd(),
+            'server',
+            'public',
+            'uploads',
+            'posts',
+          );
+          if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+          cb(null, dir);
+        },
+        filename: (_req, file, cb) => {
+          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, unique + extname(file.originalname));
+        },
+      }),
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req, file, cb) => {
+        const allowedTypes = ['image/', 'video/', 'audio/'];
+        const isAllowed = allowedTypes.some((type) =>
+          file.mimetype.startsWith(type),
+        );
+        if (!isAllowed) {
+          return cb(
+            new BadRequestException(
+              'Only image, video, and audio files are allowed',
+            ),
+            false,
+          );
+        }
+        cb(null, true);
       },
     }),
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
-    fileFilter: (_req, file, cb) => {
-      const allowedTypes = ['image/', 'video/', 'audio/'];
-      const isAllowed = allowedTypes.some(type => file.mimetype.startsWith(type));
-      if (!isAllowed) {
-        return cb(new BadRequestException('Only image, video, and audio files are allowed'), false);
-      }
-      cb(null, true);
-    },
-  }))
+  )
   async uploadPostMedia(@UploadedFile() file: any) {
     if (!file) throw new BadRequestException('No file uploaded');
     const baseUrl = process.env.BASE_URL || 'http://172.20.10.2:8080';
     const url = `${baseUrl}/uploads/posts/${file.filename}`;
-    
+
     let type: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT' = 'DOCUMENT';
     if (file.mimetype.startsWith('image/')) type = 'IMAGE';
     else if (file.mimetype.startsWith('video/')) type = 'VIDEO';
     else if (file.mimetype.startsWith('audio/')) type = 'AUDIO';
-    
+
     return { url, type };
   }
 
@@ -187,7 +210,7 @@ export class SecretChatsController {
     const userId = req.user?.id || 1; // Temporary fallback
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
-    
+
     const posts = await this.secretChatsService.getChatPosts(
       chatId,
       userId,
@@ -197,7 +220,10 @@ export class SecretChatsController {
     );
 
     // Get total count for pagination
-    const totalCount = await this.secretChatsService.getChatPostsCount(chatId, categoryId);
+    const totalCount = await this.secretChatsService.getChatPostsCount(
+      chatId,
+      categoryId,
+    );
     const totalPages = Math.ceil(totalCount / limitNum);
 
     return {
@@ -207,7 +233,7 @@ export class SecretChatsController {
       limit: limitNum,
       totalPages: totalPages,
       success: true,
-      message: 'Posts retrieved successfully'
+      message: 'Posts retrieved successfully',
     };
   }
 
@@ -261,33 +287,41 @@ export class SecretChatsController {
   }
 
   @Post('messages/upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: (_req, _file, cb) => {
-        const dir = join(process.cwd(), 'server', 'public', 'uploads', 'messages');
-        if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-      },
-      filename: (_req, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, unique + extname(file.originalname));
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          const dir = join(
+            process.cwd(),
+            'server',
+            'public',
+            'uploads',
+            'messages',
+          );
+          if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+          cb(null, dir);
+        },
+        filename: (_req, file, cb) => {
+          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, unique + extname(file.originalname));
+        },
+      }),
+      limits: { fileSize: 25 * 1024 * 1024 }, // 25MB for messages
+      fileFilter: (_req, file, cb) => {
+        cb(null, true); // Allow all file types for messages
       },
     }),
-    limits: { fileSize: 25 * 1024 * 1024 }, // 25MB for messages
-    fileFilter: (_req, file, cb) => {
-      cb(null, true); // Allow all file types for messages
-    },
-  }))
+  )
   async uploadMessageMedia(@UploadedFile() file: any) {
     if (!file) throw new BadRequestException('No file uploaded');
     const baseUrl = process.env.BASE_URL || 'http://172.20.10.2:8080';
     const url = `${baseUrl}/uploads/messages/${file.filename}`;
-    
+
     let type: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT' = 'DOCUMENT';
     if (file.mimetype.startsWith('image/')) type = 'IMAGE';
     else if (file.mimetype.startsWith('video/')) type = 'VIDEO';
     else if (file.mimetype.startsWith('audio/')) type = 'AUDIO';
-    
+
     return { url, type };
   }
 

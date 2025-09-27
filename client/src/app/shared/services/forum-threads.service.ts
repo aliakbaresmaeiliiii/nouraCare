@@ -108,11 +108,19 @@ export class ForumThreadsService {
   private postsBaseUrl = environment.apiEndPoint + 'forum-posts';
 
   getAllThreads(page: number = 1, limit: number = 20) {
-    return this.http.get<ThreadsResponse>(`${this.baseUrl}?page=${page}&limit=${limit}`);
+    return this.http.get<ThreadsResponse>(
+      `${this.baseUrl}?page=${page}&limit=${limit}`
+    );
   }
 
-  getThreadsByCategory(categoryId: string, page: number = 1, limit: number = 20) {
-    return this.http.get<ThreadsResponse>(`${this.baseUrl}?category=${categoryId}&page=${page}&limit=${limit}`);
+  getThreadsByCategory(
+    categoryId: string,
+    page: number = 1,
+    limit: number = 20
+  ) {
+    return this.http.get<ThreadsResponse>(
+      `${this.baseUrl}?category=${categoryId}&page=${page}&limit=${limit}`
+    );
   }
 
   getThreadById(threadId: string) {
@@ -124,6 +132,37 @@ export class ForumThreadsService {
   }
 
   likePost(postId: string) {
-    return this.http.post<LikeResponse>(`${this.postsBaseUrl}/${postId}/like`, {});
+    return this.http.post<LikeResponse>(
+      `${this.postsBaseUrl}/${postId}/like`,
+      {}
+    );
+  }
+
+
+
+  replyToComment(parentId: string, content: string, threadId: string) {
+    const replyData: CreatePostDto = {
+      content: content,
+      threadId: threadId,
+      parentId: parentId
+    };
+    return this.http.post<PostResponse>(this.postsBaseUrl, replyData);
+  }
+
+  updatePost(postId: string, content: string) {
+    return this.http.put<PostResponse>(`${this.postsBaseUrl}/comments/${postId}`, {
+      content: content
+    });
+  }
+
+  // Alternative method using the specific comments endpoint
+  editComment(commentId: string, content: string) {
+    return this.http.put<PostResponse>(`${this.postsBaseUrl}/comments/${commentId}`, {
+      content: content
+    });
+  }
+
+  deletePost(postId: string) {
+    return this.http.delete<{success: boolean; message?: string}>(`${this.postsBaseUrl}/${postId}`);
   }
 }

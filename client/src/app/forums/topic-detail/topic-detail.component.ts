@@ -5,6 +5,9 @@ import { IonicModule, ModalController, ToastController, NavController, AlertCont
 import { ActivatedRoute } from '@angular/router';
 import { ForumThreadsService, CreatePostDto, ThreadDetailResponse, PostResponse, LikeResponse } from '../../shared/services/forum-threads.service';
 import { Share } from '@capacitor/share';
+import { catchError, finalize, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { CurrentUser, MOCK_CURRENT_USER, Comment as ForumComment } from '../../shared/interfaces/forum.interface';
 
 interface ForumTopic {
   id: number;
@@ -64,7 +67,13 @@ export class TopicDetailComponent implements OnInit {
   newComment = '';
   isLoading = false;
   isSubmittingComment = false;
+  isSubmittingReply = false;
+  isEditingComment: string | null = null;
+  editTexts: { [commentId: string]: string } = {};
   errorMessage = '';
+  showReplyInput: string | null = null;
+  replyTexts: { [commentId: string]: string } = {};
+  currentUser: CurrentUser = MOCK_CURRENT_USER;
 
   ngOnInit() {
     const topicId = this.route.snapshot.paramMap.get('id');
@@ -154,40 +163,45 @@ export class TopicDetailComponent implements OnInit {
 
     this.isSubmittingComment = true;
 
-    try {
-      const postData: CreatePostDto = {
-        content: this.newComment.trim(),
-        threadId: this.topic.id.toString(),
-        parentId: null
-      };
+    const postData: CreatePostDto = {
+      content: this.newComment.trim(),
+      threadId: this.topic.id.toString(),
+      parentId: null
+    };
 
-      this.forumThreadsService.createPost(postData).subscribe({
-        next: (response: any) => {
+    this.forumThreadsService.createPost(postData)
+      .pipe(
+        tap((response: any) => {
           console.log('Comment created successfully:', response);
           if (response && response.success) {
             this.comments.unshift(response.data);
             this.newComment = '';
             this.showToast('Comment posted successfully!', 'success');
           } else {
-            this.showToast('Failed to post comment', 'danger');
+            console.error('API returned unsuccessful response:', response);
+            this.showToast('Failed to post comment: ' + (response?.message || 'Unknown error'), 'danger');
           }
-          this.isSubmittingComment = false;
-        },
-        error: (error: any) => {
+        }),
+        catchError((error: any) => {
           console.error('Error posting comment:', error);
-          this.showToast('Failed to post comment', 'danger');
-          this.isSubmittingComment = false;
+          console.error('Error details:', {
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url,
+            message: error.message,
+            error: error.error
+          });
+          this.showToast('Failed to post comment: ' + (error.error?.message || error.message || 'Network error'), 'danger');
           
           // Fallback to mock comment creation
           this.createMockComment();
-        }
-      });
-
-    } catch (error) {
-      console.error('Error posting comment:', error);
-      await this.showToast('Failed to post comment. Please try again.', 'danger');
-      this.isSubmittingComment = false;
-    }
+          return of(null);
+        }),
+        finalize(() => {
+          this.isSubmittingComment = false;
+        })
+      )
+      .subscribe();
   }
 
   private createMockComment() {
@@ -221,29 +235,32 @@ export class TopicDetailComponent implements OnInit {
   }
 
   async likeComment(commentId: string) {
-    this.forumThreadsService.likePost(commentId).subscribe({
-      next: (response: any) => {
-        console.log('Like response:', response);
-        if (response && response.success) {
-          const comment = this.comments.find(c => c.id === commentId);
-          if (comment) {
-            comment.isLiked = response.data.liked;
-            comment._count.likes += response.data.liked ? 1 : -1;
-            this.showToast(response.data.liked ? 'Liked!' : 'Unliked!', 'success');
+    this.forumThreadsService.likePost(commentId)
+      .pipe(
+        tap((response: any) => {
+          console.log('Like response:', response);
+          if (response && response.success) {
+            const comment = this.comments.find(c => c.id === commentId);
+            if (comment) {
+              comment.isLiked = response.data.liked;
+              comment._count.likes += response.data.liked ? 1 : -1;
+              this.showToast(response.data.liked ? 'Liked!' : 'Unliked!', 'success');
+            }
+          } else {
+            this.showToast('Failed to like comment', 'danger');
+            // Fallback to mock like functionality
+            this.mockLikeComment(commentId);
           }
-        } else {
+        }),
+        catchError((error: any) => {
+          console.error('Error liking comment:', error);
           this.showToast('Failed to like comment', 'danger');
           // Fallback to mock like functionality
           this.mockLikeComment(commentId);
-        }
-      },
-      error: (error: any) => {
-        console.error('Error liking comment:', error);
-        this.showToast('Failed to like comment', 'danger');
-        // Fallback to mock like functionality
-        this.mockLikeComment(commentId);
-      }
-    });
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
   private async mockLikeComment(commentId: string) {
@@ -253,6 +270,124 @@ export class TopicDetailComponent implements OnInit {
       comment._count.likes += comment.isLiked ? 1 : -1;
       await this.showToast(comment.isLiked ? 'Liked!' : 'Unliked!', 'success');
     }
+  }
+
+  // Reply functionality
+  toggleReplyInput(commentId: string) {
+    if (this.showReplyInput === commentId) {
+      this.showReplyInput = null;
+      this.replyTexts[commentId] = '';
+    } else {
+      this.showReplyInput = commentId;
+      this.replyTexts[commentId] = '';
+    }
+  }
+
+  cancelReply() {
+    this.showReplyInput = null;
+    // Clear all reply texts
+    Object.keys(this.replyTexts).forEach(key => {
+      this.replyTexts[key] = '';
+    });
+  }
+
+  async submitReply(commentId: string) {
+    debugger;
+    const replyText = this.replyTexts[commentId]?.trim();
+    if (!replyText) {
+      await this.showToast('Please write a reply', 'warning');
+      return;
+    }
+
+    if (!this.topic) {
+      await this.showToast('Topic not found', 'danger');
+      return;
+    }
+
+    this.isSubmittingReply = true;
+
+    this.forumThreadsService.replyToComment(commentId, replyText, '20f98c91-f30f-4110-8792-fcbd88372052'.toString())
+      .pipe(
+        tap((response: any) => {
+          console.log('Reply created successfully:', response);
+          if (response && response.success) {
+            // Find the parent comment and add the reply
+            const parentComment = this.comments.find(c => c.id === commentId);
+            if (parentComment) {
+              if (!parentComment.replies) {
+                parentComment.replies = [];
+              }
+              parentComment.replies.push(response.data);
+              parentComment._count.replies += 1;
+            }
+            
+            this.replyTexts[commentId] = '';
+            this.showReplyInput = null;
+            this.showToast('Reply posted successfully!', 'success');
+          } else {
+            console.error('API returned unsuccessful response:', response);
+            this.showToast('Failed to post reply: ' + (response?.message || 'Unknown error'), 'danger');
+          }
+        }),
+        catchError((error: any) => {
+          console.error('Error posting reply:', error);
+          console.error('Error details:', {
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url,
+            message: error.message,
+            error: error.error
+          });
+          this.showToast('Failed to post reply: ' + (error.error?.message || error.message || 'Network error'), 'danger');
+          
+          // Fallback to mock reply creation
+          this.createMockReply(commentId, replyText);
+          return of(null);
+        }),
+        finalize(() => {
+          this.isSubmittingReply = false;
+        })
+      )
+      .subscribe();
+  }
+
+  private createMockReply(commentId: string, replyText: string) {
+    if (!this.topic) return;
+    
+    const parentComment = this.comments.find(c => c.id === commentId);
+    if (!parentComment) return;
+    
+    const newReply: Comment = {
+      id: Date.now().toString(),
+      content: replyText,
+      authorId: 1, // Current user ID
+      threadId: this.topic.id.toString(),
+      parentId: commentId,
+      isDeleted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      author: {
+        id: 1,
+        name: 'Current User',
+        profileImage: ''
+      },
+      replies: [],
+      isLiked: false,
+      _count: {
+        likes: 0,
+        replies: 0
+      }
+    };
+
+    if (!parentComment.replies) {
+      parentComment.replies = [];
+    }
+    parentComment.replies.push(newReply);
+    parentComment._count.replies += 1;
+    
+    this.replyTexts[commentId] = '';
+    this.showReplyInput = null;
+    this.showToast('Reply posted successfully!', 'success');
   }
 
   onImageError(event: Event): void {
@@ -416,5 +551,164 @@ export class TopicDetailComponent implements OnInit {
     const body = encodeURIComponent(`${shareData.text}\n\nRead more: ${shareData.url}`);
     const emailUrl = `mailto:?subject=${subject}&body=${body}`;
     window.open(emailUrl, '_blank');
+  }
+
+  // Permission check method
+  canEditOrDelete(comment: Comment): boolean {
+    return this.currentUser.id === comment.authorId || this.currentUser.role === 'admin';
+  }
+
+  // Edit functionality
+  startEditComment(comment: Comment) {
+    this.isEditingComment = comment.id;
+    this.editTexts[comment.id] = comment.content;
+  }
+
+  cancelEdit() {
+    this.isEditingComment = null;
+    Object.keys(this.editTexts).forEach(key => {
+      this.editTexts[key] = '';
+    });
+  }
+
+  async submitEdit(comment: Comment) {
+    const editText = this.editTexts[comment.id]?.trim();
+    if (!editText) {
+      await this.showToast('Please write something to edit', 'warning');
+      return;
+    }
+
+    if (editText === comment.content) {
+      this.cancelEdit();
+      return;
+    }
+
+    // Optimistic update
+    const originalContent = comment.content;
+    comment.content = editText;
+    comment.updatedAt = new Date().toISOString();
+
+    this.forumThreadsService.editComment(comment.id, editText)
+      .pipe(
+        tap((response: any) => {
+          console.log('Comment updated successfully:', response);
+          if (response && response.success) {
+            this.comments = this.comments.map(c => c.id === comment.id ? response.data : c);
+            this.showToast('Comment updated successfully!', 'success');
+          } else {
+            // Revert optimistic update on failure
+            comment.content = originalContent;
+            this.showToast('Failed to update comment: ' + (response?.message || 'Unknown error'), 'danger');
+          }
+        }),
+        catchError((error: any) => {
+          console.error('Error updating comment:', error);
+          // Revert optimistic update on error
+          comment.content = originalContent;
+          
+          if (error.status === 403) {
+            this.showToast('You do not have permission to edit this comment', 'danger');
+          } else {
+            this.showToast('Failed to update comment: ' + (error.error?.message || error.message || 'Network error'), 'danger');
+          }
+          return of(null);
+        }),
+        finalize(() => {
+          this.cancelEdit();
+        })
+      )
+      .subscribe();
+  }
+
+  // Delete functionality
+  async deleteComment(comment: Comment) {
+    const alert = await this.alertController.create({
+      header: 'Delete Comment',
+      message: 'Are you sure you want to delete this comment? This action cannot be undone.',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary'
+        },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            this.confirmDeleteComment(comment);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  private confirmDeleteComment(comment: Comment) {
+    // Optimistic update - remove from UI immediately
+    const commentIndex = this.comments.findIndex(c => c.id === comment.id);
+    if (commentIndex !== -1) {
+      this.comments.splice(commentIndex, 1);
+    }
+
+    // Also check and remove from replies if it's a reply
+    this.comments.forEach(parentComment => {
+      if (parentComment.replies) {
+        const replyIndex = parentComment.replies.findIndex(r => r.id === comment.id);
+        if (replyIndex !== -1) {
+          parentComment.replies.splice(replyIndex, 1);
+          parentComment._count.replies -= 1;
+        }
+      }
+    });
+
+    this.forumThreadsService.deletePost(comment.id)
+      .pipe(
+        tap((response: any) => {
+          console.log('Comment deleted successfully:', response);
+          if (response && response.success) {
+            this.showToast('Comment deleted successfully!', 'success');
+          } else {
+            // Revert optimistic update on failure
+            if (comment.parentId) {
+              // It's a reply, add back to parent comment
+              const parentComment = this.comments.find(c => c.id === comment.parentId);
+              if (parentComment) {
+                if (!parentComment.replies) parentComment.replies = [];
+                parentComment.replies.push(comment);
+                parentComment._count.replies += 1;
+              }
+            } else {
+              // It's a top-level comment, add back to comments array
+              this.comments.splice(commentIndex, 0, comment);
+            }
+            this.showToast('Failed to delete comment: ' + (response?.message || 'Unknown error'), 'danger');
+          }
+        }),
+        catchError((error: any) => {
+          console.error('Error deleting comment:', error);
+          // Revert optimistic update on error
+          if (comment.parentId) {
+            // It's a reply, add back to parent comment
+            const parentComment = this.comments.find(c => c.id === comment.parentId);
+            if (parentComment) {
+              if (!parentComment.replies) parentComment.replies = [];
+              parentComment.replies.push(comment);
+              parentComment._count.replies += 1;
+            }
+          } else {
+            // It's a top-level comment, add back to comments array
+            this.comments.splice(commentIndex, 0, comment);
+          }
+          
+          if (error.status === 403) {
+            this.showToast('You do not have permission to delete this comment', 'danger');
+          } else {
+            this.showToast('Failed to delete comment: ' + (error.error?.message || error.message || 'Network error'), 'danger');
+          }
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 }

@@ -11,19 +11,23 @@ export class GeoService {
   }
 
   listDistricts(cityId: number) {
-    return this.prisma.district.findMany({ where: { cityId }, orderBy: { name: 'asc' } });
+    return this.prisma.district.findMany({
+      where: { cityId },
+      orderBy: { name: 'asc' },
+    });
   }
 
   listUserAddresses(userId: number) {
-    return this.prisma.address.findMany({ where: { userId }, include: { city: true, district: true } });
+    return this.prisma.address.findMany({
+      where: { userId },
+      include: { city: true, district: true },
+    });
   }
 
   createAddress(userId: number, dto: CreateAddressDto) {
-    return this.prisma.address.create({ 
+    return this.prisma.address.create({
       data: { userId, ...dto },
-      include: { city: true, district: true }
+      include: { city: true, district: true },
     });
   }
 }
-
-

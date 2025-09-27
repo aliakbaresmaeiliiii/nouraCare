@@ -1,7 +1,7 @@
-import _ from "lodash";
-import nodemailer from "nodemailer";
-import mg from "nodemailer-mailgun-transport";
-import dotenv from "dotenv";
+import _ from 'lodash';
+import nodemailer from 'nodemailer';
+import mg from 'nodemailer-mailgun-transport';
+import dotenv from 'dotenv';
 
 dotenv.config(); // Load environment variables
 
@@ -38,10 +38,10 @@ export class EmailProvider {
       return nodemailer.createTransport(
         mg({
           auth: {
-            api_key: MAILGUN_API_KEY!,
-            domain: MAILGUN_DOMAIN!,
+            api_key: MAILGUN_API_KEY,
+            domain: MAILGUN_DOMAIN,
           },
-        })
+        }),
       );
     }
 
@@ -61,7 +61,7 @@ export class EmailProvider {
    */
   public async send(to: string | string[], subject: string, template: string) {
     try {
-      const recipient = Array.isArray(to) ? to.join(", ") : to;
+      const recipient = Array.isArray(to) ? to.join(', ') : to;
       const mailOptions: nodemailer.SendMailOptions = {
         from: `${APP_NAME} <${MAIL_USERNAME}>`,
         to: recipient,
@@ -70,11 +70,11 @@ export class EmailProvider {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log("✅ Email sent successfully:", info.messageId);
+      console.log('✅ Email sent successfully:', info.messageId);
       return info;
     } catch (error) {
-      console.error("❌ Error sending email:", error);
-      throw new Error("Failed to send email");
+      console.error('❌ Error sending email:', error);
+      throw new Error('Failed to send email');
     }
   }
 }

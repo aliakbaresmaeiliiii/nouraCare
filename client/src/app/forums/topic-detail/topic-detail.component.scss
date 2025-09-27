@@ -311,6 +311,218 @@
           color: #e91e63;
         }
       }
+
+      // Edit/Delete buttons styling
+      .edit-delete-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        
+        .edit-btn, .delete-btn {
+          --padding-start: 6px;
+          --padding-end: 6px;
+          --background: transparent;
+          min-height: 28px;
+          
+          ion-icon {
+            font-size: 14px;
+          }
+          
+          .edit-text, .delete-text {
+            font-size: 11px;
+            margin-left: 2px;
+          }
+        }
+        
+        .edit-btn {
+          --color: #2196f3;
+          
+          ion-icon {
+            color: #2196f3;
+          }
+          
+          &:hover {
+            --color: #1976d2;
+            
+            ion-icon {
+              color: #1976d2;
+            }
+          }
+        }
+        
+        .delete-btn {
+          --color: #f44336;
+          
+          ion-icon {
+            color: #f44336;
+          }
+          
+          &:hover {
+            --color: #d32f2f;
+            
+            ion-icon {
+              color: #d32f2f;
+            }
+          }
+        }
+      }
+    }
+
+    // Edit input styling
+    .edit-input-container {
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      
+      .edit-input {
+        --background: white;
+        --padding-start: 12px;
+        --padding-end: 12px;
+        --border-radius: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      .edit-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        
+        .cancel-edit-btn {
+          --color: #6c757d;
+          font-size: 12px;
+          min-height: 32px;
+        }
+        
+        .save-edit-btn {
+          --border-radius: 16px;
+          --padding-start: 12px;
+          --padding-end: 12px;
+          min-height: 32px;
+          --background: #2196f3;
+          --color: white;
+          
+          &[disabled] {
+            opacity: 0.5;
+          }
+        }
+      }
+    }
+
+    // Reply input styling
+    .reply-input-container {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      
+      .reply-input {
+        --background: white;
+        --padding-start: 12px;
+        --padding-end: 12px;
+        --border-radius: 20px;
+        margin-bottom: 8px;
+      }
+      
+      .reply-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        
+        .cancel-reply-btn {
+          --color: #6c757d;
+          font-size: 12px;
+          min-height: 32px;
+        }
+        
+        .send-reply-btn {
+          --border-radius: 16px;
+          --padding-start: 12px;
+          --padding-end: 12px;
+          min-height: 32px;
+          
+          &[disabled] {
+            opacity: 0.5;
+          }
+          
+          ion-icon {
+            font-size: 16px;
+            color: white;
+          }
+        }
+      }
+    }
+
+    // Replies container styling
+    .replies-container {
+      margin-top: 12px;
+      padding-left: 20px;
+      border-left: 2px solid #e9ecef;
+      
+      .reply-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+        
+        .reply-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 8px;
+          
+          .reply-avatar {
+            width: 28px;
+            height: 28px;
+            margin-right: 8px;
+            border: 1px solid #dee2e6;
+          }
+          
+          .reply-info {
+            .reply-author {
+              display: block;
+              font-size: 12px;
+              font-weight: 600;
+              color: #2c3e50;
+            }
+            
+            .reply-time {
+              font-size: 10px;
+              color: #6c757d;
+            }
+          }
+        }
+        
+        .reply-text {
+          margin: 0 0 8px 0;
+          color: #495057;
+          line-height: 1.4;
+          font-size: 13px;
+        }
+        
+        .reply-actions {
+          .like-btn {
+            --padding-start: 4px;
+            --padding-end: 4px;
+            min-height: 24px;
+            
+            ion-icon {
+              font-size: 12px;
+            }
+            
+            .like-count {
+              font-size: 10px;
+            }
+          }
+        }
+      }
     }
   }
 }

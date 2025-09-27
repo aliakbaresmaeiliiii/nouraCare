@@ -12,29 +12,31 @@ interface TemporaryOnboardingData {
 export class OnboardingService {
   private temporaryData = new Map<string, TemporaryOnboardingData>();
 
-  constructor(
-    private prisma: PrismaService
-  ) {
+  constructor(private prisma: PrismaService) {
     // Clean up expired sessions every hour
     setInterval(() => this.cleanupExpiredSessions(), 60 * 60 * 1000);
   }
 
-  async saveTemporaryOnboardingData(onboardingData: OnboardingDataDto): Promise<{ sessionId: string; expiresAt: Date }> {
+  async saveTemporaryOnboardingData(
+    onboardingData: OnboardingDataDto,
+  ): Promise<{ sessionId: string; expiresAt: Date }> {
     const sessionId = this.generateSessionId();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     this.temporaryData.set(sessionId, {
       sessionId,
       data: onboardingData,
-      expiresAt
+      expiresAt,
     });
 
     return { sessionId, expiresAt };
   }
 
-  async getTemporaryOnboardingData(sessionId: string): Promise<OnboardingDataDto> {
+  async getTemporaryOnboardingData(
+    sessionId: string,
+  ): Promise<OnboardingDataDto> {
     const session = this.temporaryData.get(sessionId);
-    
+
     if (!session) {
       throw new NotFoundException('Onboarding session not found or expired');
     }
@@ -51,9 +53,13 @@ export class OnboardingService {
     this.temporaryData.delete(sessionId);
   }
 
-  async completeOnboardingWithRegistration(sessionId: string, email: string, phone: string) {
+  async completeOnboardingWithRegistration(
+    sessionId: string,
+    email: string,
+    phone: string,
+  ) {
     const session = this.temporaryData.get(sessionId);
-    
+
     if (!session) {
       throw new NotFoundException('Onboarding session not found or expired');
     }
@@ -64,8 +70,10 @@ export class OnboardingService {
     }
 
     // Check if user already exists
-    const existingUser = await this.prisma.user.findUnique({ where: { email } });
-    
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
     if (existingUser) {
       throw new Error('User already exists with this email');
     }
@@ -91,13 +99,16 @@ export class OnboardingService {
         id: user.id,
         email: user.email,
         phone: user.phone,
-        isVerified: user.isVerified
+        isVerified: user.isVerified,
       },
-      onboardingData: session.data
+      onboardingData: session.data,
     };
   }
 
-  private async saveOnboardingDataToUser(userId: number, onboardingData: OnboardingDataDto) {
+  private async saveOnboardingDataToUser(
+    userId: number,
+    onboardingData: OnboardingDataDto,
+  ) {
     // Map client field names to database field names and transform data
     const updateData = {
       status: this.mapPregnancyStatus(onboardingData.pregnancy_status),
@@ -112,7 +123,7 @@ export class OnboardingService {
 
     // Filter out undefined values
     const filteredData = Object.fromEntries(
-      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+      Object.entries(updateData).filter(([_, value]) => value !== undefined),
     );
 
     await this.prisma.user.update({
@@ -123,21 +134,26 @@ export class OnboardingService {
 
   private mapPregnancyStatus(status: string): string | undefined {
     if (!status) return undefined;
-    
+
     const statusMap: { [key: string]: string } = {
-      'tracking': 'PLANNING_PREGNANCY',
-      'pregnant': 'PREGNANT',
-      'has_child': 'HAS_CHILD',
-      'planning': 'PLANNING_PREGNANCY',
+      tracking: 'PLANNING_PREGNANCY',
+      pregnant: 'PREGNANT',
+      has_child: 'HAS_CHILD',
+      planning: 'PLANNING_PREGNANCY',
     };
-    
+
     return statusMap[status.toLowerCase()] || status.toUpperCase();
   }
 
-  private mapNotifications(notifications: boolean | string): boolean | undefined {
+  private mapNotifications(
+    notifications: boolean | string,
+  ): boolean | undefined {
     if (typeof notifications === 'boolean') return notifications;
     if (typeof notifications === 'string') {
-      return notifications.toLowerCase() === 'yes' || notifications.toLowerCase() === 'true';
+      return (
+        notifications.toLowerCase() === 'yes' ||
+        notifications.toLowerCase() === 'true'
+      );
     }
     return undefined;
   }

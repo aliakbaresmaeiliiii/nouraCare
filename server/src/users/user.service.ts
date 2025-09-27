@@ -19,9 +19,9 @@ export class UserService {
             return [key, new Date(value as string)];
           }
           return [key, value];
-        })
+        }),
     );
-    
+
     return this.prismaService.user.update({
       where: { id: userId },
       data: updateData,

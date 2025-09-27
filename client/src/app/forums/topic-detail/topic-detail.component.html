@@ -113,7 +113,34 @@
               </div>
             </div>
             
+            <!-- Edit Input (only show when editing) -->
+            @if (isEditingComment === comment.id) {
+            <div class="edit-input-container">
+              <ion-textarea 
+                [(ngModel)]="editTexts[comment.id]"
+                placeholder="Edit your comment..."
+                class="edit-input"
+                rows="3"
+                autoGrow="true">
+              </ion-textarea>
+              <div class="edit-buttons">
+                <ion-button 
+                  fill="clear" 
+                  class="cancel-edit-btn"
+                  (click)="cancelEdit()">
+                  Cancel
+                </ion-button>
+                <ion-button 
+                  [disabled]="!editTexts[comment.id]?.trim()"
+                  class="save-edit-btn"
+                  (click)="submitEdit(comment)">
+                  Save
+                </ion-button>
+              </div>
+            </div>
+            } @else {
             <p class="comment-text">{{ comment.content }}</p>
+            }
             
             <div class="comment-actions">
               <ion-button fill="clear" class="like-btn" (click)="likeComment(comment.id)">
@@ -121,11 +148,84 @@
                          [class.liked]="comment.isLiked"></ion-icon>
                 <span class="like-count">{{ comment._count.likes }}</span>
               </ion-button>
-              <ion-button fill="clear" class="reply-btn">
+              <ion-button fill="clear" class="reply-btn" (click)="toggleReplyInput(comment.id)">
                 <ion-icon name="arrow-undo-outline"></ion-icon>
                 <span class="reply-text">Reply</span>
               </ion-button>
+              
+              <!-- Edit/Delete buttons (only show if user has permission) -->
+              @if (canEditOrDelete(comment)) {
+              <div class="edit-delete-actions">
+                <ion-button fill="clear" class="edit-btn" (click)="startEditComment(comment)">
+                  <ion-icon name="create-outline"></ion-icon>
+                  <span class="edit-text">Edit</span>
+                </ion-button>
+                <ion-button fill="clear" class="delete-btn" (click)="deleteComment(comment)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                  <span class="delete-text">Delete</span>
+                </ion-button>
+              </div>
+              }
             </div>
+
+            <!-- Reply Input -->
+            @if (showReplyInput === comment.id) {
+            <div class="reply-input-container">
+              <ion-input 
+                [(ngModel)]="replyTexts[comment.id]"
+                placeholder="Write a reply..."
+                class="reply-input"
+                [disabled]="isSubmittingReply">
+              </ion-input>
+              <div class="reply-buttons">
+                <ion-button 
+                  fill="clear" 
+                  class="cancel-reply-btn"
+                  (click)="cancelReply()">
+                  Cancel
+                </ion-button>
+                <ion-button 
+                  [disabled]="!replyTexts[comment.id].trim() || isSubmittingReply"
+                  class="send-reply-btn"
+                  (click)="submitReply(comment.id)">
+                  @if (isSubmittingReply) {
+                    <ion-spinner name="crescent"></ion-spinner>
+                  } @else {
+                    <ion-icon name="send"></ion-icon>
+                  }
+                </ion-button>
+              </div>
+            </div>
+            }
+
+            <!-- Replies List -->
+            @if (comment.replies && comment.replies.length > 0) {
+            <div class="replies-container">
+              @for (reply of comment.replies; track reply.id) {
+              <div class="reply-item">
+                <div class="reply-header">
+                  <ion-avatar class="reply-avatar">
+                    <img [src]="reply.author.profileImage || 'assets/images/nurse.png'" 
+                         [alt]="reply.author.name"
+                         (error)="onImageError($event)">
+                  </ion-avatar>
+                  <div class="reply-info">
+                    <span class="reply-author">{{ reply.author.name }}</span>
+                    <span class="reply-time">{{ formatRelativeTime(reply.createdAt) }}</span>
+                  </div>
+                </div>
+                <p class="reply-text">{{ reply.content }}</p>
+                <div class="reply-actions">
+                  <ion-button fill="clear" class="like-btn" (click)="likeComment(reply.id)">
+                    <ion-icon [name]="reply.isLiked ? 'heart' : 'heart-outline'" 
+                             [class.liked]="reply.isLiked"></ion-icon>
+                    <span class="like-count">{{ reply._count.likes }}</span>
+                  </ion-button>
+                </div>
+              </div>
+              }
+            </div>
+            }
           </div>
         </ion-item>
         }

@@ -1,4 +1,14 @@
-import { IsEmail, IsString, IsOptional, IsInt, Min, Max, IsDate, IsBoolean, ValidateNested } from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+  IsDate,
+  IsBoolean,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 class OnboardingDataDto {

@@ -1,4 +1,14 @@
-import { BadRequestException, Body, Controller, Get, Param, Post, Put, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
@@ -12,8 +22,8 @@ import { OnboardingDataDto } from './dto/onboarding.dto';
 export class UserController {
   constructor(
     private userService: UserService,
-    private onboardingService: OnboardingService
-  ) { }
+    private onboardingService: OnboardingService,
+  ) {}
 
   @Get(':id')
   async getUser(@Param('id') id: string) {
@@ -29,26 +39,37 @@ export class UserController {
   }
 
   @Post(':id/profile-image')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: (_req, _file, cb) => {
-        const dir = join(process.cwd(), 'server', 'public', 'uploads', 'profile');
-        if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-      },
-      filename: (_req, file, cb) => {
-        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, unique + extname(file.originalname));
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          const dir = join(
+            process.cwd(),
+            'server',
+            'public',
+            'uploads',
+            'profile',
+          );
+          if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+          cb(null, dir);
+        },
+        filename: (_req, file, cb) => {
+          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, unique + extname(file.originalname));
+        },
+      }),
+      limits: { fileSize: 3 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) {
+          return cb(
+            new BadRequestException('Only image uploads are allowed'),
+            false,
+          );
+        }
+        cb(null, true);
       },
     }),
-    limits: { fileSize: 3 * 1024 * 1024 },
-    fileFilter: (_req, file, cb) => {
-      if (!file.mimetype.startsWith('image/')) {
-        return cb(new BadRequestException('Only image uploads are allowed'), false);
-      }
-      cb(null, true);
-    },
-  }))
+  )
   async uploadProfileImage(@Param('id') id: string, @UploadedFile() file: any) {
     if (!file) throw new BadRequestException('No file uploaded');
     const baseUrl = process.env.BASE_URL || 'http://172.20.10.2:8080';
@@ -60,7 +81,7 @@ export class UserController {
   @Post(':id/onboarding')
   async saveOnboardingData(
     @Param('id') id: string,
-    @Body() onboardingData: OnboardingDataDto
+    @Body() onboardingData: OnboardingDataDto,
   ) {
     return this.onboardingService.saveOnboardingData(+id, onboardingData);
   }

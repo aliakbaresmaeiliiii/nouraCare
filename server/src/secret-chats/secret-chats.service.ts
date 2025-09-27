@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import {
   CreateSecretChatDto,
@@ -53,7 +58,7 @@ export class SecretChatsService {
               userId: userId,
               role: MemberRole.ADMIN,
             },
-            ...(createChatDto.memberIds || []).map(memberId => ({
+            ...(createChatDto.memberIds || []).map((memberId) => ({
               userId: memberId,
               role: MemberRole.MEMBER,
             })),
@@ -169,10 +174,12 @@ export class SecretChatsService {
     });
 
     // Format the response for better client consumption
-    return chats.map(chat => {
-      const currentUserMember = chat.members.find(member => member.userId === userId);
+    return chats.map((chat) => {
+      const currentUserMember = chat.members.find(
+        (member) => member.userId === userId,
+      );
       const lastActivity = chat.posts[0] || chat.messages[0];
-      
+
       return {
         id: chat.id,
         name: chat.name,
@@ -184,7 +191,7 @@ export class SecretChatsService {
         postCount: chat._count.posts,
         messageCount: chat._count.messages,
         currentUserRole: currentUserMember?.role || 'MEMBER',
-        members: chat.members.map(member => ({
+        members: chat.members.map((member) => ({
           id: member.id,
           userId: member.userId,
           role: member.role,
@@ -193,13 +200,17 @@ export class SecretChatsService {
         })),
         lastPost: chat.posts[0] || null,
         lastMessage: chat.messages[0] || null,
-        lastActivity: lastActivity ? {
-          type: chat.posts[0] ? 'post' : 'message',
-          createdAt: lastActivity.createdAt,
-          preview: chat.posts[0] ? 
-            chat.posts[0].content?.substring(0, 100) + (chat.posts[0].content?.length > 100 ? '...' : '') :
-            chat.messages[0]?.content?.substring(0, 100) + (chat.messages[0]?.content?.length > 100 ? '...' : ''),
-        } : null,
+        lastActivity: lastActivity
+          ? {
+              type: chat.posts[0] ? 'post' : 'message',
+              createdAt: lastActivity.createdAt,
+              preview: chat.posts[0]
+                ? chat.posts[0].content?.substring(0, 100) +
+                  (chat.posts[0].content?.length > 100 ? '...' : '')
+                : chat.messages[0]?.content?.substring(0, 100) +
+                  (chat.messages[0]?.content?.length > 100 ? '...' : ''),
+            }
+          : null,
       };
     });
   }
@@ -253,7 +264,11 @@ export class SecretChatsService {
     return chat;
   }
 
-  async updateChat(chatId: string, userId: number, updateChatDto: UpdateChatDto) {
+  async updateChat(
+    chatId: string,
+    userId: number,
+    updateChatDto: UpdateChatDto,
+  ) {
     // Check if user has permission to update chat
     const membership = await this.prismaService.chatMember.findUnique({
       where: {
@@ -264,8 +279,14 @@ export class SecretChatsService {
       },
     });
 
-    if (!membership || membership.leftAt || membership.role === MemberRole.MEMBER) {
-      throw new ForbiddenException('You do not have permission to update this chat');
+    if (
+      !membership ||
+      membership.leftAt ||
+      membership.role === MemberRole.MEMBER
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to update this chat',
+      );
     }
 
     const updatedChat = await this.prismaService.secretChat.update({
@@ -306,7 +327,11 @@ export class SecretChatsService {
       },
     });
 
-    if (!membership || membership.leftAt || membership.role === MemberRole.MEMBER) {
+    if (
+      !membership ||
+      membership.leftAt ||
+      membership.role === MemberRole.MEMBER
+    ) {
       throw new ForbiddenException('You do not have permission to add members');
     }
 
@@ -377,8 +402,14 @@ export class SecretChatsService {
       },
     });
 
-    if (!membership || membership.leftAt || membership.role === MemberRole.MEMBER) {
-      throw new ForbiddenException('You do not have permission to remove members');
+    if (
+      !membership ||
+      membership.leftAt ||
+      membership.role === MemberRole.MEMBER
+    ) {
+      throw new ForbiddenException(
+        'You do not have permission to remove members',
+      );
     }
 
     const memberToRemove = await this.prismaService.chatMember.findUnique({
@@ -485,7 +516,13 @@ export class SecretChatsService {
     return post;
   }
 
-  async getChatPosts(chatId: string, userId: number, page: number = 1, limit: number = 20, categoryId?: string) {
+  async getChatPosts(
+    chatId: string,
+    userId: number,
+    page: number = 1,
+    limit: number = 20,
+    categoryId?: string,
+  ) {
     // Check if user is a member of the chat
     const membership = await this.prismaService.chatMember.findUnique({
       where: {
@@ -555,7 +592,7 @@ export class SecretChatsService {
       take: limit,
     });
 
-    return posts.map(post => ({
+    return posts.map((post) => ({
       ...post,
       isLiked: post.likes.length > 0,
       likes: undefined, // Remove the likes array, we only needed it for checking
@@ -688,7 +725,12 @@ export class SecretChatsService {
     return comment;
   }
 
-  async getPostComments(postId: string, userId: number, page: number = 1, limit: number = 20) {
+  async getPostComments(
+    postId: string,
+    userId: number,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const post = await this.prismaService.post.findUnique({
       where: { id: postId },
       include: { chat: true },
@@ -759,7 +801,7 @@ export class SecretChatsService {
       take: limit,
     });
 
-    return comments.map(comment => ({
+    return comments.map((comment) => ({
       ...comment,
       isLiked: comment.likes.length > 0,
       likes: undefined, // Remove the likes array, we only needed it for checking
@@ -878,7 +920,12 @@ export class SecretChatsService {
     return message;
   }
 
-  async getChatMessages(chatId: string, userId: number, page: number = 1, limit: number = 50) {
+  async getChatMessages(
+    chatId: string,
+    userId: number,
+    page: number = 1,
+    limit: number = 50,
+  ) {
     // Check if user is a member of the chat
     const membership = await this.prismaService.chatMember.findUnique({
       where: {

@@ -19,12 +19,19 @@ export class AuthService {
 
   constructor(private prisma: PrismaService) {}
 
-  async register(registerDto: RegisterDto,directOnboardingData: OnboardingDataDto) {
-
+  async register(
+    registerDto: RegisterDto,
+    directOnboardingData: OnboardingDataDto,
+  ) {
     const { email, phone, sessionId } = registerDto;
-    
-    console.log('Registration request:', { email, phone, sessionId, directOnboardingData });
-    
+
+    console.log('Registration request:', {
+      email,
+      phone,
+      sessionId,
+      directOnboardingData,
+    });
+
     const existing = await this.prisma.user.findUnique({ where: { email } });
     if (existing) {
       throw new BadRequestException('User already exists with this email');
@@ -48,7 +55,9 @@ export class AuthService {
 
     // Add onboarding data if available
     if (onboardingData.pregnancy_status) {
-      userData.status = this.mapPregnancyStatus(onboardingData.pregnancy_status);
+      userData.status = this.mapPregnancyStatus(
+        onboardingData.pregnancy_status,
+      );
     }
     if (onboardingData.last_period) {
       userData.lastPeriodStartDate = onboardingData.last_period;
@@ -69,7 +78,9 @@ export class AuthService {
       userData.healthGoals = onboardingData.health_goals;
     }
     if (onboardingData.notifications) {
-      userData.notificationsEnabled = this.mapNotifications(onboardingData.notifications);
+      userData.notificationsEnabled = this.mapNotifications(
+        onboardingData.notifications,
+      );
     }
 
     await this.prisma.user.create({
@@ -115,7 +126,7 @@ export class AuthService {
     // Auto-join main community chat after verification
     await this.autoJoinCommunityChat(updatedUser.id);
 
-    return { 
+    return {
       message: 'Email verified successfully',
       user: {
         id: updatedUser.id,
@@ -127,8 +138,8 @@ export class AuthService {
         status: updatedUser.status,
         city: updatedUser.city,
         birthday: updatedUser.birthday,
-        createdAt: updatedUser.createdAt
-      }
+        createdAt: updatedUser.createdAt,
+      },
     };
   }
 
@@ -170,19 +181,29 @@ export class AuthService {
 
   private mapPregnancyStatus(status: string): string | undefined {
     const statusMap: { [key: string]: string } = {
-      'tracking': 'PLANNING_PREGNANCY',
-      'pregnant': 'PREGNANT',
-      'postpartum': 'POSTPARTUM',
-      'trying': 'TRYING_TO_CONCEIVE',
+      tracking: 'PLANNING_PREGNANCY',
+      pregnant: 'PREGNANT',
+      postpartum: 'POSTPARTUM',
+      trying: 'TRYING_TO_CONCEIVE',
     };
     return statusMap[status] || 'PLANNING_PREGNANCY';
   }
 
-  private mapNotifications(notifications: boolean | string): boolean | undefined {
+  private mapNotifications(
+    notifications: boolean | string,
+  ): boolean | undefined {
     if (typeof notifications === 'boolean') return notifications;
     if (typeof notifications === 'string') {
-      if (notifications.toLowerCase() === 'yes' || notifications.toLowerCase() === 'true') return true;
-      if (notifications.toLowerCase() === 'no' || notifications.toLowerCase() === 'false') return false;
+      if (
+        notifications.toLowerCase() === 'yes' ||
+        notifications.toLowerCase() === 'true'
+      )
+        return true;
+      if (
+        notifications.toLowerCase() === 'no' ||
+        notifications.toLowerCase() === 'false'
+      )
+        return false;
     }
     return undefined;
   }

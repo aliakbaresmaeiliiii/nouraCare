@@ -7,12 +7,14 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ 
-    whitelist: false,  // Allow all fields, don't filter out non-decorated fields
-    transform: true,
-    forbidNonWhitelisted: false,
-    skipMissingProperties: true
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: false, // Allow all fields, don't filter out non-decorated fields
+      transform: true,
+      forbidNonWhitelisted: false,
+      skipMissingProperties: true,
+    }),
+  );
 
   // Serve static files from uploads directory
   app.useStaticAssets(join(process.cwd(), 'server', 'public', 'uploads'), {

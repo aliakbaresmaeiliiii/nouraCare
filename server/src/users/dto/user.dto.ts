@@ -1,124 +1,134 @@
-import { IsEmail, IsOptional, IsString, IsBoolean, IsDate, IsEnum, IsInt, Min, Max, IsUrl } from 'class-validator'
-import { Type } from 'class-transformer'
-import { Status } from '@prisma/client'
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsInt,
+  Min,
+  Max,
+  IsUrl,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { Status } from '@prisma/client';
 
 export class CreateUserDto {
   @IsEmail()
-  email: string
+  email: string;
 
   @IsOptional()
   @IsString()
-  phone: string
+  phone: string;
 
   @IsOptional()
   @IsString()
-  name?: string
+  name?: string;
 
   @IsOptional()
   @IsString()
-  verificationCode?: string
+  verificationCode?: string;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  verificationCodeExpiresAt?: Date
+  verificationCodeExpiresAt?: Date;
 
   @IsOptional()
   @IsBoolean()
-  isVerified?: boolean
+  isVerified?: boolean;
 
   @IsOptional()
   // @IsUrl()
-  profileImage?: string
+  profileImage?: string;
 
   @IsOptional()
   @IsEnum(Status)
-  status?: Status
+  status?: Status;
 
   @IsOptional()
   @IsInt()
   @Min(1)
   @Max(60)
-  menstrualCycleLength?: number
+  menstrualCycleLength?: number;
 
   @IsOptional()
   @IsInt()
   @Min(1)
   @Max(10)
-  periodDuration?: number
+  periodDuration?: number;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  lastPeriodStartDate?: Date
+  lastPeriodStartDate?: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  birthday?: Date
+  birthday?: Date;
 
   @IsOptional()
   @IsString()
-  city?: string   // 🏙️ added city
+  city?: string; // 🏙️ added city
 }
 
 export class UpdateUserDto {
   @IsOptional()
   @IsEmail()
-  email?: string
+  email?: string;
 
   @IsOptional()
   @IsString()
-  phone?: string
+  phone?: string;
 
   @IsOptional()
   @IsString()
-  name?: string
+  name?: string;
 
   @IsOptional()
   @IsString()
-  verificationCode?: string
+  verificationCode?: string;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  verificationCodeExpiresAt?: Date
+  verificationCodeExpiresAt?: Date;
 
   @IsOptional()
   @IsBoolean()
-  isVerified?: boolean
+  isVerified?: boolean;
 
   @IsOptional()
-  profileImage?: string
+  profileImage?: string;
 
   @IsOptional()
   @IsEnum(Status)
-  status?: Status
+  status?: Status;
 
-  
   @IsOptional()
   @IsInt()
   @Min(1)
   @Max(60)
-  menstrualCycleLength?: number
+  menstrualCycleLength?: number;
 
   @IsOptional()
   @IsInt()
   @Min(1)
   @Max(10)
-  periodDuration?: number
+  periodDuration?: number;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  lastPeriodStartDate?: Date
+  lastPeriodStartDate?: Date;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  birthday?: Date
+  birthday?: Date;
 
   @IsOptional()
   @IsString()
-  city?: string
+  city?: string;
 }

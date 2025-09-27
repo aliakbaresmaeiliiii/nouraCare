@@ -19,8 +19,12 @@ export class OnboardingController {
   @Post(':sessionId/complete')
   async completeOnboarding(
     @Param('sessionId') sessionId: string,
-    @Body() body: { email: string; phone: string }
+    @Body() body: { email: string; phone: string },
   ) {
-    return this.onboardingService.completeOnboardingWithRegistration(sessionId, body.email, body.phone);
+    return this.onboardingService.completeOnboardingWithRegistration(
+      sessionId,
+      body.email,
+      body.phone,
+    );
   }
 }

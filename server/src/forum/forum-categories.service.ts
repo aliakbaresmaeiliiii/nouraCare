@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { CreateForumCategoryDto } from './dto/create-forum-category.dto';
 import { UpdateForumCategoryDto } from './dto/update-forum-category.dto';
@@ -128,7 +132,10 @@ export class ForumCategoriesService {
     }
 
     // If slug is being updated, check for conflicts
-    if (updateForumCategoryDto.slug && updateForumCategoryDto.slug !== existingCategory.slug) {
+    if (
+      updateForumCategoryDto.slug &&
+      updateForumCategoryDto.slug !== existingCategory.slug
+    ) {
       const slugConflict = await this.prismaService.forumCategory.findUnique({
         where: { slug: updateForumCategoryDto.slug },
       });
@@ -171,7 +178,9 @@ export class ForumCategoriesService {
     });
 
     if (forumsCount > 0) {
-      throw new ConflictException('Cannot delete category that contains forums');
+      throw new ConflictException(
+        'Cannot delete category that contains forums',
+      );
     }
 
     return this.prismaService.forumCategory.delete({
@@ -215,7 +224,10 @@ export class ForumCategoriesService {
     }
 
     const totalForums = category.forums.length;
-    const totalThreads = category.forums.reduce((sum, forum) => sum + forum._count.threads, 0);
+    const totalThreads = category.forums.reduce(
+      (sum, forum) => sum + forum._count.threads,
+      0,
+    );
 
     return {
       ...category,

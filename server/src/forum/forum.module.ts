@@ -9,7 +9,11 @@ import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [ForumCategoriesController, ForumThreadsController, ForumPostsController],
+  controllers: [
+    ForumCategoriesController,
+    ForumThreadsController,
+    ForumPostsController,
+  ],
   providers: [ForumCategoriesService, ForumThreadsService, ForumPostsService],
   exports: [ForumCategoriesService, ForumThreadsService, ForumPostsService],
 })

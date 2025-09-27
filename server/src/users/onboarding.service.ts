@@ -6,9 +6,14 @@ import { OnboardingDataDto, UserInfoResponseDto } from './dto/onboarding.dto';
 export class OnboardingService {
   constructor(private prisma: PrismaService) {}
 
-  async saveOnboardingData(userId: number, onboardingData: OnboardingDataDto): Promise<UserInfoResponseDto> {
+  async saveOnboardingData(
+    userId: number,
+    onboardingData: OnboardingDataDto,
+  ): Promise<UserInfoResponseDto> {
     // Transform healthGoals array to JSON string for storage
-    const healthGoalsJson = onboardingData.healthGoals ? JSON.stringify(onboardingData.healthGoals) : null;
+    const healthGoalsJson = onboardingData.healthGoals
+      ? JSON.stringify(onboardingData.healthGoals)
+      : null;
 
     const updateData = {
       status: onboardingData.pregnancyStatus,
@@ -23,7 +28,7 @@ export class OnboardingService {
 
     // Filter out undefined values
     const filteredData = Object.fromEntries(
-      Object.entries(updateData).filter(([_, value]) => value !== undefined)
+      Object.entries(updateData).filter(([_, value]) => value !== undefined),
     );
 
     const updatedUser = await this.prisma.user.update({
@@ -34,7 +39,9 @@ export class OnboardingService {
     return this.transformToUserInfoResponse(updatedUser);
   }
 
-  async getUserOnboardingData(userId: number): Promise<UserInfoResponseDto | null> {
+  async getUserOnboardingData(
+    userId: number,
+  ): Promise<UserInfoResponseDto | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });

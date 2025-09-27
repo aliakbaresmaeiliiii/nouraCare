@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { CreateForumPostDto } from './dto/create-forum-post.dto';
 import { UpdateForumPostDto } from './dto/update-forum-post.dto';
@@ -34,7 +38,9 @@ export class ForumPostsService {
 
       // Ensure parent post belongs to the same thread
       if (parentPost.threadId !== createForumPostDto.threadId) {
-        throw new ForbiddenException('Parent post does not belong to the same thread');
+        throw new ForbiddenException(
+          'Parent post does not belong to the same thread',
+        );
       }
     }
 
@@ -255,7 +261,11 @@ export class ForumPostsService {
     return post;
   }
 
-  async update(id: string, updateForumPostDto: UpdateForumPostDto, userId: number) {
+  async update(
+    id: string,
+    updateForumPostDto: UpdateForumPostDto,
+    userId: number,
+  ) {
     const post = await this.prismaService.forumPost.findUnique({
       where: { id },
     });
@@ -396,6 +406,99 @@ export class ForumPostsService {
           },
         },
       },
+    });
+  }
+
+  async editComment(commentId: string, content: string, currentUser: any) {
+    const comment = await this.prismaService.forumPost.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    // Check if the current user is the comment author OR an admin
+    const isOwner = comment.authorId === currentUser.id;
+    const isAdmin = currentUser.role === 'ADMIN';
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You can only edit your own comments');
+    }
+
+    return this.prismaService.forumPost.update({
+      where: { id: commentId },
+      data: {
+        content,
+        updatedAt: new Date(),
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            profileImage: true,
+          },
+        },
+        parent: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                profileImage: true,
+              },
+            },
+          },
+        },
+        replies: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                profileImage: true,
+              },
+            },
+            _count: {
+              select: {
+                likes: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+        _count: {
+          select: {
+            likes: true,
+            replies: true,
+          },
+        },
+      },
+    });
+  }
+
+  async deleteComment(commentId: string, currentUser: any) {
+    const comment = await this.prismaService.forumPost.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    // Check if the current user is the comment author OR an admin
+    const isOwner = comment.authorId === currentUser.id;
+    const isAdmin = currentUser.role === 'ADMIN';
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException('You can only delete your own comments');
+    }
+
+    // Soft delete by marking as deleted
+    return this.prismaService.forumPost.update({
+      where: { id: commentId },
+      data: { isDeleted: true },
     });
   }
 }
