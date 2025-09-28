@@ -6,8 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  HttpCode,
-  HttpStatus,
   Query,
   Req,
 } from '@nestjs/common';
@@ -135,7 +133,6 @@ export class ForumThreadsController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string, @Req() req: any) {
     // In a real implementation, you would get the user ID from the authenticated request
     const userId = req.user?.id || 1; // Default to user ID 1 for testing

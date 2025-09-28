@@ -1,0 +1,46 @@
+### Get popular tags
+GET http://localhost:3000/posts/popular-tags
+
+### Get all posts
+GET http://localhost:3000/posts?page=1&limit=10
+
+### Get posts by category
+GET http://localhost:3000/posts?categoryId=some-category-id&page=1&limit=10
+
+### Create a new post
+POST http://localhost:3000/posts
+Content-Type: application/json
+
+{
+  "title": "My First Post",
+  "content": "This is the content of my first post about pregnancy journey.",
+  "categoryId": "pregnancy",
+  "tags": ["pregnancy", "first-trimester", "support"],
+  "isAnonymous": false,
+  "media": [
+    {
+      "url": "https://example.com/image1.jpg",
+      "type": "IMAGE",
+      "caption": "First ultrasound"
+    }
+  ]
+}
+
+### Get a specific post
+GET http://localhost:3000/posts/{{postId}}
+
+### Update a post
+PATCH http://localhost:3000/posts/{{postId}}
+Content-Type: application/json
+
+{
+  "title": "Updated Post Title",
+  "content": "Updated content about my pregnancy journey.",
+  "tags": ["pregnancy", "second-trimester", "nutrition"]
+}
+
+### Like a post
+POST http://localhost:3000/posts/{{postId}}/like
+
+### Delete a post
+DELETE http://localhost:3000/posts/{{postId}}

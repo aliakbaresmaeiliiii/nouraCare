@@ -77,7 +77,6 @@ export class CategorySelectionModalComponent implements OnInit {
   ];
 
   ngOnInit() {
-    debugger
   }
 
   // Category selection

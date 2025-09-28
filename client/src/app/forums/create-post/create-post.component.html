@@ -1,0 +1,211 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" fill="clear">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Create New Post</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="showPreview()" fill="clear" [disabled]="!postForm.valid">
+        <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="create-post-container">
+    <!-- Header Section -->
+    <div class="header-section">
+      <h1 class="page-title">Share Your Thoughts</h1>
+      <p class="page-subtitle">Start a conversation with the community</p>
+    </div>
+
+    <!-- Form Section -->
+    <form [formGroup]="postForm" (ngSubmit)="submitPost()" class="post-form">
+      
+      <!-- Category Selection -->
+      <div class="form-section">
+        <ion-item class="form-item" lines="none">
+          <ion-label position="stacked" class="form-label">
+            <ion-icon name="folder-outline" class="label-icon"></ion-icon>
+            Category
+            <span class="required">*</span>
+          </ion-label>
+          <ion-select 
+            formControlName="categoryId" 
+            interface="action-sheet"
+            placeholder="Select a category"
+            class="category-select"
+            [disabled]="isLoading">
+            <ion-select-option 
+              *ngFor="let category of categories()" 
+              [value]="category.id"
+              [style.--color]="category.color">
+              <div class="category-option">
+                <ion-icon [name]="category.icon" [style.color]="category.color"></ion-icon>
+                <span class="category-name">{{ category.name }}</span>
+                <span class="category-desc">{{ category.description }}</span>
+              </div>
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <div class="error-message" *ngIf="postForm.get('categoryId')?.invalid && postForm.get('categoryId')?.touched">
+          Please select a category
+        </div>
+      </div>
+
+      <!-- Title Input -->
+      <div class="form-section">
+        <ion-item class="form-item" lines="none">
+          <ion-label position="stacked" class="form-label">
+            <ion-icon name="pricetag-outline" class="label-icon"></ion-icon>
+            Post Title
+            <span class="required">*</span>
+          </ion-label>
+          <ion-input 
+            formControlName="title" 
+            type="text" 
+            placeholder="Enter a clear and descriptive title"
+            class="title-input"
+            maxlength="200">
+          </ion-input>
+        </ion-item>
+        <div class="input-helpers">
+          <span class="char-count">{{ postForm.get('title')?.value?.length || 0 }}/200</span>
+        </div>
+        <div class="error-message" *ngIf="postForm.get('title')?.invalid && postForm.get('title')?.touched">
+          <span *ngIf="postForm.get('title')?.errors?.['required']">Title is required</span>
+          <span *ngIf="postForm.get('title')?.errors?.['minlength']">Title must be at least 5 characters</span>
+          <span *ngIf="postForm.get('title')?.errors?.['maxlength']">Title must be less than 200 characters</span>
+        </div>
+      </div>
+
+      <!-- Content Input -->
+      <div class="form-section">
+        <ion-item class="form-item" lines="none">
+          <ion-label position="stacked" class="form-label">
+            <ion-icon name="document-text-outline" class="label-icon"></ion-icon>
+            Post Content
+            <span class="required">*</span>
+          </ion-label>
+          <ion-textarea 
+            formControlName="content" 
+            placeholder="Share your thoughts, questions, or experiences..."
+            rows="8"
+            autoGrow="true"
+            class="content-textarea"
+            maxlength="{{ maxContentLength }}">
+          </ion-textarea>
+        </ion-item>
+        <div class="input-helpers">
+          <span class="char-count">{{ characterCount }}/{{ maxContentLength }}</span>
+          <ion-progress-bar 
+            [value]="getContentPercentage() / 100" 
+            [color]="getContentColor()"
+            class="progress-bar">
+          </ion-progress-bar>
+        </div>
+        <div class="error-message" *ngIf="postForm.get('content')?.invalid && postForm.get('content')?.touched">
+          <span *ngIf="postForm.get('content')?.errors?.['required']">Content is required</span>
+          <span *ngIf="postForm.get('content')?.errors?.['minlength']">Content must be at least 10 characters</span>
+          <span *ngIf="postForm.get('content')?.errors?.['maxlength']">Content is too long</span>
+        </div>
+      </div>
+
+      <!-- Tags Section -->
+      <div class="form-section">
+        <div class="tags-header">
+          <ion-label class="form-label">
+            <ion-icon name="pricetags-outline" class="label-icon"></ion-icon>
+            Tags
+          </ion-label>
+          <span class="optional">(Optional but recommended)</span>
+        </div>
+        
+        <!-- Selected Tags -->
+        <div class="selected-tags" *ngIf="selectedTags.length > 0">
+          <ion-chip *ngFor="let tag of selectedTags" color="primary" outline="true">
+            <ion-label>{{ tag }}</ion-label>
+            <ion-icon name="close-circle" (click)="removeTag(tag)"></ion-icon>
+          </ion-chip>
+        </div>
+
+        <!-- Tag Input -->
+        <div class="tag-input-container">
+          <ion-item class="tag-input-item" lines="none">
+            <ion-input 
+              [(ngModel)]="currentTag" 
+              [ngModelOptions]="{standalone: true}"
+              placeholder="Add tags (press Enter or click +)"
+              (keypress)="onTagInputKeyPress($event)"
+              class="tag-input">
+            </ion-input>
+            <ion-button slot="end" fill="clear" (click)="addTag()" [disabled]="!currentTag.trim()">
+              <ion-icon name="add-circle" color="primary"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+
+        <!-- Popular Tags Suggestions -->
+        <div class="popular-tags" *ngIf="popularTags.length > 0">
+          <p class="suggestions-label">Popular tags:</p>
+          <div class="tag-suggestions">
+            <ion-chip *ngFor="let tag of popularTags" 
+                     color="medium" 
+                     outline="true"
+                     (click)="addPopularTag(tag)"
+                     class="suggestion-chip">
+              <ion-label>{{ tag }}</ion-label>
+              <ion-icon name="add"></ion-icon>
+            </ion-chip>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <ion-button 
+          type="submit" 
+          expand="block" 
+          color="primary" 
+          size="large"
+          [disabled]="isSubmitting || postForm.invalid"
+          class="submit-button">
+          <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+          <span *ngIf="!isSubmitting">Create Post</span>
+          <span *ngIf="isSubmitting">Creating...</span>
+        </ion-button>
+
+        <ion-button 
+          expand="block" 
+          fill="outline" 
+          color="medium" 
+          size="large"
+          (click)="clearForm()"
+          [disabled]="isSubmitting"
+          class="clear-button">
+          <ion-icon name="trash-outline" slot="start"></ion-icon>
+          Clear Form
+        </ion-button>
+      </div>
+    </form>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="isLoading">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>Loading categories...</p>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-container" *ngIf="errorMessage">
+      <ion-card color="danger">
+        <ion-card-content>
+          <ion-icon name="warning-outline"></ion-icon>
+          <p>{{ errorMessage }}</p>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

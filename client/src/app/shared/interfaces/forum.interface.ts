@@ -61,3 +61,23 @@ export interface EditCommentResponse {
   message?: string;
   data?: Comment;
 }
+
+export interface EditPostData {
+  id: string;
+  title: string;
+  content: string;
+}
+
+export interface DeletePostResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    id: string;
+  };
+}
+
+export interface EditPostResponse {
+  success: boolean;
+  message?: string;
+  data?: any;
+}

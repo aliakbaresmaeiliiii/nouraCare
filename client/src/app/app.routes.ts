@@ -90,6 +90,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'forums/create-post',
+    loadComponent: () =>
+      import('./forums/create-post/create-post.component').then(
+        (m) => m.CreatePostComponent
+      ),
+  },
+  {
     path: 'settings',
     loadComponent: () =>
       import('./settings/settings.component').then(

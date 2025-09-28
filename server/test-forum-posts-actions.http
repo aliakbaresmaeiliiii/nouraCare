@@ -1,0 +1,33 @@
+### Create a forum post
+POST http://localhost:3000/api/v1/forum-posts
+Content-Type: application/json
+
+{
+  "content": "This is a test forum post for edit/delete actions",
+  "threadId": "1"
+}
+
+### Get the created post (replace :id with actual post ID)
+GET http://localhost:3000/api/v1/forum-posts/:id
+
+### Update the forum post (replace :id with actual post ID)
+PATCH http://localhost:3000/api/v1/forum-posts/:id
+Content-Type: application/json
+
+{
+  "content": "This post has been updated successfully"
+}
+
+### Delete the forum post (replace :id with actual post ID)
+DELETE http://localhost:3000/api/v1/forum-posts/:id
+
+### Test comment edit (replace :id with actual comment ID)
+PUT http://localhost:3000/api/v1/forum-posts/comments/:id
+Content-Type: application/json
+
+{
+  "content": "This comment has been edited"
+}
+
+### Test comment delete (replace :id with actual comment ID)
+DELETE http://localhost:3000/api/v1/forum-posts/comments/:id

@@ -1,14 +1,24 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ModalController, ToastController, NavController, AlertController } from '@ionic/angular';
+import {
+  IonicModule,
+  ToastController,
+  NavController,
+  AlertController,
+} from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { ForumThreadsService, CreatePostDto, ThreadDetailResponse, PostResponse, LikeResponse } from '../../shared/services/forum-threads.service';
+import {
+  ForumThreadsService,
+  CreatePostDto,
+  CreateForumThreadDto,
+  ThreadDetailResponse,
+} from '../../shared/services/forum-threads.service';
 import { Share } from '@capacitor/share';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import { CurrentUser, MOCK_CURRENT_USER, Comment as ForumComment } from '../../shared/interfaces/forum.interface';
 
+// Strongly typed interfaces
 interface ForumTopic {
   id: number;
   title: string;
@@ -22,8 +32,36 @@ interface ForumTopic {
   isPinned: boolean;
   isLocked: boolean;
   tags: string[];
+  forumId: string;
+  forum?: Forum[];
   createdAt: string;
-  posts?: any[];
+  posts?: Comment[];
+}
+
+interface Forum {
+  categoryId: string;
+  createdAt: string;
+  createdById: number;
+  description: string;
+  id: string;
+  isActive: boolean;
+  isPublic: boolean;
+  category: Categories[];
+  title: string;
+  updatedAt: string;
+}
+
+interface Categories {
+  color: string;
+  createdAt: string;
+  description: string;
+  icon: string;
+  id: string;
+  isActive: boolean;
+  name: string;
+  order: number;
+  slug: string;
+  updatedAt: string;
 }
 
 interface Comment {
@@ -40,7 +78,7 @@ interface Comment {
   isDeleted: boolean;
   createdAt: string;
   updatedAt: string;
-  replies: any[];
+  replies: Comment[];
   isLiked?: boolean;
   _count: {
     likes: number;
@@ -53,15 +91,17 @@ interface Comment {
   templateUrl: './topic-detail.component.html',
   styleUrls: ['./topic-detail.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule],
 })
 export class TopicDetailComponent implements OnInit {
+  // Dependency injection
   private route = inject(ActivatedRoute);
   private navCtrl = inject(NavController);
   private forumThreadsService = inject(ForumThreadsService);
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
 
+  // Component state
   topic: ForumTopic | null = null;
   comments: Comment[] = [];
   newComment = '';
@@ -73,28 +113,45 @@ export class TopicDetailComponent implements OnInit {
   errorMessage = '';
   showReplyInput: string | null = null;
   replyTexts: { [commentId: string]: string } = {};
-  currentUser: CurrentUser = MOCK_CURRENT_USER;
+  isEditingPost = false;
+  editPostTitle = '';
+  editPostContent = '';
+  topicId = signal<string | null>(null);
+
+  // Computed properties for better performance
+  get canEditOrDeletePost(): boolean {
+    if (!this.topic) return false;
+    // In a real app, this would check against actual user data
+    return false;
+  }
+
+  get commentsCount(): number {
+    return this.comments.length;
+  }
+
+  get isEditing(): boolean {
+    return this.isEditingComment !== null || this.isEditingPost;
+  }
 
   ngOnInit() {
-    const topicId = this.route.snapshot.paramMap.get('id');
-    if (topicId) {
-      this.loadTopicDetail(topicId);
+    this.topicId.set(this.route.snapshot.paramMap.get('id'));
+    if (this.topicId()) {
+      this.loadTopicDetail(this.topicId());
     } else {
       this.errorMessage = 'Topic not found';
     }
   }
 
-  loadTopicDetail(topicId: string) {
+  loadTopicDetail(threadId: string | null) {
     this.isLoading = true;
     this.errorMessage = '';
-    
-    this.forumThreadsService.getThreadById(topicId).subscribe({
-      next: (response: any) => {
-        console.log('Topic detail response:', response);
+
+    this.forumThreadsService.getThreadById(threadId).subscribe({
+      next: (response: ThreadDetailResponse) => {
         if (response && response.success) {
           const thread = response.data;
           this.topic = {
-            id: parseInt(topicId),
+            id: parseInt(threadId || '0'),
             title: thread.title,
             content: thread.content,
             author: thread.author?.name || 'Anonymous',
@@ -106,49 +163,26 @@ export class TopicDetailComponent implements OnInit {
             isPinned: thread.isPinned || false,
             isLocked: thread.isLocked || false,
             tags: [],
+            forumId: thread.forum?.id || '',
             createdAt: thread.createdAt,
-            posts: thread.posts || []
+            posts: thread.posts || [],
           };
-          
+
           // Load comments from the thread response
           this.comments = thread.posts || [];
         } else {
           this.errorMessage = 'Failed to load topic details';
         }
+
         this.isLoading = false;
       },
       error: (error: any) => {
         console.error('Error loading topic detail:', error);
         this.errorMessage = 'Failed to load topic details';
         this.isLoading = false;
-        
-        // Fallback to mock data if API fails
-        this.loadMockTopicDetail(topicId);
-      }
+      },
     });
   }
-
-  private loadMockTopicDetail(topicId: string) {
-    this.topic = {
-      id: parseInt(topicId),
-      title: 'Best natural remedies for period cramps',
-      content: 'I\'ve been experiencing severe cramps lately and looking for natural remedies that actually work. I\'ve tried heating pads and they help a bit, but I\'m looking for more suggestions. What has worked for you all?',
-      author: 'Sarah Johnson',
-      authorAvatar: '',
-      category: 'General Discussion',
-      replies: 23,
-      views: 156,
-      lastReply: '2024-01-15T10:30:00Z',
-      isPinned: true,
-      isLocked: false,
-      tags: ['period', 'cramps', 'natural-remedies'],
-      createdAt: '2024-01-10T14:20:00Z'
-    };
-  }
-
- 
-
-
 
   async submitComment() {
     if (!this.newComment.trim()) {
@@ -157,7 +191,7 @@ export class TopicDetailComponent implements OnInit {
     }
 
     if (!this.topic) {
-      await this.showToast('Topic not found', 'danger');
+      this.showToast('Topic not found', 'danger');
       return;
     }
 
@@ -166,35 +200,31 @@ export class TopicDetailComponent implements OnInit {
     const postData: CreatePostDto = {
       content: this.newComment.trim(),
       threadId: this.topic.id.toString(),
-      parentId: null
+      parentId: null,
     };
 
-    this.forumThreadsService.createPost(postData)
+    this.forumThreadsService
+      .createPost(postData)
       .pipe(
         tap((response: any) => {
-          console.log('Comment created successfully:', response);
           if (response && response.success) {
             this.comments.unshift(response.data);
             this.newComment = '';
             this.showToast('Comment posted successfully!', 'success');
           } else {
-            console.error('API returned unsuccessful response:', response);
-            this.showToast('Failed to post comment: ' + (response?.message || 'Unknown error'), 'danger');
+            this.showToast(
+              'Failed to post comment: ' +
+                (response?.message || 'Unknown error'),
+              'danger'
+            );
           }
         }),
         catchError((error: any) => {
-          console.error('Error posting comment:', error);
-          console.error('Error details:', {
-            status: error.status,
-            statusText: error.statusText,
-            url: error.url,
-            message: error.message,
-            error: error.error
-          });
-          this.showToast('Failed to post comment: ' + (error.error?.message || error.message || 'Network error'), 'danger');
-          
-          // Fallback to mock comment creation
-          this.createMockComment();
+          this.showToast(
+            'Failed to post comment: ' +
+              (error.error?.message || error.message || 'Network error'),
+            'danger'
+          );
           return of(null);
         }),
         finalize(() => {
@@ -204,72 +234,31 @@ export class TopicDetailComponent implements OnInit {
       .subscribe();
   }
 
-  private createMockComment() {
-    if (!this.topic) return;
-    
-    const newComment: Comment = {
-      id: Date.now().toString(),
-      content: this.newComment.trim(),
-      authorId: 1, // Current user ID
-      threadId: this.topic.id.toString(),
-      parentId: null,
-      isDeleted: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      author: {
-        id: 1,
-        name: 'Current User',
-        profileImage: ''
-      },
-      replies: [],
-      isLiked: false,
-      _count: {
-        likes: 0,
-        replies: 0
-      }
-    };
-
-    this.comments.unshift(newComment);
-    this.newComment = '';
-    this.showToast('Comment posted successfully!', 'success');
-  }
-
   async likeComment(commentId: string) {
-    this.forumThreadsService.likePost(commentId)
+    this.forumThreadsService
+      .likePost(commentId)
       .pipe(
         tap((response: any) => {
-          console.log('Like response:', response);
           if (response && response.success) {
-            const comment = this.comments.find(c => c.id === commentId);
+            const comment = this.comments.find((c) => c.id === commentId);
             if (comment) {
               comment.isLiked = response.data.liked;
               comment._count.likes += response.data.liked ? 1 : -1;
-              this.showToast(response.data.liked ? 'Liked!' : 'Unliked!', 'success');
+              this.showToast(
+                response.data.liked ? 'Liked!' : 'Unliked!',
+                'success'
+              );
             }
           } else {
             this.showToast('Failed to like comment', 'danger');
-            // Fallback to mock like functionality
-            this.mockLikeComment(commentId);
           }
         }),
         catchError((error: any) => {
-          console.error('Error liking comment:', error);
           this.showToast('Failed to like comment', 'danger');
-          // Fallback to mock like functionality
-          this.mockLikeComment(commentId);
           return of(null);
         })
       )
       .subscribe();
-  }
-
-  private async mockLikeComment(commentId: string) {
-    const comment = this.comments.find(c => c.id === commentId);
-    if (comment) {
-      comment.isLiked = !comment.isLiked;
-      comment._count.likes += comment.isLiked ? 1 : -1;
-      await this.showToast(comment.isLiked ? 'Liked!' : 'Unliked!', 'success');
-    }
   }
 
   // Reply functionality
@@ -286,33 +275,48 @@ export class TopicDetailComponent implements OnInit {
   cancelReply() {
     this.showReplyInput = null;
     // Clear all reply texts
-    Object.keys(this.replyTexts).forEach(key => {
+    Object.keys(this.replyTexts).forEach((key) => {
       this.replyTexts[key] = '';
     });
   }
 
-  async submitReply(commentId: string) {
-    debugger;
+  submitReply(commentId: string) {
     const replyText = this.replyTexts[commentId]?.trim();
+    const forumId = this.topic?.forumId || '';
     if (!replyText) {
-      await this.showToast('Please write a reply', 'warning');
+      this.showToast('Please write a reply', 'warning');
       return;
     }
 
     if (!this.topic) {
-      await this.showToast('Topic not found', 'danger');
+      this.showToast('Topic not found', 'danger');
       return;
     }
 
     this.isSubmittingReply = true;
+    debugger;
+    
+    // Add null checks for posts array
+    if (!this.topic?.posts || this.topic.posts.length === 0) {
+      this.showToast('Unable to submit reply: topic data is incomplete', 'danger');
+      this.isSubmittingReply = false;
+      return;
+    }
 
-    this.forumThreadsService.replyToComment(commentId, replyText, '20f98c91-f30f-4110-8792-fcbd88372052'.toString())
+    const payload = {
+      content: replyText,
+      threadId: this.topic.posts[0].threadId,
+      parentId: commentId,
+      forumId: forumId,
+    };
+
+    this.forumThreadsService
+      .replyToComment(payload)
       .pipe(
         tap((response: any) => {
-          console.log('Reply created successfully:', response);
           if (response && response.success) {
             // Find the parent comment and add the reply
-            const parentComment = this.comments.find(c => c.id === commentId);
+            const parentComment = this.comments.find((c) => c.id === commentId);
             if (parentComment) {
               if (!parentComment.replies) {
                 parentComment.replies = [];
@@ -320,28 +324,23 @@ export class TopicDetailComponent implements OnInit {
               parentComment.replies.push(response.data);
               parentComment._count.replies += 1;
             }
-            
+
             this.replyTexts[commentId] = '';
             this.showReplyInput = null;
             this.showToast('Reply posted successfully!', 'success');
           } else {
-            console.error('API returned unsuccessful response:', response);
-            this.showToast('Failed to post reply: ' + (response?.message || 'Unknown error'), 'danger');
+            this.showToast(
+              'Failed to post reply: ' + (response?.message || 'Unknown error'),
+              'danger'
+            );
           }
         }),
         catchError((error: any) => {
-          console.error('Error posting reply:', error);
-          console.error('Error details:', {
-            status: error.status,
-            statusText: error.statusText,
-            url: error.url,
-            message: error.message,
-            error: error.error
-          });
-          this.showToast('Failed to post reply: ' + (error.error?.message || error.message || 'Network error'), 'danger');
-          
-          // Fallback to mock reply creation
-          this.createMockReply(commentId, replyText);
+          this.showToast(
+            'Failed to post reply: ' +
+              (error.error?.message || error.message || 'Network error'),
+            'danger'
+          );
           return of(null);
         }),
         finalize(() => {
@@ -351,43 +350,38 @@ export class TopicDetailComponent implements OnInit {
       .subscribe();
   }
 
-  private createMockReply(commentId: string, replyText: string) {
-    if (!this.topic) return;
-    
-    const parentComment = this.comments.find(c => c.id === commentId);
-    if (!parentComment) return;
-    
-    const newReply: Comment = {
-      id: Date.now().toString(),
-      content: replyText,
-      authorId: 1, // Current user ID
-      threadId: this.topic.id.toString(),
-      parentId: commentId,
-      isDeleted: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      author: {
-        id: 1,
-        name: 'Current User',
-        profileImage: ''
-      },
-      replies: [],
-      isLiked: false,
-      _count: {
-        likes: 0,
-        replies: 0
-      }
-    };
+  // Method to create a new forum thread with the required DTO payload
+  createForumThread(createForumThreadDto: CreateForumThreadDto) {
+    this.isSubmittingReply = true;
 
-    if (!parentComment.replies) {
-      parentComment.replies = [];
-    }
-    parentComment.replies.push(newReply);
-    parentComment._count.replies += 1;
-    
-    this.replyTexts[commentId] = '';
-    this.showReplyInput = null;
-    this.showToast('Reply posted successfully!', 'success');
+    this.forumThreadsService
+      .createForumThread(createForumThreadDto)
+      .pipe(
+        tap((response: any) => {
+          if (response && response.success) {
+            this.showToast('Forum thread created successfully!', 'success');
+            // Optionally navigate to the new thread or refresh the list
+          } else {
+            this.showToast(
+              'Failed to create forum thread: ' +
+                (response?.message || 'Unknown error'),
+              'danger'
+            );
+          }
+        }),
+        catchError((error: any) => {
+          this.showToast(
+            'Failed to create forum thread: ' +
+              (error.error?.message || error.message || 'Network error'),
+            'danger'
+          );
+          return of(null);
+        }),
+        finalize(() => {
+          this.isSubmittingReply = false;
+        })
+      )
+      .subscribe();
   }
 
   onImageError(event: Event): void {
@@ -427,7 +421,7 @@ export class TopicDetailComponent implements OnInit {
       message,
       duration: 3000,
       color,
-      position: 'bottom'
+      position: 'bottom',
     });
     await toast.present();
   }
@@ -439,123 +433,33 @@ export class TopicDetailComponent implements OnInit {
     }
 
     try {
-      // Create share data
       const shareData = {
         title: this.topic.title,
         text: `${this.topic.content.substring(0, 200)}...`,
-        url: `${window.location.origin}/forums/topic/${this.topic.id}`
+        url: `${window.location.origin}/forums/topic/${this.topic.id}`,
       };
 
-      // Try Web Share API first (works on mobile browsers)
       if (navigator.share) {
-        try {
-          await navigator.share(shareData);
-          await this.showToast('Topic shared successfully!', 'success');
-          return;
-        } catch (error) {
-          console.log('Web Share API failed:', error);
-          // Continue to fallback methods
-        }
-      }
-
-      // Try Capacitor Share plugin (for native apps)
-      try {
-        await Share.share(shareData);
+        await navigator.share(shareData);
         await this.showToast('Topic shared successfully!', 'success');
         return;
-      } catch (error) {
-        console.log('Capacitor Share failed:', error);
-        // Continue to fallback methods
       }
 
-      // Fallback: Show share options dialog
-      await this.showShareOptions(shareData);
-
+      await Share.share(shareData);
+      await this.showToast('Topic shared successfully!', 'success');
     } catch (error) {
       console.error('Error sharing topic:', error);
-      await this.showToast('Failed to share topic. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to share topic. Please try again.',
+        'danger'
+      );
     }
-  }
-
-  private async showShareOptions(shareData: any) {
-    const alert = await this.alertController.create({
-      header: 'Share Topic',
-      message: 'Choose how you\'d like to share this topic:',
-      buttons: [
-        {
-          text: 'Copy Link',
-          handler: () => {
-            this.copyToClipboard(shareData.url);
-          }
-        },
-        {
-          text: 'Share via Message',
-          handler: () => {
-            this.shareViaMessage(shareData);
-          }
-        },
-        {
-          text: 'Share via Email',
-          handler: () => {
-            this.shareViaEmail(shareData);
-          }
-        },
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  private async copyToClipboard(text: string) {
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-        await this.showToast('Link copied to clipboard!', 'success');
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        await this.showToast('Link copied to clipboard!', 'success');
-      }
-    } catch (error) {
-      console.error('Error copying to clipboard:', error);
-      await this.showToast('Failed to copy link', 'danger');
-    }
-  }
-
-  private shareViaMessage(shareData: any) {
-    const messageText = `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`;
-    const encodedMessage = encodeURIComponent(messageText);
-    
-    // Try WhatsApp first
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
-    
-    // If WhatsApp fails, try SMS
-    setTimeout(() => {
-      const smsUrl = `sms:?body=${encodedMessage}`;
-      window.open(smsUrl, '_blank');
-    }, 100);
-  }
-
-  private shareViaEmail(shareData: any) {
-    const subject = encodeURIComponent(`Check out this topic: ${shareData.title}`);
-    const body = encodeURIComponent(`${shareData.text}\n\nRead more: ${shareData.url}`);
-    const emailUrl = `mailto:?subject=${subject}&body=${body}`;
-    window.open(emailUrl, '_blank');
   }
 
   // Permission check method
   canEditOrDelete(comment: Comment): boolean {
-    return this.currentUser.id === comment.authorId || this.currentUser.role === 'admin';
+    // In a real app, this would check against actual user data
+    return false;
   }
 
   // Edit functionality
@@ -566,7 +470,7 @@ export class TopicDetailComponent implements OnInit {
 
   cancelEdit() {
     this.isEditingComment = null;
-    Object.keys(this.editTexts).forEach(key => {
+    Object.keys(this.editTexts).forEach((key) => {
       this.editTexts[key] = '';
     });
   }
@@ -588,28 +492,40 @@ export class TopicDetailComponent implements OnInit {
     comment.content = editText;
     comment.updatedAt = new Date().toISOString();
 
-    this.forumThreadsService.editComment(comment.id, editText)
+    this.forumThreadsService
+      .editComment(comment.id, editText)
       .pipe(
         tap((response: any) => {
-          console.log('Comment updated successfully:', response);
           if (response && response.success) {
-            this.comments = this.comments.map(c => c.id === comment.id ? response.data : c);
+            this.comments = this.comments.map((c) =>
+              c.id === comment.id ? response.data : c
+            );
             this.showToast('Comment updated successfully!', 'success');
           } else {
             // Revert optimistic update on failure
             comment.content = originalContent;
-            this.showToast('Failed to update comment: ' + (response?.message || 'Unknown error'), 'danger');
+            this.showToast(
+              'Failed to update comment: ' +
+                (response?.message || 'Unknown error'),
+              'danger'
+            );
           }
         }),
         catchError((error: any) => {
-          console.error('Error updating comment:', error);
           // Revert optimistic update on error
           comment.content = originalContent;
-          
+
           if (error.status === 403) {
-            this.showToast('You do not have permission to edit this comment', 'danger');
+            this.showToast(
+              'You do not have permission to edit this comment',
+              'danger'
+            );
           } else {
-            this.showToast('Failed to update comment: ' + (error.error?.message || error.message || 'Network error'), 'danger');
+            this.showToast(
+              'Failed to update comment: ' +
+                (error.error?.message || error.message || 'Network error'),
+              'danger'
+            );
           }
           return of(null);
         }),
@@ -624,91 +540,250 @@ export class TopicDetailComponent implements OnInit {
   async deleteComment(comment: Comment) {
     const alert = await this.alertController.create({
       header: 'Delete Comment',
-      message: 'Are you sure you want to delete this comment? This action cannot be undone.',
+      message:
+        'Are you sure you want to delete this comment? This action cannot be undone.',
       buttons: [
         {
           text: 'Cancel',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'Delete',
           role: 'destructive',
           handler: () => {
             this.confirmDeleteComment(comment);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
   }
 
   private confirmDeleteComment(comment: Comment) {
+    // Store the original comment reference and position
+    const originalComment = { ...comment };
+    const commentIndex = this.comments.findIndex((c) => c.id === comment.id);
+    const isReply = !!comment.parentId;
+
     // Optimistic update - remove from UI immediately
-    const commentIndex = this.comments.findIndex(c => c.id === comment.id);
-    if (commentIndex !== -1) {
+    if (commentIndex !== -1 && !isReply) {
       this.comments.splice(commentIndex, 1);
     }
 
     // Also check and remove from replies if it's a reply
-    this.comments.forEach(parentComment => {
-      if (parentComment.replies) {
-        const replyIndex = parentComment.replies.findIndex(r => r.id === comment.id);
-        if (replyIndex !== -1) {
-          parentComment.replies.splice(replyIndex, 1);
-          parentComment._count.replies -= 1;
+    if (isReply) {
+      this.comments.forEach((parentComment) => {
+        if (parentComment.replies) {
+          const replyIndex = parentComment.replies.findIndex(
+            (r) => r.id === comment.id
+          );
+          if (replyIndex !== -1) {
+            parentComment.replies.splice(replyIndex, 1);
+            parentComment._count.replies -= 1;
+          }
         }
-      }
-    });
+      });
+    }
 
-    this.forumThreadsService.deletePost(comment.id)
+    this.forumThreadsService
+      .deleteComment(comment.id)
       .pipe(
         tap((response: any) => {
-          console.log('Comment deleted successfully:', response);
           if (response && response.success) {
             this.showToast('Comment deleted successfully!', 'success');
           } else {
             // Revert optimistic update on failure
-            if (comment.parentId) {
-              // It's a reply, add back to parent comment
-              const parentComment = this.comments.find(c => c.id === comment.parentId);
-              if (parentComment) {
-                if (!parentComment.replies) parentComment.replies = [];
-                parentComment.replies.push(comment);
-                parentComment._count.replies += 1;
-              }
-            } else {
-              // It's a top-level comment, add back to comments array
-              this.comments.splice(commentIndex, 0, comment);
-            }
-            this.showToast('Failed to delete comment: ' + (response?.message || 'Unknown error'), 'danger');
+            this.revertCommentDeletion(originalComment, commentIndex);
+            this.showToast(
+              'Failed to delete comment: ' +
+                (response?.message || 'Unknown error'),
+              'danger'
+            );
           }
         }),
         catchError((error: any) => {
-          console.error('Error deleting comment:', error);
           // Revert optimistic update on error
-          if (comment.parentId) {
-            // It's a reply, add back to parent comment
-            const parentComment = this.comments.find(c => c.id === comment.parentId);
-            if (parentComment) {
-              if (!parentComment.replies) parentComment.replies = [];
-              parentComment.replies.push(comment);
-              parentComment._count.replies += 1;
-            }
-          } else {
-            // It's a top-level comment, add back to comments array
-            this.comments.splice(commentIndex, 0, comment);
-          }
-          
+          this.revertCommentDeletion(originalComment, commentIndex);
+
           if (error.status === 403) {
-            this.showToast('You do not have permission to delete this comment', 'danger');
+            this.showToast(
+              'You do not have permission to delete this comment',
+              'danger'
+            );
           } else {
-            this.showToast('Failed to delete comment: ' + (error.error?.message || error.message || 'Network error'), 'danger');
+            this.showToast(
+              'Failed to delete comment: ' +
+                (error.error?.message || error.message || 'Network error'),
+              'danger'
+            );
           }
           return of(null);
         })
       )
       .subscribe();
+  }
+
+  private revertCommentDeletion(comment: Comment, originalIndex: number) {
+    if (comment.parentId) {
+      // It's a reply, add back to parent comment
+      const parentComment = this.comments.find(
+        (c) => c.id === comment.parentId
+      );
+      if (parentComment) {
+        if (!parentComment.replies) parentComment.replies = [];
+        parentComment.replies.push(comment);
+        parentComment._count.replies += 1;
+      }
+    } else {
+      // It's a top-level comment, add back to comments array at original position
+      if (originalIndex !== -1) {
+        this.comments.splice(originalIndex, 0, comment);
+      } else {
+        // If original index not found, add to the end
+        this.comments.push(comment);
+      }
+    }
+  }
+
+  startEditPost() {
+    if (!this.topic) return;
+    this.isEditingPost = true;
+    this.editPostTitle = this.topic.title;
+    this.editPostContent = this.topic.content;
+  }
+
+  cancelEditPost() {
+    this.isEditingPost = false;
+    this.editPostTitle = '';
+    this.editPostContent = '';
+  }
+
+  async submitEditPost() {
+    if (!this.topic) return;
+    const title = this.editPostTitle.trim();
+    const content = this.editPostContent.trim();
+
+    if (!title || !content) {
+      await this.showToast('Please provide both title and content', 'warning');
+      return;
+    }
+
+    if (title === this.topic.title && content === this.topic.content) {
+      this.cancelEditPost();
+      return;
+    }
+
+    // Optimistic update
+    const originalTitle = this.topic.title;
+    const originalContent = this.topic.content;
+    this.topic.title = title;
+    this.topic.content = content;
+
+    this.forumThreadsService
+      .editPost(this.topicId(), title, content)
+      .pipe(
+        tap((response: any) => {
+          if (response && response.success) {
+            this.showToast('Post updated successfully!', 'success');
+          } else {
+            // Revert optimistic update on failure
+            this.topic!.title = originalTitle;
+            this.topic!.content = originalContent;
+            this.showToast(
+              'Failed to update post: ' +
+                (response?.message || 'Unknown error'),
+              'danger'
+            );
+          }
+        }),
+        catchError((error: any) => {
+          // Revert optimistic update on error
+          this.topic!.title = originalTitle;
+          this.topic!.content = originalContent;
+
+          if (error.status === 403) {
+            this.showToast(
+              'You do not have permission to edit this post',
+              'danger'
+            );
+          } else {
+            this.showToast(
+              'Failed to update post: ' +
+                (error.error?.message || error.message || 'Network error'),
+              'danger'
+            );
+          }
+          return of(null);
+        }),
+        finalize(() => {
+          this.cancelEditPost();
+        })
+      )
+      .subscribe();
+  }
+
+  async deletePost() {
+    if (!this.topic) return;
+
+    const alert = await this.alertController.create({
+      header: 'Delete Post',
+      message:
+        'Are you sure you want to delete this post? This action cannot be undone and will delete all comments as well.',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+        },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            this.confirmDeletePost();
+          },
+        },
+      ],
+    });
+
+    await alert.present();
+  }
+
+  private confirmDeletePost() {
+    if (!this.topic) return;
+
+    // Store original topic reference
+    const originalTopic = { ...this.topic };
+
+    // Optimistic update - navigate back immediately
+    this.navCtrl.back();
+
+    this.forumThreadsService.deletePostById(this.topicId()).subscribe({
+      next: (response: any) => {
+        if (response && response.ok) {
+          this.showToast('Post deleted successfully!', 'success');
+        } else {
+          this.showToast(
+            'Failed to delete post: ' + (response?.message || 'Unknown error'),
+            'danger'
+          );
+        }
+      },
+      error: (error: any) => {
+        if (error.status === 403) {
+          this.showToast(
+            'You do not have permission to delete this post',
+            'danger'
+          );
+        } else {
+          this.showToast(
+            'Failed to delete post: ' +
+              (error.error?.message || error.message || 'Network error'),
+            'danger'
+          );
+        }
+      },
+    });
   }
 }

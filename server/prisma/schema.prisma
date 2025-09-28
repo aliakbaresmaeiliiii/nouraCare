@@ -42,6 +42,8 @@ model user {
   posts                     Post[]          @relation("PostAuthor")
   createdChats              SecretChat[]    @relation("ChatCreatedBy")
   trackday                  trackday[]
+  followers                 Friendship[]    @relation("Follower")
+  following                 Friendship[]    @relation("Following")
 }
 
 model SecretChat {
@@ -182,24 +184,61 @@ model ForumPostLike {
 
 model Post {
   id          String        @id @default(uuid())
-  content     String?       @db.Text
-  chatId      String
+  title       String        @db.VarChar(255)
+  content     String        @db.Text
   authorId    Int
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   isAnonymous Boolean       @default(false)
   categoryId  String?
+  chatId      String?
   comments    Comment[]
   likes       PostLike[]
   media       PostMedia[]
+  tags        PostTag[]
   author      user          @relation("PostAuthor", fields: [authorId], references: [id])
   category    PostCategory? @relation(fields: [categoryId], references: [id])
-  chat        SecretChat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chat        SecretChat?   @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
   @@index([authorId], map: "posts_authorId_fkey")
   @@index([categoryId], map: "posts_categoryId_fkey")
   @@index([chatId], map: "posts_chatId_fkey")
   @@map("posts")
+}
+
+model PostTag {
+  id        String   @id @default(uuid())
+  postId    String
+  name      String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, name])
+  @@index([postId], map: "post_tags_postId_fkey")
+  @@map("post_tags")
+}
+
+model Friendship {
+  id          String     @id @default(uuid())
+  followerId  Int
+  followingId Int
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  follower    user       @relation("Follower", fields: [followerId], references: [id])
+  following   user       @relation("Following", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+  @@index([followerId], map: "friendships_followerId_fkey")
+  @@index([followingId], map: "friendships_followingId_fkey")
+  @@map("friendships")
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  BLOCKED
 }
 
 model PostMedia {

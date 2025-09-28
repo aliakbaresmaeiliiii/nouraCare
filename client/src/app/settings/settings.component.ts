@@ -207,7 +207,6 @@ export class SettingsComponent implements OnInit {
   }
 
   onSettingClick(setting: SettingItem) {
-    debugger
     if (setting.type === 'toggle') {
       if (setting.action) {
         setting.action();

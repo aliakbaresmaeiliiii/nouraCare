@@ -184,6 +184,116 @@
           color: #6c757d;
         }
       }
+      
+      // Post actions styling
+      .post-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        
+        .edit-post-btn, .delete-post-btn {
+          --padding-start: 8px;
+          --padding-end: 8px;
+          --background: transparent;
+          min-height: 32px;
+          
+          ion-icon {
+            font-size: 16px;
+          }
+          
+          .edit-post-text, .delete-post-text {
+            font-size: 12px;
+            margin-left: 4px;
+          }
+        }
+        
+        .edit-post-btn {
+          --color: #2196f3;
+          
+          ion-icon {
+            color: #2196f3;
+          }
+          
+          &:hover {
+            --color: #1976d2;
+            
+            ion-icon {
+              color: #1976d2;
+            }
+          }
+        }
+        
+        .delete-post-btn {
+          --color: #f44336;
+          
+          ion-icon {
+            color: #f44336;
+          }
+          
+          &:hover {
+            --color: #d32f2f;
+            
+            ion-icon {
+              color: #d32f2f;
+            }
+          }
+        }
+      }
+    }
+
+    // Edit post container styling
+    .edit-post-container {
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      
+      .edit-post-title {
+        --background: white;
+        --padding-start: 12px;
+        --padding-end: 12px;
+        --border-radius: 8px;
+        margin-bottom: 12px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      
+      .edit-post-content {
+        --background: white;
+        --padding-start: 12px;
+        --padding-end: 12px;
+        --border-radius: 8px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      
+      .edit-post-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        
+        .cancel-edit-post-btn {
+          --color: #6c757d;
+          font-size: 14px;
+          min-height: 36px;
+        }
+        
+        .save-edit-post-btn {
+          --border-radius: 18px;
+          --padding-start: 16px;
+          --padding-end: 16px;
+          min-height: 36px;
+          --background: #2196f3;
+          --color: white;
+          
+          &[disabled] {
+            opacity: 0.5;
+          }
+        }
+      }
     }
   }
 }

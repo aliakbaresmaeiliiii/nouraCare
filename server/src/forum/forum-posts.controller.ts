@@ -7,8 +7,6 @@ import {
   Param,
   Delete,
   Put,
-  HttpCode,
-  HttpStatus,
   Query,
   Req,
 } from '@nestjs/common';
@@ -32,11 +30,17 @@ export class ForumPostsController {
       createForumPostDto,
       authorId,
     );
+    
+    let message = 'Forum post created successfully';
+    if (createForumPostDto.parentId) {
+      message = 'Reply created successfully';
+    } else if (createForumPostDto.categoryId && !createForumPostDto.threadId) {
+      message = 'Thread and post created successfully';
+    }
+
     return {
       success: true,
-      message: createForumPostDto.parentId
-        ? 'Reply created successfully'
-        : 'Forum post created successfully',
+      message,
       data: post,
     };
   }
@@ -90,13 +94,13 @@ export class ForumPostsController {
     @Body() updateForumPostDto: UpdateForumPostDto,
     @Req() req: any,
   ) {
-    // In a real implementation, you would get the user ID from the authenticated request
-    const userId = req.user?.id || 1; // Default to user ID 1 for testing
+    // In a real implementation, you would get the user from the authenticated request
+    const currentUser = req.user || { id: 1, role: 'USER' }; // Default for testing
 
     const post = await this.forumPostsService.update(
       id,
       updateForumPostDto,
-      userId,
+      currentUser,
     );
     return {
       success: true,
@@ -106,12 +110,11 @@ export class ForumPostsController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id') id: string, @Req() req: any) {
-    // In a real implementation, you would get the user ID from the authenticated request
-    const userId = req.user?.id || 1; // Default to user ID 1 for testing
+    // In a real implementation, you would get the user from the authenticated request
+    const currentUser = req.user || { id: 1, role: 'USER' }; // Default for testing
 
-    await this.forumPostsService.remove(id, userId);
+    await this.forumPostsService.remove(id, currentUser);
     return {
       success: true,
       message: 'Forum post deleted successfully',
@@ -156,7 +159,6 @@ export class ForumPostsController {
   }
 
   @Delete('comments/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
   async deleteComment(@Param('id') id: string, @Req() req: any) {
     // In a real implementation, you would get the user from the authenticated request
     const currentUser = req.user || { id: 1, role: 'USER' }; // Default for testing

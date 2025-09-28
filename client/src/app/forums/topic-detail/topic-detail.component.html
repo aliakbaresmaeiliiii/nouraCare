@@ -58,6 +58,37 @@
       </div>
       
       <div class="topic-body">
+        <!-- Edit Post Input (only show when editing) -->
+        @if (isEditingPost) {
+        <div class="edit-post-container">
+          <ion-input 
+            [(ngModel)]="editPostTitle"
+            placeholder="Post title..."
+            class="edit-post-title">
+          </ion-input>
+          <ion-textarea 
+            [(ngModel)]="editPostContent"
+            placeholder="Edit your post content..."
+            class="edit-post-content"
+            rows="6"
+            autoGrow="true">
+          </ion-textarea>
+          <div class="edit-post-buttons">
+            <ion-button 
+              fill="clear" 
+              class="cancel-edit-post-btn"
+              (click)="cancelEditPost()">
+              Cancel
+            </ion-button>
+            <ion-button 
+              [disabled]="!editPostTitle.trim() || !editPostContent.trim()"
+              class="save-edit-post-btn"
+              (click)="submitEditPost()">
+              Save
+            </ion-button>
+          </div>
+        </div>
+        } @else {
         <h1 class="topic-title">{{ topic.title }}</h1>
         <p class="topic-content-text">{{ topic.content }}</p>
         
@@ -78,7 +109,20 @@
             <ion-icon name="eye-outline" class="stat-icon"></ion-icon>
             <span class="stat-text">{{ topic.views }} views</span>
           </div>
+          
+          <!-- Edit/Delete buttons for post (only show if user has permission) -->
+          <div class="post-actions">
+            <ion-button fill="clear" class="edit-post-btn" (click)="startEditPost()">
+              <ion-icon name="create-outline"></ion-icon>
+              <span class="edit-post-text">Edit</span>
+            </ion-button>
+            <ion-button fill="clear" class="delete-post-btn" (click)="deletePost()">
+              <ion-icon name="trash-outline"></ion-icon>
+              <span class="delete-post-text">Delete</span>
+            </ion-button>
+          </div>
         </div>
+        }
       </div>
     </div>
 
@@ -131,7 +175,7 @@
                   Cancel
                 </ion-button>
                 <ion-button 
-                  [disabled]="!editTexts[comment.id]?.trim()"
+                  [disabled]="!editTexts[comment.id].trim()"
                   class="save-edit-btn"
                   (click)="submitEdit(comment)">
                   Save

@@ -469,18 +469,26 @@ export class SecretChatsService {
 
     const post = await this.prismaService.post.create({
       data: {
+        title: createPostDto.title,
         content: createPostDto.content,
         chatId: createPostDto.chatId,
         authorId: userId,
         categoryId: createPostDto.categoryId,
         isAnonymous: createPostDto.isAnonymous || false,
-        media: createPostDto.media[0]
+        media: createPostDto.media && createPostDto.media.length > 0
           ? {
               create: createPostDto.media.map((media, index) => ({
                 url: media.url,
                 type: media.type,
                 caption: media.caption,
                 order: index,
+              })),
+            }
+          : undefined,
+        tags: createPostDto.tags && createPostDto.tags.length > 0
+          ? {
+              create: createPostDto.tags.map(tag => ({
+                name: tag,
               })),
             }
           : undefined,
@@ -503,6 +511,12 @@ export class SecretChatsService {
         },
         media: {
           orderBy: { order: 'asc' },
+        },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
         _count: {
           select: {
@@ -562,6 +576,12 @@ export class SecretChatsService {
         },
         media: {
           orderBy: { order: 'asc' },
+        },
+        tags: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
         comments: {
           take: 3,

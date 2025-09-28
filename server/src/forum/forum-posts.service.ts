@@ -12,9 +12,44 @@ export class ForumPostsService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createForumPostDto: CreateForumPostDto, authorId: number) {
+    let threadId = createForumPostDto.threadId;
+
+    // If categoryId is provided but threadId is not, create a new thread
+    if (createForumPostDto.categoryId && !threadId) {
+      if (!createForumPostDto.title) {
+        throw new NotFoundException('Title is required when creating a new thread');
+      }
+
+      // Find a forum in the specified category
+      const forum = await this.prismaService.forum.findFirst({
+        where: { categoryId: createForumPostDto.categoryId },
+      });
+
+      if (!forum) {
+        throw new NotFoundException('No forum found for the specified category');
+      }
+
+      // Create a new thread - use the title and content for the thread
+      const newThread = await this.prismaService.forumThread.create({
+        data: {
+          title: createForumPostDto.title,
+          content: createForumPostDto.content, // Thread content is the post content
+          forumId: forum.id,
+          authorId,
+        },
+      });
+
+      threadId = newThread.id;
+    }
+
+    // If threadId is still not set, throw error
+    if (!threadId) {
+      throw new NotFoundException('Either threadId or categoryId with title is required');
+    }
+
     // Check if thread exists
     const thread = await this.prismaService.forumThread.findUnique({
-      where: { id: createForumPostDto.threadId },
+      where: { id: threadId },
     });
 
     if (!thread) {
@@ -37,7 +72,7 @@ export class ForumPostsService {
       }
 
       // Ensure parent post belongs to the same thread
-      if (parentPost.threadId !== createForumPostDto.threadId) {
+      if (parentPost.threadId !== threadId) {
         throw new ForbiddenException(
           'Parent post does not belong to the same thread',
         );
@@ -47,7 +82,7 @@ export class ForumPostsService {
     return this.prismaService.forumPost.create({
       data: {
         content: createForumPostDto.content,
-        threadId: createForumPostDto.threadId,
+        threadId,
         authorId,
         parentId: createForumPostDto.parentId,
         isDeleted: false,
@@ -264,7 +299,7 @@ export class ForumPostsService {
   async update(
     id: string,
     updateForumPostDto: UpdateForumPostDto,
-    userId: number,
+    currentUser: any,
   ) {
     const post = await this.prismaService.forumPost.findUnique({
       where: { id },
@@ -274,14 +309,20 @@ export class ForumPostsService {
       throw new NotFoundException('Forum post not found');
     }
 
-    // Check if user is the author
-    if (post.authorId !== userId) {
+    // Check if the current user is the post author OR an admin
+    const isOwner = post.authorId === currentUser.id;
+    const isAdmin = currentUser.role === 'ADMIN';
+
+    if (!isOwner && !isAdmin) {
       throw new ForbiddenException('You can only update your own posts');
     }
 
     return this.prismaService.forumPost.update({
       where: { id },
-      data: updateForumPostDto,
+      data: {
+        ...updateForumPostDto,
+        updatedAt: new Date(),
+      },
       include: {
         author: {
           select: {
@@ -328,7 +369,7 @@ export class ForumPostsService {
     });
   }
 
-  async remove(id: string, userId: number) {
+  async remove(id: string, currentUser: any) {
     const post = await this.prismaService.forumPost.findUnique({
       where: { id },
     });
@@ -337,8 +378,11 @@ export class ForumPostsService {
       throw new NotFoundException('Forum post not found');
     }
 
-    // Check if user is the author
-    if (post.authorId !== userId) {
+    // Check if the current user is the post author OR an admin
+    const isOwner = post.authorId === currentUser.id;
+    const isAdmin = currentUser.role === 'ADMIN';
+
+    if (!isOwner && !isAdmin) {
       throw new ForbiddenException('You can only delete your own posts');
     }
 

@@ -4,14 +4,17 @@ import {
   IsBoolean,
   IsArray,
   ValidateNested,
+  IsNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreatePostMediaDto {
   @IsString()
+  @IsNotEmpty()
   url: string;
 
   @IsString()
+  @IsNotEmpty()
   type: 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT';
 
   @IsOptional()
@@ -21,15 +24,12 @@ export class CreatePostMediaDto {
 
 export class CreatePostDto {
   @IsString()
-  @IsOptional()
-  title?: string;
+  @IsNotEmpty()
+  title: string;
 
   @IsString()
-  @IsOptional()
-  content?: string;
-
-  @IsString()
-  chatId: string;
+  @IsNotEmpty()
+  content: string;
 
   @IsOptional()
   @IsString()

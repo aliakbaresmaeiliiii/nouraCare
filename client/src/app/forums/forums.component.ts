@@ -248,8 +248,7 @@ export class ForumsComponent implements OnInit {
   }
 
   createNewTopic() {
-    // TODO: Navigate to create topic page
-    console.log('Create new topic');
+    this.router.navigate(['/forums/create-post']);
   }
 
   get filteredCategories(): ForumCategory[] {
