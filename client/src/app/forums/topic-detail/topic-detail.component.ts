@@ -117,7 +117,7 @@ export class TopicDetailComponent implements OnInit {
   editPostTitle = '';
   editPostContent = '';
   topicId = signal<string | null>(null);
-
+  storeData = signal<any | null>(null);
   // Computed properties for better performance
   get canEditOrDeletePost(): boolean {
     if (!this.topic) return false;
@@ -167,6 +167,7 @@ export class TopicDetailComponent implements OnInit {
             createdAt: thread.createdAt,
             posts: thread.posts || [],
           };
+          this.storeData.set(response.data);
 
           // Load comments from the thread response
           this.comments = thread.posts || [];
@@ -184,9 +185,9 @@ export class TopicDetailComponent implements OnInit {
     });
   }
 
-  async submitComment() {
+   submitComment() {
     if (!this.newComment.trim()) {
-      await this.showToast('Please write a comment', 'warning');
+       this.showToast('Please write a comment', 'warning');
       return;
     }
 
@@ -196,10 +197,13 @@ export class TopicDetailComponent implements OnInit {
     }
 
     this.isSubmittingComment = true;
+    const threadId = this.storeData().id;
+
+  
 
     const postData: CreatePostDto = {
       content: this.newComment.trim(),
-      threadId: this.topic.id.toString(),
+      threadId: threadId,
       parentId: null,
     };
 
