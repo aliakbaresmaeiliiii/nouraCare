@@ -7,7 +7,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { SharedModule } from '../shared/shared-module';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ForumService } from '../shared/services/forum.service';
 import {
   Subject,
@@ -56,6 +56,7 @@ interface ForumTopic {
 })
 export class ForumsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private forumsService = inject(ForumService);
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
@@ -116,6 +117,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.fetchDataCategories();
     this.loadTopics();
+    this.handleQueryParams();
   }
 
   ngOnDestroy() {
@@ -130,6 +132,26 @@ export class ForumsComponent implements OnInit, OnDestroy {
       .subscribe((query) => {
         this.searchQuery.set(query);
       });
+  }
+
+  private handleQueryParams() {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const categoryId = params['category'];
+      const view = params['view'];
+      
+      if (categoryId && categoryId !== 'all') {
+        // Set the selected category
+        this.selectedCategory.set(categoryId);
+        
+        // Switch to topics view if specified
+        if (view === 'topics') {
+          this.viewMode.set('topics');
+        }
+        
+        // Load topics for the selected category
+        this.loadTopicsByCategory(categoryId);
+      }
+    });
   }
 
   fetchDataCategories() {

@@ -44,6 +44,7 @@ interface CreatePostForm {
 export class CreatePostComponent implements OnInit {
   // Dependency injection
   private navCtrl = inject(NavController);
+  private router = inject(Router);
   private forumService = inject(ForumService);
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
@@ -241,9 +242,9 @@ export class CreatePostComponent implements OnInit {
       .subscribe((response: any) => {
         if (response && response.success) {
           this.showToast('Post created successfully!', 'success');
-          // Navigate back to forums or to the new post
+          // Navigate back to forums with the selected category
           setTimeout(() => {
-            this.navCtrl.back();
+            this.navigateBackToForumsWithCategory();
           }, 1500);
         } else {
           this.showToast(
@@ -334,6 +335,20 @@ export class CreatePostComponent implements OnInit {
 
   goBack() {
     this.navCtrl.back();
+  }
+
+  private navigateBackToForumsWithCategory() {
+    const selectedCategoryId = this.postForm.get('categoryId')?.value;
+    if (selectedCategoryId) {
+      // Navigate to forums with query parameters to select the category
+      this.router.navigate(['/forums'], {
+        queryParams: { category: selectedCategoryId, view: 'topics' },
+        replaceUrl: true
+      });
+    } else {
+      // Fallback to regular back navigation
+      this.navCtrl.back();
+    }
   }
 
   clearForm() {
