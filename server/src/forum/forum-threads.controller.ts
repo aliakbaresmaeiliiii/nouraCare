@@ -39,11 +39,13 @@ export class ForumThreadsController {
   @Get()
   async findAll(
     @Query('forumId') forumId?: string,
+    @Query('category') category?: string,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '20',
   ) {
     const result = await this.forumThreadsService.findAll(
       forumId,
+      category,
       parseInt(page),
       parseInt(limit),
     );

@@ -8,15 +8,16 @@ import {
   AlertController,
 } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import {
-  ForumThreadsService,
-  CreatePostDto,
-  CreateForumThreadDto,
-  ThreadDetailResponse,
-} from '../../shared/services/forum-threads.service';
+
 import { Share } from '@capacitor/share';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
+import {
+  CreateForumThreadDto,
+  CreatePostDto,
+  ForumService,
+  ThreadDetailResponse,
+} from 'src/app/shared/services/forum.service';
 
 // Strongly typed interfaces
 interface ForumTopic {
@@ -97,7 +98,7 @@ export class TopicDetailComponent implements OnInit {
   // Dependency injection
   private route = inject(ActivatedRoute);
   private navCtrl = inject(NavController);
-  private forumThreadsService = inject(ForumThreadsService);
+  private forumService = inject(ForumService);
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
 
@@ -146,7 +147,7 @@ export class TopicDetailComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.forumThreadsService.getThreadById(threadId).subscribe({
+    this.forumService.getThreadById(threadId).subscribe({
       next: (response: ThreadDetailResponse) => {
         if (response && response.success) {
           const thread = response.data;
@@ -185,9 +186,9 @@ export class TopicDetailComponent implements OnInit {
     });
   }
 
-   submitComment() {
+  submitComment() {
     if (!this.newComment.trim()) {
-       this.showToast('Please write a comment', 'warning');
+      this.showToast('Please write a comment', 'warning');
       return;
     }
 
@@ -199,15 +200,13 @@ export class TopicDetailComponent implements OnInit {
     this.isSubmittingComment = true;
     const threadId = this.storeData().id;
 
-  
-
     const postData: CreatePostDto = {
       content: this.newComment.trim(),
       threadId: threadId,
       parentId: null,
     };
 
-    this.forumThreadsService
+    this.forumService
       .createPost(postData)
       .pipe(
         tap((response: any) => {
@@ -239,7 +238,7 @@ export class TopicDetailComponent implements OnInit {
   }
 
   async likeComment(commentId: string) {
-    this.forumThreadsService
+    this.forumService
       .likePost(commentId)
       .pipe(
         tap((response: any) => {
@@ -298,11 +297,13 @@ export class TopicDetailComponent implements OnInit {
     }
 
     this.isSubmittingReply = true;
-    debugger;
-    
+
     // Add null checks for posts array
     if (!this.topic?.posts || this.topic.posts.length === 0) {
-      this.showToast('Unable to submit reply: topic data is incomplete', 'danger');
+      this.showToast(
+        'Unable to submit reply: topic data is incomplete',
+        'danger'
+      );
       this.isSubmittingReply = false;
       return;
     }
@@ -314,7 +315,7 @@ export class TopicDetailComponent implements OnInit {
       forumId: forumId,
     };
 
-    this.forumThreadsService
+    this.forumService
       .replyToComment(payload)
       .pipe(
         tap((response: any) => {
@@ -358,7 +359,7 @@ export class TopicDetailComponent implements OnInit {
   createForumThread(createForumThreadDto: CreateForumThreadDto) {
     this.isSubmittingReply = true;
 
-    this.forumThreadsService
+    this.forumService
       .createForumThread(createForumThreadDto)
       .pipe(
         tap((response: any) => {
@@ -496,7 +497,7 @@ export class TopicDetailComponent implements OnInit {
     comment.content = editText;
     comment.updatedAt = new Date().toISOString();
 
-    this.forumThreadsService
+    this.forumService
       .editComment(comment.id, editText)
       .pipe(
         tap((response: any) => {
@@ -591,7 +592,7 @@ export class TopicDetailComponent implements OnInit {
       });
     }
 
-    this.forumThreadsService
+    this.forumService
       .deleteComment(comment.id)
       .pipe(
         tap((response: any) => {
@@ -685,7 +686,7 @@ export class TopicDetailComponent implements OnInit {
     this.topic.title = title;
     this.topic.content = content;
 
-    this.forumThreadsService
+    this.forumService
       .editPost(this.topicId(), title, content)
       .pipe(
         tap((response: any) => {
@@ -763,7 +764,7 @@ export class TopicDetailComponent implements OnInit {
     // Optimistic update - navigate back immediately
     this.navCtrl.back();
 
-    this.forumThreadsService.deletePostById(this.topicId()).subscribe({
+    this.forumService.deletePostById(this.topicId()).subscribe({
       next: (response: any) => {
         if (response && response.ok) {
           this.showToast('Post deleted successfully!', 'success');

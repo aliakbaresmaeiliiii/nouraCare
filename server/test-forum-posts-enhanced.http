@@ -27,3 +27,7 @@ Content-Type: application/json
   "threadId": "aa2a045b-fbd3-4f2c-91fa-62bd60d4b6a2",
   "content": "This is a new post in the morning sickness thread"
 }
+
+### Test 4: Get threads by category (Use existing forum-threads endpoint)
+GET http://localhost:3000/api/v1/forum-threads/category/b4811e0c-adc1-49f2-8115-826721b5f72c
+Content-Type: application/json

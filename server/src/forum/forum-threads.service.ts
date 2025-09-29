@@ -58,10 +58,20 @@ export class ForumThreadsService {
     });
   }
 
-  async findAll(forumId?: string, page: number = 1, limit: number = 20) {
+  async findAll(forumId?: string, category?: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
-    const where = forumId ? { forumId } : {};
+    const where: any = {};
+
+    if (forumId) {
+      where.forumId = forumId;
+    }
+
+    if (category) {
+      where.forum = {
+        categoryId: category,
+      };
+    }
 
     const [threads, total] = await Promise.all([
       this.prismaService.forumThread.findMany({

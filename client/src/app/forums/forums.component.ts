@@ -1,8 +1,23 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  OnDestroy,
+} from '@angular/core';
 import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
 import { ForumService } from '../shared/services/forum.service';
-import { ForumThreadsService } from '../shared/services/forum-threads.service';
+import {
+  Subject,
+  debounceTime,
+  distinctUntilChanged,
+  takeUntil,
+  switchMap,
+  catchError,
+  of,
+} from 'rxjs';
 
 interface ForumCategory {
   id: string;
@@ -39,34 +54,91 @@ interface ForumTopic {
   standalone: true,
   imports: [SharedModule],
 })
-export class ForumsComponent implements OnInit {
+export class ForumsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private forumsService = inject(ForumService);
-  private forumThreadsService = inject(ForumThreadsService);
+  private destroy$ = new Subject<void>();
+  private searchSubject = new Subject<string>();
 
-  categories = signal<ForumCategory[]>([]) || [];
+  // Advanced state management with signals
+  categories = signal<ForumCategory[]>([]);
+  topics = signal<ForumTopic[]>([]);
+  isLoading = signal(false);
+  errorMessage = signal('');
+  searchQuery = signal('');
+  selectedCategory = signal('all');
+  viewMode = signal<'categories' | 'topics'>('categories');
 
-  topics: ForumTopic[] = [];
-  isLoading = false;
-  errorMessage = '';
-  searchQuery = '';
-  selectedCategory = 'all';
-  viewMode: 'categories' | 'topics' = 'categories';
+  // Cache for category-specific topics
+  private topicsCache = new Map<string, ForumTopic[]>();
 
-  constructor() {}
+  // Computed properties for reactive filtering
+  filteredCategories = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const categories = this.categories();
+    if (!query) return categories;
 
-  ngOnInit() {
-    this.loadCategories();
-    this.loadTopics();
-    this.fetchCategories();
+    return categories.filter(
+      (category) =>
+        category.name.toLowerCase().includes(query) ||
+        category.description.toLowerCase().includes(query)
+    );
+  });
+
+  filteredTopics = computed(() => {
+    const topics = this.topics();
+    const query = this.searchQuery().toLowerCase().trim();
+
+    if (!query) return topics;
+
+    return topics.filter(
+      (topic) =>
+        topic.title.toLowerCase().includes(query) ||
+        topic.content.toLowerCase().includes(query) ||
+        topic.author.toLowerCase().includes(query) ||
+        topic.tags.some((tag) => tag.toLowerCase().includes(query))
+    );
+  });
+
+  selectedCategoryName = computed(() => {
+    const selectedId = this.selectedCategory();
+    if (selectedId === 'all') return 'All Topics';
+
+    const category = this.categories().find((c) => c.id === selectedId);
+    return category?.name || selectedId;
+  });
+
+  constructor() {
+    // Setup debounced search
+    this.setupSearchDebounce();
   }
 
-  fetchCategories() {
+  ngOnInit() {
+    this.fetchDataCategories();
+    this.loadTopics();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.searchSubject.complete();
+  }
+
+  private setupSearchDebounce() {
+    this.searchSubject
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((query) => {
+        this.searchQuery.set(query);
+      });
+  }
+
+  fetchDataCategories() {
+    this.isLoading.set(true);
     this.forumsService.getCategories().subscribe({
       next: (response: any) => {
         console.log('Categories response:', response);
         if (response && response.success) {
-          this.isLoading = false;
+          this.isLoading.set(false);
           // Map the backend data to our frontend interface
           const categories = response.data.map((category: any) => ({
             id: category.id,
@@ -75,30 +147,48 @@ export class ForumsComponent implements OnInit {
             icon: category.icon,
             color: category.color,
             topicsCount: category.forums?.length || 0,
+            forum: category.forums?.[0] || null,
             postsCount: 0, // This would need to be calculated from forums data
             lastActivity: category.updatedAt,
-            isPopular: false // You can set this based on some criteria
+            isPopular: false, // You can set this based on some criteria
           }));
+          // Update both service store and component signal
+          this.forumsService.setStoreDataCategory(categories);
           this.categories.set(categories);
         }
       },
       error: (error: any) => {
         console.error('Error loading categories:', error);
-        this.isLoading = false;
+        this.isLoading.set(false);
+        this.errorMessage.set('Failed to load categories');
       },
     });
   }
+
   loadCategories() {
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    const storeData = this.forumsService.getStoreDataCategory();
+    // this.categories.set(storeData());
   }
 
   loadTopics() {
-    this.forumThreadsService.getAllThreads().subscribe({
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    // Check cache first
+    const cachedTopics = this.topicsCache.get('all');
+    if (cachedTopics) {
+      this.topics.set(cachedTopics);
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.forumsService.getAllThreads().subscribe({
       next: (response: any) => {
         console.log('Forum threads response:', response);
         if (response && response.success) {
-          this.isLoading = false;
+          this.isLoading.set(false);
           // Map the backend data to our frontend interface
           const threads = response.data.threads.map((thread: any) => ({
             id: thread.id,
@@ -113,78 +203,29 @@ export class ForumsComponent implements OnInit {
             isPinned: thread.isPinned || false,
             isLocked: thread.isLocked || false,
             tags: thread.tags || [],
-            createdAt: thread.createdAt
+            createdAt: thread.createdAt,
           }));
-          this.topics = threads;
+          this.topics.set(threads);
+          this.topicsCache.set('all', threads);
         }
       },
       error: (error: any) => {
         console.error('Error loading topics:', error);
-        this.isLoading = false;
+        this.isLoading.set(false);
+        this.errorMessage.set('Failed to load topics');
       },
     });
-    // Mock data for now
-    // this.topics = [
-    //   {
-    //     id: 1,
-    //     title: 'Best natural remedies for period cramps',
-    //     content:
-    //       "I've been experiencing severe cramps lately and looking for natural remedies...",
-    //     author: 'Sarah Johnson',
-    //     authorAvatar: 'assets/images/nurse.png',
-    //     category: 'General Discussion',
-    //     replies: 23,
-    //     views: 156,
-    //     lastReply: '2025-09-21T10:30:00Z',
-    //     isPinned: true,
-    //     isLocked: false,
-    //     tags: ['period', 'cramps', 'natural-remedies'],
-    //     createdAt: '2025-09-22',
-    //   },
-    //   {
-    //     id: 2,
-    //     title: 'Pregnancy nutrition guide - what to eat and avoid',
-    //     content:
-    //       "I'm in my first trimester and want to make sure I'm eating right...",
-    //     author: 'Emily Chen',
-    //     authorAvatar: 'assets/images/nurse.png',
-    //     category: 'Pregnancy & Fertility',
-    //     replies: 45,
-    //     views: 289,
-    //     lastReply: '2025-09-22T14:20:00Z',
-    //     isPinned: false,
-    //     isLocked: false,
-    //     tags: ['pregnancy', 'nutrition', 'first-trimester'],
-    //      createdAt: '2025-09-22',
-
-    //   },
-    //   {
-    //     id: 3,
-    //     title: 'Dealing with anxiety during pregnancy',
-    //     content:
-    //       "I've been feeling very anxious lately and it's affecting my sleep...",
-    //     author: 'Maria Rodriguez',
-    //     authorAvatar: 'assets/images/nurse.png',
-    //     category: 'Mental Health',
-    //     replies: 18,
-    //     views: 134,
-    //     lastReply: '2024-01-14T18:45:00Z',
-    //     isPinned: false,
-    //     isLocked: false,
-    //     tags: ['anxiety', 'pregnancy', 'mental-health'],
-    //     createdAt: '2024-01-13T11:30:00Z',
-    //   },
-    // ];
   }
 
   onSearchChange(event: any) {
-    this.searchQuery = event.detail.value || '';
+    const query = event.detail.value || '';
+    this.searchSubject.next(query);
   }
 
   onCategoryChange(category: string | number) {
     const categoryId = category.toString();
-    this.selectedCategory = categoryId;
-    
+    this.selectedCategory.set(categoryId);
+
     if (categoryId === 'all') {
       this.loadTopics();
     } else {
@@ -193,29 +234,38 @@ export class ForumsComponent implements OnInit {
   }
 
   switchViewMode(mode: string | number) {
-    this.viewMode = mode.toString() as 'categories' | 'topics';
-    if (this.viewMode === 'topics') {
-      if (this.selectedCategory === 'all') {
+    this.viewMode.set(mode.toString() as 'categories' | 'topics');
+    if (this.viewMode() === 'topics') {
+      if (this.selectedCategory() === 'all') {
         this.loadTopics();
       } else {
-        this.loadTopicsByCategory(this.selectedCategory);
+        this.loadTopicsByCategory(this.selectedCategory());
       }
     }
   }
 
   openCategory(category: ForumCategory) {
-    this.selectedCategory = category.id;
-    this.viewMode = 'topics';
+    this.selectedCategory.set(category.id);
+    this.viewMode.set('topics');
     this.loadTopicsByCategory(category.id);
   }
 
   loadTopicsByCategory(categoryId: string) {
-    this.isLoading = true;
-    this.forumThreadsService.getThreadsByCategory(categoryId).subscribe({
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+
+    // Check cache first
+    const cachedTopics = this.topicsCache.get(categoryId);
+    if (cachedTopics) {
+      this.topics.set(cachedTopics);
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.forumsService.getThreadsByCategory(categoryId).subscribe({
       next: (response: any) => {
-        console.log('Category threads response:', response);
         if (response && response.success) {
-          this.isLoading = false;
+          this.isLoading.set(false);
           // Map the backend data to our frontend interface
           const threads = response.data.threads.map((thread: any) => ({
             id: thread.id,
@@ -230,14 +280,16 @@ export class ForumsComponent implements OnInit {
             isPinned: thread.isPinned || false,
             isLocked: thread.isLocked || false,
             tags: thread.tags || [],
-            createdAt: thread.createdAt
+            createdAt: thread.createdAt,
           }));
-          this.topics = threads;
+          this.topics.set(threads);
+          this.topicsCache.set(categoryId, threads);
         }
       },
       error: (error: any) => {
         console.error('Error loading category topics:', error);
-        this.isLoading = false;
+        this.isLoading.set(false);
+        this.errorMessage.set('Failed to load topics for this category');
       },
     });
   }
@@ -249,45 +301,6 @@ export class ForumsComponent implements OnInit {
 
   createNewTopic() {
     this.router.navigate(['/forums/create-post']);
-  }
-
-  get filteredCategories(): ForumCategory[] {
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase();
-      return this.categories().filter(
-        (category) =>
-          category.name.toLowerCase().includes(query) ||
-          category.description.toLowerCase().includes(query)
-      );
-    }
-    return this.categories();
-  }
-
-  get filteredTopics(): ForumTopic[] {
-    let topics = this.topics;
-
-    // Filter by category (when category is selected by ID)
-    if (this.selectedCategory !== 'all') {
-      // Since we're now using category ID for selection, we need to handle this differently
-      // For now, we'll just return all topics when a specific category is selected
-      // as the backend should already be filtering by category
-      return topics;
-    }
-
-    // Filter by search query
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase();
-      topics = topics.filter(
-        (topic) =>
-          topic.title.toLowerCase().includes(query) ||
-          topic.content.toLowerCase().includes(query) ||
-          topic.author.toLowerCase().includes(query) ||
-          topic.tags.some((tag) => tag.toLowerCase().includes(query))
-      );
-    }
-    
-
-    return topics;
   }
 
   formatRelativeTime(dateString: string): string {
@@ -357,16 +370,19 @@ export class ForumsComponent implements OnInit {
   }
 
   clearFilters(): void {
-    this.selectedCategory = 'all';
-    this.searchQuery = '';
+    this.selectedCategory.set('all');
+    this.searchQuery.set('');
+    this.loadTopics();
   }
 
-  getSelectedCategoryName(): string {
-    if (this.selectedCategory === 'all') {
-      return 'All Topics';
+  refreshData(): void {
+    // Clear cache and reload
+    this.topicsCache.clear();
+    if (this.selectedCategory() === 'all') {
+      this.loadTopics();
+    } else {
+      this.loadTopicsByCategory(this.selectedCategory());
     }
-    const category = this.categories().find(c => c.id === this.selectedCategory);
-    return category?.name || this.selectedCategory;
   }
 
   private showSuccessAlert(message: string): void {

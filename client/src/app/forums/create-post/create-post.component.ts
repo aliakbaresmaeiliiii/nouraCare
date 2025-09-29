@@ -17,7 +17,6 @@ import {
 } from '@ionic/angular';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-import { ForumThreadsService } from '../../shared/services/forum-threads.service';
 import { ForumService } from '../../shared/services/forum.service';
 
 interface ForumCategory {
@@ -45,7 +44,6 @@ interface CreatePostForm {
 export class CreatePostComponent implements OnInit {
   // Dependency injection
   private navCtrl = inject(NavController);
-  private forumThreadsService = inject(ForumThreadsService);
   private forumService = inject(ForumService);
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
@@ -224,7 +222,7 @@ export class CreatePostComponent implements OnInit {
       tags: this.selectedTags,
     };
 
-    this.forumThreadsService
+    this.forumService
       .createForumPost(postData as any)
       .pipe(
         catchError((error: any) => {

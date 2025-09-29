@@ -62,6 +62,7 @@ export class ForumPostsController {
     };
   }
 
+
   @Get('replies/:parentId')
   async findReplies(
     @Param('parentId') parentId: string,

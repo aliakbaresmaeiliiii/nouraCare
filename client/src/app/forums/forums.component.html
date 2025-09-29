@@ -25,7 +25,7 @@
     <div class="search-section">
       <ion-searchbar
         placeholder="Search forums..."
-        [(ngModel)]="searchQuery"
+        [value]="searchQuery()"
         (ionInput)="onSearchChange($event)"
         class="search-bar"
       >
@@ -35,7 +35,7 @@
     <!-- View Mode Toggle -->
     <div class="view-toggle-section">
       <ion-segment
-        [(ngModel)]="viewMode"
+        [value]="viewMode()"
         (ionChange)="switchViewMode($event.detail.value || 'categories')"
         class="view-segment"
       >
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Category Filter (for topics view) -->
-    @if (viewMode === 'topics') {
+    @if (viewMode() === 'topics') {
     <div class="category-filter-section">
       <div class="filter-header">
         <h3 class="filter-title">Filter by Category</h3>
@@ -70,7 +70,7 @@
       <div class="category-filters">
         <div
           class="filter-chip"
-          [class.active]="selectedCategory === 'all'"
+          [class.active]="selectedCategory() === 'all'"
           (click)="onCategoryChange('all')"
         >
           <ion-icon name="grid-outline" class="chip-icon"></ion-icon>
@@ -80,7 +80,7 @@
         @for (category of categories(); track category.id) {
         <div
           class="filter-chip"
-          [class.active]="selectedCategory === category.id"
+          [class.active]="selectedCategory() === category.id"
           (click)="onCategoryChange(category.id)"
         >
           <div
@@ -103,7 +103,7 @@
     }
 
     <!-- Loading State -->
-    @if (isLoading) {
+    @if (isLoading()) {
     <div class="loading-container">
       <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
       <p class="loading-text">Loading forums...</p>
@@ -111,10 +111,10 @@
     }
 
     <!-- Error State -->
-    @if (errorMessage && !isLoading) {
+    @if (errorMessage() && !isLoading()) {
     <div class="error-container">
       <ion-icon name="alert-circle" class="error-icon"></ion-icon>
-      <p class="error-text">{{ errorMessage }}</p>
+      <p class="error-text">{{ errorMessage() }}</p>
       <ion-button
         fill="outline"
         (click)="loadCategories()"
@@ -127,14 +127,14 @@
     }
 
     <!-- Categories View -->
-    @if (!isLoading && !errorMessage && viewMode === 'categories') {
+    @if (!isLoading() && !errorMessage() && viewMode() === 'categories') {
     <div class="categories-container">
       <div class="categories-header">
         <h2 class="categories-title">Forum Categories</h2>
       </div>
 
       <div class="categories-grid">
-        @for (category of filteredCategories; track category.id) {
+        @for (category of filteredCategories(); track category.id) {
         <div class="category-card" (click)="openCategory(category)">
           <div class="category-header">
             <div
@@ -190,27 +190,27 @@
     }
 
     <!-- Topics View -->
-    @if (!isLoading && !errorMessage && viewMode === 'topics') {
+    @if (!isLoading() && !errorMessage() && viewMode() === 'topics') {
     <div class="topics-container">
       <div class="topics-header">
         <h2 class="topics-title">
-          {{ getSelectedCategoryName() }}
+          {{ selectedCategoryName() }}
         </h2>
       </div>
 
       <!-- Empty State for Topics -->
-      @if (filteredTopics.length === 0) {
+      @if (filteredTopics().length === 0) {
       <div class="empty-container">
         <ion-icon name="chatbubbles-outline" class="empty-icon"></ion-icon>
         <h2 class="empty-title">No Topics Found</h2>
         <p class="empty-text">
           {{
-            searchQuery
+            searchQuery()
               ? "No topics match your search."
               : "No topics in this category yet."
           }}
         </p>
-        @if (!searchQuery) {
+        @if (!searchQuery()) {
         <ion-button
           fill="outline"
           (click)="createNewTopic()"
@@ -224,9 +224,9 @@
       }
 
       <!-- Topics List -->
-      @if (filteredTopics.length > 0) {
+      @if (filteredTopics().length > 0) {
       <ion-list class="topics-list">
-        @for (topic of filteredTopics; track topic.id) {
+        @for (topic of filteredTopics(); track topic.id) {
         <ion-item class="topic-item" (click)="openTopic(topic)">
           <div class="topic-content">
             <div class="topic-header">
