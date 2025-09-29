@@ -3,7 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { ThreadsResponse } from './forum-threads.service';
 import { map, catchError } from 'rxjs/operators';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 import {
   EditPostResponse,
   DeletePostResponse,
@@ -114,6 +114,12 @@ export class ForumService {
   http = inject(HttpClient);
   private baseUrl = environment.apiEndPoint + 'forum-categories';
 
+  // Event emitter for post deletion
+  private postDeletedSubject = new Subject<string>();
+  postDeleted$ = this.postDeletedSubject.asObservable();
+
+  postCreated = signal<boolean>(false);
+  
   storeDataCategory = signal<any[]>([]);
 
   setStoreDataCategory(data: any[]) {
@@ -137,18 +143,15 @@ export class ForumService {
     );
   }
 
-
-
   getThreadsByCategory(
-  categoryId: string,
-  page: number = 1,
-  limit: number = 20
-) {
-  return this.http.get<ThreadsResponse>(
-    `${this.forumThreadsBaseUrl}/category/${categoryId}?page=${page}&limit=${limit}`
-  );
-}
-
+    categoryId: string,
+    page: number = 1,
+    limit: number = 20
+  ) {
+    return this.http.get<ThreadsResponse>(
+      `${this.forumThreadsBaseUrl}/category/${categoryId}?page=${page}&limit=${limit}`
+    );
+  }
 
   getThreadById(threadId: string | null) {
     return this.http.get<ThreadDetailResponse>(
@@ -257,29 +260,19 @@ export class ForumService {
   }
 
   deletePostById(postId: string | null) {
-    return this.http
-      .delete(`${this.forumThreadsBaseUrl}/${postId}`, { observe: 'response' })
-      .pipe(
-        map((response) => {
-          // Handle 204 No Content response (standard for DELETE operations)
-          if (response.status === 204) {
-            return { success: true, message: 'Post deleted successfully' };
-          }
-          // For other status codes, try to parse the response body
-          return (
-            response.body || {
-              success: true,
-              message: 'Post deleted successfully',
-            }
-          );
-        }),
-        catchError((error) => {
-          // Handle error responses
-          if (error.status === 204) {
-            return of({ success: true, message: 'Post deleted successfully' });
-          }
-          return throwError(() => error);
-        })
-      );
+    return this.http.delete(`${this.forumThreadsBaseUrl}/${postId}`, {
+      observe: 'response',
+    });
+  }
+
+  // Method to emit post deletion event
+  emitPostDeleted(postId: string | null) {
+    if (postId) {
+      this.postDeletedSubject.next(postId);
+    }
+  }
+
+  emitPostCreated() {
+    this.postDeletedSubject.next('created');
   }
 }

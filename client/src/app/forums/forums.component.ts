@@ -118,6 +118,8 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.fetchDataCategories();
     this.loadTopics();
     this.handleQueryParams();
+    this.setupPostDeletionListener();
+    this.setupPostCreationListener();
   }
 
   ngOnDestroy() {
@@ -125,6 +127,49 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.searchSubject.complete();
   }
+
+  // Public methods for immediate UI updates
+  addNewTopic(topicData: any): void {
+    const newTopic: ForumTopic = {
+      id: topicData.id,
+      title: topicData.title,
+      content: topicData.content,
+      author: topicData.author?.name || 'Anonymous',
+      authorAvatar:
+        topicData.author?.profileImage || '/assets/images/nurse.png',
+      category: topicData.category?.name || 'General Discussion',
+      replies: 0,
+      views: 0,
+      lastReply: topicData.createdAt,
+      isPinned: false,
+      isLocked: false,
+      tags: topicData.tags || [],
+      createdAt: topicData.createdAt,
+    };
+
+    // Add to the beginning of the topics list
+    this.topics.update((topics) => [newTopic, ...topics]);
+
+    // Clear cache to ensure fresh data on next load
+    this.topicsCache.clear();
+
+    // Show notification
+    this.showSuccessAlert('New post created!');
+  }
+
+  // removeTopic(postId: string): void {
+  //   // Remove the post from the topics list
+  //   this.topics.update(topics => {
+  //     const filteredTopics = topics.filter(topic => topic.id !== postId);
+  //     return filteredTopics;
+  //   });
+
+  //   // Clear cache to ensure fresh data on next load
+  //   this.topicsCache.clear();
+  //   debugger;
+  //   // Show notification
+  //   this.showSuccessAlert('Post deleted!');
+  // }
 
   private setupSearchDebounce() {
     this.searchSubject
@@ -135,23 +180,25 @@ export class ForumsComponent implements OnInit, OnDestroy {
   }
 
   private handleQueryParams() {
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const categoryId = params['category'];
-      const view = params['view'];
-      
-      if (categoryId && categoryId !== 'all') {
-        // Set the selected category
-        this.selectedCategory.set(categoryId);
-        
-        // Switch to topics view if specified
-        if (view === 'topics') {
-          this.viewMode.set('topics');
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        const categoryId = params['category'];
+        const view = params['view'];
+
+        if (categoryId && categoryId !== 'all') {
+          // Set the selected category
+          this.selectedCategory.set(categoryId);
+
+          // Switch to topics view if specified
+          if (view === 'topics') {
+            this.viewMode.set('topics');
+          }
+
+          // Load topics for the selected category
+          this.loadTopicsByCategory(categoryId);
         }
-        
-        // Load topics for the selected category
-        this.loadTopicsByCategory(categoryId);
-      }
-    });
+      });
   }
 
   fetchDataCategories() {
@@ -491,5 +538,23 @@ export class ForumsComponent implements OnInit, OnDestroy {
         errorDialog.remove();
       }
     }, 5000);
+  }
+
+  private setupPostDeletionListener(): void {
+    this.forumsService.postDeleted$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((postId: string) => {
+        console.log('🔄 Forums: Post deletion detected, refreshing list...');
+        // Remove the deleted post from the current list
+        // this.removeTopic(postId);
+        // Also refresh the data to ensure we have the latest state
+        this.refreshData();
+      });
+  }
+
+  private setupPostCreationListener(): void {
+    // Refresh the data to include the new post
+    this.refreshData();
+    this.forumsService.postCreated.set(false);
   }
 }

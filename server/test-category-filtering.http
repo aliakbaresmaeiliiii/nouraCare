@@ -1,0 +1,15 @@
+### Test Category Filtering in findAll endpoint
+GET http://localhost:3000/api/v1/forum-threads?category=1&page=1&limit=10
+Content-Type: application/json
+
+### Test existing category endpoint (alternative)
+GET http://localhost:3000/api/v1/forum-threads/category/1?page=1&limit=10
+Content-Type: application/json
+
+### Test forum filtering
+GET http://localhost:3000/api/v1/forum-threads?forumId=1&page=1&limit=10
+Content-Type: application/json
+
+### Test without filters (get all threads)
+GET http://localhost:3000/api/v1/forum-threads?page=1&limit=10
+Content-Type: application/json

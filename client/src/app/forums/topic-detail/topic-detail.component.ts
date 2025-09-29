@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -7,11 +7,11 @@ import {
   NavController,
   AlertController,
 } from '@ionic/angular';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Share } from '@capacitor/share';
-import { catchError, finalize, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { catchError, finalize, tap, map } from 'rxjs/operators';
+import { of, throwError } from 'rxjs';
 import {
   CreateForumThreadDto,
   CreatePostDto,
@@ -94,7 +94,7 @@ interface Comment {
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule],
 })
-export class TopicDetailComponent implements OnInit {
+export class TopicDetailComponent implements OnInit, OnDestroy {
   // Dependency injection
   private route = inject(ActivatedRoute);
   private navCtrl = inject(NavController);
@@ -119,6 +119,8 @@ export class TopicDetailComponent implements OnInit {
   editPostContent = '';
   topicId = signal<string | null>(null);
   storeData = signal<any | null>(null);
+
+  router = inject(Router);
   // Computed properties for better performance
   get canEditOrDeletePost(): boolean {
     if (!this.topic) return false;
@@ -146,7 +148,6 @@ export class TopicDetailComponent implements OnInit {
   loadTopicDetail(threadId: string | null) {
     this.isLoading = true;
     this.errorMessage = '';
-
     this.forumService.getThreadById(threadId).subscribe({
       next: (response: ThreadDetailResponse) => {
         if (response && response.success) {
@@ -652,6 +653,19 @@ export class TopicDetailComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    // Cleanup if needed
+  }
+
+  // Manual refresh method
+  refreshTopic(): void {
+    console.log('🔄 TopicDetail: Manual refresh triggered');
+    if (this.topicId()) {
+      this.loadTopicDetail(this.topicId());
+      this.showToast('Refreshing topic...', 'primary');
+    }
+  }
+
   startEditPost() {
     if (!this.topic) return;
     this.isEditingPost = true;
@@ -767,24 +781,15 @@ export class TopicDetailComponent implements OnInit {
     this.forumService.deletePostById(this.topicId()).subscribe({
       next: (response: any) => {
         if (response && response.ok) {
+          // Emit event to notify forums component to refresh the list
+          this.forumService.emitPostDeleted(this.topicId());
           this.showToast('Post deleted successfully!', 'success');
-        } else {
-          this.showToast(
-            'Failed to delete post: ' + (response?.message || 'Unknown error'),
-            'danger'
-          );
         }
       },
       error: (error: any) => {
         if (error.status === 403) {
           this.showToast(
             'You do not have permission to delete this post',
-            'danger'
-          );
-        } else {
-          this.showToast(
-            'Failed to delete post: ' +
-              (error.error?.message || error.message || 'Network error'),
             'danger'
           );
         }

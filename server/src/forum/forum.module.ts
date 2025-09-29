@@ -14,7 +14,11 @@ import { PrismaModule } from '../prisma/prisma.module';
     ForumThreadsController,
     ForumPostsController,
   ],
-  providers: [ForumCategoriesService, ForumThreadsService, ForumPostsService],
+  providers: [
+    ForumCategoriesService, 
+    ForumThreadsService, 
+    ForumPostsService,
+  ],
   exports: [ForumCategoriesService, ForumThreadsService, ForumPostsService],
 })
 export class ForumModule {}

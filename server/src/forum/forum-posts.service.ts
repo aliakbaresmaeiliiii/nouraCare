@@ -9,7 +9,9 @@ import { UpdateForumPostDto } from './dto/update-forum-post.dto';
 
 @Injectable()
 export class ForumPostsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+  ) {}
 
   async create(createForumPostDto: CreateForumPostDto, authorId: number) {
     let threadId = createForumPostDto.threadId;
@@ -79,7 +81,7 @@ export class ForumPostsService {
       }
     }
 
-    return this.prismaService.forumPost.create({
+    const createdPost = await this.prismaService.forumPost.create({
       data: {
         content: createForumPostDto.content,
         threadId,
@@ -131,6 +133,10 @@ export class ForumPostsService {
         },
       },
     });
+
+    // Real-time events removed - WebSocket functionality disabled
+
+    return createdPost;
   }
 
   async findAll(threadId: string, page: number = 1, limit: number = 20) {
@@ -318,7 +324,7 @@ export class ForumPostsService {
       throw new ForbiddenException('You can only update your own posts');
     }
 
-    return this.prismaService.forumPost.update({
+    const updatedPost = await this.prismaService.forumPost.update({
       where: { id },
       data: {
         ...updateForumPostDto,
@@ -368,6 +374,17 @@ export class ForumPostsService {
         },
       },
     });
+
+    // Emit real-time event for post update
+    if (post.parentId) {
+      // This is a comment/reply
+      this.forumGateway.emitCommentUpdated(post.parentId, updatedPost);
+    } else {
+      // This is a post in a thread
+      this.forumGateway.emitPostUpdated(post.threadId, updatedPost);
+    }
+
+    return updatedPost;
   }
 
   async remove(id: string, currentUser: any) {
@@ -388,10 +405,15 @@ export class ForumPostsService {
     }
 
     // Soft delete by marking as deleted
-    return this.prismaService.forumPost.update({
+    const deletedPost = await this.prismaService.forumPost.update({
       where: { id },
       data: { isDeleted: true },
     });
+
+    // Emit real-time event for post deletion
+    this.forumGateway.emitPostDeleted(post.threadId, post.id);
+
+    return deletedPost;
   }
 
   async toggleLike(postId: string, userId: number) {
@@ -434,7 +456,7 @@ export class ForumPostsService {
     }
 
     // Return updated post with like count
-    return this.prismaService.forumPost.findUnique({
+    const updatedPost = await this.prismaService.forumPost.findUnique({
       where: { id: postId },
       include: {
         author: {
@@ -452,6 +474,11 @@ export class ForumPostsService {
         },
       },
     });
+
+    // Emit real-time event for like toggle
+    this.forumGateway.emitLikeToggled(postId, updatedPost);
+
+    return updatedPost;
   }
 
   async editComment(commentId: string, content: string, currentUser: any) {
@@ -471,7 +498,7 @@ export class ForumPostsService {
       throw new ForbiddenException('You can only edit your own comments');
     }
 
-    return this.prismaService.forumPost.update({
+    const updatedComment = await this.prismaService.forumPost.update({
       where: { id: commentId },
       data: {
         content,
@@ -521,6 +548,13 @@ export class ForumPostsService {
         },
       },
     });
+
+    // Emit real-time event for comment update
+    if (comment.parentId) {
+      this.forumGateway.emitCommentUpdated(comment.parentId, updatedComment);
+    }
+
+    return updatedComment;
   }
 
   async deleteComment(commentId: string, currentUser: any) {
@@ -541,9 +575,16 @@ export class ForumPostsService {
     }
 
     // Soft delete by marking as deleted
-    return this.prismaService.forumPost.update({
+    const deletedComment = await this.prismaService.forumPost.update({
       where: { id: commentId },
       data: { isDeleted: true },
     });
+
+    // Emit real-time event for comment deletion
+    if (comment.parentId) {
+      this.forumGateway.emitCommentDeleted(comment.parentId, comment.id);
+    }
+
+    return deletedComment;
   }
 }

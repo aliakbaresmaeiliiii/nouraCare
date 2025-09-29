@@ -8,6 +8,9 @@
       <ion-button fill="clear" class="share-button" (click)="shareTopic()">
         <ion-icon name="share-outline"></ion-icon>
       </ion-button>
+      <ion-button fill="clear" class="refresh-button" (click)="refreshTopic()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -36,7 +39,7 @@
 
     <!-- Topic Content -->
     @if (topic && !isLoading) {
-    <div class="topic-card">
+    <div class="topic-card" [attr.data-post-id]="topic.id">
       <div class="topic-header">
         <div class="author-avatar">
           <ion-avatar class="avatar">
@@ -121,7 +124,7 @@
               <ion-icon name="create-outline"></ion-icon>
               <span class="edit-post-text">Edit</span>
             </ion-button>
-            <ion-button fill="clear" class="delete-post-btn" (click)="deletePost()">
+            <ion-button fill="clear" class="delete-post-btn" (click)="deletePost( )">
               <ion-icon name="trash-outline"></ion-icon>
               <span class="delete-post-text">Delete</span>
             </ion-button>
@@ -151,7 +154,7 @@
       @if (comments.length > 0) {
       <ion-list  class="comments-list">
         @for (comment of comments; track comment.id) {
-        <ion-item class="comment-item">
+        <ion-item class="comment-item" [attr.data-comment-id]="comment.id">
           <div class="comment-content">
             <div class="comment-header">
               <ion-avatar class="comment-avatar">
@@ -254,7 +257,7 @@
             @if (comment.replies && comment.replies.length > 0) {
             <div class="replies-container">
               @for (reply of comment.replies; track reply.id) {
-              <div class="reply-item">
+              <div class="reply-item" [attr.data-comment-id]="reply.id">
                 <div class="reply-header">
                   <ion-avatar class="reply-avatar">
                     <img [src]="reply.author.profileImage || 'assets/images/nurse.png'" 

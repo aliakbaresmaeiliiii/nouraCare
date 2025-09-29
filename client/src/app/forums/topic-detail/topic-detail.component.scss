@@ -675,6 +675,35 @@
   }
 }
 
+// Deleted content styles
+.topic-card.deleted,
+.comment-item.deleted,
+.reply-item.deleted {
+  background-color: #ffe6e6 !important;
+  text-decoration: line-through;
+  opacity: 0.7;
+  pointer-events: none;
+  
+  .topic-title,
+  .topic-content-text,
+  .comment-text,
+  .reply-text {
+    color: #dc3545 !important;
+    text-decoration: line-through;
+  }
+}
+
+.deleted-message {
+  color: #dc3545;
+  font-style: italic;
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 4px 8px;
+  background-color: rgba(220, 53, 69, 0.1);
+  border-radius: 4px;
+  display: inline-block;
+}
+
 // Responsive design
 @media (max-width: 768px) {
   .topic-content .container {

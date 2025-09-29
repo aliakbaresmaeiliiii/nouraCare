@@ -243,9 +243,9 @@ export class CreatePostComponent implements OnInit {
         if (response && response.success) {
           this.showToast('Post created successfully!', 'success');
           // Navigate back to forums with the selected category
-          setTimeout(() => {
-            this.navigateBackToForumsWithCategory();
-          }, 1500);
+          this.router.navigate(['/forums']),
+            this.forumService.emitPostCreated();
+          this.clearForm();
         } else {
           this.showToast(
             'Failed to create post: ' + (response?.message || 'Unknown error'),
@@ -341,10 +341,10 @@ export class CreatePostComponent implements OnInit {
     const selectedCategoryId = this.postForm.get('categoryId')?.value;
     if (selectedCategoryId) {
       // Navigate to forums with query parameters to select the category
-      this.router.navigate(['/forums'], {
-        queryParams: { category: selectedCategoryId, view: 'topics' },
-        replaceUrl: true
-      });
+      // this.router.navigate(['/forums'], {
+      //   queryParams: { category: selectedCategoryId, view: 'topics' },
+      //   replaceUrl: true
+      // });
     } else {
       // Fallback to regular back navigation
       this.navCtrl.back();
