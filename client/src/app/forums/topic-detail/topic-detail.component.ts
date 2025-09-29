@@ -238,7 +238,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
-  async likeComment(commentId: string) {
+  likeComment(commentId: string) {
     this.forumService
       .likePost(commentId)
       .pipe(
@@ -246,12 +246,17 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
           if (response && response.success) {
             const comment = this.comments.find((c) => c.id === commentId);
             if (comment) {
-              comment.isLiked = response.data.liked;
-              comment._count.likes += response.data.liked ? 1 : -1;
-              this.showToast(
-                response.data.liked ? 'Liked!' : 'Unliked!',
-                'success'
-              );
+              // Toggle the like status
+              comment.isLiked = !comment.isLiked;
+              
+              // Update the like count based on the current like status
+              if (comment.isLiked) {
+                comment._count.likes += 1;
+                this.showToast('Liked!', 'success');
+              } else {
+                comment._count.likes = Math.max(0, comment._count.likes - 1);
+                this.showToast('Unliked!', 'success');
+              }
             }
           } else {
             this.showToast('Failed to like comment', 'danger');

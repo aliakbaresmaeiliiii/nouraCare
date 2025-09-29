@@ -375,14 +375,7 @@ export class ForumPostsService {
       },
     });
 
-    // Emit real-time event for post update
-    if (post.parentId) {
-      // This is a comment/reply
-      this.forumGateway.emitCommentUpdated(post.parentId, updatedPost);
-    } else {
-      // This is a post in a thread
-      this.forumGateway.emitPostUpdated(post.threadId, updatedPost);
-    }
+    // Real-time events removed - WebSocket functionality disabled
 
     return updatedPost;
   }
@@ -410,8 +403,7 @@ export class ForumPostsService {
       data: { isDeleted: true },
     });
 
-    // Emit real-time event for post deletion
-    this.forumGateway.emitPostDeleted(post.threadId, post.id);
+    // Real-time events removed - WebSocket functionality disabled
 
     return deletedPost;
   }
@@ -475,8 +467,7 @@ export class ForumPostsService {
       },
     });
 
-    // Emit real-time event for like toggle
-    this.forumGateway.emitLikeToggled(postId, updatedPost);
+    // Real-time events removed - WebSocket functionality disabled
 
     return updatedPost;
   }
@@ -549,10 +540,7 @@ export class ForumPostsService {
       },
     });
 
-    // Emit real-time event for comment update
-    if (comment.parentId) {
-      this.forumGateway.emitCommentUpdated(comment.parentId, updatedComment);
-    }
+    // Real-time events removed - WebSocket functionality disabled
 
     return updatedComment;
   }
@@ -580,10 +568,7 @@ export class ForumPostsService {
       data: { isDeleted: true },
     });
 
-    // Emit real-time event for comment deletion
-    if (comment.parentId) {
-      this.forumGateway.emitCommentDeleted(comment.parentId, comment.id);
-    }
+    // Real-time events removed - WebSocket functionality disabled
 
     return deletedComment;
   }

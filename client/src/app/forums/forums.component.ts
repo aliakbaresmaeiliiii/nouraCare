@@ -1,23 +1,20 @@
 import {
   Component,
+  OnDestroy,
   OnInit,
+  computed,
   inject,
   signal,
-  computed,
-  OnDestroy,
 } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ForumService } from '../shared/services/forum.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   Subject,
   debounceTime,
   distinctUntilChanged,
-  takeUntil,
-  switchMap,
-  catchError,
-  of,
+  takeUntil
 } from 'rxjs';
+import { ForumService } from '../shared/services/forum.service';
+import { SharedModule } from '../shared/shared-module';
 
 interface ForumCategory {
   id: string;
