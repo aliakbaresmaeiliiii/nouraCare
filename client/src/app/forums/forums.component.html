@@ -127,10 +127,8 @@
     }
 
     <!-- Categories View -->
-    <div
-      *ngIf="!isLoading && !errorMessage && viewMode === 'categories'"
-      class="categories-container"
-    >
+    @if (!isLoading && !errorMessage && viewMode === 'categories') {
+    <div class="categories-container">
       <div class="categories-header">
         <h2 class="categories-title">Forum Categories</h2>
       </div>
@@ -189,12 +187,11 @@
         }
       </div>
     </div>
+    }
 
     <!-- Topics View -->
-    <div
-      *ngIf="!isLoading && !errorMessage && viewMode === 'topics'"
-      class="topics-container"
-    >
+    @if (!isLoading && !errorMessage && viewMode === 'topics') {
+    <div class="topics-container">
       <div class="topics-header">
         <h2 class="topics-title">
           {{ getSelectedCategoryName() }}
@@ -202,7 +199,8 @@
       </div>
 
       <!-- Empty State for Topics -->
-      <div *ngIf="filteredTopics.length === 0" class="empty-container">
+      @if (filteredTopics.length === 0) {
+      <div class="empty-container">
         <ion-icon name="chatbubbles-outline" class="empty-icon"></ion-icon>
         <h2 class="empty-title">No Topics Found</h2>
         <p class="empty-text">
@@ -223,6 +221,7 @@
         </ion-button>
         }
       </div>
+      }
 
       <!-- Topics List -->
       @if (filteredTopics.length > 0) {
@@ -286,5 +285,6 @@
       </ion-list>
       }
     </div>
+    }
   </div>
 </ion-content>

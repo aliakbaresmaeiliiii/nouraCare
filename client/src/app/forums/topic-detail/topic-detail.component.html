@@ -15,13 +15,16 @@
 <ion-content class="topic-content">
   <div class="container">
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-container">
+    @if (isLoading) {
+    <div class="loading-container">
       <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
       <p class="loading-text">Loading topic...</p>
     </div>
+    }
 
     <!-- Error State -->
-    <div *ngIf="errorMessage && !isLoading" class="error-container">
+    @if (errorMessage && !isLoading) {
+    <div class="error-container">
       <ion-icon name="alert-circle" class="error-icon"></ion-icon>
       <p class="error-text">{{ errorMessage }}</p>
       <ion-button fill="outline" (click)="goBack()" class="back-button">
@@ -29,9 +32,11 @@
         Go Back
       </ion-button>
     </div>
+    }
 
     <!-- Topic Content -->
-    <div *ngIf="topic && !isLoading" class="topic-card">
+    @if (topic && !isLoading) {
+    <div class="topic-card">
       <div class="topic-header">
         <div class="author-avatar">
           <ion-avatar class="avatar">
@@ -127,17 +132,20 @@
     </div>
 
     <!-- Comments Section -->
-    <div *ngIf="topic && !isLoading" class="comments-section">
+    @if (topic && !isLoading) {
+    <div class="comments-section">
       <div class="comments-header">
         <h2 class="comments-title">Comments ({{ comments.length }})</h2>
       </div>
 
       <!-- Empty Comments State -->
-      <div *ngIf="comments.length === 0" class="empty-comments">
+      @if (comments.length === 0) {
+      <div class="empty-comments">
         <ion-icon name="chatbubbles-outline" class="empty-icon"></ion-icon>
         <h3 class="empty-title">No Comments Yet</h3>
         <p class="empty-text">Be the first to share your thoughts!</p>
       </div>
+      }
 
       <!-- Comments List -->
       @if (comments.length > 0) {
@@ -276,11 +284,14 @@
       </ion-list>
       }
     </div>
+  }
+    }
   </div>
 </ion-content>
 
 <!-- Comment Input -->
-<ion-footer class="comment-footer" *ngIf="topic && !isLoading">
+@if (topic && !isLoading) {
+<ion-footer class="comment-footer">
   <div class="comment-input-container">
     <ion-input 
       [(ngModel)]="newComment"
@@ -300,3 +311,4 @@
     </ion-button>
   </div>
 </ion-footer>
+}
