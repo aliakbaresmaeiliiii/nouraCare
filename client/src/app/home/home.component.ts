@@ -1,4 +1,6 @@
 import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, ViewChild } from '@angular/core';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { AlertController, ModalController, ToastController, ViewWillEnter } from '@ionic/angular';
 import { addIcons } from 'ionicons';
@@ -375,19 +377,36 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   }
 
   /**
-   * Get current user ID from localStorage
+   * Get current user ID using RxJS observable
    */
   private getCurrentUserId(): number {
-    try {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const parsed = JSON.parse(userInfo);
-        return parsed.userId || parsed.user?.id || parsed.id || 1;
-      }
-    } catch (error) {
-      console.error('Error getting current user ID:', error);
+    const userInfo = localStorage.getItem('userInfo');
+    
+    if (userInfo) {
+      const parsed = JSON.parse(userInfo);
+      return parsed.userId || parsed.user?.id || parsed.id || 1;
     }
-    return 1; // Default user ID
+    
+    return 1; 
+  }
+
+  /**
+   * Get current user ID as RxJS observable with error handling
+   */
+  private getCurrentUserId$(): Observable<number> {
+    return of(localStorage.getItem('userInfo')).pipe(
+      map(userInfo => {
+        if (userInfo) {
+          const parsed = JSON.parse(userInfo);
+          return parsed.userId || parsed.user?.id || parsed.id || 1;
+        }
+        return 1; // Default user ID
+      }),
+      catchError(error => {
+        console.error('Error getting current user ID:', error);
+        return of(1); // Return default user ID on error
+      })
+    );
   }
 
   /**

@@ -159,6 +159,7 @@ export class TrackDataService {
 
 
   getTrackDay(userId: number, date: string): Observable<any[]> {
+    debugger;
     return this.httpClient.get<any[]>(`${environment.apiEndPoint}track-day/${userId}/${date}`);
   }
 
