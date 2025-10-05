@@ -1,5 +1,11 @@
 import { IsEnum, IsInt } from 'class-validator';
-import { FriendshipStatus } from '@prisma/client';
+
+export enum FriendshipStatus {
+  PENDING = 'PENDING',
+  ACCEPTED = 'ACCEPTED',
+  DECLINED = 'DECLINED',
+  BLOCKED = 'BLOCKED'
+}
 
 export class CreateFriendshipDto {
   @IsInt()

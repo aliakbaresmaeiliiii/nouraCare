@@ -11,7 +11,7 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Subject } from 'rxjs';
 import { OnboardingStateService } from 'src/app/shared/services/onboarding-state.service';
@@ -51,6 +51,7 @@ export class LoginComponent {
   });
 
   router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
   renderer = inject(Renderer2);
   cdr = inject(ChangeDetectorRef);
   // matcher = new ErrorStateMatcher();
@@ -151,13 +152,22 @@ export class LoginComponent {
       };
       this.service.login(payload).subscribe({
         next: (res) => {
+          console.log('Login successful, navigating...');
           localStorage.setItem('userInfo', JSON.stringify(res));
           this.message = 'Login successful!';
           this.success = true;
           this.showToast = true;
           
-          // Check if user has completed onboarding
-            this.router.navigate(['/tabs/home']);
+          // Get return URL from query parameters or default to home
+          const returnUrl = this.activatedRoute.snapshot.queryParams['returnUrl'] || '/tabs/home';
+          console.log('Return URL:', returnUrl);
+          
+          // Navigate to the return URL or home
+          this.router.navigateByUrl(returnUrl).then(() => {
+            console.log('Navigation completed');
+          }).catch(error => {
+            console.error('Navigation error:', error);
+          });
           
           this.cdr.detectChanges();
         },
@@ -172,36 +182,7 @@ export class LoginComponent {
       });
     }
 
-    // if (this.form.value) {
-    //   let formValue = this.form.value;
-    //   this.#authService.login(formValue).subscribe({
-    //     next: (res: any) => {
-    //       // this.permissionService.setPermissions(res.data.permissions);
-    //       this.storeDataUser = res;
-    //       const dataJson = JSON.stringify(this.storeDataUser);
-    //       console.log(res);
-    //       localStorage.setItem('userData', dataJson);
-    //       if (res.code === 200) {
-    //         // this.toast.success('login is successfully');
-    //         this.router.navigate(['/dashboard']);
-    //       }
-    //     },
-    //     error: (e) => {
-    //       if (e) {
-    //         this.router.navigate(['auth/confirm-email']);
-    //         this.storeDataUser;
-    //         const email = localStorage.getItem('emailClinic');
-    //         if (email) {
-    //           // this.#authService.fetchConfirmCode(email).subscribe(res => {
-    //           //   if (res) {
-    //           //     this.router.navigate(['/dashboard']);
-    //           //   }
-    //           // });
-    //         }
-    //       }
-    //     },
-    //   });
-    // }
+  
   }
   resolved(captchaResponse: any) {
     // console.log(`Captcha resolved with response: ${captchaResponse}`);
@@ -213,7 +194,7 @@ export class LoginComponent {
   }
 
   navigateRegister() {
-    this.router.navigate(['auth/register']);
+    this.router.navigate(['/auth/register']);
   }
 
   onAdminRol(data: string) {

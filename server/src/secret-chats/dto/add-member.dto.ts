@@ -1,5 +1,3 @@
-import { IsInt, IsEnum, IsOptional } from 'class-validator';
-
 export enum MemberRole {
   ADMIN = 'ADMIN',
   MODERATOR = 'MODERATOR',
@@ -7,10 +5,6 @@ export enum MemberRole {
 }
 
 export class AddMemberDto {
-  @IsInt()
   userId: number;
-
-  @IsOptional()
-  @IsEnum(MemberRole)
   role?: MemberRole = MemberRole.MEMBER;
 }

@@ -5,7 +5,10 @@ import {
   Get,
   Inject,
   Post,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { OnboardingDataDto } from 'src/onboarding/dto/onboarding.dto';
@@ -45,5 +48,27 @@ export class AuthController {
     }
 
     return this.authService.login(body.email);
+  }
+
+  @Post('refresh')
+  @UseGuards(AuthGuard('refresh'))
+  async refreshTokens(@Req() req: any) {
+    const { refreshToken } = req.user;
+    return this.authService.refreshTokens(refreshToken);
+  }
+
+  @Post('logout')
+  @UseGuards(AuthGuard('jwt'))
+  async logout(@Req() req: any, @Body() body: { refreshToken: string }) {
+    if (!body.refreshToken) {
+      throw new BadRequestException('Refresh token is required');
+    }
+    return this.authService.logout(body.refreshToken, req.user.id);
+  }
+
+  @Post('logout-all')
+  @UseGuards(AuthGuard('jwt'))
+  async logoutAll(@Req() req: any) {
+    return this.authService.logoutAll(req.user.id);
   }
 }

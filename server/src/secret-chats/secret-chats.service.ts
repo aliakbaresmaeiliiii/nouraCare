@@ -469,7 +469,6 @@ export class SecretChatsService {
 
     const post = await this.prismaService.post.create({
       data: {
-        title: createPostDto.title,
         content: createPostDto.content,
         chatId: createPostDto.chatId,
         authorId: userId,
@@ -482,13 +481,6 @@ export class SecretChatsService {
                 type: media.type,
                 caption: media.caption,
                 order: index,
-              })),
-            }
-          : undefined,
-        tags: createPostDto.tags && createPostDto.tags.length > 0
-          ? {
-              create: createPostDto.tags.map(tag => ({
-                name: tag,
               })),
             }
           : undefined,
@@ -511,12 +503,6 @@ export class SecretChatsService {
         },
         media: {
           orderBy: { order: 'asc' },
-        },
-        tags: {
-          select: {
-            id: true,
-            name: true,
-          },
         },
         _count: {
           select: {
@@ -577,12 +563,6 @@ export class SecretChatsService {
         media: {
           orderBy: { order: 'asc' },
         },
-        tags: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
         comments: {
           take: 3,
           orderBy: { createdAt: 'desc' },
@@ -595,10 +575,6 @@ export class SecretChatsService {
               },
             },
           },
-        },
-        likes: {
-          where: { userId: userId },
-          select: { id: true },
         },
         _count: {
           select: {
@@ -614,8 +590,7 @@ export class SecretChatsService {
 
     return posts.map((post) => ({
       ...post,
-      isLiked: post.likes.length > 0,
-      likes: undefined, // Remove the likes array, we only needed it for checking
+      isLiked: false, // We removed the likes array, so we can't check if user liked it
     }));
   }
 

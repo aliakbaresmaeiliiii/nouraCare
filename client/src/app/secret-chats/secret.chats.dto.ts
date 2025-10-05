@@ -338,34 +338,6 @@ export enum MemberRole {
     hasMinimumPosts?: number;
   }
   
-  // WebSocket event types (if implementing real-time features)
-  export interface WebSocketEvent<T = any> {
-    type: string;
-    payload: T;
-    chatId?: string;
-    userId?: number;
-    timestamp: string;
-  }
-  
-  export interface NewMessageEvent extends WebSocketEvent<ChatMessage> {
-    type: 'NEW_MESSAGE';
-  }
-  
-  export interface MessageReadEvent extends WebSocketEvent<{ messageId: string; userId: number }> {
-    type: 'MESSAGE_READ';
-  }
-  
-  export interface UserTypingEvent extends WebSocketEvent<{ userId: number; isTyping: boolean }> {
-    type: 'USER_TYPING';
-  }
-  
-  export interface NewPostEvent extends WebSocketEvent<Post> {
-    type: 'NEW_POST';
-  }
-  
-  export interface PostLikedEvent extends WebSocketEvent<{ postId: string; userId: number; liked: boolean }> {
-    type: 'POST_LIKED';
-  }
   
   // Error handling
   export interface ApiError {
@@ -503,4 +475,3 @@ export enum MemberRole {
       updatedAt: '',
     },
   ];
-  

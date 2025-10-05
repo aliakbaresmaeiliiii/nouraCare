@@ -299,7 +299,7 @@ export class OnboardingComponent implements OnInit {
     
     // Navigate to register/sign-in page after a short delay
     setTimeout(() => {
-      this.router.navigate(['/sign-in']);
+    this.router.navigate(['/auth/sign-in']);
     }, 2000); // 2 second delay to show completion message
 
   }
@@ -374,6 +374,6 @@ export class OnboardingComponent implements OnInit {
 
   navigateToWelcome() {
     // After completing onboarding, navigate to registration/sign-in
-    this.router.navigate(['/sign-in']);
+    this.router.navigate(['/auth/sign-in']);
   }
 }

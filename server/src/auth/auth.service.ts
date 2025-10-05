@@ -4,12 +4,15 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as jwt from 'jsonwebtoken';
 import SendMail from 'src/helper/send_email';
 import { getUniqueCodev3 } from '../helper/common';
 import { PrismaService } from '../prisma/services/prisma.service';
+import { RefreshTokenService } from './refresh-token.service';
 import { EmailProvider } from './config/email';
 import { env } from './config/env';
+import { refreshTokenConfig } from './config/jwt.config';
 import { RegisterDto } from './dto/register.dto';
 import { OnboardingDataDto } from 'src/onboarding/dto/onboarding.dto';
 
@@ -17,7 +20,11 @@ import { OnboardingDataDto } from 'src/onboarding/dto/onboarding.dto';
 export class AuthService {
   private jwtSecret = env.JWT_SECRET;
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private refreshTokenService: RefreshTokenService,
+  ) {}
 
   async register(
     registerDto: RegisterDto,
@@ -173,10 +180,125 @@ export class AuthService {
     if (!user.isVerified)
       throw new UnauthorizedException('User email is not verified');
 
-    const token = jwt.sign({ id: user.id }, this.jwtSecret, {
-      expiresIn: '1d',
+    // Generate access token
+    const accessToken = this.generateAccessToken(user.id);
+    
+    // Generate refresh token
+    const refreshToken = this.generateRefreshToken(user.id);
+    
+    // Store refresh token in database
+    await this.refreshTokenService.createRefreshToken(user.id, refreshToken);
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        name: user.name,
+        profileImage: user.profileImage,
+        isVerified: user.isVerified,
+        status: user.status,
+        city: user.city,
+        birthday: user.birthday,
+        createdAt: user.createdAt,
+      },
+    };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    // Validate the refresh token
+    const decoded = this.decodeToken(refreshToken);
+    if (!decoded || !decoded.sub) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const userId = decoded.sub;
+    const isValid = await this.refreshTokenService.validateRefreshToken(refreshToken, userId);
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    // Get user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
     });
-    return { token, user };
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.isVerified) {
+      throw new UnauthorizedException('User email is not verified');
+    }
+
+    // Generate new access token
+    const newAccessToken = this.generateAccessToken(user.id);
+
+    // Optionally generate new refresh token (token rotation)
+    const newRefreshToken = this.generateRefreshToken(user.id);
+    await this.refreshTokenService.createRefreshToken(user.id, newRefreshToken);
+
+    // Revoke the old refresh token
+    await this.refreshTokenService.revokeRefreshToken(refreshToken, userId);
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        name: user.name,
+        profileImage: user.profileImage,
+        isVerified: user.isVerified,
+        status: user.status,
+        city: user.city,
+        birthday: user.birthday,
+        createdAt: user.createdAt,
+      },
+    };
+  }
+
+  async logout(refreshToken: string, userId: number) {
+    await this.refreshTokenService.revokeRefreshToken(refreshToken, userId);
+    return { message: 'Logged out successfully' };
+  }
+
+  async logoutAll(userId: number) {
+    await this.refreshTokenService.revokeAllUserTokens(userId);
+    return { message: 'Logged out from all devices successfully' };
+  }
+
+  private generateAccessToken(userId: number): string {
+    return this.jwtService.sign(
+      { sub: userId },
+      { expiresIn: '30m' }, // 30 minutes
+    );
+  }
+
+  private generateRefreshToken(userId: number): string {
+    return this.jwtService.sign(
+      { sub: userId },
+      { expiresIn: '14d' }, // 14 days
+    );
+  }
+
+  private decodeToken(token: string): any {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join(''),
+      );
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      return null;
+    }
   }
 
   private mapPregnancyStatus(status: string): string | undefined {

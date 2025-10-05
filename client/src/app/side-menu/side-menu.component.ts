@@ -101,7 +101,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
 
   logout() {
     // Add logout logic here
-    this.router.navigate(['/']);
+    this.router.navigate(['/auth/sign-in']);
   }
 
   openSocialLink(platform: string) {

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { VerifyEmailComponent } from './auth/verify-email/verify-email.component';
+import { authGuard } from './auth/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -23,22 +24,27 @@ export const routes: Routes = [
   },
 
   {
-    path: 'sign-in',
-    loadComponent: () =>
-      import('./auth/login/login.component').then((m) => m.LoginComponent),
-  },
-
-  {
-    path: 'verify-email',
-    loadComponent: () =>
-      import('./auth/verify-email/verify-email.component').then(
-        (m) => m.VerifyEmailComponent
-      ),
+    path: 'auth',
+    children: [
+      {
+        path: 'sign-in',
+        loadComponent: () =>
+          import('./auth/login/login.component').then((m) => m.LoginComponent),
+      },
+      {
+        path: 'verify-email',
+        loadComponent: () =>
+          import('./auth/verify-email/verify-email.component').then(
+            (m) => m.VerifyEmailComponent
+          ),
+      },
+    ],
   },
   {
     path: 'profile',
     loadComponent: () =>
       import('./profile/profile.component').then((m) => m.ProfileComponent),
+    canActivate: [authGuard],
   },
   {
     path: 'profile-edit',
@@ -46,6 +52,7 @@ export const routes: Routes = [
       import('./edit-profile/edit-profile.component').then(
         (m) => m.EditProfileComponent
       ),
+    canActivate: [authGuard],
   },
   {
     path: 'blocked-users',
@@ -197,6 +204,7 @@ export const routes: Routes = [
   {
     path: 'tabs',
     component: LayoutComponent,
+    canActivate: [authGuard],
     // loadComponent: () =>
     //   import('./layout/layout.component').then((m) => m.LayoutComponent),
     children: [

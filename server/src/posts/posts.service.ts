@@ -8,10 +8,9 @@ export class PostsService {
   constructor(private prisma: PrismaService) {}
 
   async create(userId: number, createPostDto: CreatePostDto) {
-    const { tags, media, ...postData } = createPostDto;
+    const { title, tags, media, ...postData } = createPostDto;
 
     const data: any = {
-      title: postData.title,
       content: postData.content,
       authorId: userId,
       isAnonymous: postData.isAnonymous,
@@ -19,12 +18,6 @@ export class PostsService {
 
     if (postData.categoryId) {
       data.categoryId = postData.categoryId;
-    }
-
-    if (tags && tags.length > 0) {
-      data.tags = {
-        create: tags.map(name => ({ name }))
-      };
     }
 
     if (media && media.length > 0) {
@@ -50,7 +43,6 @@ export class PostsService {
           },
         },
         category: true,
-        tags: true,
         media: true,
         comments: {
           include: {
@@ -105,7 +97,6 @@ export class PostsService {
             },
           },
           category: true,
-          tags: true,
           media: true,
           comments: {
             include: {
@@ -164,7 +155,6 @@ export class PostsService {
           },
         },
         category: true,
-        tags: true,
         media: true,
         comments: {
           include: {
@@ -228,16 +218,12 @@ export class PostsService {
       throw new NotFoundException('Post not found');
     }
 
-    const { tags, media, ...postData } = updatePostDto;
+    const { title, tags, media, ...postData } = updatePostDto;
 
     return await this.prisma.post.update({
       where: { id },
       data: {
         ...postData,
-        tags: tags ? {
-          deleteMany: {},
-          create: tags.map(name => ({ name }))
-        } : undefined,
         media: media ? {
           deleteMany: {},
           create: media.map((mediaItem, index) => ({
@@ -258,7 +244,6 @@ export class PostsService {
           },
         },
         category: true,
-        tags: true,
         media: true,
         comments: {
           include: {

@@ -3,7 +3,6 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { UserInfoService } from './shared/services/user-info.service';
 import { OnboardingStateService } from './shared/services/onboarding-state.service';
-import { WebSocketService } from './shared/services/websocket.service';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +13,6 @@ export class AppComponent implements OnInit {
   private userInfoService = inject(UserInfoService);
   private onboardingStateService = inject(OnboardingStateService);
   private router = inject(Router);
-  private webSocketService = inject(WebSocketService);
 
   constructor() {
     // Initialize user info service on app start

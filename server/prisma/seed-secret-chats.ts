@@ -69,7 +69,6 @@ async function seedSecretChats() {
     const posts = await Promise.all([
       prisma.post.create({
         data: {
-          title: 'Hello from a new member!',
           content: 'Hello everyone! Just joined this amazing group. I\'m 20 weeks pregnant and so excited! 🤱',
           chatId: secretChat.id,
           authorId: users[0].id,
@@ -78,7 +77,6 @@ async function seedSecretChats() {
       }),
       prisma.post.create({
         data: {
-          title: 'Morning sickness remedies?',
           content: 'Has anyone experienced severe morning sickness? Looking for natural remedies that actually work...',
           chatId: secretChat.id,
           authorId: users[1].id,
@@ -87,7 +85,6 @@ async function seedSecretChats() {
       }),
       prisma.post.create({
         data: {
-          title: 'Tips for first-time moms',
           content: 'Sharing some tips for first-time moms! Remember to take it easy and listen to your body. You\'re doing amazing! 💪',
           chatId: secretChat.id,
           authorId: users[2].id,

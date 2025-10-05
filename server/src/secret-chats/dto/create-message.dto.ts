@@ -1,5 +1,3 @@
-import { IsString, IsOptional, IsEnum } from 'class-validator';
-
 export enum MessageType {
   TEXT = 'TEXT',
   IMAGE = 'IMAGE',
@@ -10,22 +8,9 @@ export enum MessageType {
 }
 
 export class CreateMessageDto {
-  @IsOptional()
-  @IsString()
   content?: string;
-
-  @IsString()
   chatId: string;
-
-  @IsOptional()
-  @IsEnum(MessageType)
   messageType?: MessageType = MessageType.TEXT;
-
-  @IsOptional()
-  @IsString()
   mediaUrl?: string;
-
-  @IsOptional()
-  @IsString()
   replyToId?: string;
 }
