@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-title>End Pregnancy</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="confirm()" [disabled]="!pregnancyEndDate">Confirm</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="dialog-content">
+    <h3>When did your pregnancy end?</h3>
+    <p class="subtitle">This will help us provide you with appropriate support and resources.</p>
+    
+    <ion-item>
+      <ion-label position="stacked">End Date</ion-label>
+      <ion-datetime-button datetime="pregnancyEndDate"></ion-datetime-button>
+      <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+          <ion-datetime 
+            id="pregnancyEndDate"
+            presentation="date"
+            [(ngModel)]="pregnancyEndDate"
+            [max]="getTodayDate()"
+          ></ion-datetime>
+        </ng-template>
+      </ion-modal>
+    </ion-item>
+
+    <div class="selected-date" *ngIf="pregnancyEndDate">
+      <p><strong>Selected date:</strong> {{ formatDate(pregnancyEndDate) }}</p>
+    </div>
+
+    <ion-item>
+      <ion-label position="stacked">Notes (Optional)</ion-label>
+      <ion-input
+        [(ngModel)]="notes"
+        placeholder="Any additional notes..."
+        type="text"
+      ></ion-input>
+    </ion-item>
+
+    <div class="info-section">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <p>Your privacy is important. This information is only used to provide you with personalized support.</p>
+    </div>
+  </div>
+</ion-content>

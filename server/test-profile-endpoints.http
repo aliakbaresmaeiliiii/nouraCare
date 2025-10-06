@@ -1,0 +1,23 @@
+### Update Reproductive Status - Pregnant
+PATCH http://localhost:8080/api/v1/profile/1/reproductive-status
+Content-Type: application/json
+
+{
+  "isPregnant": true,
+  "lastPeriodDate": "2025-09-01",
+  "averageCycleLength": 28
+}
+
+### Update Reproductive Status - Not Pregnant (with pregnancy end date)
+PATCH http://localhost:8080/api/v1/profile/1/reproductive-status
+Content-Type: application/json
+
+{
+  "isPregnant": false,
+  "pregnancyEndDate": "2025-10-01",
+  "lastPeriodDate": "2025-10-15",
+  "averageCycleLength": 30
+}
+
+### Get Period Tracker Data
+GET http://localhost:8080/api/v1/profile/1/period-tracker

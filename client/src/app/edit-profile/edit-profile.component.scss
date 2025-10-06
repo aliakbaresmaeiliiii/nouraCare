@@ -1,95 +1,86 @@
-.ion-modal-picker {
-  --height: 50%;
-  --border-radius: 16px;
-  --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
+// Modern Edit Profile Page Styles - Matching Profile Design
+.edit-profile-content {
+  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  overflow-x: hidden;
 }
 
-ion-modal::part(backdrop) {
-  background: rgba(209, 213, 219);
-  opacity: 1;
-}
-
-ion-modal ion-toolbar {
-  --background: rgb(135, 224, 248);
-  --color: white;
-}
-
-// Address section styling
-.address-section {
-  ion-item {
-    --padding-start: 16px;
-    --padding-end: 16px;
-    
-    ion-label {
-      font-weight: 500;
-      color: var(--ion-color-dark);
-    }
-    
-    ion-button {
-      --color: var(--ion-color-primary);
-      --color-hover: var(--ion-color-primary-shade);
-    }
-    
-    ion-note {
-      font-size: 12px;
-      font-weight: 500;
-      
-      &.text-green-500 {
-        color: var(--ion-color-success);
-      }
-      
-      &.text-blue-500 {
-        color: var(--ion-color-primary);
-      }
-      
-      &.text-gray-500 {
-        color: var(--ion-color-medium);
-      }
-    }
-  }
-}
-
-// Profile Header
+// Header Styles - Matching Profile Page Design
 .profile-header {
   --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --color: white;
-  
-  .back-button {
-    --color: white;
-  }
+  --border-width: 0;
+  --min-height: 60px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
   
   .header-title {
-    font-weight: 600;
-    font-size: 1.2rem;
+    color: white;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
-  .save-button {
-    --background: rgba(255, 255, 255, 0.2);
-    --color: white;
-    --border-radius: 20px;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    font-weight: 500;
-    
-    &:hover {
-      --background: rgba(255, 255, 255, 0.3);
+}
+
+// Hero Section - Matching Profile Page Design
+.edit-hero-section {
+  margin-top: 3.5rem;
+  position: relative;
+  padding: 2rem 1.5rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 0 0 32px 32px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  text-align: center;
+  color: white;
+
+  .hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+
+    .floating-bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float 6s ease-in-out infinite;
+
+      &.bubble-1 {
+        width: 80px;
+        height: 80px;
+        top: 10%;
+        right: 10%;
+        animation-delay: 0s;
+      }
+
+      &.bubble-2 {
+        width: 60px;
+        height: 60px;
+        top: 60%;
+        left: 5%;
+        animation-delay: 2s;
+      }
+
+      &.bubble-3 {
+        width: 40px;
+        height: 40px;
+        top: 30%;
+        right: 30%;
+        animation-delay: 4s;
+      }
     }
   }
-}
 
-// Profile Content
-.profile-content {
-  --background: #f8fafc;
-  
-  .profile-form {
-    padding: 20px;
-    max-width: 600px;
-    margin: 0 auto;
+  .hero-content {
+    position: relative;
+    z-index: 10;
   }
 }
 
-// Profile Picture Section
+// Profile Picture Section - Matching Profile Design
 .profile-picture-section {
   text-align: center;
   margin-bottom: 32px;
@@ -100,112 +91,118 @@ ion-modal ion-toolbar {
     margin-bottom: 16px;
     
     .profile-avatar {
-      width: 120px;
-      height: 120px;
-      border: 4px solid white;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      width: 100px;
+      height: 100px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
       
       .avatar-image {
         object-fit: cover;
-        border-radius: 50%;
       }
     }
     
-    .avatar-overlay {
+    .avatar-badge {
       position: absolute;
       bottom: 0;
       right: 0;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
       
-      .upload-button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        transition: transform 0.2s ease;
-        
-        &:hover {
-          transform: scale(1.1);
-        }
-        
-        .camera-icon {
-          color: white;
-          font-size: 20px;
-        }
+      .camera-icon {
+        color: white;
+        font-size: 16px;
       }
     }
   }
   
   .avatar-hint {
-    color: #64748b;
     font-size: 14px;
     margin: 0;
   }
 }
 
-// Form Cards
+// Profile Form - Modern Design
+.profile-form {
+  padding: 0 20px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+// Form Cards - Modern Design Matching Profile
 .form-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   margin-bottom: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   
   .card-header {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 20px;
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid #e2e8f0;
     
     .card-icon {
       font-size: 24px;
-      color: #667eea;
+      color: white;
     }
     
     .card-title {
       margin: 0;
       font-size: 18px;
-      font-weight: 600;
-      color: #1e293b;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.2px;
     }
   }
   
   .form-fields {
-    padding: 20px;
+    padding: 24px;
   }
 }
 
-// Form Items
+// Form Items - Modern Design Matching Profile
 .form-item {
-  --background: transparent;
-  --border-color: #e2e8f0;
+  --background: #f8f9fa;
+  --border-color: transparent;
   --border-radius: 12px;
   --padding-start: 16px;
   --padding-end: 16px;
   --padding-top: 16px;
   --padding-bottom: 16px;
   margin-bottom: 16px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --background: #f1f5f9;
+    transform: translateY(-1px);
+  }
   
   &:last-child {
     margin-bottom: 0;
   }
   
   .form-label {
-    color: #475569;
-    font-weight: 500;
+    color: var(--ion-color-dark);
+    font-weight: 600;
     font-size: 14px;
+    margin-bottom: 8px;
+    letter-spacing: -0.1px;
   }
   
   .form-input {
-    --color: #1e293b;
-    --placeholder-color: #94a3b8;
+    --color: var(--ion-color-dark);
+    --placeholder-color: var(--ion-color-medium);
     font-size: 16px;
+    font-weight: 500;
     
     &::part(native) {
       padding-left: 0;
@@ -213,171 +210,170 @@ ion-modal ion-toolbar {
   }
   
   .datetime-button {
-    --color: #c4d3ff;
-    font-weight: 500;
+    --color: #667eea;
+    font-weight: 600;
   }
   
   .cycle-select {
-    --color: white;
+    --color: var(--ion-color-dark);
     font-weight: 500;
-  }
-
-  // Ensure select text is white
-  ::ng-deep .cycle-select .select-text {
-    color: white !important;
   }
 
   .date-button {
-    --background: #c4d3ff;
+    --background: #667eea;
     --color: white;
     --border-radius: 8px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
+    height: 36px;
   }
 }
 
-// Status Section
+// Status Section - Modern Design
 .status-section {
-  padding: 20px;
+  padding: 24px;
   
   .status-hint {
-    color: #64748b;
+    color: var(--ion-color-medium);
     font-size: 14px;
     margin: 0 0 16px 0;
+    line-height: 1.4;
+    text-align: center;
   }
   
-  .current-status {
-    color: #475569;
-    font-size: 14px;
-    margin: 0 0 20px 0;
+  .current-status-display {
+    margin-bottom: 24px;
+    text-align: center;
     
-    .status-value {
-      color: #c4d3ff;
+    .current-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 20px;
       font-weight: 600;
-    }
-  }
-  
-  .status-list {
-    background: transparent;
-    
-    .status-item {
-      --background: #f8fafc;
-      --border-radius: 12px;
-      margin-bottom: 12px;
-      --padding-start: 16px;
-      --padding-end: 16px;
-      --padding-top: 16px;
-      --padding-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
       
-      &:last-child {
-        margin-bottom: 0;
-      }
-      
-      .status-radio {
-        --color: #c4d3ff;
-        --color-checked: #667eea;
-      }
-      
-      .status-label {
-        color: #1e293b;
-        font-weight: 500;
-        font-size: 15px;
-      }
-      
-      .status-checkmark {
-        color: #10b981;
+      .current-status-icon {
         font-size: 18px;
-        font-weight: bold;
+      }
+      
+      .current-status-text {
+        font-size: 14px;
       }
     }
   }
-}
-
-// Debug Section
-.debug-section {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #e2e8f0;
   
-  .debug-details {
-    .debug-summary {
-      color: #64748b;
-      font-size: 14px;
-      font-weight: 500;
+  .status-grid {
+    display: grid;
+    gap: 16px;
+    
+    .status-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
       cursor: pointer;
-      user-select: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
       
       &:hover {
-        color: #475569;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border-color: var(--status-color, #667eea);
       }
-    }
-    
-    .debug-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 12px;
       
-      .debug-btn {
-        --background: #f1f5f9;
-        --color: #475569;
-        --border-radius: 8px;
-        font-size: 12px;
-        font-weight: 500;
+      &.selected {
+        border-color: var(--status-color, #667eea);
+        background: linear-gradient(135deg, rgba(var(--status-color-rgb, 102, 126, 234), 0.05) 0%, rgba(var(--status-color-rgb, 102, 126, 234), 0.02) 100%);
+        box-shadow: 0 8px 32px rgba(var(--status-color-rgb, 102, 126, 234), 0.15);
         
-        &:hover {
-          --background: #e2e8f0;
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, var(--status-color, #667eea) 0%, rgba(var(--status-color-rgb, 102, 126, 234), 0.8) 100%);
+        }
+      }
+      
+      .status-card-content {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        
+        .status-icon-container {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, var(--status-color, #667eea) 0%, rgba(var(--status-color-rgb, 102, 126, 234), 0.8) 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          
+          .status-icon {
+            font-size: 24px;
+            color: white;
+          }
+        }
+        
+        .status-info {
+          flex: 1;
+          
+          .status-title {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ion-color-dark);
+            letter-spacing: -0.2px;
+          }
+          
+          .status-description {
+            margin: 0;
+            font-size: 14px;
+            color: var(--ion-color-medium);
+            line-height: 1.4;
+          }
+        }
+        
+        .status-checkmark {
+          .checkmark-icon {
+            font-size: 24px;
+            color: var(--status-color, #667eea);
+          }
         }
       }
     }
   }
 }
 
-// Cycle Section
-.cycle-section {
-  padding: 20px;
-  
-  .cycle-info {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    background: #fef3c7;
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    
-    .info-icon {
-      color: #f59e0b;
-      font-size: 20px;
-      margin-top: 2px;
-    }
-    
-    .info-text {
-      color: #92400e;
-      font-size: 14px;
-      margin: 0;
-      line-height: 1.5;
-    }
-  }
-}
 
-// Location Section
+// Location Section - Modern Design
 .location-section {
-  padding: 20px;
+  padding: 24px;
   
   .city-button {
-    --color: #c4d3ff;
-    font-weight: 500;
+    --color: #667eea;
+    font-weight: 600;
     text-transform: none;
+    --border-radius: 12px;
+    --background: #f8f9fa;
     
     &:hover {
       --color: #5a67d8;
+      --background: #f1f5f9;
     }
   }
   
   .selection-checkmark {
     color: #10b981;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: bold;
   }
   
@@ -385,54 +381,156 @@ ion-modal ion-toolbar {
     margin-top: 20px;
     
     .location-button {
-      --background: linear-gradient(135deg, #c4d3ff 0%, #764ba2 100%);
+      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       --color: white;
       --border-radius: 12px;
-      font-weight: 500;
+      font-weight: 600;
       width: 100%;
+      --padding-top: 18px;
+      --padding-bottom: 18px;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
       
       &:hover {
-        --background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
       }
     }
   }
 }
 
-// Map Container
-.map-container {
-  width: 100%;
-  height: 100%;
-  min-height: 70vh;
+// Save Button - Modern Design Matching Profile
+.save-section {
+  padding: 0 20px 20px;
+  
+  .save-button {
+    --border-radius: 14px;
+    --padding-top: 18px;
+    --padding-bottom: 18px;
+    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --color: white;
+    font-weight: 700;
+    font-size: 16px;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    width: 100%;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+  }
 }
 
-.map-actions {
-  padding: 20px;
+// Modal Styling - Modern Design
+.ion-modal-picker {
+  --height: auto;
+  --max-height: 80vh;
+  --border-radius: 20px;
+  --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+ion-modal::part(backdrop) {
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+}
+
+ion-modal ion-toolbar {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --color: white;
+}
+
+// Date Picker Modal Styling - Modern Design
+.picker-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px 20px 0 0;
+  padding: 0;
   
-  .action-buttons {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
+  .picker-toolbar {
+    --background: transparent;
+    --color: white;
+    --border-color: transparent;
     
-    .action-button {
-      flex: 1;
-      --border-radius: 8px;
+    .cancel-button {
+      --color: white;
+      --color-hover: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+    }
+    
+    .confirm-button {
+      --color: white;
+      --color-hover: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+    }
+  }
+  
+  .picker-title-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+    
+    .picker-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .picker-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: white;
+      letter-spacing: -0.2px;
+    }
+    
+    .picker-subtitle {
+      font-size: 14px;
+      margin: 0;
+      color: rgba(255, 255, 255, 0.8);
       font-weight: 500;
     }
   }
+}
+
+.date-picker-container {
+  padding: 24px;
+  background: white;
+  border-radius: 0 0 20px 20px;
   
-  .confirm-location-button {
-    --background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    --color: white;
+  .custom-datetime {
+    --background: white;
+    --color: var(--ion-color-dark);
     --border-radius: 12px;
-    font-weight: 500;
+    --border: 2px solid #e2e8f0;
     
-    &:hover {
-      --background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    &::part(calendar-header) {
+      background: #f8fafc;
+      border-radius: 8px 8px 0 0;
+      padding: 16px;
+    }
+    
+    &::part(day) {
+      border-radius: 8px;
+      margin: 2px;
+      font-weight: 500;
+      
+      &:hover {
+        background: #667eea;
+        color: white;
+      }
+    }
+    
+    &::part(month-year) {
+      background: #667eea;
+      color: white;
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 8px 16px;
     }
   }
 }
 
-// Modal Styling
+// Cropper Modal - Modern Design
 .cropper-modal {
   --height: auto;
   --max-height: 90vh;
@@ -469,7 +567,7 @@ ion-modal ion-toolbar {
       max-width: 300px;
       
       ion-label {
-        color: #475569;
+        color: var(--ion-color-dark);
         font-weight: 600;
         margin-bottom: 16px;
         display: block;
@@ -488,212 +586,37 @@ ion-modal ion-toolbar {
   }
 }
 
-// Date Picker Modal Styling
-.ion-modal-picker {
-  --height: auto;
-  --max-height: 80vh;
-  --border-radius: 16px;
-  --box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
-
-.picker-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px 16px 0 0;
-  padding: 0;
-  
-  .picker-toolbar {
-    --background: transparent;
-    --color: white;
-    --border-color: transparent;
-    
-    .cancel-button {
-      --color: white;
-      --color-hover: rgba(255, 255, 255, 0.8);
-      font-weight: 500;
-    }
-    
-    .confirm-button {
-      --color: white;
-      --color-hover: rgba(255, 255, 255, 0.8);
-      font-weight: 500;
-    }
-  }
-  
-  .picker-title-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    flex: 1;
-    
-    .picker-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-      color: rgba(255, 255, 255, 0.9);
-    }
-    
-    .picker-title {
-      font-size: 20px;
-      font-weight: 600;
-      margin: 0 0 4px 0;
-      color: white;
-    }
-    
-    .picker-subtitle {
-      font-size: 14px;
-      margin: 0;
-      color: rgba(255, 255, 255, 0.8);
-      font-weight: 400;
-    }
-  }
-}
-
-.date-picker-container {
-  padding: 24px;
-  background: white;
-  border-radius: 0 0 16px 16px;
-  
-  .custom-datetime {
-    --background: white;
-    --color: #1e293b;
-    --border-radius: 12px;
-    --border: 2px solid #e2e8f0;
-    
-    &::part(calendar-header) {
-      background: #f8fafc;
-      border-radius: 8px 8px 0 0;
-      padding: 16px;
-    }
-    
-    &::part(day) {
-      border-radius: 8px;
-      margin: 2px;
-      font-weight: 500;
-      
-      &:hover {
-        background: #667eea;
-        color: white;
-      }
-    }
-    
-    &::part(month-year) {
-      background: #667eea;
-      color: white;
-      border-radius: 8px;
-      font-weight: 600;
-      padding: 8px 16px;
-    }
-  }
-}
-
-// Dark mode support for date picker
-@media (prefers-color-scheme: dark) {
-  .date-picker-container {
-    background: #1e293b;
-    
-    .custom-datetime {
-      --background: #1e293b;
-      --color: #f1f5f9;
-      --border-color: #334155;
-      
-      &::part(calendar-header) {
-        background: #334155;
-      }
-      
-      &::part(day) {
-        &:hover {
-          background: #667eea;
-          color: white;
-        }
-      }
-    }
-  }
-}
-
 // Responsive Design
-@media (max-width: 768px) {
-  .profile-content .profile-form {
-    padding: 16px;
+@media (min-width: 768px) {
+  .edit-profile-content {
+    max-width: 600px;
+    margin: 0 auto;
   }
   
-  .form-card {
-    margin-bottom: 20px;
-    
-    .card-header {
-      padding: 16px;
-      
-      .card-title {
-        font-size: 16px;
-      }
-    }
-    
-    .form-fields,
-    .status-section,
-    .cycle-section,
-    .location-section {
-      padding: 16px;
-    }
-  }
-  
-  .debug-buttons {
-    flex-direction: column;
-    
-    .debug-btn {
-      width: 100%;
-    }
-  }
-  
-  .action-buttons {
-    flex-direction: column;
+  .profile-form {
+    max-width: 560px;
   }
 }
 
-// Dark Mode Support
-@media (prefers-color-scheme: dark) {
-  .profile-content {
-    --background: #0f172a;
+// Animations
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
   }
-  
-  .form-card {
-    background: #1e293b;
-    
-    .card-header {
-      background: linear-gradient(135deg, #334155 0%, #475569 100%);
-      border-bottom-color: #475569;
-      
-      .card-title {
-        color: #f1f5f9;
-      }
-    }
-  }
-  
-  .form-item {
-    --border-color: #475569;
-    
-    .form-label {
-      color: #cbd5e1;
-    }
-    
-    .form-input {
-      --color: #f1f5f9;
-      --placeholder-color: #64748b;
-    }
-  }
-  
-  .status-section .status-item {
-    --background: #334155;
-    
-    .status-label {
-      color: #f1f5f9;
-    }
-  }
-  
-  .cycle-info {
-    background: #451a03;
-    
-    .info-text {
-      color: #fbbf24;
-    }
+  50% {
+    transform: translateY(-20px);
   }
 }
 
+// Smooth Animations
+* {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Focus States
+ion-button:focus-visible,
+ion-item:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+  border-radius: 8px;
+}

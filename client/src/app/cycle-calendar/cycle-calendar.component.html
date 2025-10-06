@@ -1,0 +1,150 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="profile-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="profile" class="back-button"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">My Cycle Calendar</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="cycle-calendar-content">
+  <!-- Current Status Section -->
+  <div class="status-section">
+    <h2 class="section-title">Current Cycle</h2>
+    
+    <div class="status-cards">
+      <!-- Last Period Card -->
+      <div class="status-card" *ngIf="reproductiveStatus.lastPeriodDate">
+        <div class="card-icon">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Last Period</h3>
+          <p class="card-value">{{ formatDate(reproductiveStatus.lastPeriodDate) }}</p>
+        </div>
+      </div>
+
+      <!-- Next Period Card -->
+      <div class="status-card" *ngIf="nextPeriodDate">
+        <div class="card-icon">
+          <ion-icon name="arrow-forward-circle-outline"></ion-icon>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Next Expected</h3>
+          <p class="card-value">{{ formatDate(nextPeriodDate) }}</p>
+        </div>
+      </div>
+
+      <!-- Cycle Length Card -->
+      <div class="status-card" *ngIf="reproductiveStatus.averageCycleLength">
+        <div class="card-icon">
+          <ion-icon name="repeat-outline"></ion-icon>
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Cycle Length</h3>
+          <p class="card-value">{{ reproductiveStatus.averageCycleLength }} days</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fertile Window Section -->
+  <div class="fertile-section" *ngIf="fertileWindow">
+    <h2 class="section-title">Fertile Window</h2>
+    <div class="fertile-card">
+      <div class="fertile-icon">
+        <ion-icon name="heart-outline"></ion-icon>
+      </div>
+      <div class="fertile-content">
+        <h3 class="fertile-title">Estimated Fertile Days</h3>
+        <p class="fertile-dates">
+          {{ formatDate(fertileWindow.start) }} - {{ formatDate(fertileWindow.end) }}
+        </p>
+        <p class="fertile-note">This is an estimate based on your cycle length</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mood Tracking Section -->
+  <div class="mood-section">
+    <h2 class="section-title">Today's Mood</h2>
+    <div class="mood-buttons">
+      <ion-button 
+        fill="outline" 
+        size="small" 
+        class="mood-btn"
+        (click)="trackMood('Happy')"
+      >
+        <ion-icon name="happy-outline" slot="start"></ion-icon>
+        Happy
+      </ion-button>
+      <ion-button 
+        fill="outline" 
+        size="small" 
+        class="mood-btn"
+        (click)="trackMood('Neutral')"
+      >
+        <ion-icon name="ellipse-outline" slot="start"></ion-icon>
+        Neutral
+      </ion-button>
+      <ion-button 
+        fill="outline" 
+        size="small" 
+        class="mood-btn"
+        (click)="trackMood('Sad')"
+      >
+        <ion-icon name="sad-outline" slot="start"></ion-icon>
+        Sad
+      </ion-button>
+      <ion-button 
+        fill="outline" 
+        size="small" 
+        class="mood-btn"
+        (click)="trackMood('Tired')"
+      >
+        <ion-icon name="bed-outline" slot="start"></ion-icon>
+        Tired
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- Past Logs Section -->
+  <div class="logs-section" *ngIf="pastLogs.length > 0">
+    <h2 class="section-title">Past Period Logs</h2>
+    <div class="logs-list">
+      <div class="log-item" *ngFor="let log of pastLogs">
+        <div class="log-date">
+          <strong>{{ formatDate(log.date) }}</strong>
+        </div>
+        <div class="log-details">
+          <div class="log-mood">
+            <ion-icon name="happy-outline" *ngIf="log.mood === 'Happy'"></ion-icon>
+            <ion-icon name="ellipse-outline" *ngIf="log.mood === 'Neutral'"></ion-icon>
+            <ion-icon name="sad-outline" *ngIf="log.mood === 'Sad'"></ion-icon>
+            <ion-icon name="bed-outline" *ngIf="log.mood === 'Tired'"></ion-icon>
+            {{ log.mood }}
+          </div>
+          <div class="log-notes" *ngIf="log.notes">
+            {{ log.notes }}
+          </div>
+          <div class="log-symptoms" *ngIf="log.symptoms && log.symptoms.length > 0">
+            <span class="symptom-tag" *ngFor="let symptom of log.symptoms">{{ symptom }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!reproductiveStatus.lastPeriodDate">
+    <div class="empty-icon">
+      <ion-icon name="calendar-outline"></ion-icon>
+    </div>
+    <h3 class="empty-title">No Cycle Data</h3>
+    <p class="empty-description">Set up your period tracking in your profile to see cycle predictions</p>
+    <ion-button fill="outline" class="empty-action-btn" (click)="goToProfile()">
+      <ion-icon name="person-outline" slot="start"></ion-icon>
+      Go to Profile
+    </ion-button>
+  </div>
+</ion-content>

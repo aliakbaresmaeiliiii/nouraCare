@@ -139,7 +139,6 @@ export class SymptomsTrackerComponent implements OnInit {
 
   loadExistingData(): void {
     const userId = this.getCurrentUserId();
-debugger;
       this.trackDataService.getTrackDay(userId, this.selectedDate).subscribe({
         next: (data) => {
           this.existingData = data;
@@ -195,7 +194,6 @@ debugger;
 
   getCurrentUserId(): number {
     const userData = localStorage.getItem('userInfo');
-    debugger;
     if (userData) {
       const parsed = JSON.parse(userData);
       return parsed.user?.id || parsed.id ; // fallback to 30

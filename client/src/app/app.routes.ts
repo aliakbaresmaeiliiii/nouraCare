@@ -47,7 +47,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'profile-edit',
+    path: 'edit-profile',
     loadComponent: () =>
       import('./edit-profile/edit-profile.component').then(
         (m) => m.EditProfileComponent
@@ -193,6 +193,45 @@ export const routes: Routes = [
       import('./my-favorites/my-favorites.component').then(
         (m) => m.MyFavoritesComponent
       ),
+  },
+  {
+    path: 'cycle-calendar',
+    loadComponent: () =>
+      import('./cycle-calendar/cycle-calendar.component').then(
+        (m) => m.CycleCalendarComponent
+      ),
+  },
+  {
+    path: 'pregnancy-planning',
+    loadComponent: () =>
+      import('./pregnancy-planning/pregnancy-planning.component').then(
+        (m) => m.PregnancyPlanningComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'reproductive-status',
+    loadComponent: () =>
+      import('./features/profile/reproductive-status/reproductive-status.component').then(
+        (m) => m.ReproductiveStatusComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'pregnancy-journey',
+    loadComponent: () =>
+      import('./pregnancy-planning/pregnancy-planning.component').then(
+        (m) => m.PregnancyPlanningComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'postpartum',
+    loadComponent: () =>
+      import('./pregnancy-planning/pregnancy-planning.component').then(
+        (m) => m.PregnancyPlanningComponent
+      ),
+    canActivate: [authGuard],
   },
   {
     path: 'article/:id',

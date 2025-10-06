@@ -1,0 +1,557 @@
+// Pregnancy Planning Styles - Matching Profile Page Design
+.pregnancy-content {
+  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+// Header Styles - Matching Profile Header
+.pregnancy-header {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --border-width: 0;
+  --min-height: 60px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  
+  .header-title {
+    color: white;
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .back-button {
+    color: white;
+    --color-hover: rgba(255, 255, 255, 0.8);
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+// Loading State - Matching Profile Style
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  text-align: center;
+  
+  ion-spinner {
+    width: 48px;
+    height: 48px;
+    --color: #667eea;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}
+
+// Mode Card - Matching Profile Cards
+.mode-card {
+  background: white;
+  margin: 20px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  .mode-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 20px 0;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    ion-icon {
+      color: #667eea;
+      font-size: 24px;
+    }
+  }
+  
+  .segment-btn {
+    --background: #f8f9fa;
+    --background-checked: white;
+    --color-checked: #667eea;
+    --border-radius: 12px;
+    min-height: 44px;
+    font-weight: 600;
+    margin: 4px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+// Cycle Form Card - Matching Profile Design
+.cycle-form-card {
+  background: white;
+  margin: 0 20px 20px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  .form-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 20px 0;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    ion-icon {
+      color: #667eea;
+      font-size: 24px;
+    }
+  }
+  
+  .form-item {
+    --background: #f8f9fa;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --inner-padding-end: 0;
+    --border-radius: 12px;
+    --border-color: transparent;
+    margin-bottom: 20px;
+    
+    ion-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin-bottom: 8px;
+      letter-spacing: -0.1px;
+    }
+    
+    .date-input,
+    .cycle-select {
+      --padding-start: 0;
+      font-weight: 500;
+      --color: #667eea;
+    }
+  }
+  
+  .save-btn {
+    --border-radius: 14px;
+    --padding-top: 18px;
+    --padding-bottom: 18px;
+    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin-top: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.1px;
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    
+    &:disabled {
+      --background: #6c757d;
+      opacity: 0.6;
+    }
+  }
+
+  .create-plan-btn {
+    --border-radius: 14px;
+    --padding-top: 18px;
+    --padding-bottom: 18px;
+    --background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    margin-top: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.1px;
+    box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
+    
+    &:disabled {
+      --background: #6c757d;
+      opacity: 0.6;
+    }
+  }
+
+  .text-input {
+    --padding-start: 0;
+    font-weight: 500;
+    --color: var(--ion-color-dark);
+    font-size: 16px;
+    
+    &::placeholder {
+      color: var(--ion-color-medium);
+      font-weight: 400;
+    }
+  }
+}
+
+// Predictions Card - Matching Profile Design
+.predictions-card {
+  background: white;
+  margin: 0 20px 20px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  .predictions-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 20px 0;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    ion-icon {
+      color: #667eea;
+      font-size: 24px;
+    }
+  }
+  
+  .predictions-grid {
+    padding: 0;
+  }
+  
+  .prediction-item {
+    background: #f8f9fa;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin: 8px;
+    
+    .prediction-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ion-color-medium);
+      margin: 0 0 8px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .prediction-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ion-color-dark);
+      margin: 0 0 4px 0;
+      letter-spacing: -0.2px;
+    }
+    
+    .prediction-note {
+      font-size: 13px;
+      color: #667eea;
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+}
+
+// Fertile Window Card - Special Styling
+.fertile-card {
+  background: white;
+  margin: 0 20px 20px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+  
+  &.active {
+    border-color: #28a745;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.02) 100%);
+    
+    .fertile-title {
+      color: #28a745;
+    }
+  }
+  
+  .fertile-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 20px 0;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+    ion-icon {
+      color: #dc3545;
+      font-size: 24px;
+      margin-right: 12px;
+    }
+    
+    .active-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+  }
+  
+  .fertile-dates {
+    .fertile-range {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin: 0 0 12px 0;
+      letter-spacing: -0.1px;
+    }
+    
+    .fertile-description {
+      font-size: 14px;
+      color: var(--ion-color-medium);
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+}
+
+// Pregnancy Overview Card - Gradient Design
+.pregnancy-overview-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 0 20px 20px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  
+  .pregnancy-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+  
+  .pregnancy-grid {
+    padding: 0;
+    
+    .pregnancy-stat {
+      text-align: center;
+      padding: 16px;
+      
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        color: white;
+        letter-spacing: -0.3px;
+      }
+      
+      .stat-label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+    }
+  }
+  
+  .due-date-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    
+    .due-date-label {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      margin: 0 0 8px 0;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .due-date-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      margin: 0;
+      letter-spacing: -0.2px;
+    }
+  }
+}
+
+// Milestones Card - Matching Profile Design
+.milestones-card {
+  background: white;
+  margin: 0 20px 20px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  .milestones-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 20px 0;
+    letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    ion-icon {
+      color: #667eea;
+      font-size: 24px;
+    }
+  }
+  
+  .milestone-list {
+    .milestone-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid #f1f3f4;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      &.completed {
+        .milestone-name {
+          color: #28a745;
+          text-decoration: line-through;
+        }
+        
+        .milestone-week {
+          color: #28a745;
+        }
+      }
+      
+      .milestone-check {
+        margin-right: 16px;
+        
+        ion-icon {
+          font-size: 20px;
+        }
+      }
+      
+      .milestone-content {
+        flex: 1;
+        
+        .milestone-name {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--ion-color-dark);
+          margin: 0 0 4px 0;
+          letter-spacing: -0.1px;
+        }
+        
+        .milestone-week {
+          font-size: 13px;
+          color: var(--ion-color-medium);
+          margin: 0;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+// Switch Sections - Matching Profile Buttons
+.pregnancy-switch-section,
+.planning-switch-section {
+  margin: 0 20px 24px;
+  text-align: center;
+  
+  .pregnancy-btn {
+    --border-radius: 14px;
+    --padding-top: 18px;
+    --padding-bottom: 18px;
+    --background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.1px;
+    box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
+  }
+  
+  .planning-btn {
+    --border-radius: 14px;
+    --padding-top: 18px;
+    --padding-bottom: 18px;
+    --border-width: 2px;
+    --border-color: #667eea;
+    --color: #667eea;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    letter-spacing: -0.1px;
+  }
+  
+  .switch-note {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// Responsive Design - Matching Profile
+@media (min-width: 768px) {
+  .pregnancy-content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .mode-card,
+  .cycle-form-card,
+  .predictions-card,
+  .fertile-card,
+  .pregnancy-overview-card,
+  .milestones-card,
+  .pregnancy-switch-section,
+  .planning-switch-section {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 560px;
+  }
+}
+
+// Animation for active states
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+  }
+}
+
+.fertile-card.active {
+  animation: pulse 2s infinite;
+}
+
+// Smooth Animations - Matching Profile
+* {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// Focus States - Matching Profile
+ion-button:focus-visible,
+ion-item:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+  border-radius: 8px;
+}

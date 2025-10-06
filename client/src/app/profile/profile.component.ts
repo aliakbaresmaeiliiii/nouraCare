@@ -12,7 +12,14 @@ import { Router } from '@angular/router';
 import { User } from '../shared/services/user';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
+import {
+  ReproductiveStatusService,
+  ReproductiveStatusData,
+} from '../shared/services/reproductive-status.service';
+import { PregnancyEndDialogComponent } from '../shared/components/pregnancy-end-dialog/pregnancy-end-dialog.component';
+import { ModalController } from '@ionic/angular/standalone';
 import { Share } from '@capacitor/share';
+import { HomeDataService } from '../home/services/home-data.service';
 
 // Extend Window interface to include Capacitor
 declare global {
@@ -22,7 +29,6 @@ declare global {
     };
   }
 }
-
 
 @Component({
   selector: 'app-profile',
@@ -64,9 +70,19 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   city: string = '';
   profileImage: string | null = null;
   private userService = inject(User);
+  private homeService = inject(HomeDataService);
   private imageUrlService = inject(ImageUrlService);
   public profileCompletionService = inject(ProfileCompletionService);
-  
+  private reproductiveStatusService = inject(ReproductiveStatusService);
+  private modalCtrl = inject(ModalController);
+  userId = 0;
+
+  // Reproductive status data
+  reproductiveStatus: ReproductiveStatusData = {};
+  cycleLengthOptions = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
+  lastPeriodDate: string = '';
+  selectedCycleLength: number = 28;
+
   userInfo = signal<any[]>([
     {
       friends: 20,
@@ -102,11 +118,152 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   editProfile() {
     // Logic to edit profile
-    this.router.navigate(['/profile-edit']);
+    this.router.navigate(['/edit-profile']);
+  }
+
+  // Reproductive status methods
+  async loadReproductiveStatus() {
+    try {
+      this.reproductiveStatusService
+        .getReproductiveStatus(this.userId)
+        .subscribe({
+          next: (data) => {
+            this.reproductiveStatus = data;
+            if (data.lastPeriodDate) {
+              this.lastPeriodDate = data.lastPeriodDate;
+            }
+            if (data.averageCycleLength) {
+              this.selectedCycleLength = data.averageCycleLength;
+            }
+          },
+          error: (error) => {
+            console.error('Error loading reproductive status:', error);
+          },
+        });
+    } catch (error) {
+      console.error('Error loading reproductive status:', error);
+    }
+  }
+
+  async openPregnancyEndDialog() {
+    const modal = await this.modalCtrl.create({
+      component: PregnancyEndDialogComponent,
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+
+    if (data && data.pregnancyEndDate) {
+      // Auto-set isPregnant to false when pregnancyEndDate is provided
+      const updateData = {
+        isPregnant: false,
+        pregnancyEndDate: data.pregnancyEndDate,
+        notes: data.notes,
+      };
+
+      this.updateReproductiveStatus(updateData);
+    }
+  }
+
+  updateReproductiveStatus(data: ReproductiveStatusData) {
+    const userId = this.userInfoStore?.user?.id;
+    if (!userId) {
+      console.error('User ID not found');
+      this.showToast('Error: User ID not found');
+      return;
+    }
+
+    this.reproductiveStatusService
+      .updateReproductiveStatus(userId, data)
+      .subscribe({
+        next: (response) => {
+          console.log('Reproductive status updated successfully:', response);
+          this.loadReproductiveStatus(); // Refresh data
+          this.showToast('Status updated successfully!');
+        },
+        error: (error) => {
+          console.error('Error updating reproductive status:', error);
+          this.showToast('Error updating status. Please try again.');
+        },
+      });
+  }
+
+  submitPeriodTracking() {
+    if (!this.lastPeriodDate) {
+      this.showToast('Please select your last period date');
+      return;
+    }
+
+    const updateData: ReproductiveStatusData = {
+      lastPeriodDate: this.lastPeriodDate,
+      averageCycleLength: this.selectedCycleLength,
+      isPregnant: false, // Ensure pregnancy status is false when tracking periods
+    };
+
+    this.updateReproductiveStatus(updateData);
+  }
+
+  goToCycleCalendar() {
+    this.router.navigate(['/cycle-calendar']);
+  }
+
+  getTodayDate(): string {
+    return new Date().toISOString();
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+
+  getPregnancyWeek(): number {
+    if (!this.reproductiveStatus.lastPeriodDate) return 0;
+
+    const lastPeriod = new Date(this.reproductiveStatus.lastPeriodDate);
+    const today = new Date();
+    const diffTime = today.getTime() - lastPeriod.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    return Math.floor(diffDays / 7);
+  }
+
+  private showToast(message: string) {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ion-color-dark);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 10000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 300px;
+      text-align: center;
+    `;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.remove();
+      }
+    }, 3000);
   }
 
   goEdit(field: string) {
-    this.router.navigate(['/profile-edit'], { queryParams: { focus: field } });
+    this.router.navigate(['/edit-profile'], { queryParams: { focus: field } });
+  }
+
+  goToPregnancyPlanning() {
+    this.router.navigate(['/pregnancy-planning']);
   }
 
   async shareProfile() {
@@ -114,7 +271,9 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       // Create share data
       const shareData = {
         title: 'My Profile - Gahvareh',
-        text: `Check out my profile on Gahvareh! I'm ${this.name || 'a user'} and my profile is ${this.percent}% complete.`,
+        text: `Check out my profile on Gahvareh! I'm ${
+          this.name || 'a user'
+        } and my profile is ${this.percent}% complete.`,
         url: window.location.href,
       };
 
@@ -303,10 +462,15 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     this.refreshProfileData();
   }
 
-    ngOnInit(): void {
+  ngOnInit(): void {
+    this.userId = this.homeService.getCurrentUserId();
+
     // Load profile data from API
     this.profileCompletionService.refreshFromAPI();
-    
+
+    // Load reproductive status
+    this.loadReproductiveStatus();
+
     // Also load from localStorage for immediate display
     try {
       this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -317,9 +481,12 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.city = u.city || '';
       this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
     } catch (error) {
-      console.error('ProfileComponent - Error loading from localStorage:', error);
+      console.error(
+        'ProfileComponent - Error loading from localStorage:',
+        error
+      );
     }
-    
+
     // fetch fresh from API if we have id
     const id = this.userInfoStore?.user?.id;
     if (id) {
@@ -328,26 +495,26 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
         this.email = res?.email || this.email;
         this.birthday = res?.birthday || this.birthday;
         this.city = res?.city || this.city;
-        this.profileImage = this.imageUrlService.getImageUrl(res?.profileImage || this.profileImage);
+        this.profileImage = this.imageUrlService.getImageUrl(
+          res?.profileImage || this.profileImage
+        );
 
         // Update userInfoStore with fresh data for progress calculation
         if (res) {
           this.userInfoStore.user = {
             ...this.userInfoStore.user,
-            ...res
+            ...res,
           };
         }
-        
+
         // Update the service with fresh data from API
         this.profileCompletionService.updateUserData(this.userInfoStore.user);
       });
     } else {
       // Only update service if no API call is made
-      this.profileCompletionService.updateUserData(this.userInfoStore?.user || {});
+      this.profileCompletionService.updateUserData(
+        this.userInfoStore?.user || {}
+      );
     }
   }
 }
-
-
-
-

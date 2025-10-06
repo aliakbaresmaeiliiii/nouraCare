@@ -73,7 +73,6 @@ export class AuthService {
    * Handle successful token response
    */
   private handleTokenResponse(response: TokenResponse): void {
-    debugger;
     // Store access token in memory (sessionStorage for persistence across page reloads)
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('accessToken', response.accessToken);
@@ -229,6 +228,8 @@ export class AuthService {
    */
   setUserInfo(userInfo: UserInfo): void {
     this.userInfo.set(userInfo);
+    // Also set authentication state to true when user info is set
+    this.isAuthenticatedSubject.next(true);
   }
 
   // Keep existing methods for compatibility

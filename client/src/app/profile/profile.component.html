@@ -17,21 +17,17 @@
   <div class="hero-section">
     <div class="profile-avatar-container">
       <ion-avatar class="profile-avatar">
-        <img 
-          [src]="profileImage" 
-          alt="Profile Picture"
-          class="avatar-image"
-        />
+        <img [src]="profileImage" alt="Profile Picture" class="avatar-image" />
       </ion-avatar>
       <div class="avatar-badge">
         <ion-icon name="camera" class="camera-icon"></ion-icon>
       </div>
     </div>
-    
+
     <div class="profile-info">
-      <h1 class="profile-name">{{ name || 'Add Your Name' }}</h1>
-      <p class="profile-subtitle">{{ email || 'Add your email' }}</p>
-      
+      <h1 class="profile-name">{{ name || "Add Your Name" }}</h1>
+      <p class="profile-subtitle">{{ email || "Add your email" }}</p>
+
       <div class="profile-stats">
         <div class="stat-item">
           <span class="stat-number">{{ userInfo()[0]?.friends || 0 }}</span>
@@ -69,25 +65,91 @@
 
   <!-- Action Buttons -->
   <div class="action-buttons">
-    <ion-button expand="block" type="button" class="edit-profile-btn" (click)="editProfile()">
+    <ion-button
+      expand="block"
+      type="button"
+      class="edit-profile-btn"
+      (click)="editProfile()"
+    >
       <ion-icon name="create-outline" slot="start"></ion-icon>
       Edit Profile
     </ion-button>
+    
+    <ion-button
+      expand="block"
+      type="button"
+      class="pregnancy-planning-btn"
+      (click)="goToPregnancyPlanning()"
+    >
+      <ion-icon name="heart-outline" slot="start"></ion-icon>
+      Pregnancy Planning
+    </ion-button>
+  </div>
+
+  <!-- Pregnancy Planning Summary -->
+  <div class="pregnancy-summary-section" *ngIf="reproductiveStatus.lastPeriodDate">
+    <h3 class="section-title">Pregnancy Planning</h3>
+    
+    <div class="pregnancy-summary-card">
+      <div class="summary-header">
+        <div class="summary-icon">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+        <div class="summary-content">
+          <h4 class="summary-title">Cycle Tracking</h4>
+          <p class="summary-subtitle">Last Period: {{ formatDate(reproductiveStatus.lastPeriodDate) }}</p>
+        </div>
+      </div>
+      
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <span class="stat-number">{{ reproductiveStatus.averageCycleLength || 28 }}</span>
+          <span class="stat-label">Cycle Days</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-number" *ngIf="reproductiveStatus.isPregnant; else notPregnant">
+            {{ getPregnancyWeek() }}
+          </span>
+          <ng-template #notPregnant>
+            <span class="stat-number">-</span>
+          </ng-template>
+          <span class="stat-label">{{ reproductiveStatus.isPregnant ? 'Weeks Pregnant' : 'Planning' }}</span>
+        </div>
+      </div>
+      
+      <div class="summary-actions">
+        <ion-button
+          fill="clear"
+          size="small"
+          class="summary-action-btn"
+          (click)="goToPregnancyPlanning()"
+        >
+          <ion-icon name="heart-outline" slot="start"></ion-icon>
+          View Details
+        </ion-button>
+      </div>
+    </div>
   </div>
 
   <!-- Profile Fields Cards -->
   <div class="profile-fields">
     <h3 class="section-title">Complete Your Profile</h3>
-    
+
     <div class="field-cards">
       <!-- Name Card -->
-      <div class="field-card" [class.completed]="isNameCompleted" (click)="goEdit('name')">
+      <div
+        class="field-card"
+        [class.completed]="isNameCompleted"
+        (click)="goEdit('name')"
+      >
         <div class="field-icon">
           <ion-icon name="person-outline"></ion-icon>
         </div>
         <div class="field-content">
           <h4 class="field-title">Full Name</h4>
-          <p class="field-value">{{ currentUserData?.name || name || 'Add your name' }}</p>
+          <p class="field-value">
+            {{ currentUserData?.name || name || "Add your name" }}
+          </p>
         </div>
         <div class="field-action">
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
@@ -98,13 +160,19 @@
       </div>
 
       <!-- Email Card -->
-      <div class="field-card" [class.completed]="isEmailCompleted" (click)="goEdit('email')">
+      <div
+        class="field-card"
+        [class.completed]="isEmailCompleted"
+        (click)="goEdit('email')"
+      >
         <div class="field-icon">
           <ion-icon name="mail-outline"></ion-icon>
         </div>
         <div class="field-content">
           <h4 class="field-title">Email Address</h4>
-          <p class="field-value">{{ currentUserData?.email || email || 'Add your email' }}</p>
+          <p class="field-value">
+            {{ currentUserData?.email || email || "Add your email" }}
+          </p>
         </div>
         <div class="field-action">
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
@@ -115,13 +183,19 @@
       </div>
 
       <!-- Birthday Card -->
-      <div class="field-card" [class.completed]="isBirthdayCompleted" (click)="goEdit('birthday')">
+      <div
+        class="field-card"
+        [class.completed]="isBirthdayCompleted"
+        (click)="goEdit('birthday')"
+      >
         <div class="field-icon">
           <ion-icon name="calendar-outline"></ion-icon>
         </div>
         <div class="field-content">
           <h4 class="field-title">Birthday</h4>
-          <p class="field-value">{{ currentUserData?.birthday || birthday || 'Add your birthday' }}</p>
+          <p class="field-value">
+            {{ currentUserData?.birthday || birthday || "Add your birthday" }}
+          </p>
         </div>
         <div class="field-action">
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
@@ -153,7 +227,11 @@
   <!-- Activity Tabs -->
   <div class="activity-section">
     <div class="tabs-container">
-      <ion-segment value="first" (ionChange)="segmentChanged($event)" class="custom-segment">
+      <ion-segment
+        value="first"
+        (ionChange)="segmentChanged($event)"
+        class="custom-segment"
+      >
         <ion-segment-button value="first" class="segment-btn">
           <ion-icon name="help-circle-outline"></ion-icon>
           <ion-label>Questions</ion-label>
@@ -171,56 +249,61 @@
 
     <!-- Tab Content -->
     <div class="tab-content">
-      @switch (selectedTab) {
-        @case ('first') {
-          <div class="empty-state">
-            <div class="empty-icon">
-              <ion-icon name="help-circle-outline"></ion-icon>
-            </div>
-            <h3 class="empty-title">No Questions Yet</h3>
-            <p class="empty-description">Start asking questions to get help from the community</p>
-            <ion-button fill="outline" class="empty-action-btn" (click)="someFunction()">
-              <ion-icon name="add" slot="start"></ion-icon>
-              Ask Your First Question
-            </ion-button>
-          </div>
-        }
-        @case ('second') {
-          <div class="empty-state">
-            <div class="empty-icon">
-              <ion-icon name="chatbubble-outline"></ion-icon>
-            </div>
-            <h3 class="empty-title">No Answers Yet</h3>
-            <p class="empty-description">Share your knowledge by answering questions</p>
-            <ion-button fill="outline" class="empty-action-btn">
-              <ion-icon name="arrow-forward" slot="start"></ion-icon>
-              Go to Q&A Section
-            </ion-button>
-          </div>
-        }
-        @case ('third') {
-          <div class="empty-state">
-            <div class="empty-icon">
-              <ion-icon name="bag-outline"></ion-icon>
-            </div>
-            <h3 class="empty-title">No Experiences Shared</h3>
-            <p class="empty-description">Help others by sharing your buying experiences</p>
-            <ion-button fill="outline" class="empty-action-btn">
-              <ion-icon name="add" slot="start"></ion-icon>
-              Share Your Experience
-            </ion-button>
-          </div>
-        }
-        @default {
-          <div class="empty-state">
-            <div class="empty-icon">
-              <ion-icon name="information-circle-outline"></ion-icon>
-            </div>
-            <h3 class="empty-title">Select a Tab</h3>
-            <p class="empty-description">Choose what you'd like to see</p>
-          </div>
-        }
-      }
+      @switch (selectedTab) { @case ('first') {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <ion-icon name="help-circle-outline"></ion-icon>
+        </div>
+        <h3 class="empty-title">No Questions Yet</h3>
+        <p class="empty-description">
+          Start asking questions to get help from the community
+        </p>
+        <ion-button
+          fill="outline"
+          class="empty-action-btn"
+          (click)="someFunction()"
+        >
+          <ion-icon name="add" slot="start"></ion-icon>
+          Ask Your First Question
+        </ion-button>
+      </div>
+      } @case ('second') {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <ion-icon name="chatbubble-outline"></ion-icon>
+        </div>
+        <h3 class="empty-title">No Answers Yet</h3>
+        <p class="empty-description">
+          Share your knowledge by answering questions
+        </p>
+        <ion-button fill="outline" class="empty-action-btn">
+          <ion-icon name="arrow-forward" slot="start"></ion-icon>
+          Go to Q&A Section
+        </ion-button>
+      </div>
+      } @case ('third') {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <ion-icon name="bag-outline"></ion-icon>
+        </div>
+        <h3 class="empty-title">No Experiences Shared</h3>
+        <p class="empty-description">
+          Help others by sharing your buying experiences
+        </p>
+        <ion-button fill="outline" class="empty-action-btn">
+          <ion-icon name="add" slot="start"></ion-icon>
+          Share Your Experience
+        </ion-button>
+      </div>
+      } @default {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <ion-icon name="information-circle-outline"></ion-icon>
+        </div>
+        <h3 class="empty-title">Select a Tab</h3>
+        <p class="empty-description">Choose what you'd like to see</p>
+      </div>
+      } }
     </div>
   </div>
 </ion-content>

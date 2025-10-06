@@ -1,0 +1,21 @@
+<div class="reproductive-status-container">
+  <div class="header">
+    <h1 class="title">Reproductive Status</h1>
+    <p class="subtitle">Please select your current reproductive stage</p>
+  </div>
+
+  <div class="options-grid">
+    <div 
+      *ngFor="let option of statusOptions" 
+      class="option-card"
+      [class.selected]="selectedStatus() === option.id"
+      (click)="selectStatus(option.id)"
+    >
+      <div class="option-icon">{{ option.icon }}</div>
+      <div class="option-content">
+        <h3 class="option-label">{{ option.label }}</h3>
+        <p class="option-description">{{ option.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>

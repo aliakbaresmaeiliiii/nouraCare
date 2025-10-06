@@ -7,15 +7,37 @@ export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Check if user is authenticated
+  // Check if user is authenticated via AuthService (JWT tokens)
   if (authService.isAuthenticated()) {
     return true;
   }
 
-  // If not authenticated, check if we have a refresh token
-  const refreshToken = localStorage.getItem('refresh_token');
+  // Check if user has userInfo in localStorage (fallback authentication)
+  const userInfo = localStorage.getItem('userInfo');
+  if (userInfo) {
+    try {
+      const parsedUserInfo = JSON.parse(userInfo);
+      // If we have valid userInfo, update AuthService state and allow access
+      if (parsedUserInfo && (parsedUserInfo.id || parsedUserInfo.user?.id)) {
+        // Update AuthService authentication state
+        authService.setUserInfo({
+          id: parsedUserInfo.id || parsedUserInfo.user?.id,
+          email: parsedUserInfo.email || '',
+          phone: parsedUserInfo.phone || '',
+          isVerified: true,
+          verificationCode: ''
+        });
+        return true;
+      }
+    } catch (error) {
+      console.error('Error parsing userInfo:', error);
+    }
+  }
+
+  // If not authenticated, check if we have an access token
+  const accessToken = localStorage.getItem('accessToken');
   
-  if (refreshToken) {
+  if (accessToken) {
     // Try to refresh the token
     return authService.refreshToken().pipe(
       map(() => {
@@ -32,7 +54,7 @@ export const authGuard: CanActivateFn = (route, state) => {
     );
   }
 
-  // No refresh token available, redirect to login
+  // No authentication available, redirect to login
   router.navigate(['/auth/sign-in'], {
     queryParams: { returnUrl: state.url }
   });

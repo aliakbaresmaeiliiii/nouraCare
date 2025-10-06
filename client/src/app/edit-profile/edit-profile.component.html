@@ -1,10 +1,27 @@
-<ion-header class="ion-no-border">
+<!-- <ion-header class="ion-no-border">
   <ion-toolbar color="primary" class="profile-header">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="tabs" class="back-button"></ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">Edit Profile</ion-title>
     <ion-buttons slot="end">
+      <ion-button type="submit" class="save-button" (click)="onSubmit()">
+        <ion-icon name="checkmark" slot="start"></ion-icon>
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header> -->
+
+
+
+<ion-header class="ion-no-border">
+  <ion-toolbar class="profile-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="tabs" class="back-button"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="header-title">My Profile</ion-title>
+     <ion-buttons slot="end">
       <ion-button type="submit" class="save-button" (click)="onSubmit()">
         <ion-icon name="checkmark" slot="start"></ion-icon>
         Save
@@ -91,49 +108,43 @@
     <div class="form-card">
       <div class="card-header">
         <ion-icon name="heart" class="card-icon"></ion-icon>
-        <h2 class="card-title">Your Status</h2>
+        <h2 class="card-title">Your Journey</h2>
       </div>
 
       <div class="status-section">
-        <p class="status-hint">Tell us about your current situation</p>
-        <p class="current-status">Current: <span class="status-value">{{ getCurrentStatus() || 'None selected' }}</span>
-        </p>
+        <p class="status-hint">Select the option that best describes your current situation</p>
+        
+        <!-- Current Status Display -->
+        <div class="current-status-display" *ngIf="getCurrentStatus()">
+          <div class="current-status-badge">
+            <ion-icon [name]="getSelectedStatusIcon()" class="current-status-icon"></ion-icon>
+            <span class="current-status-text">{{ getSelectedStatusLabel() }}</span>
+          </div>
+        </div>
 
-        <ion-list class="status-list">
-          <ion-radio-group formControlName="status" [compareWith]="compareWith" (ionChange)="handleChange($event)">
-            @for (option of statusOptions; track option.value) {
-            <ion-item class="status-item">
-              <ion-radio slot="start" [value]="option.value" (ionSelect)="setStatus(option.value)"
-                class="status-radio"></ion-radio>
-              <ion-label class="status-label">{{ option.label }}</ion-label>
-              <ion-note slot="end" *ngIf="isStatusSelected(option.value)" class="status-checkmark">✓</ion-note>
-            </ion-item>
-            }
-          </ion-radio-group>
-        </ion-list>
-
-        <!-- Debug Section (can be hidden in production) -->
-        <div class="debug-section">
-          <details class="debug-details">
-            <summary class="debug-summary">Debug Tools</summary>
-            <div class="debug-buttons">
-              <ion-button size="small" fill="outline" (click)="setStatus('PLANNING_PREGNANCY')" class="debug-btn">Set
-                Planning</ion-button>
-              <ion-button size="small" fill="outline" (click)="setStatus('PREGNANT')" class="debug-btn">Set
-                Pregnant</ion-button>
-              <ion-button size="small" fill="outline" (click)="setStatus('HAS_CHILD')" class="debug-btn">Set Has
-                Child</ion-button>
-              <ion-button size="small" fill="outline" (click)="setStatus(null)" class="debug-btn">Clear
-                Status</ion-button>
-              <ion-button size="small" fill="outline" (click)="resetForm()" class="debug-btn">Reset Form</ion-button>
-              <ion-button size="small" fill="outline" (click)="checkFormControlState()" class="debug-btn">Check
-                State</ion-button>
-              <ion-button size="small" fill="outline" (click)="checkCropperState()" class="debug-btn">Check
-                Cropper</ion-button>
-              <ion-button size="small" fill="outline" (click)="forceRenderCrop()" class="debug-btn">Force
-                Render</ion-button>
+        <!-- Status Options Grid -->
+        <div class="status-grid">
+          @for (option of statusOptions; track option.value) {
+          <div 
+            class="status-card" 
+            [class.selected]="isStatusSelected(option.value)"
+            (click)="setStatus(option.value)"
+            [style.--status-color]="option.color"
+          >
+            <div class="status-card-content">
+              <div class="status-icon-container">
+                <ion-icon [name]="option.icon" class="status-icon"></ion-icon>
+              </div>
+              <div class="status-info">
+                <h4 class="status-title">{{ option.label }}</h4>
+                <p class="status-description">{{ option.description }}</p>
+              </div>
+              <div class="status-checkmark" *ngIf="isStatusSelected(option.value)">
+                <ion-icon name="checkmark-circle" class="checkmark-icon"></ion-icon>
+              </div>
             </div>
-          </details>
+          </div>
+          }
         </div>
       </div>
     </div>
@@ -141,7 +152,7 @@
     <!-- Additional Debug Buttons -->
     <div class="debug-section">
       <details class="debug-details">
-        <summary class="debug-summary">Image Debug Tools</summary>
+     
         <div class="debug-buttons">
           <ion-button size="small" fill="outline" (click)="testImageDisplay()" class="debug-btn">Test
             Image</ion-button>
@@ -151,43 +162,6 @@
       </details>
     </div>
 
-    <!-- Cycle Information Card -->
-    <div class="form-card">
-      <div class="card-header">
-        <ion-icon name="calendar" class="card-icon"></ion-icon>
-        <h2 class="card-title">Cycle Information</h2>
-      </div>
-
-      <div class="cycle-section">
-        <div class="cycle-info">
-          <ion-icon name="star" class="info-icon"></ion-icon>
-          <p class="info-text">The time interval between the first day of your period and the start of your next one.
-          </p>
-        </div>
-
-        <ion-item class="form-item">
-          <ion-label class="form-label">Cycle Length (days)</ion-label>
-          <ion-select formControlName="menstrualCycleDay" interface="popover" class="cycle-select">
-            <ion-select-option *ngFor="let d of daysMenstrualCycle" [value]="d">{{ d }}</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <ion-item class="form-item">
-          <ion-label class="form-label">Period Duration (days)</ion-label>
-          <ion-select formControlName="periodUsual" interface="popover" class="cycle-select">
-            <ion-select-option *ngFor="let d of daysPeriodUsual" [value]="d">{{ d }}</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <ion-item class="form-item">
-          <ion-label position="stacked" class="form-label">Last Period Start</ion-label>
-          <ion-input [value]="formattedStartDate" readonly class="form-input"></ion-input>
-          <ion-button slot="end" (click)="openDatePicker()" class="date-button">Select Date</ion-button>
-        </ion-item>
-
-
-      </div>
-    </div>
 
 
 
@@ -229,64 +203,6 @@
       </ng-template>
     </ion-modal> -->
 
-         <!-- Date Picker Modal -->
-     <ion-modal
-       [isOpen]="showPickerLastPeriod"
-       (didDismiss)="closeDatePicker()"
-       [breakpoints]="[0, 0.5, 1]"
-       [initialBreakpoint]="0.5"
-     >
-       <ng-template>
-         <ion-header>
-           <ion-toolbar>
-             <ion-title>Select Last Period Date</ion-title>
-             <ion-buttons slot="end">
-               <ion-button (click)="confirmPicker()">Confirm</ion-button>
-             </ion-buttons>
-           </ion-toolbar>
-         </ion-header>
-
-         <ion-content class="ion-padding">
-           <ion-picker>
-             <!-- Year -->
-             <ion-picker-column
-               [value]="tempYear"
-               (ionChange)="onChange($event,'year')"
-             >
-               @for (y of years; track $index) {
-               <ion-picker-column-option [value]="y">
-                 {{ y }}
-               </ion-picker-column-option>
-               }
-             </ion-picker-column>
-
-             <!-- Month -->
-             <ion-picker-column
-               [value]="tempMonth"
-               (ionChange)="onChange($event,'month')"
-             >
-               @for (m of months; track $index) {
-               <ion-picker-column-option [value]="m">
-                 {{ m }}
-               </ion-picker-column-option>
-               }
-             </ion-picker-column>
-
-             <!-- Day -->
-             <ion-picker-column
-               [value]="tempDay"
-               (ionChange)="onChange($event,'day')"
-             >
-               @for (d of pickerDays; track $index) {
-               <ion-picker-column-option [value]="d">
-                 {{ d }}
-               </ion-picker-column-option>
-               }
-             </ion-picker-column>
-           </ion-picker>
-         </ion-content>
-       </ng-template>
-     </ion-modal>
 
     <!-- Birthday Picker Modal -->
     <ion-modal [keepContentsMounted]="true">

@@ -1,0 +1,249 @@
+.cycle-calendar-content {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin: 24px 0 16px 0;
+  
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.status-section {
+  .status-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .status-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--ion-color-light);
+    border-radius: 12px;
+    
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ion-color-primary);
+      border-radius: 8px;
+      
+      ion-icon {
+        font-size: 20px;
+        color: white;
+      }
+    }
+    
+    .card-content {
+      flex: 1;
+      
+      .card-title {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ion-color-medium);
+      }
+      
+      .card-value {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+}
+
+.fertile-section {
+  .fertile-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    border-radius: 12px;
+    color: white;
+    
+    .fertile-icon {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      
+      ion-icon {
+        font-size: 20px;
+        color: white;
+      }
+    }
+    
+    .fertile-content {
+      flex: 1;
+      
+      .fertile-title {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        font-weight: 500;
+        opacity: 0.9;
+      }
+      
+      .fertile-dates {
+        margin: 0 0 4px 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      
+      .fertile-note {
+        margin: 0;
+        font-size: 12px;
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+.mood-section {
+  .mood-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    
+    .mood-btn {
+      --border-radius: 20px;
+      --padding-start: 12px;
+      --padding-end: 12px;
+      font-size: 14px;
+      
+      ion-icon {
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+.logs-section {
+  .logs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .log-item {
+    padding: 16px;
+    background: var(--ion-color-light);
+    border-radius: 12px;
+    
+    .log-date {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--ion-color-dark);
+    }
+    
+    .log-details {
+      .log-mood {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--ion-color-medium);
+        
+        ion-icon {
+          font-size: 16px;
+        }
+      }
+      
+      .log-notes {
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--ion-color-dark);
+        line-height: 1.4;
+      }
+      
+      .log-symptoms {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        
+        .symptom-tag {
+          padding: 4px 8px;
+          background: var(--ion-color-primary);
+          color: white;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ion-color-light);
+    border-radius: 50%;
+    
+    ion-icon {
+      font-size: 32px;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  .empty-title {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+  
+  .empty-description {
+    margin: 0 0 24px 0;
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    line-height: 1.4;
+  }
+  
+  .empty-action-btn {
+    --border-radius: 20px;
+  }
+}
+
+// Responsive adjustments
+@media (min-width: 768px) {
+  .status-section .status-cards {
+    flex-direction: row;
+    flex-wrap: wrap;
+    
+    .status-card {
+      flex: 1;
+      min-width: 200px;
+    }
+  }
+  
+  .mood-section .mood-buttons {
+    justify-content: center;
+  }
+}

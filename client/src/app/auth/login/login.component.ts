@@ -158,16 +158,21 @@ export class LoginComponent {
           this.success = true;
           this.showToast = true;
           
-          // Get return URL from query parameters or default to home
-          const returnUrl = this.activatedRoute.snapshot.queryParams['returnUrl'] || '/tabs/home';
-          console.log('Return URL:', returnUrl);
-          
-          // Navigate to the return URL or home
-          this.router.navigateByUrl(returnUrl).then(() => {
-            console.log('Navigation completed');
-          }).catch(error => {
-            console.error('Navigation error:', error);
-          });
+          // Force authentication state update and wait for it to be processed
+          setTimeout(() => {
+            // Get return URL from query parameters or default to home
+            const returnUrl = this.activatedRoute.snapshot.queryParams['returnUrl'] || '/tabs/home';
+            console.log('Return URL:', returnUrl);
+            
+            // Navigate to the return URL or home
+            this.router.navigateByUrl(returnUrl).then(() => {
+              console.log('Navigation completed');
+            }).catch(error => {
+              console.error('Navigation error:', error);
+              // Fallback navigation if the first attempt fails
+              this.router.navigate(['/tabs/home']);
+            });
+          }, 100);
           
           this.cdr.detectChanges();
         },

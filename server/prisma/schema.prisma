@@ -8,13 +8,13 @@ datasource db {
 }
 
 model user {
-  id                        Int             @id @default(autoincrement())
-  email                     String          @unique(map: "User_email_key")
-  phone                     String          @unique(map: "User_phone_key")
+  id                        Int                 @id @default(autoincrement())
+  email                     String              @unique(map: "User_email_key")
+  phone                     String              @unique(map: "User_phone_key")
   verificationCode          String?
   verificationCodeExpiresAt DateTime?
-  isVerified                Boolean         @default(false)
-  createdAt                 DateTime        @default(now())
+  isVerified                Boolean             @default(false)
+  createdAt                 DateTime            @default(now())
   lastPeriodStartDate       DateTime?
   menstrualCycleLength      Int?
   periodDuration            Int?
@@ -24,26 +24,30 @@ model user {
   birthday                  DateTime?
   city                      String?
   healthGoals               String?
-  notificationsEnabled      Boolean         @default(true)
+  notificationsEnabled      Boolean             @default(true)
   pregnancyProgress         String?
   pregnancyWeek             Int?
-  updatedAt                 DateTime        @default(now()) @updatedAt
-  role                      user_role       @default(USER)
+  updatedAt                 DateTime            @default(now()) @updatedAt
+  role                      user_role           @default(USER)
+  isPregnant                Boolean             @default(false)
+  pregnancyEndDate          DateTime?
   address                   address[]
   chatMemberships           ChatMember[]
-  sentMessages              ChatMessage[]   @relation("MessageSender")
-  commentLikes              CommentLike[]   @relation("CommentLikes")
-  comments                  Comment[]       @relation("CommentAuthor")
+  sentMessages              ChatMessage[]       @relation("MessageSender")
+  commentLikes              CommentLike[]       @relation("CommentLikes")
+  comments                  Comment[]           @relation("CommentAuthor")
   forumPostLikes            ForumPostLike[]
   forumPosts                ForumPost[]
   forumThreads              ForumThread[]
   createdForums             Forum[]
-  readMessages              MessageRead[]   @relation("MessageReads")
-  postLikes                 PostLike[]      @relation("PostLikes")
-  posts                     Post[]          @relation("PostAuthor")
-  createdChats              SecretChat[]    @relation("ChatCreatedBy")
-  trackday                  trackday[]
+  readMessages              MessageRead[]       @relation("MessageReads")
+  periodLogs                PeriodLog[]
+  postLikes                 PostLike[]          @relation("PostLikes")
+  posts                     Post[]              @relation("PostAuthor")
+  pregnancyPlannings        PregnancyPlanning[]
   refreshTokens             RefreshToken[]
+  createdChats              SecretChat[]        @relation("ChatCreatedBy")
+  trackday                  trackday[]
 }
 
 model SecretChat {
@@ -373,6 +377,21 @@ model trackday {
   @@unique([userId, date], map: "userId_date")
 }
 
+model PregnancyPlanning {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  lastPeriodDate DateTime
+  cycleLength    Int
+  lifestyleGoals String?  @db.Text
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           user     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("pregnancy_planning")
+}
+
 model RefreshToken {
   id        String   @id @default(uuid())
   token     String   @unique
@@ -385,6 +404,21 @@ model RefreshToken {
   @@index([userId])
   @@index([token])
   @@map("refresh_tokens")
+}
+
+model PeriodLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  startDate DateTime
+  endDate   DateTime
+  mood      String?  @db.Text
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      user     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("period_logs")
 }
 
 enum Status {
