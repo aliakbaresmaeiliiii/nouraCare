@@ -1,298 +1,186 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="pregnancy-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/profile" class="back-button"></ion-back-button>
+      <ion-back-button defaultHref="/edit-profile" class="back-button"></ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">Pregnancy Planning</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="pregnancy-content">
-  <!-- Loading State -->
-  @if (isLoading()) {
-    <div class="loading-container">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Loading your data...</p>
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <!-- Pregnant Woman Image -->
+    <div class="pregnancy-image-container">
+      <img src="assets/images/women-pragnent.jpg" alt="Pregnant woman" class="pregnancy-image" />
     </div>
-  } @else {
-    <!-- Mode Selection -->
-    <ion-card class="mode-card">
+
+    <!-- Welcome Text -->
+    <div class="welcome-text">
+      <h1 class="welcome-title">Welcome to your journey to becoming a mother</h1>
+      <p class="welcome-subtitle">Follow week by week physical and emotional changes during your pregnancy journey</p>
+    </div>
+  </div>
+
+  <!-- Planning Options -->
+  <div class="planning-options">
+    <!-- Cycle Tracking Card -->
+    <ion-card class="option-card">
       <ion-card-header>
-        <ion-card-title class="mode-title">
-          <ion-icon name="analytics-outline" slot="start"></ion-icon>
-          Current Mode
+        <ion-card-title class="option-title">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          Track Your Cycle
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <ion-segment [value]="selectedMode()" (ionChange)="onSegmentChange($event)">
-          <ion-segment-button value="planning" class="segment-btn">
-            <ion-icon name="heart-outline"></ion-icon>
-            <ion-label>Planning</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="pregnancy" class="segment-btn">
-            <ion-icon name="bag-outline"></ion-icon>
-            <ion-label>Pregnancy</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+        <p class="option-description">
+          Monitor your menstrual cycle, track ovulation, and understand your fertile window to maximize your chances of conception.
+        </p>
+        
+        <ion-item class="form-item">
+          <ion-label position="stacked">Last Period Date</ion-label>
+          <ion-datetime 
+            presentation="date"
+            [(ngModel)]="lastPeriodDate"
+            [max]="getTodayDate()"
+            class="date-input"
+          ></ion-datetime>
+        </ion-item>
+
+        <ion-item class="form-item">
+          <ion-label position="stacked">Average Cycle Length (days)</ion-label>
+          <ion-select 
+            [(ngModel)]="selectedCycleLength" 
+            interface="action-sheet"
+            class="cycle-select"
+          >
+            @for (length of cycleLengthOptions; track length) {
+              <ion-select-option [value]="length">{{ length }} days</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+
+        <ion-button 
+          expand="block" 
+          class="save-btn"
+          (click)="submitCycleTracking()"
+          [disabled]="!lastPeriodDate"
+        >
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+          Save Cycle Data
+        </ion-button>
       </ion-card-content>
     </ion-card>
 
-    <!-- Planning Mode Content -->
-    @if (selectedMode() === 'planning') {
-      <!-- Cycle Tracking Form -->
-      <ion-card class="cycle-form-card">
+    <!-- Fertility Predictions -->
+    @if (hasCycleData()) {
+      <ion-card class="predictions-card">
         <ion-card-header>
-          <ion-card-title class="form-title">
-            <ion-icon name="calendar-outline" slot="start"></ion-icon>
-            Track Your Cycle
+          <ion-card-title class="predictions-title">
+            <ion-icon name="calendar-number-outline" slot="start"></ion-icon>
+            Your Cycle Predictions
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-item class="form-item">
-            <ion-label position="stacked">Last Period Date</ion-label>
-            <ion-datetime 
-              presentation="date"
-              [(ngModel)]="lastPeriodDate"
-              [max]="getTodayDate()"
-              class="date-input"
-            ></ion-datetime>
-          </ion-item>
-
-          <ion-item class="form-item">
-            <ion-label position="stacked">Average Cycle Length (days)</ion-label>
-            <ion-select 
-              [(ngModel)]="selectedCycleLength" 
-              interface="action-sheet"
-              class="cycle-select"
-            >
-              @for (length of cycleLengthOptions; track length) {
-                <ion-select-option [value]="length">{{ length }} days</ion-select-option>
-              }
-            </ion-select>
-          </ion-item>
-
-          <ion-item class="form-item">
-            <ion-label position="stacked">Lifestyle Goals</ion-label>
-            <ion-input
-              [(ngModel)]="lifestyleGoals"
-              placeholder="e.g., Exercise routine, diet changes, etc."
-              class="text-input"
-            ></ion-input>
-          </ion-item>
-
-          <ion-item class="form-item">
-            <ion-label position="stacked">Additional Notes</ion-label>
-            <ion-input
-              [(ngModel)]="notes"
-              placeholder="Any additional information or concerns"
-              class="text-input"
-            ></ion-input>
-          </ion-item>
-
-          <ion-button 
-            expand="block" 
-            class="save-btn"
-            (click)="submitCycleTracking()"
-            [disabled]="!lastPeriodDate"
-          >
-            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-            Save Cycle Data
-          </ion-button>
-
-          <ion-button 
-            expand="block" 
-            class="create-plan-btn"
-            (click)="createPregnancyPlan()"
-            [disabled]="!lastPeriodDate"
-          >
-            <ion-icon name="heart-outline" slot="start"></ion-icon>
-            Create Pregnancy Plan
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Cycle Predictions -->
-      @if (hasCycleData()) {
-        <ion-card class="predictions-card">
-          <ion-card-header>
-            <ion-card-title class="predictions-title">
-              <ion-icon name="calendar-number-outline" slot="start"></ion-icon>
-              Cycle Predictions
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <ion-grid class="predictions-grid">
-              <ion-row>
-                <ion-col size="12" size-md="6">
-                  <div class="prediction-item">
-                    <h4 class="prediction-label">Next Period</h4>
-                    <p class="prediction-value">{{ formatDate(nextPeriodDate()) }}</p>
-                    <ion-note class="prediction-note">
-                      In {{ getDaysUntilNextPeriod() }} days
-                    </ion-note>
-                  </div>
-                </ion-col>
-                <ion-col size="12" size-md="6">
-                  <div class="prediction-item">
-                    <h4 class="prediction-label">Ovulation Date</h4>
-                    <p class="prediction-value">{{ formatDate(ovulationDate()) }}</p>
-                  </div>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ion-card-content>
-        </ion-card>
-
-        <!-- Fertile Window -->
-        <ion-card class="fertile-card" [class.active]="isTodayInFertileWindow()">
-          <ion-card-header>
-            <ion-card-title class="fertile-title">
-              <ion-icon name="heart-outline" slot="start"></ion-icon>
-              Fertile Window
-              @if (isTodayInFertileWindow()) {
-                <ion-badge color="success" class="active-badge">Active Now</ion-badge>
-              }
-            </ion-card-title>
-          </ion-card-header>
-          <ion-card-content>
-            <div class="fertile-dates">
-              <p class="fertile-range">
-                {{ formatDate(fertileWindow()?.start || null) }} - {{ formatDate(fertileWindow()?.end || null) }}
-              </p>
-              <p class="fertile-description">
-                This is your most fertile period for conception. Track your symptoms and plan accordingly.
-              </p>
-            </div>
-          </ion-card-content>
-        </ion-card>
-
-        <!-- Switch to Pregnancy Button -->
-        <div class="pregnancy-switch-section">
-          <ion-button 
-            expand="block" 
-            color="success" 
-            class="pregnancy-btn"
-            (click)="switchToPregnancyMode()"
-          >
-            <ion-icon name="bag-outline" slot="start"></ion-icon>
-            Switch to Pregnancy Mode
-          </ion-button>
-          <p class="switch-note">
-            Ready to start your pregnancy journey? Switch to pregnancy mode for personalized tracking.
-          </p>
-        </div>
-      }
-    }
-
-    <!-- Pregnancy Mode Content -->
-    @if (selectedMode() === 'pregnancy') {
-      <!-- Pregnancy Overview -->
-      <ion-card class="pregnancy-overview-card">
-        <ion-card-header>
-          <ion-card-title class="pregnancy-title">
-            <ion-icon name="bag-outline" slot="start"></ion-icon>
-            Pregnancy Overview
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-grid class="pregnancy-grid">
+          <ion-grid class="predictions-grid">
             <ion-row>
-              <ion-col size="12" size-md="4">
-                <div class="pregnancy-stat">
-                  <h3 class="stat-value">{{ getPregnancyWeek() }}</h3>
-                  <p class="stat-label">Weeks Pregnant</p>
+              <ion-col size="12" size-md="6">
+                <div class="prediction-item">
+                  <h4 class="prediction-label">Next Period</h4>
+                  <p class="prediction-value">{{ formatDate(nextPeriodDate()) }}</p>
+                  <ion-note class="prediction-note">
+                    In {{ getDaysUntilNextPeriod() }} days
+                  </ion-note>
                 </div>
               </ion-col>
-              <ion-col size="12" size-md="4">
-                <div class="pregnancy-stat">
-                  <h3 class="stat-value">{{ getDaysUntilDueDate() }}</h3>
-                  <p class="stat-label">Days Until Due Date</p>
-                </div>
-              </ion-col>
-              <ion-col size="12" size-md="4">
-                <div class="pregnancy-stat">
-                  <h3 class="stat-value">{{ (getPregnancyWeek() / 40 * 100).toFixed(1) }}%</h3>
-                  <p class="stat-label">Progress</p>
+              <ion-col size="12" size-md="6">
+                <div class="prediction-item">
+                  <h4 class="prediction-label">Ovulation Date</h4>
+                  <p class="prediction-value">{{ formatDate(ovulationDate()) }}</p>
                 </div>
               </ion-col>
             </ion-row>
           </ion-grid>
-
-          <!-- Due Date -->
-          <div class="due-date-section">
-            <h4 class="due-date-label">Estimated Due Date</h4>
-            <p class="due-date-value">{{ formatDate(getDueDate()) }}</p>
-          </div>
         </ion-card-content>
       </ion-card>
 
-      <!-- Pregnancy Milestones -->
-      <ion-card class="milestones-card">
+      <!-- Fertile Window -->
+      <ion-card class="fertile-card" [class.active]="isTodayInFertileWindow()">
         <ion-card-header>
-          <ion-card-title class="milestones-title">
-            <ion-icon name="flag-outline" slot="start"></ion-icon>
-            Upcoming Milestones
+          <ion-card-title class="fertile-title">
+            <ion-icon name="heart-outline" slot="start"></ion-icon>
+            Fertile Window
+            @if (isTodayInFertileWindow()) {
+              <ion-badge color="success" class="active-badge">Active Now</ion-badge>
+            }
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <div class="milestone-list">
-            <div class="milestone-item" [class.completed]="getPregnancyWeek() >= 12">
-              <div class="milestone-check">
-                <ion-icon 
-                  [name]="getPregnancyWeek() >= 12 ? 'checkmark-circle' : 'ellipse-outline'" 
-                  [color]="getPregnancyWeek() >= 12 ? 'success' : 'medium'"
-                ></ion-icon>
-              </div>
-              <div class="milestone-content">
-                <h4 class="milestone-name">First Trimester Complete</h4>
-                <p class="milestone-week">Week 12</p>
-              </div>
-            </div>
-
-            <div class="milestone-item" [class.completed]="getPregnancyWeek() >= 20">
-              <div class="milestone-check">
-                <ion-icon 
-                  [name]="getPregnancyWeek() >= 20 ? 'checkmark-circle' : 'ellipse-outline'" 
-                  [color]="getPregnancyWeek() >= 20 ? 'success' : 'medium'"
-                ></ion-icon>
-              </div>
-              <div class="milestone-content">
-                <h4 class="milestone-name">Anatomy Scan</h4>
-                <p class="milestone-week">Week 20</p>
-              </div>
-            </div>
-
-            <div class="milestone-item" [class.completed]="getPregnancyWeek() >= 28">
-              <div class="milestone-check">
-                <ion-icon 
-                  [name]="getPregnancyWeek() >= 28 ? 'checkmark-circle' : 'ellipse-outline'" 
-                  [color]="getPregnancyWeek() >= 28 ? 'success' : 'medium'"
-                ></ion-icon>
-              </div>
-              <div class="milestone-content">
-                <h4 class="milestone-name">Third Trimester</h4>
-                <p class="milestone-week">Week 28</p>
-              </div>
-            </div>
+          <div class="fertile-dates">
+            <p class="fertile-range">
+              {{ formatDate(fertileWindow()?.start || null) }} - {{ formatDate(fertileWindow()?.end || null) }}
+            </p>
+            <p class="fertile-description">
+              This is your most fertile period for conception. Track your symptoms and plan accordingly.
+            </p>
           </div>
         </ion-card-content>
       </ion-card>
+    }
 
-      <!-- Switch Back to Planning -->
-      <div class="planning-switch-section">
+    <!-- Lifestyle Goals -->
+    <ion-card class="lifestyle-card">
+      <ion-card-header>
+        <ion-card-title class="lifestyle-title">
+          <ion-icon name="heart-outline" slot="start"></ion-icon>
+          Pregnancy Preparation Goals
+        </ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item class="form-item">
+          <ion-label position="stacked">Lifestyle Goals</ion-label>
+          <ion-input
+            [(ngModel)]="lifestyleGoals"
+            placeholder="e.g., Exercise routine, diet changes, supplements, etc."
+            class="text-input"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item class="form-item">
+          <ion-label position="stacked">Additional Notes</ion-label>
+          <ion-input
+            [(ngModel)]="notes"
+            placeholder="Any additional information or concerns"
+            class="text-input"
+          ></ion-input>
+        </ion-item>
+
         <ion-button 
           expand="block" 
-          fill="outline" 
-          class="planning-btn"
-          (click)="switchToPlanningMode()"
+          class="create-plan-btn"
+          (click)="createPregnancyPlan()"
+          [disabled]="!lastPeriodDate"
         >
           <ion-icon name="heart-outline" slot="start"></ion-icon>
-          Switch Back to Planning Mode
+          Create Pregnancy Plan
         </ion-button>
-        <p class="switch-note">
-          Return to cycle tracking and fertility planning.
-        </p>
-      </div>
-    }
-  }
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- Next Step Button -->
+  <div class="next-step-section">
+    <ion-button 
+      expand="block" 
+      color="primary" 
+      class="next-step-btn"
+      (click)="goToNextStep()"
+    >
+      <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      Next Step
+    </ion-button>
+    <p class="next-step-note">
+      Continue to track your pregnancy journey and get personalized insights
+    </p>
+  </div>
 </ion-content>

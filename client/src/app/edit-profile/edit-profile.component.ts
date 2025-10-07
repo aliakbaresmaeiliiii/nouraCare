@@ -27,7 +27,7 @@ import {
 import { SharedModule } from '../shared/shared-module';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../shared/services/user';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { forkJoin, of } from 'rxjs';
@@ -45,6 +45,7 @@ export class EditProfileComponent implements OnInit {
   userService = inject(User);
   userInfoService = inject(UserInfoService);
   route = inject(ActivatedRoute);
+  private router = inject(Router);
   private imageUrlService = inject(ImageUrlService);
   profileImage: string | null = null;
   selectedProfile: File | null = null;
@@ -514,6 +515,15 @@ export class EditProfileComponent implements OnInit {
 
   setStatus(statusValue: string | null): void {
     this.form.patchValue({ status: statusValue });
+    
+    // Navigate to pregnancy planning when "Planning Pregnancy" is selected
+    if (statusValue === 'PLANNING_PREGNANCY') {
+      this.navigateToPregnancyPlanning();
+    }
+  }
+
+  navigateToPregnancyPlanning(): void {
+    this.router.navigate(['/pregnancy-planning']);
   }
 
   checkFormControlState(): void {

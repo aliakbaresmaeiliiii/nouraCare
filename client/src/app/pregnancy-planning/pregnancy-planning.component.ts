@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   IonContent,
   IonHeader,
@@ -77,15 +78,13 @@ import { HomeDataService } from '../home/services/home-data.service';
     IonGrid,
     IonRow,
     IonCol,
-    IonSegment,
-    IonSegmentButton,
     IonNote,
-    IonSpinner,
   ],
 })
 export class PregnancyPlanningComponent implements OnInit {
   private reproductiveStatusService = inject(ReproductiveStatusService);
   homeService = inject(HomeDataService);
+  private router = inject(Router);
 
   // Form data
   lastPeriodDate: string = '';
@@ -387,6 +386,12 @@ export class PregnancyPlanningComponent implements OnInit {
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     return Math.floor(diffDays / 7);
+  }
+
+  goToNextStep(): void {
+    // Navigate to home page or next appropriate step
+    this.router.navigate(['/tabs/home']);
+    this.showToast('Welcome to your pregnancy journey!');
   }
 
   private showToast(message: string) {
