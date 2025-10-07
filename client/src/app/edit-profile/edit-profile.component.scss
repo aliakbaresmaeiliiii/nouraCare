@@ -397,6 +397,237 @@
   }
 }
 
+// Reproductive Status Section - Modern Feminine Design
+.reproductive-status-section {
+  padding: 24px;
+  
+  .current-reproductive-status {
+    text-align: center;
+    margin-bottom: 20px;
+    
+    .current-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 24px;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
+      margin-bottom: 16px;
+      
+      .status-emoji {
+        font-size: 24px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      }
+      
+      .current-status-text {
+        font-size: 16px;
+        font-weight: 700;
+      }
+    }
+    
+    .status-description {
+      color: var(--ion-color-medium);
+      font-size: 14px;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+  
+  .reproductive-status-options {
+    .status-hint {
+      color: var(--ion-color-medium);
+      font-size: 14px;
+      margin: 0 0 20px 0;
+      line-height: 1.4;
+      text-align: center;
+    }
+    
+    .status-grid {
+      display: grid;
+      gap: 16px;
+      margin-bottom: 24px;
+      
+      .status-card {
+        background: white;
+        border: 2px solid #f1f5f9;
+        border-radius: 20px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+          border-color: var(--status-color, #ff6b9d);
+        }
+        
+        &.selected {
+          border-color: var(--status-color, #ff6b9d);
+          background: linear-gradient(135deg, rgba(var(--status-color-rgb, 255, 107, 157), 0.05) 0%, rgba(var(--status-color-rgb, 255, 107, 157), 0.02) 100%);
+          box-shadow: 0 8px 32px rgba(var(--status-color-rgb, 255, 107, 157), 0.15);
+          
+          &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--status-color, #ff6b9d) 0%, rgba(var(--status-color-rgb, 255, 107, 157), 0.8) 100%);
+          }
+        }
+        
+        .status-card-content {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          
+          .status-emoji-container {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--status-color, #ff6b9d) 0%, rgba(var(--status-color-rgb, 255, 107, 157), 0.8) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(var(--status-color-rgb, 255, 107, 157), 0.2);
+            
+            .status-emoji {
+              font-size: 28px;
+              filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            }
+          }
+          
+          .status-info {
+            flex: 1;
+            
+            .status-title {
+              margin: 0;
+              font-size: 16px;
+              font-weight: 700;
+              color: var(--ion-color-dark);
+              letter-spacing: -0.2px;
+            }
+          }
+          
+          .status-checkmark {
+            .checkmark-icon {
+              font-size: 24px;
+              color: var(--status-color, #ff6b9d);
+            }
+          }
+        }
+      }
+    }
+    
+    .continue-button-container {
+      text-align: center;
+      
+      .continue-button {
+        --border-radius: 16px;
+        --padding-top: 18px;
+        --padding-bottom: 18px;
+        --background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+        --color: white;
+        font-weight: 700;
+        font-size: 16px;
+        box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);
+        width: 100%;
+        max-width: 200px;
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 24px rgba(255, 107, 157, 0.4);
+        }
+      }
+    }
+  }
+  
+  .optional-note {
+    color: var(--ion-color-medium);
+    font-size: 12px;
+    text-align: center;
+    margin: 20px 0 0 0;
+    line-height: 1.4;
+    font-style: italic;
+  }
+}
+
+// Edit Icon Styling
+.edit-icon {
+  margin-left: auto;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
+  
+  .edit-icon-symbol {
+    font-size: 16px;
+    color: white;
+  }
+}
+
+// Header Back Button - White Design
+.back-button {
+  --color: white;
+  --icon-color: white;
+  --background: rgba(255, 255, 255, 0.2);
+  --border-radius: 8px;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
+// Header Save Button - Modern Design
+.save-button {
+  --border-radius: 12px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --background: rgba(255, 255, 255, 0.2);
+  --color: white;
+  --border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    --background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+  }
+  
+  ion-icon {
+    font-size: 16px;
+    margin-right: 6px;
+  }
+}
+
 // Save Button - Modern Design Matching Profile
 .save-section {
   padding: 0 20px 20px;

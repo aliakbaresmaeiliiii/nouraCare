@@ -16,6 +16,7 @@ import { UserService } from './user.service';
 import { UpdateReproductiveStatusDto, ReproductiveStatusResponseDto } from './dto/reproductive-status.dto';
 import { PeriodTrackerResponseDto } from './dto/period-tracker.dto';
 import { CreatePregnancyPlanningDto, UpdatePregnancyPlanningDto, PregnancyPlanningResponseDto } from './dto/pregnancy-planning.dto';
+import { CreatePeriodLogDto, UpdatePeriodLogDto, PeriodLogResponseDto } from './dto/period-log.dto';
 
 @Controller('api/v1/profile')
 export class ProfileController {
@@ -76,5 +77,49 @@ export class ProfileController {
     @Param('id') id: string,
   ): Promise<void> {
     return this.userService.deletePregnancyPlanning(+id);
+  }
+
+  // Period Log Endpoints
+  @Post(':id/period-logs')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async createPeriodLog(
+    @Param('id') id: string,
+    @Body() createPeriodLogDto: CreatePeriodLogDto,
+  ): Promise<PeriodLogResponseDto> {
+    return this.userService.createPeriodLog(+id, createPeriodLogDto);
+  }
+
+  @Get(':id/period-logs')
+  async getPeriodLogs(
+    @Param('id') id: string,
+  ): Promise<PeriodLogResponseDto[]> {
+    return this.userService.getPeriodLogs(+id);
+  }
+
+  @Get(':id/period-logs/:logId')
+  async getPeriodLogById(
+    @Param('id') id: string,
+    @Param('logId') logId: string,
+  ): Promise<PeriodLogResponseDto> {
+    return this.userService.getPeriodLogById(+id, +logId);
+  }
+
+  @Put(':id/period-logs/:logId')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async updatePeriodLog(
+    @Param('id') id: string,
+    @Param('logId') logId: string,
+    @Body() updatePeriodLogDto: UpdatePeriodLogDto,
+  ): Promise<PeriodLogResponseDto> {
+    return this.userService.updatePeriodLog(+id, +logId, updatePeriodLogDto);
+  }
+
+  @Delete(':id/period-logs/:logId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePeriodLog(
+    @Param('id') id: string,
+    @Param('logId') logId: string,
+  ): Promise<void> {
+    return this.userService.deletePeriodLog(+id, +logId);
   }
 }

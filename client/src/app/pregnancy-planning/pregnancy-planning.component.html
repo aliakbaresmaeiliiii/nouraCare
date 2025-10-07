@@ -1,7 +1,10 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="pregnancy-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/edit-profile" class="back-button"></ion-back-button>
+      <ion-back-button
+        defaultHref="/edit-profile"
+        class="back-button"
+      ></ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">Pregnancy Planning</ion-title>
   </ion-toolbar>
@@ -12,121 +15,122 @@
   <div class="welcome-section">
     <!-- Pregnant Woman Image -->
     <div class="pregnancy-image-container">
-      <img src="assets/images/women-pragnent.jpg" alt="Pregnant woman" class="pregnancy-image" />
+      <img
+        src="assets/images/women-pragnent.jpg"
+        alt="Pregnant woman"
+        class="pregnancy-image"
+      />
     </div>
 
     <!-- Welcome Text -->
     <div class="welcome-text">
-      <h1 class="welcome-title">Welcome to your journey to becoming a mother</h1>
-      <p class="welcome-subtitle">Follow week by week physical and emotional changes during your pregnancy journey</p>
+      <h1 class="welcome-title">
+        Welcome to your journey to becoming a mother
+      </h1>
+      <p class="welcome-subtitle">
+        Follow week by week physical and emotional changes during your pregnancy
+        journey
+      </p>
     </div>
   </div>
 
   <!-- Planning Options -->
   <div class="planning-options">
     <!-- Cycle Tracking Card -->
-    <ion-card class="option-card">
+    <ion-card class="cycle-form-card">
       <ion-card-header>
-        <ion-card-title class="option-title">
+        <ion-card-title class="form-title">
           <ion-icon name="calendar-outline" slot="start"></ion-icon>
-          Track Your Cycle
+          Track Your Menstrual Cycle
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <p class="option-description">
-          Monitor your menstrual cycle, track ovulation, and understand your fertile window to maximize your chances of conception.
+        <p class="form-description">
+          Enter your cycle information to track ovulation and maximize your
+          chances of conception.
         </p>
-        
+
+        <!-- Last Period Start Date -->
         <ion-item class="form-item">
-          <ion-label position="stacked">Last Period Date</ion-label>
-          <ion-datetime 
+          <ion-label position="stacked" class="form-label">
+            When did your last period start?
+            <span class="required-indicator">*</span>
+          </ion-label>
+          <ion-datetime
             presentation="date"
-            [(ngModel)]="lastPeriodDate"
+            [value]="cycleForm.get('lastPeriodDate')?.value || ''"
+            (ionChange)="
+              cycleForm.get('lastPeriodDate')?.setValue($event.detail.value)
+            "
             [max]="getTodayDate()"
             class="date-input"
+            placeholder="Select date"
           ></ion-datetime>
         </ion-item>
 
-        <ion-item class="form-item">
-          <ion-label position="stacked">Average Cycle Length (days)</ion-label>
-          <ion-select 
-            [(ngModel)]="selectedCycleLength" 
-            interface="action-sheet"
-            class="cycle-select"
-          >
-            @for (length of cycleLengthOptions; track length) {
-              <ion-select-option [value]="length">{{ length }} days</ion-select-option>
-            }
-          </ion-select>
+        <!-- Average Cycle Length -->
+        <ion-item class="form-item" button (click)="openCycleLengthPicker()">
+          <ion-label position="stacked" class="form-label">
+            How long is your menstrual cycle usually?
+            <span class="required-indicator">*</span>
+          </ion-label>
+          <ion-input
+            readonly
+            [value]="cycleForm.get('averageCycleLength')?.value ? cycleForm.get('averageCycleLength')?.value + ' days' : ''"
+            placeholder="Select cycle length"
+            class="cycle-length-input"
+          ></ion-input>
+          <ion-icon
+            name="chevron-down"
+            slot="end"
+            class="dropdown-icon"
+          ></ion-icon>
+        </ion-item>
+        <ion-note class="helper-text">
+          Number of days from the first day of one period to the next.
+        </ion-note>
+
+        <!-- Average Period Duration -->
+        <ion-item class="form-item" button (click)="openPeriodDurationPicker()">
+          <ion-label position="stacked" class="form-label">
+            How many days does your period usually last?
+            <span class="required-indicator">*</span>
+          </ion-label>
+          <ion-input
+            readonly
+            [value]="cycleForm.get('averagePeriodDuration')?.value ? cycleForm.get('averagePeriodDuration')?.value + ' days' : ''"
+            placeholder="Select period duration"
+            class="period-duration-input"
+          ></ion-input>
+          <ion-icon
+            name="chevron-down"
+            slot="end"
+            class="dropdown-icon"
+          ></ion-icon>
         </ion-item>
 
-        <ion-button 
-          expand="block" 
-          class="save-btn"
-          (click)="submitCycleTracking()"
-          [disabled]="!lastPeriodDate"
-        >
-          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-          Save Cycle Data
-        </ion-button>
+        <!-- Save Button - Always show for testing -->
+         <!-- TODO -->
+         <!-- [disabled]="!isCycleFormValid()" -->
+        <div class="save-section">
+          <ion-button expand="block" class="save-btn" (click)="saveCycleData()" >
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Save Cycle Information
+          </ion-button>
+        </div>
+
+        <!-- Confirmation Message -->
+        @if(showConfirmation()){
+        <div class="confirmation-message">
+          <ion-icon name="checkmark-circle" class="success-icon"></ion-icon>
+          <span class="success-text"
+            >Your cycle information has been saved successfully.</span
+          >
+        </div>
+        }
       </ion-card-content>
     </ion-card>
 
-    <!-- Fertility Predictions -->
-    @if (hasCycleData()) {
-      <ion-card class="predictions-card">
-        <ion-card-header>
-          <ion-card-title class="predictions-title">
-            <ion-icon name="calendar-number-outline" slot="start"></ion-icon>
-            Your Cycle Predictions
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-grid class="predictions-grid">
-            <ion-row>
-              <ion-col size="12" size-md="6">
-                <div class="prediction-item">
-                  <h4 class="prediction-label">Next Period</h4>
-                  <p class="prediction-value">{{ formatDate(nextPeriodDate()) }}</p>
-                  <ion-note class="prediction-note">
-                    In {{ getDaysUntilNextPeriod() }} days
-                  </ion-note>
-                </div>
-              </ion-col>
-              <ion-col size="12" size-md="6">
-                <div class="prediction-item">
-                  <h4 class="prediction-label">Ovulation Date</h4>
-                  <p class="prediction-value">{{ formatDate(ovulationDate()) }}</p>
-                </div>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-card-content>
-      </ion-card>
-
-      <!-- Fertile Window -->
-      <ion-card class="fertile-card" [class.active]="isTodayInFertileWindow()">
-        <ion-card-header>
-          <ion-card-title class="fertile-title">
-            <ion-icon name="heart-outline" slot="start"></ion-icon>
-            Fertile Window
-            @if (isTodayInFertileWindow()) {
-              <ion-badge color="success" class="active-badge">Active Now</ion-badge>
-            }
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="fertile-dates">
-            <p class="fertile-range">
-              {{ formatDate(fertileWindow()?.start || null) }} - {{ formatDate(fertileWindow()?.end || null) }}
-            </p>
-            <p class="fertile-description">
-              This is your most fertile period for conception. Track your symptoms and plan accordingly.
-            </p>
-          </div>
-        </ion-card-content>
-      </ion-card>
-    }
 
     <!-- Lifestyle Goals -->
     <ion-card class="lifestyle-card">
@@ -140,7 +144,10 @@
         <ion-item class="form-item">
           <ion-label position="stacked">Lifestyle Goals</ion-label>
           <ion-input
-            [(ngModel)]="lifestyleGoals"
+            [value]="cycleForm.get('lifestyleGoals')?.value"
+            (ionInput)="
+              cycleForm.get('lifestyleGoals')?.setValue($event.detail.value)
+            "
             placeholder="e.g., Exercise routine, diet changes, supplements, etc."
             class="text-input"
           ></ion-input>
@@ -149,17 +156,18 @@
         <ion-item class="form-item">
           <ion-label position="stacked">Additional Notes</ion-label>
           <ion-input
-            [(ngModel)]="notes"
+            [value]="cycleForm.get('notes')?.value"
+            (ionInput)="cycleForm.get('notes')?.setValue($event.detail.value)"
             placeholder="Any additional information or concerns"
             class="text-input"
           ></ion-input>
         </ion-item>
 
-        <ion-button 
-          expand="block" 
+        <ion-button
+          expand="block"
           class="create-plan-btn"
           (click)="createPregnancyPlan()"
-          [disabled]="!lastPeriodDate"
+          [disabled]="cycleForm.get('lastPeriodDate')?.invalid"
         >
           <ion-icon name="heart-outline" slot="start"></ion-icon>
           Create Pregnancy Plan
@@ -170,9 +178,9 @@
 
   <!-- Next Step Button -->
   <div class="next-step-section">
-    <ion-button 
-      expand="block" 
-      color="primary" 
+    <ion-button
+      expand="block"
+      color="primary"
       class="next-step-btn"
       (click)="goToNextStep()"
     >

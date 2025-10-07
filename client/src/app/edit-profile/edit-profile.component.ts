@@ -88,6 +88,36 @@ export class EditProfileComponent implements OnInit {
     }
   ];
 
+  // Reproductive Status Options
+  reproductiveStatusOptions: {
+    label: string;
+    value: string;
+    emoji: string;
+    color: string;
+  }[] = [
+    {
+      label: 'I\'m pregnant',
+      value: 'PREGNANT',
+      emoji: '🩷',
+      color: '#ff6b9d'
+    },
+    {
+      label: 'I\'m planning to get pregnant',
+      value: 'PLANNING_PREGNANCY',
+      emoji: '🌸',
+      color: '#ff8fab'
+    },
+    {
+      label: 'I\'m not pregnant',
+      value: 'NOT_PREGNANT',
+      emoji: '💧',
+      color: '#8bc5ff'
+    }
+  ];
+
+  isEditingReproductiveStatus = false;
+  currentReproductiveStatus: string | null = null;
+
   constructor(private fb: FormBuilder) {
     addIcons({
       pencil,
@@ -109,7 +139,7 @@ export class EditProfileComponent implements OnInit {
 
   form: FormGroup = this.fb.group({
     profileImage: [''],
-    status: [null, Validators.required],
+    status: [null],
     name: [''],
     birthday: [''],
     email: [''],
@@ -601,21 +631,6 @@ export class EditProfileComponent implements OnInit {
     return currentStatus === statusValue;
   }
 
-  getSelectedStatusIcon(): string {
-    const currentStatus = this.getCurrentStatus();
-    if (!currentStatus) return 'help-circle';
-    
-    const selectedOption = this.statusOptions.find(option => option.value === currentStatus);
-    return selectedOption?.icon || 'help-circle';
-  }
-
-  getSelectedStatusLabel(): string {
-    const currentStatus = this.getCurrentStatus();
-    if (!currentStatus) return 'None selected';
-    
-    const selectedOption = this.statusOptions.find(option => option.value === currentStatus);
-    return selectedOption?.label || 'None selected';
-  }
 
   resetForm(): void {
     this.form.reset();
@@ -643,6 +658,72 @@ export class EditProfileComponent implements OnInit {
   ngOnInit(): void {
     this.userId = this.homeService.getCurrentUserId();
     this.loadUserDataFromAPI();
+  }
+
+  // Reproductive Status Methods
+  toggleReproductiveStatusEdit(): void {
+    this.isEditingReproductiveStatus = !this.isEditingReproductiveStatus;
+  }
+
+  getCurrentReproductiveStatus(): string | null {
+    return this.currentReproductiveStatus;
+  }
+
+  isReproductiveStatusSelected(statusValue: string): boolean {
+    return this.currentReproductiveStatus === statusValue;
+  }
+
+  setReproductiveStatus(statusValue: string): void {
+    this.currentReproductiveStatus = statusValue;
+  }
+
+  saveReproductiveStatus(): void {
+    if (this.currentReproductiveStatus) {
+      // Save the reproductive status to the user profile
+      const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+      const id = currentUserInfo?.userId;
+      
+      if (id) {
+        // Get current form values to preserve existing data
+        const formValues = this.form.value;
+        const payload: any = {
+          name: formValues.name || '',
+          email: formValues.email || '',
+          birthday: formValues.birthday || '',
+          profileImage: formValues.profileImage || '',
+          status: formValues.status || null,
+          reproductiveStatus: this.currentReproductiveStatus
+        };
+        
+        this.userService.updateUserInfo(String(id), payload).subscribe({
+          next: (res: any) => {
+            this.isEditingReproductiveStatus = false;
+            this.showSuccessAlert('Reproductive status updated successfully!');
+          },
+          error: (error: any) => {
+            console.error('Error updating reproductive status:', error);
+            this.showErrorAlert('Failed to update reproductive status. Please try again.');
+          },
+        });
+      } else {
+        this.isEditingReproductiveStatus = false;
+        this.showSuccessAlert('Reproductive status saved!');
+      }
+    }
+  }
+
+  getSelectedReproductiveStatusEmoji(): string {
+    if (!this.currentReproductiveStatus) return '❓';
+    
+    const selectedOption = this.reproductiveStatusOptions.find(option => option.value === this.currentReproductiveStatus);
+    return selectedOption?.emoji || '❓';
+  }
+
+  getSelectedReproductiveStatusLabel(): string {
+    if (!this.currentReproductiveStatus) return 'Not selected';
+    
+    const selectedOption = this.reproductiveStatusOptions.find(option => option.value === this.currentReproductiveStatus);
+    return selectedOption?.label || 'Not selected';
   }
 
   showLoadingAlert(message: string): void {

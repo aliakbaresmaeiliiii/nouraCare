@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 export interface ReproductiveStatusData {
   isPregnant?: boolean;
   pregnancyEndDate?: string;
+  averagePeriodDuration?: number;
   lastPeriodDate?: string;
   averageCycleLength?: number;
   mood?: string;
@@ -39,6 +40,13 @@ export interface PregnancyPlanningResponseDto {
   pregnancyProbability?: number;
 }
 
+export interface PeriodLogData {
+  lastPeriodDate: string;
+  mood: string;
+  notes: string;
+  averagePeriodDuration: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -47,6 +55,7 @@ export class ReproductiveStatusService {
   private baseUrl = environment.apiEndPoint + 'profile';
 
   updateReproductiveStatus(userId: number, data: ReproductiveStatusData): Observable<any> {
+    debugger;
     return this.http.patch<any>(`${this.baseUrl}/${userId}/reproductive-status`, data);
   }
 
@@ -92,5 +101,13 @@ export class ReproductiveStatusService {
     fertileEnd.setDate(fertileStart.getDate() + 5);
 
     return { start: fertileStart, end: fertileEnd };
+  }
+
+  // Create period log
+  createPeriodLog(userId: number, data: PeriodLogData): Observable<any> {
+    return this.http.post<any>(
+      `${environment.apiEndPoint}profile/${userId}/period-logs`,
+      data
+    );
   }
 }

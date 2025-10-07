@@ -1,4 +1,11 @@
-import { IsBoolean, IsOptional, IsString, IsNumber, IsDate } from 'class-validator';
+import {
+  IsBoolean,
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsDate,
+  isString,
+} from 'class-validator';
 
 export class UpdateReproductiveStatusDto {
   @IsBoolean()
@@ -15,6 +22,10 @@ export class UpdateReproductiveStatusDto {
   @IsOptional()
   @IsNumber()
   averageCycleLength?: number;
+
+  @IsOptional()
+  @IsNumber()
+  averagePeriodDuration?: number;
 }
 
 export class ReproductiveStatusResponseDto {
@@ -32,6 +43,10 @@ export class ReproductiveStatusResponseDto {
   @IsOptional()
   @IsNumber()
   menstrualCycleLength?: number;
+
+  @IsOptional()
+  @IsNumber()
+  periodDuration?: number;
 
   @IsOptional()
   @IsNumber()

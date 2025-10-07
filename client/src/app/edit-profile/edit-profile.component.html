@@ -35,61 +35,72 @@
     <p class="avatar-hint">Tap to change profile picture</p>
   </div>
 
-  <!-- Status Selection Card -->
+  <!-- Reproductive Status Section -->
   <div class="form-card">
     <div class="card-header">
-      <ion-icon name="heart" class="card-icon"></ion-icon>
-      <h2 class="card-title">Your Journey</h2>
+      <ion-icon name="heart-circle" class="card-icon"></ion-icon>
+      <h2 class="card-title">Reproductive Status</h2>
     </div>
 
-    <div class="status-section">
-      <p class="status-hint">
-        Select the option that best describes your current situation
-      </p>
+    <div class="reproductive-status-section">
+      <p class="status-description">Keep your fertility and pregnancy information up to date.</p>
 
       <!-- Current Status Display -->
-      <div class="current-status-display" *ngIf="getCurrentStatus()">
+      <div class="current-reproductive-status" *ngIf="getCurrentStatus()">
         <div class="current-status-badge">
-          <ion-icon
-            [name]="getSelectedStatusIcon()"
-            class="current-status-icon"
-          ></ion-icon>
-          <span class="current-status-text">{{
-            getSelectedStatusLabel()
-          }}</span>
+          <span class="status-emoji">{{ getSelectedReproductiveStatusEmoji() }}</span>
+          <span class="current-status-text">{{ getSelectedReproductiveStatusLabel() }}</span>
         </div>
       </div>
 
       <!-- Status Options Grid -->
-      <div class="status-grid">
-        @for (option of statusOptions; track option.value) {
-        <div
-          class="status-card"
-          [class.selected]="isStatusSelected(option.value)"
-          (click)="setStatus(option.value)"
-          [style.--status-color]="option.color"
-        >
-          <div class="status-card-content">
-            <div class="status-icon-container">
-              <ion-icon [name]="option.icon" class="status-icon"></ion-icon>
-            </div>
-            <div class="status-info">
-              <h4 class="status-title">{{ option.label }}</h4>
-              <p class="status-description">{{ option.description }}</p>
-            </div>
-            <div
-              class="status-checkmark"
-              *ngIf="isStatusSelected(option.value)"
-            >
-              <ion-icon
-                name="checkmark-circle"
-                class="checkmark-icon"
-              ></ion-icon>
+      <div class="reproductive-status-options">
+        <p class="status-hint">
+          Select the option that best describes your current situation
+        </p>
+
+        <div class="status-grid">
+          @for (option of reproductiveStatusOptions; track option.value) {
+          <div
+            class="status-card"
+            [class.selected]="isStatusSelected(option.value)"
+            (click)="setStatus(option.value)"
+            [style.--status-color]="option.color"
+          >
+            <div class="status-card-content">
+              <div class="status-emoji-container">
+                <span class="status-emoji">{{ option.emoji }}</span>
+              </div>
+              <div class="status-info">
+                <h4 class="status-title">{{ option.label }}</h4>
+              </div>
+              <div
+                class="status-checkmark"
+                *ngIf="isStatusSelected(option.value)"
+              >
+                <ion-icon
+                  name="checkmark-circle"
+                  class="checkmark-icon"
+                ></ion-icon>
+              </div>
             </div>
           </div>
+          }
         </div>
-        }
+
+        <!-- Continue Button -->
+        <div class="continue-button-container" *ngIf="getCurrentStatus()">
+          <ion-button class="continue-button" (click)="saveReproductiveStatus()">
+            <ion-icon name="checkmark" slot="start"></ion-icon>
+            Continue
+          </ion-button>
+        </div>
       </div>
+
+      <!-- Optional Note -->
+      <p class="optional-note">
+        You can update your status anytime as your health journey evolves.
+      </p>
     </div>
   </div>
 
@@ -191,8 +202,4 @@
       </ng-template>
     </ion-modal>
   </form>
-
-  <!-- Reproductive Status Section -->
-  <div class="form-card">
-    <div class="card-header">
-      <ion-icon name="heart-circle" class="card-icon"></ion-icon>
+</ion-content>
