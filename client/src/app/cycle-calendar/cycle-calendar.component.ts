@@ -57,15 +57,15 @@ export class CycleCalendarComponent implements OnInit {
   }
 
   calculateCycleDates() {
-    if (this.reproductiveStatus.lastPeriodDate && this.reproductiveStatus.averageCycleLength) {
+    if (this.reproductiveStatus.lastPeriodDate && this.reproductiveStatus.cycleLength) {
       this.nextPeriodDate = this.reproductiveStatusService.calculateNextPeriod(
         this.reproductiveStatus.lastPeriodDate,
-        this.reproductiveStatus.averageCycleLength
+        this.reproductiveStatus.cycleLength
       );
       
       this.fertileWindow = this.reproductiveStatusService.calculateFertileWindow(
         this.reproductiveStatus.lastPeriodDate,
-        this.reproductiveStatus.averageCycleLength
+        this.reproductiveStatus.cycleLength
       );
     }
   }

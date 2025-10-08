@@ -1,6 +1,13 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormControl,
+  AbstractControl,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   IonContent,
@@ -76,11 +83,6 @@ interface CycleFormData {
     IonInput,
     IonButton,
     IonIcon,
-    IonDatetime,
-    IonBadge,
-    IonGrid,
-    IonRow,
-    IonCol,
     IonNote,
   ],
 })
@@ -143,8 +145,14 @@ export class PregnancyPlanningComponent implements OnInit {
     // Initialize reactive form
     this.cycleForm = this.fb.group({
       lastPeriodDate: ['', [Validators.required]],
-      averageCycleLength: [null, [Validators.required, Validators.min(20), Validators.max(40)]],
-      averagePeriodDuration: [null, [Validators.required, Validators.min(2), Validators.max(10)]],
+      averageCycleLength: [
+        null,
+        [Validators.required, Validators.min(20), Validators.max(40)],
+      ],
+      averagePeriodDuration: [
+        null,
+        [Validators.required, Validators.min(2), Validators.max(10)],
+      ],
       lifestyleGoals: [''],
       notes: [''],
     });
@@ -164,7 +172,8 @@ export class PregnancyPlanningComponent implements OnInit {
           if (data.lastPeriodDate) {
             this.cycleForm.patchValue({
               lastPeriodDate: data.lastPeriodDate,
-              averageCycleLength: data.averageCycleLength || null,
+              averageCycleLength: data.cycleLength || null,
+              averagePeriodDuration: data.averagePeriodDuration || null,
             });
             this.hasCycleData.set(true);
             this.calculateCycleData();
@@ -202,16 +211,20 @@ export class PregnancyPlanningComponent implements OnInit {
 
     if (!lastPeriodDate || !cycleLength) return;
 
+    // Convert month-year format to full date (use first day of month)
+    const periodDate = new Date(lastPeriodDate);
+    periodDate.setDate(1); // Set to first day of the month
+
     // Calculate next period
     const nextPeriod = this.reproductiveStatusService.calculateNextPeriod(
-      lastPeriodDate,
+      periodDate.toISOString(),
       cycleLength
     );
     this.nextPeriodDate.set(nextPeriod);
 
     // Calculate fertile window
     const fertileWindow = this.reproductiveStatusService.calculateFertileWindow(
-      lastPeriodDate,
+      periodDate.toISOString(),
       cycleLength
     );
     this.fertileWindow.set(fertileWindow);
@@ -246,7 +259,9 @@ export class PregnancyPlanningComponent implements OnInit {
         {
           text: 'OK',
           handler: (value: any) => {
-            this.cycleForm.patchValue({ averageCycleLength: value.cycleLength.value });
+            this.cycleForm.patchValue({
+              averageCycleLength: value.cycleLength.value,
+            });
           },
         },
       ],
@@ -278,13 +293,87 @@ export class PregnancyPlanningComponent implements OnInit {
         {
           text: 'OK',
           handler: (value: any) => {
-            this.cycleForm.patchValue({ averagePeriodDuration: value.periodDuration.value });
+            this.cycleForm.patchValue({
+              averagePeriodDuration: value.periodDuration.value,
+            });
           },
         },
       ],
     });
 
     await picker.present();
+  }
+
+  async openDatePicker(): Promise<void> {
+    const currentValue = this.cycleForm.get('lastPeriodDate')?.value;
+    const currentDate = currentValue ? new Date(currentValue) : new Date();
+
+    const picker = await this.pickerCtrl.create({
+      columns: [
+        {
+          name: 'month',
+          options: [
+            { text: 'January', value: '01' },
+            { text: 'February', value: '02' },
+            { text: 'March', value: '03' },
+            { text: 'April', value: '04' },
+            { text: 'May', value: '05' },
+            { text: 'June', value: '06' },
+            { text: 'July', value: '07' },
+            { text: 'August', value: '08' },
+            { text: 'September', value: '09' },
+            { text: 'October', value: '10' },
+            { text: 'November', value: '11' },
+            { text: 'December', value: '12' },
+          ],
+          selectedIndex: currentDate.getMonth(),
+        },
+        {
+          name: 'day',
+          options: Array.from({ length: 31 }, (_, i) => ({
+            text: (i + 1).toString(),
+            value: (i + 1).toString().padStart(2, '0'),
+          })),
+          selectedIndex: currentDate.getDate() - 1,
+        },
+        {
+          name: 'year',
+          options: Array.from({ length: 10 }, (_, i) => {
+            const year = new Date().getFullYear() - i;
+            return { text: year.toString(), value: year.toString() };
+          }),
+          selectedIndex: 0,
+        },
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'OK',
+          handler: (value: any) => {
+            const day = value.day.value;
+            const month = value.month.value;
+            const year = value.year.value;
+            const dateString = `${year}-${month}-${day}`;
+            this.cycleForm.patchValue({ lastPeriodDate: dateString });
+          },
+        },
+      ],
+    });
+
+    await picker.present();
+  }
+
+  formatMonthYearDate(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   }
 
   saveCycleData(): void {
@@ -295,42 +384,18 @@ export class PregnancyPlanningComponent implements OnInit {
 
     this.isLoading.set(true);
     const formValue = this.cycleForm.value;
-
-    // Create period log data - try sending as ISO string that backend can parse
-    const periodLogData: PeriodLogData = {
+    const payload: CreatePregnancyPlanningDto = {
       lastPeriodDate: new Date(formValue.lastPeriodDate).toISOString(),
-      mood: "Normal",
-      notes: formValue.notes || "Regular period tracking",
-      averagePeriodDuration: formValue.averagePeriodDuration
+      cycleLength: formValue.averageCycleLength,
+      averagePeriodDuration:formValue.averagePeriodDuration,
+      lifestyleGoals: 'test',
+      notes: formValue.notes || 'Regular period tracking',
     };
 
-    console.log('Sending period log data to API:', periodLogData);
-    console.log('lastPeriodDate type:', typeof periodLogData.lastPeriodDate);
-    console.log('lastPeriodDate value:', periodLogData.lastPeriodDate);
-
     this.reproductiveStatusService
-      .createPeriodLog(this.userId, periodLogData)
-      .subscribe({
-        next: (response) => {
-          console.log('Period log created successfully:', response);
-          this.hasCycleData.set(true);
-          this.calculateCycleData();
-          this.isLoading.set(false);
-
-          // Show confirmation
-          this.showConfirmation.set(true);
-          setTimeout(() => this.showConfirmation.set(false), 5000);
-
-          this.showToast('Cycle information saved successfully!');
-
-          // Create pregnancy planning record
-          this.createPregnancyPlanWithCycleData(formValue);
-        },
-        error: (error) => {
-          console.error('Error creating period log:', error);
-          this.isLoading.set(false);
-          this.showToast('Error saving data. Please try again.');
-        },
+      .createPregnancyPlanning(this.userId, payload)
+      .subscribe((res) => {
+        console.log(res);
       });
   }
 
@@ -341,41 +406,41 @@ export class PregnancyPlanningComponent implements OnInit {
     return end;
   }
 
-  private createPregnancyPlanWithCycleData(formValue: CycleFormData): void {
-    const pregnancyPlanData: CreatePregnancyPlanningDto = {
-      lastPeriodDate: formValue.lastPeriodDate,
-      cycleLength: formValue.averageCycleLength || 28,
-      lifestyleGoals: formValue.lifestyleGoals,
-      notes: formValue.notes,
-    };
+  // private createPregnancyPlanWithCycleData(formValue: CycleFormData): void {
+  //   const pregnancyPlanData: CreatePregnancyPlanningDto = {
+  //     lastPeriodDate: formValue.lastPeriodDate,
+  //     cycleLength: formValue.averageCycleLength || 28,
+  //     lifestyleGoals: formValue.lifestyleGoals,
+  //     notes: formValue.notes,
+  //   };
 
-    this.reproductiveStatusService
-      .createPregnancyPlanning(pregnancyPlanData, this.userId)
-      .subscribe({
-        next: (response: PregnancyPlanningResponseDto) => {
-          console.log('Pregnancy plan created successfully:', response);
+  //   this.reproductiveStatusService
+  //     .createPregnancyPlanning(pregnancyPlanData, this.userId)
+  //     .subscribe({
+  //       next: (response: PregnancyPlanningResponseDto) => {
+  //         console.log('Pregnancy plan created successfully:', response);
 
-          // Update calculations with server response
-          if (response.fertileWindow) {
-            this.fertileWindow.set({
-              start: new Date(response.fertileWindow.start),
-              end: new Date(response.fertileWindow.end),
-            });
-          }
-          if (response.ovulationDate) {
-            this.ovulationDate.set(new Date(response.ovulationDate));
-          }
-          if (response.nextPeriodDate) {
-            this.nextPeriodDate.set(new Date(response.nextPeriodDate));
-          }
-        },
-        error: (error) => {
-          console.error('Error creating pregnancy plan:', error);
-        },
-      });
-  }
+  //         // Update calculations with server response
+  //         if (response.fertileWindow) {
+  //           this.fertileWindow.set({
+  //             start: new Date(response.fertileWindow.start),
+  //             end: new Date(response.fertileWindow.end),
+  //           });
+  //         }
+  //         if (response.ovulationDate) {
+  //           this.ovulationDate.set(new Date(response.ovulationDate));
+  //         }
+  //         if (response.nextPeriodDate) {
+  //           this.nextPeriodDate.set(new Date(response.nextPeriodDate));
+  //         }
+  //       },
+  //       error: (error) => {
+  //         console.error('Error creating pregnancy plan:', error);
+  //       },
+  //     });
+  // }
 
-  createPregnancyPlan() {
+  updatePregnancyPlan() {
     if (this.cycleForm.get('lastPeriodDate')?.invalid) {
       this.showToast('Please select your last period date');
       return;
@@ -384,7 +449,7 @@ export class PregnancyPlanningComponent implements OnInit {
     this.isLoading.set(true);
     const formValue = this.cycleForm.value;
 
-    const pregnancyPlanData: CreatePregnancyPlanningDto = {
+    const pregnancyPlanData = {
       lastPeriodDate: formValue.lastPeriodDate,
       cycleLength: formValue.averageCycleLength || 28,
       lifestyleGoals: formValue.lifestyleGoals,
@@ -392,7 +457,7 @@ export class PregnancyPlanningComponent implements OnInit {
     };
 
     this.reproductiveStatusService
-      .createPregnancyPlanning(pregnancyPlanData, this.userId)
+      .updateReproductiveStatus(this.userId, pregnancyPlanData)
       .subscribe({
         next: (response: PregnancyPlanningResponseDto) => {
           console.log('Pregnancy plan created successfully:', response);
@@ -423,9 +488,6 @@ export class PregnancyPlanningComponent implements OnInit {
   }
 
   // Form control getters for template
-
-
-
 
   private showToast(message: string) {
     const toast = document.createElement('div');

@@ -215,6 +215,7 @@ export class UserService {
           userId,
           lastPeriodDate: createPregnancyPlanningDto.lastPeriodDate,
           cycleLength: createPregnancyPlanningDto.cycleLength,
+          averagePeriodDuration: createPregnancyPlanningDto.averagePeriodDuration,
           lifestyleGoals: createPregnancyPlanningDto.lifestyleGoals,
           notes: createPregnancyPlanningDto.notes,
         },
@@ -280,6 +281,10 @@ export class UserService {
 
     if (updatePregnancyPlanningDto.cycleLength) {
       updateData.cycleLength = updatePregnancyPlanningDto.cycleLength;
+    }
+
+    if (updatePregnancyPlanningDto.averagePeriodDuration !== undefined) {
+      updateData.averagePeriodDuration = updatePregnancyPlanningDto.averagePeriodDuration;
     }
 
     if (updatePregnancyPlanningDto.lifestyleGoals !== undefined) {
@@ -365,10 +370,12 @@ export class UserService {
       userId: pregnancyPlanning.userId,
       lastPeriodDate: pregnancyPlanning.lastPeriodDate,
       cycleLength: pregnancyPlanning.cycleLength,
+      averagePeriodDuration: pregnancyPlanning.averagePeriodDuration,
       lifestyleGoals: pregnancyPlanning.lifestyleGoals,
       notes: pregnancyPlanning.notes,
       createdAt: pregnancyPlanning.createdAt,
       updatedAt: pregnancyPlanning.updatedAt,
+      
       ovulationDate,
       fertileWindow: {
         start: fertileWindowStart,

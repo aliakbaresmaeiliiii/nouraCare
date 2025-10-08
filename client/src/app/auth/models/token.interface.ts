@@ -3,6 +3,7 @@ export interface TokenResponse {
   refreshToken: string;
   expires_in?: number;
   token_type?: string;
+  isVerified?: boolean;
 }
 
 export interface JwtPayload {
@@ -10,5 +11,6 @@ export interface JwtPayload {
   email: string;
   exp: number;
   iat: number;
+  isVerified?: boolean;
   [key: string]: any;
 }

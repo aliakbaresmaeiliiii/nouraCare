@@ -5,6 +5,7 @@ Content-Type: application/json
 {
   "lastPeriodDate": "2025-01-01T00:00:00.000Z",
   "cycleLength": 28,
+  "averagePeriodDuration": 5,
   "lifestyleGoals": "Improve diet and exercise routine",
   "notes": "Planning to start trying in 3 months"
 }
@@ -18,6 +19,7 @@ Content-Type: application/json
 
 {
   "cycleLength": 30,
+  "averagePeriodDuration": 6,
   "lifestyleGoals": "Updated lifestyle goals",
   "notes": "Updated notes"
 }

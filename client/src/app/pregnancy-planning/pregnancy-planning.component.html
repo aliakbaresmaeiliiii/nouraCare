@@ -51,21 +51,22 @@
         </p>
 
         <!-- Last Period Start Date -->
-        <ion-item class="form-item">
+        <ion-item class="form-item" button (click)="openDatePicker()">
           <ion-label position="stacked" class="form-label">
             When did your last period start?
             <span class="required-indicator">*</span>
           </ion-label>
-          <ion-datetime
-            presentation="date"
-            [value]="cycleForm.get('lastPeriodDate')?.value || ''"
-            (ionChange)="
-              cycleForm.get('lastPeriodDate')?.setValue($event.detail.value)
-            "
-            [max]="getTodayDate()"
-            class="date-input"
+          <ion-input
+            readonly
+            [value]="cycleForm.get('lastPeriodDate')?.value ? formatMonthYearDate(cycleForm.get('lastPeriodDate')?.value) : ''"
             placeholder="Select date"
-          ></ion-datetime>
+            class="date-input"
+          ></ion-input>
+          <ion-icon
+            name="chevron-down"
+            slot="end"
+            class="dropdown-icon"
+          ></ion-icon>
         </ion-item>
 
         <!-- Average Cycle Length -->
@@ -76,7 +77,7 @@
           </ion-label>
           <ion-input
             readonly
-            [value]="cycleForm.get('averageCycleLength')?.value ? cycleForm.get('averageCycleLength')?.value + ' days' : ''"
+            [value]="cycleForm.get('averageCycleLength')?.value ? cycleForm.get('averageCycleLength')?.value + ' days' : '28'"
             placeholder="Select cycle length"
             class="cycle-length-input"
           ></ion-input>
@@ -98,7 +99,7 @@
           </ion-label>
           <ion-input
             readonly
-            [value]="cycleForm.get('averagePeriodDuration')?.value ? cycleForm.get('averagePeriodDuration')?.value + ' days' : ''"
+            [value]="cycleForm.get('averagePeriodDuration')?.value ? cycleForm.get('averagePeriodDuration')?.value + ' days' : '5'"
             placeholder="Select period duration"
             class="period-duration-input"
           ></ion-input>
@@ -166,7 +167,7 @@
         <ion-button
           expand="block"
           class="create-plan-btn"
-          (click)="createPregnancyPlan()"
+          (click)="updatePregnancyPlan()"
           [disabled]="cycleForm.get('lastPeriodDate')?.invalid"
         >
           <ion-icon name="heart-outline" slot="start"></ion-icon>

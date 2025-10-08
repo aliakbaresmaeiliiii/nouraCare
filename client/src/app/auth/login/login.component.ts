@@ -130,7 +130,7 @@ export class LoginComponent {
           localStorage.removeItem('onboarding_completed');
         } 
 
-        this.router.navigate(['verify-email']);
+        this.router.navigate(['auth/verify-email']);
       },
       error: (err) => {
         console.error('Registration failed:', err);
@@ -158,21 +158,31 @@ export class LoginComponent {
           this.success = true;
           this.showToast = true;
           
-          // Force authentication state update and wait for it to be processed
-          setTimeout(() => {
-            // Get return URL from query parameters or default to home
-            const returnUrl = this.activatedRoute.snapshot.queryParams['returnUrl'] || '/tabs/home';
-            console.log('Return URL:', returnUrl);
-            
-            // Navigate to the return URL or home
-            this.router.navigateByUrl(returnUrl).then(() => {
-              console.log('Navigation completed');
-            }).catch(error => {
-              console.error('Navigation error:', error);
-              // Fallback navigation if the first attempt fails
-              this.router.navigate(['/tabs/home']);
-            });
-          }, 100);
+          // Check if email is verified
+          const isEmailVerified = res?.isVerified;
+          
+          if (!isEmailVerified) {
+            // Email not verified, redirect to verify-email page
+            console.log('Email not verified, redirecting to verify-email page');
+            this.router.navigate(['/auth/verify-email']);
+          } else {
+            // Email verified, proceed to home
+            // Force authentication state update and wait for it to be processed
+            setTimeout(() => {
+              // Get return URL from query parameters or default to home
+              const returnUrl = this.activatedRoute.snapshot.queryParams['returnUrl'] || '/tabs/home';
+              console.log('Return URL:', returnUrl);
+              
+              // Navigate to the return URL or home
+              this.router.navigateByUrl(returnUrl).then(() => {
+                console.log('Navigation completed');
+              }).catch(error => {
+                console.error('Navigation error:', error);
+                // Fallback navigation if the first attempt fails
+                this.router.navigate(['/tabs/home']);
+              });
+            }, 100);
+          }
           
           this.cdr.detectChanges();
         },

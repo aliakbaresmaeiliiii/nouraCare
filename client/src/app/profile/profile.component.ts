@@ -132,8 +132,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
             if (data.lastPeriodDate) {
               this.lastPeriodDate = data.lastPeriodDate;
             }
-            if (data.averageCycleLength) {
-              this.selectedCycleLength = data.averageCycleLength;
+            if (data.cycleLength) {
+              this.selectedCycleLength = data.cycleLength;
             }
           },
           error: (error) => {
@@ -197,7 +197,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
     const updateData: ReproductiveStatusData = {
       lastPeriodDate: this.lastPeriodDate,
-      averageCycleLength: this.selectedCycleLength,
+      cycleLength: this.selectedCycleLength,
       isPregnant: false, // Ensure pregnancy status is false when tracking periods
     };
 

@@ -8,7 +8,7 @@ export interface ReproductiveStatusData {
   pregnancyEndDate?: string;
   averagePeriodDuration?: number;
   lastPeriodDate?: string;
-  averageCycleLength?: number;
+  cycleLength?: number;
   mood?: string;
   notes?: string;
 }
@@ -16,6 +16,7 @@ export interface ReproductiveStatusData {
 export interface CreatePregnancyPlanningDto {
   lastPeriodDate: string;
   cycleLength: number;
+  averagePeriodDuration: number;
   lifestyleGoals?: string;
   notes?: string;
 }
@@ -55,14 +56,13 @@ export class ReproductiveStatusService {
   private baseUrl = environment.apiEndPoint + 'profile';
 
   updateReproductiveStatus(userId: number, data: ReproductiveStatusData): Observable<any> {
-    debugger;
-    return this.http.patch<any>(`${this.baseUrl}/${userId}/reproductive-status`, data);
+    return this.http.put<any>(`${this.baseUrl}/${userId}/update-pregnancy-planning`, data);
   }
 
   getReproductiveStatus(id?: number): Observable<ReproductiveStatusData> {
     const url = id 
-      ? `${this.baseUrl}/${id}/reproductive-status`
-      : `${this.baseUrl}/reproductive-status`;
+      ? `${this.baseUrl}/${id}/pregnancy-planning`
+      : `${this.baseUrl}/pregnancy-planning`;
     return this.http.get<ReproductiveStatusData>(url);
   }
 
@@ -72,8 +72,8 @@ export class ReproductiveStatusService {
 
   // Create pregnancy planning
   createPregnancyPlanning(
+    userId:number,
     data: CreatePregnancyPlanningDto,
-    userId:number
   ): Observable<PregnancyPlanningResponseDto> {
     return this.http.post<PregnancyPlanningResponseDto>(
       `${this.baseUrl}/${userId}/pregnancy-planning`,

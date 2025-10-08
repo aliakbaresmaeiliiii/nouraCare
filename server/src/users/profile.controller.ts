@@ -62,7 +62,7 @@ export class ProfileController {
     return this.userService.getPregnancyPlanning(+id);
   }
 
-  @Put(':id/pregnancy-planning')
+  @Put(':id/update-pregnancy-planning')
   @UsePipes(new ValidationPipe({ transform: true }))
   async updatePregnancyPlanning(
     @Param('id') id: string,

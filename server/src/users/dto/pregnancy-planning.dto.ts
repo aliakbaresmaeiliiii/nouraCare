@@ -11,6 +11,11 @@ export class CreatePregnancyPlanningDto {
   @Max(35)
   cycleLength: number;
 
+  @IsInt()
+  @Min(3)
+  @Max(10)
+  averagePeriodDuration: number;
+
   @IsString()
   @IsOptional()
   lifestyleGoals?: string;
@@ -31,6 +36,12 @@ export class UpdatePregnancyPlanningDto {
   @Max(35)
   @IsOptional()
   cycleLength?: number;
+
+  @IsInt()
+  @Min(3)
+  @Max(10)
+  @IsOptional()
+  averagePeriodDuration?: number;
 
   @IsString()
   @IsOptional()
@@ -59,4 +70,5 @@ export class PregnancyPlanningResponseDto {
   };
   nextPeriodDate?: Date;
   pregnancyProbability?: number;
+  averagePeriodDuration?: number;
 }
