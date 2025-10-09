@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -17,6 +18,7 @@ import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/user.dto';
 import { OnboardingService } from './onboarding.service';
 import { OnboardingDataDto } from './dto/onboarding.dto';
+import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 
 @Controller('api/v1/user')
 export class UserController {
@@ -27,7 +29,8 @@ export class UserController {
 
   @Get(':id')
   async getUser(@Param('id') id: string) {
-    return this.userService.getUserById(+id);
+    const result = await this.userService.getUserById(+id);
+    return ApiResponseHelper.success(result, 'User retrieved successfully');
   }
 
   @Put(':id/edit')
@@ -35,7 +38,8 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.editUserInfo(+id, updateUserDto);
+    const result = await this.userService.editUserInfo(+id, updateUserDto);
+    return ApiResponseHelper.success(result, 'User information updated successfully');
   }
 
   @Post(':id/profile-image')
@@ -75,7 +79,7 @@ export class UserController {
     const baseUrl = process.env.BASE_URL || 'http://172.20.10.2:8080';
     const url = `${baseUrl}/uploads/profile/${file.filename}`;
     await this.userService.editUserInfo(+id, { profileImage: url } as any);
-    return { url };
+    return ApiResponseHelper.success({ url }, 'Profile image uploaded successfully');
   }
 
   @Post(':id/onboarding')
@@ -83,11 +87,19 @@ export class UserController {
     @Param('id') id: string,
     @Body() onboardingData: OnboardingDataDto,
   ) {
-    return this.onboardingService.saveOnboardingData(+id, onboardingData);
+    const result = await this.onboardingService.saveOnboardingData(+id, onboardingData);
+    return ApiResponseHelper.success(result, 'Onboarding data saved successfully');
   }
 
   @Get(':id/onboarding')
   async getUserOnboardingData(@Param('id') id: string) {
-    return this.onboardingService.getUserOnboardingData(+id);
+    const result = await this.onboardingService.getUserOnboardingData(+id);
+    return ApiResponseHelper.success(result, 'Onboarding data retrieved successfully');
+  }
+
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string) {
+    await this.userService.deleteUser(+id);
+    return ApiResponseHelper.success(null, 'User account deleted successfully');
   }
 }

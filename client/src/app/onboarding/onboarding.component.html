@@ -22,7 +22,7 @@
         <h2 class="question-text">{{ currentStepData.question }}</h2>
 
         <!-- Radio Options -->
-        @if (currentStepData.type === 'radio') {
+        @if (currentStepData.type === 'radio' && currentStepData.id !== 'notifications') {
           <div class="options-container">
           @for (option of currentStepData.options; track option.value) {
             <div 
@@ -44,6 +44,13 @@
           </div>
         }
 
+        <!-- Notification Permission Component -->
+        @if (currentStepData.id === 'notifications') {
+          <div class="notification-step">
+            <app-notification-permission></app-notification-permission>
+          </div>
+        }
+
         <!-- Date Input -->
         @if (currentStepData.type === 'date') {
           <div class="input-container">
@@ -56,10 +63,19 @@
                 id="date-picker"
                 presentation="date"
                 [value]="answers[currentStepData.id]"
+                [max]="getMaxDate()"
                 (ionChange)="selectOption(currentStepData.id, $event.detail.value)">
               </ion-datetime>
             </ng-template>
           </ion-modal>
+          
+          <!-- Validation message -->
+          @if (currentStepData.id === 'last_period' && answers[currentStepData.id] && !isValidLastPeriodDate(answers[currentStepData.id])) {
+            <div class="validation-error">
+              <ion-icon name="warning-outline"></ion-icon>
+              The start date of your last menstrual period cannot be in the future.
+            </div>
+          }
           </div>
         }
 

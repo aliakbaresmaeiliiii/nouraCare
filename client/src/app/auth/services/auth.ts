@@ -34,6 +34,13 @@ export class AuthService {
   constructor() {
     // Initialize tokens from storage on service creation
     this.initializeTokens();
+    
+    // Set up periodic user existence check (every 5 minutes)
+    if (typeof window !== 'undefined') {
+      setInterval(() => {
+        this.verifyUserExistence();
+      }, 5 * 60 * 1000); // 5 minutes
+    }
   }
 
   /**
@@ -254,5 +261,46 @@ export class AuthService {
 
   resendOtp(data: { email: string}): Observable<any> {
     return this.http.post(`${this.baseUrl}/resend-otp`, data);
+  }
+
+  /**
+   * Verify that the user still exists in the database
+   * This is called periodically to check if user data was deleted
+   */
+  private verifyUserExistence(): void {
+    if (!this.isAuthenticated()) {
+      return;
+    }
+
+    const accessToken = this.getAccessToken();
+    if (!accessToken) {
+      return;
+    }
+
+    try {
+      const payload: JwtPayload = this.decodeToken(accessToken);
+      const userId = parseInt(payload.sub) || 0;
+      
+      if (userId > 0) {
+        // Make a lightweight API call to verify user existence
+        // This could be a simple endpoint like /auth/verify-user or /users/{id}/exists
+        // For now, we'll use the refresh token endpoint as it requires authentication
+        this.refreshToken().subscribe({
+          next: () => {
+            // User still exists and token is valid
+            console.log('User existence verified successfully');
+          },
+          error: (error) => {
+            // User doesn't exist or token is invalid
+            console.log('User no longer exists or token invalid, logging out...');
+            this.logout();
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error verifying user existence:', error);
+      // If we can't decode the token, log out
+      this.logout();
+    }
   }
 }

@@ -524,4 +524,30 @@ export class UserService {
       updatedAt: periodLog.updatedAt,
     };
   }
+
+  async deleteUser(userId: number): Promise<void> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Use a transaction to ensure all operations succeed or fail together
+    await this.prismaService.$transaction(async (tx) => {
+      // 1. Revoke all refresh tokens for the user
+      await tx.refreshToken.updateMany({
+        where: { userId },
+        data: { isRevoked: true },
+      });
+
+      // 2. Delete user and all related data (cascade delete will handle related records)
+      await tx.user.delete({
+        where: { id: userId },
+      });
+    });
+
+    console.log(`✅ User ${userId} deleted successfully with token invalidation`);
+  }
 }

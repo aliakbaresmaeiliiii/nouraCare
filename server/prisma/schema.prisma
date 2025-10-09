@@ -41,6 +41,7 @@ model user {
   forumThreads              ForumThread[]
   createdForums             Forum[]
   readMessages              MessageRead[]       @relation("MessageReads")
+  onboardingData            OnboardingData?
   periodLogs                PeriodLog[]
   postLikes                 PostLike[]          @relation("PostLikes")
   posts                     Post[]              @relation("PostAuthor")
@@ -63,7 +64,7 @@ model SecretChat {
   posts       Post[]
   createdBy   user          @relation("ChatCreatedBy", fields: [createdById], references: [id])
 
-  @@index([createdById], map: "secret_chats_createdById_fkey")
+  @@index([createdById])
   @@map("secret_chats")
 }
 
@@ -78,7 +79,7 @@ model ChatMember {
   user     user       @relation(fields: [userId], references: [id])
 
   @@unique([chatId, userId])
-  @@index([userId], map: "chat_members_userId_fkey")
+  @@index([userId])
   @@map("chat_members")
 }
 
@@ -127,8 +128,8 @@ model Forum {
   category    ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdBy   user          @relation(fields: [createdById], references: [id])
 
-  @@index([categoryId], map: "forums_categoryId_fkey")
-  @@index([createdById], map: "forums_createdById_fkey")
+  @@index([categoryId])
+  @@index([createdById])
   @@map("forums")
 }
 
@@ -147,8 +148,8 @@ model ForumThread {
   author    user        @relation(fields: [authorId], references: [id])
   forum     Forum       @relation(fields: [forumId], references: [id], onDelete: Cascade)
 
-  @@index([authorId], map: "forum_threads_authorId_fkey")
-  @@index([forumId], map: "forum_threads_forumId_fkey")
+  @@index([authorId])
+  @@index([forumId])
   @@map("forum_threads")
 }
 
@@ -167,9 +168,9 @@ model ForumPost {
   replies   ForumPost[]     @relation("PostReplies")
   thread    ForumThread     @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
-  @@index([authorId], map: "forum_posts_authorId_fkey")
-  @@index([parentId], map: "forum_posts_parentId_fkey")
-  @@index([threadId], map: "forum_posts_threadId_fkey")
+  @@index([authorId])
+  @@index([parentId])
+  @@index([threadId])
   @@map("forum_posts")
 }
 
@@ -182,7 +183,7 @@ model ForumPostLike {
   user      user      @relation(fields: [userId], references: [id])
 
   @@unique([postId, userId])
-  @@index([userId], map: "forum_post_likes_userId_fkey")
+  @@index([userId])
   @@map("forum_post_likes")
 }
 
@@ -202,9 +203,9 @@ model Post {
   category    PostCategory? @relation(fields: [categoryId], references: [id])
   chat        SecretChat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
-  @@index([authorId], map: "posts_authorId_fkey")
-  @@index([categoryId], map: "posts_categoryId_fkey")
-  @@index([chatId], map: "posts_chatId_fkey")
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([chatId])
   @@map("posts")
 }
 
@@ -218,7 +219,7 @@ model PostMedia {
   createdAt DateTime  @default(now())
   post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@index([postId], map: "post_media_postId_fkey")
+  @@index([postId])
   @@map("post_media")
 }
 
@@ -237,9 +238,9 @@ model Comment {
   replies     Comment[]     @relation("CommentReplies")
   post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@index([authorId], map: "comments_authorId_fkey")
-  @@index([parentId], map: "comments_parentId_fkey")
-  @@index([postId], map: "comments_postId_fkey")
+  @@index([authorId])
+  @@index([parentId])
+  @@index([postId])
   @@map("comments")
 }
 
@@ -252,7 +253,7 @@ model PostLike {
   user      user     @relation("PostLikes", fields: [userId], references: [id])
 
   @@unique([postId, userId])
-  @@index([userId], map: "post_likes_userId_fkey")
+  @@index([userId])
   @@map("post_likes")
 }
 
@@ -265,7 +266,7 @@ model CommentLike {
   user      user     @relation("CommentLikes", fields: [userId], references: [id])
 
   @@unique([commentId, userId])
-  @@index([userId], map: "comment_likes_userId_fkey")
+  @@index([userId])
   @@map("comment_likes")
 }
 
@@ -286,9 +287,9 @@ model ChatMessage {
   sender      user          @relation("MessageSender", fields: [senderId], references: [id])
   readBy      MessageRead[]
 
-  @@index([chatId], map: "chat_messages_chatId_fkey")
-  @@index([replyToId], map: "chat_messages_replyToId_fkey")
-  @@index([senderId], map: "chat_messages_senderId_fkey")
+  @@index([chatId])
+  @@index([replyToId])
+  @@index([senderId])
   @@map("chat_messages")
 }
 
@@ -301,7 +302,7 @@ model MessageRead {
   user      user        @relation("MessageReads", fields: [userId], references: [id])
 
   @@unique([messageId, userId])
-  @@index([userId], map: "message_reads_userId_fkey")
+  @@index([userId])
   @@map("message_reads")
 }
 
@@ -314,11 +315,11 @@ model address {
   createdAt   DateTime  @default(now())
   city        city      @relation(fields: [cityId], references: [id], map: "Address_cityId_fkey")
   district    district? @relation(fields: [districtId], references: [id], map: "Address_districtId_fkey")
-  user        user      @relation(fields: [userId], references: [id], map: "Address_userId_fkey")
+  user        user      @relation(fields: [userId], references: [id])
 
-  @@index([cityId], map: "Address_cityId_fkey")
-  @@index([districtId], map: "Address_districtId_fkey")
-  @@index([userId], map: "Address_userId_fkey")
+  @@index([cityId])
+  @@index([districtId])
+  @@index([userId])
 }
 
 model city {
@@ -334,9 +335,9 @@ model district {
   name    String
   cityId  Int
   address address[]
-  city    city      @relation(fields: [cityId], references: [id], map: "District_cityId_fkey")
+  city    city      @relation(fields: [cityId], references: [id])
 
-  @@index([cityId], map: "District_cityId_fkey")
+  @@index([cityId])
 }
 
 model doctors {
@@ -378,16 +379,16 @@ model trackday {
 }
 
 model PregnancyPlanning {
-  id                   Int      @id @default(autoincrement())
-  userId               Int
-  lastPeriodDate       DateTime
-  cycleLength          Int
+  id                    Int      @id @default(autoincrement())
+  userId                Int
+  lastPeriodDate        DateTime
+  cycleLength           Int
+  lifestyleGoals        String?  @db.Text
+  notes                 String?  @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   averagePeriodDuration Int
-  lifestyleGoals       String?  @db.Text
-  notes                String?  @db.Text
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  user                 user     @relation(fields: [userId], references: [id])
+  user                  user     @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@map("pregnancy_planning")
@@ -408,18 +409,42 @@ model RefreshToken {
 }
 
 model PeriodLog {
-  id                   Int      @id @default(autoincrement())
-  userId               Int
-  lastPeriodDate       DateTime
-  mood                 String?  @db.Text
-  notes                String?  @db.Text
+  id                    Int      @id @default(autoincrement())
+  userId                Int
+  mood                  String?  @db.Text
+  notes                 String?  @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
   averagePeriodDuration Int?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  user                 user     @relation(fields: [userId], references: [id])
+  lastPeriodDate        DateTime
+  user                  user     @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@map("period_logs")
+}
+
+model OnboardingData {
+  id                   Int       @id @default(autoincrement())
+  userId               Int       @unique
+  sessionId            String?
+  pregnancyStatus      String?
+  lastPeriodDate       DateTime?
+  cycleLength          Int?
+  periodDuration       Int?
+  pregnancyWeek        Int?
+  pregnancyProgress    String?
+  healthGoals          String?   @db.Text
+  notificationsEnabled Boolean?  @default(true)
+  selectedOptions      Json?
+  onboardingStep       Int?      @default(1)
+  isCompleted          Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  user                 user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+  @@map("onboarding_data")
 }
 
 enum Status {

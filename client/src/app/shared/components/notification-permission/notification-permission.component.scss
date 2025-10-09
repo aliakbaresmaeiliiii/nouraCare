@@ -1,0 +1,70 @@
+// Simple Notification Permission Design
+.notification-permission-container {
+  padding: 40px 24px;
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+// Simple Header
+.permission-header {
+  margin-bottom: 32px;
+  
+  .header-icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+  
+  .header-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px 0;
+  }
+  
+  .header-subtitle {
+    font-size: 1rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// Simple Toggle
+.toggle-section {
+  margin-bottom: 32px;
+  
+  .toggle-item {
+    --background: white;
+    --border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    ion-label {
+      font-weight: 500;
+    }
+    
+    ion-toggle {
+      --background: #e9ecef;
+      --background-checked: var(--ion-color-primary);
+      --handle-background: white;
+    }
+  }
+}
+
+// Simple Action
+.action-section {
+  .permission-button {
+    --border-radius: 8px;
+    --padding-top: 16px;
+    --padding-bottom: 16px;
+    font-weight: 600;
+  }
+}
+
+// Responsive
+@media (max-width: 480px) {
+  .notification-permission-container {
+    padding: 32px 16px;
+  }
+}

@@ -110,26 +110,55 @@ export class OnboardingService {
     onboardingData: OnboardingDataDto,
   ) {
     // Map client field names to database field names and transform data
-    const updateData = {
+    const onboardingDataToSave = {
+      pregnancyStatus: this.mapPregnancyStatus(onboardingData.pregnancy_status),
+      lastPeriodDate: onboardingData.last_period,
+      cycleLength: onboardingData.cycle_length,
+      periodDuration: onboardingData.period_length,
+      pregnancyWeek: onboardingData.pregnancy_week,
+      pregnancyProgress: onboardingData.pregnancy_progress,
+      healthGoals: onboardingData.health_goals, // Already JSON string from client
+      notificationsEnabled: this.mapNotifications(onboardingData.notifications),
+      isCompleted: true,
+    };
+
+    // Filter out undefined values
+    const filteredData = Object.fromEntries(
+      Object.entries(onboardingDataToSave).filter(([_, value]) => value !== undefined),
+    );
+
+    // Save to onboarding_data table
+    await this.prisma.onboardingData.upsert({
+      where: { userId },
+      update: filteredData,
+      create: {
+        userId,
+        ...filteredData,
+      },
+    });
+
+    // Also update critical user fields for backward compatibility
+    const userUpdateData = {
       status: this.mapPregnancyStatus(onboardingData.pregnancy_status),
       lastPeriodStartDate: onboardingData.last_period,
       menstrualCycleLength: onboardingData.cycle_length,
       periodDuration: onboardingData.period_length,
       pregnancyWeek: onboardingData.pregnancy_week,
       pregnancyProgress: onboardingData.pregnancy_progress,
-      healthGoals: onboardingData.health_goals, // Already JSON string from client
+      healthGoals: onboardingData.health_goals,
       notificationsEnabled: this.mapNotifications(onboardingData.notifications),
     };
 
-    // Filter out undefined values
-    const filteredData = Object.fromEntries(
-      Object.entries(updateData).filter(([_, value]) => value !== undefined),
+    const filteredUserData = Object.fromEntries(
+      Object.entries(userUpdateData).filter(([_, value]) => value !== undefined),
     );
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: filteredData,
-    });
+    if (Object.keys(filteredUserData).length > 0) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: filteredUserData,
+      });
+    }
   }
 
   private mapPregnancyStatus(status: string): string | undefined {

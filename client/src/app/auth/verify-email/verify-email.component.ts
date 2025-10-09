@@ -113,7 +113,7 @@ export class VerifyEmailComponent implements OnInit {
       next: (res: any) => {
         console.log('Response:', res);
         // Now we can rely on the interceptor to provide consistent success flag
-        if (res.success || res.isSuccess) {
+        if (res.code === 200) {
           this.showToast = true;
           this.message = 'Email verified successfully!';
           this.success.set(true);

@@ -85,7 +85,15 @@ export class LoginComponent {
     // this.authService.refreshAuthToken(GoogleLoginProvider.PROVIDER_ID);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    // Check for query parameters to determine active tab
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['tab'] === 'register') {
+        this.activeTab = 'register';
+        this.title.set('Register');
+      }
+    });
+  }
 
   private decodeToken(token: any) {
     return JSON.parse(atob(token.split('.')[1]));

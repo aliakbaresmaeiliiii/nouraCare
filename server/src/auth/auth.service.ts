@@ -134,6 +134,7 @@ export class AuthService {
     await this.autoJoinCommunityChat(updatedUser.id);
 
     return {
+      code: 200,
       message: 'Email verified successfully',
       user: {
         id: updatedUser.id,
@@ -328,6 +329,44 @@ export class AuthService {
         return false;
     }
     return undefined;
+  }
+
+  async verifyUserExists(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        name: true,
+        profileImage: true,
+        isVerified: true,
+        status: true,
+        city: true,
+        birthday: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      exists: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        name: user.name,
+        profileImage: user.profileImage,
+        isVerified: user.isVerified,
+        status: user.status,
+        city: user.city,
+        birthday: user.birthday,
+        createdAt: user.createdAt,
+      },
+    };
   }
 
   private async autoJoinCommunityChat(userId: number) {

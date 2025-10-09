@@ -6,6 +6,7 @@ import { UserInfoService, OnboardingData } from '../shared/services/user-info.se
 import { OnboardingService, OnboardingDataDto } from '../shared/services/onboarding.service';
 import { OnboardingStateService } from '../shared/services/onboarding-state.service';
 import { SharedModule } from '../shared/shared-module';
+import { NotificationPermissionComponent } from '../shared/components/notification-permission/notification-permission.component';
 
 interface OnboardingStep {
   id: string;
@@ -25,7 +26,7 @@ interface OnboardingStep {
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, NotificationPermissionComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class OnboardingComponent implements OnInit {
@@ -187,12 +188,62 @@ export class OnboardingComponent implements OnInit {
   get canProceed(): boolean {
     const step = this.currentStepData;
     if (!step.required) return true;
+    
+    // For last period date, check if it's valid (not in future)
+    if (step.id === 'last_period' && this.answers[step.id]) {
+      return this.isValidLastPeriodDate(this.answers[step.id]);
+    }
+    
     return this.answers[step.id] !== undefined && this.answers[step.id] !== null && this.answers[step.id] !== '';
   }
 
   selectOption(stepId: string, value: any) {
+    // For last period date, validate before setting
+    if (stepId === 'last_period' && value) {
+      if (!this.isValidLastPeriodDate(value)) {
+        this.showDateValidationError();
+        return;
+      }
+    }
+    
     this.answers[stepId] = value;
   }
+
+  /**
+   * Get maximum selectable date (today)
+   */
+  getMaxDate(): string {
+    return new Date().toISOString();
+  }
+
+  /**
+   * Validate last period date - cannot be in the future
+   */
+  isValidLastPeriodDate(dateString: string): boolean {
+    const selectedDate = new Date(dateString);
+    const today = new Date();
+    
+    // Reset time components for accurate date comparison
+    selectedDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    
+    // Date should not be in the future
+    return selectedDate <= today;
+  }
+
+  /**
+   * Show validation error for invalid date selection
+   */
+  private async showDateValidationError() {
+    const alert = await this.alertController.create({
+      header: 'Invalid Date',
+      message: 'The start date of your last menstrual period cannot be in the future. Please select a valid date.',
+      buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
 
   nextStep() {
     if (this.canProceed) {
@@ -284,7 +335,7 @@ export class OnboardingComponent implements OnInit {
   }
 
   /**
-   * Complete onboarding and redirect to login for registration
+   * Complete onboarding and redirect to registration
    */
   async completeOnboarding() {
 
@@ -294,12 +345,12 @@ export class OnboardingComponent implements OnInit {
     // Save to local services for immediate use
     this.saveAnswers();
 
-    // Show completion screen briefly, then navigate to register
+    // Show completion screen briefly, then navigate to registration
     this.isCompleted = true;
     
-    // Navigate to register/sign-in page after a short delay
+    // Navigate to registration page after a short delay
     setTimeout(() => {
-    this.router.navigate(['/auth/sign-in']);
+      this.router.navigate(['/auth/sign-in'], { queryParams: { tab: 'register' } });
     }, 2000); // 2 second delay to show completion message
 
   }

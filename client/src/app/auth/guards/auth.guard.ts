@@ -9,6 +9,35 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // Check if user is authenticated via AuthService (JWT tokens)
   if (authService.isAuthenticated()) {
+    // Additional check: verify the token is still valid and user exists
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      try {
+        const payload = JSON.parse(atob(accessToken.split('.')[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+        
+        // Check if token is expired
+        if (payload.exp < currentTime) {
+          console.log('Token expired, logging out...');
+          authService.logout();
+          router.navigate(['/auth/sign-in'], {
+            queryParams: { returnUrl: state.url }
+          });
+          return false;
+        }
+        
+        // Token is valid, allow access
+        return true;
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        // Invalid token, log out
+        authService.logout();
+        router.navigate(['/auth/sign-in'], {
+          queryParams: { returnUrl: state.url }
+        });
+        return false;
+      }
+    }
     return true;
   }
 

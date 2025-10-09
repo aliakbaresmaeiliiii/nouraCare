@@ -1,0 +1,23 @@
+### Test User Existence Verification Endpoint
+# This endpoint should return user data if the user exists
+GET http://localhost:3000/api/v1/auth/verify-user-exists
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Test User Deletion
+# This endpoint should delete the user and invalidate all tokens
+DELETE http://localhost:3000/api/v1/user/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Test Protected Route After User Deletion
+# This should return 401 with USER_DELETED code after user is deleted
+GET http://localhost:3000/api/v1/user/1
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+### Test Refresh Token After User Deletion
+# This should fail after user deletion
+POST http://localhost:3000/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
+}
