@@ -1,0 +1,132 @@
+### Test Login with Onboarding Data
+### This test demonstrates the new onboarding data in login response
+
+### Step 1: Register a user with onboarding data
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "onboarding-test@example.com",
+  "phone": "+1234567892",
+  "onboardingData": {
+    "pregnancy_status": "pregnant",
+    "last_period": "2024-01-01T00:00:00.000Z",
+    "cycle_length": 28,
+    "period_length": 5,
+    "pregnancy_week": 12,
+    "pregnancy_progress": "first_trimester",
+    "health_goals": "{\"track_period\": true, \"cycle_insights\": true, \"pregnancy_tracking\": true}",
+    "notifications": true
+  }
+}
+
+### Step 2: Verify email (replace with actual verification code)
+POST http://localhost:3000/api/v1/auth/verify-email
+Content-Type: application/json
+
+{
+  "email": "onboarding-test@example.com",
+  "verify_code": "123456"
+}
+
+### Step 3: Login and check onboarding data in response
+POST http://localhost:3000/api/v1/auth/sign-in
+Content-Type: application/json
+
+{
+  "email": "onboarding-test@example.com"
+}
+
+### Expected Response Structure:
+# {
+#   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#   "user": {
+#     "id": 1,
+#     "email": "onboarding-test@example.com",
+#     "phone": "+1234567892",
+#     "name": null,
+#     "profileImage": null,
+#     "isVerified": true,
+#     "status": "PREGNANT",
+#     "city": null,
+#     "birthday": null,
+#     "createdAt": "2025-10-12T02:30:00.000Z"
+#   },
+#   "onboarding": {
+#     "isCompleted": true,
+#     "hasOnboardingData": true,
+#     "hasReproductiveData": true,
+#     "onboardingStep": 1,
+#     "data": {
+#       "pregnancyStatus": "PREGNANT",
+#       "lastPeriodDate": "2024-01-01T00:00:00.000Z",
+#       "cycleLength": 28,
+#       "periodDuration": 5,
+#       "pregnancyWeek": 12,
+#       "pregnancyProgress": "first_trimester",
+#       "healthGoals": "{\"track_period\": true, \"cycle_insights\": true, \"pregnancy_tracking\": true}",
+#       "notificationsEnabled": true,
+#       "selectedOptions": null
+#     }
+#   }
+# }
+
+### Step 4: Test refresh token also includes onboarding data
+POST http://localhost:3000/api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "your_refresh_token_from_login_response"
+}
+
+### Step 5: Test user without onboarding data
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "no-onboarding@example.com",
+  "phone": "+1234567893"
+}
+
+### Verify email for user without onboarding data
+POST http://localhost:3000/api/v1/auth/verify-email
+Content-Type: application/json
+
+{
+  "email": "no-onboarding@example.com",
+  "verify_code": "123456"
+}
+
+### Login for user without onboarding data
+POST http://localhost:3000/api/v1/auth/sign-in
+Content-Type: application/json
+
+{
+  "email": "no-onboarding@example.com"
+}
+
+### Expected Response Structure for user without onboarding:
+# {
+#   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+#   "user": {
+#     "id": 2,
+#     "email": "no-onboarding@example.com",
+#     "phone": "+1234567893",
+#     "name": null,
+#     "profileImage": null,
+#     "isVerified": true,
+#     "status": null,
+#     "city": null,
+#     "birthday": null,
+#     "createdAt": "2025-10-12T02:31:00.000Z"
+#   },
+#   "onboarding": {
+#     "isCompleted": false,
+#     "hasOnboardingData": false,
+#     "hasReproductiveData": false,
+#     "onboardingStep": 1,
+#     "data": null
+#   }
+# }

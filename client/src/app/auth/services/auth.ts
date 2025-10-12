@@ -5,9 +5,9 @@ import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { LoginRequest } from '../login/model/login-request-interface';
 import { RegisterRequest } from '../login/model/register-request-interface';
-import { OnboardingDataDto } from 'src/app/shared/services/onboarding.service';
 import { TokenResponse, JwtPayload } from '../models/token.interface';
 import { LoginData, User } from '../login/model/uesr-interface';
+import { OnboardingDataDto } from '@app/shared/services/onboarding.service';
 
 @Injectable({
   providedIn: 'root',
@@ -81,7 +81,6 @@ export class AuthService {
    * Handle successful token response
    */
   private handleTokenResponse(response: TokenResponse): void {
-    debugger;
     // Store access token in memory (sessionStorage for persistence across page reloads)
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('accessToken', response.accessToken);
@@ -111,7 +110,7 @@ export class AuthService {
         email: payload.email || '',
         phone: '', // You might need to adjust this based on your token structure
         isVerified: true, // Assuming token issuance means user is verified
-        };
+      };
       this.userInfo.set(userInfo);
     } catch (error) {
       // Failed to decode token
@@ -182,10 +181,13 @@ export class AuthService {
    */
   logout(): void {
     // Get access token from storage to use for logout API call
-const accessToken = JSON.parse(localStorage.getItem('userInfo') || '{}')?.accessToken;
-const refreshToken = JSON.parse(localStorage.getItem('userInfo') || '{}')?.refreshToken;
+    const accessToken = JSON.parse(
+      localStorage.getItem('userInfo') || '{}'
+    )?.accessToken;
+    const refreshToken = JSON.parse(
+      localStorage.getItem('userInfo') || '{}'
+    )?.refreshToken;
 
-    debugger;
     // Call logout endpoint with access token
     if (refreshToken) {
       this.http.post(`${this.baseUrl}/logout`, { refreshToken }).subscribe({
@@ -255,12 +257,20 @@ const refreshToken = JSON.parse(localStorage.getItem('userInfo') || '{}')?.refre
   // Keep existing methods for compatibility
   register(
     data: RegisterRequest,
-    onboardingData: OnboardingDataDto | null
+    onboardingData: OnboardingDataDto | null,
+    onboardingSessionToken?: string | null
   ): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, {
+    const payload: any = {
       ...data,
       onboardingData,
-    });
+    };
+
+    // Include onboarding session token if provided
+    if (onboardingSessionToken) {
+      payload.onboardingSessionToken = onboardingSessionToken;
+    }
+
+    return this.http.post(`${this.baseUrl}/register`, payload);
   }
 
   forgotPassword(email: string): Observable<any> {

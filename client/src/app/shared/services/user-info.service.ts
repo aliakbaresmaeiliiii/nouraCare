@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { UserInfo, UserInfoApiResponse, CreateUserInfoRequest, UpdateUserInfoRequest } from '../interfaces/user-info-api.interface';
-import { environment } from 'src/environments/environment';
+import { environment } from 'environments/environment';
 
 export interface OnboardingData {
   pregnancy_status: string;

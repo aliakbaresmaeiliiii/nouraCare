@@ -281,6 +281,7 @@ export class OnboardingComponent implements OnInit {
       next: (response) => {
         console.log('Loaded existing onboarding data:', response);
         if (response.data) {
+          
           this.answers = {
             pregnancy_status: response.data.pregnancy_status,
             last_period: response.data.last_period,

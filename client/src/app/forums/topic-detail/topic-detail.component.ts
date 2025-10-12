@@ -1,23 +1,19 @@
-import { Component, OnInit, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  IonicModule,
-  ToastController,
-  NavController,
-  AlertController,
-} from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
+import {
+  AlertController,
+  IonicModule,
+  NavController,
+  ToastController,
+} from '@ionic/angular';
 
 import { Share } from '@capacitor/share';
-import { catchError, finalize, tap, map } from 'rxjs/operators';
-import { of, throwError } from 'rxjs';
-import {
-  CreateForumThreadDto,
-  CreatePostDto,
-  ForumService,
-  ThreadDetailResponse,
-} from 'src/app/shared/services/forum.service';
+import { of } from 'rxjs';
+import { catchError, finalize, tap } from 'rxjs/operators';
+import { CreateForumThreadDto, CreatePostDto, ForumService, ThreadDetailResponse } from '@app/shared/services/forum.service';
+
 
 // Strongly typed interfaces
 interface ForumTopic {

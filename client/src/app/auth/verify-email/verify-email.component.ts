@@ -12,9 +12,10 @@ import {
   interval,
   Subscription
 } from 'rxjs';
-import { OnboardingStateService } from 'src/app/shared/services/onboarding-state.service';
-import { SharedModule } from 'src/app/shared/shared-module';
+
 import { AuthService } from '../services/auth';
+import { OnboardingStateService } from '@app/shared/services/onboarding-state.service';
+import { SharedModule } from '@app/shared/shared-module';
 
 function otpRequiredLength(length: number) {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -56,6 +57,8 @@ export class VerifyEmailComponent implements OnInit {
 
   ngOnInit() {
     this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+
+    debugger;
     this.form = this.fb.group({
       otpCode: ['', [Validators.required, Validators.minLength(4)]],
     });
@@ -102,7 +105,7 @@ export class VerifyEmailComponent implements OnInit {
       return;
     }
     const payload = {
-      email: this.userInfo.email,
+      email: this.userInfo.data.email,
       verify_code: otp,
     };
 
@@ -110,11 +113,11 @@ export class VerifyEmailComponent implements OnInit {
       next: (res: any) => {
         console.log('Response:', res);
         // Now we can rely on the interceptor to provide consistent success flag
-        if (res.code === 200 ) {
+        if (res.code === 200 || res.data.code == '200') {
           this.showToast = true;
           this.message = 'Email verified successfully!';
           this.success.set(true);
-          this.router.navigate(['/tabs/home']);
+           this.router.navigate(['/tabs/home']);
         } else {
           this.showToast = true;
           this.message = 'Invalid OTP, please try again.';
@@ -143,7 +146,7 @@ export class VerifyEmailComponent implements OnInit {
 
   resendCode() {
     this.startTimer();
-    const email = this.userInfo.email;
+    const email = this.userInfo.data.email;
     const payload = {
       email: email,
     };

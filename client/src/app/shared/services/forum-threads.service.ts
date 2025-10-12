@@ -1,12 +1,4 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { map, catchError } from 'rxjs/operators';
-import { of, throwError } from 'rxjs';
-import {
-  EditPostResponse,
-  DeletePostResponse,
-} from '../interfaces/forum.interface';
+import { Injectable } from '@angular/core';
 
 export interface ThreadsResponse {
   success: boolean;

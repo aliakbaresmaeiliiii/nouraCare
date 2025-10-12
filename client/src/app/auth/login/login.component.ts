@@ -8,12 +8,14 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
 import { Subject } from 'rxjs';
-import { OnboardingStateService } from 'src/app/shared/services/onboarding-state.service';
-import { SharedModule } from 'src/app/shared/shared-module';
 import { AuthService } from '../services/auth';
 import { RegisterRequest } from './model/register-request-interface';
+import {
+  OnboardingDataDto,
+  OnboardingService,
+} from '@app/shared/services/onboarding.service';
+import { SharedModule } from '@app/shared/shared-module';
 
 @Component({
   selector: 'app-login',
@@ -24,11 +26,12 @@ import { RegisterRequest } from './model/register-request-interface';
   providers: [AuthService],
 })
 export class LoginComponent {
+  onboardingData = signal<OnboardingDataDto | null>(null);
+  onboardingService = inject(OnboardingService);
   activeTab: 'login' | 'register' = 'login';
   fb = inject(FormBuilder);
   message: string = '';
   isLoading: boolean = false;
-  private navCtrl: NavController = inject(NavController);
   showToast = false;
   success!: boolean;
   loginForm = this.fb.group({
@@ -49,7 +52,7 @@ export class LoginComponent {
   // matcher = new ErrorStateMatcher();
 
   service = inject(AuthService);
-  private onboardingStateService = inject(OnboardingStateService);
+  private onboardingStateService = inject(OnboardingService);
   selectedRole: string = '';
   private destroy$ = new Subject<void>();
   successCaptcha = signal<boolean>(false);
@@ -85,8 +88,23 @@ export class LoginComponent {
         this.title.set('Register');
       }
     });
+    const sessionId = this.onboardingService.getSessionId();
+    if (sessionId) {
+      this.loadOnboardingData(sessionId);
+    }
   }
 
+  private loadOnboardingData(sessionId: string): void {
+    this.onboardingStateService.getOnboardingData(sessionId).subscribe({
+      next: (res) => {
+        this.onboardingData.set(res.data);
+        console.log('Onboarding data loaded:', res);
+      },
+      error: (err) => {
+        console.error('Error loading onboarding data:', err);
+      },
+    });
+  }
   private decodeToken(token: any) {
     return JSON.parse(atob(token.split('.')[1]));
   }

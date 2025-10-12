@@ -1,13 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { ThreadsResponse } from './forum-threads.service';
-import { map, catchError } from 'rxjs/operators';
-import { of, throwError, Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import {
-  EditPostResponse,
-  DeletePostResponse,
+  EditPostResponse
 } from '../interfaces/forum.interface';
+import { ThreadsResponse } from './forum-threads.service';
+import { environment } from 'environments/environment';
 export interface ThreadDetailResponse {
   success: boolean;
   data: {

@@ -15,7 +15,7 @@ import {
 } from '../secret.chats.dto';
 import { Observable, forkJoin, throwError } from 'rxjs';
 import { map, catchError, filter } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'

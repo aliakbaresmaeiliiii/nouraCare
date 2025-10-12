@@ -1,8 +1,8 @@
-import { inject, Injectable } from '@angular/core';
-import { Observable, of, BehaviorSubject } from 'rxjs';
-import { DoctorDto, CreateDoctorDto, ConsultationType } from '../models/doctor.dto';
 import { HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { DoctorDto } from '../models/doctor.dto';
+import { environment } from 'environments/environment';
 
 @Injectable({
   providedIn: 'root'
