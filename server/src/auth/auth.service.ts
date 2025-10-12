@@ -60,46 +60,27 @@ export class AuthService {
     // Use direct onboarding data (session-based registration will be handled separately)
     const onboardingData = directOnboardingData;
 
-    // Add onboarding data if available
-    if (onboardingData.pregnancy_status) {
-      userData.status = this.mapPregnancyStatus(
-        onboardingData.pregnancy_status,
-      );
-    }
-    if (onboardingData.last_period) {
-      userData.lastPeriodStartDate = onboardingData.last_period;
-    }
-    if (onboardingData.cycle_length) {
-      userData.menstrualCycleLength = onboardingData.cycle_length;
-    }
-    if (onboardingData.period_length) {
-      userData.periodDuration = onboardingData.period_length;
-    }
-    if (onboardingData.pregnancy_week) {
-      userData.pregnancyWeek = onboardingData.pregnancy_week;
-    }
-    if (onboardingData.pregnancy_progress) {
-      userData.pregnancyProgress = onboardingData.pregnancy_progress;
-    }
-    if (onboardingData.health_goals) {
-      userData.healthGoals = onboardingData.health_goals;
-    }
-    if (onboardingData.notifications) {
-      userData.notificationsEnabled = this.mapNotifications(
-        onboardingData.notifications,
-      );
-    }
-
-    await this.prisma.user.create({
+    // Create user and get the created user
+    const user = await this.prisma.user.create({
       data: userData,
     });
+
+    // Save onboarding data to onboarding table if available
+    if (onboardingData && Object.keys(onboardingData).length > 0) {
+      await this.saveOnboardingDataToUser(user.id, onboardingData);
+    }
 
     // Note: Session-based registration will be handled by the onboarding complete endpoint
 
     const emailService = new SendMail(new EmailProvider());
     await emailService.sendAccountRegister(email, verificationCode);
 
-    return { email, message: 'User registered successfully', code: 200 };
+    return { 
+      email, 
+      message: 'User registered successfully', 
+      code: 200,
+      userId: user.id
+    };
   }
 
   async verifyEmail(email: string, code: string) {
@@ -143,7 +124,6 @@ export class AuthService {
         name: updatedUser.name,
         isVerified: updatedUser.isVerified,
         profileImage: updatedUser.profileImage,
-        status: updatedUser.status,
         city: updatedUser.city,
         birthday: updatedUser.birthday,
         createdAt: updatedUser.createdAt,
@@ -200,7 +180,6 @@ export class AuthService {
         name: user.name,
         profileImage: user.profileImage,
         isVerified: user.isVerified,
-        status: user.status,
         city: user.city,
         birthday: user.birthday,
         createdAt: user.createdAt,
@@ -254,7 +233,6 @@ export class AuthService {
         name: user.name,
         profileImage: user.profileImage,
         isVerified: user.isVerified,
-        status: user.status,
         city: user.city,
         birthday: user.birthday,
         createdAt: user.createdAt,
@@ -341,7 +319,6 @@ export class AuthService {
         name: true,
         profileImage: true,
         isVerified: true,
-        status: true,
         city: true,
         birthday: true,
         createdAt: true,
@@ -361,12 +338,58 @@ export class AuthService {
         name: user.name,
         profileImage: user.profileImage,
         isVerified: user.isVerified,
-        status: user.status,
         city: user.city,
         birthday: user.birthday,
         createdAt: user.createdAt,
       },
     };
+  }
+
+  private async saveOnboardingDataToUser(userId: number, onboardingData: OnboardingDataDto) {
+    try {
+      // Map the onboarding data to the database schema
+      const onboardingDataToSave: any = {
+        userId,
+        isCompleted: true,
+        onboardingStep: 1,
+      };
+
+      // Map fields from client format to database format
+      if (onboardingData.pregnancy_status) {
+        onboardingDataToSave.pregnancyStatus = onboardingData.pregnancy_status.toUpperCase();
+      }
+      if (onboardingData.last_period) {
+        onboardingDataToSave.lastPeriodDate = onboardingData.last_period;
+      }
+      if (onboardingData.cycle_length) {
+        onboardingDataToSave.cycleLength = onboardingData.cycle_length;
+      }
+      if (onboardingData.period_length) {
+        onboardingDataToSave.periodDuration = onboardingData.period_length;
+      }
+      if (onboardingData.pregnancy_week) {
+        onboardingDataToSave.pregnancyWeek = onboardingData.pregnancy_week;
+      }
+      if (onboardingData.pregnancy_progress) {
+        onboardingDataToSave.pregnancyProgress = onboardingData.pregnancy_progress;
+      }
+      if (onboardingData.health_goals) {
+        onboardingDataToSave.healthGoals = onboardingData.health_goals;
+      }
+      if (onboardingData.notifications !== undefined) {
+        onboardingDataToSave.notificationsEnabled = this.mapNotifications(onboardingData.notifications);
+      }
+
+      // Save to onboarding_data table
+      await this.prisma.onboardingData.create({
+        data: onboardingDataToSave,
+      });
+
+      console.log(`✅ Onboarding data saved for user ${userId}`);
+    } catch (error) {
+      console.error('Error saving onboarding data:', error);
+      // Don't throw error - registration should still succeed
+    }
   }
 
   private async autoJoinCommunityChat(userId: number) {

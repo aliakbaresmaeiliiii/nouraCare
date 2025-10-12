@@ -15,22 +15,12 @@ model user {
   verificationCodeExpiresAt DateTime?
   isVerified                Boolean             @default(false)
   createdAt                 DateTime            @default(now())
-  lastPeriodStartDate       DateTime?
-  menstrualCycleLength      Int?
-  periodDuration            Int?
-  status                    Status?
   profileImage              String?
   name                      String?
   birthday                  DateTime?
   city                      String?
-  healthGoals               String?
-  notificationsEnabled      Boolean             @default(true)
-  pregnancyProgress         String?
-  pregnancyWeek             Int?
   updatedAt                 DateTime            @default(now()) @updatedAt
   role                      user_role           @default(USER)
-  isPregnant                Boolean             @default(false)
-  pregnancyEndDate          DateTime?
   address                   address[]
   chatMemberships           ChatMember[]
   sentMessages              ChatMessage[]       @relation("MessageSender")
@@ -41,11 +31,8 @@ model user {
   forumThreads              ForumThread[]
   createdForums             Forum[]
   readMessages              MessageRead[]       @relation("MessageReads")
-  onboardingData            OnboardingData?
-  periodLogs                PeriodLog[]
   postLikes                 PostLike[]          @relation("PostLikes")
   posts                     Post[]              @relation("PostAuthor")
-  pregnancyPlannings        PregnancyPlanning[]
   refreshTokens             RefreshToken[]
   createdChats              SecretChat[]        @relation("ChatCreatedBy")
   trackday                  trackday[]
@@ -388,7 +375,6 @@ model PregnancyPlanning {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   averagePeriodDuration Int
-  user                  user     @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@map("pregnancy_planning")
@@ -417,7 +403,6 @@ model PeriodLog {
   updatedAt             DateTime @updatedAt
   averagePeriodDuration Int?
   lastPeriodDate        DateTime
-  user                  user     @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@map("period_logs")
@@ -440,7 +425,6 @@ model OnboardingData {
   isCompleted          Boolean   @default(false)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
-  user                 user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([sessionId])
