@@ -81,7 +81,6 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   private watchUserInfo = effect(() => {
     const userInfo = this.userInfoService.userInfo();
     if (userInfo) {
-      console.log('🔄 User info changed from API:', userInfo);
       this.cycleLength = userInfo.cycleLength || 28;
       this.periodLength = userInfo.periodLength || 5;
       this.startDate = userInfo.lastPeriodDate || null;
@@ -94,19 +93,16 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   private watchCycleLength = effect(() => {
     const v = this.cycleSettings.cycleLength();
-    console.log('🔄 Cycle length changed (local):', v);
     this.onCycleLengthChange(v as number);
   });
 
   private watchPeriodLength = effect(() => {
     const v = this.cycleSettings.periodLength();
-    console.log('🔄 Period length changed (local):', v);
     this.onPeriodLengthChange(v as number);
   });
 
   private watchLastPeriodStart = effect(() => {
     const v = this.cycleSettings.lastPeriodStartDate();
-    console.log('🔄 Last period start changed (local):', v);
     this.startDate = (v as string) || null;
     if (this.startDate) {
       this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
@@ -218,10 +214,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
    * Load data from API (UserInfoService) with fallback to local storage
    */
   private loadDataFromAPI() {
-    console.log('🔄 loadDataFromAPI called');
     
     // Always fetch fresh data from API first
-    console.log('🌐 Always fetching fresh data from API...');
     this.fetchDataFromAPI();
   }
 

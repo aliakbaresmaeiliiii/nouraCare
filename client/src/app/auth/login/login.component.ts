@@ -6,11 +6,7 @@ import {
   Renderer2,
   signal,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Subject } from 'rxjs';
@@ -23,11 +19,7 @@ import { RegisterRequest } from './model/register-request-interface';
   selector: 'app-login',
   templateUrl: './login.component.html',
   standalone: true,
-  imports: [
-    CommonModule, 
-    SharedModule,
-  
-  ],
+  imports: [CommonModule, SharedModule],
   styleUrl: './login.component.scss',
   providers: [AuthService],
 })
@@ -87,7 +79,7 @@ export class LoginComponent {
 
   ngOnInit(): void {
     // Check for query parameters to determine active tab
-    this.activatedRoute.queryParams.subscribe(params => {
+    this.activatedRoute.queryParams.subscribe((params) => {
       if (params['tab'] === 'register') {
         this.activeTab = 'register';
         this.title.set('Register');
@@ -131,12 +123,12 @@ export class LoginComponent {
     this.service.register(payload, onboardingData).subscribe({
       next: (res) => {
         localStorage.setItem('userInfo', JSON.stringify(res));
-        
+
         // Clear onboarding data after successful registration
         if (onboardingData) {
           localStorage.removeItem('onboarding_data');
           localStorage.removeItem('onboarding_completed');
-        } 
+        }
 
         this.router.navigate(['auth/verify-email']);
       },
@@ -159,39 +151,30 @@ export class LoginComponent {
         phone: this.loginForm.value.phone || '',
       };
       this.service.login(payload).subscribe({
-        next: (res) => {
-          console.log('Login successful, navigating...');
-          localStorage.setItem('userInfo', JSON.stringify(res));
+        next: (res: any) => {
           this.message = 'Login successful!';
           this.success = true;
           this.showToast = true;
-          
+
+          // Store user info using AuthService (which handles token storage)
+          if (res?.data) {
+            this.service.setUserInfo(res.data.user);
+            // Also store the full response data for compatibility
+            localStorage.setItem('userInfo', JSON.stringify(res.data));
+          }
+
           // Check if email is verified
-          const isEmailVerified = res?.isVerified;
-          
+          const isEmailVerified = res?.data.user.isVerified;
+
           if (!isEmailVerified) {
             // Email not verified, redirect to verify-email page
             console.log('Email not verified, redirecting to verify-email page');
             this.router.navigate(['/auth/verify-email']);
           } else {
-            // Email verified, proceed to home
-            // Force authentication state update and wait for it to be processed
-            setTimeout(() => {
-              // Get return URL from query parameters or default to home
-              const returnUrl = this.activatedRoute.snapshot.queryParams['returnUrl'] || '/tabs/home';
-              console.log('Return URL:', returnUrl);
-              
-              // Navigate to the return URL or home
-              this.router.navigateByUrl(returnUrl).then(() => {
-                console.log('Navigation completed');
-              }).catch(error => {
-                console.error('Navigation error:', error);
-                // Fallback navigation if the first attempt fails
-                this.router.navigate(['/tabs/home']);
-              });
-            }, 100);
+            // Navigate to home page
+            this.router.navigate(['/tabs/home']);
           }
-          
+
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -204,8 +187,6 @@ export class LoginComponent {
         complete: () => {},
       });
     }
-
-  
   }
   resolved(captchaResponse: any) {
     // console.log(`Captcha resolved with response: ${captchaResponse}`);

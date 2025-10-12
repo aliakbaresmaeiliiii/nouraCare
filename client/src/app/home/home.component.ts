@@ -1249,7 +1249,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
         console.log('🔍 Today symptoms from API:', this.todaySymptoms);
       },
       error: (error) => {
-        console.log('🔍 No symptoms data for today (404 is normal):', error.status);
         this.todaySymptoms = {} as SymptomsDto;
       }
     });
@@ -1341,7 +1340,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
   loadRecentSymptomsDays() {
     // Skip loading recent days - only show today's data
     this.recentSymptomsDays = [];
-    console.log('🔍 Skipping recent days - showing only today\'s data');
   }
 
   getDayName(dateString: string): string {

@@ -4,6 +4,7 @@ import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
+import { AuthService } from '../auth/services/auth';
 
 interface MenuItem {
   icon: string;
@@ -24,6 +25,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   router = inject(Router);
   private imageUrlService = inject(ImageUrlService);
   private profileCompletionService = inject(ProfileCompletionService);
+  private authService = inject(AuthService);
 
   // User profile data
   userName: string = 'Aliakbar Esmaeili';
@@ -100,8 +102,8 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   }
 
   logout() {
-    // Add logout logic here
-    this.router.navigate(['/auth/sign-in']);
+    // Call the AuthService logout method to properly clear tokens and authentication state
+    this.authService.logout();
   }
 
   openSocialLink(platform: string) {

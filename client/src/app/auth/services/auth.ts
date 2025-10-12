@@ -2,12 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
-import { UserInfo } from '../login/model/uesr-interface';
 import { environment } from '../../../environments/environment';
 import { LoginRequest } from '../login/model/login-request-interface';
 import { RegisterRequest } from '../login/model/register-request-interface';
 import { OnboardingDataDto } from 'src/app/shared/services/onboarding.service';
 import { TokenResponse, JwtPayload } from '../models/token.interface';
+import { LoginData, User } from '../login/model/uesr-interface';
 
 @Injectable({
   providedIn: 'root',
@@ -16,27 +16,28 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private baseUrl = environment.apiEndPoint + 'auth';
-  
+
   // Store Access Token in memory using BehaviorSubject
   private accessTokenSubject = new BehaviorSubject<string | null>(null);
   public accessToken$ = this.accessTokenSubject.asObservable();
-  
+
   // User info signal
-  userInfo = signal<UserInfo | null>(null);
-  
+  userInfo = signal<User | null>(null);
+
   // Authentication state signal
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
-  
+
   // Computed signal for current user
   currentUser = computed(() => this.userInfo());
 
   constructor() {
     // Initialize tokens from storage on service creation
     this.initializeTokens();
-    
+
     // Set up periodic user existence check (every 5 minutes)
-    if (typeof window !== 'undefined') {
+    // Only if we're in a browser environment and user is authenticated
+    if (typeof window !== 'undefined' && this.isAuthenticated()) {
       setInterval(() => {
         this.verifyUserExistence();
       }, 5 * 60 * 1000); // 5 minutes
@@ -50,7 +51,7 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       // Get access token from storage
       const accessToken = localStorage.getItem('accessToken');
-      
+
       if (accessToken) {
         // Check if access token is still valid
         if (this.isTokenValid(accessToken)) {
@@ -80,20 +81,21 @@ export class AuthService {
    * Handle successful token response
    */
   private handleTokenResponse(response: TokenResponse): void {
+    debugger;
     // Store access token in memory (sessionStorage for persistence across page reloads)
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('accessToken', response.accessToken);
     }
     this.accessTokenSubject.next(response.accessToken);
-    
+
     // Store refresh token in secure storage (localStorage for now)
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', response.accessToken);
     }
-    
+
     // Set authentication state
     this.isAuthenticatedSubject.next(true);
-    
+
     // Extract and set user info from token
     this.setUserInfoFromToken(response.accessToken);
   }
@@ -104,17 +106,45 @@ export class AuthService {
   private setUserInfoFromToken(token: string): void {
     try {
       const payload: JwtPayload = this.decodeToken(token);
-      const userInfo: UserInfo = {
+      const userInfo: User = {
         id: parseInt(payload.sub) || 0,
         email: payload.email || '',
         phone: '', // You might need to adjust this based on your token structure
         isVerified: true, // Assuming token issuance means user is verified
-        verificationCode: ''
-      };
+        };
       this.userInfo.set(userInfo);
     } catch (error) {
-      console.error('Failed to decode token:', error);
+      // Failed to decode token
     }
+  }
+
+  /**
+   * Refresh access token using refresh token
+   */
+  refreshToken(): Observable<TokenResponse> {
+    const refreshToken = JSON.parse(
+      localStorage.getItem('userInfo') || '{}'
+    )?.refreshToken;
+
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    return this.http
+      .post<TokenResponse>(`${this.baseUrl}/refresh`, {
+        refreshToken: refreshToken,
+      })
+      .pipe(
+        tap((response: TokenResponse) => {
+          this.handleTokenResponse(response);
+        }),
+        catchError((error) => {
+          // Refresh token is invalid or expired
+          this.clearTokens();
+          this.router.navigate(['/auth/sign-in']);
+          return throwError(() => error);
+        })
+      );
   }
 
   /**
@@ -124,12 +154,12 @@ export class AuthService {
     if (!token) {
       throw new Error('Token is null or undefined');
     }
-    
+
     const parts = token.split('.');
     if (parts.length !== 3) {
       throw new Error('Invalid JWT token format');
     }
-    
+
     const payload = parts[1];
     return JSON.parse(atob(payload));
   }
@@ -148,47 +178,30 @@ export class AuthService {
   }
 
   /**
-   * Refresh access token using refresh token
-   */
-  refreshToken(): Observable<TokenResponse> {
-    const refreshToken = localStorage.getItem('accessToken');
-    
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token available'));
-    }
-
-    return this.http.post<TokenResponse>(`${this.baseUrl}/refresh`, {
-      accessToken: refreshToken
-    }).pipe(
-      tap((response: TokenResponse) => {
-        this.handleTokenResponse(response);
-      }),
-      catchError((error) => {
-        // Refresh token is invalid or expired
-        this.clearTokens();
-        this.router.navigate(['/auth/sign-in']);
-        return throwError(() => error);
-      })
-    );
-  }
-
-  /**
    * Logout user
    */
   logout(): void {
-    // Call logout endpoint if needed
-    this.http.post(`${this.baseUrl}/logout`, {}).subscribe({
-      next: () => console.log('Logged out successfully'),
-      error: (error) => console.error('Logout error:', error)
-    });
-    
-    // Clear tokens and authentication state
-    this.clearTokens();
-    
-    // Redirect to login page
-    this.router.navigate(['/auth/sign-in']);
-  }
+    // Get access token from storage to use for logout API call
+const accessToken = JSON.parse(localStorage.getItem('userInfo') || '{}')?.accessToken;
+const refreshToken = JSON.parse(localStorage.getItem('userInfo') || '{}')?.refreshToken;
 
+    debugger;
+    // Call logout endpoint with access token
+    if (refreshToken) {
+      this.http.post(`${this.baseUrl}/logout`, { refreshToken }).subscribe({
+        next: () => {
+          // Successfully logged out on server
+          this.clearTokens();
+          this.router.navigate(['/auth/sign-in']);
+        },
+        error: () => {
+          // Even if logout fails, clear local tokens
+          this.clearTokens();
+          this.router.navigate(['/auth/sign-in']);
+        },
+      });
+    }
+  }
   /**
    * Clear all tokens and reset authentication state
    */
@@ -198,12 +211,12 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('accessToken');
     }
-    
+
     // Clear token from secure storage
     if (typeof window !== 'undefined') {
       localStorage.removeItem('accessToken');
     }
-    
+
     // Reset authentication state
     this.isAuthenticatedSubject.next(false);
     this.userInfo.set(null);
@@ -226,22 +239,28 @@ export class AuthService {
   /**
    * Get user info
    */
-  getUserInfo(): UserInfo | null {
+  getUserInfo(): User | null {
     return this.userInfo();
   }
 
   /**
    * Set user info
    */
-  setUserInfo(userInfo: UserInfo): void {
+  setUserInfo(userInfo: User): void {
     this.userInfo.set(userInfo);
     // Also set authentication state to true when user info is set
     this.isAuthenticatedSubject.next(true);
   }
 
   // Keep existing methods for compatibility
-  register(data: RegisterRequest, onboardingData: OnboardingDataDto | null): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register`, { ...data, onboardingData });
+  register(
+    data: RegisterRequest,
+    onboardingData: OnboardingDataDto | null
+  ): Observable<any> {
+    return this.http.post(`${this.baseUrl}/register`, {
+      ...data,
+      onboardingData,
+    });
   }
 
   forgotPassword(email: string): Observable<any> {
@@ -259,7 +278,7 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/verify-email`, data);
   }
 
-  resendOtp(data: { email: string}): Observable<any> {
+  resendOtp(data: { email: string }): Observable<any> {
     return this.http.post(`${this.baseUrl}/resend-otp`, data);
   }
 
@@ -280,7 +299,7 @@ export class AuthService {
     try {
       const payload: JwtPayload = this.decodeToken(accessToken);
       const userId = parseInt(payload.sub) || 0;
-      
+
       if (userId > 0) {
         // Make a lightweight API call to verify user existence
         // This could be a simple endpoint like /auth/verify-user or /users/{id}/exists
@@ -288,17 +307,14 @@ export class AuthService {
         this.refreshToken().subscribe({
           next: () => {
             // User still exists and token is valid
-            console.log('User existence verified successfully');
           },
-          error: (error) => {
+          error: () => {
             // User doesn't exist or token is invalid
-            console.log('User no longer exists or token invalid, logging out...');
             this.logout();
-          }
+          },
         });
       }
     } catch (error) {
-      console.error('Error verifying user existence:', error);
       // If we can't decode the token, log out
       this.logout();
     }

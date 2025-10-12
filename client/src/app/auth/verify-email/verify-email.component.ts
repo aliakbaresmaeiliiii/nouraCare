@@ -1,9 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { SharedModule } from 'src/app/shared/shared-module';
-import { AuthService } from '../services/auth';
-import { UserInfo } from '../login/model/uesr-interface';
 import {
   AbstractControl,
   FormBuilder,
@@ -11,13 +7,14 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
-  debounceTime,
-  distinctUntilChanged,
   interval,
-  Subscription,
+  Subscription
 } from 'rxjs';
 import { OnboardingStateService } from 'src/app/shared/services/onboarding-state.service';
+import { SharedModule } from 'src/app/shared/shared-module';
+import { AuthService } from '../services/auth';
 
 function otpRequiredLength(length: number) {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -113,7 +110,7 @@ export class VerifyEmailComponent implements OnInit {
       next: (res: any) => {
         console.log('Response:', res);
         // Now we can rely on the interceptor to provide consistent success flag
-        if (res.code === 200) {
+        if (res.code === 200 ) {
           this.showToast = true;
           this.message = 'Email verified successfully!';
           this.success.set(true);

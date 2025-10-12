@@ -54,7 +54,6 @@ export const authGuard: CanActivateFn = (route, state) => {
           email: parsedUserInfo.email || '',
           phone: parsedUserInfo.phone || '',
           isVerified: true,
-          verificationCode: ''
         });
         return true;
       }

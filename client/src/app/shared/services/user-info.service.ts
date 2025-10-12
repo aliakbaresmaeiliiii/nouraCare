@@ -50,7 +50,6 @@ export class UserInfoService {
    */
   getUserOnboardingData(userId?: number): Observable<UserInfo> {
     const targetUserId = userId || this.getCurrentUserId();
-    console.log('Getting onboarding data for user ID:', targetUserId);
     
     // Call the real API endpoint
     return this.http.get<UserInfo>(`${environment.apiEndPoint}user/${targetUserId}/onboarding`).pipe(
