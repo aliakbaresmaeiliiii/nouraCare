@@ -28,11 +28,9 @@ export class JwtInterceptor implements HttpInterceptor {
       return next.handle(req);
     }
 
-    // Add authorization header with current access token
+    // Check if email is verified using access token from auth service
     const accessToken = this.authService.getAccessToken();
-    let authReq = req;
     if (accessToken) {
-      // Check if email is verified
       try {
         const payload = JSON.parse(atob(accessToken.split('.')[1]));
         const isEmailVerified = payload.isVerified;
@@ -49,11 +47,9 @@ export class JwtInterceptor implements HttpInterceptor {
       } catch (error) {
         console.error('Failed to check email verification status:', error);
       }
-      
-      authReq = this.addToken(req, accessToken);
     }
 
-    return next.handle(authReq).pipe(
+    return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         // Skip error handling for auth endpoints
         if (req.url.includes('/auth/')) {
@@ -62,7 +58,7 @@ export class JwtInterceptor implements HttpInterceptor {
 
         if (error.status === 401 && accessToken) {
           // Access token expired, try to refresh
-          return this.handle401Error(authReq, next);
+          return this.handle401Error(req, next);
         } else if (error.status === 404 && this.isUserRelatedRequest(req)) {
           // User not found in database (user data was deleted)
           console.log('User not found in database, logging out...');

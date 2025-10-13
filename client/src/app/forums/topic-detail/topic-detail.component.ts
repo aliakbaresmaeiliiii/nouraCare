@@ -483,6 +483,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   }
 
   async submitEdit(comment: Comment) {
+    debugger;
     const editText = this.editTexts[comment.id]?.trim();
     if (!editText) {
       await this.showToast('Please write something to edit', 'warning');
@@ -700,7 +701,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     const originalContent = this.topic.content;
     this.topic.title = title;
     this.topic.content = content;
-
     this.forumService
       .editPost(this.topicId(), title, content)
       .pipe(

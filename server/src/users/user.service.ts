@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { UpdateUserDto } from './dto/user.dto';
 import { PrismaService } from '../prisma/services/prisma.service';
@@ -24,17 +25,36 @@ import {
 @Injectable()
 export class UserService {
   constructor(private prismaService: PrismaService) {}
+
   async getUserById(userId: number) {
-    return this.prismaService.user.findUnique({ where: { id: userId } });
+    const user = await this.prismaService.user.findUnique({ 
+      where: { id: userId } 
+    });
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    
+    return user;
   }
+
   async editUserInfo(userId: number, updateUserDto: UpdateUserDto) {
+    // Check if user exists
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     // Filter out undefined values and handle date conversions
     const updateData = Object.fromEntries(
       Object.entries(updateUserDto)
         .filter(([_, value]) => value !== undefined)
         .map(([key, value]) => {
           // Convert date strings to Date objects
-          if (['birthday', 'lastPeriodStartDate'].includes(key) && value) {
+          if (['birthday'].includes(key) && value) {
             return [key, new Date(value as string)];
           }
           return [key, value];
@@ -50,31 +70,23 @@ export class UserService {
   async getReproductiveStatus(
     userId: number,
   ): Promise<ReproductiveStatusResponseDto> {
-    const user = await this.prismaService.user.findUnique({
-      where: { id: userId },
-      select: {
-        isPregnant: true,
-        pregnancyEndDate: true,
-        lastPeriodStartDate: true,
-        menstrualCycleLength: true,
-        periodDuration: true,
-        pregnancyWeek: true,
-        pregnancyProgress: true,
-      },
+    // Get user data from OnboardingData table since reproductive status fields are stored there
+    const onboardingData = await this.prismaService.onboardingData.findUnique({
+      where: { userId },
     });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+    if (!onboardingData) {
+      throw new NotFoundException('Reproductive status data not found');
     }
 
     return {
-      isPregnant: user.isPregnant,
-      pregnancyEndDate: user.pregnancyEndDate,
-      lastPeriodStartDate: user.lastPeriodStartDate,
-      menstrualCycleLength: user.menstrualCycleLength,
-      periodDuration: user.periodDuration,
-      pregnancyWeek: user.pregnancyWeek,
-      pregnancyProgress: user.pregnancyProgress,
+      isPregnant: onboardingData.pregnancyStatus === 'PREGNANT',
+      pregnancyEndDate: null, // Not stored in current schema
+      lastPeriodStartDate: onboardingData.lastPeriodDate,
+      menstrualCycleLength: onboardingData.cycleLength,
+      periodDuration: onboardingData.periodDuration,
+      pregnancyWeek: onboardingData.pregnancyWeek,
+      pregnancyProgress: onboardingData.pregnancyProgress,
     };
   }
 
@@ -91,25 +103,23 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    // Prepare update data
-    const updateData: any = {
-      isPregnant: dto.isPregnant,
-    };
+    // Update or create onboarding data
+    const existingOnboarding = await this.prismaService.onboardingData.findUnique({
+      where: { userId },
+    });
 
-    // Handle pregnancy end date logic
-    if (dto.pregnancyEndDate) {
-      updateData.pregnancyEndDate = new Date(dto.pregnancyEndDate);
-      updateData.isPregnant = false; // Automatically set isPregnant to false if pregnancyEndDate is provided
-    }
+    const updateData: any = {
+      pregnancyStatus: dto.isPregnant ? 'PREGNANT' : 'PLANNING_PREGNANCY',
+    };
 
     // Handle last period date
     if (dto.lastPeriodDate) {
-      updateData.lastPeriodStartDate = new Date(dto.lastPeriodDate);
+      updateData.lastPeriodDate = new Date(dto.lastPeriodDate);
     }
 
     // Handle average cycle length
     if (dto.averageCycleLength) {
-      updateData.menstrualCycleLength = dto.averageCycleLength;
+      updateData.cycleLength = dto.averageCycleLength;
     }
 
     // Handle average period duration
@@ -117,35 +127,41 @@ export class UserService {
       updateData.periodDuration = dto.averagePeriodDuration;
     }
 
-    return this.prismaService.user.update({
-      where: { id: userId },
-      data: updateData,
-    });
+    if (existingOnboarding) {
+      return this.prismaService.onboardingData.update({
+        where: { userId },
+        data: updateData,
+      });
+    } else {
+      return this.prismaService.onboardingData.create({
+        data: {
+          userId,
+          ...updateData,
+        },
+      });
+    }
   }
 
   async getPeriodTrackerData(
     userId: number,
   ): Promise<PeriodTrackerResponseDto> {
-    const user = await this.prismaService.user.findUnique({
-      where: { id: userId },
-      select: {
-        lastPeriodStartDate: true,
-        menstrualCycleLength: true,
-      },
+    // Get data from OnboardingData table
+    const onboardingData = await this.prismaService.onboardingData.findUnique({
+      where: { userId },
     });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+    if (!onboardingData) {
+      throw new NotFoundException('Period tracking data not found');
     }
 
-    if (!user.lastPeriodStartDate || !user.menstrualCycleLength) {
+    if (!onboardingData.lastPeriodDate || !onboardingData.cycleLength) {
       throw new NotFoundException(
         'Period tracking data not available. Please provide last period date and cycle length.',
       );
     }
 
-    const lastPeriodDate = user.lastPeriodStartDate;
-    const cycleLength = user.menstrualCycleLength;
+    const lastPeriodDate = onboardingData.lastPeriodDate;
+    const cycleLength = onboardingData.cycleLength;
     const today = new Date();
 
     // Calculate current cycle day
@@ -197,10 +213,9 @@ export class UserService {
     }
 
     // Check if user already has pregnancy planning data
-    const existingPlanning =
-      await this.prismaService.pregnancyPlanning.findFirst({
-        where: { userId },
-      });
+    const existingPlanning = await this.prismaService.pregnancyPlanning.findFirst({
+      where: { userId },
+    });
 
     if (existingPlanning) {
       throw new ConflictException(
@@ -209,27 +224,16 @@ export class UserService {
     }
 
     // Create pregnancy planning record
-    const pregnancyPlanning = await this.prismaService.pregnancyPlanning.create(
-      {
-        data: {
-          userId,
-          lastPeriodDate: createPregnancyPlanningDto.lastPeriodDate,
-          cycleLength: createPregnancyPlanningDto.cycleLength,
-          averagePeriodDuration: createPregnancyPlanningDto.averagePeriodDuration,
-          lifestyleGoals: createPregnancyPlanningDto.lifestyleGoals,
-          notes: createPregnancyPlanningDto.notes,
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
+    const pregnancyPlanning = await this.prismaService.pregnancyPlanning.create({
+      data: {
+        userId,
+        lastPeriodDate: createPregnancyPlanningDto.lastPeriodDate,
+        cycleLength: createPregnancyPlanningDto.cycleLength,
+        averagePeriodDuration: createPregnancyPlanningDto.averagePeriodDuration,
+        lifestyleGoals: createPregnancyPlanningDto.lifestyleGoals,
+        notes: createPregnancyPlanningDto.notes,
       },
-    );
+    });
 
     return this.enrichPregnancyPlanningData(pregnancyPlanning);
   }
@@ -237,19 +241,9 @@ export class UserService {
   async getPregnancyPlanning(
     userId: number,
   ): Promise<PregnancyPlanningResponseDto> {
-    const pregnancyPlanning =
-      await this.prismaService.pregnancyPlanning.findFirst({
-        where: { userId },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
-      });
+    const pregnancyPlanning = await this.prismaService.pregnancyPlanning.findFirst({
+      where: { userId },
+    });
 
     if (!pregnancyPlanning) {
       throw new NotFoundException('Pregnancy planning data not found');
@@ -263,10 +257,9 @@ export class UserService {
     updatePregnancyPlanningDto: UpdatePregnancyPlanningDto,
   ): Promise<PregnancyPlanningResponseDto> {
     // Check if pregnancy planning data exists
-    const existingPlanning =
-      await this.prismaService.pregnancyPlanning.findFirst({
-        where: { userId },
-      });
+    const existingPlanning = await this.prismaService.pregnancyPlanning.findFirst({
+      where: { userId },
+    });
 
     if (!existingPlanning) {
       throw new NotFoundException('Pregnancy planning data not found');
@@ -298,25 +291,15 @@ export class UserService {
     const updatedPlanning = await this.prismaService.pregnancyPlanning.update({
       where: { id: existingPlanning.id },
       data: updateData,
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
     });
 
     return this.enrichPregnancyPlanningData(updatedPlanning);
   }
 
   async deletePregnancyPlanning(userId: number): Promise<void> {
-    const existingPlanning =
-      await this.prismaService.pregnancyPlanning.findFirst({
-        where: { userId },
-      });
+    const existingPlanning = await this.prismaService.pregnancyPlanning.findFirst({
+      where: { userId },
+    });
 
     if (!existingPlanning) {
       throw new NotFoundException('Pregnancy planning data not found');

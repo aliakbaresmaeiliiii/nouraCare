@@ -1,18 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Put,
   Query,
   Req,
 } from '@nestjs/common';
-import { ForumPostsService } from './forum-posts.service';
-import { CreateForumPostDto } from './dto/create-forum-post.dto';
 import { UpdateForumPostDto } from './dto/update-forum-post.dto';
+import { ForumPostsService } from './forum-posts.service';
 
 @Controller('api/v1/forum-posts')
 export class ForumPostsController {
@@ -20,15 +19,18 @@ export class ForumPostsController {
 
   @Post()
   async create(
-    @Body() createForumPostDto: CreateForumPostDto,
+    @Body() body: any,
     @Req() req: any,
   ) {
-    // In a real implementation, you would get the user ID from the authenticated request
-    const authorId = req.user?.id || 1; // Default to user ID 1 for testing
+    // Extract the data from the request body
+    const { authorId, ...createForumPostDto } = body;
+    
+    // Use the provided authorId or default to your user ID 11
+    const finalAuthorId = authorId || 11;
 
     const post = await this.forumPostsService.create(
       createForumPostDto,
-      authorId,
+      finalAuthorId,
     );
     
     let message = 'Forum post created successfully';

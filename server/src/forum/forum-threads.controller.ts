@@ -8,22 +8,25 @@ import {
   Delete,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ForumThreadsService } from './forum-threads.service';
 import { CreateForumThreadDto } from './dto/create-forum-thread.dto';
 import { UpdateForumThreadDto } from './dto/update-forum-thread.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('api/v1/forum-threads')
 export class ForumThreadsController {
   constructor(private readonly forumThreadsService: ForumThreadsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createForumThreadDto: CreateForumThreadDto,
     @Req() req: any,
   ) {
-    // In a real implementation, you would get the user ID from the authenticated request
-    const authorId = req.user?.id || 1; // Default to user ID 1 for testing
+    // Get the user ID from the authenticated request
+    const authorId = req.user.id;
 
     const thread = await this.forumThreadsService.create(
       createForumThreadDto,
@@ -114,13 +117,15 @@ export class ForumThreadsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateForumThreadDto: UpdateForumThreadDto,
     @Req() req: any,
   ) {
-    // In a real implementation, you would get the user ID from the authenticated request
-    const userId = req.user?.id || 1; // Default to user ID 1 for testing
+    // Get the user ID from the authenticated request
+    const userId = req.user.id;
+    console.log('Updating thread', id, 'by user', userId);
 
     const thread = await this.forumThreadsService.update(
       id,
@@ -135,9 +140,10 @@ export class ForumThreadsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(@Param('id') id: string, @Req() req: any) {
-    // In a real implementation, you would get the user ID from the authenticated request
-    const userId = req.user?.id || 1; // Default to user ID 1 for testing
+    // Get the user ID from the authenticated request
+    const userId = req.user.id;
 
     await this.forumThreadsService.remove(id, userId);
     return {

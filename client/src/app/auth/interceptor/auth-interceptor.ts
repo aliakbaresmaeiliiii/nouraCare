@@ -21,10 +21,23 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const userInfo = this.getUserInfo();
     const accessToken = userInfo?.accessToken;
-    const authReq = accessToken
-      ? req.clone({
-          setHeaders: { Authorization: `Bearer ${accessToken}` },
-        })
+    const userId = userInfo?.['user']?.id;
+    
+    // Create headers object
+    const headers: { [key: string]: string } = {};
+    
+    // Add Authorization header if token exists
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+    
+    // Add User-Id header if userId exists
+    if (userId) {
+      headers['User-Id'] = userId.toString();
+    }
+    
+    const authReq = Object.keys(headers).length > 0
+      ? req.clone({ setHeaders: headers })
       : req;
 
     return next.handle(authReq).pipe(

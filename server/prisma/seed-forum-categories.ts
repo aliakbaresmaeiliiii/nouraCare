@@ -5,99 +5,176 @@ const prisma = new PrismaClient();
 const forumCategories = [
   {
     name: 'Pregnancy Journey',
-    description: 'Share your pregnancy experiences, milestones, and questions',
+    description: 'Share your pregnancy experiences, milestones, and journey from conception to delivery',
     slug: 'pregnancy-journey',
-    color: '#FF6B9D',
-    icon: '🤰',
+    color: '#FF6B6B',
+    icon: 'pregnancy',
     order: 1,
+    forums: [
+      {
+        title: 'First Trimester Experiences',
+        description: 'Share your first trimester journey, symptoms, and tips'
+      },
+      {
+        title: 'Second Trimester Updates',
+        description: 'How is your second trimester going? Share your progress!'
+      },
+      {
+        title: 'Third Trimester Preparation',
+        description: 'Getting ready for delivery - what are you doing to prepare?'
+      }
+    ]
   },
   {
-    name: 'Trying to Conceive',
-    description: 'Support and advice for those trying to conceive',
-    slug: 'trying-to-conceive',
+    name: 'Parenting',
+    description: 'Tips, advice, and support for parenting at all stages',
+    slug: 'parenting',
     color: '#4ECDC4',
-    icon: '💕',
+    icon: 'parenting',
     order: 2,
+    forums: [
+      {
+        title: 'Newborn Care Tips',
+        description: 'Share your best tips for caring for a newborn'
+      },
+      {
+        title: 'Sleep Training Methods',
+        description: 'What sleep training methods have worked for you?'
+      },
+      {
+        title: 'Toddler Activities',
+        description: 'Fun and educational activities for toddlers'
+      }
+    ]
   },
   {
-    name: 'New Parents',
-    description: 'Life with your newborn and parenting tips',
-    slug: 'new-parents',
+    name: 'Nutrition & Diet',
+    description: 'Healthy eating during pregnancy and for your family',
+    slug: 'nutrition-diet',
     color: '#45B7D1',
-    icon: '👶',
+    icon: 'nutrition',
     order: 3,
+    forums: [
+      {
+        title: 'Pregnancy Nutrition Guide',
+        description: 'What foods are essential during pregnancy?'
+      },
+      {
+        title: 'Healthy Meal Prep Ideas',
+        description: 'Share your favorite healthy meal prep recipes'
+      },
+      {
+        title: 'Dealing with Food Aversions',
+        description: 'How do you manage food aversions during pregnancy?'
+      }
+    ]
   },
   {
-    name: 'Health & Wellness',
-    description: 'Physical and mental health during pregnancy and postpartum',
-    slug: 'health-wellness',
-    color: '#96CEB4',
-    icon: '💪',
+    name: 'Mental Health',
+    description: 'Emotional wellbeing, stress management, and self-care',
+    slug: 'mental-health',
+    color: '#FF9FF3',
+    icon: 'mental-health',
     order: 4,
+    forums: [
+      {
+        title: 'Coping with Pregnancy Anxiety',
+        description: 'Share your strategies for managing anxiety during pregnancy'
+      },
+      {
+        title: 'Postpartum Mental Health',
+        description: 'Support and advice for postpartum mental wellness'
+      },
+      {
+        title: 'Self-Care for Busy Parents',
+        description: 'How do you find time for self-care as a parent?'
+      }
+    ]
   },
   {
-    name: 'Relationships & Family',
-    description: 'Navigating relationships and family dynamics',
-    slug: 'relationships-family',
-    color: '#FFEAA7',
-    icon: '👨‍👩‍👧‍👦',
+    name: 'Baby Products',
+    description: 'Reviews and recommendations for baby products and gear',
+    slug: 'baby-products',
+    color: '#5F27CD',
+    icon: 'baby-gear',
     order: 5,
-  },
-  {
-    name: 'Product Reviews',
-    description: 'Share reviews of pregnancy and baby products',
-    slug: 'product-reviews',
-    color: '#FD79A8',
-    icon: '🛍️',
-    order: 6,
-  },
-  {
-    name: 'Birth Stories',
-    description: 'Share your birth experiences and recovery journeys',
-    slug: 'birth-stories',
-    color: '#E17055',
-    icon: '📖',
-    order: 7,
-  },
-  {
-    name: 'Ask the Community',
-    description: 'Get answers to your questions from experienced parents',
-    slug: 'ask-community',
-    color: '#A29BFE',
-    icon: '❓',
-    order: 8,
-  },
+    forums: [
+      {
+        title: 'Must-Have Baby Gear',
+        description: 'What baby products are essential vs. nice-to-have?'
+      },
+      {
+        title: 'Product Reviews & Recommendations',
+        description: 'Share your experiences with different baby products'
+      },
+      {
+        title: 'Budget-Friendly Baby Items',
+        description: 'Affordable alternatives to expensive baby gear'
+      }
+    ]
+  }
 ];
 
 async function seedForumCategories() {
   console.log('🌱 Seeding forum categories...');
 
   try {
+    // First, let's check if we have any users to use as createdBy
+    const users = await prisma.user.findMany({
+      take: 1
+    });
+
+    let createdById = 1; // Default fallback
+
+    if (users.length > 0) {
+      createdById = users[0].id;
+      console.log(`👤 Using user ID ${createdById} as forum creator`);
+    } else {
+      console.log('⚠️ No users found, using default ID 1 (may cause foreign key issues)');
+    }
+
     // Use upsert to avoid duplicates
-    for (const category of forumCategories) {
+    for (const categoryData of forumCategories) {
       await prisma.forumCategory.upsert({
-        where: { slug: category.slug },
+        where: { slug: categoryData.slug },
         update: {
-          name: category.name,
-          description: category.description,
-          color: category.color,
-          icon: category.icon,
-          order: category.order,
+          name: categoryData.name,
+          description: categoryData.description,
+          color: categoryData.color,
+          icon: categoryData.icon,
+          order: categoryData.order,
         },
-        create: category,
+        create: {
+          name: categoryData.name,
+          description: categoryData.description,
+          slug: categoryData.slug,
+          color: categoryData.color,
+          icon: categoryData.icon,
+          order: categoryData.order,
+          isActive: true,
+          forums: {
+            create: categoryData.forums.map(forum => ({
+              title: forum.title,
+              description: forum.description,
+              createdById: createdById,
+              isPublic: true,
+              isActive: true
+            }))
+          }
+        },
+        include: {
+          forums: true
+        }
       });
     }
 
     console.log('✅ Forum categories seeded successfully!');
     console.log(`\n📊 Created/Updated ${forumCategories.length} forum categories:`);
-    forumCategories.forEach(category => {
-      console.log(`- ${category.icon} ${category.name} (/${category.slug})`);
-    });
+    forumCategories.forEach(c => console.log(`- ${c.icon} ${c.name} (${c.forums.length} forums)`));
 
     console.log(`\n🧪 Test the forum categories API:`);
-    console.log('- GET /api/v1/forum-categories (get all categories)');
-    console.log('- GET /api/v1/forum-categories/pregnancy-journey (get by slug)');
-    console.log('- POST /api/v1/forum-categories (create new category)');
+    console.log(`- GET /api/v1/forum/categories (get all forum categories)`);
+    console.log(`- GET /api/v1/forum/categories/pregnancy-journey (get specific category by slug)`);
 
   } catch (error) {
     console.error('❌ Error seeding forum categories:', error);

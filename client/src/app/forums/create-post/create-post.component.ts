@@ -7,13 +7,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   AlertController,
   IonicModule,
-  ModalController,
   NavController,
-  ToastController,
+  ToastController
 } from '@ionic/angular';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -110,6 +109,7 @@ export class CreatePostComponent implements OnInit {
     this.isLoading = true;
     this.forumService.getCategories().subscribe({
       next: (response: any) => {
+        debugger;
         if (response && response.success) {
           const categories = response.data.map((category: any) => ({
             id: category.id,
@@ -136,45 +136,10 @@ export class CreatePostComponent implements OnInit {
         this.isLoading = false;
 
         // Fallback to mock categories
-        this.loadMockCategories();
       },
     });
   }
 
-  private loadMockCategories() {
-    const mockCategories: ForumCategory[] = [
-      {
-        id: '1',
-        name: 'General Discussion',
-        description: 'General topics and discussions',
-        icon: 'chatbubbles-outline',
-        color: '#3880ff',
-      },
-      {
-        id: '2',
-        name: 'Pregnancy & Fertility',
-        description: 'Pregnancy, fertility, and conception topics',
-        icon: 'heart-outline',
-        color: '#eb445a',
-      },
-      {
-        id: '3',
-        name: 'Mental Health',
-        description: 'Mental health and emotional well-being',
-        icon: 'happy-outline',
-        color: '#2dd36f',
-      },
-      {
-        id: '4',
-        name: 'Health & Wellness',
-        description: 'General health and wellness topics',
-        icon: 'fitness-outline',
-        color: '#ffc409',
-      },
-    ];
-    this.categories.set(mockCategories);
-    this.postForm.patchValue({ categoryId: mockCategories[0].id });
-  }
 
   addTag() {
     const tag = this.currentTag.trim().toLowerCase();
@@ -201,19 +166,26 @@ export class CreatePostComponent implements OnInit {
     }
   }
 
-  async submitPost() {
+  submitPost() {
     if (this.postForm.invalid) {
-      await this.showFormErrors();
+      this.showFormErrors();
       return;
     }
 
     if (this.selectedTags.length === 0) {
-      const result = await this.showTagConfirmation();
+      const result = this.showTagConfirmation();
       if (!result) return;
     }
 
     this.isSubmitting = true;
     const formValue = this.postForm.value;
+    const userInfo = localStorage.getItem('userInfo');
+    if (!userInfo) {
+      this.showToast('You must be logged in to create a post', 'danger');
+      this.isSubmitting = false;
+      return;
+    }
+    const id = JSON.parse(userInfo).user.id;
 
     // Create the post data
     const postData = {
@@ -221,8 +193,9 @@ export class CreatePostComponent implements OnInit {
       content: formValue.content.trim(),
       categoryId: formValue.categoryId,
       tags: this.selectedTags,
+      authorId: id,
     };
-
+    debugger;
     this.forumService
       .createForumPost(postData as any)
       .pipe(

@@ -16,19 +16,44 @@ export class ForumPostsService {
   async create(createForumPostDto: CreateForumPostDto, authorId: number) {
     let threadId = createForumPostDto.threadId;
 
+    // First, verify that the author exists
+    const author = await this.prismaService.user.findUnique({
+      where: { id: authorId },
+    });
+
+    if (!author) {
+      throw new NotFoundException('Author not found');
+    }
+
     // If categoryId is provided but threadId is not, create a new thread
     if (createForumPostDto.categoryId && !threadId) {
       if (!createForumPostDto.title) {
         throw new NotFoundException('Title is required when creating a new thread');
       }
 
-      // Find a forum in the specified category
-      const forum = await this.prismaService.forum.findFirst({
+      // Find or create a forum in the specified category
+      let forum = await this.prismaService.forum.findFirst({
         where: { categoryId: createForumPostDto.categoryId },
       });
 
       if (!forum) {
-        throw new NotFoundException('No forum found for the specified category');
+        // Create a default forum for this category
+        const category = await this.prismaService.forumCategory.findUnique({
+          where: { id: createForumPostDto.categoryId },
+        });
+
+        if (!category) {
+          throw new NotFoundException('Category not found');
+        }
+
+        forum = await this.prismaService.forum.create({
+          data: {
+            title: `${category.name} Forum`,
+            description: `Default forum for ${category.name} category`,
+            categoryId: createForumPostDto.categoryId,
+            createdById: authorId,
+          },
+        });
       }
 
       // Create a new thread - use the title and content for the thread

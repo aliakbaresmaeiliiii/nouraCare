@@ -16,8 +16,6 @@ async function seedSecretChats() {
           phone: '+1234567890',
           name: 'Alice Johnson',
           isVerified: true,
-          status: 'PREGNANT',
-          pregnancyWeek: 20,
         },
       }),
       prisma.user.upsert({
@@ -28,7 +26,6 @@ async function seedSecretChats() {
           phone: '+1234567891',
           name: 'Bob Smith',
           isVerified: true,
-          status: 'PLANNING_PREGNANCY',
         },
       }),
       prisma.user.upsert({
@@ -39,7 +36,6 @@ async function seedSecretChats() {
           phone: '+1234567892',
           name: 'Carol Davis',
           isVerified: true,
-          status: 'HAS_CHILD',
         },
       }),
     ]);

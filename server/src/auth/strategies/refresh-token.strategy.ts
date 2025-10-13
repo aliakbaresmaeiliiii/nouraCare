@@ -45,7 +45,6 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') 
         name: true,
         profileImage: true,
         isVerified: true,
-        status: true,
         city: true,
         birthday: true,
         createdAt: true,

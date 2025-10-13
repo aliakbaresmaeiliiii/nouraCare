@@ -67,6 +67,7 @@ export interface CreateForumPostDto {
   content: string;
   categoryId: string;
   tags?: string[];
+  authorId: number;
 }
 
 export interface CreateForumThreadDto {
