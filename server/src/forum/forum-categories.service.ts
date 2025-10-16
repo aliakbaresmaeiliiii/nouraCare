@@ -25,10 +25,17 @@ export class ForumCategoriesService {
       data: createForumCategoryDto,
       include: {
         forums: {
+          where: { isActive: true },
           include: {
-            _count: {
-              select: {
-                threads: true,
+            forum_threads: {
+              include: {
+                _count: {
+                  select: {
+                    forum_posts: {
+                      where: { isDeleted: false },
+                    },
+                  },
+                },
               },
             },
           },
@@ -44,9 +51,15 @@ export class ForumCategoriesService {
         forums: {
           where: { isActive: true },
           include: {
-            _count: {
-              select: {
-                threads: true,
+            forum_threads: {
+              include: {
+                _count: {
+                  select: {
+                    forum_posts: {
+                      where: { isDeleted: false },
+                    },
+                  },
+                },
               },
             },
           },
@@ -64,16 +77,15 @@ export class ForumCategoriesService {
         forums: {
           where: { isActive: true },
           include: {
-            _count: {
-              select: {
-                threads: true,
-              },
-            },
-            createdBy: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
+            forum_threads: {
+              include: {
+                _count: {
+                  select: {
+                    forum_posts: {
+                      where: { isDeleted: false },
+                    },
+                  },
+                },
               },
             },
           },
@@ -96,16 +108,15 @@ export class ForumCategoriesService {
         forums: {
           where: { isActive: true },
           include: {
-            _count: {
-              select: {
-                threads: true,
-              },
-            },
-            createdBy: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
+            forum_threads: {
+              include: {
+                _count: {
+                  select: {
+                    forum_posts: {
+                      where: { isDeleted: false },
+                    },
+                  },
+                },
               },
             },
           },
@@ -150,10 +161,17 @@ export class ForumCategoriesService {
       data: updateForumCategoryDto,
       include: {
         forums: {
+          where: { isActive: true },
           include: {
-            _count: {
-              select: {
-                threads: true,
+            forum_threads: {
+              include: {
+                _count: {
+                  select: {
+                    forum_posts: {
+                      where: { isDeleted: false },
+                    },
+                  },
+                },
               },
             },
           },
@@ -173,8 +191,8 @@ export class ForumCategoriesService {
     }
 
     // Check if category has forums
-    const forumsCount = await this.prismaService.forum.count({
-      where: { categoryId: id },
+    const forumsCount = await this.prismaService.forums.count({
+      where: { categoryId: id, isActive: true },
     });
 
     if (forumsCount > 0) {
@@ -208,10 +226,17 @@ export class ForumCategoriesService {
       where: { id },
       include: {
         forums: {
+          where: { isActive: true },
           include: {
-            _count: {
-              select: {
-                threads: true,
+            forum_threads: {
+              include: {
+                _count: {
+                  select: {
+                    forum_posts: {
+                      where: { isDeleted: false },
+                    },
+                  },
+                },
               },
             },
           },
@@ -224,8 +249,11 @@ export class ForumCategoriesService {
     }
 
     const totalForums = category.forums.length;
-    const totalThreads = category.forums.reduce(
-      (sum, forum) => sum + forum._count.threads,
+    const totalPosts = category.forums.reduce(
+      (sum, forum) => sum + forum.forum_threads.reduce(
+        (threadSum, thread) => threadSum + thread._count.forum_posts,
+        0
+      ),
       0,
     );
 
@@ -233,7 +261,7 @@ export class ForumCategoriesService {
       ...category,
       stats: {
         totalForums,
-        totalThreads,
+        totalPosts,
       },
     };
   }

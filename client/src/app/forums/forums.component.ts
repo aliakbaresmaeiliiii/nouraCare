@@ -242,6 +242,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
+
     // Check cache first
     const cachedTopics = this.topicsCache.get('all');
     if (cachedTopics) {
@@ -249,7 +250,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
       this.isLoading.set(false);
       return;
     }
-
     this.forumsService.getAllThreads().subscribe({
       next: (response: any) => {
         console.log('Forum threads response:', response);
@@ -350,12 +350,25 @@ export class ForumsComponent implements OnInit, OnDestroy {
           }));
           this.topics.set(threads);
           this.topicsCache.set(categoryId, threads);
+        } else {
+          // If API returns success but no data, treat as empty category
+          this.isLoading.set(false);
+          this.topics.set([]);
+          this.topicsCache.set(categoryId, []);
         }
       },
       error: (error: any) => {
         console.error('Error loading category topics:', error);
         this.isLoading.set(false);
-        this.errorMessage.set('Failed to load topics for this category');
+        
+        // For 404 or empty responses, treat as empty category instead of error
+        if (error.status === 404 || error.status === 400) {
+          this.topics.set([]);
+          this.topicsCache.set(categoryId, []);
+          this.errorMessage.set('');
+        } else {
+          this.errorMessage.set('Failed to load topics for this category');
+        }
       },
     });
   }
@@ -365,8 +378,15 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/forums/topic', topic.id]);
   }
 
-  createNewTopic() {
-    this.router.navigate(['/forums/create-post']);
+  createNewTopic(categoryId?: string) {
+    if (categoryId) {
+      // Navigate to create-post with category ID as query parameter
+      this.router.navigate(['/forums/create-post'], {
+        queryParams: { category: categoryId }
+      });
+    } else {
+      this.router.navigate(['/forums/create-post']);
+    }
   }
 
   formatRelativeTime(dateString: string): string {

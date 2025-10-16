@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   AlertController,
   IonicModule,
@@ -44,6 +44,7 @@ export class CreatePostComponent implements OnInit {
   // Dependency injection
   private navCtrl = inject(NavController);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private forumService = inject(ForumService);
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
@@ -98,6 +99,7 @@ export class CreatePostComponent implements OnInit {
 
   ngOnInit() {
     this.loadCategories();
+    this.handleQueryParams();
 
     // Watch content changes for character count
     this.postForm.get('content')?.valueChanges.subscribe((value: string) => {
@@ -105,11 +107,20 @@ export class CreatePostComponent implements OnInit {
     });
   }
 
+  private handleQueryParams() {
+    this.route.queryParams.subscribe((params) => {
+      const categoryId = params['category'];
+      if (categoryId) {
+        // Set the category ID in the form
+        this.postForm.patchValue({ categoryId });
+      }
+    });
+  }
+
   loadCategories() {
     this.isLoading = true;
     this.forumService.getCategories().subscribe({
       next: (response: any) => {
-        debugger;
         if (response && response.success) {
           const categories = response.data.map((category: any) => ({
             id: category.id,
@@ -195,7 +206,6 @@ export class CreatePostComponent implements OnInit {
       tags: this.selectedTags,
       authorId: id,
     };
-    debugger;
     this.forumService
       .createForumPost(postData as any)
       .pipe(

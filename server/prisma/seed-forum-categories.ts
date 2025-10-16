@@ -10,7 +10,7 @@ const forumCategories = [
     color: '#FF6B6B',
     icon: 'pregnancy',
     order: 1,
-    forums: [
+    topics: [
       {
         title: 'First Trimester Experiences',
         description: 'Share your first trimester journey, symptoms, and tips'
@@ -32,7 +32,7 @@ const forumCategories = [
     color: '#4ECDC4',
     icon: 'parenting',
     order: 2,
-    forums: [
+    topics: [
       {
         title: 'Newborn Care Tips',
         description: 'Share your best tips for caring for a newborn'
@@ -54,7 +54,7 @@ const forumCategories = [
     color: '#45B7D1',
     icon: 'nutrition',
     order: 3,
-    forums: [
+    topics: [
       {
         title: 'Pregnancy Nutrition Guide',
         description: 'What foods are essential during pregnancy?'
@@ -76,7 +76,7 @@ const forumCategories = [
     color: '#FF9FF3',
     icon: 'mental-health',
     order: 4,
-    forums: [
+    topics: [
       {
         title: 'Coping with Pregnancy Anxiety',
         description: 'Share your strategies for managing anxiety during pregnancy'
@@ -98,7 +98,7 @@ const forumCategories = [
     color: '#5F27CD',
     icon: 'baby-gear',
     order: 5,
-    forums: [
+    topics: [
       {
         title: 'Must-Have Baby Gear',
         description: 'What baby products are essential vs. nice-to-have?'
@@ -152,29 +152,11 @@ async function seedForumCategories() {
           icon: categoryData.icon,
           order: categoryData.order,
           isActive: true,
-          forums: {
-            create: categoryData.forums.map(forum => ({
-              title: forum.title,
-              description: forum.description,
-              createdById: createdById,
-              isPublic: true,
-              isActive: true
-            }))
-          }
+       
         },
-        include: {
-          forums: true
-        }
+     
       });
     }
-
-    console.log('✅ Forum categories seeded successfully!');
-    console.log(`\n📊 Created/Updated ${forumCategories.length} forum categories:`);
-    forumCategories.forEach(c => console.log(`- ${c.icon} ${c.name} (${c.forums.length} forums)`));
-
-    console.log(`\n🧪 Test the forum categories API:`);
-    console.log(`- GET /api/v1/forum/categories (get all forum categories)`);
-    console.log(`- GET /api/v1/forum/categories/pregnancy-journey (get specific category by slug)`);
 
   } catch (error) {
     console.error('❌ Error seeding forum categories:', error);

@@ -138,7 +138,7 @@
     @if (topic && !isLoading) {
     <div class="comments-section">
       <div class="comments-header">
-        <h2 class="comments-title">Comments ({{ comments.length }})</h2>
+        <h2 class="comments-title">Comments ({{ comments().length }})</h2>
       </div>
 
       <!-- Empty Comments State -->
@@ -153,7 +153,7 @@
       <!-- Comments List -->
       @if (comments.length > 0) {
       <ion-list  class="comments-list">
-        @for (comment of comments; track comment.id) {
+        @for (comment of comments(); track comment.id) {
         <ion-item class="comment-item" [attr.data-comment-id]="comment.id">
           <div class="comment-content">
             <div class="comment-header">

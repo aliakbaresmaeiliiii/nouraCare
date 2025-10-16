@@ -12,8 +12,12 @@ import {
 import { Share } from '@capacitor/share';
 import { of } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
-import { CreateForumThreadDto, CreatePostDto, ForumService, ThreadDetailResponse } from '@app/shared/services/forum.service';
-
+import {
+  CreateForumThreadDto,
+  CreatePostDto,
+  ForumService,
+  ThreadDetailResponse,
+} from '@app/shared/services/forum.service';
 
 // Strongly typed interfaces
 interface ForumTopic {
@@ -100,7 +104,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
   // Component state
   topic: ForumTopic | null = null;
-  comments: Comment[] = [];
+  comments = signal<Comment[]>([]);
   newComment = '';
   isLoading = false;
   isSubmittingComment = false;
@@ -142,20 +146,33 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   }
 
   loadTopicDetail(threadId: string | null) {
+    if (!threadId) {
+      this.errorMessage = 'Topic ID is required';
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
-    this.forumService.getThreadById(threadId).subscribe({
-      next: (response: ThreadDetailResponse) => {
-        if (response && response.success) {
+
+    this.forumService.fetchThreadById(threadId).subscribe({
+      next: (response: any) => {
+        if (response?.success) {
+          debugger;
           const thread = response.data;
+          
+          // Handle paginated response structure
+          const posts = thread.posts || [];
+          const pagination = thread.pagination || { page: 1, limit: 20, total: 0, totalPages: 1 };
+          
+          // Transform API response to component interface
           this.topic = {
-            id: parseInt(threadId || '0'),
+            id: parseInt(threadId),
             title: thread.title,
             content: thread.content,
             author: thread.author?.name || 'Anonymous',
             authorAvatar: thread.author?.profileImage || '',
             category: thread.forum?.title || 'General Discussion',
-            replies: thread._count?.posts || 0,
+            replies: pagination.total || thread._count?.posts || 0,
             views: thread.viewCount || 0,
             lastReply: thread.updatedAt,
             isPinned: thread.isPinned || false,
@@ -163,16 +180,17 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
             tags: [],
             forumId: thread.forum?.id || '',
             createdAt: thread.createdAt,
-            posts: thread.posts || [],
+            posts: posts,
           };
-          this.storeData.set(response.data);
-
-          // Load comments from the thread response
-          this.comments = thread.posts || [];
+          
+          this.storeData.set(thread);
+          
+          // Set comments from the posts array
+          this.comments.set(posts || []);
         } else {
           this.errorMessage = 'Failed to load topic details';
         }
-
+        
         this.isLoading = false;
       },
       error: (error: any) => {
@@ -195,11 +213,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     }
 
     this.isSubmittingComment = true;
-    const threadId = this.storeData().id;
-
+    const threadId = this.topicId();
     const postData: CreatePostDto = {
       content: this.newComment.trim(),
-      threadId: threadId,
+      threadId: threadId!,
       parentId: null,
     };
 
@@ -208,7 +225,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            this.comments.unshift(response.data);
+            // this.comments.unshift(response.data);
             this.newComment = '';
             this.showToast('Comment posted successfully!', 'success');
           } else {
@@ -240,11 +257,11 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            const comment = this.comments.find((c) => c.id === commentId);
+            const comment = this.comments().find((c) => c.id === commentId);
             if (comment) {
               // Toggle the like status
               comment.isLiked = !comment.isLiked;
-              
+
               // Update the like count based on the current like status
               if (comment.isLiked) {
                 comment._count.likes += 1;
@@ -300,19 +317,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
     this.isSubmittingReply = true;
 
-    // Add null checks for posts array
-    if (!this.topic?.posts || this.topic.posts.length === 0) {
-      this.showToast(
-        'Unable to submit reply: topic data is incomplete',
-        'danger'
-      );
-      this.isSubmittingReply = false;
-      return;
-    }
-
     const payload = {
       content: replyText,
-      threadId: this.topic.posts[0].threadId,
+      threadId: this.topicId()!,
       parentId: commentId,
       forumId: forumId,
     };
@@ -323,7 +330,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
         tap((response: any) => {
           if (response && response.success) {
             // Find the parent comment and add the reply
-            const parentComment = this.comments.find((c) => c.id === commentId);
+            const parentComment = this.comments().find((c) => c.id === commentId);
             if (parentComment) {
               if (!parentComment.replies) {
                 parentComment.replies = [];
@@ -483,7 +490,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   }
 
   async submitEdit(comment: Comment) {
-    debugger;
     const editText = this.editTexts[comment.id]?.trim();
     if (!editText) {
       await this.showToast('Please write something to edit', 'warning');
@@ -505,8 +511,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            this.comments = this.comments.map((c) =>
-              c.id === comment.id ? response.data : c
+            this.comments.set(
+              this.comments().map((c) => (c.id === comment.id ? response.data : c))
             );
             this.showToast('Comment updated successfully!', 'success');
           } else {
@@ -572,17 +578,17 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   private confirmDeleteComment(comment: Comment) {
     // Store the original comment reference and position
     const originalComment = { ...comment };
-    const commentIndex = this.comments.findIndex((c) => c.id === comment.id);
+    const commentIndex = this.comments().findIndex((c) => c.id === comment.id);
     const isReply = !!comment.parentId;
 
     // Optimistic update - remove from UI immediately
     if (commentIndex !== -1 && !isReply) {
-      this.comments.splice(commentIndex, 1);
+      this.comments().splice(commentIndex, 1);
     }
 
     // Also check and remove from replies if it's a reply
     if (isReply) {
-      this.comments.forEach((parentComment) => {
+      this.comments().forEach((parentComment) => {
         if (parentComment.replies) {
           const replyIndex = parentComment.replies.findIndex(
             (r) => r.id === comment.id
@@ -636,7 +642,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   private revertCommentDeletion(comment: Comment, originalIndex: number) {
     if (comment.parentId) {
       // It's a reply, add back to parent comment
-      const parentComment = this.comments.find(
+      const parentComment = this.comments().find(
         (c) => c.id === comment.parentId
       );
       if (parentComment) {
@@ -647,10 +653,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     } else {
       // It's a top-level comment, add back to comments array at original position
       if (originalIndex !== -1) {
-        this.comments.splice(originalIndex, 0, comment);
+        this.comments().splice(originalIndex, 0, comment);
       } else {
         // If original index not found, add to the end
-        this.comments.push(comment);
+        this.comments().push(comment);
       }
     }
   }

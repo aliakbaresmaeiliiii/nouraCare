@@ -149,17 +149,24 @@ export class ForumService {
     limit: number = 20
   ) {
     return this.http.get<ThreadsResponse>(
-      `${this.forumThreadsBaseUrl}/category/${categoryId}?page=${page}&limit=${limit}`
+      `${this.forumThreadsBaseUrl}/${categoryId}?page=${page}&limit=${limit}`
     );
   }
 
-  getThreadById(threadId: string | null) {
+  fetchTopicDetail(threadId: string | null) {
     return this.http.get<ThreadDetailResponse>(
       `${this.forumThreadsBaseUrl}/${threadId}`
     );
   }
 
+  fetchThreadById(threadId: string | null) {
+    return this.http.get<ThreadDetailResponse>(
+      `${this.forumPostsBaseUrl}/thread/${threadId}`
+    );
+  }
+
   createPost(postData: CreatePostDto) {
+    debugger;
     return this.http.post<PostResponse>(this.forumPostsBaseUrl, postData);
   }
 

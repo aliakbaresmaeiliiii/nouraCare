@@ -8,33 +8,33 @@ datasource db {
 }
 
 model user {
-  id                        Int                 @id @default(autoincrement())
-  email                     String              @unique(map: "User_email_key")
-  phone                     String              @unique(map: "User_phone_key")
+  id                        Int             @id @default(autoincrement())
+  email                     String          @unique(map: "User_email_key")
+  phone                     String          @unique(map: "User_phone_key")
   verificationCode          String?
   verificationCodeExpiresAt DateTime?
-  isVerified                Boolean             @default(false)
-  createdAt                 DateTime            @default(now())
+  isVerified                Boolean         @default(false)
+  createdAt                 DateTime        @default(now())
   profileImage              String?
   name                      String?
   birthday                  DateTime?
   city                      String?
-  updatedAt                 DateTime            @default(now()) @updatedAt
-  role                      user_role           @default(USER)
+  updatedAt                 DateTime        @default(now()) @updatedAt
+  role                      user_role       @default(USER)
   address                   address[]
   chatMemberships           ChatMember[]
-  sentMessages              ChatMessage[]       @relation("MessageSender")
-  commentLikes              CommentLike[]       @relation("CommentLikes")
-  comments                  Comment[]           @relation("CommentAuthor")
+  sentMessages              ChatMessage[]   @relation("MessageSender")
+  commentLikes              CommentLike[]   @relation("CommentLikes")
+  comments                  Comment[]       @relation("CommentAuthor")
   forumPostLikes            ForumPostLike[]
-  forumPosts                ForumPost[]
-  forumThreads              ForumThread[]
-  createdForums             Forum[]
-  readMessages              MessageRead[]       @relation("MessageReads")
-  postLikes                 PostLike[]          @relation("PostLikes")
-  posts                     Post[]              @relation("PostAuthor")
+  forum_posts               ForumPost[]
+  forum_threads             forum_threads[]
+  forums                    forums[]
+  readMessages              MessageRead[]   @relation("MessageReads")
+  postLikes                 PostLike[]      @relation("PostLikes")
+  posts                     Post[]          @relation("PostAuthor")
   refreshTokens             RefreshToken[]
-  createdChats              SecretChat[]        @relation("ChatCreatedBy")
+  createdChats              SecretChat[]    @relation("ChatCreatedBy")
   trackday                  trackday[]
 }
 
@@ -96,64 +96,25 @@ model ForumCategory {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  forums      Forum[]
+  forums      forums[]
 
   @@map("forum_categories")
 }
 
-model Forum {
-  id          String        @id @default(uuid())
-  title       String
-  description String        @db.Text
-  categoryId  String
-  createdById Int
-  isPublic    Boolean       @default(true)
-  isActive    Boolean       @default(true)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  threads     ForumThread[]
-  category    ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdBy   user          @relation(fields: [createdById], references: [id])
-
-  @@index([categoryId])
-  @@index([createdById])
-  @@map("forums")
-}
-
-model ForumThread {
-  id        String      @id @default(uuid())
-  title     String
-  content   String      @db.Text
-  forumId   String
-  authorId  Int
-  isPinned  Boolean     @default(false)
-  isLocked  Boolean     @default(false)
-  viewCount Int         @default(0)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  posts     ForumPost[]
-  author    user        @relation(fields: [authorId], references: [id])
-  forum     Forum       @relation(fields: [forumId], references: [id], onDelete: Cascade)
-
-  @@index([authorId])
-  @@index([forumId])
-  @@map("forum_threads")
-}
-
 model ForumPost {
-  id        String          @id @default(uuid())
-  content   String          @db.Text
-  threadId  String
-  authorId  Int
-  parentId  String?
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  isDeleted Boolean         @default(false)
-  likes     ForumPostLike[]
-  author    user            @relation(fields: [authorId], references: [id])
-  parent    ForumPost?      @relation("PostReplies", fields: [parentId], references: [id])
-  replies   ForumPost[]     @relation("PostReplies")
-  thread    ForumThread     @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  id                String          @id @default(uuid())
+  content           String          @db.Text
+  threadId          String
+  authorId          Int
+  parentId          String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  isDeleted         Boolean         @default(false)
+  likes             ForumPostLike[]
+  user              user            @relation(fields: [authorId], references: [id])
+  forum_posts       ForumPost?      @relation("forum_postsToforum_posts", fields: [parentId], references: [id])
+  other_forum_posts ForumPost[]     @relation("forum_postsToforum_posts")
+  forum_threads     forum_threads   @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   @@index([authorId])
   @@index([parentId])
@@ -431,10 +392,41 @@ model OnboardingData {
   @@map("onboarding_data")
 }
 
-enum Status {
-  PLANNING_PREGNANCY
-  PREGNANT
-  HAS_CHILD
+model forum_threads {
+  id          String      @id
+  title       String
+  content     String      @db.Text
+  forumId     String
+  authorId    Int
+  isPinned    Boolean     @default(false)
+  isLocked    Boolean     @default(false)
+  viewCount   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime
+  forum_posts ForumPost[]
+  user        user        @relation(fields: [authorId], references: [id])
+  forums      forums      @relation(fields: [forumId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([forumId])
+}
+
+model forums {
+  id               String          @id
+  title            String
+  description      String          @db.Text
+  categoryId       String
+  createdById      Int
+  isPublic         Boolean         @default(true)
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime
+  forum_threads    forum_threads[]
+  forum_categories ForumCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user             user            @relation(fields: [createdById], references: [id])
+
+  @@index([categoryId])
+  @@index([createdById])
 }
 
 enum MemberRole {
@@ -469,4 +461,9 @@ enum user_role {
   USER
   ADMIN
   MODERATOR
+}
+
+enum Status{
+  isActive
+  Active
 }

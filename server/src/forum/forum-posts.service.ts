@@ -14,8 +14,6 @@ export class ForumPostsService {
   ) {}
 
   async create(createForumPostDto: CreateForumPostDto, authorId: number) {
-    let threadId = createForumPostDto.threadId;
-
     // First, verify that the author exists
     const author = await this.prismaService.user.findUnique({
       where: { id: authorId },
@@ -25,194 +23,95 @@ export class ForumPostsService {
       throw new NotFoundException('Author not found');
     }
 
-    // If categoryId is provided but threadId is not, create a new thread
-    if (createForumPostDto.categoryId && !threadId) {
-      if (!createForumPostDto.title) {
-        throw new NotFoundException('Title is required when creating a new thread');
-      }
+    // Verify topic exists
+    const topic = await this.prismaService.forum_threads.findFirst({
+      where: { 
+        id: createForumPostDto.categoryId ,
+      },
+    });
 
-      // Find or create a forum in the specified category
-      let forum = await this.prismaService.forum.findFirst({
-        where: { categoryId: createForumPostDto.categoryId },
-      });
+    if (!topic) {
+      throw new NotFoundException('Topic not found');
+    }
 
-      if (!forum) {
-        // Create a default forum for this category
-        const category = await this.prismaService.forumCategory.findUnique({
-          where: { id: createForumPostDto.categoryId },
-        });
-
-        if (!category) {
-          throw new NotFoundException('Category not found');
-        }
-
-        forum = await this.prismaService.forum.create({
-          data: {
-            title: `${category.name} Forum`,
-            description: `Default forum for ${category.name} category`,
-            categoryId: createForumPostDto.categoryId,
-            createdById: authorId,
-          },
-        });
-      }
-
-      // Create a new thread - use the title and content for the thread
-      const newThread = await this.prismaService.forumThread.create({
-        data: {
-          title: createForumPostDto.title,
-          content: createForumPostDto.content, // Thread content is the post content
-          forumId: forum.id,
-          authorId,
+    // If this is a reply, check if parent comment exists
+    if (createForumPostDto.parentId) {
+      const parentComment = await this.prismaService.comment.findFirst({
+        where: { 
+          id: createForumPostDto.parentId,
         },
       });
 
-      threadId = newThread.id;
-    }
-
-    // If threadId is still not set, throw error
-    if (!threadId) {
-      throw new NotFoundException('Either threadId or categoryId with title is required');
-    }
-
-    // Check if thread exists
-    const thread = await this.prismaService.forumThread.findUnique({
-      where: { id: threadId },
-    });
-
-    if (!thread) {
-      throw new NotFoundException('Forum thread not found');
-    }
-
-    // Check if thread is locked
-    if (thread.isLocked) {
-      throw new ForbiddenException('Cannot post in a locked thread');
-    }
-
-    // If this is a reply, check if parent post exists
-    if (createForumPostDto.parentId) {
-      const parentPost = await this.prismaService.forumPost.findUnique({
-        where: { id: createForumPostDto.parentId },
-      });
-
-      if (!parentPost) {
-        throw new NotFoundException('Parent post not found');
-      }
-
-      // Ensure parent post belongs to the same thread
-      if (parentPost.threadId !== threadId) {
-        throw new ForbiddenException(
-          'Parent post does not belong to the same thread',
-        );
+      if (!parentComment) {
+        throw new NotFoundException('Parent comment not found');
       }
     }
 
     const createdPost = await this.prismaService.forumPost.create({
       data: {
         content: createForumPostDto.content,
-        threadId,
-        authorId,
-        parentId: createForumPostDto.parentId,
-        isDeleted: false,
+        threadId: createForumPostDto.categoryId,
+        authorId: authorId,
       },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
             profileImage: true,
           },
         },
-        parent: {
+        forum_threads: {
           include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
+            forums: {
+              include: {
+                forum_categories: true,
               },
             },
           },
-        },
-        replies: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
-              },
-            },
-            _count: {
-              select: {
-                likes: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
         },
         _count: {
           select: {
             likes: true,
-            replies: true,
           },
         },
       },
     });
 
-    // Real-time events removed - WebSocket functionality disabled
-
     return createdPost;
   }
 
-  async findAll(threadId: string, page: number = 1, limit: number = 20) {
+  async findAll(topicId: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
     const [posts, total] = await Promise.all([
       this.prismaService.forumPost.findMany({
         where: {
-          threadId,
-          parentId: null, // Only get top-level posts (not replies)
+          threadId: topicId,
+          isDeleted: false,
         },
         include: {
-          author: {
+          user: {
             select: {
               id: true,
               name: true,
               profileImage: true,
             },
           },
-          replies: {
-            include: {
-              author: {
-                select: {
-                  id: true,
-                  name: true,
-                  profileImage: true,
-                },
-              },
-              _count: {
-                select: {
-                  likes: true,
-                },
-              },
-            },
-            orderBy: { createdAt: 'asc' },
-          },
           _count: {
             select: {
               likes: true,
-              replies: true,
             },
           },
         },
-        orderBy: { createdAt: 'asc' },
+        orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
       this.prismaService.forumPost.count({
         where: {
-          threadId,
-          parentId: null,
+          threadId: topicId,
+          isDeleted: false,
         },
       }),
     ]);
@@ -228,12 +127,11 @@ export class ForumPostsService {
     };
   }
 
-
   async findReplies(parentId: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
     const [replies, total] = await Promise.all([
-      this.prismaService.forumPost.findMany({
+      this.prismaService.comment.findMany({
         where: {
           parentId,
         },
@@ -247,7 +145,7 @@ export class ForumPostsService {
           },
           _count: {
             select: {
-              likes: true,
+              replies: true,
             },
           },
         },
@@ -255,7 +153,7 @@ export class ForumPostsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forumPost.count({
+      this.prismaService.comment.count({
         where: {
           parentId,
         },
@@ -275,47 +173,27 @@ export class ForumPostsService {
 
   async findOne(id: string) {
     const post = await this.prismaService.forumPost.findUnique({
-      where: { id },
+      where: { id, isDeleted: false },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
             profileImage: true,
           },
         },
-        parent: {
+        forum_threads: {
           include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
+            forums: {
+              include: {
+                forum_categories: true,
               },
             },
           },
-        },
-        replies: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
-              },
-            },
-            _count: {
-              select: {
-                likes: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
         },
         _count: {
           select: {
             likes: true,
-            replies: true,
           },
         },
       },
@@ -334,7 +212,7 @@ export class ForumPostsService {
     currentUser: any,
   ) {
     const post = await this.prismaService.forumPost.findUnique({
-      where: { id },
+      where: { id, isDeleted: false },
     });
 
     if (!post) {
@@ -352,62 +230,40 @@ export class ForumPostsService {
     const updatedPost = await this.prismaService.forumPost.update({
       where: { id },
       data: {
-        ...updateForumPostDto,
+        content: updateForumPostDto.content,
         updatedAt: new Date(),
       },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
             profileImage: true,
           },
         },
-        parent: {
+        forum_threads: {
           include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
+            forums: {
+              include: {
+                forum_categories: true,
               },
             },
           },
-        },
-        replies: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
-              },
-            },
-            _count: {
-              select: {
-                likes: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
         },
         _count: {
           select: {
             likes: true,
-            replies: true,
           },
         },
       },
     });
-
-    // Real-time events removed - WebSocket functionality disabled
 
     return updatedPost;
   }
 
   async remove(id: string, currentUser: any) {
     const post = await this.prismaService.forumPost.findUnique({
-      where: { id },
+      where: { id, isDeleted: false },
     });
 
     if (!post) {
@@ -422,20 +278,18 @@ export class ForumPostsService {
       throw new ForbiddenException('You can only delete your own posts');
     }
 
-    // Soft delete by marking as deleted
+    // Soft delete the post
     const deletedPost = await this.prismaService.forumPost.update({
       where: { id },
       data: { isDeleted: true },
     });
-
-    // Real-time events removed - WebSocket functionality disabled
 
     return deletedPost;
   }
 
   async toggleLike(postId: string, userId: number) {
     const post = await this.prismaService.forumPost.findUnique({
-      where: { id: postId },
+      where: { id: postId, isDeleted: false },
     });
 
     if (!post) {
@@ -476,7 +330,7 @@ export class ForumPostsService {
     const updatedPost = await this.prismaService.forumPost.findUnique({
       where: { id: postId },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
@@ -486,19 +340,16 @@ export class ForumPostsService {
         _count: {
           select: {
             likes: true,
-            replies: true,
           },
         },
       },
     });
 
-    // Real-time events removed - WebSocket functionality disabled
-
     return updatedPost;
   }
 
   async editComment(commentId: string, content: string, currentUser: any) {
-    const comment = await this.prismaService.forumPost.findUnique({
+    const comment = await this.prismaService.comment.findUnique({
       where: { id: commentId },
     });
 
@@ -514,7 +365,7 @@ export class ForumPostsService {
       throw new ForbiddenException('You can only edit your own comments');
     }
 
-    const updatedComment = await this.prismaService.forumPost.update({
+    const updatedComment = await this.prismaService.comment.update({
       where: { id: commentId },
       data: {
         content,
@@ -528,50 +379,19 @@ export class ForumPostsService {
             profileImage: true,
           },
         },
-        parent: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
-              },
-            },
-          },
-        },
-        replies: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
-              },
-            },
-            _count: {
-              select: {
-                likes: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
-        },
         _count: {
           select: {
-            likes: true,
             replies: true,
           },
         },
       },
     });
 
-    // Real-time events removed - WebSocket functionality disabled
-
     return updatedComment;
   }
 
   async deleteComment(commentId: string, currentUser: any) {
-    const comment = await this.prismaService.forumPost.findUnique({
+    const comment = await this.prismaService.comment.findUnique({
       where: { id: commentId },
     });
 
@@ -587,13 +407,10 @@ export class ForumPostsService {
       throw new ForbiddenException('You can only delete your own comments');
     }
 
-    // Soft delete by marking as deleted
-    const deletedComment = await this.prismaService.forumPost.update({
+    // Delete the comment
+    const deletedComment = await this.prismaService.comment.delete({
       where: { id: commentId },
-      data: { isDeleted: true },
     });
-
-    // Real-time events removed - WebSocket functionality disabled
 
     return deletedComment;
   }

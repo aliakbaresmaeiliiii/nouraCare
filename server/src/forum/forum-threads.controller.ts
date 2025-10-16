@@ -41,30 +41,11 @@ export class ForumThreadsController {
 
   @Get()
   async findAll(
-    @Query('forumId') forumId?: string,
-    @Query('category') category?: string,
+    @Query('categoryId') categoryId?: string,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '20',
   ) {
     const result = await this.forumThreadsService.findAll(
-      forumId,
-      category,
-      parseInt(page),
-      parseInt(limit),
-    );
-    return {
-      success: true,
-      data: result,
-    };
-  }
-
-  @Get('category/:categoryId')
-  async findByCategory(
-    @Param('categoryId') categoryId: string,
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
-  ) {
-    const result = await this.forumThreadsService.findByCategory(
       categoryId,
       parseInt(page),
       parseInt(limit),
@@ -74,6 +55,7 @@ export class ForumThreadsController {
       data: result,
     };
   }
+
 
   @Get('search')
   async search(
@@ -152,27 +134,4 @@ export class ForumThreadsController {
     };
   }
 
-  @Post(':id/pin')
-  async togglePin(@Param('id') id: string) {
-    const thread = await this.forumThreadsService.togglePin(id);
-    return {
-      success: true,
-      message: thread.isPinned
-        ? 'Thread pinned successfully'
-        : 'Thread unpinned successfully',
-      data: thread,
-    };
-  }
-
-  @Post(':id/lock')
-  async toggleLock(@Param('id') id: string) {
-    const thread = await this.forumThreadsService.toggleLock(id);
-    return {
-      success: true,
-      message: thread.isLocked
-        ? 'Thread locked successfully'
-        : 'Thread unlocked successfully',
-      data: thread,
-    };
-  }
 }

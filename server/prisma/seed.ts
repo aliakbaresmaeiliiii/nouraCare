@@ -381,8 +381,8 @@ async function main() {
     console.log(`✅ Created city: ${city.name} with ${cityData.districts.length} districts`);
   }
 
-  // Create Forum Categories and Sample Forums (Topics)
-  console.log('🌱 Creating forum categories and forums...');
+  // Create Forum Categories and Sample Topics
+  console.log('🌱 Creating forum categories and topics...');
 
   const forumCategories = [
     {
@@ -392,7 +392,7 @@ async function main() {
       color: '#FF6B6B',
       icon: 'pregnancy',
       order: 1,
-      forums: [
+      topics: [
         {
           title: 'First Trimester Experiences',
           description: 'Share your first trimester journey, symptoms, and tips'
@@ -414,7 +414,7 @@ async function main() {
       color: '#4ECDC4',
       icon: 'parenting',
       order: 2,
-      forums: [
+      topics: [
         {
           title: 'Newborn Care Tips',
           description: 'Share your best tips for caring for a newborn'
@@ -436,7 +436,7 @@ async function main() {
       color: '#45B7D1',
       icon: 'nutrition',
       order: 3,
-      forums: [
+      topics: [
         {
           title: 'Pregnancy Nutrition Guide',
           description: 'What foods are essential during pregnancy?'
@@ -458,7 +458,7 @@ async function main() {
       color: '#FF9FF3',
       icon: 'mental-health',
       order: 4,
-      forums: [
+      topics: [
         {
           title: 'Coping with Pregnancy Anxiety',
           description: 'Share your strategies for managing anxiety during pregnancy'
@@ -480,7 +480,7 @@ async function main() {
       color: '#5F27CD',
       icon: 'baby-gear',
       order: 5,
-      forums: [
+      topics: [
         {
           title: 'Must-Have Baby Gear',
           description: 'What baby products are essential vs. nice-to-have?'
@@ -507,22 +507,11 @@ async function main() {
         icon: categoryData.icon,
         order: categoryData.order,
         isActive: true,
-        forums: {
-          create: categoryData.forums.map(forum => ({
-            title: forum.title,
-            description: forum.description,
-            createdById: 1, // Assuming user ID 1 exists
-            isPublic: true,
-            isActive: true
-          }))
-        }
+       
       },
-      include: {
-        forums: true
-      }
+     
     });
 
-    console.log(`✅ Created forum category: ${category.name} with ${category.forums.length} forums`);
   }
 
   console.log('🎉 Seeding completed!');

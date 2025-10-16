@@ -1,0 +1,59 @@
+### Get all categories
+GET http://localhost:3000/api/v1/forum/categories
+
+### Get topics by category
+GET http://localhost:3000/api/v1/forum/topics/{{categoryId}}
+Content-Type: application/json
+
+### Get posts by topic
+GET http://localhost:3000/api/v1/forum/posts/{{topicId}}
+Content-Type: application/json
+
+### Get single post with comments
+GET http://localhost:3000/api/v1/forum/post/{{postId}}
+Content-Type: application/json
+
+### Create a new post (requires authentication)
+POST http://localhost:3000/api/v1/forum/post
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "title": "My first post",
+  "content": "This is the content of my post",
+  "topicId": "{{topicId}}"
+}
+
+### Create a comment (requires authentication)
+POST http://localhost:3000/api/v1/forum/comment
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "content": "This is a comment",
+  "postId": "{{postId}}"
+}
+
+### Create a reply to a comment (requires authentication)
+POST http://localhost:3000/api/v1/forum/comment
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "content": "This is a reply to a comment",
+  "postId": "{{postId}}",
+  "parentId": "{{commentId}}"
+}
+
+### Update a comment (requires authentication)
+PUT http://localhost:3000/api/v1/forum/comment/{{commentId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "content": "Updated comment content"
+}
+
+### Delete a comment (requires authentication)
+DELETE http://localhost:3000/api/v1/forum/comment/{{commentId}}
+Authorization: Bearer {{token}}

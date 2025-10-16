@@ -57,8 +57,6 @@ export class VerifyEmailComponent implements OnInit {
 
   ngOnInit() {
     this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-
-    debugger;
     this.form = this.fb.group({
       otpCode: ['', [Validators.required, Validators.minLength(4)]],
     });

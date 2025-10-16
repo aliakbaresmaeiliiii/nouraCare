@@ -211,14 +211,16 @@
           }}
         </p>
         @if (!searchQuery()) {
-        <ion-button
-          fill="outline"
-          (click)="createNewTopic()"
-          class="create-topic-button"
-        >
-          <ion-icon name="add-outline" slot="start"></ion-icon>
-          Create Topic
-        </ion-button>
+        <div class="empty-actions">
+          <ion-button
+            fill="solid"
+            (click)="createNewTopic(selectedCategory())"
+            class="create-topic-button"
+          >
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            Create First Topic in {{ selectedCategoryName() }}
+          </ion-button>
+        </div>
         }
       </div>
       }

@@ -406,9 +406,28 @@
       max-width: 300px;
     }
     
-    .create-topic-button {
-      --border-color: #4f46e5;
-      --color: #4f46e5;
+    .empty-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 300px;
+      
+      .create-topic-button {
+        --background: #4f46e5;
+        --color: white;
+        --border-radius: 12px;
+        font-weight: 600;
+        height: 48px;
+      }
+      
+      .create-topic-button-alt {
+        --border-color: #4f46e5;
+        --color: #4f46e5;
+        --border-radius: 12px;
+        font-weight: 500;
+        height: 44px;
+      }
     }
   }
   
