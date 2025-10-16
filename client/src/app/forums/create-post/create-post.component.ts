@@ -12,7 +12,7 @@ import {
   AlertController,
   IonicModule,
   NavController,
-  ToastController
+  ToastController,
 } from '@ionic/angular';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -24,12 +24,20 @@ interface ForumCategory {
   description: string;
   icon: string;
   color: string;
+  forums: Forum[];
+}
+
+interface Forum {
+  id: string;
+  name: string;
+  description: string;
+  categoryId: string;
 }
 
 interface CreatePostForm {
   title: string;
   content: string;
-  categoryId: string;
+  forumId: string; // Changed from categoryId to forumId
   tags: string[];
 }
 
@@ -94,7 +102,7 @@ export class CreatePostComponent implements OnInit {
         Validators.maxLength(this.maxContentLength),
       ],
     ],
-    categoryId: ['', Validators.required],
+    forumId: ['', Validators.required], // Changed from categoryId to forumId
   });
 
   ngOnInit() {
@@ -121,22 +129,35 @@ export class CreatePostComponent implements OnInit {
     this.isLoading = true;
     this.forumService.getCategories().subscribe({
       next: (response: any) => {
+        console.log('Categories API Response:', response); // Debug log
         if (response && response.success) {
-          const categories = response.data.map((category: any) => ({
-            id: category.id,
-            name: category.name,
-            description: category.description,
-            icon: category.icon || 'chatbubbles-outline',
-            color: category.color || '#3880ff',
-          }));
+          // Simple approach - just process the data as is
+          const categories = response.data
+            .filter(
+              (category: any) => category.forums && category.forums.length > 0
+            )
+            .map((category: any) => ({
+              id: category.id,
+              name: category.name,
+              description: category.description,
+              icon: category.icon || 'chatbubbles-outline',
+              color: category.color || '#3880ff',
+              forums: category.forums.map((forum: any) => ({
+                id: forum.id,
+                name: forum.name,
+                description: forum.description,
+                categoryId: category.id,
+              })),
+            }));
+
           this.categories.set(categories);
 
-          // Set default category if available
-          if (
-            categories.length > 0 &&
-            !this.postForm.get('categoryId')?.value
-          ) {
-            this.postForm.patchValue({ categoryId: categories[0].id });
+          // Set default forum if available
+          if (categories.length > 0 && !this.postForm.get('forumId')?.value) {
+            const firstCategory = categories[0];
+            if (firstCategory.forums && firstCategory.forums.length > 0) {
+              this.postForm.patchValue({ forumId: firstCategory.forums[0].id });
+            }
           }
         }
         this.isLoading = false;
@@ -145,12 +166,9 @@ export class CreatePostComponent implements OnInit {
         console.error('Error loading categories:', error);
         this.errorMessage = 'Failed to load categories';
         this.isLoading = false;
-
-        // Fallback to mock categories
       },
     });
   }
-
 
   addTag() {
     const tag = this.currentTag.trim().toLowerCase();
@@ -176,6 +194,31 @@ export class CreatePostComponent implements OnInit {
       this.addTag();
     }
   }
+  selectedCategory: any = null;
+  selectedForum: any = null;
+  
+  onForumSelect(event: any) {
+    const selectedForumId = event.detail.value;
+    console.log('Selected Forum ID:', selectedForumId);
+    
+    // Find the selected forum and its parent category
+    this.selectedForum = null;
+    this.selectedCategory = null;
+
+    
+    
+    this.categories().forEach((category) => {
+      const foundForum = category.forums.find(
+        (forum) => forum.categoryId === selectedForumId
+      );
+      if (foundForum) {
+        this.selectedForum = foundForum;
+        this.selectedCategory = category;
+        console.log('Selected Forum:', foundForum);
+        console.log('Parent Category:', category);
+      }
+    });
+  }
 
   submitPost() {
     if (this.postForm.invalid) {
@@ -198,16 +241,19 @@ export class CreatePostComponent implements OnInit {
     }
     const id = JSON.parse(userInfo).user.id;
 
-    // Create the post data
-    const postData = {
+    // Create the thread data - CORRECTED to match backend API
+    const threadData = {
       title: formValue.title.trim(),
       content: formValue.content.trim(),
-      categoryId: formValue.categoryId,
-      tags: this.selectedTags,
+      forumId: this.selectedForum.id, // Use the forumId from the form control
       authorId: id,
+      tags: this.selectedTags,
+      // tags are not part of the backend CreateForumThreadDto
+      // You might need to handle tags separately or extend the backend
     };
+
     this.forumService
-      .createForumPost(postData as any)
+      .createForumThread(threadData as any)
       .pipe(
         catchError((error: any) => {
           console.error('Error creating post:', error);

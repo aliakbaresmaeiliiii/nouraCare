@@ -406,6 +406,7 @@ model forum_threads {
   forum_posts ForumPost[]
   user        user        @relation(fields: [authorId], references: [id])
   forums      forums      @relation(fields: [forumId], references: [id], onDelete: Cascade)
+  tags        Json?
 
   @@index([authorId])
   @@index([forumId])

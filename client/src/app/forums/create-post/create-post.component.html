@@ -28,38 +28,42 @@
 
     <!-- Form Section -->
     <form [formGroup]="postForm" (ngSubmit)="submitPost()" class="post-form">
-      <!-- Category Selection -->
+      <!-- Forum Selection -->
       <div class="form-section">
         <ion-item class="form-item" lines="none">
           <ion-label position="stacked" class="form-label">
             <ion-icon name="folder-outline" class="label-icon"></ion-icon>
-            Category
+            Forum
             <span class="required">*</span>
           </ion-label>
           <ion-select
-            formControlName="categoryId"
+            formControlName="forumId"
             interface="action-sheet"
-            placeholder="Select a category"
-            class="category-select"
+            placeholder="Select a forum"
+            class="forum-select"
             [disabled]="isLoading"
+            (ionChange)="onForumSelect($event)"
           >
-            @for (item of categories(); track $index) {
-            <ion-select-option [value]="item.id" [style.--color]="item.color">
-              <div class="category-option">
-                <ion-icon
-                  [name]="item.icon"
-                  [style.color]="item.color"
-                ></ion-icon>
-                <span class="category-name">{{ item.name }}</span>
-                <span class="category-desc">{{ item.description }}</span>
-              </div>
-            </ion-select-option>
+            @for (category of categories(); track category.id) {
+                @if (category.id && category.name) {
+                <ion-select-option [value]="category.id" >
+                  <div class="forum-option">
+                    <ion-icon
+                      [name]="category.icon"
+                      [style.color]="category.color"
+                    ></ion-icon>
+                    <div class="forum-info">
+                      <span class="forum-name">{{ category.name }}</span>
+                    </div>
+                  </div>
+                </ion-select-option>
+                }
             }
           </ion-select>
         </ion-item>
-        @if (postForm.get('categoryId')?.invalid &&
-        postForm.get('categoryId')?.touched) {
-        <div class="error-message">Please select a category</div>
+        @if (postForm.get('forumId')?.invalid &&
+        postForm.get('forumId')?.touched) {
+        <div class="error-message">Please select a forum</div>
         }
       </div>
 
@@ -195,13 +199,19 @@
           <div class="tag-suggestions">
             @for (tag of popularTags; track tag) {
             <ion-chip
-              color="medium"
-              outline="true"
+              [color]="selectedTags.includes(tag) ? 'primary' : 'medium'"
+              [outline]="!selectedTags.includes(tag)"
               (click)="addPopularTag(tag)"
+              [disabled]="selectedTags.includes(tag)"
               class="suggestion-chip"
+              [class.selected]="selectedTags.includes(tag)"
             >
               <ion-label>{{ tag }}</ion-label>
+              @if (selectedTags.includes(tag)) {
+              <ion-icon name="checkmark"></ion-icon>
+              } @else {
               <ion-icon name="add"></ion-icon>
+              }
             </ion-chip>
             }
           </div>

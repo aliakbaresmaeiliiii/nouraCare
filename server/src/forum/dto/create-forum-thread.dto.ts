@@ -11,7 +11,7 @@ export class CreateForumThreadDto {
 
   @IsString()
   @IsNotEmpty()
-  categoryId: string;
+  forumId: string; 
 
   @IsBoolean()
   @IsOptional()

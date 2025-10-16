@@ -231,6 +231,30 @@
         transform: translateY(-1px);
       }
       
+      &.selected {
+        --background: var(--ion-color-primary);
+        --color: white;
+        cursor: default;
+        transform: none;
+        
+        &:hover {
+          --background: var(--ion-color-primary);
+          --color: white;
+          transform: none;
+        }
+      }
+      
+      &[disabled] {
+        opacity: 0.7;
+        cursor: not-allowed;
+        
+        &:hover {
+          --background: rgba(var(--ion-color-medium-rgb), 0.1);
+          --color: var(--ion-color-medium);
+          transform: none;
+        }
+      }
+      
       ion-icon {
         font-size: 1rem;
         margin-left: 4px;

@@ -166,12 +166,11 @@ export class ForumService {
   }
 
   createPost(postData: CreatePostDto) {
-    debugger;
     return this.http.post<PostResponse>(this.forumPostsBaseUrl, postData);
   }
 
   createForumPost(postData: CreateForumPostDto) {
-    return this.http.post<any>(this.forumPostsBaseUrl, postData);
+    return this.http.post<any>(this.forumThreadsBaseUrl, postData);
   }
 
   createForumThread(threadData: CreateForumThreadDto) {

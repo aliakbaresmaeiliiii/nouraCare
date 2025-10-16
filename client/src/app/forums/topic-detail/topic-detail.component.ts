@@ -157,36 +157,59 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     this.forumService.fetchThreadById(threadId).subscribe({
       next: (response: any) => {
         if (response?.success) {
-          debugger;
           const thread = response.data;
           
           // Handle paginated response structure
           const posts = thread.posts || [];
           const pagination = thread.pagination || { page: 1, limit: 20, total: 0, totalPages: 1 };
           
-          // Transform API response to component interface
-          this.topic = {
-            id: parseInt(threadId),
-            title: thread.title,
-            content: thread.content,
-            author: thread.author?.name || 'Anonymous',
-            authorAvatar: thread.author?.profileImage || '',
-            category: thread.forum?.title || 'General Discussion',
-            replies: pagination.total || thread._count?.posts || 0,
-            views: thread.viewCount || 0,
-            lastReply: thread.updatedAt,
-            isPinned: thread.isPinned || false,
-            isLocked: thread.isLocked || false,
-            tags: [],
-            forumId: thread.forum?.id || '',
-            createdAt: thread.createdAt,
-            posts: posts,
-          };
+          // Find the main topic post (first post or post without parentId)
+          const mainPost = posts.find((post: any) => !post.parentId) || posts[0];
+          if (mainPost) {
+            // Transform API response to component interface
+            this.topic = {
+              id: parseInt(threadId),
+              title: mainPost.title || 'Untitled',
+              content: mainPost.content || 'No content',
+              author: mainPost.user?.name || 'Anonymous',
+              authorAvatar: mainPost.user?.profileImage || '',
+              category: mainPost.forum?.title || 'General Discussion',
+              replies: pagination.total || mainPost._count?.posts || 0,
+              views: mainPost.viewCount || 0,
+              lastReply: mainPost.updatedAt || mainPost.createdAt,
+              isPinned: mainPost.isPinned || false,
+              isLocked: mainPost.isLocked || false,
+              tags: [],
+              forumId: mainPost.forum?.id || '',
+              createdAt: mainPost.createdAt || new Date().toISOString(),
+              posts: posts,
+            };
+          } else {
+            // Fallback if no posts found
+            this.topic = {
+              id: parseInt(threadId),
+              title: 'Untitled',
+              content: 'No content available',
+              author: 'Anonymous',
+              authorAvatar: '',
+              category: 'General Discussion',
+              replies: 0,
+              views: 0,
+              lastReply: new Date().toISOString(),
+              isPinned: false,
+              isLocked: false,
+              tags: [],
+              forumId: '',
+              createdAt: new Date().toISOString(),
+              posts: [],
+            };
+          }
           
           this.storeData.set(thread);
           
-          // Set comments from the posts array
-          this.comments.set(posts || []);
+          // Set comments from the posts array (excluding the main post)
+          const comments = posts.filter((post: any) => post.id !== mainPost?.id);
+          this.comments.set(comments || []);
         } else {
           this.errorMessage = 'Failed to load topic details';
         }
@@ -401,8 +424,42 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
     if (target) {
-      target.src = '';
+      // Create a fallback SVG avatar with user initials
+      const authorName = target.alt || 'User';
+      const initials = this.getInitials(authorName);
+      const backgroundColor = this.stringToColor(authorName);
+      
+      const svgString = `
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="20" fill="${backgroundColor}"/>
+          <text x="20" y="25" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">${initials}</text>
+        </svg>
+      `;
+      
+      target.src = 'data:image/svg+xml;base64,' + btoa(svgString);
     }
+  }
+
+  private getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(part => part.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
+  }
+
+  private stringToColor(str: string): string {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const colors = [
+      '#3880ff', '#5260ff', '#2dd36f', '#ffc409', '#eb445a',
+      '#92949c', '#0cd1e8', '#7044ff', '#ff3d71', '#2fdf75'
+    ];
+    
+    return colors[Math.abs(hash) % colors.length];
   }
 
   goBack() {

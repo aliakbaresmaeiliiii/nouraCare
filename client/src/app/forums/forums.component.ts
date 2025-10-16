@@ -113,7 +113,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.fetchDataCategories();
-    this.loadTopics();
+    // this.loadTopics();
     this.handleQueryParams();
     this.setupPostDeletionListener();
     this.setupPostCreationListener();
@@ -234,8 +234,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
   loadCategories() {
     this.isLoading.set(true);
     this.errorMessage.set('');
-    const storeData = this.forumsService.getStoreDataCategory();
-    // this.categories.set(storeData());
   }
 
   loadTopics() {

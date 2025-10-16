@@ -8,6 +8,7 @@ import {
 import { CreateForumThreadDto } from './dto/create-forum-thread.dto';
 import { UpdateForumThreadDto } from './dto/update-forum-thread.dto';
 import { PrismaService } from '../prisma/services/prisma.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ForumThreadsService {
@@ -15,61 +16,111 @@ export class ForumThreadsService {
 
 
   async create(createForumThreadDto: CreateForumThreadDto, authorId: number) {
-    // Validate input
-    if (!createForumThreadDto.title?.trim()) {
-      throw new BadRequestException('Title is required');
-    }
-    if (!createForumThreadDto.content?.trim()) {
-      throw new BadRequestException('Content is required');
-    }
-    if (!createForumThreadDto.categoryId) {
-      throw new BadRequestException('Category ID is required');
-    }
+    try {
+      // Validate input
+      if (!createForumThreadDto.title?.trim()) {
+        throw new BadRequestException('Title is required');
+      }
+      if (!createForumThreadDto.content?.trim()) {
+        throw new BadRequestException('Content is required');
+      }
+      if (!createForumThreadDto.forumId?.trim()) {
+        throw new BadRequestException('Forum ID is required');
+      }
 
-    // Check if forum exists and is active
-    const forum = await this.prismaService.forums.findUnique({
-      where: { id: createForumThreadDto.categoryId },
-    });
+      // Validate title and content length
+      if (createForumThreadDto.title.trim().length < 3) {
+        throw new BadRequestException('Title must be at least 3 characters long');
+      }
+      if (createForumThreadDto.content.trim().length < 10) {
+        throw new BadRequestException('Content must be at least 10 characters long');
+      }
 
-    if (!forum) {
-      throw new NotFoundException('Forum not found');
-    }
+      // Check if forum exists and is active
+      const forum = await this.prismaService.forums.findUnique({
+        where: { id: createForumThreadDto.forumId },
+      });
 
-    // Check if forum is active
-    if (!forum.isActive) {
-      throw new ConflictException('Cannot create thread in inactive forum');
-    }
+      if (!forum) {
+        throw new NotFoundException(`Forum with ID ${createForumThreadDto.forumId} not found`);
+      }
 
-    // Create the forum thread
-    return this.prismaService.forum_threads.create({
-      data: {
-        title: createForumThreadDto.title,
-        content: createForumThreadDto.content,
-        forumId: createForumThreadDto.categoryId,
-        authorId: authorId,
-        isPinned: createForumThreadDto.isPinned || false,
-        isLocked: createForumThreadDto.isLocked || false,
-      } as any, // Type assertion to bypass Prisma type issues
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            profileImage: true,
+      // Check if forum is active
+      if (!forum.isActive) {
+        throw new ConflictException('Cannot create thread in inactive forum');
+      }
+
+      // Check if user exists
+      const user = await this.prismaService.user.findUnique({
+        where: { id: authorId },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Generate UUID for the thread ID
+      const threadId = uuidv4();
+
+      // Create the forum thread with type assertion to bypass Prisma type issues
+      const createdThread = await this.prismaService.forum_threads.create({
+        data: {
+          title: createForumThreadDto.title.trim(),
+          content: createForumThreadDto.content.trim(),
+          forumId: createForumThreadDto.forumId,
+          authorId: authorId,
+          isPinned: createForumThreadDto.isPinned || false,
+          isLocked: createForumThreadDto.isLocked || false,
+          updatedAt: new Date(),
+          viewCount: 0,
+          id: threadId,
+          tags: createForumThreadDto.tags || [], // Temporarily disabled until Prisma client is regenerated
+        } as any, // Type assertion to bypass Prisma type issues
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              profileImage: true,
+            },
+          },
+          forums: {
+            include: {
+              forum_categories: true,
+            },
+          },
+          _count: {
+            select: {
+              forum_posts: true,
+            },
           },
         },
-        forums: {
-          include: {
-            forum_categories: true,
-          },
-        },
-        _count: {
-          select: {
-            forum_posts: true,
-          },
-        },
-      },
-    });
+      });
+
+      return createdThread;
+    } catch (error) {
+      // Handle Prisma-specific errors
+      if (error.code === 'P2002') {
+        throw new ConflictException('A thread with similar data already exists');
+      }
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid foreign key reference');
+      }
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Referenced record not found');
+      }
+
+      // Re-throw NestJS exceptions
+      if (error instanceof BadRequestException || 
+          error instanceof NotFoundException || 
+          error instanceof ConflictException) {
+        throw error;
+      }
+
+      // Log unexpected errors and throw generic error
+      console.error('Unexpected error creating forum thread:', error);
+      throw new BadRequestException('Failed to create forum thread. Please try again.');
+    }
   }
 
   async findAll(forumId?: string, page: number = 1, limit: number = 20) {
