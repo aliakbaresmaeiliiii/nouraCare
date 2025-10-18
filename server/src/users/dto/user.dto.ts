@@ -11,7 +11,12 @@ import {
   IsUrl,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Status } from '@prisma/client';
+
+export enum PregnancyStatus {
+  PLANNING_PREGNANCY = 'PLANNING_PREGNANCY',
+  PREGNANT = 'PREGNANT',
+  NOT_PLANNING = 'NOT_PLANNING',
+}
 
 export class CreateUserDto {
   @IsEmail()
@@ -43,8 +48,8 @@ export class CreateUserDto {
   profileImage?: string;
 
   @IsOptional()
-  @IsEnum(Status)
-  status?: Status;
+  @IsEnum(PregnancyStatus)
+  status?: PregnancyStatus;
 
   @IsOptional()
   @IsInt()
@@ -103,8 +108,8 @@ export class UpdateUserDto {
   profileImage?: string;
 
   @IsOptional()
-  @IsEnum(Status)
-  status?: Status;
+  @IsEnum(PregnancyStatus)
+  status?: PregnancyStatus;
 
   @IsOptional()
   @IsInt()

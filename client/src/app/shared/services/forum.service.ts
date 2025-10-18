@@ -149,7 +149,7 @@ export class ForumService {
     limit: number = 20
   ) {
     return this.http.get<ThreadsResponse>(
-      `${this.forumThreadsBaseUrl}/${categoryId}?page=${page}&limit=${limit}`
+      `${this.forumThreadsBaseUrl}/category/${categoryId}?page=${page}&limit=${limit}`
     );
   }
 

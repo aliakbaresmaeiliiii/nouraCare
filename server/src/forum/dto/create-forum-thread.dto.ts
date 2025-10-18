@@ -7,21 +7,17 @@ export class CreateForumThreadDto {
 
   @IsString()
   @IsNotEmpty()
-  content: string;
+  description: string;
 
   @IsString()
   @IsNotEmpty()
-  forumId: string; 
+  categoryId: string; 
 
   @IsBoolean()
   @IsOptional()
-  isPinned?: boolean;
+  isPublic?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  isLocked?: boolean;
-
-  @IsArray()
-  @IsOptional()
-  tags?: string[];
+  isActive?: boolean;
 }

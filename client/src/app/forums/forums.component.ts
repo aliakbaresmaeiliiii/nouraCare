@@ -7,12 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  Subject,
-  debounceTime,
-  distinctUntilChanged,
-  takeUntil
-} from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { ForumService } from '../shared/services/forum.service';
 import { SharedModule } from '../shared/shared-module';
 
@@ -203,7 +198,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.forumsService.getCategories().subscribe({
       next: (response: any) => {
         console.log('Categories response:', response);
-        if (response && response.success) {
+        if (response.success === true) {
           this.isLoading.set(false);
           // Map the backend data to our frontend interface
           const categories = response.data.map((category: any) => ({
@@ -219,6 +214,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
             isPopular: false, // You can set this based on some criteria
           }));
           // Update both service store and component signal
+          debugger;
           this.forumsService.setStoreDataCategory(categories);
           this.categories.set(categories);
         }
@@ -240,7 +236,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-
     // Check cache first
     const cachedTopics = this.topicsCache.get('all');
     if (cachedTopics) {
@@ -250,7 +245,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
     }
     this.forumsService.getAllThreads().subscribe({
       next: (response: any) => {
-        console.log('Forum threads response:', response);
         if (response && response.success) {
           this.isLoading.set(false);
           // Map the backend data to our frontend interface
@@ -325,7 +319,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       this.isLoading.set(false);
       return;
     }
-
+    debugger;
     this.forumsService.getThreadsByCategory(categoryId).subscribe({
       next: (response: any) => {
         if (response && response.success) {
@@ -358,7 +352,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('Error loading category topics:', error);
         this.isLoading.set(false);
-        
+
         // For 404 or empty responses, treat as empty category instead of error
         if (error.status === 404 || error.status === 400) {
           this.topics.set([]);
@@ -380,7 +374,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     if (categoryId) {
       // Navigate to create-post with category ID as query parameter
       this.router.navigate(['/forums/create-post'], {
-        queryParams: { category: categoryId }
+        queryParams: { category: categoryId },
       });
     } else {
       this.router.navigate(['/forums/create-post']);

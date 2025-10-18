@@ -56,7 +56,6 @@ export class ForumThreadsController {
     };
   }
 
-
   @Get('search')
   async search(
     @Query('q') query: string,
@@ -98,6 +97,23 @@ export class ForumThreadsController {
     };
   }
 
+  @Get('category/:categoryId')
+  async findByCategory(
+    @Param('categoryId') categoryId: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 20,
+  ) {
+    const threads = await this.forumThreadsService.findAll(
+      categoryId,
+      page,
+      limit,
+    );
+    return {
+      success: true,
+      data: threads,
+    };
+  }
+
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   async update(
@@ -133,5 +149,4 @@ export class ForumThreadsController {
       message: 'Forum thread deleted successfully',
     };
   }
-
 }

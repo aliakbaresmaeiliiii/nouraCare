@@ -13,17 +13,13 @@ export class ForumService {
     return this.prisma.forumCategory.findMany({
       where: { isActive: true },
       include: {
-        forums: {
+        forum_thread: {
           where: { isActive: true },
           include: {
-            forum_threads: {
-              include: {
-                _count: {
-                  select: {
-                    forum_posts: {
-                      where: { isDeleted: false },
-                    },
-                  },
+            _count: {
+              select: {
+                forum_posts: {
+                  where: { isDeleted: false },
                 },
               },
             },
@@ -38,21 +34,11 @@ export class ForumService {
   async getTopicsByCategory(categoryId: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
     
-    // First get forums in this category, then get threads for those forums
-    const forums = await this.prisma.forums.findMany({
-      where: { 
-        categoryId,
-        isActive: true,
-      },
-      select: { id: true }
-    });
-
-    const forumIds = forums.map(forum => forum.id);
-    
     const [topics, total] = await Promise.all([
-      this.prisma.forum_threads.findMany({
+      this.prisma.forum_thread.findMany({
         where: { 
-          forumId: { in: forumIds },
+          categoryId,
+          isActive: true,
         },
         include: {
           _count: {
@@ -81,9 +67,10 @@ export class ForumService {
         skip,
         take: limit,
       }),
-      this.prisma.forum_threads.count({
+      this.prisma.forum_thread.count({
         where: { 
-          forumId: { in: forumIds },
+          categoryId,
+          isActive: true,
         },
       }),
     ]);
@@ -157,13 +144,9 @@ export class ForumService {
             profileImage: true,
           },
         },
-        forum_threads: {
+        forum_thread: {
           include: {
-            forums: {
-              include: {
-                forum_categories: true,
-              },
-            },
+            forum_categories: true,
           },
         },
         _count: {
@@ -183,7 +166,7 @@ export class ForumService {
 
   async createPost(createPostDto: CreatePostDto, userId: number) {
     // Verify topic exists
-    const topic = await this.prisma.forum_threads.findFirst({
+    const topic = await this.prisma.forum_thread.findFirst({
       where: { 
         id: createPostDto.topicId,
       },

@@ -21,33 +21,33 @@ export class ForumThreadsService {
       if (!createForumThreadDto.title?.trim()) {
         throw new BadRequestException('Title is required');
       }
-      if (!createForumThreadDto.content?.trim()) {
-        throw new BadRequestException('Content is required');
+      if (!createForumThreadDto.description?.trim()) {
+        throw new BadRequestException('Description is required');
       }
-      if (!createForumThreadDto.forumId?.trim()) {
-        throw new BadRequestException('Forum ID is required');
+      if (!createForumThreadDto.categoryId?.trim()) {
+        throw new BadRequestException('Category ID is required');
       }
 
-      // Validate title and content length
+      // Validate title and description length
       if (createForumThreadDto.title.trim().length < 3) {
         throw new BadRequestException('Title must be at least 3 characters long');
       }
-      if (createForumThreadDto.content.trim().length < 10) {
-        throw new BadRequestException('Content must be at least 10 characters long');
+      if (createForumThreadDto.description.trim().length < 10) {
+        throw new BadRequestException('Description must be at least 10 characters long');
       }
 
-      // Check if forum exists and is active
-      const forum = await this.prismaService.forums.findUnique({
-        where: { id: createForumThreadDto.forumId },
+      // Check if category exists and is active
+      const category = await this.prismaService.forumCategory.findUnique({
+        where: { id: createForumThreadDto.categoryId },
       });
 
-      if (!forum) {
-        throw new NotFoundException(`Forum with ID ${createForumThreadDto.forumId} not found`);
+      if (!category) {
+        throw new NotFoundException(`Category with ID ${createForumThreadDto.categoryId} not found`);
       }
 
-      // Check if forum is active
-      if (!forum.isActive) {
-        throw new ConflictException('Cannot create thread in inactive forum');
+      // Check if category is active
+      if (!category.isActive) {
+        throw new ConflictException('Cannot create thread in inactive category');
       }
 
       // Check if user exists
@@ -63,18 +63,16 @@ export class ForumThreadsService {
       const threadId = uuidv4();
 
       // Create the forum thread with type assertion to bypass Prisma type issues
-      const createdThread = await this.prismaService.forum_threads.create({
+      const createdThread = await this.prismaService.forum_thread.create({
         data: {
           title: createForumThreadDto.title.trim(),
-          content: createForumThreadDto.content.trim(),
-          forumId: createForumThreadDto.forumId,
-          authorId: authorId,
-          isPinned: createForumThreadDto.isPinned || false,
-          isLocked: createForumThreadDto.isLocked || false,
+          description: createForumThreadDto.description.trim(),
+          categoryId: createForumThreadDto.categoryId,
+          createdById: authorId,
+          isPublic: createForumThreadDto.isPublic || true,
+          isActive: createForumThreadDto.isActive || true,
           updatedAt: new Date(),
-          viewCount: 0,
           id: threadId,
-          tags: createForumThreadDto.tags || [], // Temporarily disabled until Prisma client is regenerated
         } as any, // Type assertion to bypass Prisma type issues
         include: {
           user: {
@@ -84,11 +82,7 @@ export class ForumThreadsService {
               profileImage: true,
             },
           },
-          forums: {
-            include: {
-              forum_categories: true,
-            },
-          },
+          forum_categories: true,
           _count: {
             select: {
               forum_posts: true,
@@ -123,17 +117,17 @@ export class ForumThreadsService {
     }
   }
 
-  async findAll(forumId?: string, page: number = 1, limit: number = 20) {
+  async findAll(categoryId?: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
     const where: any = {};
 
-    if (forumId) {
-      where.forumId = forumId;
+    if (categoryId) {
+      where.categoryId = categoryId;
     }
 
     const [threads, total] = await Promise.all([
-      this.prismaService.forum_threads.findMany({
+      this.prismaService.forum_thread.findMany({
         where,
         include: {
           user: {
@@ -143,11 +137,7 @@ export class ForumThreadsService {
               profileImage: true,
             },
           },
-          forums: {
-            include: {
-              forum_categories: true,
-            },
-          },
+          forum_categories: true,
           _count: {
             select: {
               forum_posts: true,
@@ -158,7 +148,7 @@ export class ForumThreadsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forum_threads.count({ where }),
+      this.prismaService.forum_thread.count({ where }),
     ]);
 
     return {
@@ -173,7 +163,7 @@ export class ForumThreadsService {
   }
 
   async findOne(id: string) {
-    const thread = await this.prismaService.forum_threads.findUnique({
+    const thread = await this.prismaService.forum_thread.findUnique({
       where: { id },
       include: {
         user: {
@@ -183,11 +173,7 @@ export class ForumThreadsService {
             profileImage: true,
           },
         },
-        forums: {
-          include: {
-            forum_categories: true,
-          },
-        },
+        forum_categories: true,
         _count: {
           select: {
             forum_posts: true,
@@ -203,12 +189,39 @@ export class ForumThreadsService {
     return thread;
   }
 
+  async findByCategory(categoryId: string) {
+    const thread = await this.prismaService.forum_thread.findFirst({
+      where: { categoryId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            profileImage: true,
+          },
+        },
+        forum_categories: true,
+        _count: {
+          select: {
+            forum_posts: true,
+          },
+        },
+      },
+    });
+
+    if (!thread) {
+      throw new NotFoundException('Forum thread not found for this category');
+    }
+
+    return thread;
+  }
+
   async update(
     id: string,
     updateForumThreadDto: UpdateForumThreadDto,
     userId: number,
   ) {
-    const thread = await this.prismaService.forum_threads.findUnique({
+    const thread = await this.prismaService.forum_thread.findUnique({
       where: { id },
     });
 
@@ -217,13 +230,8 @@ export class ForumThreadsService {
     }
 
     // Check if user is the creator of the thread
-    if (thread.authorId !== userId) {
+    if (thread.createdById !== userId) {
       throw new ForbiddenException('You can only update your own forum threads');
-    }
-
-    // Check if thread is locked
-    if (thread.isLocked) {
-      throw new ConflictException('Cannot update a locked thread');
     }
 
     const updateData: any = {};
@@ -232,19 +240,19 @@ export class ForumThreadsService {
       updateData.title = updateForumThreadDto.title;
     }
     
-    if (updateForumThreadDto.content?.trim()) {
-      updateData.content = updateForumThreadDto.content;
+    if (updateForumThreadDto.description?.trim()) {
+      updateData.description = updateForumThreadDto.description;
     }
 
-    if (updateForumThreadDto.isPinned !== undefined) {
-      updateData.isPinned = updateForumThreadDto.isPinned;
+    if (updateForumThreadDto.isPublic !== undefined) {
+      updateData.isPublic = updateForumThreadDto.isPublic;
     }
 
-    if (updateForumThreadDto.isLocked !== undefined) {
-      updateData.isLocked = updateForumThreadDto.isLocked;
+    if (updateForumThreadDto.isActive !== undefined) {
+      updateData.isActive = updateForumThreadDto.isActive;
     }
 
-    return this.prismaService.forum_threads.update({
+    return this.prismaService.forum_thread.update({
       where: { id },
       data: updateData,
       include: {
@@ -255,11 +263,7 @@ export class ForumThreadsService {
             profileImage: true,
           },
         },
-        forums: {
-          include: {
-            forum_categories: true,
-          },
-        },
+        forum_categories: true,
         _count: {
           select: {
             forum_posts: true,
@@ -270,7 +274,7 @@ export class ForumThreadsService {
   }
 
   async remove(id: string, userId: number) {
-    const thread = await this.prismaService.forum_threads.findUnique({
+    const thread = await this.prismaService.forum_thread.findUnique({
       where: { id },
     });
 
@@ -279,12 +283,12 @@ export class ForumThreadsService {
     }
 
     // Check if user is the creator of the thread
-    if (thread.authorId !== userId) {
+    if (thread.createdById !== userId) {
       throw new ForbiddenException('You can only delete your own forum threads');
     }
 
     // Delete the forum thread (hard delete since there's no soft delete field)
-    return this.prismaService.forum_threads.delete({
+    return this.prismaService.forum_thread.delete({
       where: { id },
     });
   }
@@ -293,11 +297,11 @@ export class ForumThreadsService {
     const skip = (page - 1) * limit;
 
     const [threads, total] = await Promise.all([
-      this.prismaService.forum_threads.findMany({
+      this.prismaService.forum_thread.findMany({
         where: {
           OR: [
             { title: { contains: query } },
-            { content: { contains: query } },
+            { description: { contains: query } },
           ],
         },
         include: {
@@ -308,11 +312,7 @@ export class ForumThreadsService {
               profileImage: true,
             },
           },
-          forums: {
-            include: {
-              forum_categories: true,
-            },
-          },
+          forum_categories: true,
           _count: {
             select: {
               forum_posts: true,
@@ -323,11 +323,11 @@ export class ForumThreadsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forum_threads.count({
+      this.prismaService.forum_thread.count({
         where: {
           OR: [
             { title: { contains: query } },
-            { content: { contains: query } },
+            { description: { contains: query } },
           ],
         },
       }),

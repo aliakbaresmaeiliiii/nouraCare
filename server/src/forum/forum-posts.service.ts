@@ -9,9 +9,7 @@ import { UpdateForumPostDto } from './dto/update-forum-post.dto';
 
 @Injectable()
 export class ForumPostsService {
-  constructor(
-    private readonly prismaService: PrismaService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async create(createForumPostDto: CreateForumPostDto, authorId: number) {
     // First, verify that the author exists
@@ -24,9 +22,9 @@ export class ForumPostsService {
     }
 
     // Verify topic exists
-    const topic = await this.prismaService.forum_threads.findFirst({
-      where: { 
-        id: createForumPostDto.categoryId ,
+    const topic = await this.prismaService.forum_thread.findFirst({
+      where: {
+        id: createForumPostDto.categoryId,
       },
     });
 
@@ -37,7 +35,7 @@ export class ForumPostsService {
     // If this is a reply, check if parent comment exists
     if (createForumPostDto.parentId) {
       const parentComment = await this.prismaService.comment.findFirst({
-        where: { 
+        where: {
           id: createForumPostDto.parentId,
         },
       });
@@ -61,15 +59,11 @@ export class ForumPostsService {
             profileImage: true,
           },
         },
-        forum_threads: {
+        forum_thread: {
           include: {
-            forums: {
-              include: {
-                forum_categories: true,
-              },
+            forum_categories: true,
             },
-          },
-        },
+            },
         _count: {
           select: {
             likes: true,
@@ -182,13 +176,9 @@ export class ForumPostsService {
             profileImage: true,
           },
         },
-        forum_threads: {
+       forum_thread: {
           include: {
-            forums: {
-              include: {
-                forum_categories: true,
-              },
-            },
+            forum_categories: true,
           },
         },
         _count: {
@@ -241,13 +231,9 @@ export class ForumPostsService {
             profileImage: true,
           },
         },
-        forum_threads: {
+        forum_thread: {
           include: {
-            forums: {
-              include: {
-                forum_categories: true,
-              },
-            },
+            forum_categories: true,
           },
         },
         _count: {

@@ -28,8 +28,7 @@ model user {
   comments                  Comment[]       @relation("CommentAuthor")
   forumPostLikes            ForumPostLike[]
   forum_posts               ForumPost[]
-  forum_threads             forum_threads[]
-  forums                    forums[]
+  forum_thread              forum_thread[]
   readMessages              MessageRead[]   @relation("MessageReads")
   postLikes                 PostLike[]      @relation("PostLikes")
   posts                     Post[]          @relation("PostAuthor")
@@ -96,7 +95,7 @@ model ForumCategory {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  forums      forums[]
+  forum_thread forum_thread[]
 
   @@map("forum_categories")
 }
@@ -114,7 +113,7 @@ model ForumPost {
   user              user            @relation(fields: [authorId], references: [id])
   forum_posts       ForumPost?      @relation("forum_postsToforum_posts", fields: [parentId], references: [id])
   other_forum_posts ForumPost[]     @relation("forum_postsToforum_posts")
-  forum_threads     forum_threads   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  forum_thread      forum_thread    @relation(fields: [threadId], references: [id], onDelete: Cascade)
 
   @@index([authorId])
   @@index([parentId])
@@ -392,27 +391,7 @@ model OnboardingData {
   @@map("onboarding_data")
 }
 
-model forum_threads {
-  id          String      @id
-  title       String
-  content     String      @db.Text
-  forumId     String
-  authorId    Int
-  isPinned    Boolean     @default(false)
-  isLocked    Boolean     @default(false)
-  viewCount   Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime
-  forum_posts ForumPost[]
-  user        user        @relation(fields: [authorId], references: [id])
-  forums      forums      @relation(fields: [forumId], references: [id], onDelete: Cascade)
-  tags        Json?
-
-  @@index([authorId])
-  @@index([forumId])
-}
-
-model forums {
+model forum_thread {
   id               String          @id
   title            String
   description      String          @db.Text
@@ -422,7 +401,7 @@ model forums {
   isActive         Boolean         @default(true)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime
-  forum_threads    forum_threads[]
+  forum_posts      ForumPost[]
   forum_categories ForumCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   user             user            @relation(fields: [createdById], references: [id])
 
@@ -462,9 +441,4 @@ enum user_role {
   USER
   ADMIN
   MODERATOR
-}
-
-enum Status{
-  isActive
-  Active
 }

@@ -10,7 +10,6 @@ import {
   Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Status } from '@prisma/client';
 
 export class OnboardingDataDto {
   @IsOptional()

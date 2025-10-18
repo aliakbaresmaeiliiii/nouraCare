@@ -10,12 +10,12 @@ import {
   Max,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Status } from '@prisma/client';
+import { PregnancyStatus } from './user.dto';
 
 export class OnboardingDataDto {
   @IsOptional()
-  @IsEnum(Status)
-  pregnancyStatus?: Status;
+  @IsEnum(PregnancyStatus)
+  pregnancyStatus?: PregnancyStatus;
 
   @IsOptional()
   @Type(() => Date)
