@@ -12,80 +12,11 @@ import {
 import { Share } from '@capacitor/share';
 import { of } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
-import {
-  CreateForumThreadDto,
-  CreatePostDto,
-  ForumService,
-  ThreadDetailResponse,
-} from '@app/shared/services/forum.service';
+import { ForumService } from '@app/shared/services/forum.service';
+import { CreatePostDto, ForumTopic,Comment, CreateForumThreadDto } from '@app/shared/models/forum';
+
 
 // Strongly typed interfaces
-interface ForumTopic {
-  id: number;
-  title: string;
-  content: string;
-  author: string;
-  authorAvatar?: string;
-  category: string;
-  replies: number;
-  views: number;
-  lastReply: string;
-  isPinned: boolean;
-  isLocked: boolean;
-  tags: string[];
-  forumId: string;
-  forum?: Forum[];
-  createdAt: string;
-  posts?: Comment[];
-}
-
-interface Forum {
-  categoryId: string;
-  createdAt: string;
-  createdById: number;
-  description: string;
-  id: string;
-  isActive: boolean;
-  isPublic: boolean;
-  category: Categories[];
-  title: string;
-  updatedAt: string;
-}
-
-interface Categories {
-  color: string;
-  createdAt: string;
-  description: string;
-  icon: string;
-  id: string;
-  isActive: boolean;
-  name: string;
-  order: number;
-  slug: string;
-  updatedAt: string;
-}
-
-interface Comment {
-  id: string;
-  content: string;
-  author: {
-    id: number;
-    name: string;
-    profileImage: string | null;
-  };
-  authorId: number;
-  threadId: string;
-  parentId: string | null;
-  isDeleted: boolean;
-  createdAt: string;
-  updatedAt: string;
-  replies: Comment[];
-  isLiked?: boolean;
-  _count: {
-    likes: number;
-    replies: number;
-  };
-}
 
 @Component({
   selector: 'app-topic-detail',
@@ -140,10 +71,12 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     this.topicId.set(this.route.snapshot.paramMap.get('id'));
     if (this.topicId()) {
       this.loadTopicDetail(this.topicId());
+
     } else {
       this.errorMessage = 'Topic not found';
     }
   }
+
 
   loadTopicDetail(threadId: string | null) {
     if (!threadId) {
@@ -160,36 +93,34 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
           const thread = response.data;
           
           // Handle paginated response structure
-          const posts = thread.posts || [];
           const pagination = thread.pagination || { page: 1, limit: 20, total: 0, totalPages: 1 };
-          
+          debugger;
           // Find the main topic post (first post or post without parentId)
-          const mainPost = posts.find((post: any) => !post.parentId) || posts[0];
-          if (mainPost) {
+          if (thread) {
             // Transform API response to component interface
             this.topic = {
-              id: parseInt(threadId),
-              title: mainPost.title || 'Untitled',
-              content: mainPost.content || 'No content',
-              author: mainPost.user?.name || 'Anonymous',
-              authorAvatar: mainPost.user?.profileImage || '',
-              category: mainPost.forum?.title || 'General Discussion',
-              replies: pagination.total || mainPost._count?.posts || 0,
-              views: mainPost.viewCount || 0,
-              lastReply: mainPost.updatedAt || mainPost.createdAt,
-              isPinned: mainPost.isPinned || false,
-              isLocked: mainPost.isLocked || false,
+              id: threadId,
+              title: thread.title || 'Untitled',
+              description: thread.description || 'No content',
+              author: thread.user?.name || 'Anonymous',
+              authorAvatar: thread.user?.profileImage || '',
+              category: thread.forum?.title || 'General Discussion',
+              replies: pagination.total || thread._count?.posts || 0,
+              views: thread.viewCount || 0,
+              lastReply: thread.updatedAt || thread.createdAt,
+              isPinned: thread.isPinned || false,
+              isLocked: thread.isLocked || false,
               tags: [],
-              forumId: mainPost.forum?.id || '',
-              createdAt: mainPost.createdAt || new Date().toISOString(),
-              posts: posts,
+              forumId: thread.forum?.id || '',
+              createdAt: thread.createdAt || new Date().toISOString(),
+              // posts: posts,
             };
           } else {
             // Fallback if no posts found
             this.topic = {
-              id: parseInt(threadId),
+              id: threadId,
               title: 'Untitled',
-              content: 'No content available',
+              description: 'No content available',
               author: 'Anonymous',
               authorAvatar: '',
               category: 'General Discussion',
@@ -200,16 +131,16 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               isLocked: false,
               tags: [],
               forumId: '',
-              createdAt: new Date().toISOString(),
               posts: [],
+              createdAt: new Date().toISOString(),
             };
           }
           
           this.storeData.set(thread);
           
           // Set comments from the posts array (excluding the main post)
-          const comments = posts.filter((post: any) => post.id !== mainPost?.id);
-          this.comments.set(comments || []);
+          // const comments = posts.filter((post: any) => post.id !== thread?.id);
+          // this.comments.set(comments || []);
         } else {
           this.errorMessage = 'Failed to load topic details';
         }
@@ -506,7 +437,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     try {
       const shareData = {
         title: this.topic.title,
-        text: `${this.topic.content.substring(0, 200)}...`,
+        text: `${this.topic.description.substring(0, 200)}...`,
         url: `${window.location.origin}/forums/topic/${this.topic.id}`,
       };
 
@@ -735,7 +666,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     if (!this.topic) return;
     this.isEditingPost = true;
     this.editPostTitle = this.topic.title;
-    this.editPostContent = this.topic.content;
+    this.editPostContent = this.topic.description;
   }
 
   cancelEditPost() {
@@ -754,16 +685,16 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (title === this.topic.title && content === this.topic.content) {
+    if (title === this.topic.title && content === this.topic.description) {
       this.cancelEditPost();
       return;
     }
 
     // Optimistic update
     const originalTitle = this.topic.title;
-    const originalContent = this.topic.content;
+    const originalDescription = this.topic.description;
     this.topic.title = title;
-    this.topic.content = content;
+    this.topic.description = content;
     this.forumService
       .editPost(this.topicId(), title, content)
       .pipe(
@@ -773,7 +704,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
           } else {
             // Revert optimistic update on failure
             this.topic!.title = originalTitle;
-            this.topic!.content = originalContent;
+            this.topic!.description = originalDescription;
             this.showToast(
               'Failed to update post: ' +
                 (response?.message || 'Unknown error'),
@@ -784,7 +715,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
         catchError((error: any) => {
           // Revert optimistic update on error
           this.topic!.title = originalTitle;
-          this.topic!.content = originalContent;
+          this.topic!.description = originalDescription;
 
           if (error.status === 403) {
             this.showToast(

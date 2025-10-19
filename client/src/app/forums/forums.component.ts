@@ -10,34 +10,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { ForumService } from '../shared/services/forum.service';
 import { SharedModule } from '../shared/shared-module';
+import { ForumCategory, ForumTopic } from '@app/shared/models/forum';
 
-interface ForumCategory {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-  topicsCount: number;
-  postsCount: number;
-  lastActivity: string;
-  isPopular: boolean;
-}
 
-interface ForumTopic {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  authorAvatar?: string;
-  category: string;
-  replies: number;
-  views: number;
-  lastReply: string;
-  isPinned: boolean;
-  isLocked: boolean;
-  tags: string[];
-  createdAt: string;
-}
 
 @Component({
   selector: 'app-forums',
@@ -87,7 +62,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     return topics.filter(
       (topic) =>
         topic.title.toLowerCase().includes(query) ||
-        topic.content.toLowerCase().includes(query) ||
+        topic.description.toLowerCase().includes(query) ||
         topic.author.toLowerCase().includes(query) ||
         topic.tags.some((tag) => tag.toLowerCase().includes(query))
     );
@@ -125,7 +100,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     const newTopic: ForumTopic = {
       id: topicData.id,
       title: topicData.title,
-      content: topicData.content,
+      description: topicData.description,
       author: topicData.author?.name || 'Anonymous',
       authorAvatar:
         topicData.author?.profileImage || '/assets/images/nurse.png',
@@ -136,6 +111,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       isPinned: false,
       isLocked: false,
       tags: topicData.tags || [],
+      forumId: topicData.forumId,
       createdAt: topicData.createdAt,
     };
 
@@ -214,7 +190,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
             isPopular: false, // You can set this based on some criteria
           }));
           // Update both service store and component signal
-          debugger;
           this.forumsService.setStoreDataCategory(categories);
           this.categories.set(categories);
         }
@@ -319,7 +294,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
       this.isLoading.set(false);
       return;
     }
-    debugger;
     this.forumsService.getThreadsByCategory(categoryId).subscribe({
       next: (response: any) => {
         if (response && response.success) {
@@ -328,7 +302,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
           const threads = response.data.threads.map((thread: any) => ({
             id: thread.id,
             title: thread.title,
-            content: thread.content,
+            description: thread.description,
             author: thread.author?.name || 'Anonymous',
             authorAvatar: thread.author?.avatar || '/assets/images/nurse.png',
             category: thread.category?.name || 'General Discussion',
@@ -366,7 +340,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
   }
 
   openTopic(topic: ForumTopic) {
-    // Navigate to topic detail page
+    this.forumsService.setTopicDetail(topic);
     this.router.navigate(['/forums/topic', topic.id]);
   }
 

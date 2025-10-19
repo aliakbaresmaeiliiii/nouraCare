@@ -129,20 +129,20 @@ export class CreatePostComponent implements OnInit {
     this.isLoading = true;
     this.forumService.getCategories().subscribe({
       next: (response: any) => {
-        console.log('Categories API Response:', response); // Debug log
         if (response && response.success) {
           // Simple approach - just process the data as is
           const categories = response.data
             .filter(
-              (category: any) => category.forums && category.forums.length > 0
+              (category: any) =>
+                category.forum_thread && category.forum_thread.length > 0
             )
             .map((category: any) => ({
               id: category.id,
               name: category.name,
               description: category.description,
               icon: category.icon || 'chatbubbles-outline',
-              color: category.color || '#3880ff',
-              forums: category.forums.map((forum: any) => ({
+              forum_thread: category.color || '#3880ff',
+              forums: category.forum_thread.map((forum: any) => ({
                 id: forum.id,
                 name: forum.name,
                 description: forum.description,
@@ -196,17 +196,13 @@ export class CreatePostComponent implements OnInit {
   }
   selectedCategory: any = null;
   selectedForum: any = null;
-  
+
   onForumSelect(event: any) {
     const selectedForumId = event.detail.value;
-    console.log('Selected Forum ID:', selectedForumId);
-    
     // Find the selected forum and its parent category
     this.selectedForum = null;
     this.selectedCategory = null;
 
-    
-    
     this.categories().forEach((category) => {
       const foundForum = category.forums.find(
         (forum) => forum.categoryId === selectedForumId
@@ -214,8 +210,6 @@ export class CreatePostComponent implements OnInit {
       if (foundForum) {
         this.selectedForum = foundForum;
         this.selectedCategory = category;
-        console.log('Selected Forum:', foundForum);
-        console.log('Parent Category:', category);
       }
     });
   }
@@ -240,12 +234,11 @@ export class CreatePostComponent implements OnInit {
       return;
     }
     const id = JSON.parse(userInfo).user.id;
-
     // Create the thread data - CORRECTED to match backend API
     const threadData = {
       title: formValue.title.trim(),
-      content: formValue.content.trim(),
-      forumId: this.selectedForum.id, // Use the forumId from the form control
+      description: formValue.content.trim(),
+      categoryId: this.selectedCategory.id, // Use the forumId from the form control
       authorId: id,
       tags: this.selectedTags,
       // tags are not part of the backend CreateForumThreadDto

@@ -2,110 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { of, Subject, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import {
-  EditPostResponse
-} from '../interfaces/forum.interface';
+import { EditPostResponse } from '../interfaces/forum.interface';
 import { ThreadsResponse } from './forum-threads.service';
 import { environment } from 'environments/environment';
-export interface ThreadDetailResponse {
-  success: boolean;
-  data: {
-    id: string;
-    title: string;
-    content: string;
-    author: {
-      id: number;
-      name: string;
-      profileImage: string | null;
-    };
-    forum: {
-      id: string;
-      title: string;
-      description: string;
-      categoryId: string;
-    };
-    isLocked: boolean;
-    isPinned: boolean;
-    viewCount: number;
-    createdAt: string;
-    updatedAt: string;
-    posts: Array<{
-      id: string;
-      content: string;
-      author: {
-        id: number;
-        name: string;
-        profileImage: string | null;
-      };
-      authorId: number;
-      threadId: string;
-      parentId: string | null;
-      isDeleted: boolean;
-      createdAt: string;
-      updatedAt: string;
-      replies: any[];
-      _count: {
-        likes: number;
-        replies: number;
-      };
-    }>;
-    _count: {
-      posts: number;
-    };
-  };
-}
+import { CreateForumPostDto, CreateForumThreadDto, CreatePostDto, ForumTopic, LikeResponse, PostResponse, ThreadDetailResponse } from '../models/forum';
 
-export interface CreatePostDto {
-  content: string;
-  threadId: string;
-  parentId?: string | null;
-  forumId?: string;
-}
-
-export interface CreateForumPostDto {
-  title: string;
-  content: string;
-  categoryId: string;
-  tags?: string[];
-  authorId: number;
-}
-
-export interface CreateForumThreadDto {
-  title: string;
-  content: string;
-  forumId: string;
-  authorId: number;
-}
-
-export interface PostResponse {
-  success: boolean;
-  data: {
-    id: string;
-    content: string;
-    author: {
-      id: number;
-      name: string;
-      profileImage: string | null;
-    };
-    authorId: number;
-    threadId: string;
-    parentId: string | null;
-    isDeleted: boolean;
-    createdAt: string;
-    updatedAt: string;
-    _count: {
-      likes: number;
-      replies: number;
-    };
-  };
-}
-
-export interface LikeResponse {
-  success: boolean;
-  data: {
-    liked: boolean;
-  };
-}
 
 @Injectable({
   providedIn: 'root',
@@ -117,9 +18,18 @@ export class ForumService {
   // Event emitter for post deletion
   private postDeletedSubject = new Subject<string>();
   postDeleted$ = this.postDeletedSubject.asObservable();
+  topicDetail = signal<ForumTopic | null>(null);
+
+  setTopicDetail(data: ForumTopic) {
+    this.topicDetail.set(data);
+  }
+
+  getTopicDetail() {
+    return this.topicDetail;
+  }
 
   postCreated = signal<boolean>(false);
-  
+
   storeDataCategory = signal<any[]>([]);
 
   setStoreDataCategory(data: any[]) {
@@ -161,7 +71,7 @@ export class ForumService {
 
   fetchThreadById(threadId: string | null) {
     return this.http.get<ThreadDetailResponse>(
-      `${this.forumPostsBaseUrl}/thread/${threadId}`
+      `${this.forumThreadsBaseUrl}/${threadId}`
     );
   }
 
