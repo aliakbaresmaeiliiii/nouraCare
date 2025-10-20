@@ -1,22 +1,20 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
-  Delete,
-  Body,
-  Param,
   Query,
   Req,
-  UseGuards,
-  HttpException,
-  HttpStatus,
+  UseGuards
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ForumService } from './forum.service';
-import { CreatePostDto } from './dto/create-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { CreatePostDto } from './dto/create-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { ForumService } from './forum.service';
 
 
 @Controller('api/v1/forum')
@@ -91,7 +89,7 @@ export class ForumController {
   }
 
   // Comments
-  @Post('comment')
+  @Post('create-comment')
   @UseGuards(JwtAuthGuard)
   async createComment(@Body() createCommentDto: CreateCommentDto, @Req() req: any) {
     const userId = req.user.id;

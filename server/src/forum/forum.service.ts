@@ -201,21 +201,20 @@ export class ForumService {
 
   // Comments
   async createComment(createCommentDto: CreateCommentDto, userId: number) {
-    // Verify post exists and is not deleted
-    const post = await this.prisma.forumPost.findFirst({
+    // Verify forum thread exists
+    const thread = await this.prisma.forum_thread.findFirst({
       where: { 
-        id: createCommentDto.postId,
-        isDeleted: false,
+        id: createCommentDto.id,
       },
     });
 
-    if (!post) {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+    if (!thread) {
+      throw new HttpException('Thread not found', HttpStatus.NOT_FOUND);
     }
 
     // If parentId is provided, verify parent comment exists
     if (createCommentDto.parentId) {
-      const parentComment = await this.prisma.comment.findFirst({
+      const parentComment = await this.prisma.forumComment.findFirst({
         where: { 
           id: createCommentDto.parentId,
         },
@@ -226,10 +225,10 @@ export class ForumService {
       }
     }
 
-    return this.prisma.comment.create({
+    return this.prisma.forumComment.create({
       data: {
         content: createCommentDto.content,
-        postId: createCommentDto.postId,
+        threadId: createCommentDto.id,
         authorId: userId,
         parentId: createCommentDto.parentId,
       },
@@ -252,7 +251,7 @@ export class ForumService {
 
   async updateComment(id: string, updateCommentDto: UpdateCommentDto, userId: number) {
     // Find comment and verify ownership
-    const comment = await this.prisma.comment.findFirst({
+    const comment = await this.prisma.forumComment.findFirst({
       where: { 
         id,
       },
@@ -266,7 +265,7 @@ export class ForumService {
       throw new HttpException('You can only edit your own comments', HttpStatus.FORBIDDEN);
     }
 
-    return this.prisma.comment.update({
+    return this.prisma.forumComment.update({
       where: { id },
       data: {
         content: updateCommentDto.content,
@@ -290,7 +289,7 @@ export class ForumService {
 
   async deleteComment(id: string, userId: number) {
     // Find comment and verify ownership
-    const comment = await this.prisma.comment.findFirst({
+    const comment = await this.prisma.forumComment.findFirst({
       where: { 
         id,
       },
@@ -305,7 +304,7 @@ export class ForumService {
     }
 
     // Delete the comment
-    await this.prisma.comment.delete({
+    await this.prisma.forumComment.delete({
       where: { id },
     });
   }

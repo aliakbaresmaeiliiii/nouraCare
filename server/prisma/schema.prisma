@@ -26,6 +26,7 @@ model user {
   sentMessages              ChatMessage[]   @relation("MessageSender")
   commentLikes              CommentLike[]   @relation("CommentLikes")
   comments                  Comment[]       @relation("CommentAuthor")
+  forumComments             ForumComment[]  @relation("ForumCommentAuthor")
   forumPostLikes            ForumPostLike[]
   forum_posts               ForumPost[]
   forum_thread              forum_thread[]
@@ -85,16 +86,16 @@ model PostCategory {
 }
 
 model ForumCategory {
-  id          String   @id @default(uuid())
-  name        String
-  description String   @db.Text
-  slug        String   @unique
-  color       String?
-  icon        String?
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String         @id @default(uuid())
+  name         String
+  description  String         @db.Text
+  slug         String         @unique
+  color        String?
+  icon         String?
+  order        Int            @default(0)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
   forum_thread forum_thread[]
 
   @@map("forum_categories")
@@ -392,21 +393,42 @@ model OnboardingData {
 }
 
 model forum_thread {
-  id               String          @id
+  id               String         @id
   title            String
-  description      String          @db.Text
+  description      String         @db.Text
   categoryId       String
   createdById      Int
-  isPublic         Boolean         @default(true)
-  isActive         Boolean         @default(true)
-  createdAt        DateTime        @default(now())
+  isPublic         Boolean        @default(true)
+  isActive         Boolean        @default(true)
+  createdAt        DateTime       @default(now())
   updatedAt        DateTime
+  forum_comments   ForumComment[]
   forum_posts      ForumPost[]
-  forum_categories ForumCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  user             user            @relation(fields: [createdById], references: [id])
+  forum_categories ForumCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user             user           @relation(fields: [createdById], references: [id])
 
   @@index([categoryId])
   @@index([createdById])
+}
+
+model ForumComment {
+  id           String         @id @default(uuid())
+  content      String         @db.Text
+  threadId     String
+  authorId     Int
+  parentId     String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  isAnonymous  Boolean        @default(false)
+  author       user           @relation("ForumCommentAuthor", fields: [authorId], references: [id])
+  parent       ForumComment?  @relation("ForumCommentReplies", fields: [parentId], references: [id])
+  replies      ForumComment[] @relation("ForumCommentReplies")
+  forum_thread forum_thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([parentId])
+  @@index([threadId])
+  @@map("forum_comments")
 }
 
 enum MemberRole {

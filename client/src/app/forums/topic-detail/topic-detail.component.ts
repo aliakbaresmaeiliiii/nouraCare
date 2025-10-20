@@ -13,8 +13,12 @@ import { Share } from '@capacitor/share';
 import { of } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { ForumService } from '@app/shared/services/forum.service';
-import { CreatePostDto, ForumTopic,Comment, CreateForumThreadDto } from '@app/shared/models/forum';
-
+import {
+  CreateCommentDto,
+  ForumTopic,
+  Comment,
+  CreateForumThreadDto,
+} from '@app/shared/models/forum';
 
 // Strongly typed interfaces
 
@@ -50,8 +54,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   editPostContent = '';
   topicId = signal<string | null>(null);
   storeData = signal<any | null>(null);
-
   router = inject(Router);
+  userId = signal<number | null>(null);
   // Computed properties for better performance
   get canEditOrDeletePost(): boolean {
     if (!this.topic) return false;
@@ -68,15 +72,19 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    const userInfo = localStorage.getItem('userInfo');
+    if (userInfo) {
+      const user = JSON.parse(userInfo);
+      this.userId.set(user.id);
+    }
+
     this.topicId.set(this.route.snapshot.paramMap.get('id'));
     if (this.topicId()) {
       this.loadTopicDetail(this.topicId());
-
     } else {
       this.errorMessage = 'Topic not found';
     }
   }
-
 
   loadTopicDetail(threadId: string | null) {
     if (!threadId) {
@@ -91,10 +99,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response?.success) {
           const thread = response.data;
-          
+
           // Handle paginated response structure
-          const pagination = thread.pagination || { page: 1, limit: 20, total: 0, totalPages: 1 };
-          debugger;
+          const pagination = thread.pagination || {
+            page: 1,
+            limit: 20,
+            total: 0,
+            totalPages: 1,
+          };
           // Find the main topic post (first post or post without parentId)
           if (thread) {
             // Transform API response to component interface
@@ -135,16 +147,16 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               createdAt: new Date().toISOString(),
             };
           }
-          
+
           this.storeData.set(thread);
-          
+
           // Set comments from the posts array (excluding the main post)
           // const comments = posts.filter((post: any) => post.id !== thread?.id);
           // this.comments.set(comments || []);
         } else {
           this.errorMessage = 'Failed to load topic details';
         }
-        
+
         this.isLoading = false;
       },
       error: (error: any) => {
@@ -167,15 +179,19 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     }
 
     this.isSubmittingComment = true;
-    const threadId = this.topicId();
-    const postData: CreatePostDto = {
+    const topicId = this.topicId();
+    const userId = this.userId();
+    // const parentId = this.storeData().forum_categories?.id || null;
+    debugger;
+
+    const createComment: CreateCommentDto = {
+
       content: this.newComment.trim(),
-      threadId: threadId!,
-      parentId: null,
+      id: topicId!,
     };
 
     this.forumService
-      .createPost(postData)
+      .createComment(createComment)
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
@@ -273,9 +289,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
     const payload = {
       content: replyText,
-      threadId: this.topicId()!,
+      id: this.topicId()!,
       parentId: commentId,
       forumId: forumId,
+      userId: this.userId()!,
     };
 
     this.forumService
@@ -284,7 +301,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
         tap((response: any) => {
           if (response && response.success) {
             // Find the parent comment and add the reply
-            const parentComment = this.comments().find((c) => c.id === commentId);
+            const parentComment = this.comments().find(
+              (c) => c.id === commentId
+            );
             if (parentComment) {
               if (!parentComment.replies) {
                 parentComment.replies = [];
@@ -359,14 +378,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       const authorName = target.alt || 'User';
       const initials = this.getInitials(authorName);
       const backgroundColor = this.stringToColor(authorName);
-      
+
       const svgString = `
         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="20" cy="20" r="20" fill="${backgroundColor}"/>
           <text x="20" y="25" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">${initials}</text>
         </svg>
       `;
-      
+
       target.src = 'data:image/svg+xml;base64,' + btoa(svgString);
     }
   }
@@ -374,7 +393,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   private getInitials(name: string): string {
     return name
       .split(' ')
-      .map(part => part.charAt(0).toUpperCase())
+      .map((part) => part.charAt(0).toUpperCase())
       .slice(0, 2)
       .join('');
   }
@@ -384,12 +403,20 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     for (let i = 0; i < str.length; i++) {
       hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
-    
+
     const colors = [
-      '#3880ff', '#5260ff', '#2dd36f', '#ffc409', '#eb445a',
-      '#92949c', '#0cd1e8', '#7044ff', '#ff3d71', '#2fdf75'
+      '#3880ff',
+      '#5260ff',
+      '#2dd36f',
+      '#ffc409',
+      '#eb445a',
+      '#92949c',
+      '#0cd1e8',
+      '#7044ff',
+      '#ff3d71',
+      '#2fdf75',
     ];
-    
+
     return colors[Math.abs(hash) % colors.length];
   }
 
@@ -500,7 +527,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
         tap((response: any) => {
           if (response && response.success) {
             this.comments.set(
-              this.comments().map((c) => (c.id === comment.id ? response.data : c))
+              this.comments().map((c) =>
+                c.id === comment.id ? response.data : c
+              )
             );
             this.showToast('Comment updated successfully!', 'success');
           } else {

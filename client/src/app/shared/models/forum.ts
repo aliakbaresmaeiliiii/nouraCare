@@ -46,9 +46,9 @@ export interface ThreadDetailResponse {
   };
 }
 
-export interface CreatePostDto {
+export interface CreateCommentDto {
   content: string;
-  threadId: string;
+  id: string;
   parentId?: string | null;
   forumId?: string;
 }

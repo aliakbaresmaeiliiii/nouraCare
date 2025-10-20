@@ -5,7 +5,7 @@ import { catchError, map } from 'rxjs/operators';
 import { EditPostResponse } from '../interfaces/forum.interface';
 import { ThreadsResponse } from './forum-threads.service';
 import { environment } from 'environments/environment';
-import { CreateForumPostDto, CreateForumThreadDto, CreatePostDto, ForumTopic, LikeResponse, PostResponse, ThreadDetailResponse } from '../models/forum';
+import { CreateForumPostDto, CreateForumThreadDto, CreateCommentDto, ForumTopic, LikeResponse, PostResponse, ThreadDetailResponse } from '../models/forum';
 
 
 @Injectable({
@@ -46,6 +46,7 @@ export class ForumService {
 
   private forumThreadsBaseUrl = environment.apiEndPoint + 'forum-threads';
   private forumPostsBaseUrl = environment.apiEndPoint + 'forum-posts';
+  private forumBaseUrl = environment.apiEndPoint + 'forum';
 
   getAllThreads(page: number = 1, limit: number = 20) {
     return this.http.get<ThreadsResponse>(
@@ -75,8 +76,8 @@ export class ForumService {
     );
   }
 
-  createPost(postData: CreatePostDto) {
-    return this.http.post<PostResponse>(this.forumPostsBaseUrl, postData);
+  createComment(createComment: CreateCommentDto) {
+    return this.http.post<PostResponse>(`${this.forumBaseUrl}/create-comment`, createComment);
   }
 
   createForumPost(postData: CreateForumPostDto) {
@@ -94,12 +95,13 @@ export class ForumService {
     );
   }
 
-  replyToComment(payload: CreatePostDto) {
-    const replyData: CreatePostDto = {
+  replyToComment(payload: CreateCommentDto) {
+    const replyData: CreateCommentDto = {
       content: payload.content,
-      threadId: payload.threadId,
+      id: payload.id,
       parentId: payload.parentId,
       forumId: payload.forumId,
+      
     };
 
     return this.http.post<PostResponse>(this.forumPostsBaseUrl, replyData);
