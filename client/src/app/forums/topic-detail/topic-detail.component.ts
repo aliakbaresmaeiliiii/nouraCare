@@ -150,9 +150,43 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
           this.storeData.set(thread);
 
-          // Set comments from the posts array (excluding the main post)
-          // const comments = posts.filter((post: any) => post.id !== thread?.id);
-          // this.comments.set(comments || []);
+          // Set comments from the forum_comments array
+          const comments = thread.forum_comments || [];
+          
+          // Transform API response comments to match component interface
+          const transformedComments = comments.map((comment: {
+            id: string;
+            content: string;
+            user?: { id: number; name: string; profileImage: string | null };
+            parentId?: string | null;
+            createdAt?: string;
+            updatedAt?: string;
+            replies?: any[];
+            isLiked?: boolean;
+            _count?: { likes?: number; replies?: number };
+          }) => ({
+            id: comment.id,
+            content: comment.content,
+            author: {
+              id: comment.user?.id || 0,
+              name: comment.user?.name || 'Anonymous',
+              profileImage: comment.user?.profileImage || null
+            },
+            authorId: comment.user?.id || 0,
+            threadId: threadId,
+            parentId: comment.parentId || null,
+            isDeleted: false,
+            createdAt: comment.createdAt || new Date().toISOString(),
+            updatedAt: comment.updatedAt || new Date().toISOString(),
+            replies: comment.replies || [],
+            isLiked: comment.isLiked || false,
+            _count: {
+              likes: comment._count?.likes || 0,
+              replies: comment._count?.replies || 0
+            }
+          }));
+          
+          this.comments.set(transformedComments);
         } else {
           this.errorMessage = 'Failed to load topic details';
         }
@@ -181,24 +215,70 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     this.isSubmittingComment = true;
     const topicId = this.topicId();
     const userId = this.userId();
-    // const parentId = this.storeData().forum_categories?.id || null;
     debugger;
 
     const createComment: CreateCommentDto = {
-
       content: this.newComment.trim(),
       id: topicId!,
     };
+
+    // Get user info for optimistic update
+    const userInfo = localStorage.getItem('userInfo');
+    const currentUser = userInfo ? JSON.parse(userInfo) : null;
+
+    // Create optimistic comment
+    const optimisticComment: Comment = {
+      id: 'temp-' + Date.now(), // Temporary ID
+      content: this.newComment.trim(),
+      author: {
+        id: currentUser?.id || 0,
+        name: currentUser?.name || 'You',
+        profileImage: currentUser?.profileImage || null
+      },
+      authorId: currentUser?.id || 0,
+      threadId: topicId!,
+      parentId: null,
+      isDeleted: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      replies: [],
+      isLiked: false,
+      _count: {
+        likes: 0,
+        replies: 0
+      }
+    };
+
+    // Optimistic update - add comment immediately to UI
+    this.comments.update(comments => [optimisticComment, ...comments]);
+    this.newComment = '';
 
     this.forumService
       .createComment(createComment)
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            // this.comments.unshift(response.data);
-            this.newComment = '';
+            // Replace optimistic comment with actual response data
+            this.comments.update(comments => 
+              comments.map(comment => 
+                comment.id === optimisticComment.id 
+                  ? {
+                      ...response.data,
+                      author: {
+                        id: response.data.author?.id || currentUser?.id || 0,
+                        name: response.data.author?.name || currentUser?.name || 'You',
+                        profileImage: response.data.author?.profileImage || currentUser?.profileImage || null
+                      }
+                    }
+                  : comment
+              )
+            );
             this.showToast('Comment posted successfully!', 'success');
           } else {
+            // Remove optimistic comment on failure
+            this.comments.update(comments => 
+              comments.filter(comment => comment.id !== optimisticComment.id)
+            );
             this.showToast(
               'Failed to post comment: ' +
                 (response?.message || 'Unknown error'),
@@ -207,6 +287,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
           }
         }),
         catchError((error: any) => {
+          // Remove optimistic comment on error
+          this.comments.update(comments => 
+            comments.filter(comment => comment.id !== optimisticComment.id)
+          );
           this.showToast(
             'Failed to post comment: ' +
               (error.error?.message || error.message || 'Network error'),

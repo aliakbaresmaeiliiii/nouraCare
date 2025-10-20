@@ -152,7 +152,7 @@
       </div>
 
       <!-- Empty Comments State -->
-      @if (comments.length === 0) {
+      @if (comments().length === 0) {
       <div class="empty-comments">
         <ion-icon name="chatbubbles-outline" class="empty-icon"></ion-icon>
         <h3 class="empty-title">No Comments Yet</h3>
@@ -161,7 +161,7 @@
       }
 
       <!-- Comments List -->
-      @if (comments.length > 0) {
+      @if (comments().length > 0) {
       <ion-list  class="comments-list">
         @for (comment of comments(); track comment.id) {
         <ion-item class="comment-item" [attr.data-comment-id]="comment.id">

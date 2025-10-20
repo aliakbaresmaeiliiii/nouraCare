@@ -174,9 +174,46 @@ export class ForumThreadsService {
           },
         },
         forum_categories: true,
+        forum_comments: {
+          where: {
+            parentId: null, // Only get top-level comments (not replies)
+          },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                profileImage: true,
+              },
+            },
+            replies: {
+              include: {
+                author: {
+                  select: {
+                    id: true,
+                    name: true,
+                    profileImage: true,
+                  },
+                },
+              },
+              orderBy: {
+                createdAt: 'asc',
+              },
+            },
+            _count: {
+              select: {
+                replies: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
         _count: {
           select: {
             forum_posts: true,
+            forum_comments: true,
           },
         },
       },
