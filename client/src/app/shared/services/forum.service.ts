@@ -88,9 +88,15 @@ export class ForumService {
     return this.http.post<any>(this.forumThreadsBaseUrl, threadData);
   }
 
-  likePost(postId: string) {
+  likeComment(commentId: string) {
     return this.http.post<LikeResponse>(
-      `${this.forumPostsBaseUrl}/${postId}/like`,
+      `${this.forumBaseUrl}/comment/${commentId}/reaction`,
+      {}
+    );
+  }
+  unLikeComment(commentId: string) {
+    return this.http.post<LikeResponse>(
+      `${this.forumBaseUrl}/comment/${commentId}/unLike`,
       {}
     );
   }

@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { LikeCommentDto } from './dto/like-comment.dto';
 import { ForumService } from './forum.service';
 
 
@@ -125,6 +126,28 @@ export class ForumController {
     return {
       success: true,
       message: 'Comment deleted successfully',
+    };
+  }
+
+  // Simple Like System for Comments
+  @Post('comment/:id/like')
+  @UseGuards(JwtAuthGuard)
+  async likeComment(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user.id;
+    const result = await this.forumService.toggleCommentLike(id, userId);
+    return {
+      success: true,
+      message: result.userLiked ? 'Comment liked successfully' : 'Comment unliked successfully',
+      data: result,
+    };
+  }
+
+  @Get('comment/:id/likes')
+  async getCommentLikes(@Param('id') id: string) {
+    const result = await this.forumService.getCommentLikes(id);
+    return {
+      success: true,
+      data: result,
     };
   }
 }

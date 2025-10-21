@@ -152,40 +152,42 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
           // Set comments from the forum_comments array
           const comments = thread.forum_comments || [];
-          
+
           // Transform API response comments to match component interface
-          const transformedComments = comments.map((comment: {
-            id: string;
-            content: string;
-            user?: { id: number; name: string; profileImage: string | null };
-            parentId?: string | null;
-            createdAt?: string;
-            updatedAt?: string;
-            replies?: any[];
-            isLiked?: boolean;
-            _count?: { likes?: number; replies?: number };
-          }) => ({
-            id: comment.id,
-            content: comment.content,
-            author: {
-              id: comment.user?.id || 0,
-              name: comment.user?.name || 'Anonymous',
-              profileImage: comment.user?.profileImage || null
-            },
-            authorId: comment.user?.id || 0,
-            threadId: threadId,
-            parentId: comment.parentId || null,
-            isDeleted: false,
-            createdAt: comment.createdAt || new Date().toISOString(),
-            updatedAt: comment.updatedAt || new Date().toISOString(),
-            replies: comment.replies || [],
-            isLiked: comment.isLiked || false,
-            _count: {
-              likes: comment._count?.likes || 0,
-              replies: comment._count?.replies || 0
-            }
-          }));
-          
+          const transformedComments = comments.map(
+            (comment: {
+              id: string;
+              content: string;
+              user?: { id: number; name: string; profileImage: string | null };
+              parentId?: string | null;
+              createdAt?: string;
+              updatedAt?: string;
+              replies?: any[];
+              isLiked?: boolean;
+              _count?: { likes?: number; replies?: number };
+            }) => ({
+              id: comment.id,
+              content: comment.content,
+              author: {
+                id: comment.user?.id || 0,
+                name: comment.user?.name || 'Anonymous',
+                profileImage: comment.user?.profileImage || null,
+              },
+              authorId: comment.user?.id || 0,
+              threadId: threadId,
+              parentId: comment.parentId || null,
+              isDeleted: false,
+              createdAt: comment.createdAt || new Date().toISOString(),
+              updatedAt: comment.updatedAt || new Date().toISOString(),
+              replies: comment.replies || [],
+              isLiked: comment.isLiked || false,
+              _count: {
+                likes: comment._count?.likes || 0,
+                replies: comment._count?.replies || 0,
+              },
+            })
+          );
+
           this.comments.set(transformedComments);
         } else {
           this.errorMessage = 'Failed to load topic details';
@@ -233,7 +235,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       author: {
         id: currentUser?.id || 0,
         name: currentUser?.name || 'You',
-        profileImage: currentUser?.profileImage || null
+        profileImage: currentUser?.profileImage || null,
       },
       authorId: currentUser?.id || 0,
       threadId: topicId!,
@@ -245,12 +247,12 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       isLiked: false,
       _count: {
         likes: 0,
-        replies: 0
-      }
+        replies: 0,
+      },
     };
 
     // Optimistic update - add comment immediately to UI
-    this.comments.update(comments => [optimisticComment, ...comments]);
+    this.comments.update((comments) => [optimisticComment, ...comments]);
     this.newComment = '';
 
     this.forumService
@@ -259,16 +261,22 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
         tap((response: any) => {
           if (response && response.success) {
             // Replace optimistic comment with actual response data
-            this.comments.update(comments => 
-              comments.map(comment => 
-                comment.id === optimisticComment.id 
+            this.comments.update((comments) =>
+              comments.map((comment) =>
+                comment.id === optimisticComment.id
                   ? {
                       ...response.data,
                       author: {
                         id: response.data.author?.id || currentUser?.id || 0,
-                        name: response.data.author?.name || currentUser?.name || 'You',
-                        profileImage: response.data.author?.profileImage || currentUser?.profileImage || null
-                      }
+                        name:
+                          response.data.author?.name ||
+                          currentUser?.name ||
+                          'You',
+                        profileImage:
+                          response.data.author?.profileImage ||
+                          currentUser?.profileImage ||
+                          null,
+                      },
                     }
                   : comment
               )
@@ -276,8 +284,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
             this.showToast('Comment posted successfully!', 'success');
           } else {
             // Remove optimistic comment on failure
-            this.comments.update(comments => 
-              comments.filter(comment => comment.id !== optimisticComment.id)
+            this.comments.update((comments) =>
+              comments.filter((comment) => comment.id !== optimisticComment.id)
             );
             this.showToast(
               'Failed to post comment: ' +
@@ -288,8 +296,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
         }),
         catchError((error: any) => {
           // Remove optimistic comment on error
-          this.comments.update(comments => 
-            comments.filter(comment => comment.id !== optimisticComment.id)
+          this.comments.update((comments) =>
+            comments.filter((comment) => comment.id !== optimisticComment.id)
           );
           this.showToast(
             'Failed to post comment: ' +
@@ -307,7 +315,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
   likeComment(commentId: string) {
     this.forumService
-      .likePost(commentId)
+      .likeComment(commentId)
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
@@ -322,6 +330,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
                 this.showToast('Liked!', 'success');
               } else {
                 comment._count.likes = Math.max(0, comment._count.likes - 1);
+                this.forumService.unLikeComment(commentId).subscribe();
                 this.showToast('Unliked!', 'success');
               }
             }
@@ -358,7 +367,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
   submitReply(commentId: string) {
     const replyText = this.replyTexts[commentId]?.trim();
-    const forumId = this.topic?.forumId || '';
+    const forumId = this.topic?.id || '';
+    const id = this.topicId();
     if (!replyText) {
       this.showToast('Please write a reply', 'warning');
       return;
@@ -370,17 +380,16 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     }
 
     this.isSubmittingReply = true;
-
+    debugger;
     const payload = {
       content: replyText,
-      id: this.topicId()!,
+      id: id!,
       parentId: commentId,
       forumId: forumId,
-      userId: this.userId()!,
     };
 
     this.forumService
-      .replyToComment(payload)
+      .createComment(payload)
       .pipe(
         tap((response: any) => {
           if (response && response.success) {

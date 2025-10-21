@@ -13,7 +13,7 @@ export class ForumPostsService {
 
   async create(createForumPostDto: CreateForumPostDto, authorId: number) {
     // First, verify that the author exists
-    const author = await this.prismaService.user.findUnique({
+    const author = await this.  prismaService.user.findUnique({
       where: { id: authorId },
     });
 
