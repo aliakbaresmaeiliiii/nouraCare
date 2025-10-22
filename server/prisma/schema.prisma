@@ -27,7 +27,6 @@ model user {
   commentLikes              CommentLike[]      @relation("CommentLikes")
   comments                  Comment[]          @relation("CommentAuthor")
   forumComments             ForumComment[]     @relation("ForumCommentAuthor")
-  forumCommentLikes         ForumCommentLike[] @relation("ForumCommentLikes")
   forumPostLikes            ForumPostLike[]
   forum_posts               ForumPost[]
   forum_thread              forum_thread[]
@@ -423,7 +422,6 @@ model ForumComment {
   isAnonymous  Boolean        @default(false)
   likeCount    Int            @default(0)
   dislikeCount Int            @default(0)
-  likedBy      user[]         @relation("ForumCommentLikes")
   author       user           @relation("ForumCommentAuthor", fields: [authorId], references: [id])
   parent       ForumComment?  @relation("ForumCommentReplies", fields: [parentId], references: [id])
   replies      ForumComment[] @relation("ForumCommentReplies")
