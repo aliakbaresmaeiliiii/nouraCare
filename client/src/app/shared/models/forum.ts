@@ -46,6 +46,10 @@ export interface ThreadDetailResponse {
   };
 }
 
+export interface LikeCommentDto {
+  isLike: boolean;
+}
+
 export interface CreateCommentDto {
   content: string;
   id: string;
@@ -122,6 +126,7 @@ export interface ForumTopic {
   lastReply: string;
   isPinned: boolean;
   isLocked: boolean;
+  likeCount?:number;
   tags: string[];
   createdAt: string;
   forumId: string;
@@ -154,6 +159,7 @@ export interface Comment {
   updatedAt: string;
   replies: Comment[];
   isLiked?: boolean;
+  likeCount?:number;
   _count: {
     likes: number;
     replies: number;

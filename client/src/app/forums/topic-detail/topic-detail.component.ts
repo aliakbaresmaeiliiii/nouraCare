@@ -122,6 +122,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               lastReply: thread.updatedAt || thread.createdAt,
               isPinned: thread.isPinned || false,
               isLocked: thread.isLocked || false,
+              likeCount:thread.likeCount,
               tags: [],
               forumId: thread.forum?.id || '',
               createdAt: thread.createdAt || new Date().toISOString(),
@@ -141,6 +142,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               lastReply: new Date().toISOString(),
               isPinned: false,
               isLocked: false,
+              likeCount:0,
               tags: [],
               forumId: '',
               posts: [],
@@ -164,6 +166,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               updatedAt?: string;
               replies?: any[];
               isLiked?: boolean;
+              likeCount: number;
+              dislikeCount: number;
               _count?: { likes?: number; replies?: number };
             }) => ({
               id: comment.id,
@@ -182,7 +186,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               replies: comment.replies || [],
               isLiked: comment.isLiked || false,
               _count: {
-                likes: comment._count?.likes || 0,
+                likes: comment.likeCount || 0,
                 replies: comment._count?.replies || 0,
               },
             })
@@ -314,32 +318,61 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   }
 
   likeComment(commentId: string) {
+    // First try to find in top-level comments
+    let comment = this.comments().find((c) => c.id === commentId);
+    
+    // If not found in top-level, search in replies
+    if (!comment) {
+      for (const parentComment of this.comments()) {
+        if (parentComment.replies) {
+          const reply = parentComment.replies.find((r) => r.id === commentId);
+          if (reply) {
+            comment = reply;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!comment) return;
+
+    // Determine if this is a like or dislike action
+    const isLike = !comment.isLiked;
+
+    // Optimistic update
+    comment.isLiked = isLike;
+    if (isLike) {
+      comment._count.likes += 1;
+    } else {
+      comment._count.likes = Math.max(0, comment._count.likes - 1);
+    }
+
     this.forumService
-      .likeComment(commentId)
+      .likeComment(commentId, isLike)
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            const comment = this.comments().find((c) => c.id === commentId);
-            if (comment) {
-              // Toggle the like status
-              comment.isLiked = !comment.isLiked;
-
-              // Update the like count based on the current like status
-              if (comment.isLiked) {
-                comment._count.likes += 1;
-                this.showToast('Liked!', 'success');
-              } else {
-                comment._count.likes = Math.max(0, comment._count.likes - 1);
-                this.forumService.unLikeComment(commentId).subscribe();
-                this.showToast('Unliked!', 'success');
-              }
-            }
+            this.showToast(isLike ? 'Comment liked!' : 'Comment disliked!', 'success');
           } else {
-            this.showToast('Failed to like comment', 'danger');
+            // Revert optimistic update on failure
+            comment!.isLiked = !isLike;
+            if (isLike) {
+              comment!._count.likes = Math.max(0, comment!._count.likes - 1);
+            } else {
+              comment!._count.likes += 1;
+            }
+            this.showToast('Failed to update like status', 'danger');
           }
         }),
         catchError((error: any) => {
-          this.showToast('Failed to like comment', 'danger');
+          // Revert optimistic update on error
+          comment!.isLiked = !isLike;
+          if (isLike) {
+            comment!._count.likes = Math.max(0, comment!._count.likes - 1);
+          } else {
+            comment!._count.likes += 1;
+          }
+          this.showToast('Failed to update like status', 'danger');
           return of(null);
         })
       )

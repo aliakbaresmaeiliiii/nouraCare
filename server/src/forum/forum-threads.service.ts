@@ -210,9 +210,35 @@ export class ForumThreadsService {
             createdAt: 'asc',
           },
         },
+        forum_posts: {
+          where: {
+            isDeleted: false,
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                profileImage: true,
+              },
+            },
+            _count: {
+              select: {
+                likes: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
         _count: {
           select: {
-            forum_posts: true,
+            forum_posts: {
+              where: {
+                isDeleted: false,
+              },
+            },
             forum_comments: true,
           },
         },

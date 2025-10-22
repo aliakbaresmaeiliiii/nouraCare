@@ -284,7 +284,7 @@
                   <ion-button fill="clear" class="like-btn" (click)="likeComment(reply.id)">
                     <ion-icon [name]="reply.isLiked ? 'heart' : 'heart-outline'" 
                              [class.liked]="reply.isLiked"></ion-icon>
-                    <span class="like-count">{{ reply?._count?.likes }}</span>
+                    <span class="like-count">{{ reply?.likeCount }}</span>
                   </ion-button>
                 </div>
               </div>

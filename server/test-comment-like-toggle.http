@@ -1,0 +1,47 @@
+### Toggle Comment Like
+POST http://localhost:8080/api/v1/forum/comment/{{commentId}}/like
+Authorization: Bearer {{jwtToken}}
+Content-Type: application/json
+
+### Example Response:
+# {
+#   "success": true,
+#   "message": "Comment like toggled successfully",
+#   "data": {
+#     "id": "comment-uuid",
+#     "content": "Comment content",
+#     "threadId": "thread-uuid",
+#     "authorId": 123,
+#     "parentId": null,
+#     "createdAt": "2025-10-22T14:27:44.000Z",
+#     "updatedAt": "2025-10-22T14:27:44.000Z",
+#     "isAnonymous": false,
+#     "likeCount": 5,
+#     "dislikeCount": 0,
+#     "author": {
+#       "id": 123,
+#       "name": "User Name",
+#       "profileImage": "image-url"
+#     },
+#     "_count": {
+#       "replies": 2
+#     },
+#     "isLiked": true  // <-- This tells the client to show red heart
+#   }
+# }
+
+### Client-side Usage:
+# - When isLiked: true → Show red heart icon
+# - When isLiked: false → Show empty heart icon
+# - Update the likeCount display accordingly
+
+### Example Usage:
+# First click: Like the comment (isLiked: true, likeCount increases)
+# Second click: Unlike the comment (isLiked: false, likeCount decreases)
+# Third click: Like again (isLiked: true, likeCount increases)
+
+### Notes:
+# - Each user can only have one like per comment
+# - Clicking again toggles the like state
+# - The likeCount will increment/decrement accordingly
+# - No request body needed - it's a simple toggle

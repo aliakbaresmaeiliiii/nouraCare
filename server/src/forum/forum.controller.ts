@@ -129,7 +129,19 @@ export class ForumController {
     };
   }
 
-
-
+  @Post('comment/:id/like')
+  @UseGuards(JwtAuthGuard)
+  async toggleCommentLike(
+    @Param('id') id: string,
+    @Req() req: any,
+  ) {
+    const userId = req.user.id;
+    const comment = await this.forumService.toggleCommentLike(id, userId);
+    return {
+      success: true,
+      message: 'Comment like toggled successfully',
+      data: comment,
+    };
+  }
 
 }

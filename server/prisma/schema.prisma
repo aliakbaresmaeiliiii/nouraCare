@@ -27,6 +27,7 @@ model user {
   commentLikes              CommentLike[]      @relation("CommentLikes")
   comments                  Comment[]          @relation("CommentAuthor")
   forumComments             ForumComment[]     @relation("ForumCommentAuthor")
+  forumCommentLikes         ForumCommentLike[]
   forumPostLikes            ForumPostLike[]
   forum_posts               ForumPost[]
   forum_thread              forum_thread[]
@@ -412,25 +413,39 @@ model forum_thread {
 }
 
 model ForumComment {
-  id           String         @id @default(uuid())
-  content      String         @db.Text
+  id           String             @id @default(uuid())
+  content      String             @db.Text
   threadId     String
   authorId     Int
   parentId     String?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  isAnonymous  Boolean        @default(false)
-  likeCount    Int            @default(0)
-  dislikeCount Int            @default(0)
-  author       user           @relation("ForumCommentAuthor", fields: [authorId], references: [id])
-  parent       ForumComment?  @relation("ForumCommentReplies", fields: [parentId], references: [id])
-  replies      ForumComment[] @relation("ForumCommentReplies")
-  forum_thread forum_thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  isAnonymous  Boolean            @default(false)
+  likeCount    Int                @default(0)
+  dislikeCount Int                @default(0)
+  author       user               @relation("ForumCommentAuthor", fields: [authorId], references: [id])
+  parent       ForumComment?      @relation("ForumCommentReplies", fields: [parentId], references: [id])
+  replies      ForumComment[]     @relation("ForumCommentReplies")
+  forum_thread forum_thread       @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  likes        ForumCommentLike[]
 
   @@index([authorId])
   @@index([parentId])
   @@index([threadId])
   @@map("forum_comments")
+}
+
+model ForumCommentLike {
+  id        String       @id @default(uuid())
+  commentId String
+  userId    Int
+  createdAt DateTime     @default(now())
+  comment   ForumComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user         @relation(fields: [userId], references: [id])
+
+  @@unique([commentId, userId])
+  @@index([userId])
+  @@map("forum_comment_likes")
 }
 
 enum MemberRole {

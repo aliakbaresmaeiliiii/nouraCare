@@ -419,7 +419,12 @@
       
       .like-btn {
         ion-icon.liked {
-          color: #e91e63;
+          color: #ff0000;
+        }
+        
+        &.liked .like-count {
+          color: #ff0000;
+          font-weight: 600;
         }
       }
 
