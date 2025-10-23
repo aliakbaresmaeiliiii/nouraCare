@@ -99,6 +99,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response?.success) {
           const thread = response.data;
+          debugger;
 
           // Handle paginated response structure
           const pagination = thread.pagination || {
@@ -113,7 +114,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
             this.topic = {
               id: threadId,
               title: thread.title || 'Untitled',
-              description: thread.description || 'No content',
+              description: thread.content || 'No content',
               author: thread.user?.name || 'Anonymous',
               authorAvatar: thread.user?.profileImage || '',
               category: thread.forum?.title || 'General Discussion',

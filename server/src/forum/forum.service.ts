@@ -29,12 +29,16 @@ export class ForumService {
   }
 
   // Topics
-  async getTopicsByCategory(categoryId: string, page: number = 1, limit: number = 20) {
+  async getTopicsByCategory(
+    categoryId: string,
+    page: number = 1,
+    limit: number = 20,
+  ) {
     const skip = (page - 1) * limit;
-    
+
     const [topics, total] = await Promise.all([
       this.prisma.forums.findMany({
-        where: { 
+        where: {
           categoryId,
           isActive: true,
         },
@@ -63,7 +67,7 @@ export class ForumService {
         take: limit,
       }),
       this.prisma.forums.count({
-        where: { 
+        where: {
           categoryId,
           isActive: true,
         },
@@ -84,10 +88,10 @@ export class ForumService {
   // Posts
   async getPostsByTopic(topicId: string, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
-    
+
     const [posts, total] = await Promise.all([
       this.prisma.forumPost.findMany({
-        where: { 
+        where: {
           threadId: topicId,
           isDeleted: false,
         },
@@ -110,7 +114,7 @@ export class ForumService {
         take: limit,
       }),
       this.prisma.forumPost.count({
-        where: { 
+        where: {
           threadId: topicId,
           isDeleted: false,
         },
@@ -166,13 +170,16 @@ export class ForumService {
   async createPost(createPostDto: CreatePostDto, userId: number) {
     // Verify topic exists
     const topic = await this.prisma.forum_threads.findFirst({
-      where: { 
+      where: {
         id: createPostDto.topicId,
       },
     });
 
     if (!topic) {
-      throw new HttpException('Topic not found or inactive', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        'Topic not found or inactive',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return this.prisma.forumPost.create({
@@ -202,7 +209,7 @@ export class ForumService {
   async createComment(createCommentDto: CreateCommentDto, userId: number) {
     // Verify forum thread exists
     const thread = await this.prisma.forum_threads.findFirst({
-      where: { 
+      where: {
         id: createCommentDto.id,
       },
     });
@@ -214,13 +221,16 @@ export class ForumService {
     // If parentId is provided, verify parent comment exists
     if (createCommentDto.parentId) {
       const parentComment = await this.prisma.forumPost.findFirst({
-        where: { 
+        where: {
           id: createCommentDto.parentId,
         },
       });
 
       if (!parentComment) {
-        throw new HttpException('Parent comment not found', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Parent comment not found',
+          HttpStatus.NOT_FOUND,
+        );
       }
     }
 
@@ -248,10 +258,14 @@ export class ForumService {
     });
   }
 
-  async updateComment(id: string, updateCommentDto: UpdateCommentDto, userId: number) {
+  async updateComment(
+    id: string,
+    updateCommentDto: UpdateCommentDto,
+    userId: number,
+  ) {
     // Find comment and verify ownership
     const comment = await this.prisma.forumPost.findFirst({
-      where: { 
+      where: {
         id,
       },
     });
@@ -261,7 +275,10 @@ export class ForumService {
     }
 
     if (comment.authorId !== userId) {
-      throw new HttpException('You can only edit your own comments', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'You can only edit your own comments',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     return this.prisma.forumPost.update({
@@ -289,7 +306,7 @@ export class ForumService {
   async deleteComment(id: string, userId: number) {
     // Find comment and verify ownership
     const comment = await this.prisma.forumPost.findFirst({
-      where: { 
+      where: {
         id,
       },
     });
@@ -299,7 +316,10 @@ export class ForumService {
     }
 
     if (comment.authorId !== userId) {
-      throw new HttpException('You can only delete your own comments', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'You can only delete your own comments',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     // Delete the comment
@@ -307,94 +327,4 @@ export class ForumService {
       where: { id },
     });
   }
-
-  async toggleCommentLike(commentId: string, userId: number) {
-    // Find comment
-    const comment = await this.prisma.forumPost.findFirst({
-      where: { 
-        id: commentId,
-      },
-    });
-
-    if (!comment) {
-      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
-    }
-
-    // Check if user already liked this comment
-    const existingLike = await this.prisma.commentLike.findUnique({
-      where: {
-        commentId_userId: {
-          commentId,
-          userId,
-        },
-      },
-    });
-
-    let isLiked = false;
-    let updatedComment;
-
-    if (existingLike) {
-      // User already liked the comment, so remove the like
-      await this.prisma.commentLike.delete({
-        where: {
-          id: existingLike.id,
-        },
-      });
-
-      // Update comment (no likeCount field, we'll use _count instead)
-      updatedComment = await this.prisma.forumPost.findUnique({
-        where: { id: commentId },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              profileImage: true,
-            },
-          },
-          _count: {
-            select: {
-              other_forum_posts: true,
-            },
-          },
-        },
-      });
-      isLiked = false;
-    } else {
-      // User hasn't liked the comment, so add the like
-      await this.prisma.commentLike.create({
-        data: {
-          commentId,
-          userId,
-        },
-      });
-
-      // Update comment (no likeCount field, we'll use _count instead)
-      updatedComment = await this.prisma.forumPost.findUnique({
-        where: { id: commentId },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              profileImage: true,
-            },
-          },
-          _count: {
-            select: {
-              other_forum_posts: true,
-            },
-          },
-        },
-      });
-      isLiked = true;
-    }
-
-    // Return the comment with isLiked flag
-    return {
-      ...updatedComment,
-      isLiked,
-    };
-  }
- 
 }

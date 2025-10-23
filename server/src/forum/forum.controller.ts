@@ -8,7 +8,7 @@ import {
   Put,
   Query,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -16,7 +16,6 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { LikeCommentDto } from './dto/like-comment.dto';
 import { ForumService } from './forum.service';
-
 
 @Controller('api/v1/forum')
 export class ForumController {
@@ -92,12 +91,20 @@ export class ForumController {
   // Comments
   @Post('create-comment')
   @UseGuards(JwtAuthGuard)
-  async createComment(@Body() createCommentDto: CreateCommentDto, @Req() req: any) {
+  async createComment(
+    @Body() createCommentDto: CreateCommentDto,
+    @Req() req: any,
+  ) {
     const userId = req.user.id;
-    const comment = await this.forumService.createComment(createCommentDto, userId);
+    const comment = await this.forumService.createComment(
+      createCommentDto,
+      userId,
+    );
     return {
       success: true,
-      message: createCommentDto.parentId ? 'Reply created successfully' : 'Comment created successfully',
+      message: createCommentDto.parentId
+        ? 'Reply created successfully'
+        : 'Comment created successfully',
       data: comment,
     };
   }
@@ -110,7 +117,11 @@ export class ForumController {
     @Req() req: any,
   ) {
     const userId = req.user.id;
-    const comment = await this.forumService.updateComment(id, updateCommentDto, userId);
+    const comment = await this.forumService.updateComment(
+      id,
+      updateCommentDto,
+      userId,
+    );
     return {
       success: true,
       message: 'Comment updated successfully',
@@ -128,20 +139,4 @@ export class ForumController {
       message: 'Comment deleted successfully',
     };
   }
-
-  @Post('comment/:id/like')
-  @UseGuards(JwtAuthGuard)
-  async toggleCommentLike(
-    @Param('id') id: string,
-    @Req() req: any,
-  ) {
-    const userId = req.user.id;
-    const comment = await this.forumService.toggleCommentLike(id, userId);
-    return {
-      success: true,
-      message: 'Comment like toggled successfully',
-      data: comment,
-    };
-  }
-
 }

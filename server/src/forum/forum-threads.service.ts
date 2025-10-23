@@ -206,7 +206,8 @@ export class ForumThreadsService {
         user: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             profileImage: true,
           },
         },
@@ -220,13 +221,7 @@ export class ForumThreadsService {
             isDeleted: false,
           },
           include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
-              },
-            },
+           
             _count: {
               select: {
                 likes: true,
