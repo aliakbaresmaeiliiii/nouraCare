@@ -1,54 +1,51 @@
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
-const prisma = new PrismaClient();
-
-async function testForumLogic() {
+async function main() {
+  console.log('🧪 Testing the exact scenario from your error...')
+  
+  // Simulate the EXACT request that's failing
+  const requestData = {
+    title: "dfsfasdfasdf",
+    description: "asdfasdfasdfasdfasdf",
+    forumId: "f0b9c533-5ef4-45da-8b1f-6aef4b46a567", // This is what you're sending
+    tags: ["cramps"]
+  }
+  
+  const authorId = 1
+  
+  console.log('📝 Request data (with forumId):', requestData)
+  
   try {
-    const categoryId = 'f45d0944-5eea-4e35-a0f4-6e1124c87931';
-    const authorId = 11;
+    // This is what the service is trying to do
+    console.log('🔍 Service logic: Looking for forum with ID:', requestData.forumId)
     
-    console.log('=== Testing Exact Forum Logic ===');
+    // Check if this ID exists as a forum
+    const forum = await prisma.forums.findUnique({
+      where: { id: requestData.forumId }
+    })
     
-    // Test the exact same query used in the service
-    const forum = await prisma.forum.findFirst({
-      where: { categoryId: categoryId },
-    });
-    
-    console.log('Forum found with findFirst:', forum);
-    
-    if (!forum) {
-      console.log('No forum found - this should trigger forum creation');
+    if (forum) {
+      console.log('✅ Found forum:', forum.title)
+    } else {
+      console.log('❌ No forum found with that ID')
       
-      // Test category lookup
+      // Check if it's actually a category
       const category = await prisma.forumCategory.findUnique({
-        where: { id: categoryId },
-      });
-      
-      console.log('Category lookup result:', category);
+        where: { id: requestData.forumId }
+      })
       
       if (category) {
-        // Test forum creation
-        const newForum = await prisma.forum.create({
-          data: {
-            title: `${category.name} Forum`,
-            description: `Default forum for ${category.name} category`,
-            categoryId: categoryId,
-            createdById: authorId,
-          },
-        });
-        
-        console.log('New forum created:', newForum);
+        console.log('⚠️  This ID is actually a CATEGORY:', category.name)
+        console.log('💡 Solution: Send categoryId instead of forumId')
+      } else {
+        console.log('❌ This ID is not a category either')
       }
-    } else {
-      console.log('Forum found successfully, should proceed with thread creation');
     }
     
   } catch (error) {
-    console.error('Error:', error);
-    console.error('Error details:', error.message);
-  } finally {
-    await prisma.$disconnect();
+    console.error('❌ Error:', error.message)
   }
 }
 
-testForumLogic();
+main().finally(() => prisma.$disconnect())

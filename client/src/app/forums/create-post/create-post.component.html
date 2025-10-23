@@ -44,21 +44,20 @@
             [disabled]="isLoading"
             (ionChange)="onForumSelect($event)"
           >
-            @for (category of categories(); track category.id) {
-                @if (category.id && category.name) {
-                <ion-select-option [value]="category.id" >
-                  <div class="forum-option">
-                    <ion-icon
-                      [name]="category.icon"
-                      [style.color]="category.color"
-                    ></ion-icon>
-                    <div class="forum-info">
-                      <span class="forum-name">{{ category.name }}</span>
-                    </div>
-                  </div>
-                </ion-select-option>
-                }
-            }
+            @for (category of categories(); track category.id) { @if
+            (category.id && category.name) {
+            <ion-select-option [value]="category.id">
+              <div class="forum-option">
+                <ion-icon
+                  [name]="category.icon"
+                  [style.color]="category.color"
+                ></ion-icon>
+                <div class="forum-info">
+                  <span class="forum-name">{{ category.name }}</span>
+                </div>
+              </div>
+            </ion-select-option>
+            } }
           </ion-select>
         </ion-item>
         @if (postForm.get('forumId')?.invalid &&

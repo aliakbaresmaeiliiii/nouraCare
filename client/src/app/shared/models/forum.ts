@@ -1,3 +1,4 @@
+
 export interface ThreadDetailResponse {
   success: boolean;
   data: {
@@ -126,8 +127,15 @@ export interface ForumTopic {
   lastReply: string;
   isPinned: boolean;
   isLocked: boolean;
-  likeCount?:number;
+  likeCount?: number;
   tags: string[];
+  user: {
+  id: number;
+  firstName: string;
+  lastName: string;
+  profileImage: string;
+  
+};
   createdAt: string;
   forumId: string;
   posts?: Comment[];
@@ -159,7 +167,7 @@ export interface Comment {
   updatedAt: string;
   replies: Comment[];
   isLiked?: boolean;
-  likeCount?:number;
+  likeCount?: number;
   _count: {
     likes: number;
     replies: number;

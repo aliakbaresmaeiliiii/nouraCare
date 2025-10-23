@@ -13,6 +13,10 @@ export class CreateForumThreadDto {
   @IsNotEmpty()
   categoryId: string; 
 
+  @IsArray()
+  @IsOptional()
+  tags?: string[];
+
   @IsBoolean()
   @IsOptional()
   isPublic?: boolean;

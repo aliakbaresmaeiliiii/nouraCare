@@ -251,7 +251,9 @@
                     (error)="onImageError($event)"
                   />
                 </ion-avatar>
-                <span class="author-name">{{ topic.author }}</span>
+                <span class="author-name"
+                  >{{ topic.user.firstName }} {{ topic.user.lastName }}</span
+                >
               </div>
 
               <div class="topic-stats">

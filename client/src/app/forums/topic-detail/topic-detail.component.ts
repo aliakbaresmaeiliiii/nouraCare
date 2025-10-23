@@ -122,8 +122,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               lastReply: thread.updatedAt || thread.createdAt,
               isPinned: thread.isPinned || false,
               isLocked: thread.isLocked || false,
-              likeCount:thread.likeCount,
+              likeCount: thread.likeCount,
               tags: [],
+              user: thread.user,
               forumId: thread.forum?.id || '',
               createdAt: thread.createdAt || new Date().toISOString(),
               // posts: posts,
@@ -142,13 +143,21 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               lastReply: new Date().toISOString(),
               isPinned: false,
               isLocked: false,
-              likeCount:0,
+              likeCount: 0,
               tags: [],
               forumId: '',
               posts: [],
+              user: {
+                id: 0,
+                firstName: '',
+                lastName: '',
+                profileImage: '',
+              },
               createdAt: new Date().toISOString(),
             };
           }
+
+          console.log('user', thread);
 
           this.storeData.set(thread);
 
@@ -221,7 +230,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     this.isSubmittingComment = true;
     const topicId = this.topicId();
     const userId = this.userId();
-    debugger;
 
     const createComment: CreateCommentDto = {
       content: this.newComment.trim(),
@@ -320,7 +328,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   likeComment(commentId: string) {
     // First try to find in top-level comments
     let comment = this.comments().find((c) => c.id === commentId);
-    
+
     // If not found in top-level, search in replies
     if (!comment) {
       for (const parentComment of this.comments()) {
@@ -352,7 +360,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            this.showToast(isLike ? 'Comment liked!' : 'Comment disliked!', 'success');
+            this.showToast(
+              isLike ? 'Comment liked!' : 'Comment disliked!',
+              'success'
+            );
           } else {
             // Revert optimistic update on failure
             comment!.isLiked = !isLike;
@@ -413,7 +424,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     }
 
     this.isSubmittingReply = true;
-    debugger;
     const payload = {
       content: replyText,
       id: id!,
@@ -569,6 +579,13 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     } catch (error) {
       return 'recently';
     }
+  }
+
+  formatLikeCount(count: number): string {
+    if (count >= 1000) {
+      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return count.toString();
   }
 
   private async showToast(message: string, color: string = 'primary') {

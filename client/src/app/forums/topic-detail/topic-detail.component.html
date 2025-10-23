@@ -208,10 +208,10 @@
             }
             
             <div class="comment-actions">
-              <ion-button fill="clear" class="like-btn" (click)="likeComment(comment.id)">
+              <ion-button fill="clear" class="like-btn" [class.liked]="comment.isLiked" (click)="likeComment(comment.id)">
                 <ion-icon [name]="comment.isLiked ? 'heart' : 'heart-outline'" 
                          [class.liked]="comment.isLiked"></ion-icon>
-                <span class="like-count">{{ comment._count.likes }}</span>
+                <span class="like-count">{{ formatLikeCount(comment._count.likes) }}</span>
               </ion-button>
               <ion-button fill="clear" class="reply-btn" (click)="toggleReplyInput(comment.id)">
                 <ion-icon name="arrow-undo-outline"></ion-icon>
@@ -281,10 +281,10 @@
                 </div>
                 <p class="reply-text">{{ reply.content }}</p>
                 <div class="reply-actions">
-                  <ion-button fill="clear" class="like-btn" (click)="likeComment(reply.id)">
+                  <ion-button fill="clear" class="like-btn" [class.liked]="reply.isLiked" (click)="likeComment(reply.id)">
                     <ion-icon [name]="reply.isLiked ? 'heart' : 'heart-outline'" 
                              [class.liked]="reply.isLiked"></ion-icon>
-                    <span class="like-count">{{ reply?.likeCount }}</span>
+                    <span class="like-count">{{ formatLikeCount(reply?._count?.likes || 0) }}</span>
                   </ion-button>
                 </div>
               </div>

@@ -1,9 +1,8 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
-import { CreatePostDto } from './dto/create-post.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { CreatePostDto } from './dto/create-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { LikeCommentDto } from './dto/like-comment.dto';
 
 @Injectable()
 export class ForumService {
@@ -14,14 +13,12 @@ export class ForumService {
     return this.prisma.forumCategory.findMany({
       where: { isActive: true },
       include: {
-        forum_thread: {
+        forums: {
           where: { isActive: true },
           include: {
             _count: {
               select: {
-                forum_posts: {
-                  where: { isDeleted: false },
-                },
+                forum_threads: true,
               },
             },
           },
@@ -36,7 +33,7 @@ export class ForumService {
     const skip = (page - 1) * limit;
     
     const [topics, total] = await Promise.all([
-      this.prisma.forum_thread.findMany({
+      this.prisma.forums.findMany({
         where: { 
           categoryId,
           isActive: true,
@@ -44,13 +41,10 @@ export class ForumService {
         include: {
           _count: {
             select: {
-              forum_posts: {
-                where: { isDeleted: false },
-              },
+              forum_threads: true,
             },
           },
-          forum_posts: {
-            where: { isDeleted: false },
+          forum_threads: {
             orderBy: { createdAt: 'desc' },
             take: 1,
             include: {
@@ -68,7 +62,7 @@ export class ForumService {
         skip,
         take: limit,
       }),
-      this.prisma.forum_thread.count({
+      this.prisma.forums.count({
         where: { 
           categoryId,
           isActive: true,
@@ -147,7 +141,11 @@ export class ForumService {
         },
         forum_thread: {
           include: {
-            forum_categories: true,
+            forums: {
+              include: {
+                forum_categories: true,
+              },
+            },
           },
         },
         _count: {
@@ -167,7 +165,7 @@ export class ForumService {
 
   async createPost(createPostDto: CreatePostDto, userId: number) {
     // Verify topic exists
-    const topic = await this.prisma.forum_thread.findFirst({
+    const topic = await this.prisma.forum_threads.findFirst({
       where: { 
         id: createPostDto.topicId,
       },
@@ -203,7 +201,7 @@ export class ForumService {
   // Comments
   async createComment(createCommentDto: CreateCommentDto, userId: number) {
     // Verify forum thread exists
-    const thread = await this.prisma.forum_thread.findFirst({
+    const thread = await this.prisma.forum_threads.findFirst({
       where: { 
         id: createCommentDto.id,
       },
@@ -215,7 +213,7 @@ export class ForumService {
 
     // If parentId is provided, verify parent comment exists
     if (createCommentDto.parentId) {
-      const parentComment = await this.prisma.forumComment.findFirst({
+      const parentComment = await this.prisma.forumPost.findFirst({
         where: { 
           id: createCommentDto.parentId,
         },
@@ -226,7 +224,7 @@ export class ForumService {
       }
     }
 
-    return this.prisma.forumComment.create({
+    return this.prisma.forumPost.create({
       data: {
         content: createCommentDto.content,
         threadId: createCommentDto.id,
@@ -234,7 +232,7 @@ export class ForumService {
         parentId: createCommentDto.parentId,
       },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
@@ -243,7 +241,7 @@ export class ForumService {
         },
         _count: {
           select: {
-            replies: true,
+            other_forum_posts: true,
           },
         },
       },
@@ -252,7 +250,7 @@ export class ForumService {
 
   async updateComment(id: string, updateCommentDto: UpdateCommentDto, userId: number) {
     // Find comment and verify ownership
-    const comment = await this.prisma.forumComment.findFirst({
+    const comment = await this.prisma.forumPost.findFirst({
       where: { 
         id,
       },
@@ -266,13 +264,13 @@ export class ForumService {
       throw new HttpException('You can only edit your own comments', HttpStatus.FORBIDDEN);
     }
 
-    return this.prisma.forumComment.update({
+    return this.prisma.forumPost.update({
       where: { id },
       data: {
         content: updateCommentDto.content,
       },
       include: {
-        author: {
+        user: {
           select: {
             id: true,
             name: true,
@@ -281,7 +279,7 @@ export class ForumService {
         },
         _count: {
           select: {
-            replies: true,
+            other_forum_posts: true,
           },
         },
       },
@@ -290,7 +288,7 @@ export class ForumService {
 
   async deleteComment(id: string, userId: number) {
     // Find comment and verify ownership
-    const comment = await this.prisma.forumComment.findFirst({
+    const comment = await this.prisma.forumPost.findFirst({
       where: { 
         id,
       },
@@ -305,14 +303,14 @@ export class ForumService {
     }
 
     // Delete the comment
-    await this.prisma.forumComment.delete({
+    await this.prisma.forumPost.delete({
       where: { id },
     });
   }
 
   async toggleCommentLike(commentId: string, userId: number) {
     // Find comment
-    const comment = await this.prisma.forumComment.findFirst({
+    const comment = await this.prisma.forumPost.findFirst({
       where: { 
         id: commentId,
       },
@@ -323,43 +321,74 @@ export class ForumService {
     }
 
     // Check if user already liked this comment
-    // For now, we'll use a simple approach since we don't have the ForumCommentLike table
-    // In production, you would check the ForumCommentLike table
-    
-    // For this implementation, we'll implement a simple toggle that increments/decrements
-    // This is a temporary solution until the database schema is properly updated
-    
-    const updateData: any = {};
-    let isLiked = false;
-    
-    // Simple toggle: if likeCount is even, increment; if odd, decrement
-    // This is a temporary workaround until we have proper user tracking
-    if (comment.likeCount % 2 === 0) {
-      updateData.likeCount = { increment: 1 };
-      isLiked = true; // User just liked the comment
-    } else {
-      updateData.likeCount = { decrement: 1 };
-      isLiked = false; // User just unliked the comment
-    }
-
-    const updatedComment = await this.prisma.forumComment.update({
-      where: { id: commentId },
-      data: updateData,
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            profileImage: true,
-          },
-        },
-        _count: {
-          select: {
-            replies: true,
-          },
+    const existingLike = await this.prisma.commentLike.findUnique({
+      where: {
+        commentId_userId: {
+          commentId,
+          userId,
         },
       },
     });
+
+    let isLiked = false;
+    let updatedComment;
+
+    if (existingLike) {
+      // User already liked the comment, so remove the like
+      await this.prisma.commentLike.delete({
+        where: {
+          id: existingLike.id,
+        },
+      });
+
+      // Update comment (no likeCount field, we'll use _count instead)
+      updatedComment = await this.prisma.forumPost.findUnique({
+        where: { id: commentId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              profileImage: true,
+            },
+          },
+          _count: {
+            select: {
+              other_forum_posts: true,
+            },
+          },
+        },
+      });
+      isLiked = false;
+    } else {
+      // User hasn't liked the comment, so add the like
+      await this.prisma.commentLike.create({
+        data: {
+          commentId,
+          userId,
+        },
+      });
+
+      // Update comment (no likeCount field, we'll use _count instead)
+      updatedComment = await this.prisma.forumPost.findUnique({
+        where: { id: commentId },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              profileImage: true,
+            },
+          },
+          _count: {
+            select: {
+              other_forum_posts: true,
+            },
+          },
+        },
+      });
+      isLiked = true;
+    }
 
     // Return the comment with isLiked flag
     return {

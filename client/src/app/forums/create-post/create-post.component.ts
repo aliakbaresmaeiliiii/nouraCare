@@ -129,37 +129,40 @@ export class CreatePostComponent implements OnInit {
     this.isLoading = true;
     this.forumService.getCategories().subscribe({
       next: (response: any) => {
-        if (response && response.success) {
-          // Simple approach - just process the data as is
-          const categories = response.data
-            .filter(
-              (category: any) =>
-                category.forum_thread && category.forum_thread.length > 0
-            )
-            .map((category: any) => ({
-              id: category.id,
-              name: category.name,
-              description: category.description,
-              icon: category.icon || 'chatbubbles-outline',
-              forum_thread: category.color || '#3880ff',
-              forums: category.forum_thread.map((forum: any) => ({
-                id: forum.id,
-                name: forum.name,
-                description: forum.description,
-                categoryId: category.id,
-              })),
-            }));
-
-          this.categories.set(categories);
-
-          // Set default forum if available
-          if (categories.length > 0 && !this.postForm.get('forumId')?.value) {
-            const firstCategory = categories[0];
-            if (firstCategory.forums && firstCategory.forums.length > 0) {
-              this.postForm.patchValue({ forumId: firstCategory.forums[0].id });
-            }
-          }
+        if (response.success === true) {
+          this.categories.set(response.data);
         }
+        // if (response && response.success) {
+        //   // Simple approach - just process the data as is
+        //   const categories = response.data
+        //     .filter(
+        //       (category: any) =>
+        //         category.forum_thread && category.forum_thread.length > 0
+        //     )
+        //     .map((category: any) => ({
+        //       id: category.id,
+        //       name: category.name,
+        //       description: category.description,
+        //       icon: category.icon || 'chatbubbles-outline',
+        //       forum_thread: category.color || '#3880ff',
+        //       forums: category.forum_thread.map((forum: any) => ({
+        //         id: forum.id,
+        //         name: forum.name,
+        //         description: forum.description,
+        //         categoryId: category.id,
+        //       })),
+        //     }));
+
+        //   this.categories.set(categories);
+
+        //   // Set default forum if available
+        //   if (categories.length > 0 && !this.postForm.get('forumId')?.value) {
+        //     const firstCategory = categories[0];
+        //     if (firstCategory.forums && firstCategory.forums.length > 0) {
+        //       this.postForm.patchValue({ forumId: firstCategory.forums[0].id });
+        //     }
+        //   }
+        // }
         this.isLoading = false;
       },
       error: (error: any) => {
@@ -198,20 +201,22 @@ export class CreatePostComponent implements OnInit {
   selectedForum: any = null;
 
   onForumSelect(event: any) {
-    const selectedForumId = event.detail.value;
+    const selectedId = event.detail.value;
+    const category = this.categories().find((c) => c.id === selectedId);
     // Find the selected forum and its parent category
     this.selectedForum = null;
-    this.selectedCategory = null;
+    this.selectedCategory = category;
 
-    this.categories().forEach((category) => {
-      const foundForum = category.forums.find(
-        (forum) => forum.categoryId === selectedForumId
-      );
-      if (foundForum) {
-        this.selectedForum = foundForum;
-        this.selectedCategory = category;
-      }
-    });
+
+    // this.categories().forEach((category) => {
+    //   const foundForum = category.forums.find(
+    //     (forum) => forum.categoryId === selectedForumId
+    //   );
+    //   if (foundForum) {
+    //     this.selectedForum = foundForum;
+    //     this.selectedCategory = category;
+    //   }
+    // });
   }
 
   submitPost() {
@@ -234,12 +239,11 @@ export class CreatePostComponent implements OnInit {
       return;
     }
     const id = JSON.parse(userInfo).user.id;
-    // Create the thread data - CORRECTED to match backend API
+    this.categories.apply(id)
     const threadData = {
       title: formValue.title.trim(),
       description: formValue.content.trim(),
       categoryId: this.selectedCategory.id, // Use the forumId from the form control
-      authorId: id,
       tags: this.selectedTags,
       // tags are not part of the backend CreateForumThreadDto
       // You might need to handle tags separately or extend the backend

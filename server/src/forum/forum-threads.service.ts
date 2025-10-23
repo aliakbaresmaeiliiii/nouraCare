@@ -59,30 +59,55 @@ export class ForumThreadsService {
         throw new NotFoundException('User not found');
       }
 
+      // Find or create a forum for this category
+      let forum = await this.prismaService.forums.findFirst({
+        where: { categoryId: createForumThreadDto.categoryId }
+      });
+
+      // If no forum exists for this category, create one
+      if (!forum) {
+        forum = await this.prismaService.forums.create({
+          data: {
+            id: uuidv4(),
+            title: `${category.name} Discussions`,
+            description: `Discussion forum for ${category.name}`,
+            categoryId: createForumThreadDto.categoryId,
+            createdById: authorId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as any
+        });
+      }
+
+
       // Generate UUID for the thread ID
       const threadId = uuidv4();
 
-      // Create the forum thread with type assertion to bypass Prisma type issues
-      const createdThread = await this.prismaService.forum_thread.create({
+      // Create the forum thread
+      const createdThread = await this.prismaService.forum_threads.create({
         data: {
           title: createForumThreadDto.title.trim(),
-          description: createForumThreadDto.description.trim(),
-          categoryId: createForumThreadDto.categoryId,
-          createdById: authorId,
-          isPublic: createForumThreadDto.isPublic || true,
-          isActive: createForumThreadDto.isActive || true,
-          updatedAt: new Date(),
+          content: createForumThreadDto.description.trim(),
+          forumId: forum.id,
+          authorId: authorId,
           id: threadId,
-        } as any, // Type assertion to bypass Prisma type issues
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
         include: {
           user: {
             select: {
               id: true,
-              name: true,
+              firstName: true,
+              lastName: true,
               profileImage: true,
             },
           },
-          forum_categories: true,
+          forums: {
+            include: {
+              forum_categories: true,
+            },
+          },
           _count: {
             select: {
               forum_posts: true,
@@ -123,21 +148,33 @@ export class ForumThreadsService {
     const where: any = {};
 
     if (categoryId) {
-      where.categoryId = categoryId;
+      // Get forum IDs that belong to this category
+      const forumsInCategory = await this.prismaService.forums.findMany({
+        where: { categoryId },
+        select: { id: true }
+      });
+      
+      const forumIds = forumsInCategory.map(forum => forum.id);
+      where.forumId = { in: forumIds };
     }
 
     const [threads, total] = await Promise.all([
-      this.prismaService.forum_thread.findMany({
+      this.prismaService.forum_threads.findMany({
         where,
         include: {
           user: {
             select: {
               id: true,
-              name: true,
+              firstName: true,
+              lastName: true,
               profileImage: true,
             },
           },
-          forum_categories: true,
+          forums: {
+            include: {
+              forum_categories: true,
+            },
+          },
           _count: {
             select: {
               forum_posts: true,
@@ -148,7 +185,7 @@ export class ForumThreadsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forum_thread.count({ where }),
+      this.prismaService.forum_threads.count({ where }),
     ]);
 
     return {
@@ -163,7 +200,7 @@ export class ForumThreadsService {
   }
 
   async findOne(id: string) {
-    const thread = await this.prismaService.forum_thread.findUnique({
+    const thread = await this.prismaService.forum_threads.findUnique({
       where: { id },
       include: {
         user: {
@@ -173,41 +210,9 @@ export class ForumThreadsService {
             profileImage: true,
           },
         },
-        forum_categories: true,
-        forum_comments: {
-          where: {
-            parentId: null, // Only get top-level comments (not replies)
-          },
+        forums: {
           include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                profileImage: true,
-              },
-            },
-            replies: {
-              include: {
-                author: {
-                  select: {
-                    id: true,
-                    name: true,
-                    profileImage: true,
-                  },
-                },
-              },
-              orderBy: {
-                createdAt: 'asc',
-              },
-            },
-            _count: {
-              select: {
-                replies: true,
-              },
-            },
-          },
-          orderBy: {
-            createdAt: 'asc',
+            forum_categories: true,
           },
         },
         forum_posts: {
@@ -239,7 +244,6 @@ export class ForumThreadsService {
                 isDeleted: false,
               },
             },
-            forum_comments: true,
           },
         },
       },
@@ -253,8 +257,8 @@ export class ForumThreadsService {
   }
 
   async findByCategory(categoryId: string) {
-    const thread = await this.prismaService.forum_thread.findFirst({
-      where: { categoryId },
+    const thread = await this.prismaService.forum_threads.findFirst({
+      where: { forumId: categoryId },
       include: {
         user: {
           select: {
@@ -263,7 +267,11 @@ export class ForumThreadsService {
             profileImage: true,
           },
         },
-        forum_categories: true,
+        forums: {
+          include: {
+            forum_categories: true,
+          },
+        },
         _count: {
           select: {
             forum_posts: true,
@@ -284,7 +292,7 @@ export class ForumThreadsService {
     updateForumThreadDto: UpdateForumThreadDto,
     userId: number,
   ) {
-    const thread = await this.prismaService.forum_thread.findUnique({
+    const thread = await this.prismaService.forum_threads.findUnique({
       where: { id },
     });
 
@@ -293,7 +301,7 @@ export class ForumThreadsService {
     }
 
     // Check if user is the creator of the thread
-    if (thread.createdById !== userId) {
+    if (thread.authorId !== userId) {
       throw new ForbiddenException('You can only update your own forum threads');
     }
 
@@ -304,18 +312,10 @@ export class ForumThreadsService {
     }
     
     if (updateForumThreadDto.description?.trim()) {
-      updateData.description = updateForumThreadDto.description;
+      updateData.content = updateForumThreadDto.description;
     }
 
-    if (updateForumThreadDto.isPublic !== undefined) {
-      updateData.isPublic = updateForumThreadDto.isPublic;
-    }
-
-    if (updateForumThreadDto.isActive !== undefined) {
-      updateData.isActive = updateForumThreadDto.isActive;
-    }
-
-    return this.prismaService.forum_thread.update({
+    return this.prismaService.forum_threads.update({
       where: { id },
       data: updateData,
       include: {
@@ -326,7 +326,11 @@ export class ForumThreadsService {
             profileImage: true,
           },
         },
-        forum_categories: true,
+        forums: {
+          include: {
+            forum_categories: true,
+          },
+        },
         _count: {
           select: {
             forum_posts: true,
@@ -337,7 +341,7 @@ export class ForumThreadsService {
   }
 
   async remove(id: string, userId: number) {
-    const thread = await this.prismaService.forum_thread.findUnique({
+    const thread = await this.prismaService.forum_threads.findUnique({
       where: { id },
     });
 
@@ -346,12 +350,12 @@ export class ForumThreadsService {
     }
 
     // Check if user is the creator of the thread
-    if (thread.createdById !== userId) {
+    if (thread.authorId !== userId) {
       throw new ForbiddenException('You can only delete your own forum threads');
     }
 
     // Delete the forum thread (hard delete since there's no soft delete field)
-    return this.prismaService.forum_thread.delete({
+    return this.prismaService.forum_threads.delete({
       where: { id },
     });
   }
@@ -360,11 +364,11 @@ export class ForumThreadsService {
     const skip = (page - 1) * limit;
 
     const [threads, total] = await Promise.all([
-      this.prismaService.forum_thread.findMany({
+      this.prismaService.forum_threads.findMany({
         where: {
           OR: [
             { title: { contains: query } },
-            { description: { contains: query } },
+            { content: { contains: query } },
           ],
         },
         include: {
@@ -375,7 +379,11 @@ export class ForumThreadsService {
               profileImage: true,
             },
           },
-          forum_categories: true,
+          forums: {
+            include: {
+              forum_categories: true,
+            },
+          },
           _count: {
             select: {
               forum_posts: true,
@@ -386,11 +394,11 @@ export class ForumThreadsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forum_thread.count({
+      this.prismaService.forum_threads.count({
         where: {
           OR: [
             { title: { contains: query } },
-            { description: { contains: query } },
+            { content: { contains: query } },
           ],
         },
       }),

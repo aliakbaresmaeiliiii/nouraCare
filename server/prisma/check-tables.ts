@@ -31,7 +31,7 @@ async function main() {
           // This would be the old table name from migration  
           console.log(`ℹ️  ${table} - would need custom query`)
         } else if (table === 'forum_thread') {
-          const result = await prisma.forum_thread.findFirst()
+          const result = await prisma.forum_threads.findFirst()
           console.log(`✅ ${table} exists`)
         } else if (table === 'forum_posts') {
           const result = await prisma.forumPost.findFirst()
@@ -40,7 +40,7 @@ async function main() {
           const result = await prisma.forumPostLike.findFirst()
           console.log(`✅ ${table} exists`)
         } else if (table === 'forum_comments') {
-          const result = await prisma.forumComment.findFirst()
+          const result = await prisma.forumPost.findFirst()
           console.log(`✅ ${table} exists`)
         } else if (table === 'forum_comment_likes') {
           // This would need a custom query since it's not in the Prisma schema

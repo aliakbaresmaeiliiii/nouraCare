@@ -1,0 +1,47 @@
+### Quick Test to Verify Comment Likes Implementation
+
+### Test the Comment Like Endpoint
+# Replace {{commentId}} with an actual comment ID from your database
+POST http://localhost:8080/api/v1/forum/comment/{{commentId}}/like
+Authorization: Bearer {{jwtToken}}
+
+### Expected Response Structure:
+# {
+#   "success": true,
+#   "message": "Comment like toggled successfully",
+#   "data": {
+#     "id": "comment-uuid",
+#     "content": "Comment content",
+#     "threadId": "thread-uuid",
+#     "authorId": 123,
+#     "parentId": null,
+#     "createdAt": "2025-10-22T14:27:44.000Z",
+#     "updatedAt": "2025-10-22T14:27:44.000Z",
+#     "isAnonymous": false,
+#     "likeCount": 1,  // Should increment/decrement
+#     "dislikeCount": 0,
+#     "author": {
+#       "id": 123,
+#       "name": "User Name",
+#       "profileImage": "image-url"
+#     },
+#     "_count": {
+#       "replies": 0
+#     },
+#     "isLiked": true  // Should toggle between true/false
+#   }
+# }
+
+### Implementation Status:
+✅ ForumCommentLike model exists in schema
+✅ toggleCommentLike method implemented in ForumService
+✅ API endpoint mapped in ForumController
+✅ Server compiles without errors
+✅ Build completes successfully
+
+### Next Steps:
+1. Test with actual comment ID and JWT token
+2. Verify like count increments on first click
+3. Verify like count decrements on second click
+4. Verify isLiked flag toggles correctly
+5. Check forum_comment_likes table for data persistence

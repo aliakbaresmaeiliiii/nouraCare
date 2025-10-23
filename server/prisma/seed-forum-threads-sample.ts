@@ -111,7 +111,7 @@ async function main() {
 
   for (const threadData of threads) {
     try {
-      const thread = await prisma.forum_thread.create({
+      const thread = await prisma.forum_threads.create({
         data: {
           id: uuidv4(),
           title: threadData.title,

@@ -34,7 +34,7 @@ async function main() {
   }
 
   // Clear existing threads first
-  await prisma.forum_thread.deleteMany()
+  await prisma.forum_threads.deleteMany()
   console.log('🗑️  Cleared existing forum threads')
 
   // Create comprehensive forum threads (3-4 per category)
@@ -301,7 +301,7 @@ async function main() {
   ]
 
   for (const threadData of threads) {
-    const thread = await prisma.forum_thread.create({
+    const thread = await prisma.forum_threads.create({
       data: {
         id: uuidv4(),
         title: threadData.title,

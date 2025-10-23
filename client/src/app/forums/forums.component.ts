@@ -12,8 +12,6 @@ import { ForumService } from '../shared/services/forum.service';
 import { SharedModule } from '../shared/shared-module';
 import { ForumCategory, ForumTopic } from '@app/shared/models/forum';
 
-
-
 @Component({
   selector: 'app-forums',
   templateUrl: './forums.component.html',
@@ -111,6 +109,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       isPinned: false,
       isLocked: false,
       tags: topicData.tags || [],
+      user: topicData.user,
       forumId: topicData.forumId,
       createdAt: topicData.createdAt,
     };
@@ -235,6 +234,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
             lastReply: thread.updatedAt,
             isPinned: thread.isPinned || false,
             isLocked: thread.isLocked || false,
+            user:thread.user ,
             tags: thread.tags || [],
             createdAt: thread.createdAt,
           }));
@@ -312,6 +312,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
             isPinned: thread.isPinned || false,
             isLocked: thread.isLocked || false,
             tags: thread.tags || [],
+            user:thread.user,
             createdAt: thread.createdAt,
           }));
           this.topics.set(threads);
