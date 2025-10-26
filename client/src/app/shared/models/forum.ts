@@ -1,4 +1,3 @@
-
 export interface ThreadDetailResponse {
   success: boolean;
   data: {
@@ -53,7 +52,7 @@ export interface LikeCommentDto {
 
 export interface CreateCommentDto {
   content: string;
-  id: string;
+  postId?: string;
   parentId?: string | null;
   forumId?: string;
 }
@@ -122,20 +121,21 @@ export interface ForumTopic {
   author: string;
   authorAvatar?: string;
   category: string;
+  categoryId?: string;
   replies: number;
   views: number;
   lastReply: string;
   isPinned: boolean;
   isLocked: boolean;
   likeCount?: number;
+  forumPosts: forumPosts[];
   tags: string[];
   user: {
-  id: number;
-  firstName: string;
-  lastName: string;
-  profileImage: string;
-  
-};
+    id: number;
+    firstName: string;
+    lastName: string;
+    profileImage: string;
+  };
   createdAt: string;
   forumId: string;
   posts?: Comment[];
@@ -151,6 +151,16 @@ export interface ThreadsResponse {
   };
 }
 
+interface forumPosts {
+  authorId: number;
+  content: string;
+  createdAt: string;
+  id: string;
+  isDeleted: boolean;
+  parentId: string;
+  threadId: string;
+  updatedAt: string;
+}
 export interface Comment {
   id: string;
   content: string;

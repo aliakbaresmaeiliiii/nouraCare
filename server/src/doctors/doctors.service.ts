@@ -12,69 +12,69 @@ export class DoctorsService {
   //   });
   // }
 
-  async findAll() {
-    return this.prisma.doctors.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-  }
+  // async findAll() {
+  //   return this.prisma.doctors.findMany({
+  //     orderBy: { createdAt: 'desc' },
+  //   });
+  // }
 
-  async findOne(id: string) {
-    const doctor = await this.prisma.doctors.findUnique({
-      where: { id },
-    });
+  // async findOne(id: string) {
+  //   const doctor = await this.prisma.doctors.findUnique({
+  //     where: { id },
+  //   });
 
-    if (!doctor) {
-      throw new NotFoundException(`Doctor with ID ${id} not found`);
-    }
+  //   if (!doctor) {
+  //     throw new NotFoundException(`Doctor with ID ${id} not found`);
+  //   }
 
-    return doctor;
-  }
+  //   return doctor;
+  // }
 
-  async update(id: string, updateDoctorDto: UpdateDoctorDto) {
-    const doctor = await this.findOne(id);
+  // async update(id: string, updateDoctorDto: UpdateDoctorDto) {
+  //   const doctor = await this.findOne(id);
 
-    return this.prisma.doctors.update({
-      where: { id },
-      data: updateDoctorDto,
-    });
-  }
+  //   return this.prisma.doctors.update({
+  //     where: { id },
+  //     data: updateDoctorDto,
+  //   });
+  // }
 
-  async remove(id: string) {
-    const doctor = await this.findOne(id);
+  // async remove(id: string) {
+  //   const doctor = await this.findOne(id);
 
-    return this.prisma.doctors.delete({
-      where: { id },
-    });
-  }
+  //   return this.prisma.doctors.delete({
+  //     where: { id },
+  //   });
+  // }
 
-  async findBySpecialty(specialty: string) {
-    return this.prisma.doctors.findMany({
-      where: {
-        specialty: {
-          contains: specialty,
-        },
-      },
-      orderBy: { rating: 'desc' },
-    });
-  }
+  // async findBySpecialty(specialty: string) {
+  //   return this.prisma.doctors.findMany({
+  //     where: {
+  //       specialty: {
+  //         contains: specialty,
+  //       },
+  //     },
+  //     orderBy: { rating: 'desc' },
+  //   });
+  // }
 
-  async findByLocation(location: string) {
-    return this.prisma.doctors.findMany({
-      where: {
-        location: {
-          contains: location,
-        },
-      },
-      orderBy: { rating: 'desc' },
-    });
-  }
+  // async findByLocation(location: string) {
+  //   return this.prisma.doctors.findMany({
+  //     where: {
+  //       location: {
+  //         contains: location,
+  //       },
+  //     },
+  //     orderBy: { rating: 'desc' },
+  //   });
+  // }
 
-  async findByConsultationType(consultationType: string) {
-    return this.prisma.doctors.findMany({
-      where: {
-        consultationType: consultationType as any,
-      },
-      orderBy: { rating: 'desc' },
-    });
-  }
+  // async findByConsultationType(consultationType: string) {
+  //   return this.prisma.doctors.findMany({
+  //     where: {
+  //       consultationType: consultationType as any,
+  //     },
+  //     orderBy: { rating: 'desc' },
+  //   });
+  // }
 }

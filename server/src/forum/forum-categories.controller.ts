@@ -49,9 +49,9 @@ export class ForumCategoriesController {
     };
   }
 
-  @Get('slug/:slug')
-  async findBySlug(@Param('slug') slug: string) {
-    const category = await this.forumCategoriesService.findBySlug(slug);
+  @Get('name/:name')
+  async findByName(@Param('name') name: string) {
+    const category = await this.forumCategoriesService.findByName(name);
     return {
       success: true,
       data: category,

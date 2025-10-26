@@ -14,7 +14,7 @@ export class TrackDayService {
     const { date, mood, energy, symptoms, notes } = createTrackDayDto;
 
     // Check if track day already exists for this user and date
-    const existingTrackDay = await this.prisma.trackday.findFirst({
+    const existingTrackDay = await this.prisma.trackDay.findFirst({
       where: {
         userId,
         date: new Date(date),
@@ -25,7 +25,7 @@ export class TrackDayService {
       throw new ConflictException('Track day already exists for this date');
     }
 
-    return this.prisma.trackday.create({
+    return this.prisma.trackDay.create({
       data: {
         userId,
         date: new Date(date),
@@ -44,7 +44,7 @@ export class TrackDayService {
   ) {
     const { mood, energy, symptoms, notes } = updateTrackDayDto;
 
-    const trackDay = await this.prisma.trackday.findUnique({
+    const trackDay = await this.prisma.trackDay.findUnique({
       where: {
         userId_date: {
           userId,
@@ -57,7 +57,7 @@ export class TrackDayService {
       throw new NotFoundException('Track day not found');
     }
 
-    return this.prisma.trackday.update({
+    return this.prisma.trackDay.update({
       where: {
         userId_date: {
           userId,
@@ -74,7 +74,7 @@ export class TrackDayService {
   }
 
   async getTrackDay(userId: number, date: string) {
-    const trackDay = await this.prisma.trackday.findUnique({
+    const trackDay = await this.prisma.trackDay.findUnique({
       where: {
         userId_date: {
           userId,
@@ -109,7 +109,7 @@ export class TrackDayService {
       };
     }
 
-    const trackDays = await this.prisma.trackday.findMany({
+    const trackDays = await this.prisma.trackDay.findMany({
       where: whereClause,
       orderBy: { date: 'desc' },
     });
@@ -123,7 +123,7 @@ export class TrackDayService {
   }
 
   async deleteTrackDay(userId: number, date: string) {
-    const trackDay = await this.prisma.trackday.findUnique({
+    const trackDay = await this.prisma.trackDay.findUnique({
       where: {
         userId_date: {
           userId,
@@ -136,7 +136,7 @@ export class TrackDayService {
       throw new NotFoundException('Track day not found');
     }
 
-    return this.prisma.trackday.delete({
+    return this.prisma.trackDay.delete({
       where: {
         userId_date: {
           userId,

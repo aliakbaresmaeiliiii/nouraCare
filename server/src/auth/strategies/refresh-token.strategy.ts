@@ -41,12 +41,9 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') 
       select: {
         id: true,
         email: true,
-        phone: true,
-        name: true,
-        profileImage: true,
+        phoneNumber: true,
+        fullName: true,
         isVerified: true,
-        city: true,
-        birthday: true,
         createdAt: true,
       },
     });

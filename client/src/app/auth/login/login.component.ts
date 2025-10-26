@@ -36,12 +36,12 @@ export class LoginComponent {
   success!: boolean;
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    phone: [''],
+    phoneNumber: [''],
   });
 
   registerForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    phone: [''],
+    phoneNumber: [''],
     // Validators.required, Validators.pattern(/^\+?\d{10,15}$/)]
   });
 
@@ -135,7 +135,7 @@ export class LoginComponent {
 
     const payload: RegisterRequest = {
       email: this.registerForm.value.email,
-      phone: this.registerForm.value.phone,
+      phoneNumber: this.registerForm.value.phoneNumber,
     };
 
     this.service.register(payload, onboardingData).subscribe({
@@ -166,7 +166,7 @@ export class LoginComponent {
       // }
       const payload = {
         email: this.loginForm.value.email || '',
-        phone: this.loginForm.value.phone || '',
+        phoneNumber: this.loginForm.value.phoneNumber || '',
       };
       this.service.login(payload).subscribe({
         next: (res: any) => {

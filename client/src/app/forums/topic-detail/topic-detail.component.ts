@@ -56,6 +56,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   storeData = signal<any | null>(null);
   router = inject(Router);
   userId = signal<number | null>(null);
+  categoryId = signal<string | undefined>('');
   // Computed properties for better performance
   get canEditOrDeletePost(): boolean {
     if (!this.topic) return false;
@@ -84,6 +85,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     } else {
       this.errorMessage = 'Topic not found';
     }
+    const data = this.forumService.getTopicDetail()?.categoryId;
+    this.categoryId.set(data);
   }
 
   loadTopicDetail(threadId: string | null) {
@@ -99,7 +102,6 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response?.success) {
           const thread = response.data;
-          debugger;
 
           // Handle paginated response structure
           const pagination = thread.pagination || {
@@ -124,6 +126,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               isPinned: thread.isPinned || false,
               isLocked: thread.isLocked || false,
               likeCount: thread.likeCount,
+              forumPosts:thread.forum_posts,
               tags: [],
               user: thread.user,
               forumId: thread.forum?.id || '',
@@ -148,6 +151,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               tags: [],
               forumId: '',
               posts: [],
+              forumPosts:[],
               user: {
                 id: 0,
                 firstName: '',
@@ -230,11 +234,11 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
     this.isSubmittingComment = true;
     const topicId = this.topicId();
-    const userId = this.userId();
 
     const createComment: CreateCommentDto = {
       content: this.newComment.trim(),
-      id: topicId!,
+      postId: topicId!,
+      parentId: this.categoryId(),
     };
 
     // Get user info for optimistic update

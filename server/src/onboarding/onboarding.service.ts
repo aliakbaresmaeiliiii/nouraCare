@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { OnboardingDataDto, CompleteOnboardingDto } from './dto/onboarding.dto';
+import { userInfo } from 'os';
 
 interface TemporaryOnboardingData {
   sessionId: string;
@@ -56,7 +57,7 @@ export class OnboardingService {
   async completeOnboardingWithRegistration(
     sessionId: string,
     email: string,
-    phone: string,
+    phoneNumber: string,
   ) {
     const session = this.temporaryData.get(sessionId);
 
@@ -81,8 +82,9 @@ export class OnboardingService {
     // Create user directly
     const user = await this.prisma.user.create({
       data: {
-        email,
-        phone,
+        email:email,
+        fullName:'',
+        phoneNumber:phoneNumber, 
         isVerified: false,
       },
     });
@@ -98,7 +100,7 @@ export class OnboardingService {
       user: {
         id: user.id,
         email: user.email,
-        phone: user.phone,
+        phoneNumber: user.phoneNumber,
         isVerified: user.isVerified,
       },
       onboardingData: session.data,

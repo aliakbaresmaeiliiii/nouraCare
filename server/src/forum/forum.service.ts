@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/services/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ForumService {
@@ -18,13 +19,13 @@ export class ForumService {
           include: {
             _count: {
               select: {
-                forum_threads: true,
+                forumThreads: true,
               },
             },
           },
         },
       },
-      orderBy: { order: 'asc' },
+      orderBy: { createdAt: 'asc' },
     });
   }
 
@@ -37,7 +38,7 @@ export class ForumService {
     const skip = (page - 1) * limit;
 
     const [topics, total] = await Promise.all([
-      this.prisma.forums.findMany({
+      this.prisma.forum.findMany({
         where: {
           categoryId,
           isActive: true,
@@ -45,18 +46,23 @@ export class ForumService {
         include: {
           _count: {
             select: {
-              forum_threads: true,
+              forumThreads: true,
             },
           },
-          forum_threads: {
+          forumThreads: {
             orderBy: { createdAt: 'desc' },
             take: 1,
             include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  profileImage: true,
+              forumPosts: {
+                orderBy: { createdAt: 'desc' },
+                take: 1,
+                include: {
+                  author: {
+                    select: {
+                      id: true,
+                      fullName: true,
+                    },
+                  },
                 },
               },
             },
@@ -66,7 +72,7 @@ export class ForumService {
         skip,
         take: limit,
       }),
-      this.prisma.forums.count({
+      this.prisma.forum.count({
         where: {
           categoryId,
           isActive: true,
@@ -96,11 +102,10 @@ export class ForumService {
           isDeleted: false,
         },
         include: {
-          user: {
+          author: {
             select: {
               id: true,
-              name: true,
-              profileImage: true,
+              fullName: true,
             },
           },
           _count: {
@@ -136,18 +141,17 @@ export class ForumService {
     const post = await this.prisma.forumPost.findUnique({
       where: { id, isDeleted: false },
       include: {
-        user: {
+        author: {
           select: {
             id: true,
-            name: true,
-            profileImage: true,
+            fullName: true,
           },
         },
-        forum_thread: {
+        thread: {
           include: {
-            forums: {
+            forum: {
               include: {
-                forum_categories: true,
+                category: true,
               },
             },
           },
@@ -169,7 +173,7 @@ export class ForumService {
 
   async createPost(createPostDto: CreatePostDto, userId: number) {
     // Verify topic exists
-    const topic = await this.prisma.forum_threads.findFirst({
+    const topic = await this.prisma.forumThread.findFirst({
       where: {
         id: createPostDto.topicId,
       },
@@ -189,11 +193,10 @@ export class ForumService {
         authorId: userId,
       },
       include: {
-        user: {
+        author: {
           select: {
             id: true,
-            name: true,
-            profileImage: true,
+            fullName: true,
           },
         },
         _count: {
@@ -207,22 +210,24 @@ export class ForumService {
 
   // Comments
   async createComment(createCommentDto: CreateCommentDto, userId: number) {
-    // Verify forum thread exists
-    const thread = await this.prisma.forum_threads.findFirst({
+    // Verify forum post exists
+    const post = await this.prisma.forumPost.findFirst({
       where: {
-        id: createCommentDto.id,
+        id: createCommentDto.postId,
+        isDeleted: false,
       },
     });
 
-    if (!thread) {
-      throw new HttpException('Thread not found', HttpStatus.NOT_FOUND);
+    if (!post) {
+      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
     }
 
     // If parentId is provided, verify parent comment exists
     if (createCommentDto.parentId) {
-      const parentComment = await this.prisma.forumPost.findFirst({
+      const parentComment = await this.prisma.forumComment.findFirst({
         where: {
           id: createCommentDto.parentId,
+          isDeleted: false,
         },
       });
 
@@ -234,24 +239,21 @@ export class ForumService {
       }
     }
 
-    return this.prisma.forumPost.create({
+    return this.prisma.forumComment.create({
       data: {
+        id: uuidv4(),
         content: createCommentDto.content,
-        threadId: createCommentDto.id,
+        postId: createCommentDto.postId,
         authorId: userId,
         parentId: createCommentDto.parentId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       include: {
-        user: {
+        author: {
           select: {
             id: true,
-            name: true,
-            profileImage: true,
-          },
-        },
-        _count: {
-          select: {
-            other_forum_posts: true,
+            fullName: true,
           },
         },
       },
@@ -264,7 +266,7 @@ export class ForumService {
     userId: number,
   ) {
     // Find comment and verify ownership
-    const comment = await this.prisma.forumPost.findFirst({
+    const comment = await this.prisma.forumComment.findFirst({
       where: {
         id,
       },
@@ -281,22 +283,17 @@ export class ForumService {
       );
     }
 
-    return this.prisma.forumPost.update({
+    return this.prisma.forumComment.update({
       where: { id },
       data: {
         content: updateCommentDto.content,
+        updatedAt: new Date(),
       },
       include: {
-        user: {
+        author: {
           select: {
             id: true,
-            name: true,
-            profileImage: true,
-          },
-        },
-        _count: {
-          select: {
-            other_forum_posts: true,
+            fullName: true,
           },
         },
       },
@@ -305,7 +302,7 @@ export class ForumService {
 
   async deleteComment(id: string, userId: number) {
     // Find comment and verify ownership
-    const comment = await this.prisma.forumPost.findFirst({
+    const comment = await this.prisma.forumComment.findFirst({
       where: {
         id,
       },
@@ -322,9 +319,13 @@ export class ForumService {
       );
     }
 
-    // Delete the comment
-    await this.prisma.forumPost.delete({
+    // Soft delete the comment
+    await this.prisma.forumComment.update({
       where: { id },
+      data: {
+        isDeleted: true,
+        updatedAt: new Date(),
+      },
     });
   }
 }

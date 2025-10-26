@@ -18,11 +18,11 @@ export class TrackDayController {
 
   @Post(':userId')
   async createTrackDay(
-    @Param('userId') userId: string,
+    @Param('userId') userId: number,
     @Body() createTrackDayDto: CreateTrackDayDto,
   ) {
-    const userIdNumber = parseInt(userId);
-    if (isNaN(userIdNumber)) {
+    const userIdNumber = userId;
+    if (userIdNumber) {
       throw new BadRequestException('Invalid user ID');
     }
 
@@ -31,11 +31,11 @@ export class TrackDayController {
 
   @Get(':userId/:date')
   async getTrackDay(
-    @Param('userId') userId: string,
+    @Param('userId') userId: number,
     @Param('date') date: string,
   ) {
-    const userIdNumber = parseInt(userId);
-    if (isNaN(userIdNumber)) {
+    const userIdNumber =userId;
+    if (userIdNumber) {
       throw new BadRequestException('Invalid user ID');
     }
     return this.trackDayService.getTrackDay(userIdNumber, date);
@@ -43,12 +43,12 @@ export class TrackDayController {
 
   @Put(':userId/:trackDayId')
   async updateTrackDay(
-    @Param('userId') userId: string,
+    @Param('userId') userId: number,
     @Param('trackDayId') trackDayId: string,
     @Body() updateTrackDayDto: UpdateTrackDayDto,
   ) {
-    const userIdNumber = parseInt(userId);
-    if (isNaN(userIdNumber)) {
+    const userIdNumber = userId;
+    if (userIdNumber) {
       throw new BadRequestException('Invalid user ID');
     }
 
@@ -61,7 +61,7 @@ export class TrackDayController {
 
   // @Delete(':userId/range')
   // async deleteTrackDay(
-  //   @Param('userId') userId: string,
+  //   @Param('userId') userId: number,
   //   @Query('startDate') startDate: string,
   //   @Query('endDate') endDate: string,
   // ) {

@@ -49,10 +49,10 @@ export class ProfileController {
   @Post(':id/pregnancy-planning')
   @UsePipes(new ValidationPipe({ transform: true }))
   async createPregnancyPlanning(
-    @Param('id') id: number,
+    @Param('id') id: string,
     @Body() createPregnancyPlanningDto: CreatePregnancyPlanningDto,
   ): Promise<PregnancyPlanningResponseDto> {
-    return this.userService.createPregnancyPlanning(id, createPregnancyPlanningDto);
+    return this.userService.createPregnancyPlanning(+id, createPregnancyPlanningDto);
   }
 
   @Get(':id/pregnancy-planning')

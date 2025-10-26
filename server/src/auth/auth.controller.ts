@@ -8,48 +8,47 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
+import { AuthService } from './auth.service';
 
 @Controller('api/v1/auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+
+  constructor(private authService:AuthService){}
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    if (!registerDto.email || !registerDto.phone) {
-      throw new BadRequestException('Email and phone are required!');
+    if (!registerDto.email) {
+      throw new BadRequestException('Email is required!');
     }
-    const result = await this.authService.register(registerDto, registerDto.onboardingData);
+    const result = await this.authService.register(registerDto);
     return ApiResponseHelper.success(result, 'User registered successfully');
   }
 
-  @Post('verify-email')
-  async verifyEmail(@Body() body: { email: string; verify_code: string }) {
-    if (!body.email || !body.verify_code) {
-      throw new BadRequestException('Email and verification code are required');
-    }
-    const result = await this.authService.verifyEmail(body.email, body.verify_code);
-    return ApiResponseHelper.success(result, 'Email verified successfully');
-  }
-
-  @Post('resend-otp')
-  async resendOtp(@Body() body: { email: string }) {
-    if (!body.email) {
-      throw new BadRequestException('Email is required');
-    }
-    await this.authService.resendOtp(body.email);
-    return ApiResponseHelper.success(null, 'OTP sent successfully');
-  }
-
   @Post('sign-in')
-  async signIn(@Body() body: { email: string }) {
-    if (!body.email) {
+  async signIn(@Body() body: any) {
+    console.log('Sign-in request body:', body);
+    
+    // Extract email from the body object
+    let email = body.email;
+    
+    // If email is not found in the expected location, try to parse it
+    if (!email && typeof body === 'object') {
+      // Try to find email in the body object
+      const bodyString = JSON.stringify(body);
+      const emailMatch = bodyString.match(/"email"\s*:\s*"([^"]+)"/);
+      if (emailMatch) {
+        email = emailMatch[1];
+      }
+    }
+    
+    if (!email) {
       throw new BadRequestException('Email is required');
     }
 
-    const result = await this.authService.login(body.email);
+    const result = await this.authService.login(email);
     return ApiResponseHelper.success(result, 'Login successful');
   }
 

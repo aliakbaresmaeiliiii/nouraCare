@@ -1,0 +1,488 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id                        Int                 @id @default(autoincrement())
+  email                     String              @unique(map: "User_email_key")
+  phone                     String              @unique(map: "User_phone_key")
+  verificationCode          String?
+  verificationCodeExpiresAt DateTime?
+  isVerified                Boolean             @default(false)
+  createdAt                 DateTime            @default(now())
+  lastPeriodStartDate       DateTime?
+  menstrualCycleLength      Int?
+  periodDuration            Int?
+  status                    user_status?
+  profileImage              String?
+  name                      String?
+  firstName                 String?
+  lastName                  String?
+  birthday                  DateTime?
+  city                      String?
+  healthGoals               String?
+  notificationsEnabled      Boolean             @default(true)
+  pregnancyProgress         String?
+  pregnancyWeek             Int?
+  updatedAt                 DateTime            @default(now()) @updatedAt
+  role                      user_role           @default(USER)
+  isPregnant                Boolean             @default(false)
+  pregnancyEndDate          DateTime?
+  address                   address[]
+  chatMemberships           ChatMember[]
+  sentMessages              ChatMessage[]       @relation("MessageSender")
+  forumPostLikes            ForumPostLike[]
+  forum_posts               ForumPost[]
+  forum_threads             forum_threads[]
+  forums                    forums[]
+  readMessages              MessageRead[]       @relation("MessageReads")
+  onboarding_data           OnboardingData?
+  period_logs               PeriodLog[]
+  postLikes                 PostLike[]          @relation("PostLikes")
+  posts                     Post[]              @relation("PostAuthor")
+  pregnancy_planning        PregnancyPlanning[]
+  refreshTokens             RefreshToken[]
+  createdChats              SecretChat[]        @relation("ChatCreatedBy")
+  trackday                  trackday[]
+  forum_comments            forum_comments[]
+  forum_comment_likes       forum_comment_likes[]
+}
+
+model SecretChat {
+  id          String        @id @default(uuid())
+  name        String?
+  description String?       @db.Text
+  isGroup     Boolean       @default(false)
+  createdById Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  members     ChatMember[]
+  messages    ChatMessage[]
+  posts       Post[]
+  createdBy   user          @relation("ChatCreatedBy", fields: [createdById], references: [id])
+
+  @@index([createdById], map: "secret_chats_createdById_fkey")
+  @@map("secret_chats")
+}
+
+model ChatMember {
+  id       String     @id @default(uuid())
+  chatId   String
+  userId   Int
+  role     MemberRole @default(MEMBER)
+  joinedAt DateTime   @default(now())
+  leftAt   DateTime?
+  chat     SecretChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user     user       @relation(fields: [userId], references: [id])
+
+  @@unique([chatId, userId])
+  @@index([userId], map: "chat_members_userId_fkey")
+  @@map("chat_members")
+}
+
+model PostCategory {
+  id          String   @id
+  name        String
+  description String   @db.Text
+  color       String?
+  icon        String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  posts       Post[]
+
+  @@map("post_categories")
+}
+
+model ForumCategory {
+  id          String   @id @default(uuid())
+  name        String
+  description String   @db.Text
+  slug        String   @unique
+  color       String?
+  icon        String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  forums      forums[]
+
+  @@map("forum_categories")
+}
+
+model ForumPost {
+  id                String          @id @default(uuid())
+  content           String          @db.Text
+  threadId          String
+  authorId          Int
+  parentId          String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  isDeleted         Boolean         @default(false)
+  likes             ForumPostLike[]
+  user              user            @relation(fields: [authorId], references: [id])
+  forum_posts       ForumPost?      @relation("forum_postsToforum_posts", fields: [parentId], references: [id])
+  other_forum_posts ForumPost[]     @relation("forum_postsToforum_posts")
+  forum_thread      forum_threads   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  forum_comments    forum_comments[]
+
+  @@index([authorId], map: "forum_posts_authorId_fkey")
+  @@index([parentId], map: "forum_posts_parentId_fkey")
+  @@index([threadId], map: "forum_posts_threadId_fkey")
+  @@map("forum_posts")
+}
+
+model ForumPostLike {
+  id        String    @id @default(uuid())
+  postId    String
+  userId    Int
+  createdAt DateTime  @default(now())
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      user      @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+  @@index([userId], map: "forum_post_likes_userId_fkey")
+  @@map("forum_post_likes")
+}
+
+model Post {
+  id          String        @id @default(uuid())
+  content     String?       @db.Text
+  chatId      String
+  authorId    Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  isAnonymous Boolean       @default(false)
+  categoryId  String?
+  likes       PostLike[]
+  media       PostMedia[]
+  author      user          @relation("PostAuthor", fields: [authorId], references: [id])
+  category    PostCategory? @relation(fields: [categoryId], references: [id])
+  chat        SecretChat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([authorId], map: "posts_authorId_fkey")
+  @@index([categoryId], map: "posts_categoryId_fkey")
+  @@index([chatId], map: "posts_chatId_fkey")
+  @@map("posts")
+}
+
+model PostMedia {
+  id        String    @id @default(uuid())
+  postId    String
+  url       String
+  type      MediaType
+  caption   String?   @db.Text
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId], map: "post_media_postId_fkey")
+  @@map("post_media")
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String
+  userId    Int
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      user     @relation("PostLikes", fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+  @@index([userId], map: "post_likes_userId_fkey")
+  @@map("post_likes")
+}
+
+model forum_comments {
+  id          String              @id @default(uuid())
+  content     String              @db.Text
+  postId      String
+  authorId    Int
+  parentId    String?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  isDeleted   Boolean             @default(false)
+  likes       forum_comment_likes[]
+  user        user                @relation(fields: [authorId], references: [id])
+  parent      forum_comments?     @relation("forum_comment_replies", fields: [parentId], references: [id])
+  replies     forum_comments[]    @relation("forum_comment_replies")
+  forum_post  ForumPost           @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([authorId], map: "forum_comments_authorId_fkey")
+  @@index([parentId], map: "forum_comments_parentId_fkey")
+  @@index([postId], map: "forum_comments_postId_fkey")
+  @@map("forum_comments")
+}
+
+model forum_comment_likes {
+  id        String         @id @default(uuid())
+  commentId String
+  userId    Int
+  createdAt DateTime       @default(now())
+  comment   forum_comments @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      user           @relation(fields: [userId], references: [id])
+
+  @@unique([commentId, userId])
+  @@index([userId], map: "forum_comment_likes_userId_fkey")
+  @@map("forum_comment_likes")
+}
+
+model ChatMessage {
+  id          String        @id @default(uuid())
+  content     String?       @db.Text
+  chatId      String
+  senderId    Int
+  messageType MessageType   @default(TEXT)
+  mediaUrl    String?
+  replyToId   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  isDeleted   Boolean       @default(false)
+  chat        SecretChat    @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  replyTo     ChatMessage?  @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies     ChatMessage[] @relation("MessageReplies")
+  sender      user          @relation("MessageSender", fields: [senderId], references: [id])
+  readBy      MessageRead[]
+
+  @@index([chatId], map: "chat_messages_chatId_fkey")
+  @@index([replyToId], map: "chat_messages_replyToId_fkey")
+  @@index([senderId], map: "chat_messages_senderId_fkey")
+  @@map("chat_messages")
+}
+
+model MessageRead {
+  id        String      @id @default(uuid())
+  messageId String
+  userId    Int
+  readAt    DateTime    @default(now())
+  message   ChatMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      user        @relation("MessageReads", fields: [userId], references: [id])
+
+  @@unique([messageId, userId])
+  @@index([userId], map: "message_reads_userId_fkey")
+  @@map("message_reads")
+}
+
+model address {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  cityId      Int
+  districtId  Int?
+  addressLine String
+  createdAt   DateTime  @default(now())
+  city        city      @relation(fields: [cityId], references: [id], map: "Address_cityId_fkey")
+  district    district? @relation(fields: [districtId], references: [id], map: "Address_districtId_fkey")
+  user        user      @relation(fields: [userId], references: [id], map: "Address_userId_fkey")
+
+  @@index([cityId], map: "Address_cityId_fkey")
+  @@index([districtId], map: "Address_districtId_fkey")
+  @@index([userId], map: "Address_userId_fkey")
+}
+
+model city {
+  id       Int        @id @default(autoincrement())
+  name     String
+  state    String?
+  address  address[]
+  district district[]
+}
+
+model district {
+  id      Int       @id @default(autoincrement())
+  name    String
+  cityId  Int
+  address address[]
+  city    city      @relation(fields: [cityId], references: [id], map: "District_cityId_fkey")
+
+  @@index([cityId], map: "District_cityId_fkey")
+}
+
+model doctors {
+  id               String                   @id
+  fullName         String
+  specialty        String
+  experienceYears  Int
+  about            String                   @db.Text
+  rating           Float                    @default(0)
+  profileImageUrl  String?
+  clinicName       String?
+  location         String?
+  contactEmail     String?
+  contactPhone     String?
+  consultationType doctors_consultationType
+  fee              Float?
+  availableSlots   Json?
+  licenseNumber    String?
+  licenseDocument  String?
+  isVerified       Boolean
+  verifiedAt       DateTime?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime
+}
+
+model trackday {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  date      DateTime
+  mood      String?  @db.Text
+  energy    String?  @db.Text
+  symptoms  String?  @db.Text
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  user      user     @relation(fields: [userId], references: [id], map: "TrackDay_userId_fkey")
+
+  @@unique([userId, date], map: "userId_date")
+}
+
+model PregnancyPlanning {
+  id                    Int      @id @default(autoincrement())
+  userId                Int
+  lastPeriodDate        DateTime
+  cycleLength           Int
+  lifestyleGoals        String?  @db.Text
+  notes                 String?  @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  averagePeriodDuration Int
+  user                  user     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("pregnancy_planning")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  isRevoked Boolean  @default(false)
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+model PeriodLog {
+  id                    Int      @id @default(autoincrement())
+  userId                Int
+  mood                  String?  @db.Text
+  notes                 String?  @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  averagePeriodDuration Int?
+  lastPeriodDate        DateTime
+  user                  user     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("period_logs")
+}
+
+model OnboardingData {
+  id                   Int       @id @default(autoincrement())
+  userId               Int       @unique
+  sessionId            String?
+  pregnancyStatus      String?
+  lastPeriodDate       DateTime?
+  cycleLength          Int?
+  periodDuration       Int?
+  pregnancyWeek        Int?
+  pregnancyProgress    String?
+  healthGoals          String?   @db.Text
+  notificationsEnabled Boolean?  @default(true)
+  selectedOptions      Json?
+  onboardingStep       Int?      @default(1)
+  isCompleted          Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  user                 user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+  @@map("onboarding_data")
+}
+
+model forum_threads {
+  id          String      @id
+  title       String
+  content     String      @db.Text
+  forumId     String
+  authorId    Int
+  isPinned    Boolean     @default(false)
+  isLocked    Boolean     @default(false)
+  viewCount   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime
+  forum_posts ForumPost[]
+  user        user        @relation(fields: [authorId], references: [id])
+  forums      forums      @relation(fields: [forumId], references: [id], onDelete: Cascade)
+
+  @@index([authorId], map: "forum_threads_authorId_fkey")
+  @@index([forumId], map: "forum_threads_forumId_fkey")
+}
+
+model forums {
+  id               String          @id
+  title            String
+  description      String          @db.Text
+  categoryId       String
+  createdById      Int
+  isPublic         Boolean         @default(true)
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime
+  forum_threads    forum_threads[]
+  forum_categories ForumCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user             user            @relation(fields: [createdById], references: [id])
+
+  @@index([categoryId], map: "forums_categoryId_fkey")
+  @@index([createdById], map: "forums_createdById_fkey")
+}
+
+enum MemberRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  DOCUMENT
+  SYSTEM
+}
+
+enum doctors_consultationType {
+  ONLINE
+  IN_PERSON
+  BOTH
+}
+
+enum user_role {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+enum user_status {
+  PLANNING_PREGNANCY
+  PREGNANT
+  HAS_CHILD
+}

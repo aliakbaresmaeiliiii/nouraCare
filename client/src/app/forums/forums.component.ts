@@ -112,6 +112,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       user: topicData.user,
       forumId: topicData.forumId,
       createdAt: topicData.createdAt,
+      forumPosts:topicData.forumPosts
     };
 
     // Add to the beginning of the topics list
@@ -234,7 +235,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
             lastReply: thread.updatedAt,
             isPinned: thread.isPinned || false,
             isLocked: thread.isLocked || false,
-            user:thread.user ,
+            user: thread.user,
             tags: thread.tags || [],
             createdAt: thread.createdAt,
           }));
@@ -312,7 +313,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
             isPinned: thread.isPinned || false,
             isLocked: thread.isLocked || false,
             tags: thread.tags || [],
-            user:thread.user,
+            user: thread.user,
             createdAt: thread.createdAt,
           }));
           this.topics.set(threads);
@@ -341,7 +342,13 @@ export class ForumsComponent implements OnInit, OnDestroy {
   }
 
   openTopic(topic: ForumTopic) {
-    this.forumsService.setTopicDetail(topic);
+    const categoryId = this.selectedCategory();
+    // Create a topic object with categoryId included
+    const topicWithCategory = {
+      ...topic,
+      categoryId: categoryId,
+    };
+    this.forumsService.setTopicDetail(topicWithCategory);
     this.router.navigate(['/forums/topic', topic.id]);
   }
 

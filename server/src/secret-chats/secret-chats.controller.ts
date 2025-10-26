@@ -77,7 +77,7 @@ export class SecretChatsController {
   // }
 
   // @Get('user/:userId/chats')
-  // async getChats(@Param('userId') userId: string) {
+  // async getChats(@Param('userId') userId: number) {
   //   const chats = await this.secretChatsService.getUserChats(+userId);
   //   return {
   //     data: chats,
@@ -119,7 +119,7 @@ export class SecretChatsController {
   // @Delete(':chatId/members/:userId')
   // async removeMember(
   //   @Param('chatId') chatId: string,
-  //   @Param('userId') memberUserId: string,
+  //   @Param('userId') memberuserId: number,
   //   @Request() req: AuthenticatedRequest,
   // ) {
   //   return this.secretChatsService.removeMember(
@@ -350,7 +350,7 @@ export class SecretChatsController {
 
   // // Utility endpoints for development/testing
   // @Get('test/user/:userId')
-  // async testGetUserChats(@Param('userId') userId: string) {
+  // async testGetUserChats(@Param('userId') userId: number) {
   //   // This is a test endpoint - remove in production
   //   return this.secretChatsService.getUserChats(+userId);
   // }
@@ -358,7 +358,7 @@ export class SecretChatsController {
   // @Post('test/chat/:chatId/user/:userId')
   // async testCreatePost(
   //   @Param('chatId') chatId: string,
-  //   @Param('userId') userId: string,
+  //   @Param('userId') userId: number,
   //   @Body() createPostDto: Omit<CreatePostDto, 'chatId'>,
   // ) {
   //   // This is a test endpoint - remove in production

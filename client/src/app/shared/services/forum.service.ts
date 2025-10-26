@@ -25,7 +25,7 @@ export class ForumService {
   }
 
   getTopicDetail() {
-    return this.topicDetail;
+    return this.topicDetail();
   }
 
   postCreated = signal<boolean>(false);
@@ -47,6 +47,7 @@ export class ForumService {
   private forumThreadsBaseUrl = environment.apiEndPoint + 'forum-threads';
   private forumPostsBaseUrl = environment.apiEndPoint + 'forum-posts';
   private forumBaseUrl = environment.apiEndPoint + 'forum';
+  private forumCommentBaseUrl = environment.apiEndPoint + 'forum-comments';
 
   getAllThreads(page: number = 1, limit: number = 20) {
     return this.http.get<ThreadsResponse>(
@@ -77,7 +78,7 @@ export class ForumService {
   }
 
   createComment(createComment: CreateCommentDto) {
-    return this.http.post<PostResponse>(`${this.forumBaseUrl}/create-comment`, createComment);
+    return this.http.post<PostResponse>(`${this.forumCommentBaseUrl}`, createComment);
   }
 
   createForumPost(postData: CreateForumPostDto) {
@@ -98,7 +99,7 @@ export class ForumService {
   replyToComment(payload: CreateCommentDto) {
     const replyData: CreateCommentDto = {
       content: payload.content,
-      id: payload.id,
+      postId: payload.postId!,
       parentId: payload.parentId,
       forumId: payload.forumId,
       

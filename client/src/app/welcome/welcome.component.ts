@@ -112,7 +112,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     const payload: RegisterRequest = {
       email: this.registerForm.value.email,
-      phone: this.registerForm.value.phone,
+      phoneNumber: this.registerForm.value.phoneNumber,
     };
     // this.authService.register(payload).subscribe({
     //   next: (res) => {

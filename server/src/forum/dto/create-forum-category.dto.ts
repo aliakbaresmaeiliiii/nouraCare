@@ -1,4 +1,5 @@
 export class CreateForumCategoryDto {
+  id:string;
   name: string;
   description: string;
   slug: string;

@@ -7,18 +7,20 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Injectable()
 export class ForumCommentsService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(createCommentDto: any, authorId: number) {
+  async create(createCommentDto: CreateCommentDto, authorId: number) {
     try {
       // Validate input
       if (!createCommentDto.content?.trim()) {
         throw new BadRequestException('Content is required');
       }
-      if (!createCommentDto.postId?.trim()) {
+      if (!createCommentDto.postId) {
         throw new BadRequestException('Post ID is required');
       }
 
@@ -33,7 +35,7 @@ export class ForumCommentsService {
 
       // Check if parent comment exists (if provided)
       if (createCommentDto.parentId) {
-        const parentComment = await this.prismaService.forum_comments.findUnique({
+        const parentComment = await this.prismaService.forumComment.findUnique({
           where: { id: createCommentDto.parentId },
         });
 
@@ -53,7 +55,7 @@ export class ForumCommentsService {
 
       // Create the comment
       const commentId = uuidv4();
-      const comment = await this.prismaService.forum_comments.create({
+      const comment = await this.prismaService.forumComment.create({
         data: {
           id: commentId,
           content: createCommentDto.content.trim(),
@@ -64,31 +66,24 @@ export class ForumCommentsService {
           updatedAt: new Date(),
         },
         include: {
-          user: {
+          author: {
             select: {
               id: true,
-              name: true,
-              firstName: true,
-              lastName: true,
-              profileImage: true,
+              fullName: true,
             },
           },
           parent: {
             include: {
-              user: {
+              author: {
                 select: {
                   id: true,
-                  name: true,
-                  firstName: true,
-                  lastName: true,
-                  profileImage: true,
+                  fullName: true,
                 },
               },
             },
           },
           _count: {
             select: {
-              likes: true,
               replies: true,
             },
           },
@@ -125,37 +120,30 @@ export class ForumCommentsService {
     const skip = (page - 1) * limit;
 
     const [comments, total] = await Promise.all([
-      this.prismaService.forum_comments.findMany({
+      this.prismaService.forumComment.findMany({
         where: {
           postId: postId,
           isDeleted: false,
           parentId: null, // Only get top-level comments
         },
         include: {
-          user: {
+          author: {
             select: {
               id: true,
-              name: true,
-              firstName: true,
-              lastName: true,
-              profileImage: true,
+              fullName: true,
             },
           },
           replies: {
             where: { isDeleted: false },
             include: {
-              user: {
+              author: {
                 select: {
                   id: true,
-                  name: true,
-                  firstName: true,
-                  lastName: true,
-                  profileImage: true,
+                  fullName: true,
                 },
               },
               _count: {
                 select: {
-                  likes: true,
                   replies: true,
                 },
               },
@@ -164,7 +152,6 @@ export class ForumCommentsService {
           },
           _count: {
             select: {
-              likes: true,
               replies: true,
             },
           },
@@ -173,7 +160,7 @@ export class ForumCommentsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forum_comments.count({
+      this.prismaService.forumComment.count({
         where: {
           postId: postId,
           isDeleted: false,
@@ -197,24 +184,20 @@ export class ForumCommentsService {
     const skip = (page - 1) * limit;
 
     const [replies, total] = await Promise.all([
-      this.prismaService.forum_comments.findMany({
+      this.prismaService.forumComment.findMany({
         where: {
           parentId: commentId,
           isDeleted: false,
         },
         include: {
-          user: {
+          author: {
             select: {
               id: true,
-              name: true,
-              firstName: true,
-              lastName: true,
-              profileImage: true,
+              fullName: true,
             },
           },
           _count: {
             select: {
-              likes: true,
               replies: true,
             },
           },
@@ -223,7 +206,7 @@ export class ForumCommentsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forum_comments.count({
+      this.prismaService.forumComment.count({
         where: {
           parentId: commentId,
           isDeleted: false,
@@ -243,27 +226,21 @@ export class ForumCommentsService {
   }
 
   async findOne(id: string) {
-    const comment = await this.prismaService.forum_comments.findUnique({
+    const comment = await this.prismaService.forumComment.findUnique({
       where: { id },
       include: {
-        user: {
+        author: {
           select: {
             id: true,
-            name: true,
-            firstName: true,
-            lastName: true,
-            profileImage: true,
+            fullName: true,
           },
         },
         parent: {
           include: {
-            user: {
+            author: {
               select: {
                 id: true,
-                name: true,
-                firstName: true,
-                lastName: true,
-                profileImage: true,
+                fullName: true,
               },
             },
           },
@@ -271,18 +248,14 @@ export class ForumCommentsService {
         replies: {
           where: { isDeleted: false },
           include: {
-            user: {
+            author: {
               select: {
                 id: true,
-                name: true,
-                firstName: true,
-                lastName: true,
-                profileImage: true,
+                fullName: true,
               },
             },
             _count: {
               select: {
-                likes: true,
                 replies: true,
               },
             },
@@ -291,7 +264,6 @@ export class ForumCommentsService {
         },
         _count: {
           select: {
-            likes: true,
             replies: true,
           },
         },
@@ -305,8 +277,8 @@ export class ForumCommentsService {
     return comment;
   }
 
-  async update(id: string, updateCommentDto: any, userId: number) {
-    const comment = await this.prismaService.forum_comments.findUnique({
+  async update(id: string, updateCommentDto: UpdateCommentDto, userId: number) {
+    const comment = await this.prismaService.forumComment.findUnique({
       where: { id },
     });
 
@@ -325,22 +297,18 @@ export class ForumCommentsService {
       updateData.content = updateCommentDto.content.trim();
     }
 
-    return this.prismaService.forum_comments.update({
+    return this.prismaService.forumComment.update({
       where: { id },
       data: updateData,
       include: {
-        user: {
+        author: {
           select: {
             id: true,
-            name: true,
-            firstName: true,
-            lastName: true,
-            profileImage: true,
+            fullName: true,
           },
         },
         _count: {
           select: {
-            likes: true,
             replies: true,
           },
         },
@@ -349,7 +317,7 @@ export class ForumCommentsService {
   }
 
   async remove(id: string, userId: number) {
-    const comment = await this.prismaService.forum_comments.findUnique({
+    const comment = await this.prismaService.forumComment.findUnique({
       where: { id },
     });
 
@@ -363,7 +331,7 @@ export class ForumCommentsService {
     }
 
     // Soft delete the comment
-    return this.prismaService.forum_comments.update({
+    return this.prismaService.forumComment.update({
       where: { id },
       data: {
         isDeleted: true,
