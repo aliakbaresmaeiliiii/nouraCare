@@ -103,10 +103,10 @@ export class VerifyEmailComponent implements OnInit {
       return;
     }
     const payload = {
-      email: this.userInfo.data.email,
-      verify_code: otp,
+      email: this.userInfo.data.user.email,
+      code: otp,
     };
-
+debugger;
     this.service.verifyEmail(payload).subscribe({
       next: (res: any) => {
         console.log('Response:', res);

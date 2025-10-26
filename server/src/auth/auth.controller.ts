@@ -10,6 +10,8 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 import { AuthService } from './auth.service';
 
@@ -82,5 +84,17 @@ export class AuthController {
   async verifyUserExists(@Req() req: any) {
     const result = await this.authService.verifyUserExists(req.user.id);
     return ApiResponseHelper.success(result, 'User verified successfully');
+  }
+
+  @Post('verify-email')
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+    const result = await this.authService.verifyEmail(verifyEmailDto.email, verifyEmailDto.code);
+    return ApiResponseHelper.success(result, 'Email verified successfully');
+  }
+
+  @Post('resend-verification')
+  async resendVerification(@Body() resendVerificationDto: ResendVerificationDto) {
+    const result = await this.authService.resendVerificationCode(resendVerificationDto.email);
+    return ApiResponseHelper.success(result, 'Verification code sent successfully');
   }
 }

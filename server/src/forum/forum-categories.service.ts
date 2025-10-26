@@ -13,24 +13,27 @@ export class ForumCategoriesService {
 
   async create(createForumCategoryDto: CreateForumCategoryDto) {
     // Check if name already exists
-    const existingCategory = await this.prismaService.forumCategory.findUnique({
-      where: { id: createForumCategoryDto.id },
+    const existingCategory = await this.prismaService.forum_categories.findFirst({
+      where: { name: createForumCategoryDto.name },
     });
 
     if (existingCategory) {
       throw new ConflictException('Category with this name already exists');
     }
 
-    return this.prismaService.forumCategory.create({
-      data: createForumCategoryDto,
+    return this.prismaService.forum_categories.create({
+      data: {
+        ...createForumCategoryDto,
+        updatedAt: new Date(),
+      },
       include: {
         forums: {
           include: {
-            forumThreads: {
+            forum_threads: {
               include: {
                 _count: {
                   select: {
-                    forumPosts: {
+                    forum_posts: {
                       where: { isDeleted: false },
                     },
                   },
@@ -45,15 +48,15 @@ export class ForumCategoriesService {
   }
 
   async findAll() {
-    return this.prismaService.forumCategory.findMany({
+    return this.prismaService.forum_categories.findMany({
       include: {
         forums: {
           include: {
-            forumThreads: {
+            forum_threads: {
               include: {
                 _count: {
                   select: {
-                    forumPosts: {
+                    forum_posts: {
                       where: { isDeleted: false },
                     },
                   },
@@ -69,16 +72,16 @@ export class ForumCategoriesService {
   }
 
   async findOne(id: string) {
-    const category = await this.prismaService.forumCategory.findUnique({
+    const category = await this.prismaService.forum_categories.findUnique({
       where: { id },
       include: {
         forums: {
           include: {
-            forumThreads: {
+            forum_threads: {
               include: {
                 _count: {
                   select: {
-                    forumPosts: {
+                    forum_posts: {
                       where: { isDeleted: false },
                     },
                   },
@@ -99,16 +102,16 @@ export class ForumCategoriesService {
   }
 
   async findByName(id: string) {
-    const category = await this.prismaService.forumCategory.findUnique({
+    const category = await this.prismaService.forum_categories.findUnique({
       where: { id },
       include: {
         forums: {
           include: {
-            forumThreads: {
+            forum_threads: {
               include: {
                 _count: {
                   select: {
-                    forumPosts: {
+                    forum_posts: {
                       where: { isDeleted: false },
                     },
                   },
@@ -130,7 +133,7 @@ export class ForumCategoriesService {
 
   async update(id: string, updateForumCategoryDto: UpdateForumCategoryDto) {
     // Check if category exists
-    const existingCategory = await this.prismaService.forumCategory.findUnique({
+    const existingCategory = await this.prismaService.forum_categories.findUnique({
       where: { id },
     });
 
@@ -143,8 +146,8 @@ export class ForumCategoriesService {
       updateForumCategoryDto.name &&
       updateForumCategoryDto.name !== existingCategory.name
     ) {
-      const nameConflict = await this.prismaService.forumCategory.findUnique({
-        where: { id: updateForumCategoryDto.id },
+      const nameConflict = await this.prismaService.forum_categories.findFirst({
+        where: { name: updateForumCategoryDto.name },
       });
 
       if (nameConflict) {
@@ -152,17 +155,20 @@ export class ForumCategoriesService {
       }
     }
 
-    return this.prismaService.forumCategory.update({
+    return this.prismaService.forum_categories.update({
       where: { id },
-      data: updateForumCategoryDto,
+      data: {
+        ...updateForumCategoryDto,
+        updatedAt: new Date(),
+      },
       include: {
         forums: {
           include: {
-            forumThreads: {
+            forum_threads: {
               include: {
                 _count: {
                   select: {
-                    forumPosts: {
+                    forum_posts: {
                       where: { isDeleted: false },
                     },
                   },
@@ -177,7 +183,7 @@ export class ForumCategoriesService {
 
   async remove(id: string) {
     // Check if category exists
-    const category = await this.prismaService.forumCategory.findUnique({
+    const category = await this.prismaService.forum_categories.findUnique({
       where: { id },
     });
 
@@ -186,9 +192,9 @@ export class ForumCategoriesService {
     }
 
     // Check if category has forum threads
-    const threadsCount = await this.prismaService.forumThread.count({
+    const threadsCount = await this.prismaService.forum_threads.count({
       where: { 
-        forum: {
+        forums: {
           categoryId: id
         }
       },
@@ -200,13 +206,13 @@ export class ForumCategoriesService {
       );
     }
 
-    return this.prismaService.forumCategory.delete({
+    return this.prismaService.forum_categories.delete({
       where: { id },
     });
   }
 
   async deactivate(id: string) {
-    const category = await this.prismaService.forumCategory.findUnique({
+    const category = await this.prismaService.forum_categories.findUnique({
       where: { id },
     });
 
@@ -214,23 +220,23 @@ export class ForumCategoriesService {
       throw new NotFoundException('Forum category not found');
     }
 
-    return this.prismaService.forumCategory.update({
+    return this.prismaService.forum_categories.update({
       where: { id },
-      data: { isActive: true },
+      data: { isActive: true, updatedAt: new Date() },
     });
   }
 
   async getCategoryStats(id: string) {
-    const category = await this.prismaService.forumCategory.findUnique({
+    const category = await this.prismaService.forum_categories.findUnique({
       where: { id },
       include: {
         forums: {
           include: {
-            forumThreads: {
+            forum_threads: {
               include: {
                 _count: {
                   select: {
-                    forumPosts: {
+                    forum_posts: {
                       where: { isDeleted: false },
                     },
                   },
@@ -247,12 +253,12 @@ export class ForumCategoriesService {
     }
 
     const totalThreads = category.forums.reduce(
-      (sum, forum) => sum + forum.forumThreads.length,
+      (sum, forum) => sum + forum.forum_threads.length,
       0,
     );
     const totalPosts = category.forums.reduce(
-      (sum, forum) => sum + forum.forumThreads.reduce(
-        (threadSum, thread) => threadSum + thread._count.forumPosts,
+      (sum, forum) => sum + forum.forum_threads.reduce(
+        (threadSum, thread) => threadSum + thread._count.forum_posts,
         0
       ),
       0,

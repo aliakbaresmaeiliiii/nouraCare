@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { OnboardingDataDto, CompleteOnboardingDto } from './dto/onboarding.dto';
-import { userInfo } from 'os';
 
 interface TemporaryOnboardingData {
   sessionId: string;
@@ -82,10 +81,11 @@ export class OnboardingService {
     // Create user directly
     const user = await this.prisma.user.create({
       data: {
-        email:email,
-        fullName:'',
-        phoneNumber:phoneNumber, 
+        email: email,
+        fullName: '',
+        phoneNumber: phoneNumber,
         isVerified: false,
+        updatedAt: new Date(),
       },
     });
 
@@ -126,18 +126,34 @@ export class OnboardingService {
 
     // Filter out undefined values
     const filteredData = Object.fromEntries(
-      Object.entries(onboardingDataToSave).filter(([_, value]) => value !== undefined),
+      Object.entries(onboardingDataToSave).filter(
+        ([_, value]) => value !== undefined,
+      ),
     );
 
-    // Save to onboarding_data table
-    await this.prisma.onboardingData.upsert({
+    // Save to onboarding_data table using raw SQL approach
+    // First check if record exists
+    const existingRecord = await this.prisma.onboarding_data.findUnique({
       where: { userId },
-      update: filteredData,
-      create: {
-        userId,
-        ...filteredData,
-      },
     });
+
+    if (existingRecord) {
+      // Update existing record
+      await this.prisma.onboarding_data.update({
+        where: { userId },
+        data: filteredData,
+      });
+    } else {
+      // Use explicit typing to avoid TypeScript issues
+      const createData: any = {
+        userId: userId,
+        ...filteredData,
+      };
+      
+      await this.prisma.onboarding_data.create({
+        data: createData,
+      });
+    }
 
     // Also update critical user fields for backward compatibility
     const userUpdateData = {
@@ -152,7 +168,9 @@ export class OnboardingService {
     };
 
     const filteredUserData = Object.fromEntries(
-      Object.entries(userUpdateData).filter(([_, value]) => value !== undefined),
+      Object.entries(userUpdateData).filter(
+        ([_, value]) => value !== undefined,
+      ),
     );
 
     if (Object.keys(filteredUserData).length > 0) {

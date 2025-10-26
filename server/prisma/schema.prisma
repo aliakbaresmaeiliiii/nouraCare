@@ -379,34 +379,36 @@ model trackday {
 }
 
 model user {
-  id                  Int                   @id @default(autoincrement())
-  email               String                @unique
-  phoneNumber         String                @unique
-  fullName            String
-  role                user_role             @default(USER)
-  status              user_status           @default(ACTIVE)
-  isVerified          Boolean               @default(false)
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime
-  address             address[]
-  chat_members        chat_members[]
-  chat_messages       chat_messages[]
-  forum_comment_likes forum_comment_likes[]
-  forum_comments      forum_comments[]
-  forum_post_likes    forum_post_likes[]
-  forum_posts         forum_posts[]
-  forum_threads       forum_threads[]
-  forums              forums[]
-  message_reads       message_reads[]
-  onboarding_data     onboarding_data?
-  period_logs         period_logs[]
-  post_likes          post_likes[]
-  posts               posts[]
-  pregnancy_planning  pregnancy_planning[]
-  refresh_tokens      refresh_tokens[]
-  secret_chats        secret_chats[]
-  trackday            trackday[]
-  user_profile        user_profile?
+  id                           Int                   @id @default(autoincrement())
+  email                        String                @unique
+  phoneNumber                  String                @unique
+  fullName                     String
+  role                         user_role             @default(USER)
+  status                       user_status           @default(ACTIVE)
+  isVerified                   Boolean               @default(false)
+  createdAt                    DateTime              @default(now())
+  updatedAt                    DateTime
+  emailVerificationCode        String?
+  emailVerificationCodeExpires DateTime?
+  address                      address[]
+  chat_members                 chat_members[]
+  chat_messages                chat_messages[]
+  forum_comment_likes          forum_comment_likes[]
+  forum_comments               forum_comments[]
+  forum_post_likes             forum_post_likes[]
+  forum_posts                  forum_posts[]
+  forum_threads                forum_threads[]
+  forums                       forums[]
+  message_reads                message_reads[]
+  onboarding_data              onboarding_data?
+  period_logs                  period_logs[]
+  post_likes                   post_likes[]
+  posts                        posts[]
+  pregnancy_planning           pregnancy_planning[]
+  refresh_tokens               refresh_tokens[]
+  secret_chats                 secret_chats[]
+  trackday                     trackday[]
+  user_profile                 user_profile?
 }
 
 model user_profile {

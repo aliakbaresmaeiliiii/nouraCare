@@ -40,7 +40,7 @@ export class ForumThreadsService {
       }
 
       // Check if category exists and is active
-      const category = await this.prismaService.forumCategory.findUnique({
+      const category = await this.prismaService.forum_categories.findUnique({
         where: { id: createForumThreadDto.categoryId },
       });
 
@@ -60,13 +60,13 @@ export class ForumThreadsService {
       }
 
       // Find or create a forum for this category
-      let forum = await this.prismaService.forum.findFirst({
+      let forum = await this.prismaService.forums.findFirst({
         where: { categoryId: createForumThreadDto.categoryId },
       });
 
       // If no forum exists for this category, create one
       if (!forum) {
-        forum = await this.prismaService.forum.create({
+        forum = await this.prismaService.forums.create({
           data: {
             id: uuidv4(),
             title: `${category.name} Discussions`,
@@ -83,7 +83,7 @@ export class ForumThreadsService {
       const threadId = uuidv4();
 
       // Create the forum thread
-      const createdThread = await this.prismaService.forumThread.create({
+      const createdThread = await this.prismaService.forum_threads.create({
         data: {
           title: createForumThreadDto.title.trim(),
           content: createForumThreadDto.description.trim(), // Use description as content
@@ -94,9 +94,9 @@ export class ForumThreadsService {
           updatedAt: new Date(),
         },
         include: {
-          forum: {
+          forums: {
             include: {
-              category: true,
+              forum_categories: true,
             },
           },
         },
@@ -141,7 +141,7 @@ export class ForumThreadsService {
 
     if (categoryId) {
       // Get forum IDs that belong to this category
-      const forumsInCategory = await this.prismaService.forum.findMany({
+      const forumsInCategory = await this.prismaService.forums.findMany({
         where: { categoryId },
         select: { id: true },
       });
@@ -151,12 +151,12 @@ export class ForumThreadsService {
     }
 
     const [threads, total] = await Promise.all([
-      this.prismaService.forumThread.findMany({
+      this.prismaService.forum_threads.findMany({
         where,
         include: {
-          forum: {
+          forums: {
             include: {
-              category: true,
+              forum_categories: true,
             },
           },
         },
@@ -164,7 +164,7 @@ export class ForumThreadsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forumThread.count({ where }),
+      this.prismaService.forum_threads.count({ where }),
     ]);
 
     return {
@@ -179,20 +179,20 @@ export class ForumThreadsService {
   }
 
   async findOne(id: string) {
-    const thread = await this.prismaService.forumThread.findUnique({
+    const thread = await this.prismaService.forum_threads.findUnique({
       where: { id },
       include: {
-        forum: {
+        forums: {
           include: {
-            category: true,
+            forum_categories: true,
           },
         },
-        forumPosts: {
+        forum_posts: {
           where: {
             isDeleted: false,
           },
           include: {
-            author: {
+            user: {
               select: {
                 id: true,
                 fullName: true,
@@ -200,7 +200,7 @@ export class ForumThreadsService {
             },
             _count: {
               select: {
-                likes: true,
+                forum_post_likes: true,
               },
             },
           },
@@ -219,12 +219,12 @@ export class ForumThreadsService {
   }
 
   async findByCategory(categoryId: string) {
-    const thread = await this.prismaService.forumThread.findFirst({
+    const thread = await this.prismaService.forum_threads.findFirst({
       where: { forumId: categoryId },
       include: {
-        forum: {
+        forums: {
           include: {
-            category: true,
+            forum_categories: true,
           },
         },
       },
@@ -242,7 +242,7 @@ export class ForumThreadsService {
     updateForumThreadDto: UpdateForumThreadDto,
     userId: number,
   ) {
-    const thread = await this.prismaService.forumThread.findUnique({
+    const thread = await this.prismaService.forum_threads.findUnique({
       where: { id },
     });
 
@@ -265,13 +265,13 @@ export class ForumThreadsService {
       updateData.content = updateForumThreadDto.description.trim();
     }
 
-    return this.prismaService.forumThread.update({
+    return this.prismaService.forum_threads.update({
       where: { id },
       data: updateData,
       include: {
-        forum: {
+        forums: {
           include: {
-            category: true,
+            forum_categories: true,
           },
         },
       },
@@ -279,7 +279,7 @@ export class ForumThreadsService {
   }
 
   async remove(id: string, userId: number) {
-    const thread = await this.prismaService.forumThread.findUnique({
+    const thread = await this.prismaService.forum_threads.findUnique({
       where: { id },
     });
 
@@ -293,7 +293,7 @@ export class ForumThreadsService {
     }
 
     // Delete the forum thread
-    return this.prismaService.forumThread.delete({
+    return this.prismaService.forum_threads.delete({
       where: { id },
     });
   }
@@ -302,16 +302,16 @@ export class ForumThreadsService {
     const skip = (page - 1) * limit;
 
     const [threads, total] = await Promise.all([
-      this.prismaService.forumThread.findMany({
+      this.prismaService.forum_threads.findMany({
         where: {
           OR: [
             { title: { contains: query } },
           ],
         },
         include: {
-          forum: {
+          forums: {
             include: {
-              category: true,
+              forum_categories: true,
             },
           },
         },
@@ -319,7 +319,7 @@ export class ForumThreadsService {
         skip,
         take: limit,
       }),
-      this.prismaService.forumThread.count({
+      this.prismaService.forum_threads.count({
         where: {
           OR: [
             { title: { contains: query } },

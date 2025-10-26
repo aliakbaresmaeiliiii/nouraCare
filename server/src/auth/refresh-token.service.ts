@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/services/prisma.service';
 
 @Injectable()
@@ -13,11 +14,16 @@ export class RefreshTokenService {
     // Hash the refresh token before storing
     const hashedToken = await bcrypt.hash(token, 12);
 
-    await this.prisma.refreshToken.create({
+    // Generate UUID for the refresh token ID
+    const refreshTokenId = uuidv4();
+
+    await this.prisma.refresh_tokens.create({
       data: {
+        id: refreshTokenId,
         token: hashedToken,
-        userId,
-        expiresAt,
+        userId: userId,
+        expiresAt: expiresAt,
+        createdAt: new Date(),
       },
     });
 
@@ -25,7 +31,7 @@ export class RefreshTokenService {
   }
 
   async validateRefreshToken(token: string, userId: number): Promise<boolean> {
-    const refreshTokens = await this.prisma.refreshToken.findMany({
+    const refreshTokens = await this.prisma.refresh_tokens.findMany({
       where: {
         userId,
         isRevoked: false,
@@ -46,7 +52,7 @@ export class RefreshTokenService {
   }
 
   async revokeRefreshToken(token: string, userId: number): Promise<void> {
-    const refreshTokens = await this.prisma.refreshToken.findMany({
+    const refreshTokens = await this.prisma.refresh_tokens.findMany({
       where: {
         userId,
         isRevoked: false,
@@ -56,7 +62,7 @@ export class RefreshTokenService {
     for (const refreshToken of refreshTokens) {
       const isValid = await bcrypt.compare(token, refreshToken.token);
       if (isValid) {
-        await this.prisma.refreshToken.update({
+        await this.prisma.refresh_tokens.update({
           where: { id: refreshToken.id },
           data: { isRevoked: true },
         });
@@ -66,7 +72,7 @@ export class RefreshTokenService {
   }
 
   async revokeAllUserTokens(userId: number): Promise<void> {
-    await this.prisma.refreshToken.updateMany({
+    await this.prisma.refresh_tokens.updateMany({
       where: {
         userId,
         isRevoked: false,
@@ -78,7 +84,7 @@ export class RefreshTokenService {
   }
 
   async cleanupExpiredTokens(): Promise<void> {
-    await this.prisma.refreshToken.deleteMany({
+    await this.prisma.refresh_tokens.deleteMany({
       where: {
         OR: [
           { expiresAt: { lt: new Date() } },

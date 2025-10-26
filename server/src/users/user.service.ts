@@ -114,7 +114,7 @@ export class UserService {
     // Use a transaction to ensure all operations succeed or fail together
     await this.prismaService.$transaction(async (tx) => {
       // 1. Revoke all refresh tokens for the user
-      await tx.refreshToken.updateMany({
+      await tx.refresh_tokens.updateMany({
         where: { userId },
         data: { isRevoked: true },
       });

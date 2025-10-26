@@ -284,7 +284,8 @@ export class AuthService {
     });
   }
 
-  verifyEmail(data: { email: string; verify_code: string }): Observable<any> {
+  verifyEmail(data: { email: string; code: string }): Observable<any> {
+    debugger;
     return this.http.post(`${this.baseUrl}/verify-email`, data);
   }
 
