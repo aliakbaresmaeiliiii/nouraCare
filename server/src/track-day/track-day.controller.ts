@@ -12,7 +12,7 @@ import {
 import { TrackDayService } from './track-day.service';
 import { CreateTrackDayDto, UpdateTrackDayDto } from './dto/track-day.dto';
 
-@Controller('api/v1/track-day')
+@Controller('track-day')
 export class TrackDayController {
   constructor(private trackDayService: TrackDayService) {}
 

@@ -76,7 +76,7 @@
         <div class="topic-info">
           <div class="author-info">
             <h3 class="author-name">
-              {{ topic.user.firstName }} {{ topic.user.lastName }}
+              {{ topic.user.fullName }}
             </h3>
             <span class="topic-time">{{
               formatRelativeTime(topic.createdAt)

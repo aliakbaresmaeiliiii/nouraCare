@@ -173,7 +173,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.forumsService.getCategories().subscribe({
       next: (response: any) => {
-        console.log('Categories response:', response);
         if (response.success === true) {
           this.isLoading.set(false);
           // Map the backend data to our frontend interface

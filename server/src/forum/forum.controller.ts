@@ -17,7 +17,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { LikeCommentDto } from './dto/like-comment.dto';
 import { ForumService } from './forum.service';
 
-@Controller('api/v1/forum')
+@Controller('forum')
 export class ForumController {
   constructor(private readonly forumService: ForumService) {}
 

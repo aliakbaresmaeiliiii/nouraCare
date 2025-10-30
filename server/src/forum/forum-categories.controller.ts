@@ -13,7 +13,7 @@ import { ForumCategoriesService } from './forum-categories.service';
 import { CreateForumCategoryDto } from './dto/create-forum-category.dto';
 import { UpdateForumCategoryDto } from './dto/update-forum-category.dto';
 
-@Controller('api/v1/forum-categories')
+@Controller('forum-categories')
 export class ForumCategoriesController {
   constructor(
     private readonly forumCategoriesService: ForumCategoriesService,

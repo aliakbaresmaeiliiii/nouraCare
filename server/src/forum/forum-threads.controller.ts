@@ -15,7 +15,7 @@ import { CreateForumThreadDto } from './dto/create-forum-thread.dto';
 import { UpdateForumThreadDto } from './dto/update-forum-thread.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@Controller('api/v1/forum-threads')
+@Controller('forum-threads')
 export class ForumThreadsController {
   constructor(private readonly forumThreadsService: ForumThreadsService) {}
 

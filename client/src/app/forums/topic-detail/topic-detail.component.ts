@@ -117,7 +117,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               id: threadId,
               title: thread.title || 'Untitled',
               description: thread.content || 'No content',
-              author: thread.user?.name || 'Anonymous',
+              author: thread.user?.fullName || 'Anonymous',
               authorAvatar: thread.user?.profileImage || '',
               category: thread.forum?.title || 'General Discussion',
               replies: pagination.total || thread._count?.posts || 0,
@@ -154,8 +154,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               forumPosts:[],
               user: {
                 id: 0,
-                firstName: '',
-                lastName: '',
+                fullName: '',
                 profileImage: '',
               },
               createdAt: new Date().toISOString(),

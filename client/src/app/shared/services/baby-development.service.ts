@@ -62,7 +62,6 @@ export class BabyDevelopmentService {
     const localData = this.loadFromStorage();
     if (localData.length > 0) {
       this.babySizeData.set(localData);
-      console.log('Baby size data loaded from localStorage');
       return;
     }
 

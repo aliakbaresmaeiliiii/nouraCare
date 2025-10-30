@@ -99,6 +99,19 @@ export class ForumThreadsService {
               forum_categories: true,
             },
           },
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              user_profile: {
+                select: {
+                  avatarUrl: true,
+                  bio: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -159,6 +172,19 @@ export class ForumThreadsService {
               forum_categories: true,
             },
           },
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              user_profile: {
+                select: {
+                  avatarUrl: true,
+                  bio: true,
+                },
+              },
+            },
+          },
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -187,28 +213,34 @@ export class ForumThreadsService {
             forum_categories: true,
           },
         },
+
         forum_posts: {
           where: {
             isDeleted: false,
           },
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
-              },
-            },
-            _count: {
-              select: {
-                forum_post_likes: true,
-              },
-            },
-          },
+
           orderBy: {
             createdAt: 'asc',
           },
         },
+
+        
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            user_profile: {
+              select: {
+                avatarUrl: true,
+                bio: true,
+              },
+            },
+          },
+        },
       },
+
+    
     });
 
     if (!thread) {
@@ -304,14 +336,25 @@ export class ForumThreadsService {
     const [threads, total] = await Promise.all([
       this.prismaService.forum_threads.findMany({
         where: {
-          OR: [
-            { title: { contains: query } },
-          ],
+          OR: [{ title: { contains: query } }],
         },
         include: {
           forums: {
             include: {
               forum_categories: true,
+            },
+          },
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              email: true,
+              user_profile: {
+                select: {
+                  avatarUrl: true,
+                  bio: true,
+                },
+              },
             },
           },
         },
@@ -321,9 +364,7 @@ export class ForumThreadsService {
       }),
       this.prismaService.forum_threads.count({
         where: {
-          OR: [
-            { title: { contains: query } },
-          ],
+          OR: [{ title: { contains: query } }],
         },
       }),
     ]);

@@ -13,7 +13,7 @@ import {
 import { ForumCommentsService } from './forum-comments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@Controller('api/v1/forum-comments')
+@Controller('forum-comments')
 export class ForumCommentsController {
   constructor(private readonly forumCommentsService: ForumCommentsService) {}
 

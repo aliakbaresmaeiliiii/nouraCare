@@ -132,8 +132,7 @@ export interface ForumTopic {
   tags: string[];
   user: {
     id: number;
-    firstName: string;
-    lastName: string;
+    fullName: string;
     profileImage: string;
   };
   createdAt: string;

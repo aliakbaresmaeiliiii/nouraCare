@@ -282,22 +282,12 @@ export class CirclePeriodChart implements OnInit, OnChanges {
    * Debug method to check current state
    */
   public debugState() {
-    console.log('🔍 Chart Debug State:');
-    console.log('- Cycle Length:', this.cycleLength);
-    console.log('- Period Length:', this.periodLength);
-    console.log('- Start Date:', this.startDate);
-    console.log('- End Date:', this.endDate);
-    console.log('- Today Cycle Day:', this.todayCycleDay);
-    console.log('- Service Last Period:', this.cycleSettings.lastPeriodStartDate());
-    console.log('- Service Cycle Length:', this.cycleSettings.cycleLength());
-    console.log('- Service Period Length:', this.cycleSettings.periodLength());
   }
 
   /**
    * Force complete reinitialization of the chart
    */
   public forceReinitialize() {
-    console.log('🔄 Force reinitializing chart...');
     this.ngOnInit();
   }
 

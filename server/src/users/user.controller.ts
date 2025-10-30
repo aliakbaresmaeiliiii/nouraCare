@@ -20,7 +20,7 @@ import { OnboardingService } from './onboarding.service';
 import { OnboardingDataDto } from './dto/onboarding.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 
-@Controller('api/v1/user')
+@Controller('user')
 export class UserController {
   constructor(
     private userService: UserService,

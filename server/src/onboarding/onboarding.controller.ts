@@ -2,7 +2,7 @@ import { Body, Controller, Post, Get, Param } from '@nestjs/common';
 import { OnboardingService } from './onboarding.service';
 import { OnboardingDataDto } from './dto/onboarding.dto';
 
-@Controller('api/v1/onboarding')
+@Controller('onboarding')
 export class OnboardingController {
   constructor(private onboardingService: OnboardingService) {}
 

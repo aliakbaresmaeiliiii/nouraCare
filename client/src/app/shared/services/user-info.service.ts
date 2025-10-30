@@ -182,7 +182,6 @@ export class UserInfoService {
       if (userInfo) {
         const parsed = JSON.parse(userInfo);
         this.userInfo.set(parsed);
-        console.log('User info loaded on initialization:', parsed);
       } else {
         // Try to load from API if no local data
         const userId = this.getCurrentUserId();

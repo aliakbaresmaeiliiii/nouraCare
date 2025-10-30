@@ -22,16 +22,16 @@ async function bootstrap() {
   });
 
   // setup CORS
-  app.enableCors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'), false);
-      }
-    },
-    credentials: true,
-  });
+ app.enableCors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'), false);
+    }
+  },
+  credentials: true,
+});
 
   // Global validation
   // Optional: large JSON body size
@@ -42,3 +42,5 @@ async function bootstrap() {
   console.log(`🚀 Server running on http://${host}:${port}`);
 }
 bootstrap();
+
+

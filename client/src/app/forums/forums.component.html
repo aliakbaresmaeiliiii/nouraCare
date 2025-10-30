@@ -62,7 +62,8 @@
             (click)="clearFilters()"
             class="clear-button"
           >
-            Clear
+            <ion-icon name="refresh-outline" slot="start" class="clear-icon"></ion-icon>
+            Clear Filters
           </ion-button>
         </div>
       </div>
@@ -252,7 +253,7 @@
                   />
                 </ion-avatar>
                 <span class="author-name"
-                  >{{ topic.user.firstName }} {{ topic.user.lastName }}</span
+                  >{{ topic.user.fullName }} </span
                 >
               </div>
 

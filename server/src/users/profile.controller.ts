@@ -18,7 +18,7 @@ import { PeriodTrackerResponseDto } from './dto/period-tracker.dto';
 import { CreatePregnancyPlanningDto, UpdatePregnancyPlanningDto, PregnancyPlanningResponseDto } from './dto/pregnancy-planning.dto';
 import { CreatePeriodLogDto, UpdatePeriodLogDto, PeriodLogResponseDto } from './dto/period-log.dto';
 
-@Controller('api/v1/profile')
+@Controller('profile')
 export class ProfileController {
   constructor(private userService: UserService) {}
 

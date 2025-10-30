@@ -36,7 +36,7 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-@Controller('api/v1/secret-chats')
+@Controller('secret-chats')
 export class SecretChatsController {
   constructor(private secretChatsService: SecretChatsService) {}
 
