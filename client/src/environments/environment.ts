@@ -14,13 +14,8 @@ export interface Config {
 // ********************* hostspot ********************
 export const environment = {
   production: false,
-
-  // برای Dev با WebView و ng serve بهتره از HTTP استفاده کنیم
-  // apiEndPoint: 'http://10.0.2.2:8080/api/v1/',
-  // urlProfileImg: 'http://10.0.2.2:8080/uploads/',
-  apiEndPoint: 'http://10.190.238.186:8000/api/v1/',
-  urlProfileImg: 'http://10.190.238.186:8000/uploads/',
-
+  apiEndPoint: 'http://192.168.50.192:8080/api/v1/',
+  urlProfileImg: 'http://192.168.50.192:8080/uploads/',
   neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',
   mapboxToken:

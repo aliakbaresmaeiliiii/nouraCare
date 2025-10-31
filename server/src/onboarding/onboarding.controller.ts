@@ -8,6 +8,7 @@ export class OnboardingController {
 
   @Post('save')
   async saveOnboardingData(@Body() onboardingData: OnboardingDataDto) {
+    console.log('Received onboarding data:', onboardingData);
     return this.onboardingService.saveTemporaryOnboardingData(onboardingData);
   }
 

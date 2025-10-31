@@ -17,18 +17,16 @@ export class OnboardingService {
     setInterval(() => this.cleanupExpiredSessions(), 60 * 60 * 1000);
   }
 
-  async saveTemporaryOnboardingData(
-    onboardingData: OnboardingDataDto,
-  ): Promise<{ sessionId: string; expiresAt: Date }> {
+  async saveTemporaryOnboardingData(onboardingData: OnboardingDataDto) {
     const sessionId = this.generateSessionId();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
+    console.log('Saving onboarding data (debug mode)', onboardingData);
     this.temporaryData.set(sessionId, {
       sessionId,
       data: onboardingData,
       expiresAt,
     });
-
     return { sessionId, expiresAt };
   }
 
@@ -149,7 +147,7 @@ export class OnboardingService {
         userId: userId,
         ...filteredData,
       };
-      
+
       await this.prisma.onboarding_data.create({
         data: createData,
       });
