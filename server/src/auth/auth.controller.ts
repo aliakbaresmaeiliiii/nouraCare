@@ -15,7 +15,7 @@ import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 import { AuthService } from './auth.service';
 
-@Controller('api/v1/auth')
+@Controller('auth')
 export class AuthController {
 
   constructor(private authService:AuthService){}

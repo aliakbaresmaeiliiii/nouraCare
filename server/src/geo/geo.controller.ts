@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { GeoService } from './geo.service';
 import { CreateAddressDto } from './dto/create-address.dto';
 
-@Controller('api/v1/geo')
+@Controller('geo')
 export class GeoController {
   constructor(private geo: GeoService) {}
 

@@ -11,9 +11,7 @@ async function bootstrap() {
     cert: fs.readFileSync('certs/cert.pem'),
   };
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    httpsOptions,
-  });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -29,10 +27,63 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: '*',
+    origin: true,
     credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Accept, Authorization',
+    //   origin: [
+    //     'https://localhost:4200', // Angular dev server
+    //     'https://10.190.238.186:8080', // Your server IP
+    //     'https://10.190.238.187:8080', // Mobile app IP
+    //     'capacitor://localhost', // Capacitor iOS
+    //     'https://localhost', // Capacitor Android
+    //     'https://localhost:8080', // HTTPS localhost with port
+    //     /^https:\/\/10\.190\.238\.\d+:\d+$/, // Allow any IP in the 10.190.238.x range
+    //     /^https:\/\/192\.168\.\d+\.\d+:\d+$/, // Allow any IP in the 192.168.x.x range
+    //     /^https:\/\/localhost:\d+$/, // Allow localhost with any port
+    //   ],
+    //   allowedHeaders: [
+    //     'Content-Type',
+    //     'Authorization',
+    //     'X-Requested-With',
+    //     'Accept',
+    //     'Origin',
+    //     'Access-Control-Request-Method',
+    //     'Access-Control-Request-Headers',
+    //   ],
+    //   exposedHeaders: [
+    //     'Content-Type',
+    //     'Authorization',
+    //     'Content-Length',
+    //     'X-Request-Id',
+    //     'X-Powered-By',
+    //   ],
+    //   credentials: true,
+    //   maxAge: 86400, // 24 hours
+    //   preflightContinue: false,
+    //   optionsSuccessStatus: 204,
+    // });
+    // app.use((req, res, next) => {
+    //   res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    //   res.header(
+    //     'Access-Control-Allow-Methods',
+    //     'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+    //   );
+    //   res.header(
+    //     'Access-Control-Allow-Headers',
+    //     'Content-Type, Authorization, X-Requested-With',
+    //   );
+    //   res.header(
+    //     'Access-Control-Expose-Headers',
+    //     'Content-Type, Authorization, Content-Length',
+    //   );
+    //   res.header('Access-Control-Allow-Credentials', 'true');
+    //   console.log(
+    //     '[REQ]',
+    //     req.method,
+    //     req.url,
+    //     'from',
+    //     req.ip || req.connection.remoteAddress,
+    //   );
+    //   next();
   });
   app.setGlobalPrefix('api/v1');
 

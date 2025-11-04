@@ -18,16 +18,32 @@ export class OnboardingService {
   }
 
   async saveTemporaryOnboardingData(onboardingData: OnboardingDataDto) {
-    const sessionId = this.generateSessionId();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    try {
+      const sessionId = this.generateSessionId();
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    console.log('Saving onboarding data (debug mode)', onboardingData);
-    this.temporaryData.set(sessionId, {
-      sessionId,
-      data: onboardingData,
-      expiresAt,
-    });
-    return { sessionId, expiresAt };
+      console.log('Saving onboarding data (debug mode)', onboardingData);
+      
+      // Validate required fields based on pregnancy status
+      if (onboardingData.pregnancy_status === 'tracking' && !onboardingData.last_period) {
+        throw new Error('Last period date is required for period tracking');
+      }
+
+      this.temporaryData.set(sessionId, {
+        sessionId,
+        data: onboardingData,
+        expiresAt,
+      });
+      
+      console.log(`Onboarding data saved successfully with session ID: ${sessionId}`);
+      return { 
+        sessionId, 
+        message: 'Onboarding progress saved successfully'
+      };
+    } catch (error) {
+      console.error('Error saving onboarding data:', error);
+      throw new Error(`Failed to save your progress: ${error.message}. Please try again later.`);
+    }
   }
 
   async getTemporaryOnboardingData(

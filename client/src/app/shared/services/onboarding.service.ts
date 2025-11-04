@@ -3,6 +3,11 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+
+export interface OnboardingSession {
+  sessionId: string;
+  expiresAt: string;
+}
 export interface OnboardingDataDto {
   pregnancy_status: string;
   last_period: string | null;
@@ -38,12 +43,18 @@ export class OnboardingService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiEndPoint + 'onboarding';
 
+
+  startOnboarding(): Observable<OnboardingSession> {
+    return this.http.post<OnboardingSession>(`${this.baseUrl}/start`, {});
+  }
   /**
    * Save temporary onboarding data
    * @param onboardingData The onboarding data to save
    * @returns Observable with session information
    */
+ 
   saveOnboardingData(onboardingData: OnboardingDataDto): Observable<OnboardingSessionResponse> {
+    debugger
     return this.http.post<OnboardingSessionResponse>(`${this.baseUrl}/save`, onboardingData);
   }
 

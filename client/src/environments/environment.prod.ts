@@ -1,13 +1,10 @@
 export const environment = {
   production: true,
 
-  // apiEndPoint: 'http://10.190.238.186:8080/api/v1/',
-  apiEndPoint: 'https://10.190.238.187:8080/api/v1/',
-
-  // urlProfileImg: 'http://10.190.238.186:8080/uploads/',
-  urlProfileImg: 'https://10.190.238.187:8080/uploads/',
-
-  neshanBaseUrl: 'http://api.neshan.org',
+  // apiEndPoint: 'http://10.190.238.187:8080/api/v1/',
+  apiEndPoint: 'http://192.168.50.193:8080/api/v1/',
+  urlProfileImg: 'http://192.168.50.193:8080/uploads/',
+  neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',
   mapboxToken:
     'pk.eyJ1Ijoic2FtYW5laGJhc21lY2hpIiwiYSI6ImNrb3p0MHZsZDEzNnIydXFnb2ZzMHRkcXUifQ.5U7YQXoqKOsIMuIJR6OVgA',

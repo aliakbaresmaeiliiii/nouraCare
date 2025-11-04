@@ -258,7 +258,7 @@ export const routes: Routes = [
           import('./insights/insights.component').then((m) => m.InsightsComponent),
       },
       {
-        path: 'SecretChats',
+        path: 'secret-chats',
         loadComponent: () =>
           import('./secret-chats/secret-chats').then((m) => m.SecretChatsComponent),
       },

@@ -1,11 +1,11 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'Gahvareh',
+  appId: 'com.tecknnycs.gahvareh',
+  appName: 'Social Sharing App',
   webDir: 'www',
   server: {
-    cleartext: true,
+    androidScheme: 'https',
     allowNavigation: ['*'],
   },
 };

@@ -14,7 +14,12 @@ export class OnboardingController {
 
   @Get(':sessionId')
   async getOnboardingData(@Param('sessionId') sessionId: string) {
-    return this.onboardingService.getTemporaryOnboardingData(sessionId);
+    const data = await this.onboardingService.getTemporaryOnboardingData(sessionId);
+    return {
+      sessionId,
+      data,
+      createdAt: new Date().toISOString()
+    };
   }
 
   @Post(':sessionId/complete')

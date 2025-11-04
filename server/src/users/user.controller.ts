@@ -76,7 +76,7 @@ export class UserController {
   )
   async uploadProfileImage(@Param('id') id: string, @UploadedFile() file: any) {
     if (!file) throw new BadRequestException('No file uploaded');
-    const baseUrl = process.env.BASE_URL || 'http://172.20.10.2:8080';
+    const baseUrl = process.env.BASE_URL || 'https://10.190.238.186:8080';
     const url = `${baseUrl}/uploads/profile/${file.filename}`;
     await this.userService.editUserInfo(+id, { profileImage: url } as any);
     return ApiResponseHelper.success({ url }, 'Profile image uploaded successfully');
