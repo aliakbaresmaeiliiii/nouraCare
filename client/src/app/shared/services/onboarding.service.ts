@@ -54,7 +54,6 @@ export class OnboardingService {
    */
  
   saveOnboardingData(onboardingData: OnboardingDataDto): Observable<OnboardingSessionResponse> {
-    debugger
     return this.http.post<OnboardingSessionResponse>(`${this.baseUrl}/save`, onboardingData);
   }
 

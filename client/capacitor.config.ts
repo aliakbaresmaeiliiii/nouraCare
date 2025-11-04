@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Social Sharing App',
   webDir: 'www',
   server: {
-    androidScheme: 'https',
+    androidScheme: 'http',
     allowNavigation: ['*'],
   },
 };
