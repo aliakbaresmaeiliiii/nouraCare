@@ -2,12 +2,15 @@
 
 // Header Styles
 .modern-header {
+  padding-top: env(safe-area-inset-top, 0px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
   ion-toolbar {
     --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --color: white;
     --border-width: 0;
-    --padding-start: 16px;
-    --padding-end: 16px;
+    --padding-start: 0;
+    --padding-end: 0;
     --min-height: 64px;
     box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
   }
@@ -17,13 +20,15 @@
     align-items: center;
     justify-content: space-between;
     height: 64px;
+    max-width: var(--app-content-max-width);
+    margin: 0 auto;
   }
 
   .header-left {
     .menu-button {
       --color: white;
       --color-hover: rgba(255, 255, 255, 0.8);
-      --padding-start: 8px;
+      --padding-start: 4px;
       --padding-end: 8px;
       border-radius: 12px;
       transition: all 0.3s ease;
@@ -48,7 +53,7 @@
     .title-container {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 2px;
 
       .page-icon {
         font-size: 20px;
@@ -129,41 +134,70 @@
   }
 }
 
-// User-Friendly Tab Bar Styles
+
+// Modern Tab Bar with Light Gradient Background
 .modern-tab-bar {
-  --background: white;
+  --background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.98) 0%, 
+    rgba(248, 250, 252, 0.98) 100%);
   --border: none;
   --color: #64748b;
   --color-selected: #667eea;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(20px);
-  border-radius: 24px 24px 0 0;
-  margin: 0 12px 12px 12px;
-  padding: 12px 8px 8px 8px;
-  height: 80px;
+  border-radius: 28px 28px 0 0;
+  margin: 0;
+  padding: 16px 12px max(12px, env(safe-area-inset-bottom, 12px)) 12px;
+  height: 88px;
   display: flex;
   align-items: center;
   justify-content: space-around;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.98) 0%, 
+    rgba(248, 250, 252, 0.98) 100%);
+  overflow: hidden;
+  padding-top: 30px;
 
-  .tab-button {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+      rgba(102, 126, 234, 0.03) 0%, 
+      rgba(118, 75, 162, 0.03) 100%);
+    pointer-events: none;
+  }
+
+  ion-tab-button {
     --color: #64748b;
     --color-selected: #667eea;
     --background: transparent;
     --background-selected: transparent;
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    --padding-start: 8px;
-    --padding-end: 8px;
-    border-radius: 16px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --padding-top: 14px;
+    --padding-bottom: 14px;
+    --padding-start: 10px;
+    --padding-end: 10px;
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     position: relative;
     overflow: hidden;
     flex: 1;
-    max-width: 80px;
-    height: 64px;
+    max-width: 84px;
+    height: 68px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    z-index: 2;
 
     &::before {
       content: '';
@@ -172,43 +206,76 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: linear-gradient(135deg, 
+        rgba(102, 126, 234, 0.1) 0%, 
+        rgba(118, 75, 162, 0.1) 100%);
       opacity: 0;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.95) 0%, 
+        rgba(255, 255, 255, 0.9) 100%);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      border-radius: 18px;
+      z-index: -1;
     }
 
     &.tab-selected {
-      --color: white;
-      transform: translateY(-4px) scale(1.05);
+      --color: #667eea;
+      transform: translateY(-6px) scale(1.08);
+      z-index: 3;
 
       &::before {
         opacity: 1;
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.3);
+      }
+
+      &::after {
+        opacity: 1;
+        background: linear-gradient(135deg, 
+          rgba(255, 255, 255, 0.98) 0%, 
+          rgba(255, 255, 255, 0.95) 100%);
+      }
+
+      ion-icon {
+        color: #667eea !important;
+        transform: scale(1.3);
+        filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
+      }
+
+      .tab-label {
+        color: #667eea !important;
+        font-weight: 800;
+        transform: scale(1.08);
+        text-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
       }
 
       .tab-content {
         position: relative;
         z-index: 2;
-
-        .tab-icon {
-          color: white !important;
-          transform: scale(1.2);
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-        }
-
-        .tab-label {
-          color: white !important;
-          font-weight: 700;
-          transform: scale(1.05);
-        }
       }
     }
 
     &:hover:not(.tab-selected) {
-      background: rgba(102, 126, 234, 0.08);
-      transform: translateY(-2px) scale(1.02);
+      background: rgba(102, 126, 234, 0.05);
+      transform: translateY(-3px) scale(1.04);
       --color: #667eea;
+
+      &::before {
+        opacity: 0.3;
+      }
     }
 
     &:active {
@@ -219,31 +286,78 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      position: relative;
-      z-index: 2;
+      justify-content: center;
       width: 100%;
       height: 100%;
+      position: relative;
+    }
+
+    .tab-icon {
+      font-size: 24px;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      margin-bottom: 6px;
+      z-index: 2;
+      position: relative;
+      display: flex;
+      align-items: center;
       justify-content: center;
+      width: 24px;
+      height: 24px;
+    }
 
-      .tab-icon {
-        font-size: 22px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        margin-bottom: 2px;
+    .tab-icon-outline {
+      position: absolute;
+      opacity: 1;
+      color: #64748b;
+      transform: scale(1);
+    }
+
+    .tab-icon-filled {
+      position: absolute;
+      opacity: 0;
+      color: #667eea;
+      transform: scale(0.8);
+    }
+
+    &.tab-selected {
+      .tab-icon-outline {
+        opacity: 0;
+        transform: scale(0.8);
       }
 
-      .tab-label {
-        font-size: 12px;
-        font-weight: 600;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        text-align: center;
-        line-height: 1.1;
-        letter-spacing: 0.3px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
+      .tab-icon-filled {
+        opacity: 1;
+        transform: scale(1.3);
       }
+    }
+
+    &:not(.tab-selected) {
+      .tab-icon-outline {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .tab-icon-filled {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+    }
+
+    .tab-label {
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      text-align: center;
+      line-height: 1.1;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      margin: 0;
+      z-index: 2;
+      position: relative;
+      color: #64748b;
     }
   }
 }
@@ -262,131 +376,107 @@
 }
 
 // Responsive Design
-@media (max-width: 768px) {
-  .modern-header {
-    .header-toolbar {
-      --min-height: 56px;
-      height: 56px;
-    }
+// @media (max-width: 768px) {
+//   .modern-header {
+//     padding-top: env(safe-area-inset-top, 0px);
+    
+//     .header-toolbar {
+//       --min-height: 56px;
+//       height: 56px;
+//     }
 
-    .header-center {
-      .title-container {
-        .page-icon {
-          font-size: 18px;
-        }
+//     .header-center {
+//       .title-container {
+//         .page-icon {
+//           font-size: 18px;
+//         }
 
-        .page-title {
-          font-size: 16px;
-        }
-      }
-    }
+//         .page-title {
+//           font-size: 16px;
+//         }
+//       }
+//     }
 
-    .header-right {
-      gap: 4px;
+//     .header-right {
+//       gap: 4px;
 
-      .header-action {
-        --padding-start: 6px;
-        --padding-end: 6px;
+//       .header-action {
+//         --padding-start: 6px;
+//         --padding-end: 6px;
 
-        ion-icon {
-          font-size: 18px;
-        }
+//         ion-icon {
+//           font-size: 18px;
+//         }
 
-        .notification-badge {
-          width: 16px;
-          height: 16px;
-          font-size: 9px;
-        }
+//         .notification-badge {
+//           width: 16px;
+//           height: 16px;
+//           font-size: 9px;
+//         }
 
-        .profile-avatar {
-          width: 28px;
-          height: 28px;
+//         .profile-avatar {
+//           width: 28px;
+//           height: 28px;
 
-          ion-icon {
-            font-size: 18px;
-          }
-        }
-      }
-    }
-  }
+//           ion-icon {
+//             font-size: 18px;
+//           }
+//         }
+//       }
+//     }
+//   }
 
-  .modern-tab-bar {
-    margin: 0 8px 8px 8px;
-    padding: 8px 4px 4px 4px;
-    height: 72px;
+// }
 
-    .tab-button {
-      --padding-top: 8px;
-      --padding-bottom: 8px;
-      max-width: 70px;
-      height: 56px;
+// @media (max-width: 480px) {
+//   .modern-header {
+//     padding-top: env(safe-area-inset-top, 0px);
+    
+//     .header-center {
+//       .title-container {
+//         gap: 6px;
 
-      .tab-content {
-        gap: 4px;
+//         .page-icon {
+//           font-size: 16px;
+//         }
 
-        .tab-icon {
-          font-size: 20px;
-        }
+//         .page-title {
+//           font-size: 14px;
+//         }
+//       }
+//     }
 
-        .tab-label {
-          font-size: 11px;
-        }
-      }
-    }
-  }
-}
+//     .header-right {
+//       .header-action {
+//         .profile-avatar {
+//           width: 24px;
+//           height: 24px;
 
-@media (max-width: 480px) {
-  .modern-header {
-    .header-center {
-      .title-container {
-        gap: 6px;
+//           ion-icon {
+//             font-size: 16px;
+//           }
+//         }
+//       }
+//     }
+//   }
 
-        .page-icon {
-          font-size: 16px;
-        }
+//   .modern-tab-bar {
+//     margin: 0 8px max(4px, env(safe-area-inset-bottom, 4px)) 8px;
+//     padding: 8px 4px max(2px, env(safe-area-inset-bottom, 2px)) 4px;
+//     height: 72px;
 
-        .page-title {
-          font-size: 14px;
-        }
-      }
-    }
+//     ion-tab-button {
+//       max-width: 70px;
+//       height: 56px;
 
-    .header-right {
-      .header-action {
-        .profile-avatar {
-          width: 24px;
-          height: 24px;
+//       ion-icon {
+//         font-size: 20px;
+//         margin-bottom: 3px;
+//       }
 
-          ion-icon {
-            font-size: 16px;
-          }
-        }
-      }
-    }
-  }
-
-  .modern-tab-bar {
-    margin: 0 6px 6px 6px;
-    padding: 6px 2px 2px 2px;
-    height: 68px;
-
-    .tab-button {
-      max-width: 65px;
-      height: 52px;
-
-      .tab-content {
-        gap: 3px;
-
-        .tab-icon {
-          font-size: 18px;
-        }
-
-        .tab-label {
-          font-size: 10px;
-          letter-spacing: 0.2px;
-        }
-      }
-    }
-  }
-}
+//       ion-label {
+//         font-size: 11px;
+//       }
+//     }
+//   }
+// }

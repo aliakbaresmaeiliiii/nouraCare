@@ -49,8 +49,8 @@ export interface Config {
 
 // ********************* MobileApp ********************
 export const environment = {
-  production: true,
-  apiEndPoint: 'http://192.168.50.193:8080/api/v1',
-  urlProfileImg: 'http://192.168.50.193:8080/uploads/',
+  production: false,
+  apiEndPoint: 'http://10.134.83.186:8080/api/v1/',
+  urlProfileImg: 'http://10.134.83.186:8080/uploads/',
 
 };

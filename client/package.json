@@ -5,7 +5,9 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+  "start": "ng serve --proxy-config proxy.conf.json",
+
+    "proxy": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "build:en": "ng build --configuration=en",
     "build:zh": "ng build --configuration=zh",

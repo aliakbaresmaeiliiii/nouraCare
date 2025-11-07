@@ -3,13 +3,17 @@
   --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   background: var(--background);
   overflow-x: hidden;
+  padding-bottom: calc(80px + max(16px, env(safe-area-inset-bottom, 16px)));
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
 
 // Welcome Hero Section
 .welcome-hero {
   margin-top: 3.5rem;
   position: relative;
-  padding: 2rem 1.5rem 1.5rem;
+  padding: 2rem var(--app-side-padding) 1.5rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 0 0 32px 32px;
   overflow: hidden;
@@ -185,7 +189,7 @@
 
 // Onboarding Section
 .onboarding-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .onboarding-card {
     background: white;
@@ -274,7 +278,7 @@
 
 // Dashboard Section
 .dashboard-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .section-header {
     text-align: center;
@@ -357,7 +361,7 @@
 
 // Incredible Pregnancy Section Design
 .pregnancy-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .pregnancy-hero {
     position: relative;
@@ -857,7 +861,7 @@
 
 // Quick Actions Section
 .quick-actions-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .section-header {
     text-align: center;
@@ -1012,7 +1016,7 @@
 
 // Symptoms Section
 .symptoms-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .section-header {
     text-align: center;
@@ -1171,7 +1175,7 @@
 
 // Tools Section
 .tools-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .section-header {
     text-align: center;
@@ -1334,7 +1338,7 @@
 
 // Insights Section
 .insights-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .section-header {
     text-align: center;
@@ -1419,7 +1423,7 @@
 
 // Expert Section
 .expert-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .expert-card {
     background: white;
@@ -1545,7 +1549,7 @@
 
 // Community Section
 .community-section {
-  padding: 0 1.5rem 2rem;
+  padding: 0 var(--app-side-padding) 2rem;
 
   .section-header {
     text-align: center;
@@ -1749,4 +1753,3 @@
     padding-right: 1rem;
   }
 }
-

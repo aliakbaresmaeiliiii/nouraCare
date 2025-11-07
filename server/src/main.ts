@@ -3,8 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import * as fs from 'fs';
+import fs  from 'fs'
 
+  // Use HTTP instead of HTTPS to avoid SSL certificate issues on mobile
 async function bootstrap() {
   const httpsOptions = {
     key: fs.readFileSync('./certs/key.pem'),
@@ -12,9 +13,7 @@ async function bootstrap() {
   };
 
   // ✅ اینجا باید httpsOptions پاس داده بشه
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    httpsOptions,
-  });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -30,7 +29,7 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: ['http://localhost:8080', 'http://192.168.50.193:8080'],
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
@@ -42,6 +41,6 @@ async function bootstrap() {
 
   await app.listen(port, host);
 
-  console.log(`🚀 Server running on https://${host}:${port}`);
+  console.log(`🚀 Server running on http://${host}:${port}`);
 }
 bootstrap();

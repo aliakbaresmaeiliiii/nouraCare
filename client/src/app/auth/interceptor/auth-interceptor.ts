@@ -19,17 +19,16 @@ interface UserInfo {
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Skip adding headers for auth endpoints - let JwtInterceptor handle it
+    if (req.url.includes('/auth/') || req.url.includes('/auth/verify-email')) {
+      return next.handle(req);
+    }
+
     const userInfo = this.getUserInfo();
-    const accessToken = userInfo?.accessToken;
     const userId = userInfo?.['user']?.id;
     
     // Create headers object
     const headers: { [key: string]: string } = {};
-    
-    // Add Authorization header if token exists
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`;
-    }
     
     // Add User-Id header if userId exists
     if (userId) {

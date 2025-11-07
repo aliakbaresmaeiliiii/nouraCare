@@ -28,9 +28,15 @@ export class JwtInterceptor implements HttpInterceptor {
       return next.handle(req);
     }
 
-    // Check if email is verified using access token from auth service
+    // Get access token
     const accessToken = this.authService.getAccessToken();
+    
+    // Add authorization header if token exists
+    let authReq = req;
     if (accessToken) {
+      authReq = this.addToken(req, accessToken);
+      
+      // Check if email is verified using access token from auth service
       try {
         const payload = JSON.parse(atob(accessToken.split('.')[1]));
         const isEmailVerified = payload.isVerified;
@@ -49,7 +55,7 @@ export class JwtInterceptor implements HttpInterceptor {
       }
     }
 
-    return next.handle(req).pipe(
+    return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
         // Skip error handling for auth endpoints
         if (req.url.includes('/auth/')) {
