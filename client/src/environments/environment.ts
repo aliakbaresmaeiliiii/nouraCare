@@ -47,10 +47,9 @@ export interface Config {
 //   urlProfileImg: 'http://localhost:8080/uploads/',
 // };
 
-// ********************* MobileApp ********************
+// ********************* MobileApp (Current IP: 10.51.190.186) ********************
 export const environment = {
   production: false,
-  apiEndPoint: 'http://10.134.83.186:8080/api/v1/',
-  urlProfileImg: 'http://10.134.83.186:8080/uploads/',
-
+  apiEndPoint: 'http://10.51.190.186:8080/api/v1/',
+  urlProfileImg: 'http://10.51.190.186:8080/uploads/',
 };

@@ -25,7 +25,9 @@ export class OnboardingService {
       console.log('Saving onboarding data (debug mode)', onboardingData);
       
       // Validate required fields based on pregnancy status
-      if (onboardingData.pregnancy_status === 'tracking' && !onboardingData.last_period) {
+      // For tracking status, last_period can be null initially during onboarding
+      // The user can provide it later when they have the information
+      if (onboardingData.pregnancy_status === 'tracking' && onboardingData.last_period === undefined) {
         throw new Error('Last period date is required for period tracking');
       }
 

@@ -30,10 +30,9 @@ export class AuthInterceptor implements HttpInterceptor {
     // Create headers object
     const headers: { [key: string]: string } = {};
     
-    // Add User-Id header if userId exists
-    if (userId) {
-      headers['User-Id'] = userId.toString();
-    }
+    // Note: User-Id header removed due to CORS issues
+    // Server needs to add 'User-Id' to Access-Control-Allow-Headers
+    // Alternative: Send userId in request body or query parameters
     
     const authReq = Object.keys(headers).length > 0
       ? req.clone({ setHeaders: headers })

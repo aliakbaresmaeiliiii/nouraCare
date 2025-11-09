@@ -15,12 +15,12 @@
           </ion-buttons>
 
           <!-- Center - Title with icon -->
-          <div class="header-center">
+          <!-- <div class="header-center">
             <div class="title-container">
               <ion-icon [name]="getPageIcon()" class="page-icon"></ion-icon>
               <ion-title class="page-title">{{ selectedTitle | translate }}</ion-title>
             </div>
-          </div>
+          </div> -->
 
           <!-- Right side - Actions -->
           <div slot="end" class="header-right">
@@ -46,47 +46,57 @@
     </ion-header>
 
     <!-- Tab content -->
-    <ion-tabs>
+    <ion-tabs class="tabs">
       <!-- <ion-router-outlet></ion-router-outlet> -->
       
       <!-- Modern Tab Bar with RGB Gradient -->
       <ion-tab-bar slot="bottom" class="modern-tab-bar">
         <ion-tab-button tab="home" href="tabs/home" class="tab-button" role="tab" aria-label="Home">
           <div class="tab-content">
-            <ion-icon name="home-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
-            <ion-icon name="home" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            <div class="icon-container">
+              <ion-icon name="home-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
+              <ion-icon name="home" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            </div>
             <span class="tab-label">{{ 'common.home' | translate }}</span>
           </div>
         </ion-tab-button>
         
         <ion-tab-button tab="insights" href="tabs/insights" class="tab-button" role="tab" aria-label="Insights">
           <div class="tab-content">
-            <ion-icon name="bulb-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
-            <ion-icon name="bulb" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            <div class="icon-container">
+              <ion-icon name="bulb-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
+              <ion-icon name="bulb" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            </div>
             <span class="tab-label">{{ 'nav.insights' | translate }}</span>
           </div>
         </ion-tab-button>
         
         <!-- <ion-tab-button tab="SecretChats" href="tabs/SecretChats" class="tab-button" role="tab" aria-label="Community">
           <div class="tab-content">
-            <ion-icon name="people-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
-            <ion-icon name="people" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            <div class="icon-container">
+              <ion-icon name="people-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
+              <ion-icon name="people" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            </div>
             <span class="tab-label">{{ 'nav.SecretChats' | translate }}</span>
           </div>
         </ion-tab-button> -->
         
         <ion-tab-button tab="consultation" href="tabs/consultation" class="tab-button" role="tab" aria-label="Consultation">
           <div class="tab-content">
-            <ion-icon name="calendar-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
-            <ion-icon name="calendar" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            <div class="icon-container">
+              <ion-icon name="calendar-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
+              <ion-icon name="calendar" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            </div>
             <span class="tab-label">{{ 'nav.consultation' | translate }}</span>
           </div>
         </ion-tab-button>
         
         <ion-tab-button tab="school" href="tabs/school" class="tab-button" role="tab" aria-label="Education">
           <div class="tab-content">
-            <ion-icon name="school-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
-            <ion-icon name="school" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            <div class="icon-container">
+              <ion-icon name="school-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
+              <ion-icon name="school" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
+            </div>
             <span class="tab-label">{{ 'nav.school' | translate }}</span>
           </div>
         </ion-tab-button>
