@@ -83,20 +83,20 @@ export class AuthService {
   private handleTokenResponse(response: TokenResponse): void {
     // Store access token in memory (sessionStorage for persistence across page reloads)
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('accessToken', response.accessToken);
+      sessionStorage.setItem('accessToken', response.data.accessToken);
     }
-    this.accessTokenSubject.next(response.accessToken);
+    this.accessTokenSubject.next(response.data.accessToken);
 
     // Store refresh token in secure storage (localStorage for now)
     if (typeof window !== 'undefined') {
-      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('accessToken', response.data.accessToken);
     }
 
     // Set authentication state
     this.isAuthenticatedSubject.next(true);
 
     // Extract and set user info from token
-    this.setUserInfoFromToken(response.accessToken);
+    this.setUserInfoFromToken(response.data.accessToken);
   }
 
   /**

@@ -32,7 +32,7 @@ async function bootstrap() {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     // allowedHeaders: ['Content-Type', 'Authorization'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'User-Id'] 
+    allowedHeaders: ['Content-Type', 'Authorization'] 
   });
 
   app.setGlobalPrefix('api/v1');

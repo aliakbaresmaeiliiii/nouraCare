@@ -112,13 +112,19 @@
             Post Content
             <span class="required">*</span>
           </ion-label>
-          <ion-textarea
+          <!-- <ion-textarea
             formControlName="content"
             placeholder="Share your thoughts, questions, or experiences..."
             rows="8"
             autoGrow="true"
             class="content-textarea"
             maxlength="{{ maxContentLength }}"
+          >
+          </ion-textarea> -->
+          <ion-textarea
+            labelPlacement="floating"
+            formControlName="content"
+            placeholder="Share your thoughts, questions, or experiences..."
           >
           </ion-textarea>
         </ion-item>
@@ -155,63 +161,100 @@
             Tags
           </ion-label>
           <span class="optional">(Optional but recommended)</span>
+          <span class="tag-count">{{ selectedTags.length }}/10</span>
         </div>
 
         <!-- Selected Tags -->
         @if (selectedTags.length > 0) {
         <div class="selected-tags">
-          @for (tag of selectedTags; track tag) {
-          <ion-chip color="primary" outline="true">
-            <ion-label>{{ tag }}</ion-label>
-            <ion-icon name="close-circle" (click)="removeTag(tag)"></ion-icon>
-          </ion-chip>
+          @for (tag of selectedTags; track tag; let i = $index) {
+          <div class="tag-chip" [class]="getTagColor(i)" [@tagAnimation]>
+            <span class="tag-text">{{ tag }}</span>
+            <button class="tag-remove" (click)="removeTag(tag)" aria-label="Remove tag">
+              <ion-icon name="close"></ion-icon>
+            </button>
+          </div>
           }
         </div>
         }
 
-        <!-- Tag Input -->
+        <!-- Tag Input with Autocomplete -->
         <div class="tag-input-container">
-          <ion-item class="tag-input-item" lines="none">
-            <ion-input
+          <div class="tag-input-wrapper">
+            <input
+              #tagInput
               [(ngModel)]="currentTag"
               [ngModelOptions]="{ standalone: true }"
-              placeholder="Add tags (press Enter or click +)"
-              (keypress)="onTagInputKeyPress($event)"
-              class="tag-input"
+              (input)="onTagInputChange($event)"
+              (keydown)="onTagInputKeyDown($event)"
+              (focus)="showSuggestions = true"
+              (blur)="onTagInputBlur()"
+              placeholder="Type to add tags..."
+              class="tag-input-field"
+              maxlength="30"
+            />
+            <button 
+              class="tag-add-btn" 
+              type="button"
+              (click)="addTag()" 
+              [disabled]="!currentTag.trim() || selectedTags.length >= 10"
+              [class.disabled]="!currentTag.trim() || selectedTags.length >= 10"
             >
-            </ion-input>
-            <ion-button
-              slot="end"
-              fill="clear"
-              (click)="addTag()"
-              [disabled]="!currentTag.trim()"
+              <ion-icon name="add"></ion-icon>
+            </button>
+          </div>
+
+          <!-- Autocomplete Suggestions -->
+          @if (showSuggestions && filteredSuggestions.length > 0) {
+          <div class="autocomplete-dropdown" [@dropdownAnimation]>
+            @for (suggestion of filteredSuggestions; track suggestion) {
+            <div 
+              class="suggestion-item" 
+              (mousedown)="selectSuggestion(suggestion)"
+              [class.selected]="selectedSuggestionIndex === $index"
             >
-              <ion-icon name="add-circle" color="primary"></ion-icon>
-            </ion-button>
-          </ion-item>
+              <ion-icon name="pricetag-outline" class="suggestion-icon"></ion-icon>
+              <span class="suggestion-text">{{ suggestion }}</span>
+              @if (selectedTags.includes(suggestion)) {
+              <ion-icon name="checkmark" class="suggestion-check"></ion-icon>
+              }
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Input Helpers -->
+          <div class="tag-input-helpers">
+            <span class="tag-input-hint">
+              Press Enter or click + to add • Max 10 tags
+            </span>
+          </div>
         </div>
 
-        <!-- Popular Tags Suggestions -->
+        <!-- Popular Tags -->
         @if (popularTags.length > 0) {
-        <div class="popular-tags">
-          <p class="suggestions-label">Popular tags:</p>
-          <div class="tag-suggestions">
+        <div class="popular-tags-section">
+          <div class="popular-tags-header">
+            <ion-icon name="trending-up" class="trending-icon"></ion-icon>
+            <span class="popular-tags-title">Popular Tags</span>
+          </div>
+          <div class="popular-tags-grid">
             @for (tag of popularTags; track tag) {
-            <ion-chip
-              [color]="selectedTags.includes(tag) ? 'primary' : 'medium'"
-              [outline]="!selectedTags.includes(tag)"
-              (click)="addPopularTag(tag)"
-              [disabled]="selectedTags.includes(tag)"
-              class="suggestion-chip"
+            <button 
+              class="popular-tag" 
+              type="button"
               [class.selected]="selectedTags.includes(tag)"
+              [class.disabled]="selectedTags.length >= 10"
+              (click)="addPopularTag(tag)"
+              [disabled]="selectedTags.includes(tag) || selectedTags.length >= 10"
             >
-              <ion-label>{{ tag }}</ion-label>
+              <span class="popular-tag-text">{{ tag }}</span>
               @if (selectedTags.includes(tag)) {
-              <ion-icon name="checkmark"></ion-icon>
+              <ion-icon name="checkmark" class="popular-tag-check"></ion-icon>
               } @else {
-              <ion-icon name="add"></ion-icon>
+              <ion-icon name="add" class="popular-tag-add"></ion-icon>
               }
-            </ion-chip>
+            </button>
             }
           </div>
         </div>

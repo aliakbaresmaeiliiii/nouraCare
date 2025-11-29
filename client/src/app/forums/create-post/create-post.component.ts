@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -13,6 +20,7 @@ import {
   IonicModule,
   NavController,
   ToastController,
+  IonTextarea,
 } from '@ionic/angular';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -46,7 +54,12 @@ interface CreatePostForm {
   templateUrl: './create-post.component.html',
   styleUrls: ['./create-post.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    IonicModule,
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+  ],
 })
 export class CreatePostComponent implements OnInit {
   // Dependency injection
@@ -173,24 +186,6 @@ export class CreatePostComponent implements OnInit {
     });
   }
 
-  addTag() {
-    const tag = this.currentTag.trim().toLowerCase();
-    if (tag && !this.selectedTags.includes(tag)) {
-      this.selectedTags.push(tag);
-      this.currentTag = '';
-    }
-  }
-
-  removeTag(tag: string) {
-    this.selectedTags = this.selectedTags.filter((t) => t !== tag);
-  }
-
-  addPopularTag(tag: string) {
-    if (!this.selectedTags.includes(tag)) {
-      this.selectedTags.push(tag);
-    }
-  }
-
   onTagInputKeyPress(event: KeyboardEvent) {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -206,7 +201,6 @@ export class CreatePostComponent implements OnInit {
     // Find the selected forum and its parent category
     this.selectedForum = null;
     this.selectedCategory = category;
-
 
     // this.categories().forEach((category) => {
     //   const foundForum = category.forums.find(
@@ -239,7 +233,7 @@ export class CreatePostComponent implements OnInit {
       return;
     }
     const id = JSON.parse(userInfo).user.id;
-    this.categories.apply(id)
+    this.categories.apply(id);
     const threadData = {
       title: formValue.title.trim(),
       description: formValue.content.trim(),
@@ -417,5 +411,105 @@ export class CreatePostComponent implements OnInit {
       buttons: ['OK'],
     });
     await alert.present();
+  }
+
+  // Modern tag functionality
+  showSuggestions = false;
+  filteredSuggestions: string[] = [];
+  selectedSuggestionIndex = -1;
+  @ViewChild('tagInput') tagInput!: ElementRef<HTMLInputElement>;
+
+  // Tag color variations for visual appeal
+  getTagColor(index: number): string {
+    const colors = ['tag-primary', 'tag-secondary', 'tag-success', 'tag-warning', 'tag-danger'];
+    return colors[index % colors.length];
+  }
+
+  // Handle tag input changes for autocomplete
+  onTagInputChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.toLowerCase().trim();
+    
+    if (value.length > 0) {
+      this.filteredSuggestions = this.popularTags.filter(tag => 
+        tag.toLowerCase().includes(value) && !this.selectedTags.includes(tag)
+      );
+      this.selectedSuggestionIndex = -1;
+    } else {
+      this.filteredSuggestions = [];
+    }
+  }
+
+  // Handle keyboard navigation in autocomplete
+  onTagInputKeyDown(event: KeyboardEvent) {
+    switch (event.key) {
+      case 'Enter':
+        event.preventDefault();
+        if (this.selectedSuggestionIndex >= 0 && this.filteredSuggestions.length > 0) {
+          this.selectSuggestion(this.filteredSuggestions[this.selectedSuggestionIndex]);
+        } else {
+          this.addTag();
+        }
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        if (this.filteredSuggestions.length > 0) {
+          this.selectedSuggestionIndex = Math.min(
+            this.selectedSuggestionIndex + 1,
+            this.filteredSuggestions.length - 1
+          );
+        }
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.selectedSuggestionIndex = Math.max(this.selectedSuggestionIndex - 1, -1);
+        break;
+      case 'Escape':
+        this.showSuggestions = false;
+        this.selectedSuggestionIndex = -1;
+        break;
+    }
+  }
+
+  // Handle tag input blur with delay to allow clicking suggestions
+  onTagInputBlur() {
+    setTimeout(() => {
+      this.showSuggestions = false;
+      this.selectedSuggestionIndex = -1;
+    }, 200);
+  }
+
+  // Select a suggestion from autocomplete
+  selectSuggestion(suggestion: string) {
+    if (!this.selectedTags.includes(suggestion) && this.selectedTags.length < 10) {
+      this.selectedTags.push(suggestion);
+      this.currentTag = '';
+      this.showSuggestions = false;
+      this.filteredSuggestions = [];
+      this.selectedSuggestionIndex = -1;
+    }
+  }
+
+  // Enhanced add tag with validation
+  addTag() {
+    const tag = this.currentTag.trim().toLowerCase();
+    if (tag && !this.selectedTags.includes(tag) && this.selectedTags.length < 10) {
+      this.selectedTags.push(tag);
+      this.currentTag = '';
+      this.showSuggestions = false;
+      this.filteredSuggestions = [];
+    }
+  }
+
+  // Enhanced popular tag addition
+  addPopularTag(tag: string) {
+    if (!this.selectedTags.includes(tag) && this.selectedTags.length < 10) {
+      this.selectedTags.push(tag);
+    }
+  }
+
+  // Enhanced tag removal
+  removeTag(tag: string) {
+    this.selectedTags = this.selectedTags.filter((t) => t !== tag);
   }
 }

@@ -58,7 +58,8 @@ import {
   IonDatetimeButton,
   IonSearchbar,
   IonSpinner,
-  IonMenuToggle
+  IonMenuToggle,
+  IonTextarea 
 } from '@ionic/angular/standalone';
 import { ModalController } from '@ionic/angular';
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
@@ -132,6 +133,7 @@ const IONIC_MODULES = [
   IonSearchbar,
   IonSpinner,
   IonMenuToggle,
+  IonTextarea
   
 ];
 

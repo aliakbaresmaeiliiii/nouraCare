@@ -1,9 +1,19 @@
 export interface TokenResponse {
-  accessToken: string;
-  refreshToken: string;
-  expires_in?: number;
-  token_type?: string;
-  isVerified?: boolean;
+  code: number;
+  data: {
+    user: {
+      id: number;
+      email: string;
+      phone?: string;
+      isVerified?: boolean;
+      [key: string]: any;
+    };
+    accessToken: string;
+    refreshToken: string;
+  };
+  isSuccess: boolean;
+  message: string;
+  timestamp: string;
 }
 
 export interface JwtPayload {

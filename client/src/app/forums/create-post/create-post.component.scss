@@ -145,119 +145,340 @@
   font-size: 1rem;
 }
 
-/* Tags Section */
+/* Tags Section - Modern Design */
 .tags-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 8px;
   
   .form-label {
     margin-bottom: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .tag-count {
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+    background: var(--ion-color-light);
+    padding: 4px 8px;
+    border-radius: 12px;
+    border: 1px solid var(--ion-color-light-shade);
   }
 }
 
+/* Selected Tags - Modern Design */
 .selected-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  min-height: 40px;
   
-  ion-chip {
-    --background: rgba(var(--ion-color-primary-rgb), 0.1);
-    --color: var(--ion-color-primary);
-    border: 1px solid var(--ion-color-primary);
-    transition: all 0.3s ease;
-    
-    &:hover {
-      --background: var(--ion-color-primary);
-      --color: white;
-    }
-    
-    ion-icon {
-      cursor: pointer;
-      font-size: 1.1rem;
-      margin-left: 4px;
-      
-      &:hover {
-        color: var(--ion-color-danger);
-      }
-    }
-  }
-}
-
-.tag-input-container {
-  margin-bottom: 1rem;
-  
-  .tag-input-item {
-    --background: var(--ion-color-light);
-    --border-radius: 12px;
-    --padding-start: 16px;
-    --padding-end: 8px;
-    
-    .tag-input {
-      --padding-start: 0;
-      --padding-end: 0;
-    }
-    
-    ion-button {
-      margin: 0;
-      --padding-start: 8px;
-      --padding-end: 8px;
-    }
-  }
-}
-
-.popular-tags {
-  .suggestions-label {
-    font-size: 0.9rem;
-    color: var(--ion-color-medium);
-    margin: 0 0 0.5rem 0;
+  .tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
     font-weight: 500;
-  }
-  
-  .tag-suggestions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+    border: 2px solid transparent;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
     
-    .suggestion-chip {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    &:hover::before {
+      left: 100%;
+    }
+    
+    .tag-text {
+      margin-right: 6px;
+      font-weight: 600;
+    }
+    
+    .tag-remove {
+      background: none;
+      border: none;
+      padding: 2px;
+      border-radius: 50%;
       cursor: pointer;
-      transition: all 0.3s ease;
-      --background: rgba(var(--ion-color-medium-rgb), 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      color: inherit;
+      opacity: 0.7;
       
       &:hover {
-        --background: var(--ion-color-primary);
-        --color: white;
-        transform: translateY(-1px);
-      }
-      
-      &.selected {
-        --background: var(--ion-color-primary);
-        --color: white;
-        cursor: default;
-        transform: none;
-        
-        &:hover {
-          --background: var(--ion-color-primary);
-          --color: white;
-          transform: none;
-        }
-      }
-      
-      &[disabled] {
-        opacity: 0.7;
-        cursor: not-allowed;
-        
-        &:hover {
-          --background: rgba(var(--ion-color-medium-rgb), 0.1);
-          --color: var(--ion-color-medium);
-          transform: none;
-        }
+        opacity: 1;
+        background: rgba(0, 0, 0, 0.1);
+        transform: scale(1.1);
       }
       
       ion-icon {
-        font-size: 1rem;
+        font-size: 14px;
+      }
+    }
+    
+    // Color variations
+    &.tag-primary {
+      background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+      color: white;
+      border-color: var(--ion-color-primary);
+    }
+    
+    &.tag-secondary {
+      background: linear-gradient(135deg, var(--ion-color-secondary) 0%, var(--ion-color-secondary-shade) 100%);
+      color: white;
+      border-color: var(--ion-color-secondary);
+    }
+    
+    &.tag-success {
+      background: linear-gradient(135deg, var(--ion-color-success) 0%, var(--ion-color-success-shade) 100%);
+      color: white;
+      border-color: var(--ion-color-success);
+    }
+    
+    &.tag-warning {
+      background: linear-gradient(135deg, var(--ion-color-warning) 0%, var(--ion-color-warning-shade) 100%);
+      color: white;
+      border-color: var(--ion-color-warning);
+    }
+    
+    &.tag-danger {
+      background: linear-gradient(135deg, var(--ion-color-danger) 0%, var(--ion-color-danger-shade) 100%);
+      color: white;
+      border-color: var(--ion-color-danger);
+    }
+  }
+}
+
+/* Tag Input with Autocomplete */
+.tag-input-container {
+  margin-bottom: 1.5rem;
+  position: relative;
+  
+  .tag-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--ion-color-light);
+    border-radius: 12px;
+    border: 2px solid var(--ion-color-light-shade);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    
+    &:focus-within {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
+      background: var(--ion-color-light-tint);
+    }
+    
+    .tag-input-field {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 12px 16px;
+      font-size: 1rem;
+      outline: none;
+      color: var(--ion-color-dark);
+      
+      &::placeholder {
+        color: var(--ion-color-medium);
+      }
+    }
+    
+    .tag-add-btn {
+      background: var(--ion-color-primary);
+      border: none;
+      padding: 10px;
+      margin: 6px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      color: white;
+      
+      &:hover:not(.disabled) {
+        background: var(--ion-color-primary-shade);
+        transform: scale(1.05);
+      }
+      
+      &.disabled {
+        background: var(--ion-color-medium);
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+      
+      ion-icon {
+        font-size: 18px;
+      }
+    }
+  }
+  
+  .autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--ion-color-light-shade);
+    border-radius: 12px;
+    margin-top: 4px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid var(--ion-color-light);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      &:hover,
+      &.selected {
+        background: var(--ion-color-light);
+      }
+      
+      .suggestion-icon {
+        margin-right: 12px;
+        color: var(--ion-color-medium);
+        font-size: 16px;
+      }
+      
+      .suggestion-text {
+        flex: 1;
+        font-weight: 500;
+        color: var(--ion-color-dark);
+      }
+      
+      .suggestion-check {
+        color: var(--ion-color-success);
+        font-size: 16px;
+      }
+    }
+  }
+  
+  .tag-input-helpers {
+    margin-top: 8px;
+    
+    .tag-input-hint {
+      font-size: 0.8rem;
+      color: var(--ion-color-medium);
+      font-style: italic;
+    }
+  }
+}
+
+/* Popular Tags Section */
+.popular-tags-section {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--ion-color-light);
+  border-radius: 12px;
+  border: 1px solid var(--ion-color-light-shade);
+  
+  .popular-tags-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    
+    .trending-icon {
+      margin-right: 8px;
+      color: var(--ion-color-warning);
+      font-size: 18px;
+    }
+    
+    .popular-tags-title {
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      font-size: 0.95rem;
+    }
+  }
+  
+  .popular-tags-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    
+    .popular-tag {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: white;
+      border: 2px solid var(--ion-color-light-shade);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.85rem;
+      font-weight: 500;
+      
+      &:hover:not(.disabled):not(.selected) {
+        border-color: var(--ion-color-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      
+      &.selected {
+        background: var(--ion-color-primary);
+        border-color: var(--ion-color-primary);
+        color: white;
+        cursor: default;
+      }
+      
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        
+        &:hover {
+          transform: none;
+          border-color: var(--ion-color-light-shade);
+          box-shadow: none;
+        }
+      }
+      
+      .popular-tag-text {
+        flex: 1;
+      }
+      
+      .popular-tag-check,
+      .popular-tag-add {
+        font-size: 14px;
         margin-left: 4px;
+      }
+      
+      .popular-tag-check {
+        color: white;
+      }
+      
+      .popular-tag-add {
+        color: var(--ion-color-medium);
       }
     }
   }

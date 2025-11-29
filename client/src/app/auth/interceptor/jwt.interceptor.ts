@@ -30,7 +30,7 @@ export class JwtInterceptor implements HttpInterceptor {
 
     // Get access token
     const accessToken = this.authService.getAccessToken();
-    
+    debugger;
     // Add authorization header if token exists
     let authReq = req;
     if (accessToken) {
@@ -64,6 +64,7 @@ export class JwtInterceptor implements HttpInterceptor {
 
         if (error.status === 401 && accessToken) {
           // Access token expired, try to refresh
+          debugger;
           return this.handle401Error(req, next);
         } else if (error.status === 404 && this.isUserRelatedRequest(req)) {
           // User not found in database (user data was deleted)
@@ -114,6 +115,7 @@ export class JwtInterceptor implements HttpInterceptor {
    * Handle 401 Unauthorized errors by refreshing token
    */
   private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    debugger;
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
@@ -121,10 +123,10 @@ export class JwtInterceptor implements HttpInterceptor {
       return this.authService.refreshToken().pipe(
         switchMap((tokenResponse) => {
           this.isRefreshing = false;
-          this.refreshTokenSubject.next(tokenResponse.accessToken);
+          this.refreshTokenSubject.next(tokenResponse.data.accessToken);
           
           // Retry the original request with new token
-          return next.handle(this.addToken(request, tokenResponse.accessToken));
+          return next.handle(this.addToken(request, tokenResponse.data.accessToken));
         }),
         catchError((error) => {
           this.isRefreshing = false;

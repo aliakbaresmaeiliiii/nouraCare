@@ -31,11 +31,8 @@ export class AuthController {
 
   @Post('sign-in')
   async signIn(@Body() body: any) {
-    console.log('Sign-in request body:', body);
-    
     // Extract email from the body object
     let email = body.email;
-    
     // If email is not found in the expected location, try to parse it
     if (!email && typeof body === 'object') {
       // Try to find email in the body object
