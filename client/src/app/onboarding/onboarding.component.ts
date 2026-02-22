@@ -1,9 +1,20 @@
-import { Component, OnInit, inject, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  CUSTOM_ELEMENTS_SCHEMA,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
-import { UserInfoService, OnboardingData } from '../shared/services/user-info.service';
-import { OnboardingService, OnboardingDataDto } from '../shared/services/onboarding.service';
+import {
+  UserInfoService,
+  OnboardingData,
+} from '../shared/services/user-info.service';
+import {
+  OnboardingService,
+  OnboardingDataDto,
+} from '../shared/services/onboarding.service';
 import { OnboardingStateService } from '../shared/services/onboarding-state.service';
 import { SharedModule } from '../shared/shared-module';
 import { NotificationPermissionComponent } from '../shared/components/notification-permission/notification-permission.component';
@@ -27,7 +38,7 @@ interface OnboardingStep {
   styleUrls: ['./onboarding.component.scss'],
   standalone: true,
   imports: [SharedModule, NotificationPermissionComponent],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class OnboardingComponent implements OnInit {
   private router = inject(Router);
@@ -47,27 +58,26 @@ export class OnboardingComponent implements OnInit {
     {
       id: 'welcome',
       title: 'Welcome to Gahvaremi! 👋',
-      subtitle: 'Let\'s personalize your experience',
-      question: 'We\'ll ask you a few questions to provide the best support for your journey.',
+      subtitle: "Let's personalize your experience",
+      question:
+        "We'll ask you a few questions to provide the best support for your journey.",
       type: 'radio',
-      options: [
-        { label: 'Let\'s get started!', value: 'start', icon: '🚀' }
-      ],
-      required: true
+      options: [{ label: "Let's get started!", value: 'start', icon: '🚀' }],
+      required: true,
     },
     {
       id: 'pregnancy_status',
-      title: 'What\'s your current status?',
+      title: "What's your current status?",
       subtitle: 'This helps us show you the right content',
       question: 'Are you currently pregnant or trying to conceive?',
       type: 'radio',
       options: [
-        { label: 'I\'m pregnant', value: 'pregnant', icon: '🤰' },
-        { label: 'I\'m trying to conceive', value: 'trying', icon: '💕' },
-        { label: 'I\'m postpartum', value: 'postpartum', icon: '👶' },
-        { label: 'Just tracking my cycle', value: 'tracking', icon: '📅' }
+        { label: "I'm pregnant", value: 'pregnant', icon: '🤰' },
+        { label: "I'm trying to conceive", value: 'trying', icon: '💕' },
+        { label: "I'm postpartum", value: 'postpartum', icon: '👶' },
+        { label: 'Just tracking my cycle', value: 'tracking', icon: '📅' },
       ],
-      required: true
+      required: true,
     },
     {
       id: 'last_period',
@@ -76,13 +86,14 @@ export class OnboardingComponent implements OnInit {
       question: 'Please enter the start date of your last menstrual period.',
       type: 'date',
       placeholder: 'Select date',
-      required: true
+      required: true,
     },
     {
       id: 'cycle_length',
-      title: 'What\'s your cycle length?',
+      title: "What's your cycle length?",
       subtitle: 'How many days between periods?',
-      question: 'On average, how many days are there between the start of your periods?',
+      question:
+        'On average, how many days are there between the start of your periods?',
       type: 'select',
       options: [
         { label: '21 days', value: 21 },
@@ -99,9 +110,9 @@ export class OnboardingComponent implements OnInit {
         { label: '32 days', value: 32 },
         { label: '33 days', value: 33 },
         { label: '34 days', value: 34 },
-        { label: '35 days', value: 35 }
+        { label: '35 days', value: 35 },
       ],
-      required: true
+      required: true,
     },
     {
       id: 'period_length',
@@ -116,21 +127,21 @@ export class OnboardingComponent implements OnInit {
         { label: '5 days (most common)', value: 5 },
         { label: '6 days', value: 6 },
         { label: '7 days', value: 7 },
-        { label: '8 days', value: 8 }
+        { label: '8 days', value: 8 },
       ],
-      required: true
+      required: true,
     },
     {
       id: 'pregnancy_week',
       title: 'What week are you in?',
-      subtitle: 'Only if you\'re pregnant',
-      question: 'If you\'re pregnant, what week are you currently in?',
+      subtitle: "Only if you're pregnant",
+      question: "If you're pregnant, what week are you currently in?",
       type: 'select',
       options: Array.from({ length: 37 }, (_, i) => ({
         label: `Week ${i + 4}`,
-        value: i + 4
+        value: i + 4,
       })),
-      required: false
+      required: false,
     },
     {
       id: 'health_goals',
@@ -144,22 +155,23 @@ export class OnboardingComponent implements OnInit {
         { label: 'Nutrition guidance', value: 'nutrition', icon: '🥗' },
         { label: 'Exercise tips', value: 'exercise', icon: '💪' },
         { label: 'Mental health support', value: 'mental_health', icon: '🧘' },
-        { label: 'Community support', value: 'community', icon: '👥' }
+        { label: 'Community support', value: 'community', icon: '👥' },
       ],
-      required: true
+      required: true,
     },
     {
       id: 'notifications',
       title: 'Stay informed! 🔔',
       subtitle: 'Get helpful reminders',
-      question: 'Would you like to receive notifications for period reminders, ovulation alerts, and health tips?',
+      question:
+        'Would you like to receive notifications for period reminders, ovulation alerts, and health tips?',
       type: 'radio',
       options: [
         { label: 'Yes, send me notifications', value: 'yes', icon: '✅' },
-        { label: 'No, I\'ll check manually', value: 'no', icon: '❌' }
+        { label: "No, I'll check manually", value: 'no', icon: '❌' },
       ],
-      required: true
-    }
+      required: true,
+    },
   ];
 
   ngOnInit() {
@@ -167,8 +179,9 @@ export class OnboardingComponent implements OnInit {
     this.answers = {
       cycle_length: 28,
       period_length: 5,
-      notifications: 'yes'
+      notifications: 'yes',
     };
+    debugger;
 
     // Check for existing session
     this.sessionId = this.onboardingService.getSessionId();
@@ -188,13 +201,17 @@ export class OnboardingComponent implements OnInit {
   get canProceed(): boolean {
     const step = this.currentStepData;
     if (!step.required) return true;
-    
+
     // For last period date, check if it's valid (not in future)
     if (step.id === 'last_period' && this.answers[step.id]) {
       return this.isValidLastPeriodDate(this.answers[step.id]);
     }
-    
-    return this.answers[step.id] !== undefined && this.answers[step.id] !== null && this.answers[step.id] !== '';
+
+    return (
+      this.answers[step.id] !== undefined &&
+      this.answers[step.id] !== null &&
+      this.answers[step.id] !== ''
+    );
   }
 
   selectOption(stepId: string, value: any) {
@@ -205,7 +222,7 @@ export class OnboardingComponent implements OnInit {
         return;
       }
     }
-    
+
     this.answers[stepId] = value;
   }
 
@@ -222,11 +239,11 @@ export class OnboardingComponent implements OnInit {
   isValidLastPeriodDate(dateString: string): boolean {
     const selectedDate = new Date(dateString);
     const today = new Date();
-    
+
     // Reset time components for accurate date comparison
     selectedDate.setHours(0, 0, 0, 0);
     today.setHours(0, 0, 0, 0);
-    
+
     // Date should not be in the future
     return selectedDate <= today;
   }
@@ -237,13 +254,13 @@ export class OnboardingComponent implements OnInit {
   private async showDateValidationError() {
     const alert = await this.alertController.create({
       header: 'Invalid Date',
-      message: 'The start date of your last menstrual period cannot be in the future. Please select a valid date.',
-      buttons: ['OK']
+      message:
+        'The start date of your last menstrual period cannot be in the future. Please select a valid date.',
+      buttons: ['OK'],
     });
 
     await alert.present();
   }
-
 
   nextStep() {
     if (this.canProceed) {
@@ -281,15 +298,16 @@ export class OnboardingComponent implements OnInit {
       next: (response) => {
         console.log('Loaded existing onboarding data:', response);
         if (response.data) {
-          
           this.answers = {
             pregnancy_status: response.data.pregnancy_status,
             last_period: response.data.last_period,
             cycle_length: response.data.cycle_length,
             period_length: response.data.period_length,
             pregnancy_week: response.data.pregnancy_week,
-            health_goals: response.data.health_goals ? JSON.parse(response.data.health_goals) : [],
-            notifications: response.data.notifications
+            health_goals: response.data.health_goals
+              ? JSON.parse(response.data.health_goals)
+              : [],
+            notifications: response.data.notifications,
           };
         }
       },
@@ -298,7 +316,7 @@ export class OnboardingComponent implements OnInit {
         // Clear invalid session ID
         this.onboardingService.clearSessionId();
         this.sessionId = null;
-      }
+      },
     });
   }
 
@@ -317,7 +335,7 @@ export class OnboardingComponent implements OnInit {
       period_length: this.answers['period_length'] || 5,
       pregnancy_week: this.answers['pregnancy_week'] || undefined,
       health_goals: JSON.stringify(this.answers['health_goals'] || []),
-      notifications: this.answers['notifications'] || 'yes'
+      notifications: this.answers['notifications'] || 'yes',
     };
 
     this.onboardingService.saveOnboardingData(onboardingData).subscribe({
@@ -331,7 +349,7 @@ export class OnboardingComponent implements OnInit {
         console.error('Error saving onboarding data:', error);
         this.isSaving = false;
         this.showErrorAlert('Failed to save your progress. Please try again.');
-      }
+      },
     });
   }
 
@@ -339,7 +357,6 @@ export class OnboardingComponent implements OnInit {
    * Complete onboarding and redirect to registration
    */
   async completeOnboarding() {
-
     // Save final onboarding data
     this.saveOnboardingProgress();
 
@@ -348,15 +365,14 @@ export class OnboardingComponent implements OnInit {
 
     // Show completion screen briefly, then navigate to registration
     this.isCompleted = true;
-    
+
     // Navigate to registration page after a short delay
     setTimeout(() => {
-      this.router.navigate(['/auth/sign-in'], { queryParams: { tab: 'register' } });
+      this.router.navigate(['/auth/sign-in'], {
+        queryParams: { tab: 'register' },
+      });
     }, 2000); // 2 second delay to show completion message
-
   }
-
-
 
   /**
    * Show error alert
@@ -365,7 +381,7 @@ export class OnboardingComponent implements OnInit {
     const alert = await this.alertController.create({
       header: 'Error',
       message: message,
-      buttons: ['OK']
+      buttons: ['OK'],
     });
 
     await alert.present();
@@ -404,9 +420,15 @@ export class OnboardingComponent implements OnInit {
 
     // Save other preferences (you can extend this)
     localStorage.setItem('onboarding_completed', 'true');
-    localStorage.setItem('health_goals', JSON.stringify(this.answers['health_goals']));
-    localStorage.setItem('notifications_enabled', this.answers['notifications'] === 'yes' ? 'true' : 'false');
-    
+    localStorage.setItem(
+      'health_goals',
+      JSON.stringify(this.answers['health_goals']),
+    );
+    localStorage.setItem(
+      'notifications_enabled',
+      this.answers['notifications'] === 'yes' ? 'true' : 'false',
+    );
+
     // Store complete onboarding data for registration
     const onboardingData = {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
@@ -415,14 +437,13 @@ export class OnboardingComponent implements OnInit {
       period_length: this.answers['period_length'] || 5,
       pregnancy_week: this.answers['pregnancy_week'] || undefined,
       health_goals: JSON.stringify(this.answers['health_goals'] || []),
-      notifications: this.answers['notifications'] || 'yes'
+      notifications: this.answers['notifications'] || 'yes',
     };
     localStorage.setItem('onboarding_data', JSON.stringify(onboardingData));
 
     // Mark onboarding as completed for this user
     this.onboardingStateService.markOnboardingCompleted();
   }
-
 
   navigateToWelcome() {
     // After completing onboarding, navigate to registration/sign-in
