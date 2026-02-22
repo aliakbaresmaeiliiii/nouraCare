@@ -1,9 +1,23 @@
+import { loadRemoteModule } from '@angular-architects/module-federation';
 import { Routes } from '@angular/router';
-import { LayoutComponent } from './layout/layout.component';
-import { VerifyEmailComponent } from './auth/verify-email/verify-email.component';
 import { authGuard } from './auth/guards/auth.guard';
+import { LayoutComponent } from './layout/layout.component';
+import { ReactWrapperComponent } from './react-wrapper/react-wrapper.component';
 
 export const routes: Routes = [
+  {
+    path: 'cycle-app',
+    loadChildren: () =>
+      loadRemoteModule({
+        type: 'module',
+        remoteEntry: 'http://localhost:4201/remoteEntry.js',
+        exposedModule: './routes',
+      }),
+  },
+  {
+    path: 'pregnancy',
+    component: ReactWrapperComponent,
+  },
   {
     path: 'onboarding',
     loadComponent: () => {
@@ -15,7 +29,9 @@ export const routes: Routes = [
   {
     path: 'test-onboarding',
     loadComponent: () =>
-      import('./onboarding/onboarding.component').then((m) => m.OnboardingComponent),
+      import('./onboarding/onboarding.component').then(
+        (m) => m.OnboardingComponent,
+      ),
   },
   {
     path: 'welcome',
@@ -35,7 +51,7 @@ export const routes: Routes = [
         path: 'verify-email',
         loadComponent: () =>
           import('./auth/verify-email/verify-email.component').then(
-            (m) => m.VerifyEmailComponent
+            (m) => m.VerifyEmailComponent,
           ),
       },
     ],
@@ -50,7 +66,7 @@ export const routes: Routes = [
     path: 'edit-profile',
     loadComponent: () =>
       import('./edit-profile/edit-profile.component').then(
-        (m) => m.EditProfileComponent
+        (m) => m.EditProfileComponent,
       ),
     canActivate: [authGuard],
   },
@@ -58,154 +74,146 @@ export const routes: Routes = [
     path: 'blocked-users',
     loadComponent: () =>
       import('./blocked-users/blocked-users.component').then(
-        (m) => m.BlockedUsersComponent
+        (m) => m.BlockedUsersComponent,
       ),
   },
   {
     path: 'check-version',
     loadComponent: () =>
       import('./check-version/check-version.component').then(
-        (m) => m.CheckVersionComponent
+        (m) => m.CheckVersionComponent,
       ),
   },
   {
     path: 'saved-information',
     loadComponent: () =>
       import('./saved-information/saved-information.component').then(
-        (m) => m.SavedInformationComponent
+        (m) => m.SavedInformationComponent,
       ),
   },
   {
     path: 'my-friends',
     loadComponent: () =>
       import('./my-friends/my-friends.component').then(
-        (m) => m.MyFriendsComponent
+        (m) => m.MyFriendsComponent,
       ),
   },
   {
     path: 'forums',
     loadComponent: () =>
-      import('./forums/forums.component').then(
-        (m) => m.ForumsComponent
-      ),
+      import('./forums/forums.component').then((m) => m.ForumsComponent),
   },
   {
     path: 'forums/topic/:id',
     loadComponent: () =>
       import('./forums/topic-detail/topic-detail.component').then(
-        (m) => m.TopicDetailComponent
+        (m) => m.TopicDetailComponent,
       ),
   },
   {
     path: 'forums/create-post',
     loadComponent: () =>
       import('./forums/create-post/create-post.component').then(
-        (m) => m.CreatePostComponent
+        (m) => m.CreatePostComponent,
       ),
   },
   {
     path: 'settings',
     loadComponent: () =>
-      import('./settings/settings.component').then(
-        (m) => m.SettingsComponent
-      ),
+      import('./settings/settings.component').then((m) => m.SettingsComponent),
   },
   {
     path: 'invite-friends',
     loadComponent: () =>
       import('./invite-friends/invite-friends.component').then(
-        (m) => m.InviteFriendsComponent
+        (m) => m.InviteFriendsComponent,
       ),
   },
   {
     path: 'notifications',
     loadComponent: () =>
       import('./notifications/notifications.component').then(
-        (m) => m.NotificationsComponent
+        (m) => m.NotificationsComponent,
       ),
   },
   {
     path: 'chatbot',
     loadComponent: () =>
-      import('./chatbot/chatbot.component').then(
-        (m) => m.ChatbotComponent
-      ),
+      import('./chatbot/chatbot.component').then((m) => m.ChatbotComponent),
   },
   {
     path: 'period-date-picker',
     loadComponent: () =>
       import('./period-date-picker-page/period-date-picker-page.component').then(
-        (m) => m.PeriodDatePickerPageComponent
+        (m) => m.PeriodDatePickerPageComponent,
       ),
   },
   {
     path: 'period-edit',
     loadComponent: () =>
       import('./edit-period/edit-period.component').then(
-        (m) => m.EditPeriodComponent
+        (m) => m.EditPeriodComponent,
       ),
   },
   {
     path: 'week-detail',
     loadComponent: () =>
       import('./week-detail/week-detail.component').then(
-        (m) => m.WeekDetailComponent
+        (m) => m.WeekDetailComponent,
       ),
   },
   {
     path: 'symptoms-tracker',
     loadComponent: () =>
       import('./symptoms-tracker/symptoms-tracker.component').then(
-        (m) => m.SymptomsTrackerComponent
+        (m) => m.SymptomsTrackerComponent,
       ),
   },
   {
     path: 'symptoms-detail',
     loadComponent: () =>
       import('./symptoms-detail/symptoms-detail.component').then(
-        (m) => m.SymptomsDetailComponent
+        (m) => m.SymptomsDetailComponent,
       ),
   },
   {
     path: 'symptoms-history',
     loadComponent: () =>
       import('./symptoms-history/symptoms-history.component').then(
-        (m) => m.SymptomsHistoryComponent
+        (m) => m.SymptomsHistoryComponent,
       ),
   },
   {
     path: 'doctors',
     loadComponent: () =>
-      import('./doctors/doctors.component').then(
-        (m) => m.DoctorsComponent
-      ),
+      import('./doctors/doctors.component').then((m) => m.DoctorsComponent),
   },
   {
     path: 'doctor/:id',
     loadComponent: () =>
       import('./doctor-profile/doctor-profile.component').then(
-        (m) => m.DoctorProfileComponent
+        (m) => m.DoctorProfileComponent,
       ),
   },
   {
     path: 'my-favorites',
     loadComponent: () =>
       import('./my-favorites/my-favorites.component').then(
-        (m) => m.MyFavoritesComponent
+        (m) => m.MyFavoritesComponent,
       ),
   },
   {
     path: 'cycle-calendar',
     loadComponent: () =>
       import('./cycle-calendar/cycle-calendar.component').then(
-        (m) => m.CycleCalendarComponent
+        (m) => m.CycleCalendarComponent,
       ),
   },
   {
     path: 'pregnancy-planning',
     loadComponent: () =>
       import('./pregnancy-planning/pregnancy-planning.component').then(
-        (m) => m.PregnancyPlanningComponent
+        (m) => m.PregnancyPlanningComponent,
       ),
     canActivate: [authGuard],
   },
@@ -213,7 +221,7 @@ export const routes: Routes = [
     path: 'reproductive-status',
     loadComponent: () =>
       import('./features/profile/reproductive-status/reproductive-status.component').then(
-        (m) => m.ReproductiveStatusComponent
+        (m) => m.ReproductiveStatusComponent,
       ),
     canActivate: [authGuard],
   },
@@ -221,7 +229,7 @@ export const routes: Routes = [
     path: 'pregnancy-journey',
     loadComponent: () =>
       import('./pregnancy-planning/pregnancy-planning.component').then(
-        (m) => m.PregnancyPlanningComponent
+        (m) => m.PregnancyPlanningComponent,
       ),
     canActivate: [authGuard],
   },
@@ -229,7 +237,7 @@ export const routes: Routes = [
     path: 'postpartum',
     loadComponent: () =>
       import('./pregnancy-planning/pregnancy-planning.component').then(
-        (m) => m.PregnancyPlanningComponent
+        (m) => m.PregnancyPlanningComponent,
       ),
     canActivate: [authGuard],
   },
@@ -237,7 +245,7 @@ export const routes: Routes = [
     path: 'article/:id',
     loadComponent: () =>
       import('./article-detail/article-detail.component').then(
-        (m) => m.ArticleDetailComponent
+        (m) => m.ArticleDetailComponent,
       ),
   },
   {
@@ -255,17 +263,23 @@ export const routes: Routes = [
       {
         path: 'insights',
         loadComponent: () =>
-          import('./insights/insights.component').then((m) => m.InsightsComponent),
+          import('./insights/insights.component').then(
+            (m) => m.InsightsComponent,
+          ),
       },
       {
         path: 'secret-chats',
         loadComponent: () =>
-          import('./secret-chats/secret-chats').then((m) => m.SecretChatsComponent),
+          import('./secret-chats/secret-chats').then(
+            (m) => m.SecretChatsComponent,
+          ),
       },
       {
         path: 'consultation',
         loadComponent: () =>
-          import('./consultation/consultation.component').then((m) => m.ConsultationComponent),
+          import('./consultation/consultation.component').then(
+            (m) => m.ConsultationComponent,
+          ),
       },
       {
         path: 'school',

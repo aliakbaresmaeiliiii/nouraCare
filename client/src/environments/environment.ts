@@ -53,3 +53,4 @@ export const environment = {
   apiEndPoint: 'http://10.51.190.186:8080/api/v1/',
   urlProfileImg: 'http://10.51.190.186:8080/uploads/',
 };
+

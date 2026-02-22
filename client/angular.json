@@ -1,195 +1,206 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "app": {
-      "projectType": "application",
-      "schematics": {
-        "@ionic/angular-toolkit:page": {
-          "styleext": "scss",
-          "standalone": true
-        }
-      },
-      "root": "",
-      "sourceRoot": "src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular-devkit/build-angular:application",
-          "options": {
-            "outputPath": {
-              "base": "www",
-              "browser": ""
-            },
-            "index": "src/index.html",
-            "polyfills": ["src/polyfills.ts"],
-            "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "assets"
-              }
-            ],
-            "styles": [
-              "src/global.scss",
-              
-              "src/theme/variables.scss",
-               "node_modules/swiper/swiper-bundle.min.css"
-
-            ],
-            "scripts": [],
-            "browser": "src/main.ts",
-            "allowedCommonJsDependencies": [
-              "mapbox-gl"
-            ]
-          },
-          "configurations": {
-            "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "4mb",
-                  "maximumError": "8mb"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "10kb",
-                  "maximumError": "40kb"
-                }
-              ],
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
-                }
-              ],
-              "outputHashing": "all"
-            },
-            "en": {
-              "aot": true,
-              "outputPath": "dist/en/",
-              "i18nFile": "src/locale/messages.en.xlf",
-              "i18nFormat": "xlf",
-              "i18nLocale": "en"
-            },
-            "zh": {
-              "aot": true,
-              "outputPath": "dist/zh/",
-              "i18nFile": "src/locale/messages.zh.xlf",
-              "i18nFormat": "xlf",
-              "i18nLocale": "zh"
-            },
-            "ms": {
-              "aot": true,
-              "outputPath": "dist/ms/",
-              "i18nFile": "src/locale/messages.ms.xlf",
-              "i18nFormat": "xlf",
-              "i18nLocale": "ms"
-            },
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "namedChunks": true
-            },
-            "ci": {
-              "progress": false
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "proxyConfig": "proxy.conf.json"
-          },
-          
-          "configurations": {
-            "production": {
-              "buildTarget": "app:build:production",
-              "liveReload": false
-            },
-            "development": {
-              "buildTarget": "app:build:development",
-              "liveReload": true
-            },
-            "en": {
-              "buildTarget": "app:build:en"
-            },
-            "zh": {
-              "buildTarget": "app:build:zh"
-            },
-            "ms": {
-              "buildTarget": "app:build:ms"
-            },
-            "ci": {
-              "progress": false
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "app:build",
-            "proxyConfig": "proxy.conf.json"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "assets"
-              }
-            ],
-            "styles": ["src/global.scss", "src/theme/variables.scss",
-               "node_modules/swiper/swiper-bundle.min.css"
-          ],
-            "scripts": []
-          },
-          "configurations": {
-            "ci": {
-              "progress": false,
-              "watch": false
-            }
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
-          }
-        }
-      }
-    }
-  },
-  "cli": {
-    "schematicCollections": ["@ionic/angular-toolkit"],
-    "analytics": "6af28e59-28e5-4b43-82a4-30c90ad719b0"
-  },
-  "schematics": {
-    "@ionic/angular-toolkit:component": {
-      "styleext": "scss"
-    },
-    "@ionic/angular-toolkit:page": {
-      "styleext": "scss"
-    },
-    "@angular-eslint/schematics:application": {
-      "setParserOptionsProject": true
-    },
-    "@angular-eslint/schematics:library": {
-      "setParserOptionsProject": true
-    }
-  }
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"newProjectRoot": "projects",
+	"projects": {
+		"app": {
+			"projectType": "application",
+			"schematics": {
+				"@ionic/angular-toolkit:page": {
+					"styleext": "scss",
+					"standalone": true
+				}
+			},
+			"root": "",
+			"sourceRoot": "src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "ngx-build-plus:browser",
+					"options": {
+						"outputPath": "www",
+						"index": "src/index.html",
+						"polyfills": [
+							"src/polyfills.ts"
+						],
+						"tsConfig": "tsconfig.app.json",
+						"inlineStyleLanguage": "scss",
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "src/assets",
+								"output": "assets"
+							}
+						],
+						"styles": [
+							"src/global.scss",
+							"src/theme/variables.scss",
+							"node_modules/swiper/swiper-bundle.min.css"
+						],
+						"scripts": [],
+						"allowedCommonJsDependencies": [
+							"mapbox-gl"
+						],
+						"main": "src/main.ts",
+						"extraWebpackConfig": "webpack.config.js",
+						"commonChunk": false
+					},
+					"configurations": {
+						"production": {
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "4mb",
+									"maximumError": "8mb"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "10kb",
+									"maximumError": "40kb"
+								}
+							],
+							"fileReplacements": [
+								{
+									"replace": "src/environments/environment.ts",
+									"with": "src/environments/environment.prod.ts"
+								}
+							],
+							"outputHashing": "all",
+							"extraWebpackConfig": "webpack.prod.config.js"
+						},
+						"en": {
+							"aot": true,
+							"outputPath": "dist/en/",
+							"i18nFile": "src/locale/messages.en.xlf",
+							"i18nFormat": "xlf",
+							"i18nLocale": "en"
+						},
+						"zh": {
+							"aot": true,
+							"outputPath": "dist/zh/",
+							"i18nFile": "src/locale/messages.zh.xlf",
+							"i18nFormat": "xlf",
+							"i18nLocale": "zh"
+						},
+						"ms": {
+							"aot": true,
+							"outputPath": "dist/ms/",
+							"i18nFile": "src/locale/messages.ms.xlf",
+							"i18nFormat": "xlf",
+							"i18nLocale": "ms"
+						},
+						"development": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true,
+							"namedChunks": true
+						},
+						"ci": {
+							"progress": false
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "ngx-build-plus:dev-server",
+					"options": {
+						"proxyConfig": "proxy.conf.json",
+						"port": 4200,
+						"publicHost": "http://localhost:4200",
+						"extraWebpackConfig": "webpack.config.js"
+					},
+					"configurations": {
+						"production": {
+							"buildTarget": "app:build:production",
+							"liveReload": false,
+							"extraWebpackConfig": "webpack.prod.config.js"
+						},
+						"development": {
+							"buildTarget": "app:build:development",
+							"liveReload": true
+						},
+						"en": {
+							"buildTarget": "app:build:en"
+						},
+						"zh": {
+							"buildTarget": "app:build:zh"
+						},
+						"ms": {
+							"buildTarget": "app:build:ms"
+						},
+						"ci": {
+							"progress": false
+						}
+					},
+					"defaultConfiguration": "development"
+				},
+				"extract-i18n": {
+					"builder": "ngx-build-plus:extract-i18n",
+					"options": {
+						"browserTarget": "app:build",
+						"proxyConfig": "proxy.conf.json",
+						"extraWebpackConfig": "webpack.config.js"
+					}
+				},
+				"test": {
+					"builder": "@angular-devkit/build-angular:karma",
+					"options": {
+						"main": "src/test.ts",
+						"polyfills": "src/polyfills.ts",
+						"tsConfig": "tsconfig.spec.json",
+						"karmaConfig": "karma.conf.js",
+						"inlineStyleLanguage": "scss",
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "src/assets",
+								"output": "assets"
+							}
+						],
+						"styles": [
+							"src/global.scss",
+							"src/theme/variables.scss",
+							"node_modules/swiper/swiper-bundle.min.css"
+						],
+						"scripts": []
+					},
+					"configurations": {
+						"ci": {
+							"progress": false,
+							"watch": false
+						}
+					}
+				},
+				"lint": {
+					"builder": "@angular-eslint/builder:lint",
+					"options": {
+						"lintFilePatterns": [
+							"src/**/*.ts",
+							"src/**/*.html"
+						]
+					}
+				}
+			}
+		}
+	},
+	"cli": {
+		"schematicCollections": [
+			"@ionic/angular-toolkit"
+		],
+		"analytics": "6af28e59-28e5-4b43-82a4-30c90ad719b0"
+	},
+	"schematics": {
+		"@ionic/angular-toolkit:component": {
+			"styleext": "scss"
+		},
+		"@ionic/angular-toolkit:page": {
+			"styleext": "scss"
+		},
+		"@angular-eslint/schematics:application": {
+			"setParserOptionsProject": true
+		},
+		"@angular-eslint/schematics:library": {
+			"setParserOptionsProject": true
+		}
+	}
 }
