@@ -12,6 +12,8 @@ $RECYCLE.BIN/
 *.log
 log.txt
 
+/node_modules/
+
 
 /.sourcemaps
 /.versions
@@ -30,7 +32,9 @@ log.txt
 /bazel-out
 
 # Node
+node_modules/
 /node_modules
+**/node_modules/
 npm-debug.log
 yarn-error.log
 

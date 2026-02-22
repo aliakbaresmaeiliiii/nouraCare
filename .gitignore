@@ -1,5 +1,6 @@
-# Dependencies - do not commit
+# Dependencies - do not commit (all node_modules everywhere)
 node_modules/
+**/node_modules/
 
 # Environment and secrets
 .env
