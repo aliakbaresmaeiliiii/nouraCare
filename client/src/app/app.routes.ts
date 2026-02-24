@@ -5,15 +5,15 @@ import { LayoutComponent } from './layout/layout.component';
 import { ReactWrapperComponent } from './react-wrapper/react-wrapper.component';
 
 export const routes: Routes = [
-  {
-    path: 'cycle-app',
-    loadChildren: () =>
-      loadRemoteModule({
-        type: 'module',
-        remoteEntry: 'http://localhost:4201/remoteEntry.js',
-        exposedModule: './routes',
-      }),
-  },
+  // {
+  //   path: 'cycle-app',
+  //   loadChildren: () =>
+  //     loadRemoteModule({
+  //       type: 'module',
+  //       remoteEntry: 'http://localhost:4201/remoteEntry.js',
+  //       exposedModule: './routes',
+  //     }),
+  // },
   {
     path: 'pregnancy',
     component: ReactWrapperComponent,

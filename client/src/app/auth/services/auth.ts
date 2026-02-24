@@ -18,7 +18,10 @@ export class AuthService {
   private baseUrl = environment.apiEndPoint + 'auth';
 
   // Store Access Token in memory using BehaviorSubject
-  private accessTokenSubject = new BehaviorSubject<string | null>(null);
+  // private accessTokenSubject = new BehaviorSubject<string | null>(null);
+  private accessTokenSubject = new BehaviorSubject<string | null>(
+    localStorage.getItem('accessToken'),
+  );
   public accessToken$ = this.accessTokenSubject.asObservable();
 
   // User info signal
@@ -38,9 +41,12 @@ export class AuthService {
     // Set up periodic user existence check (every 5 minutes)
     // Only if we're in a browser environment and user is authenticated
     if (typeof window !== 'undefined' && this.isAuthenticated()) {
-      setInterval(() => {
-        this.verifyUserExistence();
-      }, 5 * 60 * 1000); // 5 minutes
+      setInterval(
+        () => {
+          this.verifyUserExistence();
+        },
+        5 * 60 * 1000,
+      ); // 5 minutes
     }
   }
 
@@ -58,6 +64,7 @@ export class AuthService {
           // Set authentication state to true
           this.isAuthenticatedSubject.next(true);
           this.accessTokenSubject.next(accessToken);
+          debugger;
         } else {
           // Access token expired, clear everything
           this.clearTokens();
@@ -73,7 +80,7 @@ export class AuthService {
     return this.http.post<TokenResponse>(`${this.baseUrl}/sign-in`, data).pipe(
       tap((response: TokenResponse) => {
         this.handleTokenResponse(response);
-      })
+      }),
     );
   }
 
@@ -85,6 +92,7 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('accessToken', response.data.accessToken);
     }
+    debugger;
     this.accessTokenSubject.next(response.data.accessToken);
 
     // Store refresh token in secure storage (localStorage for now)
@@ -122,7 +130,7 @@ export class AuthService {
    */
   refreshToken(): Observable<TokenResponse> {
     const refreshToken = JSON.parse(
-      localStorage.getItem('userInfo') || '{}'
+      localStorage.getItem('userInfo') || '{}',
     )?.refreshToken;
 
     if (!refreshToken) {
@@ -142,7 +150,7 @@ export class AuthService {
           this.clearTokens();
           this.router.navigate(['/auth/sign-in']);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -182,10 +190,10 @@ export class AuthService {
   logout(): void {
     // Get access token from storage to use for logout API call
     const accessToken = JSON.parse(
-      localStorage.getItem('userInfo') || '{}'
+      localStorage.getItem('userInfo') || '{}',
     )?.accessToken;
     const refreshToken = JSON.parse(
-      localStorage.getItem('userInfo') || '{}'
+      localStorage.getItem('userInfo') || '{}',
     )?.refreshToken;
 
     // Call logout endpoint with access token
@@ -258,7 +266,7 @@ export class AuthService {
   register(
     data: RegisterRequest,
     onboardingData: OnboardingDataDto | null,
-    onboardingSessionToken?: string | null
+    onboardingSessionToken?: string | null,
   ): Observable<any> {
     const payload: any = {
       ...data,
@@ -285,7 +293,6 @@ export class AuthService {
   }
 
   verifyEmail(data: { email: string; code: string }): Observable<any> {
-    
     return this.http.post(`${this.baseUrl}/verify-email`, data);
   }
 

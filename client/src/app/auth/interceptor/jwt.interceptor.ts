@@ -24,13 +24,13 @@ export class JwtInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     // Skip token for auth endpoints and verify-email page
-    if (req.url.includes('/auth/') || req.url.includes('/auth/verify-email')) {
+    if (req.url.includes('/auth/')) {
       return next.handle(req);
     }
+    debugger;
 
     // Get access token
     const accessToken = this.authService.getAccessToken();
-    debugger;
     // Add authorization header if token exists
     let authReq = req;
     if (accessToken) {
@@ -38,7 +38,8 @@ export class JwtInterceptor implements HttpInterceptor {
       
       // Check if email is verified using access token from auth service
       try {
-        const payload = JSON.parse(atob(accessToken.split('.')[1]));
+        // const payload = JSON.parse(atob(accessToken.split('.')[1]));
+        const payload = JSON.parse(decodeURIComponent(escape(atob(accessToken.split('.')[1]))));
         const isEmailVerified = payload.isVerified;
         
         // If email is not verified, redirect to verify-email page
@@ -64,7 +65,6 @@ export class JwtInterceptor implements HttpInterceptor {
 
         if (error.status === 401 && accessToken) {
           // Access token expired, try to refresh
-          debugger;
           return this.handle401Error(req, next);
         } else if (error.status === 404 && this.isUserRelatedRequest(req)) {
           // User not found in database (user data was deleted)
@@ -115,7 +115,6 @@ export class JwtInterceptor implements HttpInterceptor {
    * Handle 401 Unauthorized errors by refreshing token
    */
   private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    debugger;
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);

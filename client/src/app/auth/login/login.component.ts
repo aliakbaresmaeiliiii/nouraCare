@@ -179,6 +179,8 @@ export class LoginComponent {
             this.service.setUserInfo(res.data.user);
             // Also store the full response data for compatibility
             localStorage.setItem('userInfo', JSON.stringify(res.data));
+             localStorage.setItem('access_token', JSON.stringify(res.data.accessToken));
+           this.accessTokenSubject.next(res.accessToken);
           }
 
           // Check if email is verified

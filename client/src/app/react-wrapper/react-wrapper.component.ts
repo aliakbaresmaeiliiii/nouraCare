@@ -17,11 +17,11 @@ export class ReactWrapperComponent implements OnInit {
   loadError = false;
 
   async ngOnInit() {
-    try {
-      const module = await import('pregnancyApp/App');
-      module.mount(document.getElementById('react-root'));
-    } catch {
-      this.loadError = true;
-    }
+    // try {
+    //   const module = await import('pregnancyApp/App');
+    //   module.mount(document.getElementById('react-root'));
+    // } catch {
+    //   this.loadError = true;
+    // }
   }
 }

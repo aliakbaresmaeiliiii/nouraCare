@@ -27,11 +27,12 @@ export class AppComponent implements OnInit {
   }
 
   private handleInitialRouting() {
-    // Check if user is authenticated (has data in localStorage)
-    if (this.onboardingStateService.isUserAuthenticated()) {
-      // User has existing data, redirect to home page
+    // Only skip onboarding and go to tabs when user is logged in AND has completed onboarding
+    const hasUserInfo = this.onboardingStateService.isUserAuthenticated();
+    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed') === 'true';
+    if (hasUserInfo && hasCompletedOnboarding) {
       this.router.navigate(['/tabs/home']);
     }
-    // Otherwise, let the default routing handle it (which goes to onboarding)
+    // Otherwise default route shows onboarding first
   }
 }

@@ -181,7 +181,6 @@ export class OnboardingComponent implements OnInit {
       period_length: 5,
       notifications: 'yes',
     };
-    debugger;
 
     // Check for existing session
     this.sessionId = this.onboardingService.getSessionId();
