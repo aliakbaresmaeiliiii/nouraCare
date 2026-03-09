@@ -34,26 +34,6 @@ export class JwtInterceptor implements HttpInterceptor {
     let authReq = req;
     if (accessToken) {
       authReq = this.addToken(req, accessToken);
-      
-      
-      // Check if email is verified using access token from auth service
-      try {
-        // const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        const payload = JSON.parse(decodeURIComponent(escape(atob(accessToken.split('.')[1]))));
-        const isEmailVerified = payload.isVerified;
-        
-        // If email is not verified, redirect to verify-email page
-        if (!isEmailVerified) {
-          console.log('Email not verified, redirecting to verify-email page');
-          // Use setTimeout to avoid interfering with current navigation
-          setTimeout(() => {
-            this.router.navigate(['/auth/verify-email']);
-          }, 0);
-          return throwError(() => new Error('Email not verified'));
-        }
-      } catch (error) {
-        console.error('Failed to check email verification status:', error);
-      }
     }
 
     return next.handle(authReq).pipe(

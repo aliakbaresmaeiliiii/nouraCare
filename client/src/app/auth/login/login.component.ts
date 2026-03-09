@@ -191,7 +191,6 @@ export class LoginComponent {
 
           // Check if email is verified
           const isEmailVerified = !!res?.data?.user?.isVerified;
-          debugger;
           if (!isEmailVerified) {
             // Email not verified, redirect to verify-email page
             this.router.navigate(['/auth/verify-email']);
