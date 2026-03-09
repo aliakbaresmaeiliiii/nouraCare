@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 
@@ -54,7 +54,7 @@ export class ForumCommentsService {
       }
 
       // Create the comment
-      const commentId = uuidv4();
+      const commentId = randomUUID();
       const comment = await this.prismaService.forum_comments.create({
         data: {
           id: commentId,

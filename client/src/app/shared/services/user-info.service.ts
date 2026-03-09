@@ -34,12 +34,10 @@ export class UserInfoService {
     // Call the real API endpoint
     return this.http.post<UserInfo>(`${environment.apiEndPoint}user/${userId}/onboarding`, payload).pipe(
       tap((response) => {
-        console.log('API response received:', response);
         // Update the signal with the response
         this.userInfo.set(response);
       }),
       catchError((error) => {
-        console.error('Error saving onboarding data:', error);
         throw error;
       })
     );
@@ -74,7 +72,6 @@ export class UserInfoService {
    * Update user info
    */
   updateUserInfo(userInfo: UserInfo): Observable<UserInfo> {
-    console.log('Updating user info:', userInfo);
     
     // For now, update localStorage as fallback
     // TODO: Create PUT endpoint for updating user info
@@ -88,11 +85,9 @@ export class UserInfoService {
         localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
         this.userInfo.set(updatedInfo);
         
-        console.log('User info updated successfully:', updatedInfo);
         observer.next(updatedInfo);
         observer.complete();
       } catch (error) {
-        console.error('Error updating user info:', error);
         observer.error(error);
       }
     });
@@ -101,7 +96,7 @@ export class UserInfoService {
   /**
    * Get current user info from signal
    */
-  getCurrentUserInfo(): UserInfo | null {
+  getCurrentUserInfo(): any | null {
     return this.userInfo();
   }
 
@@ -153,7 +148,6 @@ export class UserInfoService {
         return parsed.userId || 1; // Default to 1 if no user ID
       }
     } catch (error) {
-      console.error('Error getting current user ID:', error);
     }
     return 1; // Default user ID
   }
@@ -188,16 +182,13 @@ export class UserInfoService {
         if (userId) {
           this.getUserOnboardingData(userId).subscribe({
             next: (data) => {
-              console.log('User info loaded from API:', data);
             },
             error: (error) => {
-              console.log('No user info found in API, user may not have completed onboarding yet');
             }
           });
         }
       }
     } catch (error) {
-      console.error('Error loading user info on initialization:', error);
     }
   }
 
@@ -220,14 +211,11 @@ export class UserInfoService {
    */
   testApiConnection(): Observable<any> {
     const userId = this.getCurrentUserId();
-    console.log('Testing API connection for user:', userId);
     
     return this.http.get(`${environment.apiEndPoint}user/${userId}/onboarding`).pipe(
       tap((response) => {
-        console.log('API connection test successful:', response);
       }),
       catchError((error) => {
-        console.error('API connection test failed:', error);
         throw error;
       })
     );

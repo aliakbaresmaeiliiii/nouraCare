@@ -154,7 +154,6 @@ export class EditProfileComponent implements OnInit {
         console.error('No user info available');
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
     }
   }
 
@@ -175,9 +174,6 @@ export class EditProfileComponent implements OnInit {
       ),
     }).subscribe({
       next: (data) => {
-        console.log('User table data:', data.userData);
-        console.log('Onboarding data:', data.onboardingData);
-
         const mergedData = {
           name: data.userData?.name || '',
           email: data.userData?.email || '',
@@ -225,35 +221,45 @@ export class EditProfileComponent implements OnInit {
         return;
       }
 
+      // Store the file so we can upload it
       this.selectedProfile = file;
-      console.log('File validated, processing...');
 
-      if (typeof createImageBitmap === 'function') {
-        try {
-          console.log('Using createImageBitmap...');
-          createImageBitmap(file)
-            .then((bmp) => {
-              console.log('ImageBitmap created:', bmp.width, 'x', bmp.height);
-              this.imageBitmap = bmp;
-              this.showCropper = true;
+      // Immediately show a local preview without cropping
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        this.profileImage = result;
+        this.form.patchValue({ profileImage: result });
+      };
+      reader.readAsDataURL(file);
 
-              setTimeout(() => {
-                console.log('Modal should be open, rendering crop...');
-                this.renderCrop();
-              }, 300);
-            })
-            .catch((error) => {
-              console.error('Error creating image bitmap:', error);
-              this.fallbackImageProcessing(file);
-            });
-        } catch (error) {
-          console.error('Error in createImageBitmap:', error);
-          this.fallbackImageProcessing(file);
-        }
-      } else {
-        console.log('Using fallback image processing...');
-        this.fallbackImageProcessing(file);
+      // Upload the original image file directly (no cropper)
+      const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+      const id = currentUserInfo?.userId;
+      if (!id) {
+        console.error('No user ID available');
+        return;
       }
+
+      this.userService.uploadProfileImage(String(id), file).subscribe({
+        next: (res: any) => {
+          // Replace local preview with server URL
+          this.profileImage = this.imageUrlService.getImageUrl(res.url);
+          this.form.patchValue({ profileImage: res.url });
+
+          try {
+            const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            store.user = { ...(store.user || {}), profileImage: res.url };
+            localStorage.setItem('userInfo', JSON.stringify(store));
+          } catch (error) {
+            console.error('Error updating local storage:', error);
+          }
+        },
+        error: (error: any) => {
+          console.error('Error uploading image:', error);
+          alert('Failed to upload image. Please try again.');
+        },
+      });
     }
   }
 

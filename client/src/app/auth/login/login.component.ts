@@ -23,7 +23,6 @@ import { SharedModule } from '@app/shared/shared-module';
   standalone: true,
   imports: [CommonModule, SharedModule],
   styleUrl: './login.component.scss',
-  providers: [AuthService],
 })
 export class LoginComponent {
   onboardingData = signal<OnboardingDataDto | null>(null);
@@ -159,40 +158,45 @@ export class LoginComponent {
 
   onLogin() {
     if (this.loginForm.value) {
-      // if (this.loginForm.invalid) {
-      //   this.message = 'Please enter a valid email.';
-      //   this.success = false;
-      //   this.showToast = true;
-      //   return;
-      // }
+
       const payload = {
         email: this.loginForm.value.email || '',
         phoneNumber: this.loginForm.value.phoneNumber || '',
       };
       this.service.login(payload).subscribe({
-        next: (res: any) => {
+        next: (res) => {
           this.message = 'Login successful!';
           this.success = true;
           this.showToast = true;
 
-          // Store user info using AuthService (which handles token storage)
           if (res?.data) {
-            this.service.setUserInfo(res.data.user);
-            // Also store the full response data for compatibility
+
+            // Ensure AuthService knows the current user (normalize phone to string)
+            this.service.setUserInfo({
+              id: res.data.user.id,
+              email: res.data.user.email,
+              phone: res.data.user.phone ?? '',
+              name: res.data.user['name'],
+              profileImage: res.data.user['profileImage'],
+              isVerified: res.data.user.isVerified,
+              status: res.data.user['status'],
+              city: res.data.user['city'],
+              birthday: res.data.user['birthday'],
+              createdAt: res.data.user['createdAt'],
+            });
+
+            // Persist auth payload (includes refreshToken) for other services
             localStorage.setItem('userInfo', JSON.stringify(res.data));
-             localStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
-           this.accessTokenSubject.next(res.accessToken);
           }
 
           // Check if email is verified
-          const isEmailVerified = res?.data.user.isVerified;
-
+          const isEmailVerified = !!res?.data?.user?.isVerified;
+          debugger;
           if (!isEmailVerified) {
             // Email not verified, redirect to verify-email page
-            console.log('Email not verified, redirecting to verify-email page');
             this.router.navigate(['/auth/verify-email']);
           } else {
-            // Navigate to home page
+            // Navigate to home page (protected by authGuard)
             this.router.navigate(['/tabs/home']);
           }
 

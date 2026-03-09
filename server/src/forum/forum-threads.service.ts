@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { CreateForumThreadDto } from './dto/create-forum-thread.dto';
 import { UpdateForumThreadDto } from './dto/update-forum-thread.dto';
 
@@ -68,7 +68,7 @@ export class ForumThreadsService {
       if (!forum) {
         forum = await this.prismaService.forums.create({
           data: {
-            id: uuidv4(),
+            id: randomUUID(),
             title: `${category.name} Discussions`,
             description: `Discussion forum for ${category.name}`,
             categoryId: createForumThreadDto.categoryId,
@@ -80,7 +80,7 @@ export class ForumThreadsService {
       }
 
       // Generate UUID for the thread ID
-      const threadId = uuidv4();
+      const threadId = randomUUID();
 
       // Create the forum thread
       const createdThread = await this.prismaService.forum_threads.create({

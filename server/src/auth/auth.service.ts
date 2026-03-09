@@ -8,8 +8,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { RefreshTokenService } from './refresh-token.service';
+import { randomUUID } from 'crypto';
 import { RegisterDto } from './dto/register.dto';
-import { v4 as uuidv4 } from 'uuid';
 import SendMail from '../helper/send_email';
 import { EmailProvider } from './config/email';
 
@@ -179,7 +179,7 @@ export class AuthService {
 
   async login(email: string) {
     // Find user by email
-    const user = await this.prisma.user.findUnique({
+    const data = await this.prisma.user.findUnique({
       where: { email },
       select: {
         id: true,
@@ -194,20 +194,20 @@ export class AuthService {
       },
     });
 
-    if (!user) {
+    if (!data) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     // Check if user is active
-    if (user.status !== 'ACTIVE') {
+    if (data.status !== 'ACTIVE') {
       throw new UnauthorizedException('Account is not active');
     }
 
     // Generate tokens
-    const tokens = await this.generateTokens(user.id, user.email);
+    const tokens = await this.generateTokens(data.id, data.email);
 
     return {
-      user,
+      user: data,
       ...tokens,
     };
   }
@@ -314,7 +314,7 @@ export class AuthService {
     });
 
     // Generate a refresh token
-    const refreshToken = uuidv4();
+    const refreshToken = randomUUID();
     this.refreshTokenService.createRefreshToken(userId, refreshToken);
 
     return {

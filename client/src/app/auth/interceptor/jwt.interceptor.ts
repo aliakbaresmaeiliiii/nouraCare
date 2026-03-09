@@ -35,6 +35,7 @@ export class JwtInterceptor implements HttpInterceptor {
     if (accessToken) {
       authReq = this.addToken(req, accessToken);
       
+      
       // Check if email is verified using access token from auth service
       try {
         // const payload = JSON.parse(atob(accessToken.split('.')[1]));
@@ -65,15 +66,11 @@ export class JwtInterceptor implements HttpInterceptor {
         if (error.status === 401 && accessToken) {
           // Access token expired, try to refresh
           return this.handle401Error(req, next);
-        } else if (error.status === 404 && this.isUserRelatedRequest(req)) {
-          // User not found in database (user data was deleted)
-          console.log('User not found in database, logging out...');
-          this.authService.logout();
-          this.router.navigate(['/auth/sign-in']);
-          return throwError(() => new Error('User account no longer exists'));
         }
-        
-        // For other errors, just throw them
+
+        // Let all other errors (including 404) pass through to callers.
+        // Individual services/components can decide how to handle 404s
+        // (e.g. \"no reproductive status yet\") without forcing logout.
         return throwError(() => error);
       })
     );
@@ -88,26 +85,6 @@ export class JwtInterceptor implements HttpInterceptor {
         Authorization: `Bearer ${token}`,
       },
     });
-  }
-
-  /**
-   * Check if the request is related to user data
-   * This helps identify when a user has been deleted from the database
-   */
-  private isUserRelatedRequest(req: HttpRequest<any>): boolean {
-    // Check if the request URL contains user-related endpoints
-    const userRelatedPatterns = [
-      '/users/',
-      '/user/',
-      '/profile',
-      '/onboarding',
-      '/track-data',
-      '/symptoms',
-      '/cycle',
-      '/pregnancy'
-    ];
-    
-    return userRelatedPatterns.some(pattern => req.url.includes(pattern));
   }
 
   /**

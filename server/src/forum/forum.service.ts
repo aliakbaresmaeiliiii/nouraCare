@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/services/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class ForumService {
@@ -195,7 +195,7 @@ export class ForumService {
     }
 
       // Use raw SQL to avoid type issues
-      const postId = uuidv4();
+      const postId = randomUUID();
       await this.prisma.$executeRawUnsafe(
         'INSERT INTO forum_posts (id, content, threadId, authorId, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)',
         postId,
@@ -260,7 +260,7 @@ export class ForumService {
 
     return this.prisma.forum_comments.create({
       data: {
-        id: uuidv4(),
+        id: randomUUID(),
         content: createCommentDto.content,
         postId: createCommentDto.postId,
         authorId: userId,

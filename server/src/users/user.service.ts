@@ -125,6 +125,5 @@ export class UserService {
       });
     });
 
-    console.log(`✅ User ${userId} deleted successfully with token invalidation`);
   }
 }

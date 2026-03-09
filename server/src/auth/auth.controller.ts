@@ -48,7 +48,6 @@ export class AuthController {
     }
 
     const result = await this.authService.login(email);
-    console.log(result)
     return ApiResponseHelper.success(result, 'Login successful');
   }
 

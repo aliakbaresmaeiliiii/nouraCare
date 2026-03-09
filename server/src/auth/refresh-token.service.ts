@@ -1,6 +1,6 @@
+import { randomUUID } from 'crypto';
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/services/prisma.service';
 
 @Injectable()
@@ -15,7 +15,7 @@ export class RefreshTokenService {
     const hashedToken = await bcrypt.hash(token, 12);
 
     // Generate UUID for the refresh token ID
-    const refreshTokenId = uuidv4();
+    const refreshTokenId = randomUUID();
 
     await this.prisma.refresh_tokens.create({
       data: {
