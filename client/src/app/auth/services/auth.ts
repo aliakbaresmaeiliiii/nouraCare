@@ -57,14 +57,12 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       // Get access token from storage
       const accessToken = localStorage.getItem('accessToken');
-
       if (accessToken) {
         // Check if access token is still valid
         if (this.isTokenValid(accessToken)) {
           // Set authentication state to true
           this.isAuthenticatedSubject.next(true);
           this.accessTokenSubject.next(accessToken);
-          debugger;
         } else {
           // Access token expired, clear everything
           this.clearTokens();
@@ -92,14 +90,12 @@ export class AuthService {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('accessToken', response.data.accessToken);
     }
-    debugger;
     this.accessTokenSubject.next(response.data.accessToken);
 
     // Store refresh token in secure storage (localStorage for now)
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', response.data.accessToken);
     }
-
     // Set authentication state
     this.isAuthenticatedSubject.next(true);
 
@@ -189,16 +185,13 @@ export class AuthService {
    */
   logout(): void {
     // Get access token from storage to use for logout API call
-    const accessToken = JSON.parse(
-      localStorage.getItem('userInfo') || '{}',
-    )?.accessToken;
+    const accessToken = localStorage.getItem('accessToken');
     const refreshToken = JSON.parse(
       localStorage.getItem('userInfo') || '{}',
     )?.refreshToken;
-
     // Call logout endpoint with access token
-    if (refreshToken) {
-      this.http.post(`${this.baseUrl}/logout`, { refreshToken }).subscribe({
+    if (refreshToken && accessToken) {
+      this.http.post(`${this.baseUrl}/logout`, { refreshToken, accessToken }).subscribe({
         next: () => {
           // Successfully logged out on server
           this.clearTokens();

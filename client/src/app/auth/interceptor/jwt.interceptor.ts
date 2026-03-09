@@ -27,7 +27,6 @@ export class JwtInterceptor implements HttpInterceptor {
     if (req.url.includes('/auth/')) {
       return next.handle(req);
     }
-    debugger;
 
     // Get access token
     const accessToken = this.authService.getAccessToken();

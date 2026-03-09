@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { AuthService } from '../services/auth';
 import { RegisterRequest } from './model/register-request-interface';
 import {
@@ -32,6 +32,7 @@ export class LoginComponent {
   fb = inject(FormBuilder);
   message: string = '';
   isLoading: boolean = false;
+  accessTokenSubject = new BehaviorSubject<string>('');
   showToast = false;
   success!: boolean;
   loginForm = this.fb.group({
@@ -123,11 +124,11 @@ export class LoginComponent {
     }
 
     // Get onboarding data from localStorage if available
-    let onboardingData = null;
+    let onboardingData: OnboardingDataDto | null = null;
     try {
       const storedData = localStorage.getItem('onboarding_data');
       if (storedData) {
-        onboardingData = JSON.parse(storedData);
+        onboardingData = JSON.parse(storedData) as OnboardingDataDto;
       }
     } catch (error) {
       console.error('Error parsing onboarding data:', error);
@@ -179,7 +180,7 @@ export class LoginComponent {
             this.service.setUserInfo(res.data.user);
             // Also store the full response data for compatibility
             localStorage.setItem('userInfo', JSON.stringify(res.data));
-             localStorage.setItem('access_token', JSON.stringify(res.data.accessToken));
+             localStorage.setItem('accessToken', JSON.stringify(res.data.accessToken));
            this.accessTokenSubject.next(res.accessToken);
           }
 

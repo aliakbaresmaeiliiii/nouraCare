@@ -171,7 +171,7 @@ POST /auth/sign-in
 
 Response:
 {
-  "access_token": "jwt_access_token",
+  "accessToken": "jwt_access_token",
   "refresh_token": "jwt_refresh_token",
   "expires_in": 3600
 }
@@ -186,7 +186,7 @@ POST /auth/refresh
 
 Response:
 {
-  "access_token": "new_jwt_access_token",
+  "accessToken": "new_jwt_access_token",
   "refresh_token": "new_jwt_refresh_token",
   "expires_in": 3600
 }

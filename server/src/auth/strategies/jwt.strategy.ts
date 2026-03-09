@@ -26,9 +26,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         createdAt: true,
       },
     });
-    console.log('👍👍👍👍👍👍',user)
-    debugger;
-
     if (!user) {
       throw new UnauthorizedException('User account no longer exists', 'USER_DELETED');
     }

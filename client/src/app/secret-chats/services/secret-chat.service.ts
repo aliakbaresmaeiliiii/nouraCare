@@ -53,10 +53,6 @@ export class SecretChatsService {
    * Create new chat
    */
   createChat(chatData: CreateSecretChatDto): Observable<SecretChat> {
-    console.log('🌐 SecretChatsService.createChat called with:', chatData);
-    console.log('🎯 POST URL:', `${this.baseUrl}`);
-    console.log('🔐 Token in localStorage:', localStorage.getItem('access_token') ? 'EXISTS' : 'MISSING');
-    
     return this.http.post<SecretChat>(`${this.baseUrl}`, chatData);
   }
 
@@ -110,23 +106,11 @@ export class SecretChatsService {
    * Create new post in chat
    */
   createPost(postData: CreatePostDto): Observable<Post> {
-    console.log('🚀 SecretChatsService: Creating post with data:', postData);
-    console.log('🌐 Request URL:', `${this.baseUrl}/posts`);
-    
     return this.http.post<Post>(`${this.baseUrl}/posts`, postData).pipe(
       map(response => {
-        console.log('✅ Post created successfully:', response);
-        return response;
+        return response;  
       }),
       catchError(error => {
-        console.error('❌ Post creation failed in service:', error);
-        console.error('📋 Service error details:', {
-          url: `${this.baseUrl}/posts`,
-          status: error.status,
-          statusText: error.statusText,
-          error: error.error,
-          message: error.message
-        });
         return throwError(() => error);
       })
     );
@@ -152,23 +136,11 @@ export class SecretChatsService {
    * Create a new comment on a post
    */
   createComment(commentData: CreateCommentDto): Observable<Comment> {
-    console.log('💬 SecretChatsService: Creating comment with data:', commentData);
-    console.log('🌐 Request URL:', `${this.baseUrl}/comments`);
-    
     return this.http.post<Comment>(`${this.baseUrl}/comments`, commentData).pipe(
       map(response => {
-        console.log('✅ Comment created successfully:', response);
         return response;
       }),
       catchError(error => {
-        console.error('❌ Comment creation failed in service:', error);
-        console.error('📋 Service error details:', {
-          url: `${this.baseUrl}/comments`,
-          status: error.status,
-          statusText: error.statusText,
-          error: error.error,
-          message: error.message
-        });
         return throwError(() => error);
       })
     );

@@ -1,8 +1,8 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { RouterLink, RouterModule, RouterOutlet } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 import {
   IonApp,
   IonAvatar,
@@ -17,6 +17,7 @@ import {
   IonCardTitle,
   IonContent,
   IonDatetime,
+  IonDatetimeButton,
   IonFab,
   IonFabButton,
   IonFooter,
@@ -30,50 +31,48 @@ import {
   IonList,
   IonMenu,
   IonMenuButton,
+  IonMenuToggle,
   IonModal,
   IonNav,
   IonNavLink,
+  IonNote,
   IonPicker,
   IonPickerColumn,
   IonPickerColumnOption,
+  IonRadio,
+  IonRadioGroup,
+  IonRange,
   IonRouterLink,
   IonRouterOutlet,
+  IonSearchbar,
   IonSegment,
   IonSegmentButton,
+  IonSelect,
+  IonSelectOption,
+  IonSpinner,
   IonTab,
   IonTabBar,
   IonTabButton,
   IonTabs,
   IonText,
+  IonTextarea,
   IonTitle,
   IonToast,
   IonToggle,
   IonToolbar,
-  IonRadio,
-  IonRadioGroup,
-  IonNote,
-  IonRange,
-  IonSelect,
-  IonSelectOption,
-  IonDatetimeButton,
-  IonSearchbar,
-  IonSpinner,
-  IonMenuToggle,
-  IonTextarea,
 } from '@ionic/angular/standalone';
-import { ModalController } from '@ionic/angular';
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
-import { MapboxMapComponent } from './components/mapbox-map/mapbox-map.component';
-import { LanguageSwitcherComponent } from './components/language-switcher/language-switcher.component';
 import { HeaderLanguageSwitcherComponent } from './components/header-language-switcher/header-language-switcher.component';
+import { LanguageSwitcherComponent } from './components/language-switcher/language-switcher.component';
+import { MapboxMapComponent } from './components/mapbox-map/mapbox-map.component';
 
 import { TranslatePipe } from './pipes/translate.pipe';
 
-import { MapService } from './services/map.service';
 import { ImageUrlService } from './services/image-url.service';
-import { ToolsService } from './services/tools.service';
-import { MessageService } from './services/message.service';
 import { LanguageService } from './services/language.service';
+import { MapService } from './services/map.service';
+import { MessageService } from './services/message.service';
+import { ToolsService } from './services/tools.service';
 import { TranslationService } from './services/translation.service';
 
 const IONIC_MODULES = [

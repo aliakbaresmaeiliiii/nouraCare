@@ -12,12 +12,12 @@ export class MapService {
   constructor(private http: HttpClient) {}
 
   reverseGeocode(lng: number, lat: number): Observable<any> {
-    const url = `${this.mapboxApiUrl}/${lng},${lat}.json?access_token=${this.mapboxToken}&types=place,address`;
+    const url = `${this.mapboxApiUrl}/${lng},${lat}.json?accessToken=${this.mapboxToken}&types=place,address`;
     return this.http.get(url);
   }
 
   searchPlaces(query: string): Observable<any> {
-    const url = `${this.mapboxApiUrl}/${encodeURIComponent(query)}.json?access_token=${this.mapboxToken}&types=place,address&limit=10`;
+    const url = `${this.mapboxApiUrl}/${encodeURIComponent(query)}.json?accessToken=${this.mapboxToken}&types=place,address&limit=10`;
     return this.http.get(url);
   }
 }

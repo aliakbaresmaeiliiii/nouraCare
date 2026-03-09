@@ -272,10 +272,8 @@ export class SecretChatsComponent implements OnInit {
   loadMorePosts() {
     if (this.isLoadingPosts) return;
 
-    console.log('📥 Loading more posts...');
     this.isLoadingPosts = true;
 
-    // صفحه بعدی رو بخون (فعلاً ساده نگه داشتم)
     const currentCount = this.secretChats.length;
     const nextPage = Math.floor(currentCount / 20) + 1;
 
@@ -284,8 +282,6 @@ export class SecretChatsComponent implements OnInit {
       .getChatPosts(this.selectedChatId, nextPage, 20)
       .subscribe({
         next: (response) => {
-          console.log('✅ More posts loaded:', response);
-
           const newPosts = response.data || response;
           if (Array.isArray(newPosts) && newPosts.length > 0) {
             this.secretChats = [...this.secretChats, ...newPosts];
@@ -299,7 +295,6 @@ export class SecretChatsComponent implements OnInit {
           this.isLoadingPosts = false;
         },
         error: (error) => {
-          console.error('❌ Failed to load more posts:', error);
           this.isLoadingPosts = false;
           this.showToast('Failed to load more posts', 'danger');
         },
@@ -463,17 +458,12 @@ export class SecretChatsComponent implements OnInit {
   }
 
   private submitNewChat(name: string, description: string) {
-    console.log('🏗️ Creating new chat:', { name, description });
-
     // Check authentication first
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('accessToken');
     if (!token) {
-      console.error('❌ No authentication token found');
       this.showToast('Please log in to create chats', 'danger');
       return;
     }
-
-    console.log('🔐 Authentication token found:', token ? 'YES' : 'NO');
 
     const createChatDto: CreateSecretChatDto = {
       name,
@@ -481,11 +471,8 @@ export class SecretChatsComponent implements OnInit {
       isGroup: true,
     };
 
-    console.log('📤 Sending chat creation request:', createChatDto);
-
     this.secretChatsService.createChat(createChatDto).subscribe({
       next: (newChat) => {
-        console.log('✅ Chat created successfully:', newChat);
         this.showToast(`Chat "${name}" created successfully! 🎉`, 'success');
 
         // Add to available chats and select it
@@ -496,14 +483,6 @@ export class SecretChatsComponent implements OnInit {
         this.loadPosts(1);
       },
       error: (error) => {
-        console.error('❌ Failed to create chat:', error);
-        console.error('📋 Error details:', {
-          status: error.status,
-          statusText: error.statusText,
-          message: error.message,
-          error: error.error,
-        });
-
         if (error.status === 401) {
           this.showToast('Please log in to create chats', 'danger');
         } else if (error.status === 403) {
@@ -520,21 +499,17 @@ export class SecretChatsComponent implements OnInit {
 
   private loadPosts(page: number = 1) {
     if (!this.selectedChatId) {
-      console.error('❌ No chatId available');
       this.showToast('No chat selected', 'danger');
       return;
     }
 
     this.isLoadingPosts = true;
-    console.log('📥 Loading posts from API for chat:', this.selectedChatId);
 
     // از API پست‌ها رو بخون
     this.secretChatsService
       .getChatPosts(this.selectedChatId, page, 20)
       .subscribe({
         next: (response) => {
-          console.log('✅ Posts loaded successfully:', response);
-
           // اگر response.data داره، اونو استفاده کن
           const posts = response.data || response;
           // Ensure each post has the required properties for UI
@@ -554,7 +529,6 @@ export class SecretChatsComponent implements OnInit {
           this.showToast(`${this.secretChats.length} posts loaded`, 'success');
         },
         error: (error) => {
-          console.error('❌ Failed to load posts:', error);
           this.isLoadingPosts = false;
 
           // اگر API کار نکرد، پست‌های تست نشون بده
