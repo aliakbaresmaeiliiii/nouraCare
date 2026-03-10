@@ -88,10 +88,8 @@ export class AuthService {
   private handleTokenResponse(response: TokenResponse): void {
     // Store access token in memory (sessionStorage for persistence across page reloads)
     if (typeof window !== 'undefined') {
-      debugger;
       sessionStorage.setItem('accessToken', response.data.accessToken);
     }
-    debugger;
     this.accessTokenSubject.next(response.data.accessToken);
 
     // Store refresh token in secure storage (localStorage for now)

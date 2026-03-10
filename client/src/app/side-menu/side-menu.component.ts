@@ -128,8 +128,8 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   }
 
   private loadUserProfile() {
-    // Load user profile from API
-    this.profileCompletionService.refreshFromAPI();
+    // Load user profile from API (subscribe so the request runs)
+    this.profileCompletionService.refreshFromAPI().subscribe();
     
     // Also try to get basic user info from localStorage for immediate display
     try {

@@ -148,8 +148,9 @@ export class EditProfileComponent implements OnInit {
   private loadUserDataFromAPI() {
     try {
       const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-      if (currentUserInfo?.userId) {
-        this.fetchUserDataAndOnboardingData(currentUserInfo.userId);
+      debugger;
+      if (currentUserInfo?.data?.id) {
+        this.fetchUserDataAndOnboardingData(currentUserInfo.data.id);
       } else {
         console.error('No user info available');
       }
@@ -160,6 +161,7 @@ export class EditProfileComponent implements OnInit {
   private fetchUserDataAndOnboardingData(userId: number) {
     const userData$ = this.userService.getUser(String(userId));
     const onboardingData$ = this.userInfoService.getUserOnboardingData(userId);
+    debugger
 
     forkJoin({
       userData: userData$,
@@ -175,11 +177,11 @@ export class EditProfileComponent implements OnInit {
     }).subscribe({
       next: (data) => {
         const mergedData = {
-          name: data.userData?.name || '',
-          email: data.userData?.email || '',
-          birthday: data.userData?.birthday || '',
-          profileImage: data.userData?.profileImage || '',
-          status: data.userData?.status || null,
+          name: data.userData.data?.fullName || '',
+          email: data.userData.data?.email || '',
+          birthday: data.userData.data?.birthday || '',
+          profileImage: data.userData.data?.profileImage || '',
+          status: data.userData?.data.status || null,
         };
 
         this.patchFormWithUserData(mergedData);
@@ -263,143 +265,6 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  private fallbackImageProcessing(file: File) {
-    console.log('Using fallback image processing...');
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      console.log('File read successfully, creating image...');
-      const img = new Image();
-      img.onload = () => {
-        console.log('Image loaded:', img.width, 'x', img.height);
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-
-          this.imageBitmap = canvas as any;
-          this.showCropper = true;
-
-          setTimeout(() => {
-            console.log('Rendering crop with fallback...');
-            this.renderCrop();
-          }, 100);
-        }
-      };
-      img.src = e.target?.result as string;
-    };
-
-    reader.onerror = () => {
-      console.error('Error reading file');
-      alert('Error reading image file. Please try again.');
-    };
-
-    reader.readAsDataURL(file);
-  }
-
-  private renderCrop() {
-    if (
-      !this.cropCanvas ||
-      !this.cropCanvas.nativeElement ||
-      !this.imageBitmap
-    ) {
-      console.error('Cannot render crop: missing elements', {
-        canvas: !!this.cropCanvas,
-        canvasElement: !!this.cropCanvas?.nativeElement,
-        imageBitmap: !!this.imageBitmap,
-      });
-      return;
-    }
-
-    const canvas = this.cropCanvas.nativeElement;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.error('Cannot get canvas context');
-      return;
-    }
-
-    const size = 256;
-    canvas.width = size;
-    canvas.height = size;
-    ctx.clearRect(0, 0, size, size);
-
-    const iw = this.imageBitmap.width;
-    const ih = this.imageBitmap.height;
-
-    const scaleX = size / iw;
-    const scaleY = size / ih;
-    const scale = Math.min(scaleX, scaleY) * this.zoom;
-
-    const dw = iw * scale;
-    const dh = ih * scale;
-
-    const dx = (size - dw) / 2;
-    const dy = (size - dh) / 2;
-
-    console.log('Rendering crop:', {
-      iw,
-      ih,
-      scale,
-      dw,
-      dh,
-      dx,
-      dy,
-      zoom: this.zoom,
-      scaleX,
-      scaleY,
-      finalScale: scale,
-    });
-
-    try {
-      ctx.drawImage(this.imageBitmap, dx, dy, dw, dh);
-      console.log('Image rendered successfully');
-
-      ctx.strokeStyle = '#e2e8f0';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(0, 0, size, size);
-    } catch (error) {
-      console.error('Error drawing image to canvas:', error);
-    }
-  }
-
-  onZoom(ev: any) {
-    this.zoom = Number(ev.detail.value ?? 1);
-    this.renderCrop();
-  }
-
-  closeCropper() {
-    console.log('Closing cropper...');
-    this.showCropper = false;
-    this.imageBitmap = null;
-
-    const fileInput = document.getElementById('fileeInput') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.value = '';
-    }
-  }
-
-  private canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
-    return new Promise((resolve) =>
-      canvas.toBlob((b) => resolve(b as Blob), 'image/jpeg', 0.9)
-    );
-  }
-
-  compareWith(o1: any, o2: any): boolean {
-    if (o1 && o2) {
-      if (typeof o1 === 'object' && typeof o2 === 'object') {
-        return o1.value === o2.value;
-      } else if (typeof o1 === 'object' && typeof o2 === 'string') {
-        return o1.value === o2;
-      } else if (typeof o1 === 'string' && typeof o2 === 'object') {
-        return o1 === o2.value;
-      } else {
-        return o1 === o2;
-      }
-    }
-    return false;
-  }
 
   handleChange(event: Event): void {
     const target = event.target as HTMLInputElement;
@@ -414,6 +279,7 @@ export class EditProfileComponent implements OnInit {
     const formValues = this.form.value;
     const currentUserInfo = this.userInfoService.getCurrentUserInfo();
     const id = currentUserInfo?.userId;
+    debugger
 
     if (!id) {
       console.error('No user ID available');
@@ -486,68 +352,7 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  async confirmCrop() {
-    try {
-      if (!this.cropCanvas?.nativeElement) {
-        console.error('Crop canvas not available');
-        return;
-      }
-
-      console.log('Starting crop confirmation...');
-      const canvas = this.cropCanvas.nativeElement;
-
-      console.log('Canvas state:', {
-        width: canvas.width,
-        height: canvas.height,
-        offsetWidth: canvas.offsetWidth,
-        offsetHeight: canvas.offsetHeight,
-      });
-
-      const blob = await this.canvasToBlob(canvas);
-      console.log('Blob created:', blob.size, 'bytes, type:', blob.type);
-
-      const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-      const id = currentUserInfo?.userId;
-      if (!id) {
-        console.error('No user ID available');
-        alert('User not found. Please try again.');
-        return;
-      }
-
-      console.log('Uploading image...');
-      this.userService.uploadProfileImage(String(id), blob).subscribe({
-        next: (res: any) => {
-          console.log('Upload successful:', res);
-
-          this.profileImage = this.imageUrlService.getImageUrl(res.url);
-          this.form.patchValue({ profileImage: res.url });
-
-          console.log('Profile image updated:', this.profileImage);
-
-          try {
-            const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
-            store.user = { ...(store.user || {}), profileImage: res.url };
-            localStorage.setItem('userInfo', JSON.stringify(store));
-            console.log('Local storage updated');
-          } catch (error) {
-            console.error('Error updating local storage:', error);
-          }
-
-          this.closeCropper();
-          this.showSuccessAlert('Profile picture updated successfully!');
-        },
-        error: (error: any) => {
-          console.error('Error uploading image:', error);
-          alert('Failed to upload image. Please try again.');
-          this.closeCropper();
-        },
-      });
-    } catch (error) {
-      console.error('Error in confirmCrop:', error);
-      alert('Error processing image. Please try again.');
-      this.closeCropper();
-    }
-  }
+ 
 
   setStatus(statusValue: string | null): void {
     this.form.patchValue({ status: statusValue });
@@ -587,14 +392,7 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
-  forceRenderCrop(): void {
-    console.log('Forcing crop re-render...');
-    if (this.showCropper && this.imageBitmap) {
-      setTimeout(() => {
-        this.renderCrop();
-      }, 100);
-    }
-  }
+ 
 
   testImageDisplay(): void {
     console.log('Testing image display...');

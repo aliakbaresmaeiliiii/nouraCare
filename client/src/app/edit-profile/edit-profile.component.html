@@ -43,13 +43,19 @@
     </div>
 
     <div class="reproductive-status-section">
-      <p class="status-description">Keep your fertility and pregnancy information up to date.</p>
+      <p class="status-description">
+        Keep your fertility and pregnancy information up to date.
+      </p>
 
       <!-- Current Status Display -->
       <div class="current-reproductive-status" *ngIf="getCurrentStatus()">
         <div class="current-status-badge">
-          <span class="status-emoji">{{ getSelectedReproductiveStatusEmoji() }}</span>
-          <span class="current-status-text">{{ getSelectedReproductiveStatusLabel() }}</span>
+          <span class="status-emoji">{{
+            getSelectedReproductiveStatusEmoji()
+          }}</span>
+          <span class="current-status-text">{{
+            getSelectedReproductiveStatusLabel()
+          }}</span>
         </div>
       </div>
 
@@ -61,36 +67,39 @@
 
         <div class="status-grid">
           @for (option of reproductiveStatusOptions; track option.value) {
-          <div
-            class="status-card"
-            [class.selected]="isStatusSelected(option.value)"
-            (click)="setStatus(option.value)"
-            [style.--status-color]="option.color"
-          >
-            <div class="status-card-content">
-              <div class="status-emoji-container">
-                <span class="status-emoji">{{ option.emoji }}</span>
-              </div>
-              <div class="status-info">
-                <h4 class="status-title">{{ option.label }}</h4>
-              </div>
-              <div
-                class="status-checkmark"
-                *ngIf="isStatusSelected(option.value)"
-              >
-                <ion-icon
-                  name="checkmark-circle"
-                  class="checkmark-icon"
-                ></ion-icon>
+            <div
+              class="status-card"
+              [class.selected]="isStatusSelected(option.value)"
+              (click)="setStatus(option.value)"
+              [style.--status-color]="option.color"
+            >
+              <div class="status-card-content">
+                <div class="status-emoji-container">
+                  <span class="status-emoji">{{ option.emoji }}</span>
+                </div>
+                <div class="status-info">
+                  <h4 class="status-title">{{ option.label }}</h4>
+                </div>
+                <div
+                  class="status-checkmark"
+                  *ngIf="isStatusSelected(option.value)"
+                >
+                  <ion-icon
+                    name="checkmark-circle"
+                    class="checkmark-icon"
+                  ></ion-icon>
+                </div>
               </div>
             </div>
-          </div>
           }
         </div>
 
         <!-- Continue Button -->
         <div class="continue-button-container" *ngIf="getCurrentStatus()">
-          <ion-button class="continue-button" (click)="saveReproductiveStatus()">
+          <ion-button
+            class="continue-button"
+            (click)="saveReproductiveStatus()"
+          >
             <ion-icon name="checkmark" slot="start"></ion-icon>
             Continue
           </ion-button>
@@ -106,24 +115,16 @@
 
   <form [formGroup]="form" class="profile-form">
     <!-- Image Cropper Modal -->
-    <ion-modal
-      [isOpen]="showCropper"
-      (didDismiss)="closeCropper()"
-      class="cropper-modal"
-    >
+    <ion-modal [isOpen]="showCropper" class="cropper-modal">
       <ng-template>
         <ion-header>
           <ion-toolbar>
             <ion-title>Crop Image</ion-title>
             <ion-buttons slot="start">
-              <ion-button (click)="closeCropper()" class="cancel-button"
-                >Cancel</ion-button
-              >
+              <ion-button class="cancel-button">Cancel</ion-button>
             </ion-buttons>
             <ion-buttons slot="end">
-              <ion-button (click)="confirmCrop()" class="confirm-button"
-                >Done</ion-button
-              >
+              <ion-button class="confirm-button">Done</ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
@@ -139,7 +140,6 @@
                 max="3"
                 step="0.1"
                 [value]="zoom"
-                (ionChange)="onZoom($event)"
                 class="zoom-range"
               ></ion-range>
             </div>
@@ -156,16 +156,16 @@
       </div>
 
       <div class="form-fields">
-        <ion-item class="form-item">
-          <ion-label position="floating" class="form-label"
-            >Full Name</ion-label
-          >
-          <ion-input
-            formControlName="name"
-            class="form-input"
-            placeholder="Enter your full name"
-          ></ion-input>
-        </ion-item>
+        <ion-input
+          type="fullName"
+          formControlName="fullName"
+          label-placement="floating"
+          fill="outline"
+          [clearInput]="true"
+          placeholder="Enter text to see clear button"
+          value="Default value"
+          placeholder="Enter your fullName"
+        ></ion-input>
 
         <ion-item class="form-item">
           <ion-label position="floating" class="form-label"
@@ -174,7 +174,11 @@
           <ion-input
             type="email"
             formControlName="email"
-            class="form-input"
+            label-placement="floating"
+            fill="outline"
+            [clearInput]="true"
+            placeholder="Enter text to see clear button"
+            value="Default value"
             placeholder="Enter your email"
           ></ion-input>
         </ion-item>

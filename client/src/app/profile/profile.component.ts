@@ -99,16 +99,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   // @ViewChild('sliderRef') sliderRef!: ElementRef<HTMLElement>;
 
-  ngAfterViewInit() {
-    var swiper = new Swiper('.mySwiper', {
-      slidesPerView: 3,
-      spaceBetween: 10,
-      pagination: {
-        el: '.swiper-pagination',
-        clickable: true,
-      },
-    });
-  }
+
 
   segmentChanged(ev: any) {
     this.selectedTab = ev.detail.value;
@@ -465,13 +456,29 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   ngOnInit(): void {
     this.userId = this.homeService.getCurrentUserId();
 
-    // Load profile data from API
-    this.profileCompletionService.refreshFromAPI();
+    // Single API load: user + onboarding via ProfileCompletionService (one GET user/:id)
+    this.profileCompletionService.refreshFromAPI().subscribe({
+      next: (merged) => {
+        if (merged) {
+          this.name = merged.name || this.name;
+          this.email = merged.email || this.email;
+          this.birthday = merged.birthday || this.birthday;
+          this.city = merged.city ?? this.city;
+          this.profileImage = this.imageUrlService.getImageUrl(merged.profileImage || this.profileImage);
+          try {
+            this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            if (this.userInfoStore?.user) {
+              this.userInfoStore.user = { ...this.userInfoStore.user, ...merged };
+            }
+          } catch {}
+        }
+      },
+    });
 
     // Load reproductive status
     this.loadReproductiveStatus();
 
-    // Also load from localStorage for immediate display
+    // Immediate display from localStorage
     try {
       this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const u = this.userInfoStore?.user || {};
@@ -484,36 +491,6 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       console.error(
         'ProfileComponent - Error loading from localStorage:',
         error
-      );
-    }
-
-    // fetch fresh from API if we have id
-    const id = this.userInfoStore?.user?.id;
-    if (id) {
-      this.userService.getUser(String(id)).subscribe((res: any) => {
-        this.name = res?.name || this.name;
-        this.email = res?.email || this.email;
-        this.birthday = res?.birthday || this.birthday;
-        this.city = res?.city || this.city;
-        this.profileImage = this.imageUrlService.getImageUrl(
-          res?.profileImage || this.profileImage
-        );
-
-        // Update userInfoStore with fresh data for progress calculation
-        if (res) {
-          this.userInfoStore.user = {
-            ...this.userInfoStore.user,
-            ...res,
-          };
-        }
-
-        // Update the service with fresh data from API
-        this.profileCompletionService.updateUserData(this.userInfoStore.user);
-      });
-    } else {
-      // Only update service if no API call is made
-      this.profileCompletionService.updateUserData(
-        this.userInfoStore?.user || {}
       );
     }
   }
