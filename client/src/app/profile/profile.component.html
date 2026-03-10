@@ -25,7 +25,7 @@
     </div>
 
     <div class="profile-info">
-      <h1 class="profile-name">{{ name || "Add Your Name" }}</h1>
+      <h1 class="profile-name">{{ fullName || "Add Your Name" }}</h1>
       <p class="profile-subtitle">{{ email || "Add your email" }}</p>
 
       <div class="profile-stats">
@@ -148,7 +148,7 @@
         <div class="field-content">
           <h4 class="field-title">Full Name</h4>
           <p class="field-value">
-            {{ currentUserData?.name || name || "Add your name" }}
+            {{ currentUserData?.fullName || fullName || "Add your name" }}
           </p>
         </div>
         <div class="field-action">

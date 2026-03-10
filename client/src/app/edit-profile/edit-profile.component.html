@@ -155,7 +155,10 @@
         <h2 class="card-title">Personal Information</h2>
       </div>
 
-      <div class="form-fields">
+      <ion-item class="form-item">
+        <ion-label position="floating" class="form-label"
+          >Email Address</ion-label
+        >
         <ion-input
           type="fullName"
           formControlName="fullName"
@@ -166,31 +169,32 @@
           value="Default value"
           placeholder="Enter your fullName"
         ></ion-input>
+      </ion-item>
 
-        <ion-item class="form-item">
-          <ion-label position="floating" class="form-label"
-            >Email Address</ion-label
-          >
-          <ion-input
-            type="email"
-            formControlName="email"
-            label-placement="floating"
-            fill="outline"
-            [clearInput]="true"
-            placeholder="Enter text to see clear button"
-            value="Default value"
-            placeholder="Enter your email"
-          ></ion-input>
-        </ion-item>
+      <ion-item class="form-item">
+        <ion-label position="floating" class="form-label"
+          >Email Address</ion-label
+        >
+        <ion-input
+          type="email"
+          formControlName="email"
+          label-placement="floating"
+          fill="outline"
+          [clearInput]="true"
+          placeholder="Enter text to see clear button"
+          value="Default value"
+          placeholder="Enter your email"
+        ></ion-input>
+      </ion-item>
 
-        <ion-item class="form-item">
-          <ion-label class="form-label">Birthday</ion-label>
-          <ion-datetime-button
-            datetime="birthdayPicker"
-            class="datetime-button"
-          ></ion-datetime-button>
-        </ion-item>
-      </div>
+      <ion-item class="form-item">
+        <ion-label class="form-label">Birthday</ion-label>
+        <ion-datetime-button
+          formControlName="birthday"
+          datetime="birthdayPicker"
+          class="datetime-button"
+        ></ion-datetime-button>
+      </ion-item>
     </div>
 
     <!-- Birthday Picker Modal -->

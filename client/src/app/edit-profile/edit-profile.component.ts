@@ -140,7 +140,7 @@ export class EditProfileComponent implements OnInit {
   form: FormGroup = this.fb.group({
     profileImage: [''],
     status: [null],
-    name: [''],
+    fullName: [''],
     birthday: [''],
     email: [''],
   });
@@ -161,7 +161,6 @@ export class EditProfileComponent implements OnInit {
   private fetchUserDataAndOnboardingData(userId: number) {
     const userData$ = this.userService.getUser(String(userId));
     const onboardingData$ = this.userInfoService.getUserOnboardingData(userId);
-    debugger
 
     forkJoin({
       userData: userData$,
@@ -177,7 +176,7 @@ export class EditProfileComponent implements OnInit {
     }).subscribe({
       next: (data) => {
         const mergedData = {
-          name: data.userData.data?.fullName || '',
+          fullName: data.userData.data?.fullName || '',
           email: data.userData.data?.email || '',
           birthday: data.userData.data?.birthday || '',
           profileImage: data.userData.data?.profileImage || '',
@@ -194,7 +193,7 @@ export class EditProfileComponent implements OnInit {
 
   private patchFormWithUserData(userData: any) {
     const patch: any = {
-      name: userData?.name ?? '',
+      fullName: userData?.fullName ?? '',
       email: userData?.email ?? '',
       birthday: userData?.birthday ?? '',
       profileImage: userData?.profileImage ?? '',
@@ -278,9 +277,7 @@ export class EditProfileComponent implements OnInit {
   onSubmit() {
     const formValues = this.form.value;
     const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-    const id = currentUserInfo?.userId;
-    debugger
-
+    const id = currentUserInfo.data?.id;
     if (!id) {
       console.error('No user ID available');
       alert('User not found. Please try again.');
@@ -293,7 +290,7 @@ export class EditProfileComponent implements OnInit {
       const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
       store.user = {
         ...(store.user || {}),
-        name: formValues.name,
+        fullName: formValues.fullName,
         email: formValues.email,
         birthday: formValues.birthday,
       };
@@ -301,7 +298,7 @@ export class EditProfileComponent implements OnInit {
     } catch {}
 
     const payload: any = {
-      name: formValues.name,
+      fullName: formValues.fullName,
       email: formValues.email,
       birthday: formValues.birthday,
       profileImage: formValues.profileImage,
@@ -444,7 +441,7 @@ export class EditProfileComponent implements OnInit {
     console.log('Initializing form with defaults...');
     this.form.patchValue({
       status: null,
-      name: '',
+      fullName: '',
       email: '',
       birthday: '',
       profileImage: '',
@@ -491,7 +488,7 @@ export class EditProfileComponent implements OnInit {
         // Get current form values to preserve existing data
         const formValues = this.form.value;
         const payload: any = {
-          name: formValues.name || '',
+          fullName: formValues.fullName || '',
           email: formValues.email || '',
           birthday: formValues.birthday || '',
           profileImage: formValues.profileImage || '',

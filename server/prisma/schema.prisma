@@ -7,15 +7,12 @@ datasource db {
 }
 
 model address {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   userId      Int
   cityId      Int
   districtId  Int?
   addressLine String
-  createdAt   DateTime  @default(now())
-  city        city      @relation(fields: [cityId], references: [id])
-  district    district? @relation(fields: [districtId], references: [id])
-  user        user      @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
 
   @@index([cityId], map: "address_cityId_fkey")
   @@index([districtId], map: "address_districtId_fkey")
@@ -23,35 +20,28 @@ model address {
 }
 
 model chat_members {
-  id           String            @id
-  chatId       String
-  userId       Int
-  role         chat_members_role @default(MEMBER)
-  joinedAt     DateTime          @default(now())
-  leftAt       DateTime?
-  secret_chats secret_chats      @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  user         user              @relation(fields: [userId], references: [id])
+  id       String            @id
+  chatId   String
+  userId   Int
+  role     chat_members_role @default(MEMBER)
+  joinedAt DateTime          @default(now())
+  leftAt   DateTime?
 
   @@unique([chatId, userId])
   @@index([userId], map: "chat_members_userId_fkey")
 }
 
 model chat_messages {
-  id                  String                    @id
-  content             String?                   @db.Text
-  chatId              String
-  senderId            Int
-  messageType         chat_messages_messageType @default(TEXT)
-  mediaUrl            String?
-  replyToId           String?
-  createdAt           DateTime                  @default(now())
-  updatedAt           DateTime
-  isDeleted           Boolean                   @default(false)
-  secret_chats        secret_chats              @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  chat_messages       chat_messages?            @relation("chat_messagesTochat_messages", fields: [replyToId], references: [id])
-  other_chat_messages chat_messages[]           @relation("chat_messagesTochat_messages")
-  user                user                      @relation(fields: [senderId], references: [id])
-  message_reads       message_reads[]
+  id          String                    @id
+  content     String?                   @db.Text
+  chatId      String
+  senderId    Int
+  messageType chat_messages_messageType @default(TEXT)
+  mediaUrl    String?
+  replyToId   String?
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime
+  isDeleted   Boolean                   @default(false)
 
   @@index([chatId], map: "chat_messages_chatId_fkey")
   @@index([replyToId], map: "chat_messages_replyToId_fkey")
@@ -59,19 +49,15 @@ model chat_messages {
 }
 
 model city {
-  id       Int        @id @default(autoincrement())
-  name     String
-  state    String?
-  address  address[]
-  district district[]
+  id    Int     @id @default(autoincrement())
+  name  String
+  state String?
 }
 
 model district {
-  id      Int       @id @default(autoincrement())
-  name    String
-  cityId  Int
-  address address[]
-  city    city      @relation(fields: [cityId], references: [id])
+  id     Int    @id @default(autoincrement())
+  name   String
+  cityId Int
 
   @@index([cityId], map: "district_cityId_fkey")
 }
@@ -110,35 +96,27 @@ model forum_categories {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
-  forums      forums[]
 }
 
 model forum_comment_likes {
-  id             String         @id
-  commentId      String
-  userId         Int
-  createdAt      DateTime       @default(now())
-  forum_comments forum_comments @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  user           user           @relation(fields: [userId], references: [id])
+  id        String   @id
+  commentId String
+  userId    Int
+  createdAt DateTime @default(now())
 
   @@unique([commentId, userId])
   @@index([userId], map: "forum_comment_likes_userId_fkey")
 }
 
 model forum_comments {
-  id                   String                @id
-  content              String                @db.Text
-  postId               String
-  authorId             Int
-  parentId             String?
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime
-  isDeleted            Boolean               @default(false)
-  forum_comment_likes  forum_comment_likes[]
-  user                 user                  @relation(fields: [authorId], references: [id])
-  forum_comments       forum_comments?       @relation("forum_commentsToforum_comments", fields: [parentId], references: [id])
-  other_forum_comments forum_comments[]      @relation("forum_commentsToforum_comments")
-  forum_posts          forum_posts           @relation(fields: [postId], references: [id], onDelete: Cascade)
+  id        String   @id
+  content   String   @db.Text
+  postId    String
+  authorId  Int
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  isDeleted Boolean  @default(false)
 
   @@index([authorId], map: "forum_comments_authorId_fkey")
   @@index([parentId], map: "forum_comments_parentId_fkey")
@@ -146,32 +124,24 @@ model forum_comments {
 }
 
 model forum_post_likes {
-  id          String      @id
-  postId      String
-  userId      Int
-  createdAt   DateTime    @default(now())
-  forum_posts forum_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user        user        @relation(fields: [userId], references: [id])
+  id        String   @id
+  postId    String
+  userId    Int
+  createdAt DateTime @default(now())
 
   @@unique([postId, userId])
   @@index([userId], map: "forum_post_likes_userId_fkey")
 }
 
 model forum_posts {
-  id                String             @id
-  content           String             @db.Text
-  threadId          String
-  authorId          Int
-  parentId          String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime
-  isDeleted         Boolean            @default(false)
-  forum_comments    forum_comments[]
-  forum_post_likes  forum_post_likes[]
-  user              user               @relation(fields: [authorId], references: [id])
-  forum_posts       forum_posts?       @relation("forum_postsToforum_posts", fields: [parentId], references: [id])
-  other_forum_posts forum_posts[]      @relation("forum_postsToforum_posts")
-  forum_threads     forum_threads      @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  id        String   @id
+  content   String   @db.Text
+  threadId  String
+  authorId  Int
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  isDeleted Boolean  @default(false)
 
   @@index([authorId], map: "forum_posts_authorId_fkey")
   @@index([parentId], map: "forum_posts_parentId_fkey")
@@ -179,49 +149,41 @@ model forum_posts {
 }
 
 model forum_threads {
-  id          String        @id
-  title       String
-  content     String        @db.Text
-  forumId     String
-  authorId    Int
-  isPinned    Boolean       @default(false)
-  isLocked    Boolean       @default(false)
-  viewCount   Int           @default(0)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime
-  forum_posts forum_posts[]
-  user        user          @relation(fields: [authorId], references: [id])
-  forums      forums        @relation(fields: [forumId], references: [id], onDelete: Cascade)
+  id        String   @id
+  title     String
+  content   String   @db.Text
+  forumId   String
+  authorId  Int
+  isPinned  Boolean  @default(false)
+  isLocked  Boolean  @default(false)
+  viewCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
 
   @@index([authorId], map: "forum_threads_authorId_fkey")
   @@index([forumId], map: "forum_threads_forumId_fkey")
 }
 
 model forums {
-  id               String           @id
-  title            String
-  description      String           @db.Text
-  categoryId       String
-  createdById      Int
-  isPublic         Boolean          @default(true)
-  isActive         Boolean          @default(true)
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime
-  forum_threads    forum_threads[]
-  forum_categories forum_categories @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  user             user             @relation(fields: [createdById], references: [id])
+  id          String   @id
+  title       String
+  description String   @db.Text
+  categoryId  String
+  createdById Int
+  isPublic    Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
 
   @@index([categoryId], map: "forums_categoryId_fkey")
   @@index([createdById], map: "forums_createdById_fkey")
 }
 
 model message_reads {
-  id            String        @id
-  messageId     String
-  userId        Int
-  readAt        DateTime      @default(now())
-  chat_messages chat_messages @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  user          user          @relation(fields: [userId], references: [id])
+  id        String   @id
+  messageId String
+  userId    Int
+  readAt    DateTime @default(now())
 
   @@unique([messageId, userId])
   @@index([userId], map: "message_reads_userId_fkey")
@@ -244,7 +206,6 @@ model onboarding_data {
   isCompleted          Boolean   @default(false)
   createdAt            DateTime  @default(now())
   updatedAt            DateTime
-  user                 user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model period_logs {
@@ -256,7 +217,6 @@ model period_logs {
   updatedAt             DateTime
   averagePeriodDuration Int?
   lastPeriodDate        DateTime
-  user                  user     @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "period_logs_userId_fkey")
 }
@@ -271,7 +231,6 @@ model post_categories {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
-  posts       posts[]
 }
 
 model post_likes {
@@ -279,8 +238,6 @@ model post_likes {
   postId    String
   userId    Int
   createdAt DateTime @default(now())
-  posts     posts    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user      user     @relation(fields: [userId], references: [id])
 
   @@unique([postId, userId])
   @@index([userId], map: "post_likes_userId_fkey")
@@ -294,25 +251,19 @@ model post_media {
   caption   String?         @db.Text
   order     Int             @default(0)
   createdAt DateTime        @default(now())
-  posts     posts           @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId], map: "post_media_postId_fkey")
 }
 
 model posts {
-  id              String           @id
-  content         String?          @db.Text
-  chatId          String
-  authorId        Int
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime
-  isAnonymous     Boolean          @default(false)
-  categoryId      String?
-  post_likes      post_likes[]
-  post_media      post_media[]
-  user            user             @relation(fields: [authorId], references: [id])
-  post_categories post_categories? @relation(fields: [categoryId], references: [id])
-  secret_chats    secret_chats     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  id          String   @id
+  content     String?  @db.Text
+  chatId      String
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  isAnonymous Boolean  @default(false)
+  categoryId  String?
 
   @@index([authorId], map: "posts_authorId_fkey")
   @@index([categoryId], map: "posts_categoryId_fkey")
@@ -329,7 +280,6 @@ model pregnancy_planning {
   createdAt             DateTime @default(now())
   updatedAt             DateTime
   averagePeriodDuration Int
-  user                  user     @relation(fields: [userId], references: [id])
 
   @@index([userId], map: "pregnancy_planning_userId_fkey")
 }
@@ -341,23 +291,18 @@ model refresh_tokens {
   expiresAt DateTime
   createdAt DateTime @default(now())
   isRevoked Boolean  @default(false)
-  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId], map: "refresh_tokens_userId_fkey")
 }
 
 model secret_chats {
-  id            String          @id
-  name          String?
-  description   String?         @db.Text
-  isGroup       Boolean         @default(false)
-  createdById   Int
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime
-  chat_members  chat_members[]
-  chat_messages chat_messages[]
-  posts         posts[]
-  user          user            @relation(fields: [createdById], references: [id])
+  id          String   @id
+  name        String?
+  description String?  @db.Text
+  isGroup     Boolean  @default(false)
+  createdById Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
 
   @@index([createdById], map: "secret_chats_createdById_fkey")
 }
@@ -372,42 +317,23 @@ model trackday {
   notes     String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  user      user     @relation(fields: [userId], references: [id])
 
   @@unique([userId, date])
 }
 
 model user {
-  id                           Int                   @id @default(autoincrement())
-  email                        String                @unique
-  phoneNumber                  String                @unique
+  id                           Int         @id @default(autoincrement())
+  email                        String      @unique
+  phoneNumber                  String      @unique
   fullName                     String
-  role                         user_role             @default(USER)
-  status                       user_status           @default(ACTIVE)
-  isVerified                   Boolean               @default(false)
-  createdAt                    DateTime              @default(now())
+  role                         user_role   @default(USER)
+  status                       user_status @default(ACTIVE)
+  isVerified                   Boolean     @default(false)
+  createdAt                    DateTime    @default(now())
   updatedAt                    DateTime
   emailVerificationCode        String?
   emailVerificationCodeExpires DateTime?
-  address                      address[]
-  chat_members                 chat_members[]
-  chat_messages                chat_messages[]
-  forum_comment_likes          forum_comment_likes[]
-  forum_comments               forum_comments[]
-  forum_post_likes             forum_post_likes[]
-  forum_posts                  forum_posts[]
-  forum_threads                forum_threads[]
-  forums                       forums[]
-  message_reads                message_reads[]
-  onboarding_data              onboarding_data?
-  period_logs                  period_logs[]
-  post_likes                   post_likes[]
-  posts                        posts[]
-  pregnancy_planning           pregnancy_planning[]
-  refresh_tokens               refresh_tokens[]
-  secret_chats                 secret_chats[]
-  trackday                     trackday[]
-  user_profile                 user_profile?
+  birthday                     DateTime?
 }
 
 model user_profile {
@@ -418,7 +344,6 @@ model user_profile {
   dateOfBirth DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime
-  user        user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum chat_members_role {

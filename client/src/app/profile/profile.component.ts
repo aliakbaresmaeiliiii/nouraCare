@@ -64,7 +64,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   // swiperEl = viewChild('swiperContainer');
   router = inject(Router);
   userInfoStore: any = {};
-  name: string = '';
+  fullName: string = '';
   email: string = '';
   birthday: string = '';
   city: string = '';
@@ -98,8 +98,6 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   dotHelper: Array<Number> = [];
 
   // @ViewChild('sliderRef') sliderRef!: ElementRef<HTMLElement>;
-
-
 
   segmentChanged(ev: any) {
     this.selectedTab = ev.detail.value;
@@ -263,7 +261,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       const shareData = {
         title: 'My Profile - Gahvareh',
         text: `Check out my profile on Gahvareh! I'm ${
-          this.name || 'a user'
+          this.fullName || 'a user'
         } and my profile is ${this.percent}% complete.`,
         url: window.location.href,
       };
@@ -439,7 +437,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     try {
       this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const u = this.userInfoStore?.user || {};
-      this.name = u.name || '';
+      this.fullName = u.fullName || '';
       this.email = u.email || '';
       this.birthday = u.birthday || '';
       this.city = u.city || '';
@@ -455,20 +453,27 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   ngOnInit(): void {
     this.userId = this.homeService.getCurrentUserId();
-
     // Single API load: user + onboarding via ProfileCompletionService (one GET user/:id)
     this.profileCompletionService.refreshFromAPI().subscribe({
       next: (merged) => {
         if (merged) {
-          this.name = merged.name || this.name;
+          this.fullName = merged.fullName || this.fullName;
           this.email = merged.email || this.email;
           this.birthday = merged.birthday || this.birthday;
           this.city = merged.city ?? this.city;
-          this.profileImage = this.imageUrlService.getImageUrl(merged.profileImage || this.profileImage);
+          this.profileImage = this.imageUrlService.getImageUrl(
+            merged.profileImage || this.profileImage,
+          );
           try {
-            this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
+            this.userInfoStore = JSON.parse(
+              localStorage.getItem('userInfo') || '{}',
+            );
+            debugger;
             if (this.userInfoStore?.user) {
-              this.userInfoStore.user = { ...this.userInfoStore.user, ...merged };
+              this.userInfoStore.user = {
+                ...this.userInfoStore.user,
+                ...merged,
+              };
             }
           } catch {}
         }
@@ -482,7 +487,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     try {
       this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const u = this.userInfoStore?.user || {};
-      this.name = u.name || '';
+      this.fullName = u.fullName || '';
       this.email = u.email || '';
       this.birthday = u.birthday || '';
       this.city = u.city || '';
@@ -490,7 +495,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     } catch (error) {
       console.error(
         'ProfileComponent - Error loading from localStorage:',
-        error
+        error,
       );
     }
   }
