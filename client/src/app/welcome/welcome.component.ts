@@ -167,8 +167,6 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   testOnboarding() {
-    console.log('Test onboarding button clicked');
-    console.log('Trying to navigate to onboarding...');
     this.router.navigate(['/onboarding']).then(
       (success) => console.log('Navigation successful:', success),
       (error) => console.error('Navigation failed:', error)
