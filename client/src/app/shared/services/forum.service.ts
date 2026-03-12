@@ -5,8 +5,15 @@ import { catchError, map } from 'rxjs/operators';
 import { EditPostResponse } from '../interfaces/forum.interface';
 import { ThreadsResponse } from './forum-threads.service';
 import { environment } from 'environments/environment';
-import { CreateForumPostDto, CreateForumThreadDto, CreateCommentDto, ForumTopic, LikeResponse, PostResponse, ThreadDetailResponse } from '../models/forum';
-
+import {
+  CreateForumPostDto,
+  CreateForumThreadDto,
+  CreateCommentDto,
+  ForumTopic,
+  LikeResponse,
+  PostResponse,
+  ThreadDetailResponse,
+} from '../models/forum';
 
 @Injectable({
   providedIn: 'root',
@@ -51,34 +58,37 @@ export class ForumService {
 
   getAllThreads(page: number = 1, limit: number = 20) {
     return this.http.get<ThreadsResponse>(
-      `${this.forumThreadsBaseUrl}?page=${page}&limit=${limit}`
+      `${this.forumThreadsBaseUrl}?page=${page}&limit=${limit}`,
     );
   }
 
   getThreadsByCategory(
     categoryId: string,
     page: number = 1,
-    limit: number = 20
+    limit: number = 20,
   ) {
     return this.http.get<ThreadsResponse>(
-      `${this.forumThreadsBaseUrl}/category/${categoryId}?page=${page}&limit=${limit}`
+      `${this.forumThreadsBaseUrl}/category/${categoryId}?page=${page}&limit=${limit}`,
     );
   }
 
   fetchTopicDetail(threadId: string | null) {
     return this.http.get<ThreadDetailResponse>(
-      `${this.forumThreadsBaseUrl}/${threadId}`
+      `${this.forumThreadsBaseUrl}/${threadId}`,
     );
   }
 
   fetchThreadById(threadId: string | null) {
     return this.http.get<ThreadDetailResponse>(
-      `${this.forumThreadsBaseUrl}/${threadId}`
+      `${this.forumThreadsBaseUrl}/${threadId}`,
     );
   }
 
   createComment(createComment: CreateCommentDto) {
-    return this.http.post<PostResponse>(`${this.forumCommentBaseUrl}`, createComment);
+    return this.http.post<PostResponse>(
+      `${this.forumCommentBaseUrl}`,
+      createComment,
+    );
   }
 
   createForumPost(postData: CreateForumPostDto) {
@@ -92,7 +102,7 @@ export class ForumService {
   likeComment(commentId: string, isLike: boolean) {
     return this.http.post<LikeResponse>(
       `${this.forumBaseUrl}/comment/${commentId}/like`,
-      { isLike }
+      { isLike },
     );
   }
 
@@ -102,7 +112,6 @@ export class ForumService {
       postId: payload.postId!,
       parentId: payload.parentId,
       forumId: payload.forumId,
-      
     };
 
     return this.http.post<PostResponse>(this.forumPostsBaseUrl, replyData);
@@ -113,7 +122,7 @@ export class ForumService {
       `${this.forumPostsBaseUrl}/comments/${postId}`,
       {
         content: content,
-      }
+      },
     );
   }
 
@@ -123,13 +132,13 @@ export class ForumService {
       `${this.forumPostsBaseUrl}/comments/${commentId}`,
       {
         content: content,
-      }
+      },
     );
   }
 
   deletePost(postId: string) {
     return this.http.delete<{ success: boolean; message?: string }>(
-      `${this.forumPostsBaseUrl}/comments/${postId}`
+      `${this.forumPostsBaseUrl}/comments/${postId}`,
     );
   }
 
@@ -162,7 +171,7 @@ export class ForumService {
             });
           }
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -174,7 +183,7 @@ export class ForumService {
       {
         title: title,
         content: content,
-      }
+      },
     );
   }
 
