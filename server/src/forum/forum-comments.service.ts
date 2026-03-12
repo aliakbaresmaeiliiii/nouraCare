@@ -72,7 +72,7 @@ export class ForumCommentsService {
               fullName: true,
             },
           },
-          forum_comments: {
+          replies: {
             include: {
               user: {
                 select: {
@@ -84,7 +84,7 @@ export class ForumCommentsService {
           },
           _count: {
             select: {
-              other_forum_comments: true,
+              replies: true,
             },
           },
         },
@@ -133,7 +133,7 @@ export class ForumCommentsService {
               fullName: true,
             },
           },
-          other_forum_comments: {
+          replies: {
             where: { isDeleted: false },
             include: {
               user: {
@@ -144,7 +144,7 @@ export class ForumCommentsService {
               },
               _count: {
                 select: {
-                  other_forum_comments: true,
+                  replies: true,
                 },
               },
             },
@@ -152,7 +152,7 @@ export class ForumCommentsService {
           },
           _count: {
             select: {
-              other_forum_comments: true,
+              replies: true,
             },
           },
         },
@@ -198,7 +198,7 @@ export class ForumCommentsService {
           },
           _count: {
             select: {
-              other_forum_comments: true,
+              replies: true,
             },
           },
         },
@@ -226,49 +226,39 @@ export class ForumCommentsService {
   }
 
   async findOne(id: string) {
-    const comment = await this.prismaService.forum_comments.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
+      const comment = await this.prismaService.forum_comments.findUnique({
+        where: { id },
+        include: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+            },
           },
-        },
-        forum_comments: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
+          replies: {
+            where: { isDeleted: false },
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  fullName: true,
+                },
               },
+              _count: {
+                select: {
+                  replies: true,
+                },
+              },
+            },
+            orderBy: { createdAt: 'asc' },
+          },
+          _count: {
+            select: {
+              replies: true,
             },
           },
         },
-        other_forum_comments: {
-          where: { isDeleted: false },
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
-              },
-            },
-            _count: {
-              select: {
-                other_forum_comments: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'asc' },
-        },
-        _count: {
-          select: {
-            other_forum_comments: true,
-          },
-        },
-      },
-    });
+      });
 
     if (!comment) {
       throw new NotFoundException('Forum comment not found');
@@ -309,7 +299,7 @@ export class ForumCommentsService {
         },
         _count: {
           select: {
-            other_forum_comments: true,
+            replies: true,
           },
         },
       },

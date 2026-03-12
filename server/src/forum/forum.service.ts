@@ -155,7 +155,7 @@ export class ForumService {
                   include: {
                     forums: {
                       include: {
-                        forum_categories: true,
+                        category: true,
                       },
                     },
                   },

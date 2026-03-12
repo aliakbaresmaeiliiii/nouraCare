@@ -96,6 +96,7 @@ model forum_categories {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
+  forums      forums[]
 }
 
 model forum_comment_likes {
@@ -103,7 +104,8 @@ model forum_comment_likes {
   commentId String
   userId    Int
   createdAt DateTime @default(now())
-
+  comment forum_comments @relation(fields: [commentId], references: [id])
+  user    user          @relation(fields: [userId], references: [id])
   @@unique([commentId, userId])
   @@index([userId], map: "forum_comment_likes_userId_fkey")
 }
@@ -117,18 +119,22 @@ model forum_comments {
   createdAt DateTime @default(now())
   updatedAt DateTime
   isDeleted Boolean  @default(false)
-
+  post    forum_posts @relation(fields: [postId], references: [id])
+  user    user        @relation(fields: [authorId], references: [id])
+  parent  forum_comments?   @relation("CommentReplies", fields: [parentId], references: [id])
+  replies forum_comments[]  @relation("CommentReplies")
+  likes   forum_comment_likes[]
   @@index([authorId], map: "forum_comments_authorId_fkey")
   @@index([parentId], map: "forum_comments_parentId_fkey")
   @@index([postId], map: "forum_comments_postId_fkey")
 }
-
 model forum_post_likes {
   id        String   @id
   postId    String
   userId    Int
   createdAt DateTime @default(now())
-
+  post forum_posts @relation(fields: [postId], references: [id])
+  user user        @relation(fields: [userId], references: [id])
   @@unique([postId, userId])
   @@index([userId], map: "forum_post_likes_userId_fkey")
 }
@@ -142,7 +148,13 @@ model forum_posts {
   createdAt DateTime @default(now())
   updatedAt DateTime
   isDeleted Boolean  @default(false)
-
+  // name this relation "forum_threads" to match your includes:
+  forum_threads forum_threads @relation(fields: [threadId], references: [id])
+  user           user                @relation(fields: [authorId], references: [id])
+  parent         forum_posts?        @relation("PostReplies", fields: [parentId], references: [id])
+  replies        forum_posts[]       @relation("PostReplies")
+  comments       forum_comments[]
+  forum_post_likes forum_post_likes[]
   @@index([authorId], map: "forum_posts_authorId_fkey")
   @@index([parentId], map: "forum_posts_parentId_fkey")
   @@index([threadId], map: "forum_posts_threadId_fkey")
@@ -159,7 +171,9 @@ model forum_threads {
   viewCount Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime
-
+  forums      forums        @relation(fields: [forumId], references: [id])
+  user        user          @relation(fields: [authorId], references: [id])
+  forum_posts forum_posts[]
   @@index([authorId], map: "forum_threads_authorId_fkey")
   @@index([forumId], map: "forum_threads_forumId_fkey")
 }
@@ -174,7 +188,9 @@ model forums {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
-
+  category      forum_categories @relation(fields: [categoryId], references: [id])
+  forum_threads forum_threads[]
+  createdBy     user            @relation(fields: [createdById], references: [id])
   @@index([categoryId], map: "forums_categoryId_fkey")
   @@index([createdById], map: "forums_createdById_fkey")
 }
@@ -334,6 +350,13 @@ model user {
   emailVerificationCode        String?
   emailVerificationCodeExpires DateTime?
   birthday                     DateTime?
+  forums              forums[]
+  forum_threads       forum_threads[]
+  forum_posts         forum_posts[]
+  forum_comments      forum_comments[]
+  forum_post_likes    forum_post_likes[]
+  forum_comment_likes forum_comment_likes[]
+  user_profile        user_profile?
 }
 
 model user_profile {
@@ -344,6 +367,7 @@ model user_profile {
   dateOfBirth DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime
+  user        user      @relation(fields: [userId], references: [id])
 }
 
 enum chat_members_role {

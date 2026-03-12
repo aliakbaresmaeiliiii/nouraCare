@@ -96,7 +96,7 @@ export class ForumThreadsService {
         include: {
           forums: {
             include: {
-              forum_categories: true,
+              category: true,
             },
           },
           user: {
@@ -169,7 +169,7 @@ export class ForumThreadsService {
         include: {
           forums: {
             include: {
-              forum_categories: true,
+              category: true,
             },
           },
           user: {
@@ -210,7 +210,7 @@ export class ForumThreadsService {
       include: {
         forums: {
           include: {
-            forum_categories: true,
+            category: true,
           },
         },
 
@@ -256,7 +256,7 @@ export class ForumThreadsService {
       include: {
         forums: {
           include: {
-            forum_categories: true,
+            category: true,
           },
         },
       },
@@ -303,7 +303,7 @@ export class ForumThreadsService {
       include: {
         forums: {
           include: {
-            forum_categories: true,
+            category: true,
           },
         },
       },
@@ -341,7 +341,7 @@ export class ForumThreadsService {
         include: {
           forums: {
             include: {
-              forum_categories: true,
+              category: true,
             },
           },
           user: {
