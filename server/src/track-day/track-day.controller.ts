@@ -18,11 +18,11 @@ export class TrackDayController {
 
   @Post(':userId')
   async createTrackDay(
-    @Param('userId') userId: number,
+    @Param('userId') userId: string,
     @Body() createTrackDayDto: CreateTrackDayDto,
   ) {
-    const userIdNumber = userId;
-    if (userIdNumber) {
+    const userIdNumber = parseInt(userId, 10);
+    if (isNaN(userIdNumber)) {
       throw new BadRequestException('Invalid user ID');
     }
 
@@ -31,11 +31,14 @@ export class TrackDayController {
 
   @Get(':userId/:date')
   async getTrackDay(
-    @Param('userId') userId: number,
+    @Param('userId') userId: string,
     @Param('date') date: string,
   ) {
-    const userIdNumber =userId;
-    if (userIdNumber) {
+    console.log('GET /track-day', { userIdRaw: userId, dateRaw: date });
+
+    const userIdNumber = parseInt(userId, 10);
+    console.log('userIdNumber', userIdNumber);
+    if (isNaN(userIdNumber)) {
       throw new BadRequestException('Invalid user ID');
     }
     return this.trackDayService.getTrackDay(userIdNumber, date);
@@ -43,12 +46,12 @@ export class TrackDayController {
 
   @Put(':userId/:trackDayId')
   async updateTrackDay(
-    @Param('userId') userId: number,
+    @Param('userId') userId: string,
     @Param('trackDayId') trackDayId: string,
     @Body() updateTrackDayDto: UpdateTrackDayDto,
   ) {
-    const userIdNumber = userId;
-    if (userIdNumber) {
+    const userIdNumber = parseInt(userId, 10);
+    if (isNaN(userIdNumber)) {
       throw new BadRequestException('Invalid user ID');
     }
 

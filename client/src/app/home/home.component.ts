@@ -1,11 +1,8 @@
-import { AfterViewInit, Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, ViewChild } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ModalController, ToastController, ViewWillEnter } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { add } from 'ionicons/icons';
-import Swiper from 'swiper';
 import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-picker-page/period-date-picker-page.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
 import { FertilityResults, FertilityResultsModalComponent } from '../shared/components/fertility-results-modal/fertility-results-modal.component';
@@ -26,7 +23,7 @@ import { SharedModule } from '../shared/shared-module';
   imports: [SharedModule, CirclePeriodChart],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
-export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
+export class HomeComponent implements OnInit, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
@@ -128,65 +125,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     addIcons({ add });
   }
 
-  ngAfterViewInit() {
 
-    // Initialize Swiper only if the element exists
-    const swiperElement = document.querySelector('.mySwiper');
-    if (swiperElement) {
-      var swiper = new Swiper('.mySwiper', {
-        slidesPerView: 2,
-        spaceBetween: 5,
-        centeredSlides: false,
-        loop: false,
-        pagination: {
-          el: '.swiper-pagination',
-          clickable: true,
-          dynamicBullets: true,
-        },
-        breakpoints: {
-          480: {
-            slidesPerView: 2,
-            spaceBetween: 15,
-          },
-          640: {
-            slidesPerView: 3,
-            spaceBetween: 20,
-          },
-          768: {
-            slidesPerView: 2.5,
-            spaceBetween: 20,
-          },
-          1024: {
-            slidesPerView: 3,
-            spaceBetween: 25,
-          },
-        },
-      });
-    }
-
-    var swiper = new Swiper(".trackSymptomsSwiper", {
-      slidesPerView: 3,
-      spaceBetween: 3,
-      pagination: {
-        el: ".swiper-pagination",
-        clickable: true,
-      },
-      breakpoints: {
-        640: {
-          slidesPerView: 1,
-          spaceBetween: 10,
-        },
-        768: {
-          slidesPerView: 2,
-          spaceBetween: 10,
-        },
-        1024: {
-          slidesPerView: 3,
-          spaceBetween: 10,
-        },
-      },
-    });
-  }
 
   ngOnInit() {
     this.generateMessages();
@@ -381,7 +320,6 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
    */
   private getCurrentUserId(): number {
     const userInfo = localStorage.getItem('userInfo');
-    
     if (userInfo) {
       const parsed = JSON.parse(userInfo);
       return parsed.userId || parsed.user?.id || parsed.id || 1;
@@ -390,24 +328,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     return 1; 
   }
 
-  /**
-   * Get current user ID as RxJS observable with error handling
-   */
-  private getCurrentUserId$(): Observable<number> {
-    return of(localStorage.getItem('userInfo')).pipe(
-      map(userInfo => {
-        if (userInfo) {
-          const parsed = JSON.parse(userInfo);
-          return parsed.userId || parsed.user?.id || parsed.id || 1;
-        }
-        return 1; // Default user ID
-      }),
-      catchError(error => {
-        console.error('Error getting current user ID:', error);
-        return of(1); // Return default user ID on error
-      })
-    );
-  }
+  
 
   /**
    * Test method to debug button clicks
@@ -1218,7 +1139,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
 
   loadTodaySymptoms() {
     const today = new Date().toISOString().split('T')[0];
-
+    
     // First try to get from local service (faster)
     const localData = this.trackDataService.getTodayTrackData();
     if (localData) {
@@ -1228,6 +1149,7 @@ export class HomeComponent implements OnInit, AfterViewInit, ViewWillEnter {
     }
 
     // If not found locally, fetch from API
+
     this.trackDataService.getTrackDay(this.getCurrentUserId(), today).subscribe({
       next: (data) => {
         if (data && data.length > 0) {

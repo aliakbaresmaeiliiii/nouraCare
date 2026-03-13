@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
 import { SharedModule } from '../shared/shared-module';
-import Swiper from 'swiper';
 import { Router } from '@angular/router';
 import { User } from '../shared/services/user';
 import { ImageUrlService } from '../shared/services/image-url.service';
@@ -468,7 +467,6 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
             this.userInfoStore = JSON.parse(
               localStorage.getItem('userInfo') || '{}',
             );
-            debugger;
             if (this.userInfoStore?.user) {
               this.userInfoStore.user = {
                 ...this.userInfoStore.user,

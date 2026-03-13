@@ -13,11 +13,15 @@ export class TrackDayService {
   async createTrackDay(userId: number, createTrackDayDto: CreateTrackDayDto) {
     const { date, mood, energy, symptoms, notes } = createTrackDayDto;
 
+    // Normalize to start of day to avoid time-component mismatches
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+
     // Check if track day already exists for this user and date
     const existingTrackDay = await this.prisma.trackday.findFirst({
       where: {
         userId,
-        date: new Date(date),
+        date: dayStart,
       },
     });
 
@@ -28,7 +32,7 @@ export class TrackDayService {
     return this.prisma.trackday.create({
       data: {
         userId,
-        date: new Date(date),
+        date: dayStart,
         mood: mood ? JSON.stringify(mood) : null,
         energy: energy ? JSON.stringify(energy) : null,
         symptoms: symptoms ? JSON.stringify(symptoms) : null,
@@ -44,12 +48,13 @@ export class TrackDayService {
   ) {
     const { mood, energy, symptoms, notes } = updateTrackDayDto;
 
-    const trackDay = await this.prisma.trackday.findUnique({
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const trackDay = await this.prisma.trackday.findFirst({
       where: {
-        userId_date: {
-          userId,
-          date: new Date(date),
-        },
+        userId,
+        date: dayStart,
       },
     });
 
@@ -59,10 +64,7 @@ export class TrackDayService {
 
     return this.prisma.trackday.update({
       where: {
-        userId_date: {
-          userId,
-          date: new Date(date),
-        },
+        id: trackDay.id,
       },
       data: {
         mood: mood ? JSON.stringify(mood) : trackDay.mood,
@@ -74,11 +76,19 @@ export class TrackDayService {
   }
 
   async getTrackDay(userId: number, date: string) {
-    const trackDay = await this.prisma.trackday.findUnique({
+    
+    console.log('getTrackDay', { userId, date });
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    const trackDay = await this.prisma.trackday.findFirst({
       where: {
-        userId_date: {
-          userId,
-          date: new Date(date),
+        userId,
+        date: {
+          gte: dayStart,
+          lt: dayEnd,
         },
       },
     });
@@ -87,6 +97,7 @@ export class TrackDayService {
       throw new NotFoundException('Track day not found');
     }
 
+    console.log('trackDay', trackDay);
     return {
       ...trackDay,
       mood: trackDay.mood ? JSON.parse(trackDay.mood) : null,
@@ -123,11 +134,18 @@ export class TrackDayService {
   }
 
   async deleteTrackDay(userId: number, date: string) {
-    const trackDay = await this.prisma.trackday.findUnique({
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    const trackDay = await this.prisma.trackday.findFirst({
       where: {
-        userId_date: {
-          userId,
-          date: new Date(date),
+        userId,
+        date: {
+          gte: dayStart,
+          lt: dayEnd,
         },
       },
     });
@@ -137,12 +155,7 @@ export class TrackDayService {
     }
 
     return this.prisma.trackday.delete({
-      where: {
-        userId_date: {
-          userId,
-          date: new Date(date),
-        },
-      },
+      where: { id: trackDay.id },
     });
   }
 }

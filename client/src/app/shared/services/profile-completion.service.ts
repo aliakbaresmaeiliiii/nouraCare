@@ -102,7 +102,11 @@ export class ProfileCompletionService {
 
   // Method to fetch user data from API (single request for user + onboarding)
   private fetchUserDataFromAPI(userId: number): Observable<any> {
-    const userData$ = this.userService.getUser(String(userId));
+    // We already have the user data from login (stored in localStorage as userInfo.user),
+    // so avoid an extra GET /user/:id call here and just reuse that.
+    const stored = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userFromStorage = stored?.user || {};
+    const userData$ = of(userFromStorage);
     const onboardingData$ = this.userInfoService.getUserOnboardingData(userId).pipe(
       catchError(() =>
         of({

@@ -148,7 +148,6 @@ export class EditProfileComponent implements OnInit {
   private loadUserDataFromAPI() {
     try {
       const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-      debugger;
       if (currentUserInfo?.data?.id) {
         this.fetchUserDataAndOnboardingData(currentUserInfo.data.id);
       } else {
