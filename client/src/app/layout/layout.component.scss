@@ -167,7 +167,7 @@
     rgba(248, 250, 252, 0.98) 100%
   );
   overflow: hidden;
-  height: 88px;
+  height: 78px;
 
   &::before {
     content: "";
@@ -203,6 +203,7 @@
     align-items: center;
     justify-content: center;
     z-index: 2;
+    bottom: 14px;
 
     &::before {
       content: "";

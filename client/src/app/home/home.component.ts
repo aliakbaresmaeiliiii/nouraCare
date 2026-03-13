@@ -20,7 +20,7 @@ import { SharedModule } from '../shared/shared-module';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   standalone: true,
-  imports: [SharedModule, CirclePeriodChart],
+  imports: [SharedModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomeComponent implements OnInit, ViewWillEnter {

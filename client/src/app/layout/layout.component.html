@@ -1,8 +1,7 @@
-<ion-app>
-  <app-side-menu></app-side-menu>
+<app-side-menu></app-side-menu>
 
-  <!-- Main layout -->
-  <div class="ion-page" id="main-content">
+<!-- Main layout inside the root ion-app from app.component.html -->
+<div class="ion-page" id="main-content">
     <!-- Modern Header -->
     <ion-header class="modern-header">
       <div class="app-container">
@@ -57,7 +56,7 @@
               <ion-icon name="home-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
               <ion-icon name="home" class="tab-icon tab-icon-filled" aria-hidden="true"></ion-icon>
             </div>
-            <span class="tab-label">{{ 'common.home' | translate }}</span>
+            <span class="tab-label">{{ 'nav.home' | translate }}</span>
           </div>
         </ion-tab-button>
         
@@ -103,4 +102,3 @@
       </ion-tab-bar>
     </ion-tabs>
   </div>
-</ion-app>

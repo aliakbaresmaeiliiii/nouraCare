@@ -1,17 +1,22 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { addIcons } from 'ionicons';
-import { 
-  home, 
-  construct, 
-  people, 
-  calendar, 
+import {
+  home,
+  construct,
+  people,
+  calendar,
   school,
   bulb,
   menu,
   notifications,
-  personCircle
+  personCircle,
 } from 'ionicons/icons';
 import { SharedModule } from '../shared/shared-module';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
@@ -24,8 +29,8 @@ import { Subscription } from 'rxjs';
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
   standalone: true,
-  imports:[SharedModule, SideMenuComponent, HeaderLanguageSwitcherComponent],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA]
+  imports: [SharedModule, SideMenuComponent, HeaderLanguageSwitcherComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class LayoutComponent implements OnInit, OnDestroy {
   selectedTitle = 'Home';
@@ -35,25 +40,37 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private languageService: LanguageService
+    private languageService: LanguageService,
   ) {
     // Register the icons
-    addIcons({ home, construct, people, calendar, school, bulb, menu, notifications, personCircle });
+    addIcons({
+      home,
+      construct,
+      people,
+      calendar,
+      school,
+      bulb,
+      menu,
+      notifications,
+      personCircle,
+    });
   }
 
   ngOnInit() {
     // Listen to route changes to update the title
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.updateTitle(event.url);
-    });
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.updateTitle(event.url);
+      });
 
     // Listen to language changes to update the title
-    this.languageSubscription = this.languageService.currentLanguage$.subscribe(() => {
-      // Trigger change detection when language changes
-      this.updateTitle(this.router.url);
-    });
+    this.languageSubscription = this.languageService.currentLanguage$.subscribe(
+      () => {
+        // Trigger change detection when language changes
+        this.updateTitle(this.router.url);
+      },
+    );
   }
 
   ngOnDestroy() {
@@ -61,8 +78,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
       this.languageSubscription.unsubscribe();
     }
   }
-
-
 
   private updateTitle(url: string) {
     if (url.includes('/tabs/home')) {

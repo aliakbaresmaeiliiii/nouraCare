@@ -87,5 +87,13 @@
     "ngx-build-plus": "^20.0.0",
     "typescript": "~5.9.3"
   },
-  "description": "An Ionic project"
+  "description": "TrackCycling is a comprehensive cycling tracking application built with Ionic and Angular. It offers features such as route tracking, performance analytics, and social sharing to enhance the cycling experience for users of all levels.",
+  "keywords": [
+    "ionic",
+    "angular",
+    "cycling",
+    "tracking",
+    "performance analytics",
+    "social sharing"
+  ] 
 }
