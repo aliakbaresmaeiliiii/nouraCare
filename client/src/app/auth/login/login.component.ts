@@ -14,7 +14,15 @@ import {
 import { RegisterRequest } from './model/register-request-interface';
 import { AuthService } from '../services/auth';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
-import { BehaviorSubject, Subject } from 'rxjs';
+import {
+  BehaviorSubject,
+  Subject,
+  exhaustMap,
+  filter,
+  finalize,
+  takeUntil,
+  tap,
+} from 'rxjs';
 
 @Component({  
   selector: 'app-login',
@@ -55,6 +63,7 @@ export class LoginComponent {
   selectedRole: string = '';
   private destroy$ = new Subject<void>();
   successCaptcha = signal<boolean>(false);
+  private loginClick$ = new Subject<void>();
 
   labelEmail = 'Email';
   labelPassword = 'Password';
@@ -91,6 +100,66 @@ export class LoginComponent {
     if (sessionId) {
       this.loadOnboardingData(sessionId);
     }
+
+    this.loginClick$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.loginForm.valid && !this.isLoading),
+        tap(() => {
+          this.isLoading = true;
+          this.cdr.detectChanges();
+        }),
+        exhaustMap(() => {
+          const payload = {
+            email: this.loginForm.value.email || '',
+            phoneNumber: this.loginForm.value.phoneNumber || '',
+          };
+
+          return this.service.login(payload).pipe(
+            finalize(() => {
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            })
+          );
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          this.message = 'Login successful!';
+          this.success = true;
+          this.showToast = true;
+
+          if (res?.data) {
+            this.service.setUserInfo({
+              id: res.data.user.id,
+              email: res.data.user.email,
+              phone: res.data.user.phone ?? '',
+              name: res.data.user['name'],
+              profileImage: res.data.user['profileImage'],
+              isVerified: res.data.user.isVerified,
+              status: res.data.user['status'],
+              city: res.data.user['city'],
+              birthday: res.data.user['birthday'],
+              createdAt: res.data.user['createdAt'],
+            });
+
+            localStorage.setItem('userInfo', JSON.stringify(res.data));
+          }
+
+          const isEmailVerified = !!res?.data?.user?.isVerified;
+          if (!isEmailVerified) {
+            this.router.navigate(['/auth/verify-email']);
+          } else {
+            this.router.navigate(['/tabs/home']);
+          }
+        },
+        error: (err) => {
+          this.message =
+            err?.error?.message || 'Login failed. Please try again.';
+          this.success = false;
+          this.showToast = true;
+        },
+      });
   }
 
   private loadOnboardingData(sessionId: string): void {
@@ -137,79 +206,37 @@ export class LoginComponent {
       phoneNumber: this.registerForm.value.phoneNumber,
     };
 
-    this.service.register(payload, onboardingData).subscribe({
-      next: (res) => {
-        localStorage.setItem('userInfo', JSON.stringify(res));
+    this.isLoading = true;
+    this.cdr.detectChanges();
 
-        // Clear onboarding data after successful registration
-        if (onboardingData) {
-          localStorage.removeItem('onboarding_data');
-          localStorage.removeItem('onboarding_completed');
-        }
+    this.service
+      .register(payload, onboardingData)
+      .pipe(
+        finalize(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          localStorage.setItem('userInfo', JSON.stringify(res));
 
-        this.router.navigate(['auth/verify-email']);
-      },
-      error: (err) => {
-        console.error('Registration failed:', err);
-      },
-    });
+          // Clear onboarding data after successful registration
+          if (onboardingData) {
+            localStorage.removeItem('onboarding_data');
+            localStorage.removeItem('onboarding_completed');
+          }
+
+          this.router.navigate(['auth/verify-email']);
+        },
+        error: (err) => {
+          console.error('Registration failed:', err);
+        },
+      });
   }
 
   onLogin() {
-    if (this.loginForm.value) {
-
-      const payload = {
-        email: this.loginForm.value.email || '',
-        phoneNumber: this.loginForm.value.phoneNumber || '',
-      };
-      this.service.login(payload).subscribe({
-        next: (res) => {
-          this.message = 'Login successful!';
-          this.success = true;
-          this.showToast = true;
-
-          if (res?.data) {
-
-            // Ensure AuthService knows the current user (normalize phone to string)
-            this.service.setUserInfo({
-              id: res.data.user.id,
-              email: res.data.user.email,
-              phone: res.data.user.phone ?? '',
-              name: res.data.user['name'],
-              profileImage: res.data.user['profileImage'],
-              isVerified: res.data.user.isVerified,
-              status: res.data.user['status'],
-              city: res.data.user['city'],
-              birthday: res.data.user['birthday'],
-              createdAt: res.data.user['createdAt'],
-            });
-
-            // Persist auth payload (includes refreshToken) for other services
-            localStorage.setItem('userInfo', JSON.stringify(res.data));
-          }
-
-          // Check if email is verified
-          const isEmailVerified = !!res?.data?.user?.isVerified;
-          if (!isEmailVerified) {
-            // Email not verified, redirect to verify-email page
-            this.router.navigate(['/auth/verify-email']);
-          } else {
-            // Navigate to home page (protected by authGuard)
-            this.router.navigate(['/tabs/home']);
-          }
-
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          this.message =
-            err?.error?.message || 'Login failed. Please try again.';
-          this.success = false;
-          this.showToast = true;
-          this.cdr.detectChanges();
-        },
-        complete: () => {},
-      });
-    }
+    this.loginClick$.next();
   }
   resolved(captchaResponse: any) {
     // console.log(`Captcha resolved with response: ${captchaResponse}`);

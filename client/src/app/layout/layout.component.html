@@ -86,15 +86,59 @@
         </ion-tab-button> -->
 <!-- </ion-tab-bar> -->
 <!-- </ion-tabs> -->
+
+<ion-header class="modern-header">
+  <div class="app-container">
+    <ion-toolbar class="header-toolbar">
+      <ion-buttons slot="start" class="header-left">
+        <ion-menu-button class="menu-button">
+          <ion-icon name="menu-outline"></ion-icon>
+        </ion-menu-button>
+      </ion-buttons>
+
+      <div slot="end" class="header-right">
+        <ion-button
+          fill="clear"
+          class="header-action"
+          (click)="openNotifications()"
+        >
+          <ion-icon name="notifications-outline"></ion-icon>
+          @if (hasNotifications) {
+            <div class="notification-badge">3</div>
+          }
+        </ion-button>
+
+        <app-header-language-switcher></app-header-language-switcher>
+
+        <ion-button fill="clear" class="header-action" (click)="openProfile()">
+          <div class="profile-avatar">
+            <img
+              src="assets/images/user-avatar.png"
+              alt="Profile"
+              onerror="this.style.display = 'none'"
+            />
+            <ion-icon
+              name="person-circle-outline"
+              *ngIf="!hasUserAvatar"
+            ></ion-icon>
+          </div>
+        </ion-button>
+      </div>
+      <div slot="start">
+        aliakbar
+      </div>
+    </ion-toolbar>
+  </div>
+</ion-header>
 <ion-tabs>
   <ion-tab tab="home">
     <div id="home-page" class="ion-page">
       <ion-header>
         <ion-toolbar>
-          <ion-title>Home Page</ion-title>
+          <!-- <ion-title>Home Page</ion-title> -->
         </ion-toolbar>
       </ion-header>
-      <ion-content>
+      <ion-content class="mb-20">
         <app-home></app-home>
       </ion-content>
     </div>
@@ -103,10 +147,10 @@
     <div id="insights-page" class="ion-page">
       <ion-header>
         <ion-toolbar>
-          <ion-title>Insights Page</ion-title>
+          <!-- <ion-title>Insights Page</ion-title> -->
         </ion-toolbar>
       </ion-header>
-      <ion-content>
+      <ion-content class="mb-20">
         <app-insights></app-insights>
       </ion-content>
     </div>
@@ -116,10 +160,10 @@
     <div id="consultation-page" class="ion-page">
       <ion-header>
         <ion-toolbar>
-          <ion-title>Consultation Page</ion-title>
+          <!-- <ion-title>Consultation Page</ion-title> -->
         </ion-toolbar>
       </ion-header>
-      <ion-content>
+      <ion-content class="mb-20">
         <app-consultation></app-consultation>
       </ion-content>
     </div>
@@ -128,10 +172,10 @@
     <div id="school-page" class="ion-page">
       <ion-header>
         <ion-toolbar>
-          <ion-title>School Page</ion-title>
+          <!-- <ion-title>School Page</ion-title> -->
         </ion-toolbar>
       </ion-header>
-      <ion-content>
+      <ion-content class="mb-20">
         <app-school></app-school>
       </ion-content>
     </div>

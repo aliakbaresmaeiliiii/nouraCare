@@ -24,13 +24,20 @@ import { HomeComponent } from '../home/home.component';
 import { InsightsComponent } from '../insights/insights.component';
 import { ConsultationComponent } from '../consultation/consultation.component';
 import { SchoolComponent } from '../school/school.component';
-
+import { SideMenuComponent } from '../side-menu/side-menu.component';
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS,HomeComponent,InsightsComponent,ConsultationComponent,SchoolComponent],
+  imports: [
+    ...SHARED_STANDALONE_IMPORTS,
+    HomeComponent,
+    InsightsComponent,
+    ConsultationComponent,
+    SchoolComponent,
+    SideMenuComponent,
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class LayoutComponent implements OnInit, OnDestroy {
