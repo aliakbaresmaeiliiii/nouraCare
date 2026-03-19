@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
@@ -17,7 +17,7 @@ interface MenuItem {
   templateUrl: './side-menu.component.html',
   styleUrls: ['./side-menu.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class SideMenuComponent implements OnInit, ViewWillEnter {
   activeIndexTop: number | null = null;

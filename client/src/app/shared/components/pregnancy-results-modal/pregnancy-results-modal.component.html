@@ -104,15 +104,35 @@
         <div class="milestone-content">
           <h4>🎯 This Week's Milestones</h4>
           <ul>
-            <li *ngIf="results.pregnancyWeek >= 8">Baby's heart is beating regularly</li>
-            <li *ngIf="results.pregnancyWeek >= 12">Risk of miscarriage significantly decreases</li>
-            <li *ngIf="results.pregnancyWeek >= 16">You might start feeling baby's movements</li>
-            <li *ngIf="results.pregnancyWeek >= 20">Anatomy scan can reveal baby's gender</li>
-            <li *ngIf="results.pregnancyWeek >= 24">Baby's hearing is developing</li>
-            <li *ngIf="results.pregnancyWeek >= 28">Baby's eyes can open and close</li>
-            <li *ngIf="results.pregnancyWeek >= 32">Baby is gaining weight rapidly</li>
-            <li *ngIf="results.pregnancyWeek >= 37">Baby is considered full-term</li>
-            <li *ngIf="results.pregnancyWeek < 8">Your baby's major organs are forming</li>
+            @if (results.pregnancyWeek >= 8) {
+              <li>Baby's heart is beating regularly</li>
+
+            }
+            @if (results.pregnancyWeek >= 12) {
+              <li>Risk of miscarriage significantly decreases</li>
+            }
+
+            @if (results.pregnancyWeek >= 16) {
+              <li>You might start feeling baby's movements</li>
+            }
+            @if (results.pregnancyWeek >= 20) {
+              <li>Anatomy scan can reveal baby's gender</li>
+            }
+            @if (results.pregnancyWeek >= 24) {
+              <li>Baby's hearing is developing</li>
+            }
+            @if (results.pregnancyWeek >= 28) {
+              <li>Baby's eyes can open and close</li>
+            }
+            @if (results.pregnancyWeek >= 32) {
+              <li>Baby is gaining weight rapidly</li>
+            }
+            @if (results.pregnancyWeek >= 37) {
+              <li>Baby is considered full-term</li>
+            }
+            @if (results.pregnancyWeek < 8) {
+              <li>Your baby's major organs are forming</li>
+            }
           </ul>
         </div>
       </div>

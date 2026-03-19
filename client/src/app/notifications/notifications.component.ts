@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 
 interface Notification {
@@ -21,7 +21,7 @@ interface Notification {
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class NotificationsComponent implements OnInit {
   private router = inject(Router);

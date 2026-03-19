@@ -1,17 +1,15 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonHeader, IonToolbar, IonButtons, IonBackButton, IonTitle, IonContent, IonButton, IonIcon, IonChip, IonText, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonLabel, IonNote, IonBadge } from '@ionic/angular';
-import { CommonModule } from '@angular/common';
-import { TrackDataService } from '../shared/services/track-data.service';
-import { SharedModule } from '../shared/shared-module';
 import { SymptomsDto } from '../shared/models/symptoms.dto';
+import { TrackDataService } from '../shared/services/track-data.service';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-symptoms-detail',
   templateUrl: './symptoms-detail.component.html',
   styleUrls: ['./symptoms-detail.component.scss'],
   standalone: true,
-  imports: [SharedModule]
+  imports: [...SHARED_STANDALONE_IMPORTS]
 })
 export class SymptomsDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);

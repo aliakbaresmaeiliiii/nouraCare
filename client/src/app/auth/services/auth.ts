@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal, computed } from '@angular/core';
-import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { OnboardingDataDto } from '../../shared/services/onboarding.service';
+import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginRequest } from '../login/model/login-request-interface';
 import { RegisterRequest } from '../login/model/register-request-interface';
-import { TokenResponse, JwtPayload } from '../models/token.interface';
-import { LoginData, User } from '../login/model/uesr-interface';
-import { OnboardingDataDto } from '@app/shared/services/onboarding.service';
+import { User } from '../login/model/uesr-interface';
+import { JwtPayload, TokenResponse } from '../models/token.interface';
 
 @Injectable({
   providedIn: 'root',

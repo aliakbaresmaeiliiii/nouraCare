@@ -1,10 +1,7 @@
 {
   "compileOnSave": false,
 "compilerOptions": {
-  "baseUrl": "src",
   "paths": {
-    "@app/*": ["app/*"],
-    "@shared/*": ["app/shared/*"]
   },
   "outDir": "./dist/out-tsc",
   "forceConsistentCasingInFileNames": true,
@@ -17,10 +14,10 @@
   "sourceMap": true,
   "declaration": false,
   "experimentalDecorators": true,
-  "moduleResolution": "nodenext",
+  "moduleResolution": "bundler",
   "importHelpers": true,
   "target": "es2022",
-  "module": "nodenext",
+  "module": "es2022",
   "lib": ["es2018", "dom"],
   "useDefineForClassFields": false,
   "allowSyntheticDefaultImports": true,

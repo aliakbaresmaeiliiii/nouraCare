@@ -1,14 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { SharedModule } from '../shared/shared-module';
 import { TrackDataService } from '../shared/services/track-data.service';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-symptoms-history',
   templateUrl: './symptoms-history.component.html',
   styleUrls: ['./symptoms-history.component.scss'],
   standalone: true,
-  imports: [SharedModule]
+  imports: [...SHARED_STANDALONE_IMPORTS]
 })
 export class SymptomsHistoryComponent implements OnInit {
   private router = inject(Router);

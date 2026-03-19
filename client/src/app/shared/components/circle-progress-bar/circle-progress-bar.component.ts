@@ -3,7 +3,7 @@ import { Component, input, OnInit } from '@angular/core';
 @Component({
   selector: 'app-circle-progress-bar',
   templateUrl: './circle-progress-bar.component.html',
-  standalone: false,
+  standalone: true,
   styleUrls: ['./circle-progress-bar.component.scss'],
 })
 export class CircleProgressBarComponent implements OnInit {

@@ -1,38 +1,23 @@
-<app-side-menu></app-side-menu>
+<!-- <app-side-menu></app-side-menu> -->
 
-<!-- Main layout inside the root ion-app from app.component.html -->
-<div class="ion-page" id="main-content">
-    <!-- Modern Header -->
+<!-- <div class="ion-page" id="main-content">
     <ion-header class="modern-header">
       <div class="app-container">
         <ion-toolbar class="header-toolbar">
-          <!-- Left side - Menu button -->
           <ion-buttons slot="start" class="header-left">
             <ion-menu-button class="menu-button">
               <ion-icon name="menu-outline"></ion-icon>
             </ion-menu-button>
           </ion-buttons>
 
-          <!-- Center - Title with icon -->
-          <!-- <div class="header-center">
-            <div class="title-container">
-              <ion-icon [name]="getPageIcon()" class="page-icon"></ion-icon>
-              <ion-title class="page-title">{{ selectedTitle | translate }}</ion-title>
-            </div>
-          </div> -->
-
-          <!-- Right side - Actions -->
           <div slot="end" class="header-right">
-            <!-- Notifications -->
             <ion-button fill="clear" class="header-action" (click)="openNotifications()">
               <ion-icon name="notifications-outline"></ion-icon>
               <div class="notification-badge" *ngIf="hasNotifications">3</div>
             </ion-button>
             
-            <!-- Language Switcher -->
             <app-header-language-switcher></app-header-language-switcher>
             
-            <!-- Profile -->
             <ion-button fill="clear" class="header-action" (click)="openProfile()">
               <div class="profile-avatar">
                 <img src="assets/images/user-avatar.png" alt="Profile" onerror="this.style.display='none'">
@@ -42,15 +27,15 @@
           </div>
         </ion-toolbar>
       </div>
-    </ion-header>
+    </ion-header> -->
 
-    <!-- Tab content -->
-    <ion-tabs class="tabs">
-      <ion-router-outlet></ion-router-outlet>
+<!-- Tab content -->
+<!-- <ion-tabs class="tabs">
+      <ion-router-outlet></ion-router-outlet> -->
 
-      <!-- Modern Tab Bar with RGB Gradient -->
-      <ion-tab-bar slot="bottom" class="modern-tab-bar">
-        <ion-tab-button tab="home" href="tabs/home" class="tab-button" role="tab" aria-label="Home">
+<!-- Modern Tab Bar with RGB Gradient -->
+<!-- <ion-tab-bar slot="bottom" class="modern-tab-bar"> -->
+<!-- <ion-tab-button tab="home" href="tabs/home" class="tab-button" role="tab" aria-label="Home">
           <div class="tab-content">
             <div class="icon-container">
               <ion-icon name="home-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
@@ -68,9 +53,9 @@
             </div>
             <span class="tab-label">{{ 'nav.insights' | translate }}</span>
           </div>
-        </ion-tab-button>
-        
-        <!-- <ion-tab-button tab="SecretChats" href="tabs/SecretChats" class="tab-button" role="tab" aria-label="Community">
+        </ion-tab-button> -->
+
+<!-- <ion-tab-button tab="SecretChats" href="tabs/SecretChats" class="tab-button" role="tab" aria-label="Community">
           <div class="tab-content">
             <div class="icon-container">
               <ion-icon name="people-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
@@ -79,8 +64,8 @@
             <span class="tab-label">{{ 'nav.SecretChats' | translate }}</span>
           </div>
         </ion-tab-button> -->
-        
-        <ion-tab-button tab="consultation" href="tabs/consultation" class="tab-button" role="tab" aria-label="Consultation">
+
+<!-- <ion-tab-button tab="consultation" href="tabs/consultation" class="tab-button" role="tab" aria-label="Consultation">
           <div class="tab-content">
             <div class="icon-container">
               <ion-icon name="calendar-outline" class="tab-icon tab-icon-outline" aria-hidden="true"></ion-icon>
@@ -98,7 +83,37 @@
             </div>
             <span class="tab-label">{{ 'nav.school' | translate }}</span>
           </div>
-        </ion-tab-button>
-      </ion-tab-bar>
-    </ion-tabs>
-  </div>
+        </ion-tab-button> -->
+<!-- </ion-tab-bar> -->
+<!-- </ion-tabs> -->
+<ion-tabs>
+  <ion-tab tab="home">
+    <div id="home-page" class="ion-page">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Home Page</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <app-home></app-home>
+      </ion-content>
+    </div>
+  </ion-tab>
+ 
+
+
+
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="home" >
+      <ion-icon name="home-outline"></ion-icon>
+      <span class="tab-label">{{ "nav.home" | translate }}</span>
+    </ion-tab-button>
+    <ion-tab-button tab="insights">
+      <ion-icon name="bulb-outline"></ion-icon>
+      <span class="tab-label">{{ "nav.insights" | translate }}</span>
+    </ion-tab-button>
+
+
+  </ion-tab-bar>
+</ion-tabs>
+<!-- </div> -->

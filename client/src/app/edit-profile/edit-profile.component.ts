@@ -24,7 +24,7 @@ import {
   heartCircle,
   heartDislike,
 } from 'ionicons/icons';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../shared/services/user';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,7 +38,7 @@ import { HomeDataService } from '../home/services/home-data.service';
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
   styleUrls: ['./edit-profile.component.scss'],
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class EditProfileComponent implements OnInit {

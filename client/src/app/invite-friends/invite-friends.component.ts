@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 
 interface InviteMethod {
@@ -27,7 +27,7 @@ interface InviteHistory {
   templateUrl: './invite-friends.component.html',
   styleUrls: ['./invite-friends.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class InviteFriendsComponent implements OnInit {
   private router = inject(Router);

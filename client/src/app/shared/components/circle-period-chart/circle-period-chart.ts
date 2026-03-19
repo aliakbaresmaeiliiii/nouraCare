@@ -1,7 +1,7 @@
 import { Component, effect, inject, Input, ViewChild, OnInit, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonDatetime } from '@ionic/angular';
-import { SharedModule } from '../../shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 import { CycleSettingsService } from '../../services/cycle-settings.service';
 import { UserInfoService } from '../../services/user-info.service';
 import { environment } from '../../../../environments/environment';
@@ -15,7 +15,7 @@ export interface Segment {
 @Component({
   selector: 'app-circle-period-chart',
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   templateUrl: './circle-period-chart.html',
   styleUrl: './circle-period-chart.scss',
 })

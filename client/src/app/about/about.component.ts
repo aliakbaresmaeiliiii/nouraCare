@@ -1,14 +1,14 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone.js';
 
 @Component({
   selector: 'app-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss'],
   standalone: true,
-  imports:[SharedModule],
+  imports:[...SHARED_STANDALONE_IMPORTS],
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class AboutComponent implements OnInit {

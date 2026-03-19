@@ -4,14 +4,14 @@ import { Router } from '@angular/router';
 import { ToastController, AlertController } from '@ionic/angular';
 import { DoctorService } from '../shared/services/doctor.service';
 import { ConsultationType, CreateDoctorDto } from '../shared/models/doctor.dto';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-create-doctor',
   templateUrl: './create-doctor.component.html',
   styleUrls: ['./create-doctor.component.scss'],
   standalone: true,
-  imports: [SharedModule]
+  imports: [...SHARED_STANDALONE_IMPORTS]
 })
 export class CreateDoctorComponent implements OnInit {
   doctorForm!: FormGroup;

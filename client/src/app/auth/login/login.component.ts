@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
@@ -8,20 +7,20 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { AuthService } from '../services/auth';
-import { RegisterRequest } from './model/register-request-interface';
 import {
   OnboardingDataDto,
   OnboardingService,
-} from '@app/shared/services/onboarding.service';
-import { SharedModule } from '@app/shared/shared-module';
+} from '../../shared/services/onboarding.service';
+import { RegisterRequest } from './model/register-request-interface';
+import { AuthService } from '../services/auth';
+import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
+import { BehaviorSubject, Subject } from 'rxjs';
 
-@Component({
+@Component({  
   selector: 'app-login',
   templateUrl: './login.component.html',
   standalone: true,
-  imports: [CommonModule, SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
@@ -95,7 +94,7 @@ export class LoginComponent {
   }
 
   private loadOnboardingData(sessionId: string): void {
-    this.onboardingStateService.getOnboardingData(sessionId).subscribe({
+    this.onboardingService.getOnboardingData(sessionId).subscribe({
       next: (res) => {
         this.onboardingData.set(res.data);
         console.log('Onboarding data loaded:', res);

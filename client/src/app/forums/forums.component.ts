@@ -9,15 +9,15 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { ForumService } from '../shared/services/forum.service';
-import { SharedModule } from '../shared/shared-module';
-import { ForumCategory, ForumTopic } from '@app/shared/models/forum';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { ForumCategory, ForumTopic } from '../shared/models/forum';
 
 @Component({
   selector: 'app-forums',
   templateUrl: './forums.component.html',
   styleUrls: ['./forums.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class ForumsComponent implements OnInit, OnDestroy {
   private router = inject(Router);

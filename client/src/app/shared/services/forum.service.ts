@@ -4,7 +4,6 @@ import { of, Subject, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { EditPostResponse } from '../interfaces/forum.interface';
 import { ThreadsResponse } from './forum-threads.service';
-import { environment } from 'environments/environment';
 import {
   CreateForumPostDto,
   CreateForumThreadDto,
@@ -14,6 +13,7 @@ import {
   PostResponse,
   ThreadDetailResponse,
 } from '../models/forum';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',

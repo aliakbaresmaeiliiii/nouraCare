@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { ReproductiveStatusService, ReproductiveStatusData } from '../shared/services/reproductive-status.service';
 import { Router } from '@angular/router';
 import { HomeDataService } from '../home/services/home-data.service';
@@ -8,7 +8,8 @@ import { HomeDataService } from '../home/services/home-data.service';
   selector: 'app-cycle-calendar',
   templateUrl: './cycle-calendar.component.html',
   styleUrls: ['./cycle-calendar.component.scss'],
-  imports: [SharedModule]
+  standalone: true,
+  imports: [...SHARED_STANDALONE_IMPORTS]
 })
 export class CycleCalendarComponent implements OnInit {
   private reproductiveStatusService = inject(ReproductiveStatusService);

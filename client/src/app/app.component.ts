@@ -1,14 +1,14 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { UserInfoService } from './shared/services/user-info.service';
 import { OnboardingStateService } from './shared/services/onboarding-state.service';
-import { environment } from 'environments/environment';
+import { environment } from '../environments/environment';
+import { SHARED_STANDALONE_IMPORTS } from './shared/shared-standalone';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
-  imports: [IonApp, IonRouterOutlet],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class AppComponent implements OnInit {
   private userInfoService = inject(UserInfoService);

@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { SharedModule } from '../../shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 
 export interface FertilityResults {
   fertileDays: string[];
@@ -15,7 +15,7 @@ export interface FertilityResults {
   templateUrl: './fertility-results-modal.component.html',
   styleUrls: ['./fertility-results-modal.component.scss'],
   standalone: true,
-  imports: [SharedModule]
+  imports: [...SHARED_STANDALONE_IMPORTS]
 })
 export class FertilityResultsModalComponent {
   @Input() results!: FertilityResults;

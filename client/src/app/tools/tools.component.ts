@@ -20,14 +20,14 @@ import { ToolsService,
          VitaminEntry,
          AppointmentReminder,
          HealthReport } from '../shared/services/tools.service';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-tools',
   templateUrl: './tools.component.html',
   styleUrls: ['./tools.component.scss'],
   standalone: true,
-  imports:[SharedModule],
+  imports:[...SHARED_STANDALONE_IMPORTS],
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ToolsComponent implements OnInit {

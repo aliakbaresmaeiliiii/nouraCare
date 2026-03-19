@@ -3,14 +3,14 @@ import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { DoctorService } from '../shared/services/doctor.service';
 import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-doctors',
   templateUrl: './doctors.component.html',
   styleUrls: ['./doctors.component.scss'],
   standalone: true,
-  imports: [SharedModule]
+  imports: [...SHARED_STANDALONE_IMPORTS]
 })
 export class DoctorsComponent implements OnInit {
   doctors: DoctorDto[] = [];

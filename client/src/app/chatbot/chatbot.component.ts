@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
 import { Router } from '@angular/router';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone.js';
 
 interface ChatMessage {
   id: number;
@@ -26,7 +26,7 @@ interface QuickReply {
   templateUrl: './chatbot.component.html',
   styleUrls: ['./chatbot.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class ChatbotComponent implements OnInit, AfterViewChecked {
   @ViewChild('messageContainer') private messageContainer!: ElementRef;

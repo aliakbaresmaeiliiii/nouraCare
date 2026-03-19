@@ -1,23 +1,35 @@
-import { Component, OnInit, inject, CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavController, ToastController, AlertController } from '@ionic/angular';
-import { SharedModule } from '../shared/shared-module';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import {
+  NavController,
+  ToastController,
+  AlertController,
+} from '@ionic/angular';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import {
+  SymptomData,
+  SYMPTOMS_CONFIG,
+  DailySymptoms,
+} from '../shared/constants/symptoms-config';
 import { TrackDataService } from '../shared/services/track-data.service';
-import { DailySymptoms, SymptomData, SYMPTOMS_CONFIG } from '../shared/constants/symptoms-config';
 import { SymptomsDataService } from './services/symptoms-data.service';
 import { SymptomsUIService } from './services/symptoms-ui.service';
-
-
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-symptoms-tracker',
   templateUrl: './symptoms-tracker-simple.html',
   styleUrls: ['./symptoms-tracker-simple.scss'],
   standalone: true,
-  imports: [SharedModule],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [...SHARED_STANDALONE_IMPORTS],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SymptomsTrackerComponent implements OnInit {
   private navCtrl = inject(NavController);
@@ -58,20 +70,18 @@ export class SymptomsTrackerComponent implements OnInit {
   categoriesExpanded = {
     physical: true,
     mood: false,
-    intimacy: false
+    intimacy: false,
   };
-  
+
   allCategoriesExpanded = false;
   quickSymptoms = new Set<string>();
-
-
 
   // Historical data (in real app, this would come from a service/database)
   dailySymptomsHistory: DailySymptoms[] = [];
 
   ngOnInit() {
     this.initializeForm();
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['date']) {
         // Ensure date is in local format (YYYY-MM-DD)
         const dateParam = params['date'];
@@ -104,15 +114,17 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   convertSelectedItemsToSymptoms(): any[] {
-    return this.symptomsDataService.convertSelectedItemsToSymptoms(this.selectedItems);
+    return this.symptomsDataService.convertSelectedItemsToSymptoms(
+      this.selectedItems,
+    );
   }
 
   getCategoryForItem(itemId: string): string {
-    if (this.sexDriveOptions.find(opt => opt.id === itemId)) {
+    if (this.sexDriveOptions.find((opt) => opt.id === itemId)) {
       return 'Sex and Sex Drive';
-    } else if (this.moodOptions.find(opt => opt.id === itemId)) {
+    } else if (this.moodOptions.find((opt) => opt.id === itemId)) {
       return 'Mood';
-    } else if (this.physicalSymptoms.find(opt => opt.id === itemId)) {
+    } else if (this.physicalSymptoms.find((opt) => opt.id === itemId)) {
       return 'Physical Symptoms';
     }
     return 'General';
@@ -139,15 +151,19 @@ export class SymptomsTrackerComponent implements OnInit {
 
   loadExistingData(): void {
     const userId = this.getCurrentUserId();
-      this.trackDataService.getTrackDay(userId, this.selectedDate).subscribe({
-        next: (data) => {
-          this.existingData = data;
-          this.populateFormWithExistingData();
-        },
+    this.trackDataService.getTrackDay(userId, this.selectedDate).subscribe({
+      next: (data) => {
+        this.existingData = data;
+        this.populateFormWithExistingData();
+      },
       error: (error) => {
         console.error('Error loading existing data:', error);
-        this.showToast(`Failed to load existing data: ${error.message}`, 'danger', { duration: 3000 });
-      }
+        this.showToast(
+          `Failed to load existing data: ${error.message}`,
+          'danger',
+          { duration: 3000 },
+        );
+      },
     });
   }
 
@@ -166,7 +182,10 @@ export class SymptomsTrackerComponent implements OnInit {
       this.selectedItems.add(this.existingData.energy);
 
       // Add symptoms to selectedItems
-      if (this.existingData.symptoms && Array.isArray(this.existingData.symptoms)) {
+      if (
+        this.existingData.symptoms &&
+        Array.isArray(this.existingData.symptoms)
+      ) {
         this.existingData.symptoms.forEach((symptom: any) => {
           this.selectedItems.add(symptom.id);
           this.selectedSymptoms.push(symptom);
@@ -179,7 +198,7 @@ export class SymptomsTrackerComponent implements OnInit {
         mood: this.existingData.mood,
         energy: this.existingData.energy,
         notes: this.notes,
-        symptoms: this.selectedSymptoms
+        symptoms: this.selectedSymptoms,
       });
 
       // Update symptoms form array
@@ -190,13 +209,11 @@ export class SymptomsTrackerComponent implements OnInit {
     }
   }
 
-
-
   getCurrentUserId(): number {
     const userData = localStorage.getItem('userInfo');
     if (userData) {
       const parsed = JSON.parse(userData);
-      return parsed.user?.id || parsed.id ; // fallback to 30
+      return parsed.user?.id || parsed.id; // fallback to 30
     }
     return 30; // fallback
   }
@@ -216,7 +233,7 @@ export class SymptomsTrackerComponent implements OnInit {
       energy: ['medium', Validators.required],
       symptoms: this.fb.array([]),
       notes: [''],
-      pregnancyWeek: [this.getCurrentPregnancyWeek()]
+      pregnancyWeek: [this.getCurrentPregnancyWeek()],
     });
   }
 
@@ -257,7 +274,9 @@ export class SymptomsTrackerComponent implements OnInit {
 
   loadTodayData() {
     // Load existing data for today if available
-    const todayData = this.dailySymptomsHistory.find(d => d.date === this.selectedDate);
+    const todayData = this.dailySymptomsHistory.find(
+      (d) => d.date === this.selectedDate,
+    );
 
     if (todayData) {
       this.isSelected(todayData.mood);
@@ -265,17 +284,20 @@ export class SymptomsTrackerComponent implements OnInit {
       this.isSelected(todayData.notes);
       this.isSelected(todayData.date);
       // Parse JSON strings if they exist
-      this.currentMood = typeof todayData.mood === 'string'
-        ? JSON.parse(todayData.mood)
-        : todayData.mood;
-      this.currentEnergy = typeof todayData.energy === 'string'
-        ? JSON.parse(todayData.energy)
-        : todayData.energy;
+      this.currentMood =
+        typeof todayData.mood === 'string'
+          ? JSON.parse(todayData.mood)
+          : todayData.mood;
+      this.currentEnergy =
+        typeof todayData.energy === 'string'
+          ? JSON.parse(todayData.energy)
+          : todayData.energy;
       this.isSelected(todayData.notes);
       this.isSelected(todayData.date);
-      this.selectedSymptoms = typeof todayData.symptoms === 'string'
-        ? JSON.parse(todayData.symptoms)
-        : (todayData.symptoms || []);
+      this.selectedSymptoms =
+        typeof todayData.symptoms === 'string'
+          ? JSON.parse(todayData.symptoms)
+          : todayData.symptoms || [];
       this.notes = todayData.notes || '';
     } else {
       this.resetForm();
@@ -290,12 +312,12 @@ export class SymptomsTrackerComponent implements OnInit {
     this.selectedItems.clear();
     this.quickSymptoms.clear();
     this.hasDataForDate = false;
-    
+
     // Update form
     this.symptomsForm.patchValue({
       mood: this.currentMood,
       energy: this.currentEnergy,
-      notes: this.notes
+      notes: this.notes,
     });
   }
 
@@ -304,7 +326,9 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   toggleSymptom(symptom: any) {
-    const existingIndex = this.selectedSymptoms.findIndex(s => s.id === symptom.id);
+    const existingIndex = this.selectedSymptoms.findIndex(
+      (s) => s.id === symptom.id,
+    );
 
     if (existingIndex >= 0) {
       // Remove symptom
@@ -317,7 +341,7 @@ export class SymptomsTrackerComponent implements OnInit {
         category: symptom.category,
         icon: symptom.icon,
         severity: 'mild',
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       this.selectedSymptoms.push(newSymptom);
     }
@@ -328,23 +352,14 @@ export class SymptomsTrackerComponent implements OnInit {
 
   updateSymptomsFormArray() {
     const symptomsArray = this.symptomsForm.get('symptoms') as FormArray;
-    symptomsArray.clear();
-
-    this.selectedSymptoms.forEach(symptom => {
-      symptomsArray.push(this.fb.group({
-        id: [symptom.id],
-        name: [symptom.name],
-        category: [symptom.category],
-        icon: [symptom.icon],
-        severity: [symptom.severity],
-        notes: [symptom.notes || ''],
-        timestamp: [symptom.timestamp]
-      }));
+    symptomsArray.reset();
+    this.selectedSymptoms.forEach((symptom) => {
+      symptomsArray.controls.push(this.fb.control(symptom));
     });
   }
 
   isSymptomSelected(symptomId: string): boolean {
-    return this.selectedSymptoms.some(s => s.id === symptomId);
+    return this.selectedSymptoms.some((s) => s.id === symptomId);
   }
 
   async updateSymptomSeverity(symptom: SymptomData) {
@@ -357,27 +372,27 @@ export class SymptomsTrackerComponent implements OnInit {
           type: 'radio',
           label: 'Mild',
           value: 'mild',
-          checked: symptom.severity === 'mild'
+          checked: symptom.severity === 'mild',
         },
         {
           name: 'severity',
           type: 'radio',
           label: 'Moderate',
           value: 'moderate',
-          checked: symptom.severity === 'moderate'
+          checked: symptom.severity === 'moderate',
         },
         {
           name: 'severity',
           type: 'radio',
           label: 'Severe',
           value: 'severe',
-          checked: symptom.severity === 'severe'
-        }
+          checked: symptom.severity === 'severe',
+        },
       ],
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: 'Update',
@@ -385,9 +400,9 @@ export class SymptomsTrackerComponent implements OnInit {
             if (data) {
               symptom.severity = data;
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -402,13 +417,13 @@ export class SymptomsTrackerComponent implements OnInit {
           name: 'note',
           type: 'textarea',
           placeholder: 'Describe your symptoms...',
-          value: symptom.notes || ''
-        }
+          value: symptom.notes || '',
+        },
       ],
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: 'Save',
@@ -416,19 +431,21 @@ export class SymptomsTrackerComponent implements OnInit {
             if (data.note) {
               symptom.notes = data.note;
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
   }
 
   removeSymptom(symptomId: string) {
-    this.selectedSymptoms = this.selectedSymptoms.filter(s => s.id !== symptomId);
+    this.selectedSymptoms = this.selectedSymptoms.filter(
+      (s) => s.id !== symptomId,
+    );
   }
 
-   saveSymptoms() {
+  saveSymptoms() {
     try {
       // Update form with current values
       this.symptomsForm.patchValue({
@@ -436,18 +453,21 @@ export class SymptomsTrackerComponent implements OnInit {
         mood: this.currentMood,
         energy: this.currentEnergy,
         notes: this.notes,
-        pregnancyWeek: this.getCurrentPregnancyWeek()
+        pregnancyWeek: this.getCurrentPregnancyWeek(),
       });
 
       // Check if any symptoms are selected
       if (!this.hasAnySelection()) {
-         this.showToast('Please select at least one symptom to track', 'warning');
+        this.showToast(
+          'Please select at least one symptom to track',
+          'warning',
+        );
         return;
       }
 
       // Convert selected chips to symptoms array
       const selectedSymptoms = this.convertSelectedItemsToSymptoms();
-      
+
       const apiData = this.symptomsDataService.createApiPayload({
         userId: this.getUserId(),
         selectedItems: this.selectedItems,
@@ -455,14 +475,13 @@ export class SymptomsTrackerComponent implements OnInit {
         currentMood: this.currentMood,
         currentEnergy: this.currentEnergy,
         notes: this.notes,
-        selectedDate: this.selectedDate
+        selectedDate: this.selectedDate,
       });
 
-
       if (this.isUpdateMode) {
-         this.updateSymptomsInAPI(apiData);
+        this.updateSymptomsInAPI(apiData);
       } else {
-         this.sendSymptomsToAPI(apiData);
+        this.sendSymptomsToAPI(apiData);
       }
 
       // Update local history with API-compatible format
@@ -471,7 +490,7 @@ export class SymptomsTrackerComponent implements OnInit {
         mood: this.currentMood as any,
         energy: this.currentEnergy as any,
         symptoms: [...this.selectedSymptoms],
-        notes: this.notes
+        notes: this.notes,
       };
 
       // Convert to API format (JSON strings for symptoms, mood, energy)
@@ -479,18 +498,23 @@ export class SymptomsTrackerComponent implements OnInit {
         ...dailyData,
         symptoms: JSON.stringify(dailyData.symptoms),
         mood: JSON.stringify(dailyData.mood),
-        energy: JSON.stringify(dailyData.energy)
+        energy: JSON.stringify(dailyData.energy),
       };
 
-      const existingIndex = this.dailySymptomsHistory.findIndex(d => d.date === this.selectedDate);
+      const existingIndex = this.dailySymptomsHistory.findIndex(
+        (d) => d.date === this.selectedDate,
+      );
       if (existingIndex >= 0) {
-        this.dailySymptomsHistory[existingIndex] = apiFormattedData as unknown as DailySymptoms;
+        this.dailySymptomsHistory[existingIndex] =
+          apiFormattedData as unknown as DailySymptoms;
       } else {
-        this.dailySymptomsHistory.push(apiFormattedData as unknown as DailySymptoms);
+        this.dailySymptomsHistory.push(
+          apiFormattedData as unknown as DailySymptoms,
+        );
       }
 
       // Show success message
-       this.showToast(`✅ Symptoms saved successfully!`, 'success');
+      this.showToast(`✅ Symptoms saved successfully!`, 'success');
 
       // Show summary of what was saved
       // await this.showSaveSummary(dailyData);
@@ -500,10 +524,9 @@ export class SymptomsTrackerComponent implements OnInit {
 
       // Navigate back to home
       this.navCtrl.back();
-
     } catch (error) {
       console.error('Error saving symptoms:', error);
-       this.showToast('❌ Failed to save symptoms. Please try again.', 'danger');
+      this.showToast('❌ Failed to save symptoms. Please try again.', 'danger');
     }
   }
 
@@ -521,27 +544,29 @@ export class SymptomsTrackerComponent implements OnInit {
             energy: data.energy,
             notes: data.notes,
             createdAt: response.createdAt,
-            updatedAt: response.updatedAt
+            updatedAt: response.updatedAt,
           });
 
           // Show success message
           this.showToast('Symptoms saved successfully!', 'success');
 
           // Navigate back
-          this.router.navigate(['/tabs/home'])
+          this.router.navigate(['/tabs/home']);
         },
         error: (error) => {
           console.error('API Error:', error);
-          
+
           // Check if it's a 409 Conflict error (day already exists)
-          if (error.status === 409 && error.error?.message?.includes('already exists')) {
+          if (
+            error.status === 409 &&
+            error.error?.message?.includes('already exists')
+          ) {
             this.handleExistingDayConflict(data.date);
           } else {
             this.showToast('Failed to save symptoms', 'danger');
           }
-        }
+        },
       });
-
     } catch (error) {
       console.error('API Error:', error);
       this.showToast('Failed to save symptoms', 'danger');
@@ -551,28 +576,28 @@ export class SymptomsTrackerComponent implements OnInit {
 
   updateSymptomsInAPI(data: any) {
     try {
-      this.trackDataService.updateSymptoms(this.getUserId(), this.selectedDate, data).subscribe((response) => {
+      this.trackDataService
+        .updateSymptoms(this.getUserId(), this.selectedDate, data)
+        .subscribe((response) => {
+          // Update in local service
+          this.trackDataService.saveTrackData({
+            id: response.id,
+            userId: parseInt(this.getUserId()),
+            date: data.date,
+            symptoms: data.symptoms,
+            mood: data.mood,
+            energy: data.energy,
+            notes: data.notes,
+            createdAt: response.createdAt,
+            updatedAt: response.updatedAt,
+          });
 
-        // Update in local service
-        this.trackDataService.saveTrackData({
-          id: response.id,
-          userId: parseInt(this.getUserId()),
-          date: data.date,
-          symptoms: data.symptoms,
-          mood: data.mood,
-          energy: data.energy,
-          notes: data.notes,
-          createdAt: response.createdAt,
-          updatedAt: response.updatedAt
+          // Show success message
+          this.showToast('Symptoms updated successfully!', 'success');
+
+          // Navigate back
+          this.router.navigate(['/tabs/home']);
         });
-
-        // Show success message
-        this.showToast('Symptoms updated successfully!', 'success');
-
-        // Navigate back
-        this.router.navigate(['/tabs/home'])
-      });
-
     } catch (error) {
       console.error('Update API Error:', error);
       this.showToast('Failed to update symptoms', 'danger');
@@ -582,20 +607,25 @@ export class SymptomsTrackerComponent implements OnInit {
 
   handleExistingDayConflict(date: string) {
     // Fetch existing data for this date
-    this.trackDataService.getTrackDay(parseInt(this.getUserId()), date).subscribe({
-      next: (existingData) => {
-        if (existingData && existingData.length > 0) {
-          // Show the existing data to the user
-          this.showExistingDayAlert(existingData[0], date);
-        } else {
-          this.showToast('Day already exists but no data found', 'warning');
-        }
-      },
-      error: (error) => {
-        console.error('Error fetching existing day data:', error);
-        this.showToast('Day already exists. Please try updating instead.', 'warning');
-      }
-    });
+    this.trackDataService
+      .getTrackDay(parseInt(this.getUserId()), date)
+      .subscribe({
+        next: (existingData) => {
+          if (existingData && existingData.length > 0) {
+            // Show the existing data to the user
+            this.showExistingDayAlert(existingData[0], date);
+          } else {
+            this.showToast('Day already exists but no data found', 'warning');
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching existing day data:', error);
+          this.showToast(
+            'Day already exists. Please try updating instead.',
+            'warning',
+          );
+        },
+      });
   }
 
   async showExistingDayAlert(existingData: any, date: string) {
@@ -607,20 +637,20 @@ export class SymptomsTrackerComponent implements OnInit {
           text: 'View Data',
           handler: () => {
             this.loadExistingDataFromAPI(existingData);
-          }
+          },
         },
         {
           text: 'Update Data',
           handler: () => {
             this.loadExistingDataFromAPI(existingData);
             this.isUpdateMode = true;
-          }
+          },
         },
         {
           text: 'Cancel',
-          role: 'cancel'
-        }
-      ]
+          role: 'cancel',
+        },
+      ],
     });
 
     await alert.present();
@@ -628,10 +658,10 @@ export class SymptomsTrackerComponent implements OnInit {
 
   loadExistingDataFromAPI(existingData: any) {
     this.existingData = existingData;
-    
+
     // Use service to load data
     const result = this.symptomsDataService.loadFromAPI(existingData);
-    
+
     // Apply the result to component state
     this.currentMood = result.currentMood;
     this.currentEnergy = result.currentEnergy;
@@ -640,12 +670,12 @@ export class SymptomsTrackerComponent implements OnInit {
     this.quickSymptoms = result.quickSymptoms;
     this.selectedSymptoms = result.selectedSymptoms;
     this.hasDataForDate = result.hasDataForDate;
-    
+
     // Set the form values
     this.symptomsForm.patchValue({
       mood: this.currentMood,
       energy: this.currentEnergy,
-      notes: this.notes
+      notes: this.notes,
     });
 
     this.showToast(`Data loaded for ${this.getFormattedDate()}`, 'success');
@@ -654,11 +684,12 @@ export class SymptomsTrackerComponent implements OnInit {
 
   loadExistingDataFromService(existingData: any) {
     this.resetForm();
-    
+
     if (existingData) {
       // Use service to load data
-      const result = this.symptomsDataService.loadFromLocalService(existingData);
-      
+      const result =
+        this.symptomsDataService.loadFromLocalService(existingData);
+
       // Apply the result to component state
       this.currentMood = result.currentMood;
       this.currentEnergy = result.currentEnergy;
@@ -667,14 +698,14 @@ export class SymptomsTrackerComponent implements OnInit {
       this.quickSymptoms = result.quickSymptoms;
       this.selectedSymptoms = result.selectedSymptoms;
       this.hasDataForDate = result.hasDataForDate;
-      
+
       // Update form with loaded data
       this.symptomsForm.patchValue({
         mood: this.currentMood,
         energy: this.currentEnergy,
-        notes: this.notes
+        notes: this.notes,
       });
-      
+
       this.showToast(`Data loaded for ${this.getFormattedDate()}`, 'success');
       this.cdr.detectChanges();
     }
@@ -705,7 +736,11 @@ export class SymptomsTrackerComponent implements OnInit {
 
   getDayProgress(): number {
     const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
     const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
     const total = endOfDay.getTime() - startOfDay.getTime();
     const elapsed = now.getTime() - startOfDay.getTime();
@@ -756,8 +791,9 @@ export class SymptomsTrackerComponent implements OnInit {
 
   toggleAllCategories(): void {
     this.allCategoriesExpanded = !this.allCategoriesExpanded;
-    Object.keys(this.categoriesExpanded).forEach(key => {
-      this.categoriesExpanded[key as keyof typeof this.categoriesExpanded] = this.allCategoriesExpanded;
+    Object.keys(this.categoriesExpanded).forEach((key) => {
+      this.categoriesExpanded[key as keyof typeof this.categoriesExpanded] =
+        this.allCategoriesExpanded;
     });
   }
 
@@ -765,13 +801,17 @@ export class SymptomsTrackerComponent implements OnInit {
     let count = 0;
     switch (category) {
       case 'physical':
-        count = this.physicalSymptoms.filter(s => this.isSelected(s.id)).length;
+        count = this.physicalSymptoms.filter((s) =>
+          this.isSelected(s.id),
+        ).length;
         break;
       case 'mood':
-        count = this.moodOptions.filter(s => this.isSelected(s.id)).length;
+        count = this.moodOptions.filter((s) => this.isSelected(s.id)).length;
         break;
       case 'intimacy':
-        count = this.sexDriveOptions.filter(s => this.isSelected(s.id)).length;
+        count = this.sexDriveOptions.filter((s) =>
+          this.isSelected(s.id),
+        ).length;
         break;
     }
     return count;
@@ -793,29 +833,38 @@ export class SymptomsTrackerComponent implements OnInit {
     this.router.navigate(['/symptoms-history']);
   }
 
-  private   formatDateForInput(date: Date): string {
+  private formatDateForInput(date: Date): string {
     return this.symptomsUIService.formatDateForInput(date);
   }
 
   private loadDayData(): void {
     // Load data for the selected day
-    
+
     // First try to get data from API
     const userId = this.getUserId();
     if (userId && userId !== 'anonymous') {
-        this.trackDataService.getTrackDay(parseInt(userId), this.selectedDate).subscribe({
+      this.trackDataService
+        .getTrackDay(parseInt(userId), this.selectedDate)
+        .subscribe({
           next: (apiData) => {
-            
             // Check if we have data (could be object or array)
             if (apiData) {
               // If it's an array, take the first element, otherwise use the object directly
               const dataToLoad = Array.isArray(apiData) ? apiData[0] : apiData;
-              
-              if (dataToLoad && (dataToLoad.symptoms || dataToLoad.mood || dataToLoad.energy || dataToLoad.notes)) {
+
+              if (
+                dataToLoad &&
+                (dataToLoad.symptoms ||
+                  dataToLoad.mood ||
+                  dataToLoad.energy ||
+                  dataToLoad.notes)
+              ) {
                 this.loadExistingDataFromAPI(dataToLoad);
               } else {
                 // Fallback to local storage if no meaningful API data
-                const existingData = this.trackDataService.getTrackDataByDate(this.selectedDate);
+                const existingData = this.trackDataService.getTrackDataByDate(
+                  this.selectedDate,
+                );
                 if (existingData) {
                   this.loadExistingDataFromService(existingData);
                 } else {
@@ -824,7 +873,9 @@ export class SymptomsTrackerComponent implements OnInit {
               }
             } else {
               // Fallback to local storage if no API data
-              const existingData = this.trackDataService.getTrackDataByDate(this.selectedDate);
+              const existingData = this.trackDataService.getTrackDataByDate(
+                this.selectedDate,
+              );
               if (existingData) {
                 this.loadExistingDataFromService(existingData);
               } else {
@@ -832,19 +883,23 @@ export class SymptomsTrackerComponent implements OnInit {
               }
             }
           },
-        error: (error) => {
-          // Fallback to local storage if API fails
-          const existingData = this.trackDataService.getTrackDataByDate(this.selectedDate);
-          if (existingData) {
-            this.loadExistingDataFromService(existingData);
-          } else {
-            this.resetForm();
-          }
-        }
-      });
+          error: (error) => {
+            // Fallback to local storage if API fails
+            const existingData = this.trackDataService.getTrackDataByDate(
+              this.selectedDate,
+            );
+            if (existingData) {
+              this.loadExistingDataFromService(existingData);
+            } else {
+              this.resetForm();
+            }
+          },
+        });
     } else {
       // Fallback to local storage if no user ID
-      const existingData = this.trackDataService.getTrackDataByDate(this.selectedDate);
+      const existingData = this.trackDataService.getTrackDataByDate(
+        this.selectedDate,
+      );
       if (existingData) {
         this.loadExistingDataFromService(existingData);
       } else {
@@ -882,36 +937,40 @@ export class SymptomsTrackerComponent implements OnInit {
           text: 'View History',
           handler: () => {
             this.activeTab = 'history';
-          }
+          },
         },
         {
           text: 'Continue Tracking',
           handler: () => {
             // Stay on the page to continue tracking
-          }
+          },
         },
         {
           text: 'Done',
           handler: () => {
             this.navCtrl.back();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
   }
 
   getSymptomsByCategory(category: string) {
-    return this.availableSymptoms.filter(s => s.category === category);
+    return this.availableSymptoms.filter((s) => s.category === category);
   }
 
   getSeverityColor(severity: string): string {
     switch (severity) {
-      case 'mild': return 'success';
-      case 'moderate': return 'warning';
-      case 'severe': return 'danger';
-      default: return 'medium';
+      case 'mild':
+        return 'success';
+      case 'moderate':
+        return 'warning';
+      case 'severe':
+        return 'danger';
+      default:
+        return 'medium';
     }
   }
 
@@ -923,13 +982,16 @@ export class SymptomsTrackerComponent implements OnInit {
     return this.symptomsUIService.getEnergyEmoji(energy);
   }
 
-
-  async showToast(message: string, color: string = 'primary', options: any = {}) {
+  async showToast(
+    message: string,
+    color: string = 'primary',
+    options: any = {},
+  ) {
     const toast = await this.toastController.create({
       message: message,
       duration: options.duration || 2000,
       position: 'bottom',
-      color: color
+      color: color,
     });
     await toast.present();
   }
@@ -941,9 +1003,10 @@ export class SymptomsTrackerComponent implements OnInit {
   getRelevantSymptoms() {
     const currentWeek = this.getCurrentPregnancyWeek();
     const trimester = currentWeek <= 12 ? 1 : currentWeek <= 28 ? 2 : 3;
-    return this.availableSymptoms.filter(s => s.trimester.includes(trimester));
+    return this.availableSymptoms.filter((s) =>
+      s.trimester.includes(trimester),
+    );
   }
-
 
   // Method to manually test adding items
   testAddItems() {
@@ -952,5 +1015,4 @@ export class SymptomsTrackerComponent implements OnInit {
     this.selectedItems.add('mood_swings');
     this.cdr.detectChanges();
   }
-
 }

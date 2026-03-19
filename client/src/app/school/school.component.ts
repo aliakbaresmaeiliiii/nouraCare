@@ -1,5 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, inject } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
@@ -10,7 +10,7 @@ import { BabyDevelopmentService } from '../shared/services/baby-development.serv
   templateUrl: './school.component.html',
   styleUrls: ['./school.component.scss'],
   standalone: true,
-  imports:[SharedModule],
+  imports:[...SHARED_STANDALONE_IMPORTS],
   schemas:[CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SchoolComponent implements OnInit {

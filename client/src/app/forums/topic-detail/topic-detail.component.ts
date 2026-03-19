@@ -1,24 +1,22 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AlertController,
-  IonicModule,
   NavController,
-  ToastController,
+  ToastController
 } from '@ionic/angular';
 
 import { Share } from '@capacitor/share';
 import { of } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
-import { ForumService } from '@app/shared/services/forum.service';
 import {
-  CreateCommentDto,
-  ForumTopic,
   Comment,
+  CreateCommentDto,
   CreateForumThreadDto,
-} from '@app/shared/models/forum';
+  ForumTopic,
+} from '../../shared/models/forum';
+import { ForumService } from '../../shared/services/forum.service';
+import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 
 // Strongly typed interfaces
 
@@ -27,7 +25,7 @@ import {
   templateUrl: './topic-detail.component.html',
   styleUrls: ['./topic-detail.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class TopicDetailComponent implements OnInit, OnDestroy {
   // Dependency injection

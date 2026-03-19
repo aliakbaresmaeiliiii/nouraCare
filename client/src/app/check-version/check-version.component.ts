@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 
 interface VersionInfo {
@@ -16,7 +16,7 @@ interface VersionInfo {
   templateUrl: './check-version.component.html',
   styleUrls: ['./check-version.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class CheckVersionComponent implements OnInit {
   private router = inject(Router);

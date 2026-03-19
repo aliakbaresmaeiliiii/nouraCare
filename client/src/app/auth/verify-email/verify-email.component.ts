@@ -14,8 +14,8 @@ import {
 } from 'rxjs';
 
 import { AuthService } from '../services/auth';
-import { OnboardingStateService } from '@app/shared/services/onboarding-state.service';
-import { SharedModule } from '@app/shared/shared-module';
+import { OnboardingService } from '../../shared/services/onboarding.service'  ;
+import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 
 function otpRequiredLength(length: number) {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -32,7 +32,7 @@ function otpRequiredLength(length: number) {
   templateUrl: './verify-email.component.html',
   styleUrls: ['./verify-email.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class VerifyEmailComponent implements OnInit {
   showToast = false;
@@ -53,7 +53,7 @@ export class VerifyEmailComponent implements OnInit {
     private router: Router
   ) { }
 
-  private onboardingStateService = inject(OnboardingStateService);
+  private onboardingService = inject(OnboardingService);
 
   ngOnInit() {
     this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
@@ -150,10 +150,10 @@ export class VerifyEmailComponent implements OnInit {
     this.service.resendOtp(payload).subscribe((res) => {
       console.log('newCOde', res);
       // Check if user has completed onboarding
-      if (this.onboardingStateService.hasCompletedOnboarding()) {
+      if (this.onboardingService.getSessionId()){
         this.router.navigate(['/tabs/home']);
       } else {
-        this.router.navigate(['/onboarding']);
+        // this.router.navigate(['/onboarding']);
       }
     });
   }

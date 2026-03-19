@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone.js';
 
 interface WeekData {
   week: number;
@@ -40,7 +40,7 @@ interface WeekData {
   templateUrl: './week-detail.component.html',
   styleUrls: ['./week-detail.component.scss'],
   standalone: true,
-  imports: [ SharedModule]
+  imports: [...SHARED_STANDALONE_IMPORTS]
 })
 export class WeekDetailComponent implements OnInit {
   private navCtrl = inject(NavController);

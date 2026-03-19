@@ -18,7 +18,7 @@ import { MapService } from '../../services/map.service';
   selector: 'app-mapbox-map',
   templateUrl: './mapbox-map.component.html',
   styleUrl: './mapbox-map.component.scss',
-  standalone: false
+  standalone: true
 })
 export class MapboxMapComponent implements OnInit, OnChanges {
   coordinates = input<

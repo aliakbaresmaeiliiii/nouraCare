@@ -1,9 +1,9 @@
-import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
-import { UserInfo, UserInfoApiResponse, CreateUserInfoRequest, UpdateUserInfoRequest } from '../interfaces/user-info-api.interface';
-import { environment } from 'environments/environment';
+import { catchError, tap } from 'rxjs/operators';
+import { UserInfo } from '../interfaces/user-info-api.interface';
+import { environment } from '../../../environments/environment';
 
 export interface OnboardingData {
   pregnancy_status: string;

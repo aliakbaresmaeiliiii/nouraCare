@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 
 interface Friend {
@@ -20,7 +20,7 @@ interface Friend {
   templateUrl: './my-friends.component.html',
   styleUrls: ['./my-friends.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class MyFriendsComponent implements OnInit {
   private router = inject(Router);

@@ -1,5 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA, Component, OnInit, inject } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 
 interface SavedItem {
@@ -19,7 +19,7 @@ interface SavedItem {
   templateUrl: './saved-information.component.html',
   styleUrls: ['./saved-information.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class SavedInformationComponent implements OnInit {

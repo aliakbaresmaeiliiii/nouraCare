@@ -10,7 +10,7 @@ export interface SearchItem {
   selector: 'app-search-modal',
   templateUrl: './search-modal.component.html',
   styleUrls: ['./search-modal.component.scss'],
-  standalone: false
+  standalone: true
 })
 export class SearchModalComponent implements OnInit {
   private _items: SearchItem[] = [];

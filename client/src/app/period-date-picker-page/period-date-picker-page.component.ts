@@ -1,6 +1,6 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 
 
@@ -16,7 +16,7 @@ export interface PeriodDateRange {
   templateUrl: './period-date-picker-page.component.html',
   styleUrls: ['./period-date-picker-page.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PeriodDatePickerPageComponent implements OnInit {

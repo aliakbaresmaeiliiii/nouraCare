@@ -1,21 +1,33 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, inject } from '@angular/core';
-import { IonContent, IonButton, IonIcon, NavController } from '@ionic/angular/standalone';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { AuthService } from '../auth/services/auth';
-import { TranslatePipe } from '../shared/pipes/translate.pipe';
-import { LanguageSwitcherComponent } from '../shared/components/language-switcher/language-switcher.component';
-import { LanguageService } from '../shared/services/language.service';
-import { addIcons } from 'ionicons';
+import {
+  AfterViewInit,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators
+} from '@angular/forms';
+import { Router } from '@angular/router';
+import {
+  NavController
+} from '@ionic/angular/standalone';
 import { Subscription } from 'rxjs';
 import { RegisterRequest } from '../auth/login/model/register-request-interface';
-import { Router } from '@angular/router';
+import { AuthService } from '../auth/services/auth';
+import { LanguageService } from '../shared/services/language.service';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-welcome',
   templateUrl: './welcome.component.html',
   standalone: true,
-  imports: [IonContent, IonButton, IonIcon, ReactiveFormsModule, CommonModule, TranslatePipe, LanguageSwitcherComponent],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrls: ['./welcome.component.scss'],
 })
@@ -29,10 +41,10 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   registerForm: FormGroup;
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private authService: AuthService,
     private languageService: LanguageService,
-    private router: Router
+    private router: Router,
   ) {
     // Initialize login form
     this.loginForm = this.fb.group({
@@ -41,21 +53,27 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     // Initialize register form
-    this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s\-\(\)]{10,15}$/)]],
-      // password: ['', [Validators.required, Validators.minLength(6)]],
-      // confirmPassword: ['', [Validators.required]]
-    }, 
-    // { validators: this.passwordMatchValidator }
-  );
+    this.registerForm = this.fb.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        phone: [
+          '',
+          [Validators.required, Validators.pattern(/^\+?[\d\s\-\(\)]{10,15}$/)],
+        ],
+        // password: ['', [Validators.required, Validators.minLength(6)]],
+        // confirmPassword: ['', [Validators.required]]
+      },
+      // { validators: this.passwordMatchValidator }
+    );
   }
 
   ngOnInit() {
     // Listen to language changes to trigger updates
-    this.languageSubscription = this.languageService.currentLanguage$.subscribe(() => {
-      // This will trigger change detection when language changes
-    });
+    this.languageSubscription = this.languageService.currentLanguage$.subscribe(
+      () => {
+        // This will trigger change detection when language changes
+      },
+    );
   }
 
   ngOnDestroy() {
@@ -78,8 +96,12 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
-    
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
+
+    if (
+      password &&
+      confirmPassword &&
+      password.value !== confirmPassword.value
+    ) {
       confirmPassword.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     } else {
@@ -95,7 +117,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.authService.login(this.loginForm.value).subscribe((res) => {
         console.log('Login response:', res);
         localStorage.setItem('userInfo', JSON.stringify(res));
-        
+
         // Navigate directly to main app after successful login
         console.log('Navigating to tabs');
         this.navCtrl.navigateRoot('tabs');
@@ -127,7 +149,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Helper methods for validation
   isFieldInvalid(form: FormGroup, fieldName: string): boolean {
     const field = form.get(fieldName);
-    return field ? (field.invalid && (field.dirty || field.touched)) : false;
+    return field ? field.invalid && (field.dirty || field.touched) : false;
   }
 
   getFieldError(form: FormGroup, fieldName: string): string {
@@ -135,7 +157,8 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (field && field.errors) {
       if (field.errors['required']) return `${fieldName} is required`;
       if (field.errors['email']) return 'Please enter a valid email';
-      if (field.errors['minlength']) return `${fieldName} must be at least ${field.errors['minlength'].requiredLength} characters`;
+      if (field.errors['minlength'])
+        return `${fieldName} must be at least ${field.errors['minlength'].requiredLength} characters`;
       if (field.errors['pattern']) return 'Please enter a valid phone number';
       if (field.errors['passwordMismatch']) return 'Passwords do not match';
     }
@@ -145,12 +168,12 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   scrollToLogin() {
     console.log('Scroll to login clicked'); // Debug log
     console.log('Login section reference:', this.loginSection);
-    
+
     if (this.loginSection && this.loginSection.nativeElement) {
       console.log('Login section found, scrolling...'); // Debug log
-      this.loginSection.nativeElement.scrollIntoView({ 
+      this.loginSection.nativeElement.scrollIntoView({
         behavior: 'smooth',
-        block: 'start'
+        block: 'start',
       });
     } else {
       console.log('Login section not found'); // Debug log
@@ -158,9 +181,9 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
       const loginSection = document.querySelector('.login-section');
       console.log('Manual search for login section:', loginSection);
       if (loginSection) {
-        loginSection.scrollIntoView({ 
+        loginSection.scrollIntoView({
           behavior: 'smooth',
-          block: 'start'
+          block: 'start',
         });
       }
     }
@@ -169,7 +192,7 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   testOnboarding() {
     this.router.navigate(['/onboarding']).then(
       (success) => console.log('Navigation successful:', success),
-      (error) => console.error('Navigation failed:', error)
+      (error) => console.error('Navigation failed:', error),
     );
   }
 }

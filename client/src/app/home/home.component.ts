@@ -13,14 +13,14 @@ import { CycleSettingsService } from '../shared/services/cycle-settings.service'
 import { MessageService } from '../shared/services/message.service';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { UserInfoService } from '../shared/services/user-info.service';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class HomeComponent implements OnInit, ViewWillEnter {

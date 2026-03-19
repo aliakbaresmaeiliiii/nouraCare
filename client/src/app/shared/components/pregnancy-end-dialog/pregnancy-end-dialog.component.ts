@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
-import { SharedModule } from '../../shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 
 @Component({
   selector: 'app-pregnancy-end-dialog',
   templateUrl: './pregnancy-end-dialog.component.html',
   styleUrls: ['./pregnancy-end-dialog.component.scss'],
-  imports: [SharedModule]
+  standalone: true,
+  imports: [...SHARED_STANDALONE_IMPORTS]
 })
 export class PregnancyEndDialogComponent {
   private modalCtrl = inject(ModalController);

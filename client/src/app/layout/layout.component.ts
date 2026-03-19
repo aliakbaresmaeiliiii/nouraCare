@@ -1,42 +1,40 @@
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
-  OnInit,
   OnDestroy,
+  OnInit,
 } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
-  home,
-  construct,
-  people,
-  calendar,
-  school,
   bulb,
+  calendar,
+  construct,
+  home,
   menu,
   notifications,
+  people,
   personCircle,
+  school,
 } from 'ionicons/icons';
-import { SharedModule } from '../shared/shared-module';
-import { SideMenuComponent } from '../side-menu/side-menu.component';
-import { HeaderLanguageSwitcherComponent } from '../shared/components/header-language-switcher/header-language-switcher.component';
-import { LanguageService } from '../shared/services/language.service';
 import { Subscription } from 'rxjs';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { LanguageService } from '../shared/services/language.service';
+import { HomeComponent } from '../home/home.component';
 
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
   standalone: true,
-  imports: [SharedModule, SideMenuComponent, HeaderLanguageSwitcherComponent],
+  imports: [...SHARED_STANDALONE_IMPORTS,HomeComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class LayoutComponent implements OnInit, OnDestroy {
   selectedTitle = 'Home';
   private languageSubscription!: Subscription;
-  hasNotifications = true; // This would come from a notifications service
-  hasUserAvatar = false; // This would come from user service
+  hasNotifications = true;
+  hasUserAvatar = false;
 
   constructor(
     private router: Router,
@@ -58,11 +56,11 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Listen to route changes to update the title
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        this.updateTitle(event.url);
-      });
+    // this.router.events
+    //   .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+    //   .subscribe((event) => {
+    //     this.updateTitle(event?.url || '');
+    //   });
 
     // Listen to language changes to update the title
     this.languageSubscription = this.languageService.currentLanguage$.subscribe(
@@ -96,14 +94,14 @@ export class LayoutComponent implements OnInit, OnDestroy {
   }
 
   // New methods for the modern header
-  getPageIcon(): string {
-    if (this.selectedTitle.includes('home')) return 'home-outline';
-    if (this.selectedTitle.includes('insights')) return 'bulb-outline';
-    if (this.selectedTitle.includes('SecretChats')) return 'people-outline';
-    if (this.selectedTitle.includes('consultation')) return 'calendar-outline';
-    if (this.selectedTitle.includes('school')) return 'school-outline';
-    return 'home-outline';
-  }
+  // getPageIcon(): string {
+  //   if (this.selectedTitle.includes('home')) return 'home-outline';
+  //   if (this.selectedTitle.includes('insights')) return 'bulb-outline';
+  //   if (this.selectedTitle.includes('SecretChats')) return 'people-outline';
+  //   if (this.selectedTitle.includes('consultation')) return 'calendar-outline';
+  //   if (this.selectedTitle.includes('school')) return 'school-outline';
+  //   return 'home-outline';
+  // }
 
   openNotifications(): void {
     this.router.navigate(['/notifications']);

@@ -4,7 +4,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 import {
   AlertController,
@@ -22,7 +22,7 @@ import { SecretChat, CreateSecretChatDto } from './secret.chats.dto';
   templateUrl: './secret-chats.html',
   styleUrls: ['./secret-chats.scss', './secret-chats-additional.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SecretChatsComponent implements OnInit {

@@ -20,11 +20,15 @@
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.3s ease-out;
+  /* Important: tabs cache pages; a fixed overlay here can block other tabs.
+     Prevent it from capturing all touch/scroll events globally. */
+  pointer-events: none;
 
   .unlock-animation {
     text-align: center;
     position: relative;
     padding: 40px;
+    pointer-events: auto;
 
     .unlock-particles {
       position: absolute;

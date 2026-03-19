@@ -1,14 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SharedModule } from '../shared/shared-module';
-import { User } from '../shared/services/user';
 import { Router } from '@angular/router';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { User } from '../shared/services/user';
 
 @Component({
   selector: 'app-blocked-users',
   templateUrl: './blocked-users.component.html',
   styleUrls: ['./blocked-users.component.scss'],
   standalone: true,
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class BlockedUsersComponent implements OnInit {
   private userService = inject(User);

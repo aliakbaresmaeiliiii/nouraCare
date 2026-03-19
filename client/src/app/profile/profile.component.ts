@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 import { User } from '../shared/services/user';
 import { ImageUrlService } from '../shared/services/image-url.service';
@@ -32,7 +32,7 @@ declare global {
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  imports: [SharedModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   styleUrls: ['./profile.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

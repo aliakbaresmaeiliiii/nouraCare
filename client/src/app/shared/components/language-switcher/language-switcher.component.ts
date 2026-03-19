@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { globeOutline, chevronDownOutline } from 'ionicons/icons';
-import { LanguageService, Language } from '../../services/language.service';
-import { TranslatePipe } from '../../pipes/translate.pipe';
+import { Language, LanguageService } from '../../services/language.service';
+import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 
 @Component({
   selector: 'app-language-switcher',
   standalone: true,
-  imports: [CommonModule, IonSelect, IonSelectOption],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   template: `
     <div class="language-selector-container">
       <ion-select 

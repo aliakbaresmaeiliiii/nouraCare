@@ -16,7 +16,7 @@ import {
   OnboardingDataDto,
 } from '../shared/services/onboarding.service';
 import { OnboardingStateService } from '../shared/services/onboarding-state.service';
-import { SharedModule } from '../shared/shared-module';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { NotificationPermissionComponent } from '../shared/components/notification-permission/notification-permission.component';
 
 interface OnboardingStep {
@@ -37,7 +37,7 @@ interface OnboardingStep {
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss'],
   standalone: true,
-  imports: [SharedModule, NotificationPermissionComponent],
+  imports: [...SHARED_STANDALONE_IMPORTS, NotificationPermissionComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class OnboardingComponent implements OnInit {
