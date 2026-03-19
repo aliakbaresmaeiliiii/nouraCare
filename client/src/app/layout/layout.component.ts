@@ -21,13 +21,16 @@ import { Subscription } from 'rxjs';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { LanguageService } from '../shared/services/language.service';
 import { HomeComponent } from '../home/home.component';
+import { InsightsComponent } from '../insights/insights.component';
+import { ConsultationComponent } from '../consultation/consultation.component';
+import { SchoolComponent } from '../school/school.component';
 
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS,HomeComponent],
+  imports: [...SHARED_STANDALONE_IMPORTS,HomeComponent,InsightsComponent,ConsultationComponent,SchoolComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class LayoutComponent implements OnInit, OnDestroy {

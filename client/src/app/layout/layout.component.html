@@ -99,12 +99,46 @@
       </ion-content>
     </div>
   </ion-tab>
- 
+  <ion-tab tab="insights">
+    <div id="insights-page" class="ion-page">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Insights Page</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <app-insights></app-insights>
+      </ion-content>
+    </div>
+  </ion-tab>
 
-
+  <ion-tab tab="consultation">
+    <div id="consultation-page" class="ion-page">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Consultation Page</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <app-consultation></app-consultation>
+      </ion-content>
+    </div>
+  </ion-tab>
+  <ion-tab tab="school">
+    <div id="school-page" class="ion-page">
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>School Page</ion-title>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <app-school></app-school>
+      </ion-content>
+    </div>
+  </ion-tab>
 
   <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="home" >
+    <ion-tab-button tab="home">
       <ion-icon name="home-outline"></ion-icon>
       <span class="tab-label">{{ "nav.home" | translate }}</span>
     </ion-tab-button>
@@ -112,8 +146,14 @@
       <ion-icon name="bulb-outline"></ion-icon>
       <span class="tab-label">{{ "nav.insights" | translate }}</span>
     </ion-tab-button>
-
-
+    <ion-tab-button tab="consultation">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <span class="tab-label">{{ "nav.consultation" | translate }}</span>
+    </ion-tab-button>
+    <ion-tab-button tab="school">
+      <ion-icon name="school-outline"></ion-icon>
+      <span class="tab-label">{{ "nav.school" | translate }}</span>
+    </ion-tab-button>
   </ion-tab-bar>
 </ion-tabs>
 <!-- </div> -->
