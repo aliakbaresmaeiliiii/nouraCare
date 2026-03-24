@@ -133,6 +133,14 @@
    margin-top: 2rem;
  }
 
+// Tab pages: clear bottom tab bar + safe area; light top gap below inner toolbar
+ion-content.tab-page-content {
+  --padding-top: 12px;
+  --padding-bottom: calc(0px + max(1px, env(safe-area-inset-bottom, 16px)));
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
 // Main content area - standard scrolling layout
 // .ion-page {
 //   // margin-top: 3rem; // 3rem margin to prevent content hiding behind header

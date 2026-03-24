@@ -190,7 +190,6 @@
       <ion-item class="form-item">
         <ion-label class="form-label">Birthday</ion-label>
         <ion-datetime-button
-          formControlName="birthday"
           datetime="birthdayPicker"
           class="datetime-button"
         ></ion-datetime-button>
@@ -202,6 +201,7 @@
       <ng-template>
         <ion-datetime
           id="birthdayPicker"
+          [value]="form.get('birthday')?.value || null"
           (ionChange)="onBirthdayChange($event)"
           presentation="date"
           show-default-buttons="true"

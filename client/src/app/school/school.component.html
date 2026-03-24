@@ -1,18 +1,6 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Baby Development</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="openQuickMenu()">
-        <ion-icon name="menu"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
 
-<ion-content class="baby-development-content" *ngIf="isPregnant">
+
+<div class="baby-development-content" *ngIf="isPregnant">
   <!-- Hero Section -->
   <div class="hero-section">
     <div class="week-indicator">
@@ -107,10 +95,10 @@
       <ion-icon name="chevron-forward" slot="end"></ion-icon>
     </ion-button>
   </div>
-</ion-content>
+</div>
 
 <!-- Not Pregnant State -->
-<ion-content class="not-pregnant-content" *ngIf="!isPregnant">
+<div class="not-pregnant-content" *ngIf="!isPregnant">
   <div class="empty-state">
     <div class="empty-icon">🤰</div>
     <h2>No Active Pregnancy</h2>
@@ -119,4 +107,4 @@
       Go to Home
     </ion-button>
   </div>
-</ion-content>
+</div>
