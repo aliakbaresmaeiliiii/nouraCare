@@ -222,7 +222,7 @@ export class EditProfileComponent implements OnInit {
     const patch: any = {
       fullName: userData?.fullName ?? '',
       email: userData?.email ?? '',
-      dateOfBirth: userData?.dateOfBirth ?? '',
+      dateOfBirth: this.toDateOnly(userData?.dateOfBirth ?? ''),
       profileImage: userData?.profileImage ?? '',
       status: userData?.status ?? null,
     };
@@ -579,13 +579,23 @@ export class EditProfileComponent implements OnInit {
     return undefined;
   }
 
+  private toDateOnly(value: unknown): string {
+    const s = String(value ?? '').trim();
+    if (!s || s === 'null' || s === 'undefined') return '';
+    const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (m?.[1]) return m[1];
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return s;
+    return d.toISOString().slice(0, 10);
+  }
+
   handleChange(event: Event): void {
     const target = event.target as HTMLInputElement;
   }
 
   onBirthdayChange(event: any) {
     const date = event.detail?.value;
-    this.form.patchValue({ dateOfBirth: date });
+    this.form.patchValue({ dateOfBirth: this.toDateOnly(date) });
   }
 
   onSubmit() {
@@ -616,7 +626,7 @@ export class EditProfileComponent implements OnInit {
     const payload: any = {
       fullName: formValues.fullName,
       email: formValues.email,
-      dateOfBirth: formValues.dateOfBirth,
+      dateOfBirth: this.toDateOnly(formValues.dateOfBirth),
     };
     const persistedImage = this.sanitizeProfileImageForApi(formValues.profileImage);
     if (persistedImage !== undefined) {

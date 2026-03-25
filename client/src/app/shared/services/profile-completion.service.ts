@@ -163,13 +163,13 @@ export class ProfileCompletionService {
         const u = this.extractUserPayload(data.userData);
         const ob = this.extractOnboardingPayload(data.onboardingData);
         const fullName = u.fullName || u.name || '';
-        const birthdayRaw = u.birthday;
-        const birthday =
-          birthdayRaw == null
+        const dobRaw = u.dateOfBirth ?? u.birthday;
+        const dateOfBirth =
+          dobRaw == null
             ? ''
-            : typeof birthdayRaw === 'string'
-              ? birthdayRaw
-              : new Date(birthdayRaw).toISOString();
+            : typeof dobRaw === 'string'
+              ? dobRaw
+              : new Date(dobRaw).toISOString();
         const profileImageRaw = (
           u.profileImage ??
           u.profile_img ??
@@ -186,7 +186,8 @@ export class ProfileCompletionService {
           name: fullName,
           fullName,
           email: u.email || '',
-          birthday,
+          birthday: dateOfBirth,
+          dateOfBirth,
           profileImageRaw,
           profileImage,
           status: ob.pregnancyStatus ?? u.status ?? null,

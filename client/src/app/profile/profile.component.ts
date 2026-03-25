@@ -54,12 +54,28 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     return this.profileCompletionService.isEmailCompleted;
   }
 
-  get isBirthdayCompleted(): boolean {
-    return this.profileCompletionService.isBirthdayCompleted;
+  get isDateOfBirthCompleted(): boolean {
+    return this.profileCompletionService.currentUserData?.dateOfBirth ? true : false;
   }
 
   get currentUserData(): any {
     return this.profileCompletionService.currentUserData;
+  }
+
+  formatDateOnly(value: unknown): string {
+    const s = String(value ?? '').trim();
+    if (!s || s === 'null' || s === 'undefined') return '';
+
+    const normalized = s.replace(/^["']|["']$/g, '');
+    if (!normalized) return '';
+
+    // Handle ISO strings like: 2026-03-17T07:42:00.000Z
+    const isoDateMatch = normalized.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (isoDateMatch?.[1]) return isoDateMatch[1];
+    // Fallback: attempt parsing.
+    const d = new Date(normalized);
+    if (Number.isNaN(d.getTime())) return s;
+    return d.toISOString().slice(0, 10);
   }
 
   selectedTab = 'first';
@@ -68,7 +84,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   userInfoStore: any = {};
   fullName: string = '';
   email: string = '';
-  birthday: string = '';
+  dateOfBirth: string = '';
   city: string = '';
   profileImage: string | null = null;
   private userService = inject(User);
@@ -475,7 +491,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       const u = this.userInfoStore?.user || {};
       this.fullName = u.fullName || u.name || this.fullName;
       this.email = u.email || this.email;
-      this.birthday = u.birthday || this.birthday;
+      this.dateOfBirth = u.dateOfBirth || this.dateOfBirth;
       this.city = u.city || this.city;
     } catch {}
   }
@@ -483,7 +499,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   private applyProfileFromMerged(merged: any): void {
     this.fullName = merged.fullName || this.fullName;
     this.email = merged.email || this.email;
-    this.birthday = merged.birthday || this.birthday;
+    this.dateOfBirth = merged.dateOfBirth || this.dateOfBirth;
     this.city = merged.city ?? this.city;
     this.profileImage = merged.profileImage;
     this.avatarImageSrc = merged.profileImage;
@@ -526,7 +542,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       const u = this.userInfoStore?.user || {};
       this.fullName = u.fullName || u.name || '';
       this.email = u.email || '';
-      this.birthday = u.birthday || '';
+      this.dateOfBirth = u.dateOfBirth || '';
       this.city = u.city || '';
       const quick = this.imageUrlService.getImageUrl(
         u.profileImage ?? u.profile_img ?? null,

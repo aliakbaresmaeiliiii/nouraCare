@@ -197,22 +197,26 @@
       <!-- Birthday Card -->
       <div
         class="field-card"
-        [class.completed]="isBirthdayCompleted"
-        (click)="goEdit('birthday')"
+        [class.completed]="isDateOfBirthCompleted"
+        (click)="goEdit('dateOfBirth')"
       >
         <div class="field-icon">
           <ion-icon name="calendar-outline"></ion-icon>
         </div>
         <div class="field-content">
-          <h4 class="field-title">Birthday</h4>
+          <h4 class="field-title">Date of Birth</h4>
           <p class="field-value">
-            {{ currentUserData?.birthday || birthday || "Add your birthday" }}
+            {{
+              formatDateOnly(
+                currentUserData?.dateOfBirth || dateOfBirth || ''
+              ) || 'Add your date of birth'
+            }}
           </p>
         </div>
         <div class="field-action">
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
         </div>
-        @if (isBirthdayCompleted) {
+        @if (isDateOfBirthCompleted) {
         <div class="completion-badge">
           <ion-icon name="checkmark-circle"></ion-icon>
         </div>
