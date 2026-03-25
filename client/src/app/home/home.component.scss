@@ -3,7 +3,6 @@
 .home-content {
   display: block;
   box-sizing: border-box;
-  padding-top: 16px;
   // Tab bar spacing is on layout `tab-page-content`; keep room for bottom FAB
   padding-bottom: calc(40px + max(8px, env(safe-area-inset-bottom, 8px)));
   padding-left: 0;

@@ -4,6 +4,15 @@ import { UserInfoService } from './shared/services/user-info.service';
 import { OnboardingStateService } from './shared/services/onboarding-state.service';
 import { environment } from '../environments/environment';
 import { SHARED_STANDALONE_IMPORTS } from './shared/shared-standalone';
+import { addIcons } from 'ionicons';
+import {
+  heart,
+  heartOutline,
+  logInOutline,
+  mailOutline,
+  personAddOutline,
+  shareOutline,
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +25,15 @@ export class AppComponent implements OnInit {
   private router = inject(Router);
 
   constructor() {
+    addIcons({
+      shareOutline,
+      heart,
+      heartOutline,
+      logInOutline,
+      personAddOutline,
+      mailOutline,
+    });
+
     // Initialize user info service on app start
     this.userInfoService.loadUserInfoOnInit();
   }

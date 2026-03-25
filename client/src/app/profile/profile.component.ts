@@ -124,7 +124,30 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
               this.selectedCycleLength = data.cycleLength;
             }
           },
-          error: (error) => {
+          error: (error: any) => {
+            // Backend intentionally returns 404 because pregnancy planning
+            // was replaced with HealthRecord. Treat this as non-fatal.
+            const message =
+              error?.message ||
+              error?.error?.message ||
+              error?.error?.error?.message ||
+              '';
+            const isReplacedFeature404 =
+              (error?.status === 404 ||
+                error?.error?.status === 404 ||
+                error?.error?.error?.statusCode === 404) &&
+              typeof message === 'string' &&
+              message
+                .toLowerCase()
+                .includes('pregnancy planning feature has been replaced');
+
+            if (isReplacedFeature404) {
+              this.reproductiveStatus = {};
+              this.lastPeriodDate = '';
+              this.selectedCycleLength = 28;
+              return;
+            }
+
             console.error('Error loading reproductive status:', error);
           },
         });

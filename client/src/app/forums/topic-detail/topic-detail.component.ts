@@ -7,6 +7,22 @@ import {
 } from '@ionic/angular';
 
 import { Share } from '@capacitor/share';
+import { addIcons } from 'ionicons';
+import {
+  alertCircle,
+  arrowBack,
+  arrowUndoOutline,
+  chatbubblesOutline,
+  createOutline,
+  eyeOutline,
+  heart,
+  heartOutline,
+  pin,
+  refreshOutline,
+  send,
+  shareOutline,
+  trashOutline,
+} from 'ionicons/icons';
 import { of } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import {
@@ -39,7 +55,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   topic: ForumTopic | null = null;
   comments = signal<Comment[]>([]);
   newComment = '';
-  isLoading = false;
+  isLoading = signal(false);
   isSubmittingComment = false;
   isSubmittingReply = false;
   isEditingComment: string | null = null;
@@ -70,6 +86,24 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     return this.isEditingComment !== null || this.isEditingPost;
   }
 
+  constructor() {
+    addIcons({
+      shareOutline,
+      refreshOutline,
+      alertCircle,
+      arrowBack,
+      pin,
+      chatbubblesOutline,
+      eyeOutline,
+      createOutline,
+      trashOutline,
+      heart,
+      heartOutline,
+      arrowUndoOutline,
+      send,
+    });
+  }
+
   ngOnInit() {
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
@@ -93,127 +127,156 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
     this.errorMessage = '';
 
-    this.forumService.fetchThreadById(threadId).subscribe({
+    this.forumService
+      .fetchThreadById(threadId)
+      .pipe(
+        finalize(() => {
+          // Always stop loader, even if mapping/parsing fails
+          this.isLoading.set(false);
+
+        })
+      )
+      .subscribe({
       next: (response: any) => {
+        // Stop loader as soon as we get any response payload
+        
         if (response?.success) {
-          const thread = response.data;
+          this.isLoading.set(false);
 
-          // Handle paginated response structure
-          const pagination = thread.pagination || {
-            page: 1,
-            limit: 20,
-            total: 0,
-            totalPages: 1,
-          };
-          // Find the main topic post (first post or post without parentId)
-          if (thread) {
-            // Transform API response to component interface
-            this.topic = {
-              id: threadId,
-              title: thread.title || 'Untitled',
-              description: thread.content || 'No content',
-              author: thread.user?.fullName || 'Anonymous',
-              authorAvatar: thread.user?.profileImage || '',
-              category: thread.forum?.title || 'General Discussion',
-              replies: pagination.total || thread._count?.posts || 0,
-              views: thread.viewCount || 0,
-              lastReply: thread.updatedAt || thread.createdAt,
-              isPinned: thread.isPinned || false,
-              isLocked: thread.isLocked || false,
-              likeCount: thread.likeCount,
-              forumPosts:thread.forum_posts,
-              tags: [],
-              user: thread.user,
-              forumId: thread.forum?.id || '',
-              createdAt: thread.createdAt || new Date().toISOString(),
-              // posts: posts,
+          try {
+            // API can return either { success, data } or flattened { success, ...threadFields }
+            const thread = response?.data || response;
+            const threadPostsCount = thread?._count?.posts || thread?.forum_posts?.length || 0;
+
+            // Handle paginated response structure safely
+            const pagination = thread?.pagination || {
+              page: 1,
+              limit: 20,
+              total: 0,
+              totalPages: 1,
             };
-          } else {
-            // Fallback if no posts found
-            this.topic = {
-              id: threadId,
-              title: 'Untitled',
-              description: 'No content available',
-              author: 'Anonymous',
-              authorAvatar: '',
-              category: 'General Discussion',
-              replies: 0,
-              views: 0,
-              lastReply: new Date().toISOString(),
-              isPinned: false,
-              isLocked: false,
-              likeCount: 0,
-              tags: [],
-              forumId: '',
-              posts: [],
-              forumPosts:[],
-              user: {
-                id: 0,
-                fullName: '',
-                profileImage: '',
-              },
-              createdAt: new Date().toISOString(),
-            };
+            // Find the main topic post (first post or post without parentId)
+            if (thread) {
+              // Transform API response to component interface
+              this.topic = {
+                id: threadId,
+                title: thread.title || 'Untitled',
+                description: thread.content || 'No content',
+                author: thread.user?.fullName || 'Anonymous',
+                authorAvatar: thread.user?.profileImage || '',
+                category:
+                  thread.forums?.title ||
+                  thread.forum?.title ||
+                  'General Discussion',
+                replies: pagination.total || threadPostsCount,
+                views: thread.viewCount || 0,
+                lastReply: thread.updatedAt || thread.createdAt,
+                isPinned: thread.isPinned || false,
+                isLocked: thread.isLocked || false,
+                likeCount: thread.likeCount || 0,
+                forumPosts: thread.forum_posts || [],
+                tags: [],
+                user: {
+                  id: thread.user?.id || 0,
+                  fullName: thread.user?.fullName || 'Anonymous',
+                  profileImage:
+                    thread.user?.user_profile?.avatarUrl ||
+                    thread.user?.profileImage ||
+                    '',
+                },
+                forumId: thread.forumId || thread.forums?.id || thread.forum?.id || '',
+                createdAt: thread.createdAt || new Date().toISOString(),
+              };
+            } else {
+              // Fallback if no posts found
+              this.topic = {
+                id: threadId,
+                title: 'Untitled',
+                description: 'No content available',
+                author: 'Anonymous',
+                authorAvatar: '',
+                category: 'General Discussion',
+                replies: 0,
+                views: 0,
+                lastReply: new Date().toISOString(),
+                isPinned: false,
+                isLocked: false,
+                likeCount: 0,
+                tags: [],
+                forumId: '',
+                posts: [],
+                forumPosts: [],
+                user: {
+                  id: 0,
+                  fullName: 'Anonymous',
+                  profileImage: '',
+                },
+                createdAt: new Date().toISOString(),
+              };
+            }
+
+            this.storeData.set(thread);
+
+            // Set comments from the forum_comments array
+            const comments = thread?.forum_comments || [];
+
+            // Transform API response comments to match component interface
+            const transformedComments = comments.map(
+              (comment: {
+                id: string;
+                content: string;
+                user?: { id: number; name?: string; fullName?: string; profileImage: string | null };
+                parentId?: string | null;
+                createdAt?: string;
+                updatedAt?: string;
+                replies?: any[];
+                isLiked?: boolean;
+                likeCount: number;
+                dislikeCount: number;
+                _count?: { likes?: number; replies?: number };
+              }) => ({
+                id: comment.id,
+                content: comment.content,
+                author: {
+                  id: comment.user?.id || 0,
+                  name: comment.user?.fullName || comment.user?.name || 'Anonymous',
+                  profileImage: comment.user?.profileImage || null,
+                },
+                authorId: comment.user?.id || 0,
+                threadId: threadId,
+                parentId: comment.parentId || null,
+                isDeleted: false,
+                createdAt: comment.createdAt || new Date().toISOString(),
+                updatedAt: comment.updatedAt || new Date().toISOString(),
+                replies: comment.replies || [],
+                isLiked: comment.isLiked || false,
+                _count: {
+                  likes: comment.likeCount || 0,
+                  replies: comment._count?.replies || 0,
+                },
+              })
+            );
+
+            this.comments.set(transformedComments);
+          } catch (e) {
+            console.error('Error mapping topic detail payload:', e);
+            this.errorMessage = 'Failed to render topic details';
+            this.isLoading.set(false);
+
+
           }
-
-          console.log('user', thread);
-
-          this.storeData.set(thread);
-
-          // Set comments from the forum_comments array
-          const comments = thread.forum_comments || [];
-
-          // Transform API response comments to match component interface
-          const transformedComments = comments.map(
-            (comment: {
-              id: string;
-              content: string;
-              user?: { id: number; name: string; profileImage: string | null };
-              parentId?: string | null;
-              createdAt?: string;
-              updatedAt?: string;
-              replies?: any[];
-              isLiked?: boolean;
-              likeCount: number;
-              dislikeCount: number;
-              _count?: { likes?: number; replies?: number };
-            }) => ({
-              id: comment.id,
-              content: comment.content,
-              author: {
-                id: comment.user?.id || 0,
-                name: comment.user?.name || 'Anonymous',
-                profileImage: comment.user?.profileImage || null,
-              },
-              authorId: comment.user?.id || 0,
-              threadId: threadId,
-              parentId: comment.parentId || null,
-              isDeleted: false,
-              createdAt: comment.createdAt || new Date().toISOString(),
-              updatedAt: comment.updatedAt || new Date().toISOString(),
-              replies: comment.replies || [],
-              isLiked: comment.isLiked || false,
-              _count: {
-                likes: comment.likeCount || 0,
-                replies: comment._count?.replies || 0,
-              },
-            })
-          );
-
-          this.comments.set(transformedComments);
         } else {
           this.errorMessage = 'Failed to load topic details';
-        }
+          this.isLoading.set(false);
 
-        this.isLoading = false;
+        }
       },
       error: (error: any) => {
         console.error('Error loading topic detail:', error);
         this.errorMessage = 'Failed to load topic details';
-        this.isLoading = false;
       },
     });
   }

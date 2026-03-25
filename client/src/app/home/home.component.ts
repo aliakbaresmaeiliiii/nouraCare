@@ -2,13 +2,74 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, ViewChild } from '@a
 import { Router } from '@angular/router';
 import { AlertController, ModalController, ToastController, ViewWillEnter } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { add } from 'ionicons/icons';
+import {
+  add,
+  addCircleOutline,
+  airplaneOutline,
+  alertCircleOutline,
+  analytics,
+  analyticsOutline,
+  bedOutline,
+  bulbOutline,
+  calendar,
+  calendarNumber,
+  calendarNumberOutline,
+  calendarOutline,
+  calculatorOutline,
+  checkmark,
+  checkmarkCircle,
+  chevronForward,
+  closeCircleOutline,
+  ellipseOutline,
+  fitnessOutline,
+  flameOutline,
+  flower,
+  flashOutline,
+  handLeftOutline,
+  happy,
+  happyOutline,
+  heart,
+  heartDislikeOutline,
+  heartOutline,
+  homeOutline,
+  lockClosedOutline,
+  lockOpenOutline,
+  medkitOutline,
+  medical,
+  medicalOutline,
+  moonOutline,
+  nutritionOutline,
+  peopleCircleOutline,
+  peopleOutline,
+  personCircle,
+  playCircleOutline,
+  pulseOutline,
+  refreshOutline,
+  removeCircleOutline,
+  resize,
+  restaurantOutline,
+  sad,
+  sadOutline,
+  scale,
+  shieldOutline,
+  star,
+  swapHorizontalOutline,
+  trendingUp,
+  trophy,
+  warningOutline,
+  waterOutline,
+  batteryDeadOutline,
+  helpCircleOutline,
+} from 'ionicons/icons';
 import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-picker-page/period-date-picker-page.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
 import { FertilityResults, FertilityResultsModalComponent } from '../shared/components/fertility-results-modal/fertility-results-modal.component';
 import { PregnancyResults, PregnancyResultsModalComponent } from '../shared/components/pregnancy-results-modal/pregnancy-results-modal.component';
 import { SymptomsDto } from '../shared/models/symptoms.dto';
-import { BabyDevelopmentService } from '../shared/services/baby-development.service';
+import {
+  BabyDevelopmentService,
+  BabySizeData,
+} from '../shared/services/baby-development.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import { MessageService } from '../shared/services/message.service';
 import { TrackDataService } from '../shared/services/track-data.service';
@@ -122,7 +183,65 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     private modalController: ModalController,
     private messageService: MessageService,
   ) {
-    addIcons({ add });
+    addIcons({
+      add,
+      addCircleOutline,
+      airplaneOutline,
+      alertCircleOutline,
+      analytics,
+      analyticsOutline,
+      bedOutline,
+      bulbOutline,
+      calendar,
+      calendarNumber,
+      calendarNumberOutline,
+      calendarOutline,
+      calculatorOutline,
+      checkmark,
+      checkmarkCircle,
+      chevronForward,
+      closeCircleOutline,
+      ellipseOutline,
+      fitnessOutline,
+      flameOutline,
+      flower,
+      flashOutline,
+      handLeftOutline,
+      happy,
+      happyOutline,
+      heart,
+      heartDislikeOutline,
+      heartOutline,
+      homeOutline,
+      lockClosedOutline,
+      lockOpenOutline,
+      medkitOutline,
+      medical,
+      medicalOutline,
+      moonOutline,
+      nutritionOutline,
+      peopleCircleOutline,
+      peopleOutline,
+      personCircle,
+      playCircleOutline,
+      pulseOutline,
+      refreshOutline,
+      removeCircleOutline,
+      resize,
+      restaurantOutline,
+      sad,
+      sadOutline,
+      scale,
+      shieldOutline,
+      star,
+      swapHorizontalOutline,
+      trendingUp,
+      trophy,
+      warningOutline,
+      waterOutline,
+      batteryDeadOutline,
+      helpCircleOutline,
+    });
   }
 
 
@@ -620,13 +739,32 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.showToast('Opening week ' + this.pregnancyWeek + ' details...');
   }
 
-  // Get current baby size data
-  getCurrentBabySize() {
-    const currentData = this.babyDevelopmentService.getAllBabySizeData().find(data => data.week === this.pregnancyWeek);
-    if (currentData) {
-      return currentData;
+  private readonly defaultBabySize: BabySizeData = {
+    week: 12,
+    size: 'Lime lime',
+    weight: '45g',
+    description: 'Your baby is growing beautifully.',
+  };
+
+  /** Always returns a defined object (baby data may still be loading or empty). */
+  getCurrentBabySize(): BabySizeData {
+    const all = this.babyDevelopmentService.getAllBabySizeData();
+    if (!all?.length) {
+      return this.defaultBabySize;
     }
-    return this.babyDevelopmentService.getAllBabySizeData()[8]; // Default to week 12 (lime)
+    const match = all.find((d) => d.week === this.pregnancyWeek);
+    if (match?.size) {
+      return match;
+    }
+    const byIndex = all[8];
+    if (byIndex?.size) {
+      return byIndex;
+    }
+    const first = all[0];
+    if (first?.size) {
+      return first;
+    }
+    return this.defaultBabySize;
   }
 
   // Update pregnancy week and recalculate progress

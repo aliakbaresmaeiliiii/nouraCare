@@ -51,6 +51,17 @@ if (!databaseUrl) {
 // Prisma 7 requires a driver adapter for MySQL (no url in schema)
 process.env.DATABASE_URL = databaseUrl;
 const url = new URL(databaseUrl.replace(/^mysql:\/\//, 'http://'));
+const allowPkParam = url.searchParams.get('allowPublicKeyRetrieval');
+const allowPublicKeyRetrieval =
+  allowPkParam === 'false' || allowPkParam === '0'
+    ? false
+    : allowPkParam === 'true' || allowPkParam === '1'
+      ? true
+      : process.env.DB_ALLOW_PUBLIC_KEY_RETRIEVAL?.trim().toLowerCase() ===
+          'false' ||
+        process.env.DB_ALLOW_PUBLIC_KEY_RETRIEVAL?.trim().toLowerCase() === '0'
+        ? false
+        : true;
 const adapter = new PrismaMariaDb({
   host: url.hostname || process.env.DB_HOST || '127.0.0.1',
   port: url.port ? parseInt(url.port, 10) : parseInt(process.env.DB_PORT || '3306', 10),
@@ -58,6 +69,8 @@ const adapter = new PrismaMariaDb({
   password: decodeURIComponent(url.password) || process.env.DB_PASSWORD || '',
   database: url.pathname?.replace(/^\//, '') || process.env.DB_NAME || 'CycleTracking',
   connectionLimit: 5,
+  connectTimeout: 15000,
+  allowPublicKeyRetrieval,
 });
 const db = new PrismaClient({ adapter });
 

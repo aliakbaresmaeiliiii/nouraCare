@@ -22,7 +22,7 @@
 <ion-content class="topic-content">
   <div class="container">
     <!-- Loading State -->
-    @if (isLoading) {
+    @if (isLoading()) {
     <div class="loading-container">
       <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
       <p class="loading-text">Loading topic...</p>
@@ -30,7 +30,7 @@
     }
 
     <!-- Error State -->
-    @if (errorMessage && !isLoading) {
+    @if (errorMessage && !isLoading()) {
     <div class="error-container">
       <ion-icon name="alert-circle" class="error-icon"></ion-icon>
       <p class="error-text">{{ errorMessage }}</p>
@@ -42,7 +42,7 @@
     }
 
     <!-- Topic Content -->
-    @if (topic && !isLoading) {
+    @if (topic && !isLoading()) {
     <div class="topic-card" [attr.data-post-id]="topic.id">
       <div class="topic-header">
         <div class="author-avatar">
@@ -76,7 +76,7 @@
         <div class="topic-info">
           <div class="author-info">
             <h3 class="author-name">
-              {{ topic.user.fullName }}
+              {{ topic.user.fullName || topic.author }}
             </h3>
             <span class="topic-time">{{
               formatRelativeTime(topic.createdAt)
@@ -176,7 +176,7 @@
     </div>
 
     <!-- Comments Section -->
-    @if (topic && !isLoading) {
+    @if (topic && !isLoading()) {
     <div class="comments-section">
       <div class="comments-header">
         <h2 class="comments-title">Comments ({{ comments().length }})</h2>
@@ -383,7 +383,7 @@
 </ion-content>
 
 <!-- Comment Input -->
-@if (topic && !isLoading) {
+@if (topic && !isLoading()) {
 <ion-footer class="comment-footer">
   <div class="comment-input-container">
     <ion-input
