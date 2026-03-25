@@ -102,6 +102,15 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
    * refreshes the image (a getter reading only the service signal can fail to update the view).
    */
   avatarImageSrc = this.imageUrlService.getImageUrl(null);
+  avatarImgLoaded = true;
+  avatarSkeletonActive = false;
+  private lastAvatarImageSrc = this.avatarImageSrc;
+
+  onAvatarImgLoad(): void {
+    this.avatarImgLoaded = true;
+    this.avatarSkeletonActive = false;
+    this.cdr.markForCheck();
+  }
 
   // Reproductive status data
   reproductiveStatus: ReproductiveStatusData = {};
@@ -136,52 +145,52 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     this.router.navigate(['/edit-profile']);
   }
 
-  // Reproductive status methods
-  async loadReproductiveStatus() {
-    try {
-      this.reproductiveStatusService
-        .getReproductiveStatus(this.userId)
-        .subscribe({
-          next: (data) => {
-            this.reproductiveStatus = data;
-            if (data.lastPeriodDate) {
-              this.lastPeriodDate = data.lastPeriodDate;
-            }
-            if (data.cycleLength) {
-              this.selectedCycleLength = data.cycleLength;
-            }
-          },
-          error: (error: any) => {
-            // Backend intentionally returns 404 because pregnancy planning
-            // was replaced with HealthRecord. Treat this as non-fatal.
-            const message =
-              error?.message ||
-              error?.error?.message ||
-              error?.error?.error?.message ||
-              '';
-            const isReplacedFeature404 =
-              (error?.status === 404 ||
-                error?.error?.status === 404 ||
-                error?.error?.error?.statusCode === 404) &&
-              typeof message === 'string' &&
-              message
-                .toLowerCase()
-                .includes('pregnancy planning feature has been replaced');
+  // // Reproductive status methods
+  // async loadReproductiveStatus() {
+  //   try {
+  //     this.reproductiveStatusService
+  //       .getReproductiveStatus(this.userId)
+  //       .subscribe({
+  //         next: (data) => {
+  //           this.reproductiveStatus = data;
+  //           if (data.lastPeriodDate) {
+  //             this.lastPeriodDate = data.lastPeriodDate;
+  //           }
+  //           if (data.cycleLength) {
+  //             this.selectedCycleLength = data.cycleLength;
+  //           }
+  //         },
+  //         error: (error: any) => {
+  //           // Backend intentionally returns 404 because pregnancy planning
+  //           // was replaced with HealthRecord. Treat this as non-fatal.
+  //           const message =
+  //             error?.message ||
+  //             error?.error?.message ||
+  //             error?.error?.error?.message ||
+  //             '';
+  //           const isReplacedFeature404 =
+  //             (error?.status === 404 ||
+  //               error?.error?.status === 404 ||
+  //               error?.error?.error?.statusCode === 404) &&
+  //             typeof message === 'string' &&
+  //             message
+  //               .toLowerCase()
+  //               .includes('pregnancy planning feature has been replaced');
 
-            if (isReplacedFeature404) {
-              this.reproductiveStatus = {};
-              this.lastPeriodDate = '';
-              this.selectedCycleLength = 28;
-              return;
-            }
+  //           if (isReplacedFeature404) {
+  //             this.reproductiveStatus = {};
+  //             this.lastPeriodDate = '';
+  //             this.selectedCycleLength = 28;
+  //             return;
+  //           }
 
-            console.error('Error loading reproductive status:', error);
-          },
-        });
-    } catch (error) {
-      console.error('Error loading reproductive status:', error);
-    }
-  }
+  //           console.error('Error loading reproductive status:', error);
+  //         },
+  //       });
+  //   } catch (error) {
+  //     console.error('Error loading reproductive status:', error);
+  //   }
+  // }
 
   async openPregnancyEndDialog() {
     const modal = await this.modalCtrl.create({
@@ -216,8 +225,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       .updateReproductiveStatus(userId, data)
       .subscribe({
         next: (response) => {
-          console.log('Reproductive status updated successfully:', response);
-          this.loadReproductiveStatus(); // Refresh data
+          // this.loadReproductiveStatus(); // Refresh data
           this.showToast('Status updated successfully!');
         },
         error: (error) => {
@@ -502,7 +510,17 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     this.dateOfBirth = merged.dateOfBirth || this.dateOfBirth;
     this.city = merged.city ?? this.city;
     this.profileImage = merged.profileImage;
-    this.avatarImageSrc = merged.profileImage;
+    const nextAvatarSrc = merged.profileImage;
+    if (nextAvatarSrc && nextAvatarSrc !== this.lastAvatarImageSrc) {
+      // Show skeleton only while avatar is being replaced after edit-profile.
+      this.avatarImgLoaded = false;
+      this.avatarSkeletonActive = true;
+    } else {
+      this.avatarImgLoaded = true;
+      this.avatarSkeletonActive = false;
+    }
+    this.lastAvatarImageSrc = nextAvatarSrc;
+    this.avatarImageSrc = nextAvatarSrc;
     try {
       this.userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
       if (this.userInfoStore?.user) {
@@ -519,6 +537,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   onAvatarImgError(): void {
     this.avatarImageSrc = this.imageUrlService.getImageUrl(null);
+    this.avatarImgLoaded = true;
+    this.avatarSkeletonActive = false;
     this.cdr.markForCheck();
   }
 
@@ -535,7 +555,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   ngOnInit(): void {
     this.userId = this.homeService.getCurrentUserId();
-    this.loadReproductiveStatus();
+    // this.loadReproductiveStatus();
 
     try {
       this.userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
@@ -549,6 +569,9 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       );
       this.profileImage = quick;
       this.avatarImageSrc = quick;
+      this.lastAvatarImageSrc = quick;
+      this.avatarImgLoaded = true;
+      this.avatarSkeletonActive = false;
     } catch (error) {
       console.error(
         'ProfileComponent - Error loading from localStorage:',

@@ -16,13 +16,18 @@
   <!-- Hero Section with Profile Picture and Basic Info -->
   <div class="hero-section">
     <div class="profile-avatar-container">
+      @if (avatarSkeletonActive && !avatarImgLoaded) {
+        <div class="avatar-skeleton" aria-hidden="true"></div>
+      }
       <ion-avatar class="profile-avatar">
         <img
           [src]="avatarImageSrc"
           alt="Profile Picture"
           class="avatar-image"
+          [class.avatar-hidden]="avatarSkeletonActive && !avatarImgLoaded"
           decoding="async"
           referrerpolicy="no-referrer"
+          (load)="onAvatarImgLoad()"
           (error)="onAvatarImgError()"
         />
       </ion-avatar>
@@ -82,21 +87,49 @@
       Edit Profile
     </ion-button>
     
-    <ion-button
-      expand="block"
-      type="button"
-      class="pregnancy-planning-btn"
-      (click)="goToPregnancyPlanning()"
-    >
-      <ion-icon name="heart-outline" slot="start"></ion-icon>
-      Pregnancy Planning
-    </ion-button>
+    @if (reproductiveStatus.pregnancyEndDate) {
+      <ion-button
+        expand="block"
+        type="button"
+        class="pregnancy-planning-btn"
+        (click)="goToPregnancyPlanning()"
+      >
+        <ion-icon name="moon-outline" slot="start"></ion-icon>
+        Postpartum
+      </ion-button>
+    } @else if (reproductiveStatus.isPregnant) {
+      <ion-button
+        expand="block"
+        type="button"
+        class="pregnancy-planning-btn"
+        (click)="goToPregnancyPlanning()"
+      >
+        <ion-icon name="heart-outline" slot="start"></ion-icon>
+        Pregnancy Progress
+      </ion-button>
+    } @else {
+      <ion-button
+        expand="block"
+        type="button"
+        class="pregnancy-planning-btn"
+        (click)="goToPregnancyPlanning()"
+      >
+        <ion-icon name="heart-outline" slot="start"></ion-icon>
+        Pregnancy Planning
+      </ion-button>
+    }
   </div>
 
   <!-- Pregnancy Planning Summary -->
   @if (reproductiveStatus.lastPeriodDate) {
   <div class="pregnancy-summary-section">
-    <h3 class="section-title">Pregnancy Planning</h3>
+    @if (reproductiveStatus.pregnancyEndDate) {
+      <h3 class="section-title">Postpartum</h3>
+    } @else if (reproductiveStatus.isPregnant) {
+      <h3 class="section-title">Pregnancy Progress</h3>
+    } @else {
+      <h3 class="section-title">Pregnancy Planning</h3>
+    }
     
     <div class="pregnancy-summary-card">
       <div class="summary-header">
@@ -104,7 +137,13 @@
           <ion-icon name="calendar-outline"></ion-icon>
         </div>
         <div class="summary-content">
-          <h4 class="summary-title">Cycle Tracking</h4>
+          @if (reproductiveStatus.isPregnant) {
+            <h4 class="summary-title">Pregnancy Timeline</h4>
+          } @else if (reproductiveStatus.pregnancyEndDate) {
+            <h4 class="summary-title">Postpartum Timeline</h4>
+          } @else {
+            <h4 class="summary-title">Cycle Tracking</h4>
+          }
           <p class="summary-subtitle">Last Period: {{ formatDate(reproductiveStatus.lastPeriodDate) }}</p>
         </div>
       </div>
@@ -115,12 +154,16 @@
           <span class="stat-label">Cycle Days</span>
         </div>
         <div class="summary-stat">
-          @if (reproductiveStatus.isPregnant) {
-          <span class="stat-number">{{ getPregnancyWeek() }}</span>
+          @if (reproductiveStatus.pregnancyEndDate) {
+            <span class="stat-number">-</span>
+            <span class="stat-label">Postpartum</span>
+          } @else if (reproductiveStatus.isPregnant) {
+            <span class="stat-number">{{ getPregnancyWeek() }}</span>
+            <span class="stat-label">Weeks Pregnant</span>
           } @else {
-          <span class="stat-number">-</span>
+            <span class="stat-number">-</span>
+            <span class="stat-label">Trying to Conceive</span>
           }
-          <span class="stat-label">{{ reproductiveStatus.isPregnant ? 'Weeks Pregnant' : 'Planning' }}</span>
         </div>
       </div>
       
@@ -132,8 +175,26 @@
           (click)="goToPregnancyPlanning()"
         >
           <ion-icon name="heart-outline" slot="start"></ion-icon>
-          View Details
+          @if (reproductiveStatus.pregnancyEndDate) {
+            Postpartum Resources
+          } @else if (reproductiveStatus.isPregnant) {
+            View Pregnancy Details
+          } @else {
+            View Planning Details
+          }
         </ion-button>
+
+        @if (reproductiveStatus.isPregnant && reproductiveStatus.pregnancyEndDate == null) {
+          <ion-button
+            fill="outline"
+            size="small"
+            class="summary-action-btn"
+            (click)="openPregnancyEndDialog()"
+          >
+            <ion-icon name="stop-circle-outline" slot="start"></ion-icon>
+            End Pregnancy
+          </ion-button>
+        }
       </div>
     </div>
   </div>
