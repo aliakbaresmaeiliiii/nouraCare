@@ -13,16 +13,97 @@
   </ion-toolbar>
 </ion-header>
 <ion-content class="profile-content">
+  <!-- Instagram-style crop (full-screen) -->
+  <ion-modal
+    [isOpen]="showCropper"
+    [backdropDismiss]="false"
+    cssClass="instagram-crop-modal"
+    (didPresent)="onCropModalPresented()"
+  >
+    <ng-template>
+      <ion-header class="instagram-crop-header">
+        <ion-toolbar class="instagram-crop-toolbar">
+          <ion-buttons slot="start">
+            <ion-button fill="clear" class="insta-crop-btn insta-crop-cancel" (click)="cancelCrop()">
+              Cancel
+            </ion-button>
+          </ion-buttons>
+          <ion-title class="insta-crop-title">Edit profile picture</ion-title>
+          <ion-buttons slot="end">
+            <ion-button
+              fill="clear"
+              class="insta-crop-btn insta-crop-done"
+              (click)="confirmCrop()"
+            >
+              Done
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content
+        [fullscreen]="true"
+        [scrollY]="false"
+        class="instagram-crop-body"
+      >
+        <img
+          #cropSourceImage
+          [src]="cropImageObjectUrl || ''"
+          alt=""
+          class="insta-crop-hidden-img"
+          draggable="false"
+          (load)="onCropImageLoad()"
+          (error)="onCropImageError()"
+        />
+        <div class="instagram-crop-main">
+          <div
+            class="insta-crop-stage"
+            #cropStage
+            (touchstart)="onCropTouchStart($event)"
+            (touchmove)="onCropTouchMove($event)"
+            (touchend)="onCropTouchEnd($event)"
+          >
+            <canvas
+              #cropPreviewCanvas
+              class="insta-crop-canvas"
+              role="img"
+              aria-label="Profile photo preview"
+              (pointerdown)="onCropPointerDown($event)"
+              (pointermove)="onCropPointerMove($event)"
+              (pointerup)="onCropPointerUp($event)"
+              (pointercancel)="onCropPointerUp($event)"
+            ></canvas>
+          </div>
+          <p class="insta-crop-hint">
+            Drag to move. Pinch or use the slider to zoom.
+          </p>
+          <div class="insta-zoom-bar">
+            <ion-icon name="remove-outline" class="insta-zoom-icon"></ion-icon>
+            <ion-range
+              class="insta-zoom-range"
+              [min]="1"
+              [max]="4"
+              [step]="0.02"
+              [value]="cropZoom"
+              (ionInput)="onCropZoomInput($event)"
+            ></ion-range>
+            <ion-icon name="add-outline" class="insta-zoom-icon"></ion-icon>
+          </div>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
   <!-- Profile Picture Section -->
   <div class="profile-picture-section">
     <div class="avatar-container">
       <ion-avatar class="profile-avatar">
         <img [src]="profileImage" alt="Profile" class="avatar-image" />
       </ion-avatar>
+      <label for="fileeInput" class="avatar-tap-target" aria-label="Change profile photo"></label>
       <div class="avatar-overlay">
-        <label for="fileeInput" class="upload-button">
+        <span class="upload-button">
           <ion-icon name="camera" class="camera-icon"></ion-icon>
-        </label>
+        </span>
         <input
           type="file"
           id="fileeInput"
@@ -32,7 +113,7 @@
         />
       </div>
     </div>
-    <p class="avatar-hint">Tap to change profile picture</p>
+    <p class="avatar-hint">Change profile photo</p>
   </div>
 
   <!-- Reproductive Status Section -->
@@ -114,40 +195,6 @@
   </div>
 
   <form [formGroup]="form" class="profile-form">
-    <!-- Image Cropper Modal -->
-    <ion-modal [isOpen]="showCropper" class="cropper-modal">
-      <ng-template>
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Crop Image</ion-title>
-            <ion-buttons slot="start">
-              <ion-button class="cancel-button">Cancel</ion-button>
-            </ion-buttons>
-            <ion-buttons slot="end">
-              <ion-button class="confirm-button">Done</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-          <div class="cropper-container">
-            <div class="canvas-container">
-              <canvas #cropCanvas class="crop-canvas"></canvas>
-            </div>
-            <div class="zoom-controls">
-              <ion-label>Zoom</ion-label>
-              <ion-range
-                min="0.5"
-                max="3"
-                step="0.1"
-                [value]="zoom"
-                class="zoom-range"
-              ></ion-range>
-            </div>
-          </div>
-        </ion-content>
-      </ng-template>
-    </ion-modal>
-
     <!-- Personal Information Card -->
     <div class="form-card">
       <div class="card-header">

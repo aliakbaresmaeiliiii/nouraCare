@@ -44,6 +44,24 @@ export class UserInfoService {
   }
 
   /**
+   * Persist pregnancy / reproductive status only (server: POST user/:id/onboarding).
+   */
+  savePregnancyStatus(userId: number, pregnancyStatus: string): Observable<UserInfo> {
+    return this.http
+      .post<UserInfo>(`${environment.apiEndPoint}user/${userId}/onboarding`, {
+        pregnancyStatus,
+      })
+      .pipe(
+        tap((response) => {
+          this.userInfo.set(response);
+        }),
+        catchError((error) => {
+          throw error;
+        }),
+      );
+  }
+
+  /**
    * Get user onboarding data
    */
   getUserOnboardingData(userId?: number): Observable<UserInfo> {

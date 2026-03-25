@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/user.dto';
 import { PrismaService } from '../prisma/services/prisma.service';
 
@@ -11,19 +7,24 @@ export class UserService {
   constructor(private prismaService: PrismaService) {}
 
   async getUserById(userId: number) {
-    const user = await this.prismaService.user.findUnique({ 
-      where: { id: userId } 
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      include: { user_profile: true },
     });
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    
-    return user;
+
+    const { user_profile, ...rest } = user;
+    const profile = user_profile as any;
+    return {
+      ...rest,
+      profileImage: profile?.profileImage ?? profile?.avatarUrl ?? '',
+    };
   }
 
   async editUserInfo(userId: number, updateUserDto: UpdateUserDto) {
-    // Check if user exists
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
     });
@@ -32,23 +33,55 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    // Filter out undefined values and handle date conversions
-    const updateData = Object.fromEntries(
-      Object.entries(updateUserDto)
-        .filter(([_, value]) => value !== undefined)
-        .map(([key, value]) => {
-          // Convert date strings to Date objects
-          if (['birthday'].includes(key) && value) {
-            return [key, new Date(value as string)];
-          }
-          return [key, value];
-        }),
-    );
+    const dto = updateUserDto as UpdateUserDto;
+    const profileImage =
+      dto.profileImage !== undefined ? dto.profileImage : undefined;
 
-    return this.prismaService.user.update({
-      where: { id: userId },
-      data: updateData,
+    const now = new Date();
+    const userData = {
+      updatedAt: now,
+      ...(dto.email !== undefined && { email: dto.email }),
+      ...(dto.phone !== undefined && { phoneNumber: dto.phone }),
+      ...(dto.fullName !== undefined && { fullName: dto.fullName }),
+      ...(dto.fullName === undefined &&
+        dto.name !== undefined && { fullName: dto.name }),
+      ...(dto.birthday !== undefined && {
+        birthday: dto.birthday
+          ? new Date(dto.birthday as unknown as string)
+          : null,
+      }),
+    };
+
+    await this.prismaService.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: userData,
+      });
+
+      if (profileImage !== undefined) {
+        const imageUrl =
+          typeof profileImage === 'string' && profileImage.trim() === ''
+            ? null
+            : profileImage;
+        await tx.user_profile.upsert({
+          where: { userId },
+          create: {
+            userId,
+            avatarUrl: imageUrl,
+            profileImage: imageUrl,
+            createdAt: now,
+            updatedAt: now,
+          } as any,
+          update: {
+            avatarUrl: imageUrl,
+            profileImage: imageUrl,
+            updatedAt: now,
+          } as any,
+        });
+      }
     });
+
+    return this.getUserById(userId);
   }
 
   // Health tracking features have been replaced with HealthRecord model

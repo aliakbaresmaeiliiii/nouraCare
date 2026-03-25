@@ -1,12 +1,13 @@
 import {
+  ChangeDetectorRef,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
+  HostListener,
   inject,
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { IonModal } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   pencil,
@@ -23,6 +24,8 @@ import {
   people,
   heartCircle,
   heartDislike,
+  removeOutline,
+  addOutline,
 } from 'ionicons/icons';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -45,18 +48,32 @@ export class EditProfileComponent implements OnInit {
   userService = inject(User);
   userInfoService = inject(UserInfoService);
   route = inject(ActivatedRoute);
+  cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
   private imageUrlService = inject(ImageUrlService);
   profileImage: string | null = null;
   selectedProfile: File | null = null;
   showCropper = false;
-  zoom = 1;
-  private imageBitmap: ImageBitmap | null = null;
-  @ViewChild('cropCanvas') cropCanvas!: ElementRef<HTMLCanvasElement>;
+  /** Object URL for the image being cropped */
+  cropImageObjectUrl: string | null = null;
+  /** Zoom multiplier on top of “cover” scale (1 = fill circle). */
+  cropZoom = 1;
+  cropPanX = 0;
+  cropPanY = 0;
+  cropViewSizePx = 300;
+  private cropPointerDownActive = false;
+  private cropLastClientX = 0;
+  private cropLastClientY = 0;
+  private cropPinchStartDist = 0;
+  private cropPinchStartZoom = 1;
   userId = 0;
   private homeService = inject(HomeDataService);
 
-  @ViewChild(IonModal) modal!: IonModal;
+  @ViewChild('cropPreviewCanvas')
+  cropPreviewCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('cropSourceImage')
+  cropSourceImage!: ElementRef<HTMLImageElement>;
+  @ViewChild('cropStage') cropStage!: ElementRef<HTMLElement>;
 
   statusOptions: { 
     label: string; 
@@ -134,6 +151,8 @@ export class EditProfileComponent implements OnInit {
       people,
       heartCircle,
       heartDislike,
+      removeOutline,
+      addOutline,
     });
   }
 
@@ -174,15 +193,22 @@ export class EditProfileComponent implements OnInit {
       ),
     }).subscribe({
       next: (data) => {
+        const onboarding = (data.onboardingData as any)?.data ?? data.onboardingData;
         const mergedData = {
           fullName: data.userData.data?.fullName || '',
           email: data.userData.data?.email || '',
           birthday: data.userData.data?.birthday || '',
           profileImage: data.userData.data?.profileImage || '',
-          status: data.userData?.data.status || null,
+          status: this.normalizeReproductiveStatusForForm(
+            onboarding?.pregnancyStatus,
+          ),
         };
 
         this.patchFormWithUserData(mergedData);
+        const repro = this.normalizeReproductiveStatusForForm(
+          onboarding?.pregnancyStatus,
+        );
+        this.currentReproductiveStatus = repro;
       },
       error: (error) => {
         console.error('Failed to load user data:', error);
@@ -200,7 +226,12 @@ export class EditProfileComponent implements OnInit {
     };
 
     this.form.patchValue(patch);
-    this.profileImage = this.imageUrlService.getImageUrl(userData?.profileImage);
+    // Avoid NG0100: HTTP/subscribe can set profileImage after dev-mode's extra CD pass.
+    const nextSrc = this.imageUrlService.getImageUrl(userData?.profileImage);
+    queueMicrotask(() => {
+      this.profileImage = nextSrc;
+      this.cdr.detectChanges();
+    });
 
     setTimeout(() => {
       this.checkFormControlState();
@@ -209,57 +240,315 @@ export class EditProfileComponent implements OnInit {
 
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
-        return;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      input.value = '';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image file size should be less than 5MB');
+      input.value = '';
+      return;
+    }
+
+    this.selectedProfile = file;
+    this.revokeCropObjectUrl();
+    this.cropImageObjectUrl = URL.createObjectURL(file);
+    this.cropZoom = 1;
+    this.cropPanX = 0;
+    this.cropPanY = 0;
+    this.showCropper = true;
+    this.cdr.detectChanges();
+  }
+
+  onCropModalPresented(): void {
+    // Modal layout settles after two frames (Ionic overlay + flex).
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => this.refreshCropStageSize());
+    });
+  }
+
+  @HostListener('window:resize')
+  onCropWindowResize(): void {
+    if (!this.showCropper) return;
+    cancelAnimationFrame(this.cropResizeRaf);
+    this.cropResizeRaf = requestAnimationFrame(() => this.refreshCropStageSize());
+  }
+
+  private cropResizeRaf = 0;
+
+  private refreshCropStageSize(): void {
+    const el = this.cropStage?.nativeElement;
+    const w = el?.clientWidth ?? 0;
+    if (w > 0) {
+      const next = Math.round(w);
+      if (next !== this.cropViewSizePx) {
+        this.cropViewSizePx = next;
       }
+    }
+    this.drawCropPreview();
+  }
 
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image file size should be less than 5MB');
-        return;
+  onCropImageLoad(): void {
+    this.cropZoom = 1;
+    this.cropPanX = 0;
+    this.cropPanY = 0;
+    queueMicrotask(() => this.refreshCropStageSize());
+  }
+
+  onCropImageError(): void {
+    alert('Could not load this image. Try another photo.');
+    this.cancelCrop();
+  }
+
+  onCropZoomInput(ev: Event): void {
+    const v = (ev as CustomEvent<{ value: unknown }>).detail?.value;
+    const n = typeof v === 'number' ? v : null;
+    if (n != null && !Number.isNaN(n)) {
+      this.cropZoom = Math.min(4, Math.max(1, n));
+      this.drawCropPreview();
+    }
+  }
+
+  onCropPointerDown(ev: PointerEvent): void {
+    if (ev.pointerType === 'touch') return;
+    ev.preventDefault();
+    this.cropPointerDownActive = true;
+    this.cropLastClientX = ev.clientX;
+    this.cropLastClientY = ev.clientY;
+    (ev.target as HTMLElement).setPointerCapture(ev.pointerId);
+  }
+
+  onCropPointerMove(ev: PointerEvent): void {
+    if (!this.cropPointerDownActive || ev.pointerType === 'touch') return;
+    ev.preventDefault();
+    this.applyCropPanDelta(ev.clientX, ev.clientY);
+    this.cropLastClientX = ev.clientX;
+    this.cropLastClientY = ev.clientY;
+  }
+
+  onCropPointerUp(ev: PointerEvent): void {
+    if (ev.pointerType === 'touch') return;
+    this.cropPointerDownActive = false;
+    try {
+      (ev.target as HTMLElement).releasePointerCapture(ev.pointerId);
+    } catch {
+      /* ignore */
+    }
+  }
+
+  onCropTouchStart(ev: TouchEvent): void {
+    if (ev.touches.length === 1) {
+      const t = ev.touches[0];
+      this.cropLastClientX = t.clientX;
+      this.cropLastClientY = t.clientY;
+    } else if (ev.touches.length === 2) {
+      this.cropPinchStartDist = this.touchDistance(ev.touches);
+      this.cropPinchStartZoom = this.cropZoom;
+    }
+  }
+
+  onCropTouchMove(ev: TouchEvent): void {
+    if (ev.touches.length === 2) {
+      ev.preventDefault();
+      const d = this.touchDistance(ev.touches);
+      if (this.cropPinchStartDist > 0 && d > 0) {
+        const next = (this.cropPinchStartZoom * d) / this.cropPinchStartDist;
+        this.cropZoom = Math.min(4, Math.max(1, next));
+        this.drawCropPreview();
       }
+    } else if (ev.touches.length === 1) {
+      ev.preventDefault();
+      const t = ev.touches[0];
+      this.applyCropPanDelta(t.clientX, t.clientY);
+      this.cropLastClientX = t.clientX;
+      this.cropLastClientY = t.clientY;
+    }
+  }
 
-      // Store the file so we can upload it
-      this.selectedProfile = file;
+  onCropTouchEnd(ev: TouchEvent): void {
+    if (ev.touches.length < 2) {
+      this.cropPinchStartDist = 0;
+    }
+    if (ev.touches.length === 1) {
+      const t = ev.touches[0];
+      this.cropLastClientX = t.clientX;
+      this.cropLastClientY = t.clientY;
+    }
+  }
 
-      // Immediately show a local preview without cropping
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        this.profileImage = result;
-        this.form.patchValue({ profileImage: result });
-      };
-      reader.readAsDataURL(file);
+  private touchDistance(touches: TouchList): number {
+    const a = touches[0];
+    const b = touches[1];
+    const dx = a.clientX - b.clientX;
+    const dy = a.clientY - b.clientY;
+    return Math.hypot(dx, dy);
+  }
 
-      // Upload the original image file directly (no cropper)
-      const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-      const id = currentUserInfo?.userId;
-      if (!id) {
-        console.error('No user ID available');
-        return;
+  private applyCropPanDelta(clientX: number, clientY: number): void {
+    const canvas = this.cropPreviewCanvas?.nativeElement;
+    if (!canvas) return;
+    const dx = clientX - this.cropLastClientX;
+    const dy = clientY - this.cropLastClientY;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const scale = this.cropViewSizePx / rect.width;
+    this.cropPanX += dx * scale;
+    this.cropPanY += dy * scale;
+    this.drawCropPreview();
+  }
+
+  private drawTransformedImage(
+    ctx: CanvasRenderingContext2D,
+    viewSize: number,
+    img: HTMLImageElement,
+  ): void {
+    const iw = img.naturalWidth;
+    const ih = img.naturalHeight;
+    if (!iw || !ih) return;
+    const baseCover = Math.max(viewSize / iw, viewSize / ih);
+    const s = baseCover * this.cropZoom;
+    const drawW = iw * s;
+    const drawH = ih * s;
+    const cx = viewSize / 2 + this.cropPanX;
+    const cy = viewSize / 2 + this.cropPanY;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, cx - drawW / 2, cy - drawH / 2, drawW, drawH);
+  }
+
+  drawCropPreview(): void {
+    const canvas = this.cropPreviewCanvas?.nativeElement;
+    const img = this.cropSourceImage?.nativeElement;
+    if (!canvas || !img?.naturalWidth) return;
+
+    const size = this.cropViewSizePx;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(1, Math.round(size * dpr));
+    canvas.height = Math.max(1, Math.round(size * dpr));
+    canvas.style.width = `${size}px`;
+    canvas.style.height = `${size}px`;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, size, size);
+
+    const inset = 1;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2 - inset, 0, Math.PI * 2);
+    ctx.clip();
+    this.drawTransformedImage(ctx, size, img);
+    ctx.restore();
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2 - inset, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  private async buildCroppedJpegBlob(): Promise<Blob> {
+    const img = this.cropSourceImage?.nativeElement;
+    if (!img?.naturalWidth) {
+      throw new Error('Image not ready');
+    }
+    const out = 1024;
+    const v = this.cropViewSizePx;
+    const canvas = document.createElement('canvas');
+    canvas.width = out;
+    canvas.height = out;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('No canvas context');
+    const ratio = out / v;
+    const inset = 1;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.beginPath();
+    ctx.arc(v / 2, v / 2, v / 2 - inset, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, v, v);
+    this.drawTransformedImage(ctx, v, img);
+    return await new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error('Export failed'))),
+        'image/jpeg',
+        0.92,
+      );
+    });
+  }
+
+  cancelCrop(): void {
+    this.showCropper = false;
+    this.revokeCropObjectUrl();
+    const input = document.getElementById('fileeInput') as HTMLInputElement | null;
+    if (input) input.value = '';
+    this.selectedProfile = null;
+  }
+
+  confirmCrop(): void {
+    const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+    const id = currentUserInfo?.data?.id ?? currentUserInfo?.userId;
+    if (!id) {
+      alert('User not found. Please sign in again.');
+      return;
+    }
+
+    void (async () => {
+      try {
+        const blob = await this.buildCroppedJpegBlob();
+        const file = new File([blob], 'profile.jpg', { type: 'image/jpeg' });
+        const previewUrl = URL.createObjectURL(blob);
+        this.showCropper = false;
+        this.revokeCropObjectUrl();
+        const input = document.getElementById('fileeInput') as HTMLInputElement | null;
+        if (input) input.value = '';
+
+        this.profileImage = previewUrl;
+        this.form.patchValue({ profileImage: previewUrl });
+        this.cdr.detectChanges();
+
+        this.userService.uploadProfileImage(String(id), file).subscribe({
+          next: (res: any) => {
+            URL.revokeObjectURL(previewUrl);
+            this.profileImage = this.imageUrlService.getImageUrl(res.url);
+            this.form.patchValue({ profileImage: res.url });
+            try {
+              const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
+              store.user = { ...(store.user || {}), profileImage: res.url };
+              localStorage.setItem('userInfo', JSON.stringify(store));
+            } catch (e) {
+              console.error('Error updating local storage:', e);
+            }
+            this.cdr.detectChanges();
+          },
+          error: (err: unknown) => {
+            console.error('Error uploading image:', err);
+            URL.revokeObjectURL(previewUrl);
+            alert('Failed to upload image. Please try again.');
+          },
+        });
+      } catch (e) {
+        console.error(e);
+        alert('Could not prepare the image. Please try again.');
       }
+    })();
+  }
 
-      this.userService.uploadProfileImage(String(id), file).subscribe({
-        next: (res: any) => {
-          // Replace local preview with server URL
-          this.profileImage = this.imageUrlService.getImageUrl(res.url);
-          this.form.patchValue({ profileImage: res.url });
-
-          try {
-            const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
-            store.user = { ...(store.user || {}), profileImage: res.url };
-            localStorage.setItem('userInfo', JSON.stringify(store));
-          } catch (error) {
-            console.error('Error updating local storage:', error);
-          }
-        },
-        error: (error: any) => {
-          console.error('Error uploading image:', error);
-          alert('Failed to upload image. Please try again.');
-        },
-      });
+  private revokeCropObjectUrl(): void {
+    if (this.cropImageObjectUrl) {
+      URL.revokeObjectURL(this.cropImageObjectUrl);
+      this.cropImageObjectUrl = null;
     }
   }
 
@@ -301,7 +590,6 @@ export class EditProfileComponent implements OnInit {
       email: formValues.email,
       birthday: formValues.birthday,
       profileImage: formValues.profileImage,
-      status: formValues.status,
     };
 
     this.userService.updateUserInfo(String(id), payload).subscribe({
@@ -367,15 +655,13 @@ export class EditProfileComponent implements OnInit {
   }
 
   checkCropperState(): void {
+    const canvas = this.cropPreviewCanvas?.nativeElement;
     console.log('Cropper state:', {
       showCropper: this.showCropper,
-      imageBitmap: !!this.imageBitmap,
-      canvas: !!this.cropCanvas,
-      canvasElement: !!this.cropCanvas?.nativeElement,
+      canvas: !!canvas,
     });
 
-    if (this.cropCanvas?.nativeElement) {
-      const canvas = this.cropCanvas.nativeElement;
+    if (canvas) {
       console.log('Canvas details:', {
         width: canvas.width,
         height: canvas.height,
@@ -479,30 +765,25 @@ export class EditProfileComponent implements OnInit {
 
   saveReproductiveStatus(): void {
     if (this.currentReproductiveStatus) {
-      // Save the reproductive status to the user profile
       const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-      const id = currentUserInfo?.userId;
-      
-      if (id) {
-        // Get current form values to preserve existing data
-        const formValues = this.form.value;
-        const payload: any = {
-          fullName: formValues.fullName || '',
-          email: formValues.email || '',
-          birthday: formValues.birthday || '',
-          profileImage: formValues.profileImage || '',
-          status: formValues.status || null,
-          reproductiveStatus: this.currentReproductiveStatus
-        };
-        
-        this.userService.updateUserInfo(String(id), payload).subscribe({
-          next: (res: any) => {
+      const id = currentUserInfo?.data?.id ?? currentUserInfo?.userId;
+
+      const apiStatus = this.mapUiReproductiveToApiPregnancyStatus(
+        this.currentReproductiveStatus,
+      );
+
+      if (id && apiStatus) {
+        this.userInfoService.savePregnancyStatus(id, apiStatus).subscribe({
+          next: () => {
+            this.form.patchValue({ status: this.currentReproductiveStatus });
             this.isEditingReproductiveStatus = false;
             this.showSuccessAlert('Reproductive status updated successfully!');
           },
           error: (error: any) => {
             console.error('Error updating reproductive status:', error);
-            this.showErrorAlert('Failed to update reproductive status. Please try again.');
+            this.showErrorAlert(
+              'Failed to update reproductive status. Please try again.',
+            );
           },
         });
       } else {
@@ -510,6 +791,33 @@ export class EditProfileComponent implements OnInit {
         this.showSuccessAlert('Reproductive status saved!');
       }
     }
+  }
+
+  /** Map GET user.status (account) away; align API NOT_PLANNING with UI NOT_PREGNANT. */
+  private normalizeReproductiveStatusForForm(
+    raw: string | null | undefined,
+  ): string | null {
+    if (!raw) return null;
+    if (raw === 'ACTIVE' || raw === 'INACTIVE' || raw === 'SUSPENDED') {
+      return null;
+    }
+    if (raw === 'NOT_PLANNING') return 'NOT_PREGNANT';
+    return raw;
+  }
+
+  private mapUiReproductiveToApiPregnancyStatus(
+    ui: string | null,
+  ): 'PLANNING_PREGNANCY' | 'PREGNANT' | 'NOT_PLANNING' | null {
+    if (!ui) return null;
+    if (ui === 'NOT_PREGNANT') return 'NOT_PLANNING';
+    if (
+      ui === 'PLANNING_PREGNANCY' ||
+      ui === 'PREGNANT' ||
+      ui === 'NOT_PLANNING'
+    ) {
+      return ui;
+    }
+    return null;
   }
 
   getSelectedReproductiveStatusEmoji(): string {

@@ -93,6 +93,10 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
+  fullName?: string;
+
+  @IsOptional()
+  @IsString()
   verificationCode?: string;
 
   @IsOptional()
@@ -106,10 +110,6 @@ export class UpdateUserDto {
 
   @IsOptional()
   profileImage?: string;
-
-  @IsOptional()
-  @IsEnum(PregnancyStatus)
-  status?: PregnancyStatus;
 
   @IsOptional()
   @IsInt()
