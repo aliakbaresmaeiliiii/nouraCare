@@ -3,6 +3,7 @@ export const environment = {
 
   apiEndPoint: 'http://10.51.190.186:8080/api/v1/',
   urlProfileImg: 'http://10.51.190.186:8080/uploads/',
+  profileImageFallback: 'assets/images/bg-01.png',
   neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',
   mapboxToken:

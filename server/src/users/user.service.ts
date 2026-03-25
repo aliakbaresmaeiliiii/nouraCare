@@ -34,8 +34,14 @@ export class UserService {
     }
 
     const dto = updateUserDto as UpdateUserDto;
-    const profileImage =
+    let profileImage =
       dto.profileImage !== undefined ? dto.profileImage : undefined;
+    if (
+      typeof profileImage === 'string' &&
+      (profileImage.startsWith('blob:') || profileImage.startsWith('data:'))
+    ) {
+      profileImage = undefined;
+    }
 
     const now = new Date();
     const userData = {

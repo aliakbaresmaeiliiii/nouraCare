@@ -2,31 +2,37 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ImageUrlService {
-  
+  private get fallback(): string {
+    return environment.profileImageFallback ?? 'assets/images/bg-01.png';
+  }
+
   /**
-   * Ensures the image URL has the correct base URL
-   * @param imageUrl - The image URL (can be relative or absolute)
-   * @returns The complete image URL
+   * Same idea as:
+   *   img ? `${environment.urlProfileImg}${img}` : fallbackAsset
+   * Absolute http(s) URLs from API are returned unchanged.
    */
-  getImageUrl(imageUrl: string | null): string {
-    if (!imageUrl) {
-      return 'https://ionicframework.com/docs/img/demos/avatar.svg';
+  getImageUrl(imageUrl: string | null | undefined): string {
+
+    const raw = imageUrl?.trim() ?? '';
+    if (!raw) {
+      return this.fallback;
     }
-    
-    // If it's already a full URL, return as is
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return imageUrl;
+
+    if (raw.startsWith('blob:') || raw.startsWith('data:')) {
+      return this.fallback;
     }
-    
-    // If it's a relative URL starting with /uploads/, prepend the server URL
-    if (imageUrl.startsWith('/uploads/')) {
-      return `${environment.urlProfileImg.replace('/uploads/', '')}${imageUrl}`;
+
+    if (raw.startsWith('http://') || raw.startsWith('https://')) {
+      return raw;
     }
-    
-    // If it's just a filename, construct the full path
-    return `${environment.urlProfileImg}profile/${imageUrl}`;
+
+    const base = environment.urlProfileImg.endsWith('/')
+      ? environment.urlProfileImg
+      : `${environment.urlProfileImg}/`;
+    const path = raw.replace(/^\/+/, '');
+    return `${base}${path}`;
   }
 }

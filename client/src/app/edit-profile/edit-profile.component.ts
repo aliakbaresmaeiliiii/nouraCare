@@ -514,8 +514,8 @@ export class EditProfileComponent implements OnInit {
         const input = document.getElementById('fileeInput') as HTMLInputElement | null;
         if (input) input.value = '';
 
+        // Preview only — never put blob: URLs in the form (Save would persist them to DB).
         this.profileImage = previewUrl;
-        this.form.patchValue({ profileImage: previewUrl });
         this.cdr.detectChanges();
 
         this.userService.uploadProfileImage(String(id), file).subscribe({
@@ -552,6 +552,27 @@ export class EditProfileComponent implements OnInit {
     }
   }
 
+  /**
+   * Only http(s) or server paths belong in the API/DB — never blob: or data: URLs.
+   */
+  private sanitizeProfileImageForApi(
+    raw: string | null | undefined,
+  ): string | undefined {
+    if (raw === undefined || raw === null) return undefined;
+    const v = String(raw).trim();
+    if (!v) return undefined;
+    if (v.startsWith('blob:') || v.startsWith('data:')) return undefined;
+    if (
+      v.startsWith('http://') ||
+      v.startsWith('https://') ||
+      v.startsWith('/uploads/')
+    ) {
+      return v;
+    }
+    // Relative filename-only paths from older APIs
+    if (/^[\w./-]+\.(jpe?g|png|gif|webp)$/i.test(v)) return v;
+    return undefined;
+  }
 
   handleChange(event: Event): void {
     const target = event.target as HTMLInputElement;
@@ -589,8 +610,11 @@ export class EditProfileComponent implements OnInit {
       fullName: formValues.fullName,
       email: formValues.email,
       birthday: formValues.birthday,
-      profileImage: formValues.profileImage,
     };
+    const persistedImage = this.sanitizeProfileImageForApi(formValues.profileImage);
+    if (persistedImage !== undefined) {
+      payload.profileImage = persistedImage;
+    }
 
     this.userService.updateUserInfo(String(id), payload).subscribe({
       next: (res: any) => {

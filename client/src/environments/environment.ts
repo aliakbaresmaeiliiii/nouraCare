@@ -4,6 +4,8 @@ export interface Config {
   production: boolean;
   apiEndPoint: string;
   urlProfileImg: string;
+  /** Default avatar when API has no image (Angular path from project root, e.g. assets/...). */
+  profileImageFallback: string;
   neshanBaseUrl: any;
   neshanApiKey: string;
   mapboxToken: string;
@@ -45,6 +47,7 @@ export const environment = {
   production: false,
   apiEndPoint: 'http://localhost:3000/api/v1/',
   urlProfileImg: 'http://localhost:3000/uploads/',
+  profileImageFallback: 'assets/images/bg-01.png',
 };
 
 // ********************* MobileApp (Current IP: 10.51.190.186) ********************

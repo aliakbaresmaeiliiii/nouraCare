@@ -128,15 +128,23 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   }
 
   private loadUserProfile() {
-    // Load user profile from API (subscribe so the request runs)
-    this.profileCompletionService.refreshFromAPI().subscribe();
-    
-    // Also try to get basic user info from localStorage for immediate display
+    this.profileCompletionService.refreshFromAPI().subscribe({
+      next: (merged) => {
+        if (merged) {
+          this.userName = merged.fullName || merged.name || this.userName;
+          // Same resolved URL as profile page (absolute API URLs unchanged).
+          this.userProfileImage = merged.profileImage;
+        }
+      },
+    });
+
     try {
       const userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
       const user = userInfoStore?.user || {};
-      this.userName = user.name || this.userName;
-      this.userProfileImage = this.imageUrlService.getImageUrl(user.profileImage);
+      this.userName = user.fullName || user.name || this.userName;
+      this.userProfileImage =
+        this.userProfileImage ||
+        this.imageUrlService.getImageUrl(user.profileImage);
     } catch (error) {
       console.error('Error loading user profile from localStorage:', error);
     }

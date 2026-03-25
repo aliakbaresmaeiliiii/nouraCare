@@ -52,7 +52,13 @@ export class ProfileCompletionService {
 
   get isProfileImageCompleted(): boolean {
     const user = this.userData();
-    return !!(user?.profileImage && user.profileImage.trim() !== '');
+    const raw = user?.profileImageRaw ?? user?.profileImage;
+    return !!(
+      typeof raw === 'string' &&
+      raw.trim() !== '' &&
+      !raw.startsWith('blob:') &&
+      !raw.startsWith('data:')
+    );
   }
 
   get isStatusCompleted(): boolean {
@@ -86,27 +92,33 @@ export class ProfileCompletionService {
   refreshFromAPI(): Observable<any> {
     this.isLoading.set(true);
 
-    try {
-      const userInfoData = JSON.parse(localStorage.getItem('userInfo') || '{}');
-      const userId = userInfoData.user?.id;
-      if (userId) {
-        return this.fetchUserDataFromAPI(userId);
+    const info = this.userInfoService.getCurrentUserInfo();
+    let userId: number | undefined =
+      info?.data?.id ?? info?.userId ?? undefined;
+    if (!userId) {
+      try {
+        const parsed = JSON.parse(localStorage.getItem('userInfo') || '{}');
+        const raw =
+          parsed?.user?.id ?? parsed?.userId ?? parsed?.data?.id ?? parsed?.id;
+        if (raw != null && raw !== '') {
+          userId = Number(raw);
+        }
+      } catch {
+        /* ignore */
       }
-      this.isLoading.set(false);
-      return of(null);
-    } catch {
-      this.isLoading.set(false);
-      return of(null);
     }
+    if (userId && !Number.isNaN(userId)) {
+      return this.fetchUserDataFromAPI(userId);
+    }
+    this.isLoading.set(false);
+    return of(null);
   }
 
-  // Method to fetch user data from API (single request for user + onboarding)
+  // Method to fetch user data from API (GET user/:id + onboarding)
   private fetchUserDataFromAPI(userId: number): Observable<any> {
-    // We already have the user data from login (stored in localStorage as userInfo.user),
-    // so avoid an extra GET /user/:id call here and just reuse that.
-    const stored = JSON.parse(localStorage.getItem('userInfo') || '{}');
-    const userFromStorage = stored?.user || {};
-    const userData$ = of(userFromStorage);
+    const userData$ = this.userService.getUser(String(userId)).pipe(
+      catchError(() => of({ data: null })),
+    );
     const onboardingData$ = this.userInfoService.getUserOnboardingData(userId).pipe(
       catchError(() =>
         of({
@@ -121,17 +133,37 @@ export class ProfileCompletionService {
       userData: userData$,
       onboardingData: onboardingData$,
     }).pipe(
-      map((data) => ({
-        name: data.userData?.name || '',
-        email: data.userData?.email || '',
-        birthday: data.userData?.birthday || '',
-        profileImage: data.userData?.profileImage || '',
-        status: data.userData?.status || null,
-        city: data.userData?.city ?? '',
-        menstrualCycleLength: data.onboardingData?.cycleLength || 28,
-        periodDuration: data.onboardingData?.periodLength || 5,
-        lastPeriodStartDate: data.onboardingData?.lastPeriodDate || null,
-      })),
+      map((data) => {
+        const u = (data.userData as any)?.data ?? data.userData ?? {};
+        const ob = (data.onboardingData as any)?.data ?? data.onboardingData ?? {};
+        const fullName = u.fullName || u.name || '';
+        const birthdayRaw = u.birthday;
+        const birthday =
+          birthdayRaw == null
+            ? ''
+            : typeof birthdayRaw === 'string'
+              ? birthdayRaw
+              : new Date(birthdayRaw).toISOString();
+        // Raw URL from API (e.g. https://10.x.x.x:8080/uploads/profile/....jpg) — keep as returned.
+        const profileImageRaw = (u.profileImage ?? '').toString().trim();
+        // For <img src>: absolute URLs pass through ImageUrlService unchanged; relative paths get base URL.
+        const profileImage = this.imageUrlService.getImageUrl(
+          profileImageRaw || null,
+        );
+        return {
+          name: fullName,
+          fullName,
+          email: u.email || '',
+          birthday,
+          profileImageRaw,
+          profileImage,
+          status: ob.pregnancyStatus ?? u.status ?? null,
+          city: u.city ?? '',
+          menstrualCycleLength: ob.cycleLength || 28,
+          periodDuration: ob.periodLength || 5,
+          lastPeriodStartDate: ob.lastPeriodDate ?? null,
+        };
+      }),
       tap({
         next: (merged) => {
           this.updateUserData(merged);
@@ -165,7 +197,10 @@ export class ProfileCompletionService {
       { value: user.name, weight: 20 }, // Name - 20%
       { value: user.email, weight: 20 }, // Email - 20%
       { value: user.birthday, weight: 15 }, // Birthday - 15%
-      { value: user.profileImage, weight: 15 }, // Profile Image - 15%
+      {
+        value: user.profileImageRaw ?? user.profileImage,
+        weight: 15,
+      }, // Profile Image - 15% (raw API path, not placeholder avatar URL)
       // Additional fields from edit profile that we can check
       { value: user.status, weight: 10 }, // Status - 10%
       { value: user.menstrualCycleLength, weight: 5 }, // Cycle Length - 5%

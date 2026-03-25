@@ -17,7 +17,15 @@
   <div class="hero-section">
     <div class="profile-avatar-container">
       <ion-avatar class="profile-avatar">
-        <img [src]="profileImage" alt="Profile Picture" class="avatar-image" />
+        <img
+          [src]="avatarImageSrc"
+          crossorigin="anonymous"
+          alt="Profile Picture"
+          class="avatar-image"
+          decoding="async"
+          referrerpolicy="no-referrer"
+          (error)="onAvatarImgError()"
+        />
       </ion-avatar>
       <div class="avatar-badge">
         <ion-icon name="camera" class="camera-icon"></ion-icon>

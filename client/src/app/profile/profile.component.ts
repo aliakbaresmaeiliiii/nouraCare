@@ -59,6 +59,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   get currentUserData(): any {
     return this.profileCompletionService.currentUserData;
   }
+
   selectedTab = 'first';
   // swiperEl = viewChild('swiperContainer');
   router = inject(Router);
@@ -75,6 +76,12 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   private reproductiveStatusService = inject(ReproductiveStatusService);
   private modalCtrl = inject(ModalController);
   userId = 0;
+
+  /**
+   * Avatar img src — updated when GET /user returns. Stored as a field so change detection
+   * refreshes the image (a getter reading only the service signal can fail to update the view).
+   */
+  avatarImageSrc = this.imageUrlService.getImageUrl(null);
 
   // Reproductive status data
   reproductiveStatus: ReproductiveStatusData = {};
@@ -464,8 +471,12 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.birthday = u.birthday || '';
       this.city = u.city || '';
       this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
-      // Don't update service here - let ngOnInit handle it with API data
+      this.avatarImageSrc = this.profileImage;
     } catch {}
+  }
+
+  onAvatarImgError(): void {
+    this.avatarImageSrc = this.imageUrlService.getImageUrl(null);
   }
 
   ionViewWillEnter(): void {
@@ -483,9 +494,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
           this.email = merged.email || this.email;
           this.birthday = merged.birthday || this.birthday;
           this.city = merged.city ?? this.city;
-          this.profileImage = this.imageUrlService.getImageUrl(
-            merged.profileImage || this.profileImage,
-          );
+          this.profileImage = merged.profileImage;
+          this.avatarImageSrc = merged.profileImage;
           try {
             this.userInfoStore = JSON.parse(
               localStorage.getItem('userInfo') || '{}',
@@ -513,6 +523,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.birthday = u.birthday || '';
       this.city = u.city || '';
       this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
+      this.avatarImageSrc = this.profileImage;
     } catch (error) {
       console.error(
         'ProfileComponent - Error loading from localStorage:',
