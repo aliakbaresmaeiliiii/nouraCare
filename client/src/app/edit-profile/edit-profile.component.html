@@ -251,7 +251,7 @@
       <ng-template>
         <ion-datetime
           id="birthdayPicker"
-          [value]="form.get('birthday')?.value || null"
+          [value]="form.get('dateOfBirth')?.value || null"
           (ionChange)="onBirthdayChange($event)"
           presentation="date"
           show-default-buttons="true"

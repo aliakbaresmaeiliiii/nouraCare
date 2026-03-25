@@ -11,6 +11,47 @@ import { UpdateForumCategoryDto } from './dto/update-forum-category.dto';
 export class ForumCategoriesService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  private async attachForumsToCategories(categories: any[]) {
+    const categoryIds = categories.map((c) => c.id);
+    if (categoryIds.length === 0) return categories;
+
+    const forums = await this.prismaService.forums.findMany({
+      where: {
+        categoryId: { in: categoryIds },
+        isActive: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        categoryId: true,
+        createdById: true,
+        isPublic: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const forumsByCategory = new Map<string, any[]>();
+    for (const forum of forums) {
+      const list = forumsByCategory.get(forum.categoryId) ?? [];
+      list.push(forum);
+      forumsByCategory.set(forum.categoryId, list);
+    }
+
+    return categories.map((category) => ({
+      ...category,
+      forums: forumsByCategory.get(category.id) ?? [],
+    }));
+  }
+
+  private async attachForumsToCategory(category: any) {
+    const [withForums] = await this.attachForumsToCategories([category]);
+    return withForums;
+  }
+
   async create(createForumCategoryDto: CreateForumCategoryDto) {
     // Check if name already exists
     const existingCategory = await this.prismaService.forum_categories.findFirst({
@@ -21,114 +62,46 @@ export class ForumCategoriesService {
       throw new ConflictException('Category with this name already exists');
     }
 
-    return this.prismaService.forum_categories.create({
+    const created = await this.prismaService.forum_categories.create({
       data: {
         ...createForumCategoryDto,
         updatedAt: new Date(),
       },
-      include: {
-        forums: {
-          include: {
-            forum_threads: {
-              include: {
-                _count: {
-                  select: {
-                    forum_posts: {
-                      where: { isDeleted: false },
-                    },
-                  },
-                },
-              },
-              orderBy: { createdAt: 'desc' },
-            },
-          },
-        },
-      },
     });
+
+    return this.attachForumsToCategory(created as any);
   }
 
   async findAll() {
-    return this.prismaService.forum_categories.findMany({
-      include: {
-        forums: {
-          include: {
-            forum_threads: {
-              include: {
-                _count: {
-                  select: {
-                    forum_posts: {
-                      where: { isDeleted: false },
-                    },
-                  },
-                },
-              },
-              orderBy: { createdAt: 'desc' },
-            },
-          },
-        },
-      },
+    const categories = await this.prismaService.forum_categories.findMany({
       orderBy: { createdAt: 'asc' },
     });
+
+    return this.attachForumsToCategories(categories as any[]);
   }
 
   async findOne(id: string) {
     const category = await this.prismaService.forum_categories.findUnique({
       where: { id },
-      include: {
-        forums: {
-          include: {
-            forum_threads: {
-              include: {
-                _count: {
-                  select: {
-                    forum_posts: {
-                      where: { isDeleted: false },
-                    },
-                  },
-                },
-              },
-              orderBy: { createdAt: 'desc' },
-            },
-          },
-        },
-      },
     });
 
     if (!category) {
       throw new NotFoundException('Forum category not found');
     }
 
-    return category;
+    return this.attachForumsToCategory(category as any);
   }
 
   async findByName(id: string) {
     const category = await this.prismaService.forum_categories.findUnique({
       where: { id },
-      include: {
-        forums: {
-          include: {
-            forum_threads: {
-              include: {
-                _count: {
-                  select: {
-                    forum_posts: {
-                      where: { isDeleted: false },
-                    },
-                  },
-                },
-              },
-              orderBy: { createdAt: 'desc' },
-            },
-          },
-        },
-      },
     });
 
     if (!category) {
       throw new NotFoundException('Forum category not found');
     }
 
-    return category;
+    return this.attachForumsToCategory(category as any);
   }
 
   async update(id: string, updateForumCategoryDto: UpdateForumCategoryDto) {
@@ -155,30 +128,15 @@ export class ForumCategoriesService {
       }
     }
 
-    return this.prismaService.forum_categories.update({
+    const updated = await this.prismaService.forum_categories.update({
       where: { id },
       data: {
         ...updateForumCategoryDto,
         updatedAt: new Date(),
       },
-      include: {
-        forums: {
-          include: {
-            forum_threads: {
-              include: {
-                _count: {
-                  select: {
-                    forum_posts: {
-                      where: { isDeleted: false },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
     });
+
+    return this.attachForumsToCategory(updated as any);
   }
 
   async remove(id: string) {
@@ -229,40 +187,40 @@ export class ForumCategoriesService {
   async getCategoryStats(id: string) {
     const category = await this.prismaService.forum_categories.findUnique({
       where: { id },
-      include: {
-        forums: {
-          include: {
-            forum_threads: {
-              include: {
-                _count: {
-                  select: {
-                    forum_posts: {
-                      where: { isDeleted: false },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
     });
 
     if (!category) {
       throw new NotFoundException('Forum category not found');
     }
 
-    const totalThreads = category.forums.reduce(
-      (sum, forum) => sum + forum.forum_threads.length,
-      0,
-    );
-    const totalPosts = category.forums.reduce(
-      (sum, forum) => sum + forum.forum_threads.reduce(
-        (threadSum, thread) => threadSum + thread._count.forum_posts,
-        0
-      ),
-      0,
-    );
+    const forums = await this.prismaService.forums.findMany({
+      where: { categoryId: id, isActive: true },
+      select: { id: true },
+    });
+
+    const forumIds = forums.map((f) => f.id);
+    if (forumIds.length === 0) {
+      return {
+        ...category,
+        stats: { totalThreads: 0, totalPosts: 0 },
+      };
+    }
+
+    const totalThreads = await this.prismaService.forum_threads.count({
+      where: { forumId: { in: forumIds } },
+    });
+
+    const threads = await this.prismaService.forum_threads.findMany({
+      where: { forumId: { in: forumIds } },
+      select: { id: true },
+    });
+
+    const totalPosts = await this.prismaService.forum_posts.count({
+      where: {
+        threadId: { in: threads.map((t) => t.id) },
+        isDeleted: false,
+      },
+    });
 
     return {
       ...category,

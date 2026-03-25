@@ -23,7 +23,7 @@ model user {
   name                      String?
   firstName                 String?
   lastName                  String?
-  birthday                  DateTime?
+  dateOfBirth               DateTime?
   city                      String?
   healthGoals               String?
   notificationsEnabled      Boolean             @default(true)

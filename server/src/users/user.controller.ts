@@ -4,12 +4,14 @@ import {
   Controller,
   Delete,
   Get,
+  Req,
   Param,
   Post,
   Put,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
@@ -74,9 +76,28 @@ export class UserController {
       },
     }),
   )
-  async uploadProfileImage(@Param('id') id: string, @UploadedFile() file: any) {
+  async uploadProfileImage(
+    @Param('id') id: string,
+    @UploadedFile() file: any,
+    @Req() req: Request,
+  ) {
     if (!file) throw new BadRequestException('No file uploaded');
-    const baseUrl = process.env.BASE_URL || 'https://10.190.238.186:8080';
+
+    const host = req.get('host');
+    const protoHeader = req.headers['x-forwarded-proto'];
+    const proto =
+      (typeof protoHeader === 'string' &&
+        protoHeader.split(',')[0].trim().toLowerCase()) ||
+      req.protocol ||
+      'http';
+
+    // Prefer env override, otherwise derive from the incoming request.
+    // This prevents storing unreachable internal IPs in the DB.
+    const baseUrl = process.env.BASE_URL || (host ? `${proto}://${host}` : '');
+    if (!baseUrl) {
+      throw new BadRequestException('Unable to derive BASE_URL for image uploads');
+    }
+
     const url = `${baseUrl}/uploads/profile/${file.filename}`;
     await this.userService.editUserInfo(+id, { profileImage: url } as any);
     return ApiResponseHelper.success({ url }, 'Profile image uploaded successfully');

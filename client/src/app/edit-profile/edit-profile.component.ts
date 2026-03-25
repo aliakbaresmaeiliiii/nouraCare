@@ -162,7 +162,7 @@ export class EditProfileComponent implements OnInit {
     profileImage: [''],
     status: [null],
     fullName: [''],
-    birthday: [''],
+    dateOfBirth: [''],
     email: [''],
   });
 
@@ -199,7 +199,7 @@ export class EditProfileComponent implements OnInit {
         const mergedData = {
           fullName: data.userData.data?.fullName || '',
           email: data.userData.data?.email || '',
-          birthday: data.userData.data?.birthday || '',
+          dateOfBirth: data.userData.data?.dateOfBirth || '',
           profileImage: data.userData.data?.profileImage || '',
           status: this.normalizeReproductiveStatusForForm(
             onboarding?.pregnancyStatus,
@@ -222,7 +222,7 @@ export class EditProfileComponent implements OnInit {
     const patch: any = {
       fullName: userData?.fullName ?? '',
       email: userData?.email ?? '',
-      birthday: userData?.birthday ?? '',
+      dateOfBirth: userData?.dateOfBirth ?? '',
       profileImage: userData?.profileImage ?? '',
       status: userData?.status ?? null,
     };
@@ -585,7 +585,7 @@ export class EditProfileComponent implements OnInit {
 
   onBirthdayChange(event: any) {
     const date = event.detail?.value;
-    this.form.patchValue({ birthday: date });
+    this.form.patchValue({ dateOfBirth: date });
   }
 
   onSubmit() {
@@ -607,7 +607,7 @@ export class EditProfileComponent implements OnInit {
       this.userSession.mergeIntoStoredUser({
         fullName: formValues.fullName,
         email: formValues.email,
-        birthday: formValues.birthday,
+        dateOfBirth: formValues.dateOfBirth,
       });
     } catch {
       /* ignore */
@@ -616,7 +616,7 @@ export class EditProfileComponent implements OnInit {
     const payload: any = {
       fullName: formValues.fullName,
       email: formValues.email,
-      birthday: formValues.birthday,
+      dateOfBirth: formValues.dateOfBirth,
     };
     const persistedImage = this.sanitizeProfileImageForApi(formValues.profileImage);
     if (persistedImage !== undefined) {
@@ -759,7 +759,7 @@ export class EditProfileComponent implements OnInit {
       status: null,
       fullName: '',
       email: '',
-      birthday: '',
+      dateOfBirth: '',
       profileImage: '',
     });
     console.log('Form after initialization:', this.form.value);

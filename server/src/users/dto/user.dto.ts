@@ -71,7 +71,7 @@ export class CreateUserDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  birthday?: Date;
+  dateOfBirth?: Date;
 
   @IsOptional()
   @IsString()
@@ -131,7 +131,7 @@ export class UpdateUserDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  birthday?: Date;
+  dateOfBirth?: Date;
 
   @IsOptional()
   @IsString()

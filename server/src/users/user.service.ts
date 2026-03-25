@@ -51,9 +51,9 @@ export class UserService {
       ...(dto.fullName !== undefined && { fullName: dto.fullName }),
       ...(dto.fullName === undefined &&
         dto.name !== undefined && { fullName: dto.name }),
-      ...(dto.birthday !== undefined && {
-        birthday: dto.birthday
-          ? new Date(dto.birthday as unknown as string)
+      ...(dto.dateOfBirth !== undefined && {
+        dateOfBirth: dto.dateOfBirth
+          ? new Date(dto.dateOfBirth as unknown as string)
           : null,
       }),
     };

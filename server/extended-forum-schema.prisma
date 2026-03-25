@@ -25,7 +25,7 @@ model user {
   menstrualCycleLength      Int?
   periodDuration            Int?
   lastPeriodStartDate       DateTime?
-  birthday                  DateTime?  
+  dateOfBirth               DateTime?  
   city                      String?
   pregnancyWeek             Int?
   pregnancyProgress         String?
