@@ -1,19 +1,9 @@
-import { loadRemoteModule } from '@angular-architects/module-federation';
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/guards/auth.guard';
 import { LayoutComponent } from './layout/layout.component';
 import { ReactWrapperComponent } from './react-wrapper/react-wrapper.component';
 
 export const routes: Routes = [
-  // {
-  //   path: 'cycle-app',
-  //   loadChildren: () =>
-  //     loadRemoteModule({
-  //       type: 'module',
-  //       remoteEntry: 'http://localhost:4201/remoteEntry.js',
-  //       exposedModule: './routes',
-  //     }),
-  // },
   {
     path: 'pregnancy',
     component: ReactWrapperComponent,
@@ -28,10 +18,8 @@ export const routes: Routes = [
   },
   {
     path: 'test-onboarding',
-    loadComponent: () =>
-      import('./onboarding/onboarding.component').then(
-        (m) => m.OnboardingComponent,
-      ),
+    redirectTo: '/onboarding',
+    pathMatch: 'full',
   },
   {
     path: 'welcome',

@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   inject,
@@ -19,6 +20,7 @@ import { PregnancyEndDialogComponent } from '../shared/components/pregnancy-end-
 import { ModalController } from '@ionic/angular/standalone';
 import { Share } from '@capacitor/share';
 import { HomeDataService } from '../home/services/home-data.service';
+import { UserSessionService } from '../shared/services/user-session.service';
 
 // Extend Window interface to include Capacitor
 declare global {
@@ -71,10 +73,12 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   profileImage: string | null = null;
   private userService = inject(User);
   private homeService = inject(HomeDataService);
+  private userSession = inject(UserSessionService);
   private imageUrlService = inject(ImageUrlService);
   public profileCompletionService = inject(ProfileCompletionService);
   private reproductiveStatusService = inject(ReproductiveStatusService);
   private modalCtrl = inject(ModalController);
+  private cdr = inject(ChangeDetectorRef);
   userId = 0;
 
   /**
@@ -461,69 +465,74 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     }, 4000);
   }
 
-  // Method to refresh profile data and progress when returning from edit profile
+  /**
+   * Optimistic labels from localStorage only — do not set avatar here; that was overwriting
+   * the real URL after GET /user when ionViewWillEnter ran with empty stored profileImage.
+   */
   refreshProfileData() {
     try {
-      this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      this.userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
       const u = this.userInfoStore?.user || {};
-      this.fullName = u.fullName || '';
-      this.email = u.email || '';
-      this.birthday = u.birthday || '';
-      this.city = u.city || '';
-      this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
-      this.avatarImageSrc = this.profileImage;
+      this.fullName = u.fullName || u.name || this.fullName;
+      this.email = u.email || this.email;
+      this.birthday = u.birthday || this.birthday;
+      this.city = u.city || this.city;
     } catch {}
+  }
+
+  private applyProfileFromMerged(merged: any): void {
+    this.fullName = merged.fullName || this.fullName;
+    this.email = merged.email || this.email;
+    this.birthday = merged.birthday || this.birthday;
+    this.city = merged.city ?? this.city;
+    this.profileImage = merged.profileImage;
+    this.avatarImageSrc = merged.profileImage;
+    try {
+      this.userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
+      if (this.userInfoStore?.user) {
+        this.userInfoStore.user = {
+          ...this.userInfoStore.user,
+          ...merged,
+        };
+      }
+    } catch {
+      /* ignore */
+    }
+    this.cdr.markForCheck();
   }
 
   onAvatarImgError(): void {
     this.avatarImageSrc = this.imageUrlService.getImageUrl(null);
+    this.cdr.markForCheck();
   }
 
   ionViewWillEnter(): void {
-    // Refresh profile data from API when entering the page
     this.refreshProfileData();
+    this.profileCompletionService.refreshFromAPI().subscribe({
+      next: (merged) => {
+        if (merged) {
+          this.applyProfileFromMerged(merged);
+        }
+      },
+    });
   }
 
   ngOnInit(): void {
     this.userId = this.homeService.getCurrentUserId();
-    // Single API load: user + onboarding via ProfileCompletionService (one GET user/:id)
-    this.profileCompletionService.refreshFromAPI().subscribe({
-      next: (merged) => {
-        if (merged) {
-          this.fullName = merged.fullName || this.fullName;
-          this.email = merged.email || this.email;
-          this.birthday = merged.birthday || this.birthday;
-          this.city = merged.city ?? this.city;
-          this.profileImage = merged.profileImage;
-          this.avatarImageSrc = merged.profileImage;
-          try {
-            this.userInfoStore = JSON.parse(
-              localStorage.getItem('userInfo') || '{}',
-            );
-            if (this.userInfoStore?.user) {
-              this.userInfoStore.user = {
-                ...this.userInfoStore.user,
-                ...merged,
-              };
-            }
-          } catch {}
-        }
-      },
-    });
-
-    // Load reproductive status
     this.loadReproductiveStatus();
 
-    // Immediate display from localStorage
     try {
-      this.userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      this.userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
       const u = this.userInfoStore?.user || {};
-      this.fullName = u.fullName || '';
+      this.fullName = u.fullName || u.name || '';
       this.email = u.email || '';
       this.birthday = u.birthday || '';
       this.city = u.city || '';
-      this.profileImage = this.imageUrlService.getImageUrl(u.profileImage);
-      this.avatarImageSrc = this.profileImage;
+      const quick = this.imageUrlService.getImageUrl(
+        u.profileImage ?? u.profile_img ?? null,
+      );
+      this.profileImage = quick;
+      this.avatarImageSrc = quick;
     } catch (error) {
       console.error(
         'ProfileComponent - Error loading from localStorage:',

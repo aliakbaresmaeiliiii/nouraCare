@@ -32,10 +32,9 @@
               alt="Profile"
               onerror="this.style.display = 'none'"
             />
-            <ion-icon
-              name="person-circle-outline"
-              *ngIf="!hasUserAvatar"
-            ></ion-icon>
+            @if (!hasUserAvatar) {
+            <ion-icon name="person-circle-outline"></ion-icon>
+            }
           </div>
         </ion-button>
       </div>

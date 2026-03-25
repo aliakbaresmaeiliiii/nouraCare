@@ -5,8 +5,8 @@
   </div>
 
   <div class="options-grid">
-    <div 
-      *ngFor="let option of statusOptions" 
+    @for (option of statusOptions; track option.id) {
+    <div
       class="option-card"
       [class.selected]="selectedStatus() === option.id"
       (click)="selectStatus(option.id)"
@@ -17,5 +17,6 @@
         <p class="option-description">{{ option.description }}</p>
       </div>
     </div>
+    }
   </div>
 </div>

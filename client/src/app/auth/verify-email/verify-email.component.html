@@ -37,7 +37,8 @@
         </div>
 
         <!-- Timer Section -->
-        <div class="timer-section" *ngIf="!isExpired">
+        @if (!isExpired) {
+        <div class="timer-section">
           <div class="timer-container">
             <ion-icon name="time-outline" class="timer-icon"></ion-icon>
             <div class="timer-text">
@@ -46,12 +47,15 @@
             </div>
           </div>
         </div>
+        }
 
         <!-- Expired Message -->
-        <div class="expired-message" *ngIf="isExpired">
+        @if (isExpired) {
+        <div class="expired-message">
           <ion-icon name="alert-circle-outline" class="expired-icon"></ion-icon>
           <span>Verification code has expired</span>
         </div>
+        }
 
         <!-- Action Buttons -->
         <div class="action-buttons">
@@ -62,8 +66,12 @@
             expand="block"
             (click)="onSubmit()"
           >
-            <ion-icon name="checkmark-circle-outline" slot="start" *ngIf="!isLoading"></ion-icon>
-            <ion-spinner name="crescent" *ngIf="isLoading"></ion-spinner>
+            @if (!isLoading) {
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            }
+            @if (isLoading) {
+            <ion-spinner name="crescent"></ion-spinner>
+            }
             {{ isLoading ? 'Verifying...' : 'Verify Email' }}
           </ion-button>
 

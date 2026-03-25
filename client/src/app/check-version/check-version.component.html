@@ -10,13 +10,16 @@
 <ion-content class="version-content">
   <div class="container">
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-container">
+    @if (isLoading) {
+    <div class="loading-container">
       <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
       <p class="loading-text">Checking for updates...</p>
     </div>
+    }
 
     <!-- Error State -->
-    <div *ngIf="errorMessage && !isLoading" class="error-container">
+    @if (errorMessage && !isLoading) {
+    <div class="error-container">
       <ion-icon name="alert-circle" class="error-icon"></ion-icon>
       <p class="error-text">{{ errorMessage }}</p>
       <ion-button fill="outline" (click)="loadVersionInfo()" class="retry-button">
@@ -24,9 +27,11 @@
         Try Again
       </ion-button>
     </div>
+    }
 
     <!-- Version Info -->
-    <div *ngIf="!isLoading && !errorMessage && versionInfo" class="version-container">
+    @if (!isLoading && !errorMessage && versionInfo) {
+    <div class="version-container">
       <!-- Current Version Card -->
       <div class="version-card current-version">
         <div class="card-header">
@@ -38,7 +43,8 @@
       </div>
 
       <!-- Update Status -->
-      <div *ngIf="versionInfo.isUpdateAvailable" class="update-available">
+      @if (versionInfo.isUpdateAvailable) {
+      <div class="update-available">
         <div class="update-badge">
           <ion-icon name="arrow-up-circle" class="update-icon"></ion-icon>
           <span class="update-text">Update Available!</span>
@@ -58,10 +64,12 @@
         <div class="release-notes">
           <h3 class="notes-title">What's New</h3>
           <ion-list class="notes-list">
-            <ion-item *ngFor="let note of versionInfo.releaseNotes" class="note-item">
+            @for (note of versionInfo.releaseNotes; track $index) {
+            <ion-item class="note-item">
               <ion-icon name="checkmark-circle" slot="start" class="note-icon"></ion-icon>
               <ion-label class="note-text">{{ note }}</ion-label>
             </ion-item>
+            }
           </ion-list>
         </div>
 
@@ -75,15 +83,18 @@
           Download Update
         </ion-button>
       </div>
+      }
 
       <!-- No Update Available -->
-      <div *ngIf="!versionInfo.isUpdateAvailable" class="no-update">
+      @if (!versionInfo.isUpdateAvailable) {
+      <div class="no-update">
         <div class="no-update-badge">
           <ion-icon name="checkmark-circle" class="no-update-icon"></ion-icon>
           <span class="no-update-text">You're up to date!</span>
         </div>
         <p class="no-update-message">You have the latest version of Gahvareh installed.</p>
       </div>
+      }
 
       <!-- Last Checked -->
       <div class="last-checked">
@@ -101,5 +112,6 @@
         Check Again
       </ion-button>
     </div>
+    }
   </div>
 </ion-content>

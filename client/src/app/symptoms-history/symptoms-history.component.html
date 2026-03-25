@@ -16,13 +16,16 @@
   <div class="symptoms-history-container">
     
     <!-- Loading State -->
-    <div class="loading-state" *ngIf="loading">
+    @if (loading) {
+    <div class="loading-state">
       <ion-icon name="hourglass-outline" class="loading-icon"></ion-icon>
       <p>Loading symptoms history...</p>
     </div>
+    }
 
     <!-- No Data State -->
-    <div class="no-data-state" *ngIf="!loading && symptomsHistory.length === 0">
+    @if (!loading && symptomsHistory.length === 0) {
+    <div class="no-data-state">
       <ion-icon name="calendar-outline" class="no-data-icon"></ion-icon>
       <h2>No History Found</h2>
       <p>You haven't tracked any symptoms yet. Start tracking to see your history here.</p>
@@ -31,9 +34,11 @@
         Start Tracking
       </ion-button>
     </div>
+    }
 
     <!-- Symptoms History List -->
-    <div class="symptoms-history-list" *ngIf="!loading && symptomsHistory.length > 0">
+    @if (!loading && symptomsHistory.length > 0) {
+    <div class="symptoms-history-list">
       
       <!-- Header -->
       <div class="history-header">
@@ -42,7 +47,8 @@
       </div>
 
       <!-- History Items -->
-      <div class="history-item" *ngFor="let day of symptomsHistory" (click)="viewDayDetails(day.date)">
+      @for (day of symptomsHistory; track day.date) {
+      <div class="history-item" (click)="viewDayDetails(day.date)">
         <div class="item-header">
           <div class="date-info">
             <h3 class="day-name">{{ getDayName(day.date) }}</h3>
@@ -60,27 +66,37 @@
           </div>
         </div>
         
-        <div class="symptoms-preview" *ngIf="day.symptoms && day.symptoms.length > 0">
-          <div class="symptom-tag" *ngFor="let symptom of day.symptoms.slice(0, 3)">
+        @if (day.symptoms && day.symptoms.length > 0) {
+        <div class="symptoms-preview">
+          @for (symptom of day.symptoms.slice(0, 3); track symptom.name) {
+          <div class="symptom-tag">
             <ion-icon [name]="symptom.icon" class="symptom-icon"></ion-icon>
             <span class="symptom-name">{{ symptom.name }}</span>
           </div>
-          <div class="more-symptoms" *ngIf="day.symptoms.length > 3">
+          }
+          @if (day.symptoms.length > 3) {
+          <div class="more-symptoms">
             +{{ day.symptoms.length - 3 }} more
           </div>
+          }
         </div>
+        }
         
-        <div class="no-symptoms-preview" *ngIf="!day.symptoms || day.symptoms.length === 0">
+        @if (!day.symptoms || day.symptoms.length === 0) {
+        <div class="no-symptoms-preview">
           <ion-icon name="checkmark-circle-outline" class="no-symptoms-icon"></ion-icon>
           <span class="no-symptoms-text">No symptoms</span>
         </div>
+        }
         
         <div class="item-footer">
           <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
         </div>
       </div>
+      }
 
     </div>
+    }
 
   </div>
 </ion-content>

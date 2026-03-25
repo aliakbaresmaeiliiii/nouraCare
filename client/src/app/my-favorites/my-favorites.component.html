@@ -7,9 +7,11 @@
     </ion-buttons>
     <ion-title class="header-title">My Favorites</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="clearAllFavorites()" fill="clear" class="clear-btn" *ngIf="favoriteStats.totalFavorites > 0">
+      @if (favoriteStats.totalFavorites > 0) {
+      <ion-button (click)="clearAllFavorites()" fill="clear" class="clear-btn">
         <ion-icon name="trash-outline"></ion-icon>
       </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -53,7 +55,8 @@
   </div>
 
   <!-- Search and Filters Section -->
-  <div class="search-filters-section" *ngIf="favoriteStats.totalFavorites > 0">
+  @if (favoriteStats.totalFavorites > 0) {
+  <div class="search-filters-section">
     <!-- Search Bar -->
     <div class="search-container">
       <ion-searchbar
@@ -67,14 +70,15 @@
     <!-- Category Filter Pills -->
     <div class="filter-pills">
       <div class="pill-container">
+        @for (category of categories; track category.value) {
         <div 
           class="filter-pill" 
-          *ngFor="let category of categories"
           [class.active]="selectedCategory === category.value"
           (click)="onCategoryChange(category.value)">
           <ion-icon [name]="category.icon"></ion-icon>
           <span>{{ category.label }}</span>
         </div>
+        }
       </div>
     </div>
 
@@ -86,9 +90,11 @@
         interface="popover"
         placeholder="Sort by"
         class="sort-select">
-        <ion-select-option *ngFor="let option of sortOptions" [value]="option.value">
+        @for (option of sortOptions; track option.value) {
+        <ion-select-option [value]="option.value">
           {{ option.label }}
         </ion-select-option>
+        }
       </ion-select>
       
       <div class="results-count">
@@ -97,15 +103,19 @@
       </div>
     </div>
   </div>
+  }
 
   <!-- Loading State -->
-  <div class="loading-container" *ngIf="isLoading">
+  @if (isLoading) {
+  <div class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Loading your favorites...</p>
   </div>
+  }
 
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="showEmptyState && !isLoading">
+  @if (showEmptyState && !isLoading) {
+  <div class="empty-state">
     <div class="empty-content">
       <div class="empty-icon">
         <ion-icon name="heart-outline"></ion-icon>
@@ -124,26 +134,34 @@
       </div>
     </div>
   </div>
+  }
 
   <!-- No Results State -->
-  <div class="no-results" *ngIf="!isLoading && !showEmptyState && filteredFavorites.length === 0 && favoriteStats.totalFavorites > 0">
+  @if (!isLoading && !showEmptyState && filteredFavorites.length === 0 && favoriteStats.totalFavorites > 0) {
+  <div class="no-results">
     <div class="no-results-content">
       <ion-icon name="search-outline"></ion-icon>
       <h3>No Results Found</h3>
-      <p *ngIf="searchTerm">No favorites match "{{ searchTerm }}"</p>
-      <p *ngIf="!searchTerm && selectedCategory !== 'all'">No {{ selectedCategory }}s in your favorites</p>
+      @if (searchTerm) {
+      <p>No favorites match "{{ searchTerm }}"</p>
+      }
+      @if (!searchTerm && selectedCategory !== 'all') {
+      <p>No {{ selectedCategory }}s in your favorites</p>
+      }
       <ion-button fill="outline" (click)="searchTerm = ''; selectedCategory = 'all'; applyFilters()">
         <ion-icon name="refresh" slot="start"></ion-icon>
         Show All
       </ion-button>
     </div>
   </div>
+  }
 
   <!-- Favorites Grid -->
-  <div class="favorites-grid" *ngIf="!isLoading && !showEmptyState && filteredFavorites.length > 0">
+  @if (!isLoading && !showEmptyState && filteredFavorites.length > 0) {
+  <div class="favorites-grid">
+    @for (favorite of filteredFavorites; track favorite.id) {
     <div 
       class="favorite-card" 
-      *ngFor="let favorite of filteredFavorites; trackBy: trackByFavoriteId"
       (click)="openFavoriteItem(favorite)">
       
       <!-- Card Background -->
@@ -170,18 +188,24 @@
         </div>
 
         <!-- Image (if available) -->
-        <div class="card-image" *ngIf="favorite.image">
+        @if (favorite.image) {
+        <div class="card-image">
           <img [src]="favorite.image" [alt]="favorite.title" loading="lazy">
         </div>
+        }
 
         <!-- Text Content -->
         <div class="card-text">
           <h3 class="card-title">{{ favorite.title }}</h3>
-          <p class="card-description" *ngIf="favorite.description">
+          @if (favorite.description) {
+          <p class="card-description">
             {{ favorite.description.length > 80 ? (favorite.description.substring(0, 80) + '...') : favorite.description }}
           </p>
+          }
           <div class="card-meta">
-            <span class="category" *ngIf="favorite.category">{{ favorite.category }}</span>
+            @if (favorite.category) {
+            <span class="category">{{ favorite.category }}</span>
+            }
             <span class="date">{{ formatDate(favorite.dateAdded) }}</span>
           </div>
         </div>
@@ -199,6 +223,8 @@
         </div>
       </div>
     </div>
+    }
   </div>
+  }
 
 </ion-content>

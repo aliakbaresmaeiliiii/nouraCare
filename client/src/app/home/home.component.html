@@ -26,31 +26,31 @@
       </div>
 
       <!-- Quick Status Card -->
-      <div class="status-card" *ngIf="userStatus && userStatus !== 'Not Set'">
-        <div class="status-content">
-          <div class="status-icon" [ngClass]="getStatusIconClass()">
-            <ion-icon [name]="getStatusIcon()"></ion-icon>
-          </div>
-          <div class="status-info">
-            <h3 class="status-title">{{ getStatusTitle() }}</h3>
-            <p class="status-description">{{ getStatusDescription() }}</p>
-          </div>
-          <div class="status-action">
-            <ion-button fill="clear" size="small" (click)="openStatusDetails()">
-              <ion-icon name="chevron-forward"></ion-icon>
-            </ion-button>
+      @if (userStatus && userStatus !== 'Not Set') {
+        <div class="status-card">
+          <div class="status-content">
+            <div class="status-icon" [ngClass]="getStatusIconClass()">
+              <ion-icon [name]="getStatusIcon()"></ion-icon>
+            </div>
+            <div class="status-info">
+              <h3 class="status-title">{{ getStatusTitle() }}</h3>
+              <p class="status-description">{{ getStatusDescription() }}</p>
+            </div>
+            <div class="status-action">
+              <ion-button fill="clear" size="small" (click)="openStatusDetails()">
+                <ion-icon name="chevron-forward"></ion-icon>
+              </ion-button>
+            </div>
           </div>
         </div>
-      </div>
+      }
     </div>
   </div>
   
 
   <!-- Default State - Onboarding Section -->
-  <div
-    class="onboarding-section"
-    *ngIf="!userStatus || userStatus === 'Not Set'"
-  >
+  @if (!userStatus || userStatus === 'Not Set') {
+    <div class="onboarding-section">
     <div class="onboarding-card">
       <div class="onboarding-illustration">
         <div class="illustration-circle">
@@ -90,13 +90,12 @@
         </ion-button>
       </div>
     </div>
-  </div>
+    </div>
+  }
 
   <!-- Period Chart Section (Enhanced) -->
-  <div
-    class="dashboard-section"
-    *ngIf="!isPregnant && !isPostpartum && userStatus === 'Trying to Conceive'"
-  >
+  @if (!isPregnant && !isPostpartum && userStatus === 'Trying to Conceive') {
+    <div class="dashboard-section">
     <div class="section-header">
       <h2 class="section-title">Your Cycle Overview</h2>
       <p class="section-subtitle">Track your fertility and cycle patterns</p>
@@ -108,7 +107,8 @@
       </div>
 
       <!-- Cycle Insights -->
-      <div class="cycle-insights" *ngIf="currentCycleDay > 0">
+      @if (currentCycleDay > 0) {
+        <div class="cycle-insights">
         <div class="insight-card primary-insight">
           <div class="insight-icon">
             <ion-icon name="calendar-number"></ion-icon>
@@ -128,12 +128,15 @@
             <p class="insight-description">{{ getCycleDayDescription() }}</p>
           </div>
         </div>
-      </div>
+        </div>
+      }
     </div>
-  </div>
+    </div>
+  }
 
   <!-- Pregnancy Progress Section (Enhanced) -->
-  <div class="pregnancy-section" *ngIf="isPregnant">
+  @if (isPregnant) {
+    <div class="pregnancy-section">
     <div class="pregnancy-hero">
       <div class="hero-background">
         <div class="floating-elements">
@@ -293,7 +296,8 @@
         </div>
       </div>
     </div>
-  </div>
+    </div>
+  }
 
   <!-- Quick Actions Section -->
   <div class="quick-actions-section">
@@ -380,39 +384,33 @@
     <div class="symptoms-tracker">
       <div class="symptoms-main-card">
         <div class="symptoms-display">
-          <div
-            class="symptoms-visual"
-            *ngIf="
-              todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0;
-              else noSymptomsTemplate
-            "
-          >
-            <div class="symptom-indicators">
-              <div
-                class="symptom-bubble"
-                *ngFor="
-                  let symptom of todaySymptoms.symptoms.slice(0, 4);
-                  let i = index
-                "
-                [class]="'bubble-' + (i + 1)"
-              >
-                <ion-icon [name]="symptom.icon"></ion-icon>
+          @if (todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0) {
+            <div class="symptoms-visual">
+              <div class="symptom-indicators">
+                @for (
+                  symptom of todaySymptoms.symptoms.slice(0, 4);
+                  track $index;
+                  let i = $index
+                ) {
+                  <div class="symptom-bubble" [class]="'bubble-' + (i + 1)">
+                    <ion-icon [name]="symptom.icon"></ion-icon>
+                  </div>
+                }
+                @if (todaySymptoms.symptoms.length > 4) {
+                  <div
+                    class="more-symptoms"
+                    (click)="openSymptomsTrackingForUpdate()"
+                  >
+                    <span>+{{ todaySymptoms.symptoms.length - 4 }}</span>
+                  </div>
+                }
               </div>
-              <div
-                class="more-symptoms"
-                *ngIf="todaySymptoms.symptoms.length > 4"
-                (click)="openSymptomsTrackingForUpdate()"
-              >
-                <span>+{{ todaySymptoms.symptoms.length - 4 }}</span>
+              <div class="symptoms-summary">
+                <h3>{{ todaySymptoms.symptoms.length }} symptoms logged</h3>
+                <p>Tap to view or add more</p>
               </div>
             </div>
-            <div class="symptoms-summary">
-              <h3>{{ todaySymptoms.symptoms.length }} symptoms logged</h3>
-              <p>Tap to view or add more</p>
-            </div>
-          </div>
-
-          <ng-template #noSymptomsTemplate>
+          } @else {
             <div class="no-symptoms-state">
               <div class="no-symptoms-icon">
                 <ion-icon name="add-circle-outline"></ion-icon>
@@ -420,7 +418,7 @@
               <h3>No symptoms logged today</h3>
               <p>Tap to add how you're feeling</p>
             </div>
-          </ng-template>
+          }
         </div>
 
         <div class="symptoms-action">
@@ -570,17 +568,18 @@
             alt="Expert"
             onerror="this.style.display='none'"
           />
-          <ion-icon name="medical" *ngIf="!hasExpertImage"></ion-icon>
+          @if (!hasExpertImage) {
+            <ion-icon name="medical"></ion-icon>
+          }
         </div>
         <div class="expert-info">
           <h3 class="expert-name">Dr. Sarah Johnson</h3>
           <p class="expert-title">Reproductive Health Specialist</p>
           <div class="expert-rating">
             <div class="stars">
-              <ion-icon
-                name="star"
-                *ngFor="let star of [1, 2, 3, 4, 5]"
-              ></ion-icon>
+              @for (star of [1, 2, 3, 4, 5]; track star) {
+                <ion-icon name="star"></ion-icon>
+              }
             </div>
             <span>4.9 • 500+ consultations</span>
           </div>

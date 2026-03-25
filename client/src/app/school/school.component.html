@@ -1,6 +1,6 @@
 
-
-<div class="baby-development-content" *ngIf="isPregnant">
+@if (isPregnant) {
+<div class="baby-development-content">
   <!-- Hero Section -->
   <div class="hero-section">
     <div class="week-indicator">
@@ -96,9 +96,11 @@
     </ion-button>
   </div>
 </div>
+}
 
 <!-- Not Pregnant State -->
-<div class="not-pregnant-content" *ngIf="!isPregnant">
+@if (!isPregnant) {
+<div class="not-pregnant-content">
   <div class="empty-state">
     <div class="empty-icon">🤰</div>
     <h2>No Active Pregnancy</h2>
@@ -108,3 +110,4 @@
     </ion-button>
   </div>
 </div>
+}

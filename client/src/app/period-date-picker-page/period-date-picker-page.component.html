@@ -32,10 +32,12 @@
       </ion-datetime>
     </div>
 
-    <div class="period-info" *ngIf="selectedDate">
+    @if (selectedDate) {
+    <div class="period-info">
       <h3>Period Range</h3>
       <div class="period-dates">
-        <div class="date-item" *ngFor="let date of highlightedDates; let i = index">
+        @for (date of highlightedDates; track $index; let i = $index) {
+        <div class="date-item">
           <div class="date-circle" [style.background-color]="date.backgroundColor">
             <span class="date-number">{{ getDateNumber(date.date) }}</span>
           </div>
@@ -43,8 +45,10 @@
             {{ i === 0 ? 'Start' : 'Day ' + (i + 1) }}
           </span>
         </div>
+        }
       </div>
     </div>
+    }
 
     <div class="legend">
       <div class="legend-item">

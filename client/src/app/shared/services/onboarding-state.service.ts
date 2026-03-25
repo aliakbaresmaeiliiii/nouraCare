@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { UserSessionService } from './user-session.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OnboardingStateService {
+  private userSession = inject(UserSessionService);
   private readonly ONBOARDING_COMPLETED_KEY = 'onboarding_completed';
   private readonly USER_ID_KEY = 'user_id';
 
@@ -44,20 +46,8 @@ export class OnboardingStateService {
     localStorage.setItem(this.ONBOARDING_COMPLETED_KEY, JSON.stringify(filteredUsers));
   }
 
-  /**
-   * Get current user ID from localStorage
-   */
   private getCurrentUserId(): string | null {
-    try {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const parsed = JSON.parse(userInfo);
-        return parsed.user?.id || parsed.id || null;
-      }
-    } catch (error) {
-      console.error('Error getting user ID:', error);
-    }
-    return null;
+    return this.userSession.getCurrentUserIdString();
   }
 
   /**

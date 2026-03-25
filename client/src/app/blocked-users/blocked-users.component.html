@@ -10,13 +10,16 @@
 <ion-content class="blocked-content">
   <div class="container">
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-container">
+    @if (isLoading) {
+    <div class="loading-container">
       <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
       <p class="loading-text">Loading blocked users...</p>
     </div>
+    }
 
     <!-- Error State -->
-    <div *ngIf="errorMessage && !isLoading" class="error-container">
+    @if (errorMessage && !isLoading) {
+    <div class="error-container">
       <ion-icon name="alert-circle" class="error-icon"></ion-icon>
       <p class="error-text">{{ errorMessage }}</p>
       <ion-button fill="outline" (click)="loadBlockedUsers()" class="retry-button">
@@ -24,23 +27,28 @@
         Try Again
       </ion-button>
     </div>
+    }
 
     <!-- Empty State -->
-    <div *ngIf="!isLoading && !errorMessage && blockedUsers.length === 0" class="empty-container">
+    @if (!isLoading && !errorMessage && blockedUsers.length === 0) {
+    <div class="empty-container">
       <ion-icon name="people-outline" class="empty-icon"></ion-icon>
       <h2 class="empty-title">No Blocked Users</h2>
       <p class="empty-text">You haven't blocked any users yet.</p>
     </div>
+    }
 
     <!-- Blocked Users List -->
-    <div *ngIf="!isLoading && !errorMessage && blockedUsers.length > 0" class="users-container">
+    @if (!isLoading && !errorMessage && blockedUsers.length > 0) {
+    <div class="users-container">
       <div class="list-header">
         <h2 class="list-title">Blocked Users ({{ blockedUsers.length }})</h2>
         <p class="list-subtitle">Users you've blocked from contacting you</p>
       </div>
 
       <ion-list class="users-list">
-        <ion-item *ngFor="let user of blockedUsers" class="user-item">
+        @for (user of blockedUsers; track user.id) {
+        <ion-item class="user-item">
           <ion-avatar slot="start" class="user-avatar">
                          <img [src]="user.profileImage || 'assets/images/nurse.png'" 
                   [alt]="user.name"
@@ -64,7 +72,9 @@
             Unblock
           </ion-button>
         </ion-item>
+        }
       </ion-list>
     </div>
+    }
   </div>
 </ion-content>

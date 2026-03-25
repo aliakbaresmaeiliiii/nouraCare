@@ -5,9 +5,11 @@
     </ion-buttons>
     <ion-title>Symptoms Details</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="editDay()" *ngIf="dayData">
+      @if (dayData) {
+      <ion-button fill="clear" (click)="editDay()">
         <ion-icon name="create-outline" slot="icon-only"></ion-icon>
       </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -16,13 +18,16 @@
   <div class="symptoms-detail-container">
 
     <!-- Loading State -->
-    <div class="loading-state" *ngIf="loading">
+    @if (loading) {
+    <div class="loading-state">
       <ion-icon name="hourglass-outline" class="loading-icon"></ion-icon>
       <p>Loading symptoms data...</p>
     </div>
+    }
 
     <!-- No Data State -->
-    <div class="no-data-state" *ngIf="!loading && !dayData">
+    @if (!loading && !dayData) {
+    <div class="no-data-state">
       <ion-icon name="calendar-outline" class="no-data-icon"></ion-icon>
       <h2>No Data Found</h2>
       <p>No symptoms data found for {{ formatDate(selectedDate) }}</p>
@@ -31,9 +36,11 @@
         Track Symptoms
       </ion-button>
     </div>
+    }
 
     <!-- Day Data -->
-    <div class="day-data" *ngIf="!loading && dayData">
+    @if (!loading && dayData) {
+    <div class="day-data">
 
       <!-- Date Header -->
       <div class="date-header">
@@ -76,7 +83,8 @@
       </ion-card>
 
       <!-- Symptoms List -->
-      <ion-card class="symptoms-card" *ngIf="dayData.symptoms && dayData.symptoms.length > 0">
+      @if (dayData.symptoms && dayData.symptoms.length > 0) {
+      <ion-card class="symptoms-card">
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="medical-outline" class="card-icon"></ion-icon>
@@ -85,7 +93,8 @@
         </ion-card-header>
         <ion-card-content>
           <div class="symptoms-list">
-            <div class="symptom-item" *ngFor="let symptom of dayData.symptoms">
+            @for (symptom of dayData.symptoms; track symptom.name) {
+            <div class="symptom-item">
               <div class="symptom-header">
                 <div class="symptom-info">
                   <ion-icon [name]="symptom.icon" class="symptom-icon"></ion-icon>
@@ -99,23 +108,30 @@
                 </ion-badge>
               </div>
 
-              <div class="symptom-description" *ngIf="symptom.notes">
+              @if (symptom.notes) {
+              <div class="symptom-description">
                 <p>{{ symptom.notes }}</p>
               </div>
+              }
 
-              <div class="symptom-notes" *ngIf="symptom.notes">
+              @if (symptom.notes) {
+              <div class="symptom-notes">
                 <ion-note>
                   <ion-icon name="document-text-outline" slot="start"></ion-icon>
                   {{ symptom.notes }}
                 </ion-note>
               </div>
+              }
             </div>
+            }
           </div>
         </ion-card-content>
       </ion-card>
+      }
 
       <!-- No Symptoms -->
-      <ion-card class="no-symptoms-card" *ngIf="!dayData.symptoms || dayData.symptoms.length === 0">
+      @if (!dayData.symptoms || dayData.symptoms.length === 0) {
+      <ion-card class="no-symptoms-card">
         <ion-card-content>
           <div class="no-symptoms-content">
             <ion-icon name="checkmark-circle-outline" class="no-symptoms-icon"></ion-icon>
@@ -124,9 +140,11 @@
           </div>
         </ion-card-content>
       </ion-card>
+      }
 
       <!-- Notes Section -->
-      <ion-card class="notes-card" *ngIf="dayData.notes">
+      @if (dayData.notes) {
+      <ion-card class="notes-card">
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="document-text-outline" class="card-icon"></ion-icon>
@@ -139,6 +157,7 @@
           </div>
         </ion-card-content>
       </ion-card>
+      }
 
       <!-- Action Buttons -->
       <div class="action-buttons">
@@ -149,6 +168,7 @@
       </div>
 
     </div>
+    }
 
   </div>
 </ion-content>

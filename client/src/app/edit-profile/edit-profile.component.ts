@@ -36,6 +36,7 @@ import { ImageUrlService } from '../shared/services/image-url.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HomeDataService } from '../home/services/home-data.service';
+import { UserSessionService } from '../shared/services/user-session.service';
 
 @Component({
   selector: 'app-edit-profile',
@@ -68,6 +69,7 @@ export class EditProfileComponent implements OnInit {
   private cropPinchStartZoom = 1;
   userId = 0;
   private homeService = inject(HomeDataService);
+  private userSession = inject(UserSessionService);
 
   @ViewChild('cropPreviewCanvas')
   cropPreviewCanvas!: ElementRef<HTMLCanvasElement>;
@@ -498,7 +500,10 @@ export class EditProfileComponent implements OnInit {
 
   confirmCrop(): void {
     const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-    const id = currentUserInfo?.data?.id ?? currentUserInfo?.userId;
+    const id =
+      currentUserInfo?.data?.id ??
+      currentUserInfo?.userId ??
+      this.userSession.getCurrentUserId();
     if (!id) {
       alert('User not found. Please sign in again.');
       return;
@@ -524,9 +529,9 @@ export class EditProfileComponent implements OnInit {
             this.profileImage = this.imageUrlService.getImageUrl(res.url);
             this.form.patchValue({ profileImage: res.url });
             try {
-              const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
-              store.user = { ...(store.user || {}), profileImage: res.url };
-              localStorage.setItem('userInfo', JSON.stringify(store));
+              this.userSession.mergeIntoStoredUser({
+                profileImage: res.url,
+              });
             } catch (e) {
               console.error('Error updating local storage:', e);
             }
@@ -586,7 +591,10 @@ export class EditProfileComponent implements OnInit {
   onSubmit() {
     const formValues = this.form.value;
     const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-    const id = currentUserInfo.data?.id;
+    const id =
+      currentUserInfo?.data?.id ??
+      currentUserInfo?.userId ??
+      this.userSession.getCurrentUserId();
     if (!id) {
       console.error('No user ID available');
       alert('User not found. Please try again.');
@@ -596,15 +604,14 @@ export class EditProfileComponent implements OnInit {
     this.showLoadingAlert('Saving profile...');
 
     try {
-      const store = JSON.parse(localStorage.getItem('userInfo') || '{}');
-      store.user = {
-        ...(store.user || {}),
+      this.userSession.mergeIntoStoredUser({
         fullName: formValues.fullName,
         email: formValues.email,
         birthday: formValues.birthday,
-      };
-      localStorage.setItem('userInfo', JSON.stringify(store));
-    } catch {}
+      });
+    } catch {
+      /* ignore */
+    }
 
     const payload: any = {
       fullName: formValues.fullName,

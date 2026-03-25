@@ -142,7 +142,8 @@
 
         <!-- Cycle Phase Marks -->
         <!-- Period Mark - Dynamic based on current cycle day -->
-        <g class="phase-mark period-mark" *ngIf="isInPeriod">
+        @if (isInPeriod) {
+        <g class="phase-mark period-mark">
           <circle r="12" fill="#ef4444" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
@@ -150,9 +151,11 @@
             {{ todayCycleDay }}
           </text>
         </g>
+        }
 
         <!-- Today Marker - Shows current position in cycle -->
-        <g class="phase-mark today-mark" *ngIf="!isInPeriod">
+        @if (!isInPeriod) {
+        <g class="phase-mark today-mark">
           <circle r="10" fill="#3b82f6" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="700" fill="white"
@@ -160,9 +163,11 @@
             {{ todayCycleDay }}
           </text>
         </g>
+        }
 
         <!-- Fertile Window Mark - Dynamic -->
-        <g class="phase-mark fertile-mark" *ngIf="isInFertileWindow && !isInPeriod">
+        @if (isInFertileWindow && !isInPeriod) {
+        <g class="phase-mark fertile-mark">
           <circle r="12" fill="#10b981" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
@@ -171,9 +176,11 @@
             F
           </text>
         </g>
+        }
 
         <!-- Ovulation Mark - Dynamic -->
-        <g class="phase-mark ovulation-mark" *ngIf="isOvulationDay && !isInPeriod">
+        @if (isOvulationDay && !isInPeriod) {
+        <g class="phase-mark ovulation-mark">
           <circle r="12" fill="#f59e0b" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
@@ -181,9 +188,11 @@
             O
           </text>
         </g>
+        }
 
         <!-- PMS Mark - Dynamic -->
-        <g class="phase-mark pms-mark" *ngIf="isInPMS && !isInPeriod">
+        @if (isInPMS && !isInPeriod) {
+        <g class="phase-mark pms-mark">
           <circle r="12" fill="#8b5cf6" opacity="0.9" [attr.cx]="getPhaseMarkX(todayCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(todayCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="700" fill="white"
@@ -192,6 +201,7 @@
             PMS
           </text>
         </g>
+        }
 
         <!-- Today marker with glow effect -->
         <circle [attr.cx]="todayX" [attr.cy]="todayY" r="8" fill="#10b981" filter="url(#glow)" class="today-marker">

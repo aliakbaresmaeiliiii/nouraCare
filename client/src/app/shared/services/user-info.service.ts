@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
-import { Observable } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { inject, Injectable, signal } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { UserInfo } from '../interfaces/user-info-api.interface';
 import { environment } from '../../../environments/environment';
+import { UserSessionService } from './user-session.service';
 
 export interface OnboardingData {
   pregnancy_status: string;
@@ -16,37 +17,36 @@ export interface OnboardingData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserInfoService {
+  private http = inject(HttpClient);
+  private userSession = inject(UserSessionService);
+
   userInfo = signal<UserInfo | null>(null);
 
-  constructor(private http: HttpClient) {}
-
-  /**
-   * Save onboarding data to user info table
-   */
   saveOnboardingData(onboardingData: OnboardingData): Observable<UserInfo> {
-    const userId = this.getCurrentUserId();
+    const userId = this.userSession.getCurrentUserId();
+    if (!userId) {
+      return throwError(() => new Error('No user id'));
+    }
     const payload = this.transformOnboardingData(onboardingData);
-    
-    
-    // Call the real API endpoint
-    return this.http.post<UserInfo>(`${environment.apiEndPoint}user/${userId}/onboarding`, payload).pipe(
-      tap((response) => {
-        // Update the signal with the response
-        this.userInfo.set(response);
-      }),
-      catchError((error) => {
-        throw error;
-      })
-    );
+    return this.http
+      .post<UserInfo>(
+        `${environment.apiEndPoint}user/${userId}/onboarding`,
+        payload,
+      )
+      .pipe(
+        tap((response) => {
+          this.userInfo.set(response);
+        }),
+      );
   }
 
-  /**
-   * Persist pregnancy / reproductive status only (server: POST user/:id/onboarding).
-   */
-  savePregnancyStatus(userId: number, pregnancyStatus: string): Observable<UserInfo> {
+  savePregnancyStatus(
+    userId: number,
+    pregnancyStatus: string,
+  ): Observable<UserInfo> {
     return this.http
       .post<UserInfo>(`${environment.apiEndPoint}user/${userId}/onboarding`, {
         pregnancyStatus,
@@ -55,92 +55,56 @@ export class UserInfoService {
         tap((response) => {
           this.userInfo.set(response);
         }),
-        catchError((error) => {
-          throw error;
+      );
+  }
+
+  getUserOnboardingData(userId?: number): Observable<UserInfo> {
+    const targetUserId =
+      userId != null ? userId : this.userSession.getCurrentUserId();
+    if (!targetUserId) {
+      return throwError(() => new Error('No user id'));
+    }
+    return this.http
+      .get<UserInfo>(
+        `${environment.apiEndPoint}user/${targetUserId}/onboarding`,
+      )
+      .pipe(
+        tap((response) => {
+          this.userInfo.set(response);
         }),
       );
   }
 
-  /**
-   * Get user onboarding data
-   */
-  getUserOnboardingData(userId?: number): Observable<UserInfo> {
-    const targetUserId = userId || this.getCurrentUserId();
-    
-    // Call the real API endpoint
-    return this.http.get<UserInfo>(`${environment.apiEndPoint}user/${targetUserId}/onboarding`).pipe(
-      tap((response) => {
-        // Update the signal with the response
-        this.userInfo.set(response);
-      }),
-      catchError((error) => {
-        throw error;
-      })
-    );
-  }
-
-  /**
-   * Get user info by user ID (legacy method - now uses getUserOnboardingData)
-   */
+  /** @deprecated Use {@link getUserOnboardingData} — same HTTP call. */
   getUserInfo(userId: number): Observable<UserInfo> {
     return this.getUserOnboardingData(userId);
   }
 
-  /**
-   * Update user info
-   */
-  updateUserInfo(userInfo: UserInfo): Observable<UserInfo> {
-    
-    // For now, update localStorage as fallback
-    // TODO: Create PUT endpoint for updating user info
-    return new Observable(observer => {
-      try {
-        const updatedInfo = {
-          ...userInfo,
-          updatedAt: new Date().toISOString()
-        };
-        
-        localStorage.setItem('userInfo', JSON.stringify(updatedInfo));
-        this.userInfo.set(updatedInfo);
-        
-        observer.next(updatedInfo);
-        observer.complete();
-      } catch (error) {
-        observer.error(error);
-      }
-    });
-  }
-
-  /**
-   * Get current user info from signal
-   */
   getCurrentUserInfo(): any | null {
     return this.userInfo();
   }
 
-  /**
-   * Transform onboarding data to user info format
-   */
   private transformOnboardingData(data: OnboardingData): Partial<UserInfo> {
     const pregnancyStatus = this.mapPregnancyStatus(data.pregnancy_status);
     const healthGoals = data.health_goals ? JSON.parse(data.health_goals) : [];
-    
+
     return {
       pregnancyStatus,
       lastPeriodDate: data.last_period,
       cycleLength: data.cycle_length,
       periodLength: data.period_length,
       pregnancyWeek: data.pregnancy_week,
-      pregnancyProgress: data.pregnancy_week ? (data.pregnancy_week / 40) * 100 : undefined,
+      pregnancyProgress: data.pregnancy_week
+        ? (data.pregnancy_week / 40) * 100
+        : undefined,
       healthGoals,
-      notificationsEnabled: data.notifications === 'yes'
+      notificationsEnabled: data.notifications === 'yes',
     };
   }
 
-  /**
-   * Map pregnancy status string to enum
-   */
-  private mapPregnancyStatus(status: string): 'pregnant' | 'trying' | 'postpartum' | 'tracking' {
+  private mapPregnancyStatus(
+    status: string,
+  ): 'pregnant' | 'trying' | 'postpartum' | 'tracking' {
     switch (status) {
       case 'pregnant':
         return 'pregnant';
@@ -155,87 +119,44 @@ export class UserInfoService {
     }
   }
 
-  /**
-   * Get current user ID from localStorage or auth service
-   */
-  private getCurrentUserId(): number {
-    try {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const parsed = JSON.parse(userInfo);
-        return parsed.userId || 1; // Default to 1 if no user ID
-      }
-    } catch (error) {
-    }
-    return 1; // Default user ID
-  }
-
-  /**
-   * Clear user info (for logout)
-   */
   clearUserInfo(): void {
     localStorage.removeItem('userInfo');
     this.userInfo.set(null);
   }
 
-  /**
-   * Check if user info exists
-   */
   hasUserInfo(): boolean {
     return this.userInfo() !== null;
   }
 
   /**
-   * Load user info on app initialization
+   * Hydrate the onboarding signal from `localStorage`, or from GET onboarding when storage is empty and id is known.
    */
   loadUserInfoOnInit(): void {
-    try {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const parsed = JSON.parse(userInfo);
-        this.userInfo.set(parsed);
-      } else {
-        // Try to load from API if no local data
-        const userId = this.getCurrentUserId();
-        if (userId) {
-          this.getUserOnboardingData(userId).subscribe({
-            next: (data) => {
-            },
-            error: (error) => {
-            }
-          });
-        }
-      }
-    } catch (error) {
+    const fromStorage = this.userSession.parseUserInfoStore();
+    if (fromStorage) {
+      this.userInfo.set(fromStorage as unknown as UserInfo);
+      return;
+    }
+    const userId = this.userSession.getCurrentUserId();
+    if (userId > 0) {
+      this.getUserOnboardingData(userId).subscribe({
+        error: () => {
+          /* optional: onboarding not available */
+        },
+      });
     }
   }
 
-  /**
-   * Get user info summary for display
-   */
   getUserInfoSummary(): string {
     const info = this.userInfo();
-    if (!info) return 'No user info available';
-    
-    const status = info.pregnancyStatus.charAt(0).toUpperCase() + info.pregnancyStatus.slice(1);
+    if (!info || !info.pregnancyStatus) {
+      return 'No user info available';
+    }
+    const status =
+      info.pregnancyStatus.charAt(0).toUpperCase() +
+      info.pregnancyStatus.slice(1);
     const cycle = `${info.cycleLength}-day cycle`;
     const period = `${info.periodLength}-day period`;
-    
     return `${status} • ${cycle} • ${period}`;
-  }
-
-  /**
-   * Test API connection
-   */
-  testApiConnection(): Observable<any> {
-    const userId = this.getCurrentUserId();
-    
-    return this.http.get(`${environment.apiEndPoint}user/${userId}/onboarding`).pipe(
-      tap((response) => {
-      }),
-      catchError((error) => {
-        throw error;
-      })
-    );
   }
 }

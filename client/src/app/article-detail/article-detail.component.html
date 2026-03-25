@@ -11,9 +11,11 @@
         <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" 
                   [class.favorited]="isFavorite"></ion-icon>
       </ion-button>
-      <ion-button *ngIf="isMobile" (click)="shareArticle()" fill="clear" class="share-btn">
+      @if (isMobile) {
+      <ion-button (click)="shareArticle()" fill="clear" class="share-btn">
         <ion-icon name="share-outline"></ion-icon>
       </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -21,13 +23,16 @@
 <ion-content class="article-content">
 
   <!-- Loading State -->
-  <div class="loading-container" *ngIf="isLoading">
+  @if (isLoading) {
+  <div class="loading-container">
     <ion-spinner name="crescent"></ion-spinner>
     <p>Loading article...</p>
   </div>
+  }
 
   <!-- Article Not Found -->
-  <div class="not-found-container" *ngIf="!isLoading && !article">
+  @if (!isLoading && !article) {
+  <div class="not-found-container">
     <div class="not-found-content">
       <ion-icon name="document-outline"></ion-icon>
       <h2>Article Not Found</h2>
@@ -38,9 +43,11 @@
       </ion-button>
     </div>
   </div>
+  }
 
   <!-- Article Content -->
-  <div class="article-container" *ngIf="!isLoading && article">
+  @if (!isLoading && article) {
+  <div class="article-container">
     
     <!-- Hero Section -->
     <div class="article-hero">
@@ -69,38 +76,49 @@
 
     <!-- Article Body -->
     <div class="article-body">
-      <div class="content-section" *ngFor="let section of article.content">
+      @for (section of article.content; track $index) {
+      <div class="content-section">
         
-        <!-- Paragraph -->
-        <p class="content-paragraph" *ngIf="section.type === 'paragraph'">
+        @if (section.type === 'paragraph') {
+        <p class="content-paragraph">
           {{ section.content }}
         </p>
+        }
 
-        <!-- Heading -->
-        <h3 class="content-heading" *ngIf="section.type === 'heading'">
+        @if (section.type === 'heading') {
+        <h3 class="content-heading">
           {{ section.content }}
         </h3>
+        }
 
-        <!-- List -->
-        <div class="content-list" *ngIf="section.type === 'list'">
-          <p class="list-intro" *ngIf="section.content">{{ section.content }}</p>
+        @if (section.type === 'list') {
+        <div class="content-list">
+          @if (section.content) {
+          <p class="list-intro">{{ section.content }}</p>
+          }
           <ul class="styled-list">
-            <li *ngFor="let item of section.items">{{ item }}</li>
+            @for (item of section.items; track $index) {
+            <li>{{ item }}</li>
+            }
           </ul>
         </div>
+        }
 
-        <!-- Quote -->
-        <blockquote class="content-quote" *ngIf="section.type === 'quote'">
+        @if (section.type === 'quote') {
+        <blockquote class="content-quote">
           <ion-icon name="quote" class="quote-icon"></ion-icon>
           <p>{{ section.content }}</p>
         </blockquote>
+        }
 
-        <!-- Image -->
-        <div class="content-image" *ngIf="section.type === 'image'">
+        @if (section.type === 'image') {
+        <div class="content-image">
           <img [src]="section.content" [alt]="'Article image'" loading="lazy">
         </div>
+        }
 
       </div>
+      }
     </div>
 
     <!-- Article Footer -->
@@ -110,7 +128,9 @@
       <div class="article-tags">
         <h4>Tags</h4>
         <div class="tags-container">
-          <span class="tag" *ngFor="let tag of article.tags">{{ tag }}</span>
+          @for (tag of article.tags; track tag) {
+          <span class="tag">{{ tag }}</span>
+          }
         </div>
       </div>
 
@@ -125,8 +145,8 @@
           {{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}
         </ion-button>
         
+        @if (isMobile) {
         <ion-button 
-          *ngIf="isMobile"
           expand="block" 
           fill="outline" 
           class="share-action-btn"
@@ -134,15 +154,17 @@
           <ion-icon name="share-outline" slot="start"></ion-icon>
           Share Article
         </ion-button>
+        }
       </div>
 
       <!-- Related Articles -->
-      <div class="related-articles" *ngIf="article.relatedArticles && article.relatedArticles.length > 0">
+      @if (article.relatedArticles && article.relatedArticles.length > 0) {
+      <div class="related-articles">
         <h4>You might also like</h4>
         <div class="related-grid">
+          @for (relatedId of article.relatedArticles; track relatedId) {
           <div 
             class="related-card" 
-            *ngFor="let relatedId of article.relatedArticles"
             (click)="openRelatedArticle(relatedId)">
             <div class="related-image">
               <ion-icon name="document-text"></ion-icon>
@@ -153,11 +175,14 @@
             </div>
             <ion-icon name="chevron-forward" class="related-arrow"></ion-icon>
           </div>
+          }
         </div>
       </div>
+      }
 
     </div>
 
   </div>
+  }
 
 </ion-content>

@@ -20,6 +20,7 @@ export class ImageUrlService {
     if (!raw) {
       return this.fallback;
     }
+    debugger;
 
     if (raw.startsWith('blob:') || raw.startsWith('data:')) {
       return this.fallback;

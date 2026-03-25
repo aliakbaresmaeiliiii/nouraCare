@@ -30,9 +30,11 @@
       </ion-modal>
     </ion-item>
 
-    <div class="selected-date" *ngIf="pregnancyEndDate">
+    @if (pregnancyEndDate) {
+    <div class="selected-date">
       <p><strong>Selected date:</strong> {{ formatDate(pregnancyEndDate) }}</p>
     </div>
+    }
 
     <ion-item>
       <ion-label position="stacked">Notes (Optional)</ion-label>

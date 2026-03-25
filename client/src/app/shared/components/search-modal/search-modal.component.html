@@ -19,7 +19,9 @@
       @for (item of filteredItems; track item.value) {
       <ion-item button (click)="selectItem(item)" [class.selected]="isSelected(item.value)">
         <ion-label>{{ item.text }}</ion-label>
-        <ion-icon *ngIf="isSelected(item.value)" name="checkmark" slot="end" color="primary"></ion-icon>
+        @if (isSelected(item.value)) {
+        <ion-icon name="checkmark" slot="end" color="primary"></ion-icon>
+        }
       </ion-item>
       }
     } @else {

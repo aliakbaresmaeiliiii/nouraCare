@@ -1,14 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TrackDataService } from '../../shared/services/track-data.service';
 import { SymptomsDto } from '../../shared/models/symptoms.dto';
+import {
+  UserInfoStore,
+  UserSessionService,
+} from '../../shared/services/user-session.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HomeDataService {
-
-  constructor(private trackDataService: TrackDataService) {}
+  private trackDataService = inject(TrackDataService);
+  private userSession = inject(UserSessionService);
 
   /**
    * Load today's symptoms data
@@ -79,35 +83,14 @@ export class HomeDataService {
     }
   }
 
-  /**
-   * Get current user ID from localStorage
-   */
+  /** Delegates to {@link UserSessionService} for one consistent id rule. */
   getCurrentUserId(): number {
-    try {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        const parsed = JSON.parse(userInfo);
-        return parseInt(parsed.user?.id || parsed.id || '0');
-      }
-    } catch (error) {
-      console.error('Error getting user ID:', error);
-    }
-    return 0;
+    return this.userSession.getCurrentUserId();
   }
 
-  /**
-   * Get user info from localStorage
-   */
-  getUserInfo(): any {
-    try {
-      const userInfo = localStorage.getItem('userInfo');
-      if (userInfo) {
-        return JSON.parse(userInfo);
-      }
-    } catch (error) {
-      console.error('Error getting user info:', error);
-    }
-    return null;
+  /** Parsed `userInfo` from storage, or null. */
+  getUserInfo(): UserInfoStore | null {
+    return this.userSession.parseUserInfoStore();
   }
 
   /**
@@ -115,9 +98,9 @@ export class HomeDataService {
    */
   saveUserStatus(status: string): void {
     try {
-      const userInfo = this.getUserInfo() || {};
-      userInfo.status = status;
-      localStorage.setItem('userInfo', JSON.stringify(userInfo));
+      const userInfo = this.userSession.getUserInfoStoreOrEmpty();
+      userInfo['status'] = status;
+      this.userSession.setUserInfoStore(userInfo);
     } catch (error) {
       console.error('Error saving user status:', error);
     }
@@ -128,6 +111,7 @@ export class HomeDataService {
    */
   getUserStatus(): string {
     const userInfo = this.getUserInfo();
-    return userInfo?.status || 'Not Set';
+    const s = userInfo?.['status'];
+    return (typeof s === 'string' && s ? s : 'Not Set');
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { ImageUrlService } from './image-url.service';
 import { UserInfoService } from './user-info.service';
+import { UserSessionService } from './user-session.service';
 import { User } from './user';
 import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
@@ -11,6 +12,7 @@ import { catchError, tap, map } from 'rxjs/operators';
 export class ProfileCompletionService {
   private imageUrlService = inject(ImageUrlService);
   private userInfoService = inject(UserInfoService);
+  private userSession = inject(UserSessionService);
   private userService = inject(User);
 
   // Signal to store user data
@@ -88,23 +90,47 @@ export class ProfileCompletionService {
     this.userData.set(user);
   }
 
+  /** Unwrap GET /user body: { data: user } or raw user; ignore { data: null } from catchError. */
+  private extractUserPayload(res: any): any {
+    if (!res || typeof res !== 'object') return {};
+    if (
+      res.data != null &&
+      typeof res.data === 'object' &&
+      !Array.isArray(res.data)
+    ) {
+      return res.data;
+    }
+    if (res.id != null || res.email != null || res.fullName != null) {
+      return res;
+    }
+    return {};
+  }
+
+  private extractOnboardingPayload(res: any): any {
+    if (!res || typeof res !== 'object') return {};
+    if (
+      res.data != null &&
+      typeof res.data === 'object' &&
+      !Array.isArray(res.data)
+    ) {
+      return res.data;
+    }
+    return res;
+  }
+
   /** Refreshes user + onboarding from API. Returns observable so only one subscriber triggers one request. */
   refreshFromAPI(): Observable<any> {
     this.isLoading.set(true);
 
-    const info = this.userInfoService.getCurrentUserInfo();
-    let userId: number | undefined =
-      info?.data?.id ?? info?.userId ?? undefined;
+    let userId = this.userSession.getCurrentUserId();
     if (!userId) {
-      try {
-        const parsed = JSON.parse(localStorage.getItem('userInfo') || '{}');
-        const raw =
-          parsed?.user?.id ?? parsed?.userId ?? parsed?.data?.id ?? parsed?.id;
-        if (raw != null && raw !== '') {
-          userId = Number(raw);
+      const info = this.userInfoService.getCurrentUserInfo();
+      const raw = info?.data?.id ?? info?.userId;
+      if (raw != null && raw !== '') {
+        const n = Number(raw);
+        if (Number.isFinite(n) && n > 0) {
+          userId = n;
         }
-      } catch {
-        /* ignore */
       }
     }
     if (userId && !Number.isNaN(userId)) {
@@ -134,8 +160,8 @@ export class ProfileCompletionService {
       onboardingData: onboardingData$,
     }).pipe(
       map((data) => {
-        const u = (data.userData as any)?.data ?? data.userData ?? {};
-        const ob = (data.onboardingData as any)?.data ?? data.onboardingData ?? {};
+        const u = this.extractUserPayload(data.userData);
+        const ob = this.extractOnboardingPayload(data.onboardingData);
         const fullName = u.fullName || u.name || '';
         const birthdayRaw = u.birthday;
         const birthday =
@@ -144,8 +170,14 @@ export class ProfileCompletionService {
             : typeof birthdayRaw === 'string'
               ? birthdayRaw
               : new Date(birthdayRaw).toISOString();
-        // Raw URL from API (e.g. https://10.x.x.x:8080/uploads/profile/....jpg) — keep as returned.
-        const profileImageRaw = (u.profileImage ?? '').toString().trim();
+        const profileImageRaw = (
+          u.profileImage ??
+          u.profile_img ??
+          u.avatarUrl ??
+          ''
+        )
+          .toString()
+          .trim();
         // For <img src>: absolute URLs pass through ImageUrlService unchanged; relative paths get base URL.
         const profileImage = this.imageUrlService.getImageUrl(
           profileImageRaw || null,
@@ -180,15 +212,9 @@ export class ProfileCompletionService {
 
   // Method to refresh from localStorage (fallback)
   refreshFromStorage() {
-    try {
-      const userInfoStore = JSON.parse(
-        localStorage.getItem('userInfo') || '{}',
-      );
-      const user = userInfoStore?.user || {};
-      this.updateUserData(user);
-    } catch (error) {
-      this.updateUserData({});
-    }
+    const userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
+    const user = userInfoStore.user || {};
+    this.updateUserData(user);
   }
 
   private computeProfileCompletion(user: any): number {

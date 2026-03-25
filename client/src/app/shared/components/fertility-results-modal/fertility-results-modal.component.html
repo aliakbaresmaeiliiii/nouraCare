@@ -28,13 +28,18 @@
         <p>Your highest chance of conception</p>
       </div>
       <div class="fertile-days-grid">
-        <div class="fertile-day" *ngFor="let day of results.fertileDays; let i = index">
+        @for (day of results.fertileDays; track $index; let i = $index) {
+        <div class="fertile-day">
           <div class="day-card" [class.peak-day]="i === 2 || i === 3">
             <div class="day-date">{{ day }}</div>
-            <div class="fertility-level" *ngIf="i === 2 || i === 3">Peak</div>
-            <div class="fertility-level" *ngIf="i !== 2 && i !== 3">High</div>
+            @if (i === 2 || i === 3) {
+            <div class="fertility-level">Peak</div>
+            } @else {
+            <div class="fertility-level">High</div>
+            }
           </div>
         </div>
+        }
       </div>
     </div>
 

@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserInfoService } from './shared/services/user-info.service';
 import { OnboardingStateService } from './shared/services/onboarding-state.service';
-import { environment } from '../environments/environment';
 import { SHARED_STANDALONE_IMPORTS } from './shared/shared-standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -39,9 +38,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Check if user should be redirected based on authentication and onboarding status
     this.handleInitialRouting();
-    console.log('🌍 Environment file loaded:', environment);
   }
 
   private handleInitialRouting() {

@@ -101,7 +101,8 @@
   </div>
 
   <!-- Beautiful Empty State -->
-  <div class="pregnancy-empty-state" *ngIf="comments.length === 0">
+  @if (comments.length === 0) {
+  <div class="pregnancy-empty-state">
     <div class="empty-illustration">
       <div class="floating-elements">
         <div class="baby-bottle">🍼</div>
@@ -123,10 +124,13 @@
       <p class="empty-subtitle">Connect with other expecting mothers and share your beautiful pregnancy moments.</p>
     </div>
   </div>
+  }
 
   <!-- Comments List -->
-  <div class="comments-section" *ngIf="comments.length > 0">
-    <div class="comment-item" *ngFor="let comment of comments">
+  @if (comments.length > 0) {
+  <div class="comments-section">
+    @for (comment of comments; track comment.id) {
+    <div class="comment-item">
       <div class="comment-avatar">
         <ion-icon name="happy-outline"></ion-icon>
       </div>
@@ -163,8 +167,10 @@
         </div>
 
         <!-- Replies -->
-        <div class="replies-section" *ngIf="comment.replies.length > 0">
-          <div class="reply-item" *ngFor="let reply of comment.replies">
+        @if (comment.replies.length > 0) {
+        <div class="replies-section">
+          @for (reply of comment.replies; track reply.id) {
+          <div class="reply-item">
             <div class="reply-avatar">
               <ion-icon name="person-circle-outline"></ion-icon>
             </div>
@@ -182,10 +188,14 @@
               <p class="reply-text">{{ reply.content }}</p>
             </div>
           </div>
+          }
         </div>
+        }
       </div>
     </div>
+    }
   </div>
+  }
 
   <!-- Beautiful Comment Input -->
   <div class="pregnancy-comment-input">

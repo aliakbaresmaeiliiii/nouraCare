@@ -19,7 +19,6 @@
       <ion-avatar class="profile-avatar">
         <img
           [src]="avatarImageSrc"
-          crossorigin="anonymous"
           alt="Profile Picture"
           class="avatar-image"
           decoding="async"
@@ -95,7 +94,8 @@
   </div>
 
   <!-- Pregnancy Planning Summary -->
-  <div class="pregnancy-summary-section" *ngIf="reproductiveStatus.lastPeriodDate">
+  @if (reproductiveStatus.lastPeriodDate) {
+  <div class="pregnancy-summary-section">
     <h3 class="section-title">Pregnancy Planning</h3>
     
     <div class="pregnancy-summary-card">
@@ -115,12 +115,11 @@
           <span class="stat-label">Cycle Days</span>
         </div>
         <div class="summary-stat">
-          <span class="stat-number" *ngIf="reproductiveStatus.isPregnant; else notPregnant">
-            {{ getPregnancyWeek() }}
-          </span>
-          <ng-template #notPregnant>
-            <span class="stat-number">-</span>
-          </ng-template>
+          @if (reproductiveStatus.isPregnant) {
+          <span class="stat-number">{{ getPregnancyWeek() }}</span>
+          } @else {
+          <span class="stat-number">-</span>
+          }
           <span class="stat-label">{{ reproductiveStatus.isPregnant ? 'Weeks Pregnant' : 'Planning' }}</span>
         </div>
       </div>
@@ -138,6 +137,7 @@
       </div>
     </div>
   </div>
+  }
 
   <!-- Profile Fields Cards -->
   <div class="profile-fields">
@@ -162,9 +162,11 @@
         <div class="field-action">
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
         </div>
-        <div class="completion-badge" *ngIf="isNameCompleted">
+        @if (isNameCompleted) {
+        <div class="completion-badge">
           <ion-icon name="checkmark-circle"></ion-icon>
         </div>
+        }
       </div>
 
       <!-- Email Card -->
@@ -185,9 +187,11 @@
         <div class="field-action">
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
         </div>
-        <div class="completion-badge" *ngIf="isEmailCompleted">
+        @if (isEmailCompleted) {
+        <div class="completion-badge">
           <ion-icon name="checkmark-circle"></ion-icon>
         </div>
+        }
       </div>
 
       <!-- Birthday Card -->
@@ -208,9 +212,11 @@
         <div class="field-action">
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
         </div>
-        <div class="completion-badge" *ngIf="isBirthdayCompleted">
+        @if (isBirthdayCompleted) {
+        <div class="completion-badge">
           <ion-icon name="checkmark-circle"></ion-icon>
         </div>
+        }
       </div>
 
       <!-- City Card -->
@@ -225,9 +231,11 @@
         <div class="field-action">
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
         </div>
-        <div class="completion-badge" *ngIf="city">
+        @if (city) {
+        <div class="completion-badge">
           <ion-icon name="checkmark-circle"></ion-icon>
         </div>
+        }
       </div> -->
     </div>
   </div>

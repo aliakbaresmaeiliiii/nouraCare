@@ -12,7 +12,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="week-detail-content" *ngIf="weekData">
+@if (weekData) {
+<ion-content class="week-detail-content">
   <!-- Hero Section -->
   <div class="hero-section">
     <div class="week-header">
@@ -84,17 +85,20 @@
   <div class="tab-content">
     
     <!-- Development Tab -->
-    <div class="tab-panel" *ngIf="activeTab === 'development'">
+    @if (activeTab === 'development') {
+    <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
           <ion-icon name="leaf-outline" class="section-icon"></ion-icon>
           <h3>Baby Development</h3>
         </div>
         <div class="development-list">
-          <div class="development-item" *ngFor="let item of weekData.development">
+          @for (item of weekData.development; track $index) {
+          <div class="development-item">
             <ion-icon name="checkmark-circle" class="check-icon"></ion-icon>
             <span>{{ item }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -104,10 +108,12 @@
           <h3>Common Symptoms</h3>
         </div>
         <div class="symptoms-list">
-          <div class="symptom-item" *ngFor="let symptom of weekData.symptoms">
+          @for (symptom of weekData.symptoms; track $index) {
+          <div class="symptom-item">
             <ion-icon name="ellipse" class="symptom-dot"></ion-icon>
             <span>{{ symptom }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -117,26 +123,32 @@
           <h3>Fun Facts</h3>
         </div>
         <div class="fun-facts">
-          <div class="fact-item" *ngFor="let fact of weekData.funFacts">
+          @for (fact of weekData.funFacts; track $index) {
+          <div class="fact-item">
             <ion-icon name="star-outline" class="star-icon"></ion-icon>
             <span>{{ fact }}</span>
           </div>
+          }
         </div>
       </div>
     </div>
+    }
 
     <!-- Nutrition Tab -->
-    <div class="tab-panel" *ngIf="activeTab === 'nutrition'">
+    @if (activeTab === 'nutrition') {
+    <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
           <ion-icon name="restaurant-outline" class="section-icon"></ion-icon>
           <h3>Foods to Eat</h3>
         </div>
         <div class="food-list">
-          <div class="food-item" *ngFor="let food of weekData.nutrition.foods">
+          @for (food of weekData.nutrition.foods; track $index) {
+          <div class="food-item">
             <ion-icon name="checkmark-circle" class="food-icon"></ion-icon>
             <span>{{ food }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -146,10 +158,12 @@
           <h3>Foods to Avoid</h3>
         </div>
         <div class="avoid-list">
-          <div class="avoid-item" *ngFor="let avoid of weekData.nutrition.avoid">
+          @for (avoid of weekData.nutrition.avoid; track $index) {
+          <div class="avoid-item">
             <ion-icon name="close-circle" class="avoid-icon"></ion-icon>
             <span>{{ avoid }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -159,26 +173,32 @@
           <h3>Supplements</h3>
         </div>
         <div class="supplements-list">
-          <div class="supplement-item" *ngFor="let supplement of weekData.nutrition.supplements">
+          @for (supplement of weekData.nutrition.supplements; track $index) {
+          <div class="supplement-item">
             <ion-icon name="medical" class="supplement-icon"></ion-icon>
             <span>{{ supplement }}</span>
           </div>
+          }
         </div>
       </div>
     </div>
+    }
 
     <!-- Activities Tab -->
-    <div class="tab-panel" *ngIf="activeTab === 'activities'">
+    @if (activeTab === 'activities') {
+    <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
           <ion-icon name="fitness-outline" class="section-icon"></ion-icon>
           <h3>Exercise & Fitness</h3>
         </div>
         <div class="activities-list">
-          <div class="activity-item" *ngFor="let exercise of weekData.activities.exercise">
+          @for (exercise of weekData.activities.exercise; track $index) {
+          <div class="activity-item">
             <ion-icon name="checkmark-circle" class="activity-icon"></ion-icon>
             <span>{{ exercise }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -188,10 +208,12 @@
           <h3>Relaxation & Self-Care</h3>
         </div>
         <div class="relaxation-list">
-          <div class="relaxation-item" *ngFor="let relaxation of weekData.activities.relaxation">
+          @for (relaxation of weekData.activities.relaxation; track $index) {
+          <div class="relaxation-item">
             <ion-icon name="leaf" class="relaxation-icon"></ion-icon>
             <span>{{ relaxation }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -201,16 +223,20 @@
           <h3>Preparation Tasks</h3>
         </div>
         <div class="preparation-list">
-          <div class="preparation-item" *ngFor="let prep of weekData.activities.preparation">
+          @for (prep of weekData.activities.preparation; track $index) {
+          <div class="preparation-item">
             <ion-icon name="clipboard" class="preparation-icon"></ion-icon>
             <span>{{ prep }}</span>
           </div>
+          }
         </div>
       </div>
     </div>
+    }
 
     <!-- Intimacy Tab -->
-    <div class="tab-panel" *ngIf="activeTab === 'intimacy'">
+    @if (activeTab === 'intimacy') {
+    <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
           <ion-icon name="heart-outline" class="section-icon"></ion-icon>
@@ -225,34 +251,44 @@
         
         <div class="intimacy-tips">
           <h4>Tips & Guidelines</h4>
-          <div class="tip-item" *ngFor="let tip of weekData.intimacy.tips">
+          @for (tip of weekData.intimacy.tips; track $index) {
+          <div class="tip-item">
             <ion-icon name="bulb-outline" class="tip-icon"></ion-icon>
             <span>{{ tip }}</span>
           </div>
+          }
         </div>
 
-        <div class="intimacy-positions" *ngIf="weekData.intimacy.positions.length > 0">
+        @if (weekData.intimacy.positions.length > 0) {
+        <div class="intimacy-positions">
           <h4>Comfortable Positions</h4>
-          <div class="position-item" *ngFor="let position of weekData.intimacy.positions">
+          @for (position of weekData.intimacy.positions; track $index) {
+          <div class="position-item">
             <ion-icon name="heart" class="position-icon"></ion-icon>
             <span>{{ position }}</span>
           </div>
+          }
         </div>
+        }
       </div>
     </div>
+    }
 
     <!-- Medical Tab -->
-    <div class="tab-panel" *ngIf="activeTab === 'medical'">
+    @if (activeTab === 'medical') {
+    <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
           <ion-icon name="calendar-outline" class="section-icon"></ion-icon>
           <h3>Appointments</h3>
         </div>
         <div class="appointments-list">
-          <div class="appointment-item" *ngFor="let appointment of weekData.medical.appointments">
+          @for (appointment of weekData.medical.appointments; track $index) {
+          <div class="appointment-item">
             <ion-icon name="calendar" class="appointment-icon"></ion-icon>
             <span>{{ appointment }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -262,10 +298,12 @@
           <h3>Tests & Screenings</h3>
         </div>
         <div class="tests-list">
-          <div class="test-item" *ngFor="let test of weekData.medical.tests">
+          @for (test of weekData.medical.tests; track $index) {
+          <div class="test-item">
             <ion-icon name="flask" class="test-icon"></ion-icon>
             <span>{{ test }}</span>
           </div>
+          }
         </div>
       </div>
 
@@ -275,13 +313,16 @@
           <h3>Things to Watch For</h3>
         </div>
         <div class="concerns-list">
-          <div class="concern-item" *ngFor="let concern of weekData.medical.concerns">
+          @for (concern of weekData.medical.concerns; track $index) {
+          <div class="concern-item">
             <ion-icon name="alert-circle" class="concern-icon"></ion-icon>
             <span>{{ concern }}</span>
           </div>
+          }
         </div>
       </div>
     </div>
+    }
   </div>
 
   <!-- Tips Section -->
@@ -292,11 +333,14 @@
         <h3>This Week's Tips</h3>
       </div>
       <div class="tips-list">
-        <div class="tip-item" *ngFor="let tip of weekData.tips">
+        @for (tip of weekData.tips; track $index) {
+        <div class="tip-item">
           <ion-icon name="star" class="tip-star"></ion-icon>
           <span>{{ tip }}</span>
         </div>
+        }
       </div>
     </div>
   </div>
 </ion-content>
+}

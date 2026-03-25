@@ -22,7 +22,9 @@
   <div class="user-profile-card">
     <div class="profile-avatar">
       <img src="assets/images/user-avatar.png" alt="User" onerror="this.style.display='none'">
-      <ion-icon name="person-circle" *ngIf="!hasUserAvatar"></ion-icon>
+      @if (!hasUserAvatar) {
+      <ion-icon name="person-circle"></ion-icon>
+      }
       <div class="avatar-badge">
         <ion-icon name="checkmark"></ion-icon>
       </div>

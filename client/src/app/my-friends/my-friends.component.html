@@ -40,13 +40,16 @@
     </div>
 
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-container">
+    @if (isLoading) {
+    <div class="loading-container">
       <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
       <p class="loading-text">Loading friends...</p>
     </div>
+    }
 
     <!-- Error State -->
-    <div *ngIf="errorMessage && !isLoading" class="error-container">
+    @if (errorMessage && !isLoading) {
+    <div class="error-container">
       <ion-icon name="alert-circle" class="error-icon"></ion-icon>
       <p class="error-text">{{ errorMessage }}</p>
       <ion-button fill="outline" (click)="loadFriends()" class="retry-button">
@@ -54,9 +57,11 @@
         Try Again
       </ion-button>
     </div>
+    }
 
     <!-- Empty State -->
-    <div *ngIf="!isLoading && !errorMessage && filteredFriends.length === 0" class="empty-container">
+    @if (!isLoading && !errorMessage && filteredFriends.length === 0) {
+    <div class="empty-container">
       <ion-icon name="people-outline" class="empty-icon"></ion-icon>
       <h2 class="empty-title">No Friends Found</h2>
       <p class="empty-text">
@@ -69,9 +74,11 @@
       </ion-button>
       }
     </div>
+    }
 
     <!-- Friends List -->
-    <div *ngIf="!isLoading && !errorMessage && filteredFriends.length > 0" class="friends-container">
+    @if (!isLoading && !errorMessage && filteredFriends.length > 0) {
+    <div class="friends-container">
       <div class="friends-header">
         <h2 class="friends-title">{{ filteredFriends.length }} {{ filteredFriends.length === 1 ? 'Friend' : 'Friends' }}</h2>
       </div>
@@ -133,5 +140,6 @@
         }
       </ion-list>
     </div>
+    }
   </div>
 </ion-content>

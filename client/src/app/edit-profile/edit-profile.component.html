@@ -129,7 +129,8 @@
       </p>
 
       <!-- Current Status Display -->
-      <div class="current-reproductive-status" *ngIf="getCurrentStatus()">
+      @if (getCurrentStatus()) {
+      <div class="current-reproductive-status">
         <div class="current-status-badge">
           <span class="status-emoji">{{
             getSelectedReproductiveStatusEmoji()
@@ -139,6 +140,7 @@
           }}</span>
         </div>
       </div>
+      }
 
       <!-- Status Options Grid -->
       <div class="reproductive-status-options">
@@ -161,22 +163,22 @@
                 <div class="status-info">
                   <h4 class="status-title">{{ option.label }}</h4>
                 </div>
-                <div
-                  class="status-checkmark"
-                  *ngIf="isStatusSelected(option.value)"
-                >
+                @if (isStatusSelected(option.value)) {
+                <div class="status-checkmark">
                   <ion-icon
                     name="checkmark-circle"
                     class="checkmark-icon"
                   ></ion-icon>
                 </div>
+                }
               </div>
             </div>
           }
         </div>
 
         <!-- Continue Button -->
-        <div class="continue-button-container" *ngIf="getCurrentStatus()">
+        @if (getCurrentStatus()) {
+        <div class="continue-button-container">
           <ion-button
             class="continue-button"
             (click)="saveReproductiveStatus()"
@@ -185,6 +187,7 @@
             Continue
           </ion-button>
         </div>
+        }
       </div>
 
       <!-- Optional Note -->

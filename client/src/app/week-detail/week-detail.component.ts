@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
-import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone.js';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 interface WeekData {
   week: number;

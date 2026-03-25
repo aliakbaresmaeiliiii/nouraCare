@@ -132,7 +132,8 @@
         </div>
 
         <!-- Login Form -->
-        <div *ngIf="activeTab === 'login'" class="form-container">
+        @if (activeTab === 'login') {
+        <div class="form-container">
           <div class="form-header">
             <h2 class="form-title">{{ 'welcome.welcomeBack' | translate }}</h2>
             <p class="form-subtitle">{{ 'welcome.continueJourney' | translate }}</p>
@@ -146,10 +147,12 @@
               </label>
               <input type="email" formControlName="email" [placeholder]="'welcome.enterEmail' | translate"
                 class="form-input" [class.error]="isFieldInvalid(loginForm, 'email')" />
-              <div *ngIf="isFieldInvalid(loginForm, 'email')" class="error-message">
+              @if (isFieldInvalid(loginForm, 'email')) {
+              <div class="error-message">
                 <ion-icon name="alert-circle-outline"></ion-icon>
                 {{ getFieldError(loginForm, 'email') }}
               </div>
+              }
             </div>
 
             <!-- <div class="form-group">
@@ -164,13 +167,12 @@
                 class="form-input"
                 [class.error]="isFieldInvalid(loginForm, 'password')"
               />
-              <div
-                *ngIf="isFieldInvalid(loginForm, 'password')"
-                class="error-message"
-              >
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                {{ getFieldError(loginForm, 'password') }}
-              </div>
+              @if (isFieldInvalid(loginForm, 'password')) {
+                <div class="error-message">
+                  <ion-icon name="alert-circle-outline"></ion-icon>
+                  {{ getFieldError(loginForm, 'password') }}
+                </div>
+              }
             </div> -->
 
             <ion-button type="submit" class="submit-button" [disabled]="loginForm.invalid" expand="block">
@@ -183,6 +185,7 @@
             </div>
           </form>
         </div>
+        }
 
       
       </div>

@@ -281,8 +281,4 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
   goBack() {
     this.router.navigate(['/tabs/home']);
   }
-
-  trackByFavoriteId(index: number, item: FavoriteItem): string {
-    return item.id;
-  }
 }

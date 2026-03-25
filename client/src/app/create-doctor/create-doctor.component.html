@@ -43,9 +43,11 @@
           maxlength="100">
         </ion-input>
       </ion-item>
-      <div class="error-message" *ngIf="hasFieldError('fullName')">
-        {{ getFieldError('fullName') }}
-      </div>
+      @if (hasFieldError('fullName')) {
+        <div class="error-message">
+          {{ getFieldError('fullName') }}
+        </div>
+      }
 
       <!-- Specialty -->
       <ion-item [class.error]="hasFieldError('specialty')">
@@ -54,14 +56,18 @@
           formControlName="specialty"
           placeholder="Select specialty"
           (ionChange)="onSpecialtyChange($event)">
-          <ion-select-option *ngFor="let specialty of specialties" [value]="specialty">
-            {{ specialty }}
-          </ion-select-option>
+          @for (specialty of specialties; track specialty) {
+            <ion-select-option [value]="specialty">
+              {{ specialty }}
+            </ion-select-option>
+          }
         </ion-select>
       </ion-item>
-      <div class="error-message" *ngIf="hasFieldError('specialty')">
-        {{ getFieldError('specialty') }}
-      </div>
+      @if (hasFieldError('specialty')) {
+        <div class="error-message">
+          {{ getFieldError('specialty') }}
+        </div>
+      }
 
       <!-- Experience Years -->
       <ion-item [class.error]="hasFieldError('experienceYears')">
@@ -74,9 +80,11 @@
           max="50">
         </ion-input>
       </ion-item>
-      <div class="error-message" *ngIf="hasFieldError('experienceYears')">
-        {{ getFieldError('experienceYears') }}
-      </div>
+      @if (hasFieldError('experienceYears')) {
+        <div class="error-message">
+          {{ getFieldError('experienceYears') }}
+        </div>
+      }
 
       <!-- About -->
       <ion-item [class.error]="hasFieldError('about')">
@@ -88,9 +96,11 @@
           maxlength="1000">
         </ion-textarea>
       </ion-item>
-      <div class="error-message" *ngIf="hasFieldError('about')">
-        {{ getFieldError('about') }}
-      </div>
+      @if (hasFieldError('about')) {
+        <div class="error-message">
+          {{ getFieldError('about') }}
+        </div>
+      }
     </div>
 
     <!-- Professional Details Section -->
@@ -112,9 +122,11 @@
           step="0.1">
         </ion-input>
       </ion-item>
-      <div class="error-message" *ngIf="hasFieldError('rating')">
-        {{ getFieldError('rating') }}
-      </div>
+      @if (hasFieldError('rating')) {
+        <div class="error-message">
+          {{ getFieldError('rating') }}
+        </div>
+      }
 
       <!-- Profile Image URL -->
       <ion-item>
@@ -165,9 +177,11 @@
           type="email">
         </ion-input>
       </ion-item>
-      <div class="error-message" *ngIf="hasFieldError('contactEmail')">
-        {{ getFieldError('contactEmail') }}
-      </div>
+      @if (hasFieldError('contactEmail')) {
+        <div class="error-message">
+          {{ getFieldError('contactEmail') }}
+        </div>
+      }
 
       <!-- Contact Phone -->
       <ion-item>
@@ -194,14 +208,18 @@
           formControlName="consultationType"
           placeholder="Select consultation type"
           (ionChange)="onConsultationTypeChange($event)">
-          <ion-select-option *ngFor="let type of consultationTypes" [value]="type.value">
-            {{ type.label }}
-          </ion-select-option>
+          @for (type of consultationTypes; track type.value) {
+            <ion-select-option [value]="type.value">
+              {{ type.label }}
+            </ion-select-option>
+          }
         </ion-select>
       </ion-item>
-      <div class="error-message" *ngIf="hasFieldError('consultationType')">
-        {{ getFieldError('consultationType') }}
-      </div>
+      @if (hasFieldError('consultationType')) {
+        <div class="error-message">
+          {{ getFieldError('consultationType') }}
+        </div>
+      }
 
       <!-- Fee -->
       <ion-item [class.error]="hasFieldError('fee')">
@@ -213,19 +231,23 @@
           min="0">
         </ion-input>
       </ion-item>
-      <div class="error-message" *ngIf="hasFieldError('fee')">
-        {{ getFieldError('fee') }}
-      </div>
+      @if (hasFieldError('fee')) {
+        <div class="error-message">
+          {{ getFieldError('fee') }}
+        </div>
+      }
     </div>
 
     <!-- Form Summary -->
-    <div class="form-summary" *ngIf="doctorForm.valid">
-      <div class="summary-card">
-        <ion-icon name="checkmark-circle" color="success"></ion-icon>
-        <h4>Ready to Create Profile</h4>
-        <p>All required information has been provided. Click "Create Doctor" to add this profile to the consultation directory.</p>
+    @if (doctorForm.valid) {
+      <div class="form-summary">
+        <div class="summary-card">
+          <ion-icon name="checkmark-circle" color="success"></ion-icon>
+          <h4>Ready to Create Profile</h4>
+          <p>All required information has been provided. Click "Create Doctor" to add this profile to the consultation directory.</p>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- Action Buttons -->
     <div class="form-actions">
@@ -235,8 +257,12 @@
         [disabled]="!doctorForm.valid || isLoading"
         color="primary">
         <ion-icon name="medical" slot="start"></ion-icon>
-        <span *ngIf="!isLoading">Create Doctor</span>
-        <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+        @if (!isLoading) {
+          <span>Create Doctor</span>
+        }
+        @if (isLoading) {
+          <ion-spinner name="crescent"></ion-spinner>
+        }
       </ion-button>
 
       <ion-button

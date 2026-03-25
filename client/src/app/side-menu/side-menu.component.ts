@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
 import { AuthService } from '../auth/services/auth';
+import { UserSessionService } from '../shared/services/user-session.service';
 
 interface MenuItem {
   icon: string;
@@ -26,6 +27,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   private imageUrlService = inject(ImageUrlService);
   private profileCompletionService = inject(ProfileCompletionService);
   private authService = inject(AuthService);
+  private userSession = inject(UserSessionService);
 
   // User profile data
   userName: string = 'Aliakbar Esmaeili';
@@ -139,12 +141,20 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
     });
 
     try {
-      const userInfoStore = JSON.parse(localStorage.getItem('userInfo') || '{}');
-      const user = userInfoStore?.user || {};
-      this.userName = user.fullName || user.name || this.userName;
+      const userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
+      const user = (userInfoStore.user ?? {}) as Record<string, unknown>;
+      const fullName = user['fullName'];
+      const name = user['name'];
+      this.userName =
+        (typeof fullName === 'string' && fullName) ||
+        (typeof name === 'string' && name) ||
+        this.userName;
+      const profileImage = user['profileImage'];
       this.userProfileImage =
         this.userProfileImage ||
-        this.imageUrlService.getImageUrl(user.profileImage);
+        this.imageUrlService.getImageUrl(
+          typeof profileImage === 'string' ? profileImage : null,
+        );
     } catch (error) {
       console.error('Error loading user profile from localStorage:', error);
     }
