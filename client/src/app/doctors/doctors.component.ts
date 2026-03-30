@@ -47,7 +47,6 @@ export class DoctorsComponent implements OnInit {
     this.loadDoctors();
   }
 
-  // Load all doctors
   async loadDoctors() {
     this.isLoading = true;
     
