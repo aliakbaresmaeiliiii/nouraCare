@@ -51,7 +51,6 @@ export class DoctorsComponent implements OnInit {
   async loadDoctors() {
     this.isLoading = true;
     
-    // Create comprehensive mock doctors list
     const mockDoctors: DoctorDto[] = [
       {
         id: 1,
