@@ -1,7 +1,0 @@
-{
-  "name": "ali",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "react-vite"
-}

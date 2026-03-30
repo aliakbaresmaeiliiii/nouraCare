@@ -18,7 +18,7 @@
 				"build": {
 					"builder": "ngx-build-plus:browser",
 					"options": {
-						"outputPath": "www",
+						"outputPath": "dist/app",
 						"index": "src/index.html",
 						"polyfills": [
 							"src/polyfills.ts"
@@ -42,7 +42,6 @@
 							"mapbox-gl"
 						],
 						"main": "src/main.ts",
-						"extraWebpackConfig": "webpack.config.js",
 						"commonChunk": false
 					},
 					"configurations": {
@@ -65,9 +64,7 @@
 									"with": "src/environments/environment.prod.ts"
 								}
 							],
-							"outputHashing": "all",
-							"extraWebpackConfig": "webpack.prod.config.js"
-						},
+							"outputHashing": "all"						},
 						"en": {
 							"aot": true,
 							"outputPath": "dist/en/",
@@ -106,14 +103,13 @@
 					"options": {
 						"proxyConfig": "proxy.conf.json",
 						"port": 4200,
-						"publicHost": "http://localhost:4200",
-						"extraWebpackConfig": "webpack.config.js"
+						"publicHost": "http://localhost:4200"
 					},
 					"configurations": {
 						"production": {
 							"buildTarget": "app:build:production",
-							"liveReload": false,
-							"extraWebpackConfig": "webpack.prod.config.js"
+							"liveReload": false
+							
 						},
 						"development": {
 							"buildTarget": "app:build:development",
@@ -138,8 +134,7 @@
 					"builder": "ngx-build-plus:extract-i18n",
 					"options": {
 						"browserTarget": "app:build",
-						"proxyConfig": "proxy.conf.json",
-						"extraWebpackConfig": "webpack.config.js"
+						"proxyConfig": "proxy.conf.json"
 					}
 				},
 				"test": {
