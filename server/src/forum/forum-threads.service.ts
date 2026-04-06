@@ -16,26 +16,30 @@ export class ForumThreadsService {
 
   async create(createForumThreadDto: CreateForumThreadDto, authorId: number) {
     try {
+      const normalizedContent =
+        createForumThreadDto.description?.trim() ||
+        createForumThreadDto.content?.trim();
+
       // Validate input
       if (!createForumThreadDto.title?.trim()) {
         throw new BadRequestException('Title is required');
       }
-      if (!createForumThreadDto.description?.trim()) {
-        throw new BadRequestException('Description is required');
+      if (!normalizedContent) {
+        throw new BadRequestException('Content is required');
       }
       if (!createForumThreadDto.categoryId?.trim()) {
         throw new BadRequestException('Category ID is required');
       }
 
-      // Validate title and description length
+      // Validate title and content length
       if (createForumThreadDto.title.trim().length < 3) {
         throw new BadRequestException(
           'Title must be at least 3 characters long',
         );
       }
-      if (createForumThreadDto.description.trim().length < 10) {
+      if (normalizedContent.length < 10) {
         throw new BadRequestException(
-          'Description must be at least 10 characters long',
+          'Content must be at least 10 characters long',
         );
       }
 
@@ -86,7 +90,7 @@ export class ForumThreadsService {
       const createdThread = await this.prismaService.forum_threads.create({
         data: {
           title: createForumThreadDto.title.trim(),
-          content: createForumThreadDto.description.trim(), // Use description as content
+          content: normalizedContent,
           forumId: forum.id,
           authorId: authorId,
           id: threadId,
@@ -288,13 +292,16 @@ export class ForumThreadsService {
     }
 
     const updateData: any = {};
+    const normalizedUpdateContent =
+      updateForumThreadDto.description?.trim() ||
+      updateForumThreadDto.content?.trim();
 
     if (updateForumThreadDto.title?.trim()) {
       updateData.title = updateForumThreadDto.title.trim();
     }
 
-    if (updateForumThreadDto.description?.trim()) {
-      updateData.content = updateForumThreadDto.description.trim();
+    if (normalizedUpdateContent) {
+      updateData.content = normalizedUpdateContent;
     }
 
     return this.prismaService.forum_threads.update({

@@ -183,6 +183,8 @@ export class ForumService {
       {
         title: title,
         content: content,
+        // Backward compatibility with APIs still expecting `description`
+        description: content,
       },
     );
   }

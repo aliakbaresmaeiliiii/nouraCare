@@ -10,6 +10,10 @@ export class CreateForumThreadDto {
   description: string;
 
   @IsString()
+  @IsOptional()
+  content?: string;
+
+  @IsString()
   @IsNotEmpty()
   categoryId: string; 
 
