@@ -121,7 +121,9 @@
               Cancel
             </ion-button>
             <ion-button
-              [disabled]="!editPostTitle.trim() || !editPostContent.trim()"
+              [disabled]="
+                isSavingPost || !editPostTitle.trim() || !editPostContent.trim()
+              "
               class="save-edit-post-btn"
               (click)="submitEditPost()"
             >
@@ -134,9 +136,9 @@
         <p class="topic-content-text">{{ topic.description }}</p>
 
         <div class="topic-tags">
-          @for (tag of topic.tags; track tag) {
+          @for (category of categories(); track category.id) {
           <ion-chip class="tag-chip">
-            <ion-label>{{ tag }}</ion-label>
+            <ion-label>{{ category.name }}</ion-label>
           </ion-chip>
           }
         </div>

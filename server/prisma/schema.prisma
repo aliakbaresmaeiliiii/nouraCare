@@ -96,8 +96,6 @@ model forum_categories {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
-
-  forums forums[]
 }
 
 model forum_comment_likes {
@@ -120,10 +118,6 @@ model forum_comments {
   updatedAt DateTime
   isDeleted Boolean  @default(false)
 
-  user    user              @relation(fields: [authorId], references: [id])
-  replies forum_comments[] @relation("ForumCommentReplies")
-  parent  forum_comments?  @relation("ForumCommentReplies", fields: [parentId], references: [id])
-
   @@index([authorId], map: "forum_comments_authorId_fkey")
   @@index([parentId], map: "forum_comments_parentId_fkey")
   @@index([postId], map: "forum_comments_postId_fkey")
@@ -134,9 +128,6 @@ model forum_post_likes {
   postId    String
   userId    Int
   createdAt DateTime @default(now())
-
-  forum_posts forum_posts @relation(fields: [postId], references: [id])
-  user        user        @relation(fields: [userId], references: [id])
 
   @@unique([postId, userId])
   @@index([userId], map: "forum_post_likes_userId_fkey")
@@ -151,10 +142,6 @@ model forum_posts {
   createdAt DateTime @default(now())
   updatedAt DateTime
   isDeleted Boolean  @default(false)
-
-  forum_threads forum_threads @relation(fields: [threadId], references: [id])
-  user          user          @relation(fields: [authorId], references: [id])
-  forum_post_likes forum_post_likes[]
 
   @@index([authorId], map: "forum_posts_authorId_fkey")
   @@index([parentId], map: "forum_posts_parentId_fkey")
@@ -173,10 +160,6 @@ model forum_threads {
   createdAt DateTime @default(now())
   updatedAt DateTime
 
-  forums      forums       @relation(fields: [forumId], references: [id])
-  user        user         @relation(fields: [authorId], references: [id])
-  forum_posts forum_posts[]
-
   @@index([authorId], map: "forum_threads_authorId_fkey")
   @@index([forumId], map: "forum_threads_forumId_fkey")
 }
@@ -191,9 +174,6 @@ model forums {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
-
-  category forum_categories @relation(fields: [categoryId], references: [id])
-  forum_threads forum_threads[]
 
   @@index([categoryId], map: "forums_categoryId_fkey")
   @@index([createdById], map: "forums_createdById_fkey")
@@ -354,13 +334,6 @@ model user {
   emailVerificationCode        String?
   emailVerificationCodeExpires DateTime?
   dateOfBirth                  DateTime?
-
-  user_profile user_profile?
-
-  forum_comments     forum_comments[]
-  forum_posts        forum_posts[]
-  forum_threads      forum_threads[]
-  forum_post_likes   forum_post_likes[]
 }
 
 model user_profile {
@@ -372,8 +345,6 @@ model user_profile {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime
   profileImage String?
-
-  user user @relation(fields: [userId], references: [id])
 }
 
 enum chat_members_role {

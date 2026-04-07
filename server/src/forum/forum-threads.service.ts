@@ -151,52 +151,170 @@ export class ForumThreadsService {
     }
   }
 
-  async findAll(categoryId?: string, page: number = 1, limit: number = 20) {
+  // async findAll(categoryId?: string, page: number = 1, limit: number = 20) {
+  //   const skip = (page - 1) * limit;
+
+  //   const where: any = {};
+
+  //   if (categoryId) {
+  //     // Get forum IDs that belong to this category
+  //     const forumsInCategory = await this.prismaService.forums.findMany({
+  //       where: { categoryId },
+  //       select: { id: true },
+  //     });
+
+  //     const forumIds = forumsInCategory.map((forum) => forum.id);
+  //     where.forumId = { in: forumIds };
+  //   }
+
+  //   const [threads, total] = await Promise.all([
+  //     this.prismaService.forum_threads.findMany({
+  //       where,
+  //       include: {
+  //         forums: {
+  //           include: {
+  //             category: true,
+  //           },
+  //         },
+  //         forum_posts: {
+  //           include: {
+  //             _count: {
+  //               select: { forum_comments: true },
+  //             },
+  //             forum_comments: {
+  //               take: 1,
+  //               orderBy: { createdAt: 'desc' },
+  //             },
+  //           },
+  //         },
+  //         user: {
+  //           select: {
+  //             id: true,
+  //             fullName: true,
+  //             email: true,
+  //             user_profile: {
+  //               select: {
+  //                 avatarUrl: true,
+  //                 bio: true,
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //       orderBy: { createdAt: 'desc' },
+  //       skip,
+  //       take: limit,
+  //     }),
+  //     this.prismaService.forum_threads.count({ where }),
+  //   ]);
+
+  //   return {
+  //     threads,
+  //     pagination: {
+  //       page,
+  //       limit,
+  //       total,
+  //       totalPages: Math.ceil(total / limit),
+  //     },
+  //   };
+  // }
+
+
+  async findAll(categoryId?: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
-
+  
     const where: any = {};
-
+  
     if (categoryId) {
-      // Get forum IDs that belong to this category
       const forumsInCategory = await this.prismaService.forums.findMany({
         where: { categoryId },
         select: { id: true },
       });
-
-      const forumIds = forumsInCategory.map((forum) => forum.id);
-      where.forumId = { in: forumIds };
+  
+      where.forumId = {
+        in: forumsInCategory.map(f => f.id),
+      };
     }
-
+  
     const [threads, total] = await Promise.all([
       this.prismaService.forum_threads.findMany({
         where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+  
         include: {
           forums: {
             include: {
               category: true,
             },
           },
+  
           user: {
             select: {
               id: true,
               fullName: true,
-              email: true,
+              _count: {
+                select: { forum_comments: true },
+              },
+              forum_comments: {
+                take: 1,
+                orderBy: { createdAt: 'desc' },
+              },
               user_profile: {
                 select: {
                   avatarUrl: true,
-                  bio: true,
                 },
               },
             },
           },
+  
+          // 👇 posts summary (not full spam)
+          forum_posts: {
+            take: 1,
+            orderBy: { createdAt: 'desc' },
+  
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  fullName: true,
+                },
+              },
+
+              
+  
+              // _count: {
+              //   select: {
+              //     forum_comments: true,
+              //   },
+              // },
+  
+              // forum_comments: {
+              //   take: 1,
+              //   orderBy: { createdAt: 'desc' },
+              //   select: {
+              //     id: true,
+              //     content: true,
+              //     createdAt: true,
+              //   },
+              // },
+            },
+          },
+          
+  
+          // 👇 total posts count per thread
+          _count: {
+            select: {
+              forum_posts: true,
+            },
+          },
         },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
       }),
+  
       this.prismaService.forum_threads.count({ where }),
     ]);
-
+  
     return {
       threads,
       pagination: {
@@ -208,50 +326,59 @@ export class ForumThreadsService {
     };
   }
 
-  async findOne(id: string) {
-    const thread = await this.prismaService.forum_threads.findUnique({
-      where: { id },
+  async findOne(threadId: string) {
+    return this.prismaService.forum_threads.findUnique({
+      where: { id: threadId },
+  
       include: {
         forums: {
           include: {
             category: true,
           },
         },
-
+  
+        user: true,
+  
         forum_posts: {
-          where: {
-            isDeleted: false,
-          },
-
-          orderBy: {
-            createdAt: 'asc',
-          },
-        },
-
-        
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            user_profile: {
+          orderBy: { createdAt: 'asc' },
+  
+          include: {
+            user: {
               select: {
-                avatarUrl: true,
-                bio: true,
+                id: true,
+                fullName: true,
               },
             },
+  
+            forum_post_likes: true,
+  
+            // forum_comments: {
+            //   orderBy: { createdAt: 'asc' },
+  
+            //   include: {
+            //     user: {
+            //       select: {
+            //         id: true,
+            //         fullName: true,
+            //       },
+            //     },
+  
+            //     replies: {
+            //       include: {
+            //         user: {
+            //           select: {
+            //             id: true,
+            //             fullName: true,
+            //           },
+            //         },
+            //       },
+            //     },
+            //   },
+            // },
           },
         },
       },
-
-    
     });
-
-    if (!thread) {
-      throw new NotFoundException('Forum thread not found');
-    }
-
-    return thread;
   }
 
   async findByCategory(categoryId: string) {

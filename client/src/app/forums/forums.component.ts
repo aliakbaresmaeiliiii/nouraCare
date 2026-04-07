@@ -125,20 +125,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.showSuccessAlert('New post created!');
   }
 
-  // removeTopic(postId: string): void {
-  //   // Remove the post from the topics list
-  //   this.topics.update(topics => {
-  //     const filteredTopics = topics.filter(topic => topic.id !== postId);
-  //     return filteredTopics;
-  //   });
-
-  //   // Clear cache to ensure fresh data on next load
-  //   this.topicsCache.clear();
-  //   debugger;
-  //   // Show notification
-  //   this.showSuccessAlert('Post deleted!');
-  // }
-
   private setupSearchDebounce() {
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
@@ -298,6 +284,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response && response.success) {
           this.isLoading.set(false);
+          debugger;
           // Map the backend data to our frontend interface
           const threads = response.data.threads.map((thread: any) => ({
             id: thread.id,
@@ -317,6 +304,8 @@ export class ForumsComponent implements OnInit, OnDestroy {
           }));
           this.topics.set(threads);
           this.topicsCache.set(categoryId, threads);
+          this.forumsService.setStoreDataThread(threads);
+
         } else {
           // If API returns success but no data, treat as empty category
           this.isLoading.set(false);

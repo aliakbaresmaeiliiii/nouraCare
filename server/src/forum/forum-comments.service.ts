@@ -14,7 +14,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 export class ForumCommentsService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(createCommentDto: CreateCommentDto, authorId: number) {
+  async create(createCommentDto: CreateCommentDto, postId: number) {
     try {
       // Validate input
       if (!createCommentDto.content?.trim()) {
@@ -46,7 +46,7 @@ export class ForumCommentsService {
 
       // Check if user exists
       const user = await this.prismaService.user.findUnique({
-        where: { id: authorId },
+        where: { id: postId },
       });
 
       if (!user) {
@@ -60,7 +60,7 @@ export class ForumCommentsService {
           id: commentId,
           content: createCommentDto.content.trim(),
           postId: createCommentDto.postId,
-          authorId: authorId,
+          authorId: postId,
           parentId: createCommentDto.parentId,
           createdAt: new Date(),
           updatedAt: new Date(),

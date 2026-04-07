@@ -29,6 +29,7 @@ import {
   Comment,
   CreateCommentDto,
   CreateForumThreadDto,
+  ForumCategory,
   ForumTopic,
 } from '../../shared/models/forum';
 import { ForumService } from '../../shared/services/forum.service';
@@ -53,6 +54,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
 
   // Component state
   topic: ForumTopic | null = null;
+  categories = signal<ForumCategory[]>([]);
   comments = signal<Comment[]>([]);
   newComment = '';
   isLoading = signal(false);
@@ -64,6 +66,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   showReplyInput: string | null = null;
   replyTexts: { [commentId: string]: string } = {};
   isEditingPost = false;
+  isSavingPost = false;
   editPostTitle = '';
   editPostContent = '';
   topicId = signal<string | null>(null);
@@ -111,175 +114,168 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       this.userId.set(user.id);
     }
 
-    this.topicId.set(this.route.snapshot.paramMap.get('id'));
-    if (this.topicId()) {
-      this.loadTopicDetail(this.topicId());
-    } else {
-      this.errorMessage = 'Topic not found';
+   const data= this.forumService.getStoreDataThread();
+   console.log(data);
+   if (data) {
+    this.categories.set(data);
+    if (this.topic) {
+      const thread = data.find((thread: any) => thread.id === this.topic?.id);
+      if (thread) {
+        this.categories.set(thread.forums?.category);
+      }
+      }
     }
-    const data = this.forumService.getTopicDetail()?.categoryId;
-    this.categoryId.set(data);
   }
+  //   this.forumService
+  //     .fetchThreadById(threadId)
+  //     .pipe(
+  //       finalize(() => {
+  //         // Always stop loader, even if mapping/parsing fails
+  //         this.isLoading.set(false);
 
-  loadTopicDetail(threadId: string | null) {
-    if (!threadId) {
-      this.errorMessage = 'Topic ID is required';
-      return;
-    }
-
-    this.isLoading.set(true);
-    this.errorMessage = '';
-
-    this.forumService
-      .fetchThreadById(threadId)
-      .pipe(
-        finalize(() => {
-          // Always stop loader, even if mapping/parsing fails
-          this.isLoading.set(false);
-
-        })
-      )
-      .subscribe({
-      next: (response: any) => {
-        // Stop loader as soon as we get any response payload
+  //       })
+  //     )
+  //     .subscribe({
+  //     next: (response: any) => {
+  //       // Stop loader as soon as we get any response payload
         
-        if (response?.success) {
-          this.isLoading.set(false);
+  //       if (response?.success) {
+  //         this.isLoading.set(false);
 
-          try {
-            // API can return either { success, data } or flattened { success, ...threadFields }
-            const thread = response?.data || response;
-            const threadPostsCount = thread?._count?.posts || thread?.forum_posts?.length || 0;
+  //         try {
+  //           // API can return either { success, data } or flattened { success, ...threadFields }
+  //           const thread = response?.data || response;
+  //           const threadPostsCount = thread?._count?.posts || thread?.forum_posts?.length || 0;
 
-            // Handle paginated response structure safely
-            const pagination = thread?.pagination || {
-              page: 1,
-              limit: 20,
-              total: 0,
-              totalPages: 1,
-            };
-            // Find the main topic post (first post or post without parentId)
-            if (thread) {
-              // Transform API response to component interface
-              this.topic = {
-                id: threadId,
-                title: thread.title || 'Untitled',
-                description: thread.content || 'No content',
-                author: thread.user?.fullName || 'Anonymous',
-                authorAvatar: thread.user?.profileImage || '',
-                category:
-                  thread.forums?.title ||
-                  thread.forum?.title ||
-                  'General Discussion',
-                replies: pagination.total || threadPostsCount,
-                views: thread.viewCount || 0,
-                lastReply: thread.updatedAt || thread.createdAt,
-                isPinned: thread.isPinned || false,
-                isLocked: thread.isLocked || false,
-                likeCount: thread.likeCount || 0,
-                forumPosts: thread.forum_posts || [],
-                tags: [],
-                user: {
-                  id: thread.user?.id || 0,
-                  fullName: thread.user?.fullName || 'Anonymous',
-                  profileImage:
-                    thread.user?.user_profile?.avatarUrl ||
-                    thread.user?.profileImage ||
-                    '',
-                },
-                forumId: thread.forumId || thread.forums?.id || thread.forum?.id || '',
-                createdAt: thread.createdAt || new Date().toISOString(),
-              };
-            } else {
-              // Fallback if no posts found
-              this.topic = {
-                id: threadId,
-                title: 'Untitled',
-                description: 'No content available',
-                author: 'Anonymous',
-                authorAvatar: '',
-                category: 'General Discussion',
-                replies: 0,
-                views: 0,
-                lastReply: new Date().toISOString(),
-                isPinned: false,
-                isLocked: false,
-                likeCount: 0,
-                tags: [],
-                forumId: '',
-                posts: [],
-                forumPosts: [],
-                user: {
-                  id: 0,
-                  fullName: 'Anonymous',
-                  profileImage: '',
-                },
-                createdAt: new Date().toISOString(),
-              };
-            }
+  //           // Handle paginated response structure safely
+  //           const pagination = thread?.pagination || {
+  //             page: 1,
+  //             limit: 20,
+  //             total: 0,
+  //             totalPages: 1,
+  //           };
+  //           // Find the main topic post (first post or post without parentId)
+  //           if (thread) {
+  //             // Transform API response to component interface
+  //             this.topic = {
+  //               id: threadId,
+  //               title: thread.title || 'Untitled',
+  //               description: thread.content || 'No content',
+  //               author: thread.user?.fullName || 'Anonymous',
+  //               authorAvatar: thread.user?.profileImage || '',
+  //               category:
+  //                 thread.forums?.title ||
+  //                 thread.forum?.title ||
+  //                 'General Discussion',
+  //               replies: pagination.total || threadPostsCount,
+  //               views: thread.viewCount || 0,
+  //               lastReply: thread.updatedAt || thread.createdAt,
+  //               isPinned: thread.isPinned || false,
+  //               isLocked: thread.isLocked || false,
+  //               likeCount: thread.likeCount || 0,
+  //               forumPosts: thread.forum_posts || [],
+  //               tags: [],
+  //               user: {
+  //                 id: thread.user?.id || 0,
+  //                 fullName: thread.user?.fullName || 'Anonymous',
+  //                 profileImage:
+  //                   thread.user?.user_profile?.avatarUrl ||
+  //                   thread.user?.profileImage ||
+  //                   '',
+  //               },
+  //               forumId: thread.forumId || thread.forums?.id || thread.forum?.id || '',
+  //               createdAt: thread.createdAt || new Date().toISOString(),
+  //             };
+  //           } else {
+  //             // Fallback if no posts found
+  //             this.topic = {
+  //               id: threadId,
+  //               title: 'Untitled',
+  //               description: 'No content available',
+  //               author: 'Anonymous',
+  //               authorAvatar: '',
+  //               category: 'General Discussion',
+  //               replies: 0,
+  //               views: 0,
+  //               lastReply: new Date().toISOString(),
+  //               isPinned: false,
+  //               isLocked: false,
+  //               likeCount: 0,
+  //               tags: [],
+  //               forumId: '',
+  //               posts: [],
+  //               forumPosts: [],
+  //               user: {
+  //                 id: 0,
+  //                 fullName: 'Anonymous',
+  //                 profileImage: '',
+  //               },
+  //               createdAt: new Date().toISOString(),
+  //             };
+  //           }
 
-            this.storeData.set(thread);
+  //           this.storeData.set(thread);
 
-            // Set comments from the forum_comments array
-            const comments = thread?.forum_comments || [];
+  //           // Set comments from the forum_comments array
+  //           const comments = thread?.forum_comments || [];
 
-            // Transform API response comments to match component interface
-            const transformedComments = comments.map(
-              (comment: {
-                id: string;
-                content: string;
-                user?: { id: number; name?: string; fullName?: string; profileImage: string | null };
-                parentId?: string | null;
-                createdAt?: string;
-                updatedAt?: string;
-                replies?: any[];
-                isLiked?: boolean;
-                likeCount: number;
-                dislikeCount: number;
-                _count?: { likes?: number; replies?: number };
-              }) => ({
-                id: comment.id,
-                content: comment.content,
-                author: {
-                  id: comment.user?.id || 0,
-                  name: comment.user?.fullName || comment.user?.name || 'Anonymous',
-                  profileImage: comment.user?.profileImage || null,
-                },
-                authorId: comment.user?.id || 0,
-                threadId: threadId,
-                parentId: comment.parentId || null,
-                isDeleted: false,
-                createdAt: comment.createdAt || new Date().toISOString(),
-                updatedAt: comment.updatedAt || new Date().toISOString(),
-                replies: comment.replies || [],
-                isLiked: comment.isLiked || false,
-                _count: {
-                  likes: comment.likeCount || 0,
-                  replies: comment._count?.replies || 0,
-                },
-              })
-            );
+  //           // Transform API response comments to match component interface
+  //           const transformedComments = comments.map(
+  //             (comment: {
+  //               id: string;
+  //               content: string;
+  //               user?: { id: number; name?: string; fullName?: string; profileImage: string | null };
+  //               parentId?: string | null;
+  //               createdAt?: string;
+  //               updatedAt?: string;
+  //               replies?: any[];
+  //               isLiked?: boolean;
+  //               likeCount: number;
+  //               dislikeCount: number;
+  //               _count?: { likes?: number; replies?: number };
+  //             }) => ({
+  //               id: comment.id,
+  //               content: comment.content,
+  //               author: {
+  //                 id: comment.user?.id || 0,
+  //                 name: comment.user?.fullName || comment.user?.name || 'Anonymous',
+  //                 profileImage: comment.user?.profileImage || null,
+  //               },
+  //               authorId: comment.user?.id || 0,
+  //               threadId: threadId,
+  //               parentId: comment.parentId || null,
+  //               isDeleted: false,
+  //               createdAt: comment.createdAt || new Date().toISOString(),
+  //               updatedAt: comment.updatedAt || new Date().toISOString(),
+  //               replies: comment.replies || [],
+  //               isLiked: comment.isLiked || false,
+  //               _count: {
+  //                 likes: comment.likeCount || 0,
+  //                 replies: comment._count?.replies || 0,
+  //               },
+  //             })
+  //           );
 
-            this.comments.set(transformedComments);
-          } catch (e) {
-            console.error('Error mapping topic detail payload:', e);
-            this.errorMessage = 'Failed to render topic details';
-            this.isLoading.set(false);
+  //           this.comments.set(transformedComments);
+  //         } catch (e) {
+  //           console.error('Error mapping topic detail payload:', e);
+  //           this.errorMessage = 'Failed to render topic details';
+  //           this.isLoading.set(false);
 
 
-          }
-        } else {
-          this.errorMessage = 'Failed to load topic details';
-          this.isLoading.set(false);
+  //         }
+  //       } else {
+  //         this.errorMessage = 'Failed to load topic details';
+  //         this.isLoading.set(false);
 
-        }
-      },
-      error: (error: any) => {
-        console.error('Error loading topic detail:', error);
-        this.errorMessage = 'Failed to load topic details';
-      },
-    });
-  }
+  //       }
+  //     },
+  //     error: (error: any) => {
+  //       console.error('Error loading topic detail:', error);
+  //       this.errorMessage = 'Failed to load topic details';
+  //     },
+  //   });
+  // }
 
   submitComment() {
     if (!this.newComment.trim()) {
@@ -894,8 +890,26 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   refreshTopic(): void {
     console.log('🔄 TopicDetail: Manual refresh triggered');
     if (this.topicId()) {
-      this.loadTopicDetail(this.topicId());
-      this.showToast('Refreshing topic...', 'primary');
+      this.forumService.fetchThreadById(this.topicId()!).pipe(
+        tap((response: any) => {
+          if (response && response.success) {
+            this.topic = response.data;
+          } 
+        }),
+        catchError((error: any) => {
+          this.showToast('Failed to refresh topic: ' + error.message, 'danger');
+          return of(null);
+        })
+      ).subscribe({
+        next: (response: any) => {
+          if (response && response.success) {
+            this.topic = response.data;
+          }
+        },
+        error: (error: any) => {
+          this.showToast('Failed to refresh topic: ' + error.message, 'danger');
+        }
+      });
     }
   }
 
@@ -913,7 +927,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   }
 
   async submitEditPost() {
-    if (!this.topic) return;
+    if (!this.topic || this.isSavingPost) return;
     const title = this.editPostTitle.trim();
     const content = this.editPostContent.trim();
 
@@ -930,6 +944,12 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     // Optimistic update
     const originalTitle = this.topic.title;
     const originalDescription = this.topic.description;
+    const submittedTitle = title;
+    const submittedContent = content;
+    this.isSavingPost = true;
+    this.isEditingPost = false;
+    this.editPostTitle = '';
+    this.editPostContent = '';
     this.topic.title = title;
     this.topic.description = content;
     this.forumService
@@ -942,6 +962,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
             // Revert optimistic update on failure
             this.topic!.title = originalTitle;
             this.topic!.description = originalDescription;
+            this.isEditingPost = true;
+            this.editPostTitle = submittedTitle;
+            this.editPostContent = submittedContent;
             this.showToast(
               'Failed to update post: ' +
                 (response?.message || 'Unknown error'),
@@ -953,6 +976,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
           // Revert optimistic update on error
           this.topic!.title = originalTitle;
           this.topic!.description = originalDescription;
+          this.isEditingPost = true;
+          this.editPostTitle = submittedTitle;
+          this.editPostContent = submittedContent;
 
           if (error.status === 403) {
             this.showToast(
@@ -969,7 +995,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
           return of(null);
         }),
         finalize(() => {
-          this.cancelEditPost();
+          this.isSavingPost = false;
         })
       )
       .subscribe();

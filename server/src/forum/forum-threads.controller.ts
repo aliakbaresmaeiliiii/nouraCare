@@ -123,7 +123,6 @@ export class ForumThreadsController {
   ) {
     // Get the user ID from the authenticated request
     const userId = req.user.id;
-    console.log('Updating thread', id, 'by user', userId);
 
     const thread = await this.forumThreadsService.update(
       id,

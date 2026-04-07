@@ -38,13 +38,23 @@ export class ForumService {
   postCreated = signal<boolean>(false);
 
   storeDataCategory = signal<any[]>([]);
+  storeDataThread = signal<any[]>([]);
+
 
   setStoreDataCategory(data: any[]) {
     this.storeDataCategory.set(data);
   }
 
   getStoreDataCategory() {
-    return this.storeDataCategory;
+    return this.storeDataCategory();
+  }
+
+  setStoreDataThread(data: any[]) {
+    this.storeDataThread.set(data);
+  }
+
+  getStoreDataThread() {
+    return this.storeDataThread();
   }
 
   getCategories() {
