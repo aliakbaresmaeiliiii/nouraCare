@@ -14,6 +14,10 @@ import { UpdateForumThreadDto } from './dto/update-forum-thread.dto';
 export class ForumThreadsService {
   constructor(private prismaService: PrismaService) {}
 
+  private normalizeCategoryLookup(value: string) {
+    return value.trim().toLowerCase().replace(/[-_]+/g, ' ');
+  }
+
   async create(createForumThreadDto: CreateForumThreadDto, authorId: number) {
     try {
       const normalizedContent =
@@ -130,74 +134,6 @@ export class ForumThreadsService {
     }
   }
 
-  // async findAll(categoryId?: string, page: number = 1, limit: number = 20) {
-  //   const skip = (page - 1) * limit;
-
-  //   const where: any = {};
-
-  //   if (categoryId) {
-  //     // Get forum IDs that belong to this category
-  //     const forumsInCategory = await this.prismaService.forums.findMany({
-  //       where: { categoryId },
-  //       select: { id: true },
-  //     });
-
-  //     const forumIds = forumsInCategory.map((forum) => forum.id);
-  //     where.forumId = { in: forumIds };
-  //   }
-
-  //   const [threads, total] = await Promise.all([
-  //     this.prismaService.forum_threads.findMany({
-  //       where,
-  //       include: {
-  //         forums: {
-  //           include: {
-  //             category: true,
-  //           },
-  //         },
-  //         forum_posts: {
-  //           include: {
-  //             _count: {
-  //               select: { forum_comments: true },
-  //             },
-  //             forum_comments: {
-  //               take: 1,
-  //               orderBy: { createdAt: 'desc' },
-  //             },
-  //           },
-  //         },
-  //         user: {
-  //           select: {
-  //             id: true,
-  //             fullName: true,
-  //             email: true,
-  //             user_profile: {
-  //               select: {
-  //                 avatarUrl: true,
-  //                 bio: true,
-  //               },
-  //             },
-  //           },
-  //         },
-  //       },
-  //       orderBy: { createdAt: 'desc' },
-  //       skip,
-  //       take: limit,
-  //     }),
-  //     this.prismaService.forum_threads.count({ where }),
-  //   ]);
-
-  //   return {
-  //     threads,
-  //     pagination: {
-  //       page,
-  //       limit,
-  //       total,
-  //       totalPages: Math.ceil(total / limit),
-  //     },
-  //   };
-  // }
-
 
   async findAll(categoryId?: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
@@ -205,8 +141,20 @@ export class ForumThreadsService {
     const where: any = {};
   
     if (categoryId) {
+      const normalized = this.normalizeCategoryLookup(categoryId);
+      const matchedCategory = await this.prismaService.forum_categories.findFirst({
+        where: {
+          OR: [
+            { id: categoryId },
+            { name: categoryId },
+            { name: normalized },
+          ],
+        },
+        select: { id: true },
+      });
+
       const forumsInCategory = await this.prismaService.forums.findMany({
-        where: { categoryId },
+        where: { categoryId: matchedCategory?.id ?? categoryId },
         select: { id: true },
       });
   
@@ -225,9 +173,88 @@ export class ForumThreadsService {
   
       this.prismaService.forum_threads.count({ where }),
     ]);
+
+    const threadIds = threads.map((thread) => thread.id);
+    const posts = threadIds.length
+      ? await this.prismaService.forum_posts.findMany({
+          where: {
+            threadId: { in: threadIds },
+            isDeleted: false,
+          },
+          select: {
+            id: true,
+            threadId: true,
+          },
+        })
+      : [];
+
+    const postIds = posts.map((post) => post.id);
+    const likes = postIds.length
+      ? await this.prismaService.forum_post_likes.findMany({
+          where: { postId: { in: postIds } },
+          select: { postId: true },
+        })
+      : [];
+
+    const comments = postIds.length
+      ? await this.prismaService.forum_comments.findMany({
+          where: {
+            postId: { in: postIds },
+            isDeleted: false,
+          },
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            postId: true,
+            comment: true,
+            authorId: true,
+            createdAt: true,
+            updatedAt: true,
+            parentId: true,
+          },
+        })
+      : [];
+
+    const postToThread = new Map(posts.map((post) => [post.id, post.threadId]));
+    const likesByThread = new Map<string, number>();
+    for (const like of likes) {
+      const threadId = postToThread.get(like.postId);
+      if (!threadId) continue;
+      likesByThread.set(threadId, (likesByThread.get(threadId) ?? 0) + 1);
+    }
+
+    const commentsByThread = new Map<
+      string,
+      {
+        id: string;
+        postId: string;
+        comment: string;
+        authorId: number;
+        createdAt: Date;
+        updatedAt: Date;
+        parentId: string | null;
+      }[]
+    >();
+    for (const comment of comments) {
+      const threadId = postToThread.get(comment.postId);
+      if (!threadId) continue;
+      const list = commentsByThread.get(threadId) ?? [];
+      list.push(comment);
+      commentsByThread.set(threadId, list);
+    }
+
+    const enrichedThreads = threads.map((thread) => {
+      const threadComments = commentsByThread.get(thread.id) ?? [];
+      return {
+        ...thread,
+        likeCount: likesByThread.get(thread.id) ?? 0,
+        commentCount: threadComments.length,
+        comments: threadComments.slice(0, 5),
+      };
+    });
   
     return {
-      threads,
+      threads: enrichedThreads,
       pagination: {
         page,
         limit,

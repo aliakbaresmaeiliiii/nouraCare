@@ -107,6 +107,64 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  private mapRecentCommentsToDetailComments(
+    comments: Array<{ id: string; comment: string; createdAt: string }> = []
+  ): Comment[] {
+    return comments.map((item) => ({
+      id: item.id,
+      content: item.comment || '',
+      author: {
+        id: 0,
+        name: 'Community member',
+        profileImage: null,
+      },
+      authorId: 0,
+      threadId: this.topicId() || '',
+      parentId: null,
+      isDeleted: false,
+      createdAt: item.createdAt || new Date().toISOString(),
+      updatedAt: item.createdAt || new Date().toISOString(),
+      replies: [],
+      isLiked: false,
+      _count: {
+        likes: 0,
+        replies: 0,
+      },
+    }));
+  }
+
+  private normalizeTopic(topic: any): ForumTopic {
+    return {
+      id: topic.id,
+      title: topic.title || 'Untitled',
+      comment: topic.comment || topic.content || '',
+      author: topic.author || topic.user?.fullName || 'Anonymous',
+      authorAvatar:
+        topic.authorAvatar ||
+        topic.user?.profileImage ||
+        topic.user?.user_profile?.avatarUrl ||
+        '/assets/images/nurse.png',
+      category: topic.category || 'General Discussion',
+      categoryId: topic.categoryId,
+      replies: topic.replies ?? topic.commentCount ?? 0,
+      views: topic.views ?? topic.viewCount ?? 0,
+      lastReply: topic.lastReply || topic.updatedAt || topic.createdAt,
+      isPinned: !!topic.isPinned,
+      isLocked: !!topic.isLocked,
+      likeCount: topic.likeCount || 0,
+      forumPosts: topic.forumPosts || [],
+      tags: topic.tags || [],
+      user: topic.user || {
+        id: 0,
+        fullName: topic.author || 'Anonymous',
+        profileImage: '',
+      },
+      createdAt: topic.createdAt || new Date().toISOString(),
+      forumId: topic.forumId || '',
+      recentComments: topic.recentComments || topic.comments || [],
+    };
+  }
+
   ngOnInit() {
     const userInfo = localStorage.getItem('userInfo');
     if (userInfo) {
@@ -114,20 +172,43 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       this.userId.set(user.id);
     }
 
-   const data= this.forumService.getStoreDataThread();
-   console.log(data)
-   const allComments = data.map(thread => thread.user.forum_comments);
-   console.log(allComments);
-
-   if (allComments) {
-    this.categories.set(allComments[0]);
-    if (this.topic) {
-      const thread = allComments.find((thread: any) => thread.id === this.topic?.id);
-      if (thread) {
-        this.categories.set(thread.forums?.category);
-      }
-      }
+    const threadId = this.route.snapshot.paramMap.get('id');
+    this.topicId.set(threadId);
+    if (!threadId) {
+      this.errorMessage = 'Topic not found';
+      return;
     }
+
+    const selected = this.forumService.getTopicDetail();
+    const storeThreads = this.forumService.getStoreDataThread();
+    const fromStore = storeThreads.find((thread) => thread.id === threadId);
+    const source = selected?.id === threadId ? selected : fromStore;
+
+    if (source) {
+      this.topic = this.normalizeTopic(source);
+      this.comments.set(
+        this.mapRecentCommentsToDetailComments(this.topic.recentComments)
+      );
+    }
+
+    // Fallback for direct open/refresh: keep topic basic data synced
+    this.forumService.fetchThreadById(threadId).subscribe({
+      next: (response: any) => {
+        if (!response?.success) return;
+        const apiTopic = this.normalizeTopic(response.data || response);
+        this.topic = {
+          ...apiTopic,
+          // keep richer topic data from list/store if already available
+          recentComments:
+            this.topic?.recentComments?.length ? this.topic.recentComments : [],
+        };
+        if (!this.comments().length && this.topic.recentComments?.length) {
+          this.comments.set(
+            this.mapRecentCommentsToDetailComments(this.topic.recentComments)
+          );
+        }
+      },
+    });
   }
   //   this.forumService
   //     .fetchThreadById(threadId)

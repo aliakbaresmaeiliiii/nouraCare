@@ -125,6 +125,44 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.showSuccessAlert('New post created!');
   }
 
+  private mapThreadToTopic(thread: any): ForumTopic {
+    const user = thread.user || {};
+    const recentComments = Array.isArray(thread.comments) ? thread.comments : [];
+    return {
+      id: thread.id,
+      title: thread.title || 'Untitled',
+      comment: thread.content || thread.description || '',
+      author: user.fullName || 'Anonymous',
+      authorAvatar:
+        user?.user_profile?.avatarUrl ||
+        user.profileImage ||
+        '/assets/images/nurse.png',
+      category: thread.category?.name || 'General Discussion',
+      categoryId: thread.categoryId,
+      replies: thread.commentCount ?? thread.repliesCount ?? 0,
+      views: thread.viewCount ?? thread.views ?? 0,
+      lastReply: thread.updatedAt || thread.createdAt,
+      isPinned: thread.isPinned || false,
+      isLocked: thread.isLocked || false,
+      likeCount: thread.likeCount ?? 0,
+      tags: thread.tags || [],
+      user: {
+        id: user.id || 0,
+        fullName: user.fullName || 'Anonymous',
+        profileImage:
+          user?.user_profile?.avatarUrl || user.profileImage || '',
+      },
+      createdAt: thread.createdAt,
+      forumId: thread.forumId || '',
+      forumPosts: thread.forumPosts || [],
+      recentComments: recentComments.map((comment: any) => ({
+        id: comment.id,
+        comment: comment.comment || '',
+        createdAt: comment.createdAt,
+      })),
+    };
+  }
+
   private setupSearchDebounce() {
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
@@ -209,20 +247,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
           // Map the backend data to our frontend interface
           const threads = response.data.threads.map((thread: any) => ({
-            id: thread.id,
-            title: thread.title,
-            content: thread.content,
-            author: thread.author?.name || 'Anonymous',
-            authorAvatar: thread.author?.avatar || '/assets/images/nurse.png',
-            category: thread.category?.name || 'General Discussion',
-            replies: thread.repliesCount || 0,
-            views: thread.views || 0,
-            lastReply: thread.updatedAt,
-            isPinned: thread.isPinned || false,
-            isLocked: thread.isLocked || false,
-            user: thread.user,
-            tags: thread.tags || [],
-            createdAt: thread.createdAt,
+            ...this.mapThreadToTopic(thread),
           }));
           this.topics.set(threads);
           this.topicsCache.set('all', threads);
@@ -286,20 +311,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
           // Map the backend data to our frontend interface
           const threads = response.data.threads.map((thread: any) => ({
-            id: thread.id,
-            title: thread.title,
-            description: thread.description,
-            author: thread.author?.name || 'Anonymous',
-            authorAvatar: thread.author?.avatar || '/assets/images/nurse.png',
-            category: thread.category?.name || 'General Discussion',
-            replies: thread.repliesCount || 0,
-            views: thread.views || 0,
-            lastReply: thread.updatedAt,
-            isPinned: thread.isPinned || false,
-            isLocked: thread.isLocked || false,
-            tags: thread.tags || [],
-            user: thread.user,
-            createdAt: thread.createdAt,
+            ...this.mapThreadToTopic(thread),
           }));
           this.topics.set(threads);
           this.topicsCache.set(categoryId, threads);

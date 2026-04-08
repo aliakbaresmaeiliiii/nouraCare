@@ -265,6 +265,10 @@
                   ></ion-icon>
                   <span class="stat-text">{{ topic.replies }}</span>
                 </div>
+              <div class="stat">
+                <ion-icon name="heart-outline" class="stat-icon"></ion-icon>
+                <span class="stat-text">{{ topic.likeCount || 0 }}</span>
+              </div>
                 <div class="stat">
                   <ion-icon name="eye-outline" class="stat-icon"></ion-icon>
                   <span class="stat-text">{{ topic.views }}</span>
@@ -284,6 +288,16 @@
                 formatRelativeTime(topic.lastReply)
               }}</span>
             </div>
+            @if (topic.recentComments && topic.recentComments.length > 0) {
+            <div class="topic-recent-comment">
+              <ion-icon name="chatbox-ellipses-outline" class="stat-icon"></ion-icon>
+              <span class="stat-text">{{
+                topic.recentComments[0].comment.length > 70
+                  ? (topic.recentComments[0].comment | slice: 0 : 70) + "..."
+                  : topic.recentComments[0].comment
+              }}</span>
+            </div>
+            }
           </div>
         </ion-item>
         }

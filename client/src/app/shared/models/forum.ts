@@ -138,6 +138,11 @@ export interface ForumTopic {
   createdAt: string;
   forumId: string;
   posts?: Comment[];
+  recentComments?: Array<{
+    id: string;
+    comment: string;
+    createdAt: string;
+  }>;
 }
 export interface ThreadsResponse {
   success: boolean;
