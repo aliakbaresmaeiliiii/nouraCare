@@ -65,29 +65,6 @@ export class ForumCommentsService {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-            },
-          },
-          replies: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  fullName: true,
-                },
-              },
-            },
-          },
-          _count: {
-            select: {
-              replies: true,
-            },
-          },
-        },
       });
 
       return comment;
@@ -126,36 +103,6 @@ export class ForumCommentsService {
           isDeleted: false,
           parentId: null, // Only get top-level comments
         },
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-            },
-          },
-          replies: {
-            where: { isDeleted: false },
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  fullName: true,
-                },
-              },
-              _count: {
-                select: {
-                  replies: true,
-                },
-              },
-            },
-            orderBy: { createdAt: 'asc' },
-          },
-          _count: {
-            select: {
-              replies: true,
-            },
-          },
-        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
@@ -189,19 +136,6 @@ export class ForumCommentsService {
           parentId: commentId,
           isDeleted: false,
         },
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-            },
-          },
-          _count: {
-            select: {
-              replies: true,
-            },
-          },
-        },
         orderBy: { createdAt: 'asc' },
         skip,
         take: limit,
@@ -228,36 +162,6 @@ export class ForumCommentsService {
   async findOne(id: string) {
       const comment = await this.prismaService.forum_comments.findUnique({
         where: { id },
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-            },
-          },
-          replies: {
-            where: { isDeleted: false },
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  fullName: true,
-                },
-              },
-              _count: {
-                select: {
-                  replies: true,
-                },
-              },
-            },
-            orderBy: { createdAt: 'asc' },
-          },
-          _count: {
-            select: {
-              replies: true,
-            },
-          },
-        },
       });
 
     if (!comment) {
@@ -290,19 +194,6 @@ export class ForumCommentsService {
     return this.prismaService.forum_comments.update({
       where: { id },
       data: updateData,
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
-        },
-        _count: {
-          select: {
-            replies: true,
-          },
-        },
-      },
     });
   }
 

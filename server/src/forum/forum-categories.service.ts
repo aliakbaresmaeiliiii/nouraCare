@@ -150,12 +150,13 @@ export class ForumCategoriesService {
     }
 
     // Check if category has forum threads
+    const forums = await this.prismaService.forums.findMany({
+      where: { categoryId: id },
+      select: { id: true },
+    });
+    const forumIds = forums.map((forum) => forum.id);
     const threadsCount = await this.prismaService.forum_threads.count({
-      where: { 
-        forums: {
-          categoryId: id
-        }
-      },
+      where: { forumId: { in: forumIds } },
     });
 
     if (threadsCount > 0) {

@@ -13,18 +13,6 @@ export class ForumService {
   async getCategories() {
     return this.prisma.forum_categories.findMany({
       where: { isActive: true },
-      include: {
-        forums: {
-          where: { isActive: true },
-          include: {
-            _count: {
-              select: {
-                forum_threads: true,
-              },
-            },
-          },
-        },
-      },
       orderBy: { createdAt: 'asc' },
     });
   }
@@ -42,31 +30,6 @@ export class ForumService {
         where: {
           categoryId,
           isActive: true,
-        },
-        include: {
-          _count: {
-            select: {
-              forum_threads: true,
-            },
-          },
-          forum_threads: {
-            orderBy: { createdAt: 'desc' },
-            take: 1,
-            include: {
-              forum_posts: {
-                orderBy: { createdAt: 'desc' },
-                take: 1,
-                include: {
-                  user: {
-                    select: {
-                      id: true,
-                      fullName: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -101,19 +64,6 @@ export class ForumService {
           threadId: topicId,
           isDeleted: false,
         },
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-            },
-          },
-          _count: {
-            select: {
-              // likes: true,
-            },
-          },
-        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
@@ -140,36 +90,6 @@ export class ForumService {
   async getPostWithComments(id: string) {
     const post = await this.prisma.forum_posts.findUnique({
       where: { id, isDeleted: false },
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
-        },
-        forum_threads: {
-          include: {
-            forum_posts: {
-              include: {
-                forum_threads: {
-                  include: {
-                    forums: {
-                      include: {
-                        category: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        _count: {
-          select: {
-            // likes: true,
-          },
-        },
-      },
     });
 
     if (!post) {
@@ -209,19 +129,6 @@ export class ForumService {
       // Fetch the created post with relations
       const createdPost = await this.prisma.forum_posts.findUnique({
         where: { id: postId },
-        include: {
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-            },
-          },
-          _count: {
-            select: {
-              forum_post_likes: true,
-            },
-          },
-        },
       });
 
       return createdPost;
@@ -268,14 +175,6 @@ export class ForumService {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
-        },
-      },
     });
   }
 
@@ -307,14 +206,6 @@ export class ForumService {
       data: {
         comment: updateCommentDto.comment,
         updatedAt: new Date(),
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
-        },
       },
     });
   }

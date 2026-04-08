@@ -9,17 +9,17 @@ export class UserService {
   async getUserById(userId: number) {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
-      include: { user_profile: true },
     });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const { user_profile, ...rest } = user;
-    const profile = user_profile as any;
+    const profile = await this.prismaService.user_profile.findUnique({
+      where: { userId },
+    });
     return {
-      ...rest,
+      ...user,
       profileImage: profile?.profileImage ?? profile?.avatarUrl ?? '',
     };
   }

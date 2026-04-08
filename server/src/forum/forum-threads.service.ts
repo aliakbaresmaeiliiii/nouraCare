@@ -98,29 +98,7 @@ export class ForumThreadsService {
           updatedAt: new Date(),
         },
       });
-      return this.prismaService.forum_threads.findUnique({
-        where: { id: createdThread.id },
-        include: {
-          forums: {
-            include: {
-              category: true,
-            },
-          },
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-              user_profile: {
-                select: {
-                  avatarUrl: true,
-                  bio: true,
-                },
-              },
-            },
-          },
-        },
-      });
+      return createdThread;
     } catch (error) {
       // Handle Prisma-specific errors
       if (error.code === 'P2002') {
@@ -243,74 +221,6 @@ export class ForumThreadsService {
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
-  
-        include: {
-          forums: {
-            include: {
-              category: true,
-            },
-          },
-  
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-              _count: {
-                select: { forum_comments: true },
-              },
-              forum_comments: {
-                take: 1,
-                orderBy: { createdAt: 'desc' },
-              },
-              user_profile: {
-                select: {
-                  avatarUrl: true,
-                },
-              },
-            },
-          },
-  
-          // 👇 posts summary (not full spam)
-          forum_posts: {
-            take: 1,
-            orderBy: { createdAt: 'desc' },
-  
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  fullName: true,
-                },
-              },
-
-              
-  
-              // _count: {
-              //   select: {
-              //     forum_comments: true,
-              //   },
-              // },
-  
-              // forum_comments: {
-              //   take: 1,
-              //   orderBy: { createdAt: 'desc' },
-              //   select: {
-              //     id: true,
-              //     content: true,
-              //     createdAt: true,
-              //   },
-              // },
-            },
-          },
-          
-  
-          // 👇 total posts count per thread
-          _count: {
-            select: {
-              forum_posts: true,
-            },
-          },
-        },
       }),
   
       this.prismaService.forum_threads.count({ where }),
@@ -330,68 +240,12 @@ export class ForumThreadsService {
   async findOne(threadId: string) {
     return this.prismaService.forum_threads.findUnique({
       where: { id: threadId },
-  
-      include: {
-        forums: {
-          include: {
-            category: true,
-          },
-        },
-  
-        user: true,
-  
-        forum_posts: {
-          orderBy: { createdAt: 'asc' },
-  
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
-              },
-            },
-  
-            forum_post_likes: true,
-  
-            // forum_comments: {
-            //   orderBy: { createdAt: 'asc' },
-  
-            //   include: {
-            //     user: {
-            //       select: {
-            //         id: true,
-            //         fullName: true,
-            //       },
-            //     },
-  
-            //     replies: {
-            //       include: {
-            //         user: {
-            //           select: {
-            //             id: true,
-            //             fullName: true,
-            //           },
-            //         },
-            //       },
-            //     },
-            //   },
-            // },
-          },
-        },
-      },
     });
   }
 
   async findByCategory(categoryId: string) {
     const thread = await this.prismaService.forum_threads.findFirst({
       where: { forumId: categoryId },
-      include: {
-        forums: {
-          include: {
-            category: true,
-          },
-        },
-      },
     });
 
     if (!thread) {
@@ -435,13 +289,6 @@ export class ForumThreadsService {
     return this.prismaService.forum_threads.update({
       where: { id },
       data: updateData,
-      include: {
-        forums: {
-          include: {
-            category: true,
-          },
-        },
-      },
     });
   }
 
@@ -472,26 +319,6 @@ export class ForumThreadsService {
       this.prismaService.forum_threads.findMany({
         where: {
           OR: [{ title: { contains: query } }],
-        },
-        include: {
-          forums: {
-            include: {
-              category: true,
-            },
-          },
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-              user_profile: {
-                select: {
-                  avatarUrl: true,
-                  bio: true,
-                },
-              },
-            },
-          },
         },
         orderBy: { createdAt: 'desc' },
         skip,
