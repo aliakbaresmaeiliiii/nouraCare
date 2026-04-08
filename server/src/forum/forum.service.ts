@@ -261,7 +261,7 @@ export class ForumService {
     return this.prisma.forum_comments.create({
       data: {
         id: randomUUID(),
-        content: createCommentDto.content,
+        comment: createCommentDto.comment,
         postId: createCommentDto.postId,
         authorId: userId,
         parentId: createCommentDto.parentId,
@@ -305,7 +305,7 @@ export class ForumService {
     return this.prisma.forum_comments.update({
       where: { id },
       data: {
-        content: updateCommentDto.content,
+        comment: updateCommentDto.comment,
         updatedAt: new Date(),
       },
       include: {

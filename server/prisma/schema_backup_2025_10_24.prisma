@@ -201,7 +201,7 @@ model PostLike {
 
 model forum_comments {
   id          String              @id @default(uuid())
-  content     String              @db.Text
+  comment     String              @db.Text
   postId      String
   authorId    Int
   parentId    String?

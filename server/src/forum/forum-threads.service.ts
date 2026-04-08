@@ -97,6 +97,9 @@ export class ForumThreadsService {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
+      });
+      return this.prismaService.forum_threads.findUnique({
+        where: { id: createdThread.id },
         include: {
           forums: {
             include: {
@@ -118,8 +121,6 @@ export class ForumThreadsService {
           },
         },
       });
-
-      return createdThread;
     } catch (error) {
       // Handle Prisma-specific errors
       if (error.code === 'P2002') {

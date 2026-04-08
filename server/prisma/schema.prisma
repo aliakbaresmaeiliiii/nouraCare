@@ -110,7 +110,7 @@ model forum_comment_likes {
 
 model forum_comments {
   id        String   @id
-  content   String   @db.Text
+  comment   String   @db.Text
   postId    String
   authorId  Int
   parentId  String?

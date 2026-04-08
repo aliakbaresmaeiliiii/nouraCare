@@ -117,7 +117,7 @@ export interface ForumCategory {
 export interface ForumTopic {
   id: string;
   title: string;
-  description: string;
+  comment: string;
   author: string;
   authorAvatar?: string;
   category: string;

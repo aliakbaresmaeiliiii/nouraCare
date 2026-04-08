@@ -326,7 +326,7 @@ async function main() {
     await db.forum_comments.create({
       data: {
         id: forumCommentId,
-        content: 'Thanks for sharing!',
+        comment: 'Thanks for sharing!',
         postId,
         authorId: adminUser.id,
         updatedAt: now(),

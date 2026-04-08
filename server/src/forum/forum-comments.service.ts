@@ -17,7 +17,7 @@ export class ForumCommentsService {
   async create(createCommentDto: CreateCommentDto, postId: number) {
     try {
       // Validate input
-      if (!createCommentDto.content?.trim()) {
+      if (!createCommentDto.comment?.trim()) {
         throw new BadRequestException('Content is required');
       }
       if (!createCommentDto.postId) {
@@ -58,7 +58,7 @@ export class ForumCommentsService {
       const comment = await this.prismaService.forum_comments.create({
         data: {
           id: commentId,
-          content: createCommentDto.content.trim(),
+          comment: createCommentDto.comment.trim(),
           postId: createCommentDto.postId,
           authorId: postId,
           parentId: createCommentDto.parentId,
@@ -283,8 +283,8 @@ export class ForumCommentsService {
 
     const updateData: any = {};
     
-    if (updateCommentDto.content?.trim()) {
-      updateData.content = updateCommentDto.content.trim();
+    if (updateCommentDto.comment?.trim()) {
+      updateData.conmment = updateCommentDto.comment.trim();
     }
 
     return this.prismaService.forum_comments.update({

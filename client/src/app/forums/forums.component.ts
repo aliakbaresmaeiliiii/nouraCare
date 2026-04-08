@@ -60,7 +60,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     return topics.filter(
       (topic) =>
         topic.title.toLowerCase().includes(query) ||
-        topic.description.toLowerCase().includes(query) ||
+        topic.comment.toLowerCase().includes(query) ||
         topic.author.toLowerCase().includes(query) ||
         topic.tags.some((tag) => tag.toLowerCase().includes(query))
     );
@@ -98,7 +98,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     const newTopic: ForumTopic = {
       id: topicData.id,
       title: topicData.title,
-      description: topicData.description,
+      comment: topicData.description,
       author: topicData.author?.name || 'Anonymous',
       authorAvatar:
         topicData.author?.profileImage || '/assets/images/nurse.png',
@@ -284,7 +284,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response && response.success) {
           this.isLoading.set(false);
-          debugger;
           // Map the backend data to our frontend interface
           const threads = response.data.threads.map((thread: any) => ({
             id: thread.id,

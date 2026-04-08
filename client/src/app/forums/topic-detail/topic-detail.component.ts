@@ -115,11 +115,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     }
 
    const data= this.forumService.getStoreDataThread();
-   console.log(data);
-   if (data) {
-    this.categories.set(data);
+   console.log(data)
+   const allComments = data.map(thread => thread.user.forum_comments);
+   console.log(allComments);
+
+   if (allComments) {
+    this.categories.set(allComments[0]);
     if (this.topic) {
-      const thread = data.find((thread: any) => thread.id === this.topic?.id);
+      const thread = allComments.find((thread: any) => thread.id === this.topic?.id);
       if (thread) {
         this.categories.set(thread.forums?.category);
       }
@@ -668,7 +671,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     try {
       const shareData = {
         title: this.topic.title,
-        text: `${this.topic.description.substring(0, 200)}...`,
+        text: `${this.topic.comment.substring(0, 200)}...`,
         url: `${window.location.origin}/forums/topic/${this.topic.id}`,
       };
 
@@ -917,7 +920,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     if (!this.topic) return;
     this.isEditingPost = true;
     this.editPostTitle = this.topic.title;
-    this.editPostContent = this.topic.description;
+    this.editPostContent = this.topic.comment;
   }
 
   cancelEditPost() {
@@ -936,14 +939,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (title === this.topic.title && content === this.topic.description) {
+    if (title === this.topic.title && content === this.topic.comment) {
       this.cancelEditPost();
       return;
     }
 
     // Optimistic update
     const originalTitle = this.topic.title;
-    const originalDescription = this.topic.description;
+    const originalDescription = this.topic.comment;
     const submittedTitle = title;
     const submittedContent = content;
     this.isSavingPost = true;
@@ -951,7 +954,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     this.editPostTitle = '';
     this.editPostContent = '';
     this.topic.title = title;
-    this.topic.description = content;
+    this.topic.comment = content;
     this.forumService
       .editPost(this.topicId(), title, content)
       .pipe(
@@ -961,7 +964,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
           } else {
             // Revert optimistic update on failure
             this.topic!.title = originalTitle;
-            this.topic!.description = originalDescription;
+            this.topic!.comment = originalDescription;
             this.isEditingPost = true;
             this.editPostTitle = submittedTitle;
             this.editPostContent = submittedContent;
@@ -975,7 +978,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
         catchError((error: any) => {
           // Revert optimistic update on error
           this.topic!.title = originalTitle;
-          this.topic!.description = originalDescription;
+          this.topic!.comment = originalDescription;
           this.isEditingPost = true;
           this.editPostTitle = submittedTitle;
           this.editPostContent = submittedContent;
