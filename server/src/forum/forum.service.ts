@@ -238,4 +238,57 @@ export class ForumService {
       },
     });
   }
+
+  async likeComment(commentId: string, userId: number, isLike: boolean) {
+    const comment = await this.prisma.forum_comments.findFirst({
+      where: {
+        id: commentId,
+        isDeleted: false,
+      },
+    });
+
+    if (!comment) {
+      throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
+    }
+
+    const existingLike = await this.prisma.forum_comment_likes.findUnique({
+      where: {
+        commentId_userId: {
+          commentId,
+          userId,
+        },
+      },
+    });
+
+    if (isLike && !existingLike) {
+      await this.prisma.forum_comment_likes.create({
+        data: {
+          id: randomUUID(),
+          commentId,
+          userId,
+          createdAt: new Date(),
+        },
+      });
+    }
+
+    if (!isLike && existingLike) {
+      await this.prisma.forum_comment_likes.delete({
+        where: {
+          commentId_userId: {
+            commentId,
+            userId,
+          },
+        },
+      });
+    }
+
+    const likeCount = await this.prisma.forum_comment_likes.count({
+      where: { commentId },
+    });
+
+    return {
+      liked: isLike,
+      likeCount,
+    };
+  }
 }

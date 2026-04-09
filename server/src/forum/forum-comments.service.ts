@@ -14,29 +14,66 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 export class ForumCommentsService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(createCommentDto: CreateCommentDto, postId: number) {
+  async create(createCommentDto: any, postId: number) {
     try {
+      const normalizedComment =
+        createCommentDto.comment?.trim() || createCommentDto.content?.trim();
+      const postOrThreadId =
+        createCommentDto.postId || createCommentDto.id || createCommentDto.threadId;
+      const normalizedParentId =
+        typeof createCommentDto.parentId === 'string' &&
+        createCommentDto.parentId.trim() === ''
+          ? null
+          : createCommentDto.parentId;
+
       // Validate input
-      if (!createCommentDto.comment?.trim()) {
+      if (!normalizedComment) {
         throw new BadRequestException('Content is required');
       }
-      if (!createCommentDto.postId) {
+      if (!postOrThreadId) {
         throw new BadRequestException('Post ID is required');
       }
 
-      // Check if post exists
-      const post = await this.prismaService.forum_posts.findUnique({
-        where: { id: createCommentDto.postId },
+      // Try direct post lookup first
+      let targetPost = await this.prismaService.forum_posts.findUnique({
+        where: { id: postOrThreadId },
       });
 
-      if (!post) {
-        throw new NotFoundException('Forum post not found');
+      // If payload passed a threadId, map it to one post of that thread
+      if (!targetPost) {
+        targetPost = await this.prismaService.forum_posts.findFirst({
+          where: { threadId: postOrThreadId, isDeleted: false },
+          orderBy: { createdAt: 'asc' },
+        });
+      }
+
+      // If thread exists but has no posts yet, create a root post so comments/replies can attach
+      if (!targetPost) {
+        const thread = await this.prismaService.forum_threads.findUnique({
+          where: { id: postOrThreadId },
+        });
+        if (thread) {
+          targetPost = await this.prismaService.forum_posts.create({
+            data: {
+              id: randomUUID(),
+              content: thread.content || thread.title || 'Thread starter',
+              threadId: thread.id,
+              authorId: postId,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            },
+          });
+        }
+      }
+
+      if (!targetPost) {
+        throw new NotFoundException('Forum post or thread not found');
       }
 
       // Check if parent comment exists (if provided)
-      if (createCommentDto.parentId) {
+      if (normalizedParentId) {
         const parentComment = await this.prismaService.forum_comments.findUnique({
-          where: { id: createCommentDto.parentId },
+          where: { id: normalizedParentId },
         });
 
         if (!parentComment) {
@@ -58,10 +95,10 @@ export class ForumCommentsService {
       const comment = await this.prismaService.forum_comments.create({
         data: {
           id: commentId,
-          comment: createCommentDto.comment.trim(),
-          postId: createCommentDto.postId,
+          comment: normalizedComment,
+          postId: targetPost.id,
           authorId: postId,
-          parentId: createCommentDto.parentId,
+          parentId: normalizedParentId,
           createdAt: new Date(),
           updatedAt: new Date(),
         },

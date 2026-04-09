@@ -95,9 +95,14 @@ export class ForumService {
   }
 
   createComment(createComment: CreateCommentDto) {
+    const payload: any = {
+      comment: (createComment as any).comment || (createComment as any).content,
+      postId: (createComment as any).postId || (createComment as any).id,
+      parentId: createComment.parentId,
+    };
     return this.http.post<PostResponse>(
       `${this.forumCommentBaseUrl}`,
-      createComment,
+      payload,
     );
   }
 

@@ -139,4 +139,23 @@ export class ForumController {
       message: 'Comment deleted successfully',
     };
   }
+
+  @Post('comment/:id/like')
+  @UseGuards(JwtAuthGuard)
+  async likeComment(
+    @Param('id') id: string,
+    @Body() likeCommentDto: LikeCommentDto,
+    @Req() req: any,
+  ) {
+    const userId = req.user.id;
+    const result = await this.forumService.likeComment(
+      id,
+      userId,
+      likeCommentDto.isLike,
+    );
+    return {
+      success: true,
+      data: result,
+    };
+  }
 }

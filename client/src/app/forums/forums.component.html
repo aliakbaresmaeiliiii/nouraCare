@@ -241,7 +241,6 @@
               <h3 class="topic-title">{{ topic.title }}</h3>
             </div>
 
-            <p class="topic-excerpt">{{ topic.comment }}</p>
 
             <div class="topic-meta">
               <div class="author-info">
@@ -288,7 +287,7 @@
                 formatRelativeTime(topic.lastReply)
               }}</span>
             </div>
-            @if (topic.recentComments && topic.recentComments.length > 0) {
+            <!-- @if (topic.recentComments && topic.recentComments.length > 0) {
             <div class="topic-recent-comment">
               <ion-icon name="chatbox-ellipses-outline" class="stat-icon"></ion-icon>
               <span class="stat-text">{{
@@ -297,7 +296,7 @@
                   : topic.recentComments[0].comment
               }}</span>
             </div>
-            }
+            } -->
           </div>
         </ion-item>
         }

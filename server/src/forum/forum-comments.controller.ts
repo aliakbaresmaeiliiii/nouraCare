@@ -19,8 +19,15 @@ export class ForumCommentsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() createCommentDto: any, @Request() req) {
-    return this.forumCommentsService.create(createCommentDto, req.user.id);
+  async create(@Body() createCommentDto: any, @Request() req) {
+    const comment = await this.forumCommentsService.create(
+      createCommentDto,
+      req.user.id,
+    );
+    return {
+      success: true,
+      data: comment,
+    };
   }
 
   @Get('post/:postId')
