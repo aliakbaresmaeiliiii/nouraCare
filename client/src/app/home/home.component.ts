@@ -18,7 +18,9 @@ import {
   calculatorOutline,
   checkmark,
   checkmarkCircle,
+  chevronDownOutline,
   chevronForward,
+  chevronUpOutline,
   closeCircleOutline,
   ellipseOutline,
   fitnessOutline,
@@ -157,6 +159,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   cycleDay: number = 14;
   temperature: number = 36.8;
   mood: string = 'Happy';
+  showMoreSections: boolean = false;
 
   // Appointments
   upcomingAppointments: any[] = [
@@ -199,7 +202,9 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       calculatorOutline,
       checkmark,
       checkmarkCircle,
+      chevronDownOutline,
       chevronForward,
+      chevronUpOutline,
       closeCircleOutline,
       ellipseOutline,
       fitnessOutline,
@@ -389,6 +394,8 @@ export class HomeComponent implements OnInit, ViewWillEnter {
    * This ensures the chart is refreshed when returning from other pages
    */
   ionViewWillEnter() {
+    // Default to compact mode each time user opens Home.
+    this.showMoreSections = false;
 
     // Check both local storage and API data
     const userInfo = this.userInfoService.getCurrentUserInfo();
@@ -1633,6 +1640,10 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Community Actions
   async joinCommunity() {
     await this.navigateToCommunity();
+  }
+
+  toggleMoreSections() {
+    this.showMoreSections = !this.showMoreSections;
   }
 
   // Floating Action Button

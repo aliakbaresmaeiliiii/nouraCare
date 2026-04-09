@@ -138,19 +138,9 @@
   @if (isPregnant) {
     <div class="pregnancy-section">
     <div class="pregnancy-hero">
-      <div class="hero-background">
-        <div class="floating-elements">
-          <div class="heart heart-1">💕</div>
-          <div class="heart heart-2">💖</div>
-          <div class="heart heart-3">💗</div>
-          <div class="star star-1">✨</div>
-          <div class="star star-2">⭐</div>
-        </div>
-      </div>
-
       <div class="pregnancy-header">
         <div class="header-content">
-          <h2 class="pregnancy-title">Your Beautiful Journey</h2>
+          <h2 class="pregnancy-title">Pregnancy Progress</h2>
           <p class="pregnancy-subtitle">
             Week {{ pregnancyWeek }} of 40 • {{ getTrimester() }}
           </p>
@@ -161,7 +151,7 @@
         </div>
       </div>
 
-      <!-- Stunning Progress Ring -->
+      <!-- Progress Ring -->
       <div class="pregnancy-progress">
         <div class="progress-container">
           <div class="progress-ring">
@@ -206,7 +196,7 @@
           </div>
         </div>
 
-        <!-- Beautiful Stats Cards -->
+        <!-- Stats Cards -->
         <div class="pregnancy-stats">
           <div class="stat-card days-card">
             <div class="stat-icon">
@@ -216,7 +206,6 @@
               <span class="stat-value">{{ getDaysRemaining() }}</span>
               <span class="stat-label">days to go</span>
             </div>
-            <div class="stat-decoration">💕</div>
           </div>
 
           <div class="stat-card due-card">
@@ -227,13 +216,12 @@
               <span class="stat-value">{{ getDueDate() }}</span>
               <span class="stat-label">due date</span>
             </div>
-            <div class="stat-decoration">📅</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Incredible Baby Development Card -->
+    <!-- Baby Development Card -->
     <div class="baby-development-card">
       <div class="card-background">
         <div class="baby-pattern"></div>
@@ -255,7 +243,7 @@
 
       <div class="baby-info">
         <div class="info-header">
-          <h3 class="baby-title">Your Little Miracle</h3>
+          <h3 class="baby-title">Baby Development</h3>
           <div class="week-badge">Week {{ pregnancyWeek }}</div>
         </div>
 
@@ -374,6 +362,21 @@
     </div>
   </div>
 
+  <div class="secondary-toggle-section">
+    <ion-button
+      fill="outline"
+      class="toggle-more-btn"
+      (click)="toggleMoreSections()"
+    >
+      <ion-icon
+        [name]="showMoreSections ? 'chevron-up-outline' : 'chevron-down-outline'"
+        slot="start"
+      ></ion-icon>
+      {{ showMoreSections ? 'Show less' : 'See more' }}
+    </ion-button>
+  </div>
+
+  @if (showMoreSections) {
   <!-- Today's Symptoms Tracker -->
   <div class="symptoms-section">
     <div class="section-header">
@@ -651,6 +654,7 @@
       </ion-button>
     </div>
   </div>
+  }
 
   <!-- Floating Quick Menu -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="quick-fab">

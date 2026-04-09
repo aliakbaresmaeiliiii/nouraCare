@@ -15,6 +15,46 @@
   z-index: 1;
 }
 
+// Compact first-screen readability tweaks
+.quick-actions-section,
+.symptoms-section,
+.tools-section,
+.insights-section,
+.expert-section,
+.community-section {
+  margin-bottom: 0.85rem;
+}
+
+.section-header {
+  margin-bottom: 0.65rem;
+}
+
+.section-header .section-title {
+  font-size: 1.12rem;
+  margin-bottom: 0.15rem;
+}
+
+.section-header .section-subtitle {
+  font-size: 0.86rem;
+  opacity: 0.88;
+}
+
+.secondary-toggle-section {
+  padding: 0 var(--app-side-padding) 0.75rem;
+  display: flex;
+  justify-content: center;
+
+  .toggle-more-btn {
+    --border-radius: 999px;
+    --border-color: rgba(102, 126, 234, 0.35);
+    --color: #4856c5;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+}
+
 // Welcome Hero Section
 .welcome-hero {
   position: relative;
@@ -1756,5 +1796,172 @@
   .community-section {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+}
+
+// Modern, cleaner pregnancy styles override
+.home-content .pregnancy-section {
+  .pregnancy-hero {
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+
+    .pregnancy-header {
+      text-align: left;
+      margin-bottom: 1rem;
+
+      .header-content {
+        .pregnancy-title {
+          font-size: 1.2rem;
+          font-weight: 700;
+          margin: 0 0 0.25rem 0;
+          text-shadow: none;
+          color: #0f172a;
+        }
+
+        .pregnancy-subtitle {
+          color: #475569;
+          font-size: 0.9rem;
+          margin: 0 0 0.6rem 0;
+        }
+
+        .milestone-badge {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 999px;
+          backdrop-filter: none;
+          color: #334155;
+          padding: 0.35rem 0.7rem;
+
+          ion-icon {
+            color: #64748b;
+          }
+
+          span {
+            font-size: 0.78rem;
+          }
+        }
+      }
+    }
+
+    .pregnancy-progress {
+      gap: 1rem;
+
+      .progress-container .progress-ring {
+        width: 118px;
+        height: 118px;
+
+        .progress-svg {
+          .progress-bg {
+            stroke: #e2e8f0;
+          }
+
+          .progress-bar {
+            stroke: #6366f1;
+            filter: none;
+          }
+        }
+
+        .progress-content {
+          .week-display .progress-week {
+            font-size: 1.9rem;
+            color: #0f172a;
+            text-shadow: none;
+          }
+
+          .week-display .progress-label,
+          .progress-percentage {
+            color: #64748b;
+            opacity: 1;
+          }
+        }
+      }
+
+      .pregnancy-stats {
+        .stat-card {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          backdrop-filter: none;
+          padding: 0.85rem;
+          box-shadow: none;
+
+          &:hover {
+            transform: none;
+            background: #f8fafc;
+          }
+
+          .stat-icon {
+            background: #eef2ff;
+
+            ion-icon {
+              color: #4f46e5;
+            }
+          }
+
+          .stat-info {
+            .stat-value {
+              font-size: 1rem;
+              color: #0f172a;
+            }
+
+            .stat-label {
+              color: #64748b;
+              opacity: 1;
+              font-size: 0.8rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .baby-development-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
+    padding: 1rem;
+
+    .card-background {
+      display: none;
+    }
+
+    .baby-visual {
+      margin-bottom: 1rem;
+
+      .baby-illustration .baby-container .baby-size-indicator {
+        width: 96px;
+        height: 96px;
+        box-shadow: none;
+        background: #eef2ff;
+
+        .baby-icon {
+          font-size: 1.4rem;
+        }
+
+        .size-text {
+          color: #3730a3;
+          font-size: 0.75rem;
+        }
+      }
+    }
+
+    .baby-info {
+      .info-header .baby-title {
+        font-size: 1.05rem;
+        color: #0f172a;
+      }
+
+      .info-header .week-badge {
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+      }
+    }
   }
 }
