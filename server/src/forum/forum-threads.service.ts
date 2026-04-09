@@ -202,6 +202,7 @@ export class ForumThreadsService {
             postId: true,
             comment: true,
             authorId: true,
+            likeCount: true,
             createdAt: true,
             updatedAt: true,
             parentId: true,
@@ -218,6 +219,7 @@ export class ForumThreadsService {
         postId: string;
         comment: string;
         authorId: number;
+        likeCount: number;
         createdAt: Date;
         updatedAt: Date;
         parentId: string | null;
@@ -254,12 +256,47 @@ export class ForumThreadsService {
 
   async findOne(threadId: string) {
     try {
-      return await this.prismaService.forum_threads.update({
+      const thread = await this.prismaService.forum_threads.update({
         where: { id: threadId },
         data: {
           viewCount: { increment: 1 },
         },
       });
+
+      const postIds = (
+        await this.prismaService.forum_posts.findMany({
+          where: { threadId, isDeleted: false },
+          select: { id: true },
+        })
+      ).map((post) => post.id);
+
+      const comments =
+        postIds.length > 0
+          ? await this.prismaService.forum_comments.findMany({
+              where: {
+                postId: { in: postIds },
+                isDeleted: false,
+              },
+              orderBy: { createdAt: 'desc' },
+              take: 20,
+              select: {
+                id: true,
+                postId: true,
+                comment: true,
+                authorId: true,
+                likeCount: true,
+                createdAt: true,
+                updatedAt: true,
+                parentId: true,
+              },
+            })
+          : [];
+
+      return {
+        ...thread,
+        commentCount: comments.length,
+        comments,
+      };
     } catch (error: any) {
       if (error?.code === 'P2025') {
         throw new NotFoundException('Forum thread not found');

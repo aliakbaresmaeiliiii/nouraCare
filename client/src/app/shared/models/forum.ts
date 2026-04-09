@@ -141,6 +141,10 @@ export interface ForumTopic {
   recentComments?: Array<{
     id: string;
     comment: string;
+    likeCount?: number;
+    authorId?: number;
+    parentId?: string | null;
+    updatedAt?: string;
     createdAt: string;
   }>;
 }

@@ -343,9 +343,28 @@ export class ForumsComponent implements OnInit, OnDestroy {
 
   openTopic(topic: ForumTopic) {
     const categoryId = this.selectedCategory();
+    const nextViews = (Number(topic.viewCount) || 0) + 1;
+    const updatedTopic: ForumTopic = {
+      ...topic,
+      viewCount: nextViews,
+    };
+
+    // Optimistic UI update in list (real increment is persisted in topic detail API call).
+    this.topics.update((items) =>
+      items.map((item) => (item.id === topic.id ? updatedTopic : item))
+    );
+    if (categoryId && categoryId !== 'all') {
+      const cached = this.topicsCache.get(categoryId) || [];
+      this.topicsCache.set(
+        categoryId,
+        cached.map((item) => (item.id === topic.id ? updatedTopic : item))
+      );
+    }
+    this.forumsService.setStoreDataThread(this.topics());
+
     // Create a topic object with categoryId included
     const topicWithCategory = {
-      ...topic,
+      ...updatedTopic,
       categoryId: categoryId,
     };
     this.forumsService.setTopicDetail(topicWithCategory);

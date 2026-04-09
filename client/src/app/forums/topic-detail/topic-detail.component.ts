@@ -124,6 +124,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       comment: string;
       createdAt: string;
       authorId?: number;
+      likeCount?: number;
       parentId?: string | null;
       updatedAt?: string;
     }> = []
@@ -147,7 +148,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
         replies: [],
         isLiked: false,
         _count: {
-          likes: 0,
+          likes: Number(item.likeCount) || 0,
           replies: 0,
         },
       };
@@ -187,7 +188,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       updatedAt: updated,
       replies: [],
       isLiked: row.isLiked ?? false,
-      _count: row._count ?? { likes: 0, replies: 0 },
+      _count: row._count ?? { likes: Number(row.likeCount) || 0, replies: 0 },
     };
   }
 
@@ -232,9 +233,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.topic = {
       ...apiTopic,
       recentComments:
-        prev?.recentComments?.length
-          ? prev.recentComments
-          : apiTopic.recentComments || [],
+        apiTopic.recentComments?.length
+          ? apiTopic.recentComments
+          : prev?.recentComments || [],
     };
     if (!this.comments().length && this.topic.recentComments?.length) {
       this.comments.set(
@@ -611,6 +612,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
+            comment!._count.likes = Number(response.likeCount) || 0;
             this.showToast(
               isLike ? 'Comment liked!' : 'Comment disliked!',
               'success'
@@ -898,6 +900,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   // Edit functionality
   startEditComment(comment: Comment) {
+    if (!this.canEditOrDelete(comment)) {
+      this.showToast('You can only edit your own comments', 'danger');
+      return;
+    }
     this.isEditingComment = comment.id;
     this.editTexts[comment.id] = comment.content;
   }
@@ -910,6 +916,12 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   async submitEdit(comment: Comment) {
+    if (!this.canEditOrDelete(comment)) {
+      await this.showToast('You can only edit your own comments', 'danger');
+      this.cancelEdit();
+      return;
+    }
+
     const editText = this.editTexts[comment.id]?.trim();
     if (!editText) {
       await this.showToast('Please write something to edit', 'warning');
@@ -976,6 +988,11 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   // Delete functionality
   async deleteComment(comment: Comment) {
+    if (!this.canEditOrDelete(comment)) {
+      await this.showToast('You can only delete your own comments', 'danger');
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: 'Delete Comment',
       message:
@@ -1000,30 +1017,42 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   private confirmDeleteComment(comment: Comment) {
+    if (!this.canEditOrDelete(comment)) {
+      this.showToast('You can only delete your own comments', 'danger');
+      return;
+    }
+
     // Store the original comment reference and position
-    const originalComment = { ...comment };
+    const originalComment = {
+      ...comment,
+      replies: comment.replies ? [...comment.replies] : [],
+      _count: { ...comment._count },
+    };
     const commentIndex = this.comments().findIndex((c) => c.id === comment.id);
     const isReply = !!comment.parentId;
 
     // Optimistic update - remove from UI immediately
-    if (commentIndex !== -1 && !isReply) {
-      this.comments().splice(commentIndex, 1);
-    }
-
-    // Also check and remove from replies if it's a reply
-    if (isReply) {
-      this.comments().forEach((parentComment) => {
-        if (parentComment.replies) {
-          const replyIndex = parentComment.replies.findIndex(
-            (r) => r.id === comment.id
-          );
-          if (replyIndex !== -1) {
-            parentComment.replies.splice(replyIndex, 1);
-            parentComment._count.replies -= 1;
-          }
-        }
+    this.comments.update((list) => {
+      if (!isReply) {
+        return list.filter((c) => c.id !== comment.id);
+      }
+      return list.map((parentComment) => {
+        const replyIndex = parentComment.replies?.findIndex(
+          (r) => r.id === comment.id
+        );
+        if (replyIndex == null || replyIndex === -1) return parentComment;
+        const nextReplies = [...parentComment.replies];
+        nextReplies.splice(replyIndex, 1);
+        return {
+          ...parentComment,
+          replies: nextReplies,
+          _count: {
+            ...parentComment._count,
+            replies: Math.max(0, (parentComment._count?.replies || 0) - 1),
+          },
+        };
       });
-    }
+    });
 
     this.forumService
       .deleteComment(comment.id)
@@ -1064,25 +1093,34 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   private revertCommentDeletion(comment: Comment, originalIndex: number) {
-    if (comment.parentId) {
-      // It's a reply, add back to parent comment
-      const parentComment = this.comments().find(
-        (c) => c.id === comment.parentId
-      );
-      if (parentComment) {
-        if (!parentComment.replies) parentComment.replies = [];
-        parentComment.replies.push(comment);
-        parentComment._count.replies += 1;
+    this.comments.update((list) => {
+      if (comment.parentId) {
+        // It's a reply, add back to parent comment
+        return list.map((parentComment) => {
+          if (parentComment.id !== comment.parentId) return parentComment;
+          const nextReplies = parentComment.replies
+            ? [...parentComment.replies, comment]
+            : [comment];
+          return {
+            ...parentComment,
+            replies: nextReplies,
+            _count: {
+              ...parentComment._count,
+              replies: (parentComment._count?.replies || 0) + 1,
+            },
+          };
+        });
       }
-    } else {
+
       // It's a top-level comment, add back to comments array at original position
-      if (originalIndex !== -1) {
-        this.comments().splice(originalIndex, 0, comment);
+      const next = [...list];
+      if (originalIndex >= 0 && originalIndex <= next.length) {
+        next.splice(originalIndex, 0, comment);
       } else {
-        // If original index not found, add to the end
-        this.comments().push(comment);
+        next.push(comment);
       }
-    }
+      return next;
+    });
   }
 
   ngOnDestroy(): void {

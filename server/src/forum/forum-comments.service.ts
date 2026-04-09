@@ -209,8 +209,8 @@ export class ForumCommentsService {
   }
 
   async update(id: string, updateCommentDto: UpdateCommentDto, userId: number) {
-    const comment = await this.prismaService.forum_comments.findUnique({
-      where: { id },
+    const comment = await this.prismaService.forum_comments.findFirst({
+      where: { id, isDeleted: false },
     });
 
     if (!comment) {
@@ -221,21 +221,23 @@ export class ForumCommentsService {
       throw new ForbiddenException('You can only update your own comments');
     }
 
-    const updateData: any = {};
-
-    if (updateCommentDto.comment?.trim()) {
-      updateData.comment = updateCommentDto.comment.trim();
+    const normalizedComment = updateCommentDto.comment?.trim();
+    if (!normalizedComment) {
+      throw new BadRequestException('Comment content is required');
     }
 
     return this.prismaService.forum_comments.update({
       where: { id },
-      data: updateData,
+      data: {
+        comment: normalizedComment,
+        updatedAt: new Date(),
+      },
     });
   }
 
   async remove(id: string, userId: number) {
-    const comment = await this.prismaService.forum_comments.findUnique({
-      where: { id },
+    const comment = await this.prismaService.forum_comments.findFirst({
+      where: { id, isDeleted: false },
     });
 
     if (!comment) {
@@ -246,13 +248,14 @@ export class ForumCommentsService {
       throw new ForbiddenException('You can only delete your own comments');
     }
 
-    // Soft delete the comment
-    return this.prismaService.forum_comments.update({
-      where: { id },
-      data: {
-        isDeleted: true,
-        updatedAt: new Date(),
-      },
+    // Hard delete the comment and its direct replies from DB.
+    return this.prismaService.$transaction(async (tx) => {
+      await tx.forum_comments.deleteMany({
+        where: { parentId: id },
+      });
+      return tx.forum_comments.delete({
+        where: { id },
+      });
     });
   }
 }
