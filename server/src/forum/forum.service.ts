@@ -251,26 +251,69 @@ export class ForumService {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
 
-    // Counter-only strategy (no per-user like tracking table)
-    const updated = await this.prisma.forum_comments.update({
-      where: { id: commentId },
-      data: {
-        likeCount: isLike ? { increment: 1 } : { decrement: 1 },
-        updatedAt: new Date(),
-      },
-      select: { likeCount: true },
-    });
-    const likeCount = Math.max(0, updated.likeCount);
-    if (updated.likeCount < 0) {
-      await this.prisma.forum_comments.update({
-        where: { id: commentId },
-        data: { likeCount: 0 },
+    const result = await this.prisma.$transaction(async (tx) => {
+      const existingLike = await tx.forum_comment_likes.findUnique({
+        where: {
+          commentId_userId: {
+            commentId,
+            userId,
+          },
+        },
       });
-    }
 
-    return {
-      liked: isLike,
-      likeCount,
-    };
+      if (isLike) {
+        if (!existingLike) {
+          await tx.forum_comment_likes.create({
+            data: {
+              id: randomUUID(),
+              commentId,
+              userId,
+              createdAt: new Date(),
+            },
+          });
+          await tx.forum_comments.update({
+            where: { id: commentId },
+            data: {
+              likeCount: { increment: 1 },
+              updatedAt: new Date(),
+            },
+          });
+        }
+      } else if (existingLike) {
+        await tx.forum_comment_likes.delete({
+          where: {
+            commentId_userId: {
+              commentId,
+              userId,
+            },
+          },
+        });
+
+        const current = await tx.forum_comments.findUnique({
+          where: { id: commentId },
+          select: { likeCount: true },
+        });
+        const nextLikeCount = Math.max(0, (current?.likeCount ?? 0) - 1);
+        await tx.forum_comments.update({
+          where: { id: commentId },
+          data: {
+            likeCount: nextLikeCount,
+            updatedAt: new Date(),
+          },
+        });
+      }
+
+      const currentCount = await tx.forum_comments.findUnique({
+        where: { id: commentId },
+        select: { likeCount: true },
+      });
+
+      return {
+        liked: isLike,
+        likeCount: currentCount?.likeCount ?? 0,
+      };
+    });
+
+    return result;
   }
 }

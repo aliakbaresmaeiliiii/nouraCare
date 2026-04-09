@@ -142,6 +142,7 @@ export interface ForumTopic {
     id: string;
     comment: string;
     likeCount?: number;
+    isLiked?: boolean;
     authorId?: number;
     parentId?: string | null;
     updatedAt?: string;

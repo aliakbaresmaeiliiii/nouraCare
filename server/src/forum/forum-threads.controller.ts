@@ -89,8 +89,16 @@ export class ForumThreadsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const thread = await this.forumThreadsService.findOne(id);
+  async findOne(
+    @Param('id') id: string,
+    @Query('viewerId') viewerId?: string,
+  ) {
+    const parsedViewerId =
+      viewerId != null && viewerId !== '' ? Number(viewerId) : NaN;
+    const thread = await this.forumThreadsService.findOne(
+      id,
+      Number.isFinite(parsedViewerId) ? parsedViewerId : undefined,
+    );
     return {
       success: true,
       data: thread,

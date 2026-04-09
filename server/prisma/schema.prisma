@@ -114,6 +114,17 @@ model forum_comments {
   @@index([postId], map: "forum_comments_postId_fkey")
 }
 
+model forum_comment_likes {
+  id        String   @id
+  commentId String
+  userId    Int
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@index([commentId], map: "forum_comment_likes_commentId_idx")
+  @@index([userId], map: "forum_comment_likes_userId_idx")
+}
+
 model forum_posts {
   id        String   @id
   content   String   @db.Text

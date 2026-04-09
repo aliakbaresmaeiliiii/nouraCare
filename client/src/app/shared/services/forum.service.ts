@@ -87,9 +87,13 @@ export class ForumService {
     );
   }
 
-  fetchThreadById(threadId: string | null) {
+  fetchThreadById(threadId: string | null, viewerId?: number | null) {
+    const viewerQuery =
+      typeof viewerId === 'number' && Number.isFinite(viewerId)
+        ? `?viewerId=${viewerId}`
+        : '';
     return this.http.get<ThreadDetailResponse>(
-      `${this.forumThreadsBaseUrl}/${threadId}`,
+      `${this.forumThreadsBaseUrl}/${threadId}${viewerQuery}`,
     );
   }
 

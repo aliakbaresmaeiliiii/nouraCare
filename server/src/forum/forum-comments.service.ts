@@ -250,6 +250,17 @@ export class ForumCommentsService {
 
     // Hard delete the comment and its direct replies from DB.
     return this.prismaService.$transaction(async (tx) => {
+      const replyIds = (
+        await tx.forum_comments.findMany({
+          where: { parentId: id },
+          select: { id: true },
+        })
+      ).map((item) => item.id);
+      const targets = [id, ...replyIds];
+
+      await tx.forum_comment_likes.deleteMany({
+        where: { commentId: { in: targets } },
+      });
       await tx.forum_comments.deleteMany({
         where: { parentId: id },
       });

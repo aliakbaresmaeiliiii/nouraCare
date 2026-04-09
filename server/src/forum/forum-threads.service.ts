@@ -254,7 +254,7 @@ export class ForumThreadsService {
     };
   }
 
-  async findOne(threadId: string) {
+  async findOne(threadId: string, viewerId?: number) {
     try {
       const thread = await this.prismaService.forum_threads.update({
         where: { id: threadId },
@@ -292,10 +292,30 @@ export class ForumThreadsService {
             })
           : [];
 
+      const commentIds = comments.map((item) => item.id);
+      const likedCommentIds = new Set<string>();
+      if (
+        typeof viewerId === 'number' &&
+        Number.isFinite(viewerId) &&
+        commentIds.length > 0
+      ) {
+        const myLikes = await this.prismaService.forum_comment_likes.findMany({
+          where: {
+            userId: viewerId,
+            commentId: { in: commentIds },
+          },
+          select: { commentId: true },
+        });
+        for (const row of myLikes) likedCommentIds.add(row.commentId);
+      }
+
       return {
         ...thread,
         commentCount: comments.length,
-        comments,
+        comments: comments.map((item) => ({
+          ...item,
+          isLiked: likedCommentIds.has(item.id),
+        })),
       };
     } catch (error: any) {
       if (error?.code === 'P2025') {

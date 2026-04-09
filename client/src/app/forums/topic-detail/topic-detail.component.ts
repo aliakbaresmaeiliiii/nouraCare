@@ -125,6 +125,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       createdAt: string;
       authorId?: number;
       likeCount?: number;
+      isLiked?: boolean;
       parentId?: string | null;
       updatedAt?: string;
     }> = []
@@ -146,7 +147,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
         createdAt: item.createdAt || new Date().toISOString(),
         updatedAt: item.updatedAt || item.createdAt || new Date().toISOString(),
         replies: [],
-        isLiked: false,
+        isLiked: !!item.isLiked,
         _count: {
           likes: Number(item.likeCount) || 0,
           replies: 0,
@@ -237,7 +238,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
           ? apiTopic.recentComments
           : prev?.recentComments || [],
     };
-    if (!this.comments().length && this.topic.recentComments?.length) {
+    if (this.topic.recentComments?.length) {
       this.comments.set(
         this.mapRecentCommentsToDetailComments(this.topic.recentComments)
       );
@@ -246,7 +247,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   /** GET thread increments viewCount on the server; merge result into UI state. */
   private syncThreadWithServer(threadId: string): void {
-    this.forumService.fetchThreadById(threadId).subscribe({
+    this.forumService.fetchThreadById(threadId, this.userId()).subscribe({
       next: (response: any) => this.mergeThreadDetailResponse(response),
     });
   }
@@ -578,64 +579,76 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   likeComment(commentId: string) {
-    // First try to find in top-level comments
-    let comment = this.comments().find((c) => c.id === commentId);
-
-    // If not found in top-level, search in replies
-    if (!comment) {
-      for (const parentComment of this.comments()) {
-        if (parentComment.replies) {
-          const reply = parentComment.replies.find((r) => r.id === commentId);
-          if (reply) {
-            comment = reply;
-            break;
-          }
+    const snapshot = this.comments();
+    let targetComment: Comment | undefined = snapshot.find((c) => c.id === commentId);
+    if (!targetComment) {
+      for (const parentComment of snapshot) {
+        const reply = parentComment.replies?.find((r) => r.id === commentId);
+        if (reply) {
+          targetComment = reply;
+          break;
         }
       }
     }
+    if (!targetComment) return;
 
-    if (!comment) return;
+    const previousLiked = !!targetComment.isLiked;
+    const previousLikes = Number(targetComment._count?.likes || 0);
+    const isLike = !previousLiked;
 
-    // Determine if this is a like or dislike action
-    const isLike = !comment.isLiked;
+    const applyLikeState = (liked: boolean, likeCount: number) => {
+      this.comments.update((list) =>
+        list.map((item) => {
+          if (item.id === commentId) {
+            return {
+              ...item,
+              isLiked: liked,
+              _count: { ...item._count, likes: Math.max(0, likeCount) },
+            };
+          }
+          if (item.replies?.length) {
+            const nextReplies = item.replies.map((reply) =>
+              reply.id === commentId
+                ? {
+                    ...reply,
+                    isLiked: liked,
+                    _count: { ...reply._count, likes: Math.max(0, likeCount) },
+                  }
+                : reply
+            );
+            return { ...item, replies: nextReplies };
+          }
+          return item;
+        })
+      );
+    };
 
     // Optimistic update
-    comment.isLiked = isLike;
-    if (isLike) {
-      comment._count.likes += 1;
-    } else {
-      comment._count.likes = Math.max(0, comment._count.likes - 1);
-    }
+    applyLikeState(isLike, previousLikes + (isLike ? 1 : -1));
 
     this.forumService
       .likeComment(commentId, isLike)
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            comment!._count.likes = Number(response.likeCount) || 0;
+            const serverLikeCount = Number(response?.data?.likeCount);
+            applyLikeState(
+              isLike,
+              Number.isFinite(serverLikeCount)
+                ? serverLikeCount
+                : previousLikes + (isLike ? 1 : -1)
+            );
             this.showToast(
               isLike ? 'Comment liked!' : 'Comment disliked!',
               'success'
             );
           } else {
-            // Revert optimistic update on failure
-            comment!.isLiked = !isLike;
-            if (isLike) {
-              comment!._count.likes = Math.max(0, comment!._count.likes - 1);
-            } else {
-              comment!._count.likes += 1;
-            }
+            applyLikeState(previousLiked, previousLikes);
             this.showToast('Failed to update like status', 'danger');
           }
         }),
         catchError((error: any) => {
-          // Revert optimistic update on error
-          comment!.isLiked = !isLike;
-          if (isLike) {
-            comment!._count.likes = Math.max(0, comment!._count.likes - 1);
-          } else {
-            comment!._count.likes += 1;
-          }
+          applyLikeState(previousLiked, previousLikes);
           this.showToast('Failed to update like status', 'danger');
           return of(null);
         })
