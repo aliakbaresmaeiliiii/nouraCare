@@ -63,17 +63,23 @@ export class ForumCommentsController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateCommentDto: any,
     @Request() req,
   ) {
-    return this.forumCommentsService.update(id, updateCommentDto, req.user.id);
+    const data = await this.forumCommentsService.update(
+      id,
+      updateCommentDto,
+      req.user.id,
+    );
+    return { success: true, data };
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@Param('id') id: string, @Request() req) {
-    return this.forumCommentsService.remove(id, req.user.id);
+  async remove(@Param('id') id: string, @Request() req) {
+    const data = await this.forumCommentsService.remove(id, req.user.id);
+    return { success: true, data };
   }
 }

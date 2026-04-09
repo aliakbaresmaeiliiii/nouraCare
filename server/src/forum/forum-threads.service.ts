@@ -189,12 +189,6 @@ export class ForumThreadsService {
       : [];
 
     const postIds = posts.map((post) => post.id);
-    const likes = postIds.length
-      ? await this.prismaService.forum_post_likes.findMany({
-          where: { postId: { in: postIds } },
-          select: { postId: true },
-        })
-      : [];
 
     const comments = postIds.length
       ? await this.prismaService.forum_comments.findMany({
@@ -216,12 +210,6 @@ export class ForumThreadsService {
       : [];
 
     const postToThread = new Map(posts.map((post) => [post.id, post.threadId]));
-    const likesByThread = new Map<string, number>();
-    for (const like of likes) {
-      const threadId = postToThread.get(like.postId);
-      if (!threadId) continue;
-      likesByThread.set(threadId, (likesByThread.get(threadId) ?? 0) + 1);
-    }
 
     const commentsByThread = new Map<
       string,
@@ -247,7 +235,7 @@ export class ForumThreadsService {
       const threadComments = commentsByThread.get(thread.id) ?? [];
       return {
         ...thread,
-        likeCount: likesByThread.get(thread.id) ?? 0,
+        likeCount: 0,
         commentCount: threadComments.length,
         comments: threadComments.slice(0, 5),
       };
@@ -265,9 +253,19 @@ export class ForumThreadsService {
   }
 
   async findOne(threadId: string) {
-    return this.prismaService.forum_threads.findUnique({
-      where: { id: threadId },
-    });
+    try {
+      return await this.prismaService.forum_threads.update({
+        where: { id: threadId },
+        data: {
+          viewCount: { increment: 1 },
+        },
+      });
+    } catch (error: any) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException('Forum thread not found');
+      }
+      throw error;
+    }
   }
 
   async findByCategory(categoryId: string) {
@@ -295,28 +293,65 @@ export class ForumThreadsService {
       throw new NotFoundException('Forum thread not found');
     }
 
-    // Check if user is the author of the thread
-    if (thread.authorId !== userId) {
+    const authorId = Number(thread.authorId);
+    const requestUserId = Number(userId);
+    if (authorId !== requestUserId) {
       throw new ForbiddenException('You can only update your own threads');
     }
 
-    const updateData: any = {};
+    const dto = updateForumThreadDto as Record<string, unknown>;
     const normalizedUpdateContent =
-      updateForumThreadDto.description?.trim() ||
-      updateForumThreadDto.content?.trim();
+      (typeof dto.description === 'string' && dto.description.trim()) ||
+      (typeof dto.content === 'string' && dto.content.trim()) ||
+      '';
 
-    if (updateForumThreadDto.title?.trim()) {
-      updateData.title = updateForumThreadDto.title.trim();
+    const updateData: {
+      title?: string;
+      content?: string;
+      updatedAt: Date;
+    } = {
+      updatedAt: new Date(),
+    };
+
+    if (typeof dto.title === 'string' && dto.title.trim()) {
+      updateData.title = dto.title.trim();
     }
 
     if (normalizedUpdateContent) {
       updateData.content = normalizedUpdateContent;
     }
 
-    return this.prismaService.forum_threads.update({
+    const hasBodyUpdate =
+      updateData.title !== undefined || updateData.content !== undefined;
+    if (!hasBodyUpdate) {
+      throw new BadRequestException(
+        'Provide at least title or content/description to update',
+      );
+    }
+
+    const updated = await this.prismaService.forum_threads.update({
       where: { id },
       data: updateData,
     });
+
+    // Root forum_post (used for comments / some UIs) must stay in sync with thread body
+    if (normalizedUpdateContent) {
+      const rootPost = await this.prismaService.forum_posts.findFirst({
+        where: { threadId: id, isDeleted: false },
+        orderBy: { createdAt: 'asc' },
+      });
+      if (rootPost) {
+        await this.prismaService.forum_posts.update({
+          where: { id: rootPost.id },
+          data: {
+            content: normalizedUpdateContent,
+            updatedAt: new Date(),
+          },
+        });
+      }
+    }
+
+    return updated;
   }
 
   async remove(id: string, userId: number) {

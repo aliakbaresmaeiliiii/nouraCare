@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AlertController,
   NavController,
-  ToastController
+  ToastController,
+  ViewWillEnter,
 } from '@ionic/angular';
 
 import { Share } from '@capacitor/share';
@@ -23,8 +24,16 @@ import {
   shareOutline,
   trashOutline,
 } from 'ionicons/icons';
-import { of } from 'rxjs';
-import { catchError, finalize, tap } from 'rxjs/operators';
+import { of, Subscription } from 'rxjs';
+import {
+  catchError,
+  distinctUntilChanged,
+  filter,
+  finalize,
+  map,
+  skip,
+  tap,
+} from 'rxjs/operators';
 import {
   Comment,
   CreateCommentDto,
@@ -44,7 +53,7 @@ import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
 })
-export class TopicDetailComponent implements OnInit, OnDestroy {
+export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   // Dependency injection
   private route = inject(ActivatedRoute);
   private navCtrl = inject(NavController);
@@ -74,6 +83,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   router = inject(Router);
   userId = signal<number | null>(null);
   categoryId = signal<string | undefined>('');
+  private paramSub?: Subscription;
+  private lastViewSyncAt = 0;
   // Computed properties for better performance
   get canEditOrDeletePost(): boolean {
     if (!this.topic) return false;
@@ -108,32 +119,81 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   }
 
   private mapRecentCommentsToDetailComments(
-    comments: Array<{ id: string; comment: string; createdAt: string }> = []
+    comments: Array<{
+      id: string;
+      comment: string;
+      createdAt: string;
+      authorId?: number;
+      parentId?: string | null;
+      updatedAt?: string;
+    }> = []
   ): Comment[] {
-    return comments.map((item) => ({
-      id: item.id,
-      content: item.comment || '',
-      author: {
-        id: 0,
-        name: 'Community member',
-        profileImage: null,
-      },
-      authorId: 0,
-      threadId: this.topicId() || '',
-      parentId: null,
-      isDeleted: false,
-      createdAt: item.createdAt || new Date().toISOString(),
-      updatedAt: item.createdAt || new Date().toISOString(),
+    return comments.map((item) => {
+      const authorId = Number(item.authorId) || 0;
+      return {
+        id: item.id,
+        content: item.comment || '',
+        author: {
+          id: authorId,
+          name: 'Community member',
+          profileImage: null,
+        },
+        authorId,
+        threadId: this.topicId() || '',
+        parentId: item.parentId ?? null,
+        isDeleted: false,
+        createdAt: item.createdAt || new Date().toISOString(),
+        updatedAt: item.updatedAt || item.createdAt || new Date().toISOString(),
+        replies: [],
+        isLiked: false,
+        _count: {
+          likes: 0,
+          replies: 0,
+        },
+      };
+    });
+  }
+
+  private mapApiCommentToDetailComment(row: any): Comment {
+    const authorId = Number(row.authorId ?? row.author?.id) || 0;
+    const text = row.content ?? row.comment ?? '';
+    const created =
+      typeof row.createdAt === 'string'
+        ? row.createdAt
+        : row.createdAt?.toISOString?.() || new Date().toISOString();
+    const updated =
+      typeof row.updatedAt === 'string'
+        ? row.updatedAt
+        : row.updatedAt?.toISOString?.() || created;
+    return {
+      id: row.id,
+      content: text,
+      author: row.author?.name
+        ? {
+            id: Number(row.author?.id) || authorId,
+            name: row.author.name,
+            profileImage: row.author.profileImage ?? null,
+          }
+        : {
+            id: authorId,
+            name: 'Community member',
+            profileImage: null,
+          },
+      authorId,
+      threadId: row.threadId || this.topicId() || '',
+      parentId: row.parentId ?? null,
+      isDeleted: !!row.isDeleted,
+      createdAt: created,
+      updatedAt: updated,
       replies: [],
-      isLiked: false,
-      _count: {
-        likes: 0,
-        replies: 0,
-      },
-    }));
+      isLiked: row.isLiked ?? false,
+      _count: row._count ?? { likes: 0, replies: 0 },
+    };
   }
 
   private normalizeTopic(topic: any): ForumTopic {
+    const rawViews = topic?.views ?? topic?.viewCount ?? topic?.view_count ?? 0;
+    const normalizedViews = Number(rawViews);
     return {
       id: topic.id,
       title: topic.title || 'Untitled',
@@ -147,7 +207,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       category: topic.category || 'General Discussion',
       categoryId: topic.categoryId,
       replies: topic.replies ?? topic.commentCount ?? 0,
-      views: topic.views ?? topic.viewCount ?? 0,
+      viewCount: Number.isFinite(normalizedViews) ? normalizedViews : 0,
       lastReply: topic.lastReply || topic.updatedAt || topic.createdAt,
       isPinned: !!topic.isPinned,
       isLocked: !!topic.isLocked,
@@ -165,12 +225,69 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     };
   }
 
-  ngOnInit() {
-    const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) {
-      const user = JSON.parse(userInfo);
-      this.userId.set(user.id);
+  private mergeThreadDetailResponse(response: any): void {
+    if (!response?.success) return;
+    const apiTopic = this.normalizeTopic(response.data || response);
+    const prev = this.topic;
+    this.topic = {
+      ...apiTopic,
+      recentComments:
+        prev?.recentComments?.length
+          ? prev.recentComments
+          : apiTopic.recentComments || [],
+    };
+    if (!this.comments().length && this.topic.recentComments?.length) {
+      this.comments.set(
+        this.mapRecentCommentsToDetailComments(this.topic.recentComments)
+      );
     }
+  }
+
+  /** GET thread increments viewCount on the server; merge result into UI state. */
+  private syncThreadWithServer(threadId: string): void {
+    this.forumService.fetchThreadById(threadId).subscribe({
+      next: (response: any) => this.mergeThreadDetailResponse(response),
+    });
+  }
+
+  private syncThreadWithServerSafely(threadId: string): void {
+    const now = Date.now();
+    // Avoid duplicate GETs fired by ngOnInit + ionViewWillEnter back-to-back.
+    if (now - this.lastViewSyncAt < 700) return;
+    this.lastViewSyncAt = now;
+    this.syncThreadWithServer(threadId);
+  }
+
+  private hydrateTopicFromStore(threadId: string): void {
+    const selected = this.forumService.getTopicDetail();
+    const storeThreads = this.forumService.getStoreDataThread();
+    const fromStore = storeThreads.find((thread) => thread.id === threadId);
+    const source = selected?.id === threadId ? selected : fromStore;
+    if (source) {
+      this.topic = this.normalizeTopic(source);
+      this.comments.set(
+        this.mapRecentCommentsToDetailComments(this.topic.recentComments)
+      );
+    }
+  }
+
+  private readStoredUserId(): number | null {
+    const raw = localStorage.getItem('userInfo');
+    if (!raw) return null;
+    try {
+      const u = JSON.parse(raw);
+      const id = u?.id ?? u?.user?.id ?? u?.data?.user?.id;
+      if (id == null || id === '') return null;
+      const n = Number(id);
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  }
+
+  ngOnInit() {
+    const sid = this.readStoredUserId();
+    if (sid != null) this.userId.set(sid);
 
     const threadId = this.route.snapshot.paramMap.get('id');
     this.topicId.set(threadId);
@@ -179,36 +296,33 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const selected = this.forumService.getTopicDetail();
-    const storeThreads = this.forumService.getStoreDataThread();
-    const fromStore = storeThreads.find((thread) => thread.id === threadId);
-    const source = selected?.id === threadId ? selected : fromStore;
+    this.hydrateTopicFromStore(threadId);
+    // Ensure first open always hits API (increments viewCount server-side).
+    this.syncThreadWithServerSafely(threadId);
 
-    if (source) {
-      this.topic = this.normalizeTopic(source);
-      this.comments.set(
-        this.mapRecentCommentsToDetailComments(this.topic.recentComments)
-      );
-    }
+    // Same component instance, different :id — refetch without double-counting first load
+    // (first load is handled in ionViewWillEnter).
+    this.paramSub = this.route.paramMap
+      .pipe(
+        map((p) => p.get('id')),
+        filter((id): id is string => !!id),
+        distinctUntilChanged(),
+        skip(1),
+      )
+      .subscribe((id) => {
+        this.topicId.set(id);
+        this.hydrateTopicFromStore(id);
+        this.syncThreadWithServerSafely(id);
+      });
+  }
 
-    // Fallback for direct open/refresh: keep topic basic data synced
-    this.forumService.fetchThreadById(threadId).subscribe({
-      next: (response: any) => {
-        if (!response?.success) return;
-        const apiTopic = this.normalizeTopic(response.data || response);
-        this.topic = {
-          ...apiTopic,
-          // keep richer topic data from list/store if already available
-          recentComments:
-            this.topic?.recentComments?.length ? this.topic.recentComments : [],
-        };
-        if (!this.comments().length && this.topic.recentComments?.length) {
-          this.comments.set(
-            this.mapRecentCommentsToDetailComments(this.topic.recentComments)
-          );
-        }
-      },
-    });
+  ionViewWillEnter(): void {
+    const sid = this.readStoredUserId();
+    if (sid != null) this.userId.set(sid);
+    const threadId = this.route.snapshot.paramMap.get('id');
+    if (!threadId) return;
+    this.topicId.set(threadId);
+    this.syncThreadWithServerSafely(threadId);
   }
   //   this.forumService
   //     .fetchThreadById(threadId)
@@ -417,25 +531,17 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            // Replace optimistic comment with actual response data
+            const mapped = this.mapApiCommentToDetailComment(response.data);
+            mapped.author = {
+              id: currentUser?.id ?? mapped.authorId,
+              name: currentUser?.name || currentUser?.fullName || 'You',
+              profileImage:
+                currentUser?.profileImage ?? mapped.author.profileImage,
+            };
+            mapped.authorId = currentUser?.id ?? mapped.authorId;
             this.comments.update((comments) =>
               comments.map((comment) =>
-                comment.id === optimisticComment.id
-                  ? {
-                      ...response.data,
-                      author: {
-                        id: response.data.author?.id || currentUser?.id || 0,
-                        name:
-                          response.data.author?.name ||
-                          currentUser?.name ||
-                          'You',
-                        profileImage:
-                          response.data.author?.profileImage ||
-                          currentUser?.profileImage ||
-                          null,
-                      },
-                    }
-                  : comment
+                comment.id === optimisticComment.id ? mapped : comment
               )
             );
             this.showToast('Comment posted successfully!', 'success');
@@ -589,7 +695,18 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
               if (!parentComment.replies) {
                 parentComment.replies = [];
               }
-              parentComment.replies.push(response.data);
+              const mapped = this.mapApiCommentToDetailComment(response.data);
+              const userInfo = localStorage.getItem('userInfo');
+              const currentUser = userInfo ? JSON.parse(userInfo) : null;
+              mapped.author = {
+                id: currentUser?.id ?? mapped.authorId,
+                name: currentUser?.name || currentUser?.fullName || 'You',
+                profileImage:
+                  currentUser?.profileImage ?? mapped.author.profileImage,
+              };
+              mapped.authorId = currentUser?.id ?? mapped.authorId;
+              mapped.parentId = commentId;
+              parentComment.replies.push(mapped);
               parentComment._count.replies += 1;
             }
 
@@ -773,10 +890,10 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Permission check method
   canEditOrDelete(comment: Comment): boolean {
-    // In a real app, this would check against actual user data
-    return false;
+    const uid = this.userId();
+    if (uid == null) return false;
+    return Number(uid) === Number(comment.authorId);
   }
 
   // Edit functionality
@@ -813,12 +930,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
       .editComment(comment.id, editText)
       .pipe(
         tap((response: any) => {
-          if (response && response.success) {
-            this.comments.set(
-              this.comments().map((c) =>
-                c.id === comment.id ? response.data : c
-              )
-            );
+          if (response && response.success && response.data) {
+            const row = response.data;
+            comment.content = row.comment ?? row.content ?? comment.content;
+            comment.updatedAt =
+              typeof row.updatedAt === 'string'
+                ? row.updatedAt
+                : row.updatedAt?.toISOString?.() || comment.updatedAt;
+            this.comments.update((arr) => [...arr]);
             this.showToast('Comment updated successfully!', 'success');
           } else {
             // Revert optimistic update on failure
@@ -967,34 +1086,28 @@ export class TopicDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    this.paramSub?.unsubscribe();
   }
 
   // Manual refresh method
   refreshTopic(): void {
-    console.log('🔄 TopicDetail: Manual refresh triggered');
-    if (this.topicId()) {
-      this.forumService.fetchThreadById(this.topicId()!).pipe(
-        tap((response: any) => {
-          if (response && response.success) {
-            this.topic = response.data;
-          } 
-        }),
+    const id = this.topicId();
+    if (!id) return;
+    this.forumService
+      .fetchThreadById(id)
+      .pipe(
         catchError((error: any) => {
-          this.showToast('Failed to refresh topic: ' + error.message, 'danger');
+          this.showToast(
+            'Failed to refresh topic: ' +
+              (error?.message || 'Network error'),
+            'danger'
+          );
           return of(null);
         })
-      ).subscribe({
-        next: (response: any) => {
-          if (response && response.success) {
-            this.topic = response.data;
-          }
-        },
-        error: (error: any) => {
-          this.showToast('Failed to refresh topic: ' + error.message, 'danger');
-        }
+      )
+      .subscribe({
+        next: (response: any) => this.mergeThreadDetailResponse(response),
       });
-    }
   }
 
   startEditPost() {

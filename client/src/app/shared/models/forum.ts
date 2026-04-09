@@ -123,7 +123,7 @@ export interface ForumTopic {
   category: string;
   categoryId?: string;
   replies: number;
-  views: number;
+  viewCount: number;
   lastReply: string;
   isPinned: boolean;
   isLocked: boolean;

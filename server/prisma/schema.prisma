@@ -98,21 +98,12 @@ model forum_categories {
   updatedAt   DateTime
 }
 
-model forum_comment_likes {
-  id        String   @id
-  commentId String
-  userId    Int
-  createdAt DateTime @default(now())
-
-  @@unique([commentId, userId])
-  @@index([userId], map: "forum_comment_likes_userId_fkey")
-}
-
 model forum_comments {
   id        String   @id
   comment   String   @db.Text
   postId    String
   authorId  Int
+  likeCount Int      @default(0)
   parentId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime
@@ -121,16 +112,6 @@ model forum_comments {
   @@index([authorId], map: "forum_comments_authorId_fkey")
   @@index([parentId], map: "forum_comments_parentId_fkey")
   @@index([postId], map: "forum_comments_postId_fkey")
-}
-
-model forum_post_likes {
-  id        String   @id
-  postId    String
-  userId    Int
-  createdAt DateTime @default(now())
-
-  @@unique([postId, userId])
-  @@index([userId], map: "forum_post_likes_userId_fkey")
 }
 
 model forum_posts {
@@ -154,6 +135,7 @@ model forum_threads {
   content   String   @db.Text
   forumId   String
   authorId  Int
+  likeCount Int      @default(0)
   isPinned  Boolean  @default(false)
   isLocked  Boolean  @default(false)
   viewCount Int      @default(0)

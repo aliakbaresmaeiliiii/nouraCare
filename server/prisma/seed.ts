@@ -318,7 +318,7 @@ async function main() {
   }
   console.log('✅ Forums, threads, posts');
 
-  // 11. Forum comment + comment like (one per post if missing)
+  // 11. Forum comment (one per post if missing)
   let forumCommentId: string | null = null;
   const hasComment = await db.forum_comments.findFirst({ where: { postId } });
   if (!hasComment) {
@@ -335,21 +335,13 @@ async function main() {
   } else {
     forumCommentId = hasComment.id;
   }
-  const existingPostLike = await db.forum_post_likes.findFirst({ where: { postId, userId: seedUser.id } });
-  if (!existingPostLike) {
-    await db.forum_post_likes.create({
-      data: { id: uuidv4(), postId, userId: seedUser.id },
+  if (forumCommentId) {
+    await db.forum_comments.update({
+      where: { id: forumCommentId },
+      data: { likeCount: 1 },
     });
   }
-  if (forumCommentId) {
-    const existingCommentLike = await db.forum_comment_likes.findFirst({ where: { commentId: forumCommentId, userId: adminUser.id } });
-    if (!existingCommentLike) {
-      await db.forum_comment_likes.create({
-        data: { id: uuidv4(), commentId: forumCommentId, userId: adminUser.id },
-      });
-    }
-  }
-  console.log('✅ Forum comments & likes');
+  console.log('✅ Forum comments');
 
   // 12. Chat message + message read
   let msgId: string | null = null;

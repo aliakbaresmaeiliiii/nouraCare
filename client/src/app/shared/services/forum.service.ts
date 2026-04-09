@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { of, Subject, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { EditPostResponse } from '../interfaces/forum.interface';
 import { ThreadsResponse } from './forum-threads.service';
 import {
@@ -141,14 +140,10 @@ export class ForumService {
     );
   }
 
-  // Alternative method using the specific comments endpoint
   editComment(commentId: string, content: string) {
-    return this.http.put<PostResponse>(
-      `${this.forumPostsBaseUrl}/comments/${commentId}`,
-      {
-        content: content,
-      },
-    );
+    return this.http.patch<PostResponse>(`${this.forumCommentBaseUrl}/${commentId}`, {
+      comment: content,
+    });
   }
 
   deletePost(postId: string) {
@@ -157,37 +152,12 @@ export class ForumService {
     );
   }
 
-  // Alternative method using the specific comments endpoint
   deleteComment(commentId: string) {
-    return this.http
-      .delete(`${this.forumThreadsBaseUrl}/${commentId}`, {
-        observe: 'response',
-      })
-      .pipe(
-        map((response) => {
-          // Handle 204 No Content response
-          if (response.status === 204) {
-            return { success: true, message: 'Comment deleted successfully' };
-          }
-          // For other status codes, try to parse the response body
-          return (
-            response.body || {
-              success: true,
-              message: 'Comment deleted successfully',
-            }
-          );
-        }),
-        catchError((error) => {
-          // Handle error responses
-          if (error.status === 204) {
-            return of({
-              success: true,
-              message: 'Comment deleted successfully',
-            });
-          }
-          return throwError(() => error);
-        }),
-      );
+    return this.http.delete<{
+      success: boolean;
+      data?: unknown;
+      message?: string;
+    }>(`${this.forumCommentBaseUrl}/${commentId}`);
   }
 
   // Post (Thread) edit and delete methods

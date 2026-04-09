@@ -104,7 +104,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
         topicData.author?.profileImage || '/assets/images/nurse.png',
       category: topicData.category?.name || 'General Discussion',
       replies: 0,
-      views: 0,
+      viewCount: 0,
       lastReply: topicData.createdAt,
       isPinned: false,
       isLocked: false,
@@ -140,7 +140,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       category: thread.category?.name || 'General Discussion',
       categoryId: thread.categoryId,
       replies: thread.commentCount ?? thread.repliesCount ?? 0,
-      views: thread.viewCount ?? thread.views ?? 0,
+      viewCount: thread.viewCount ?? thread.viewCount ?? 0,
       lastReply: thread.updatedAt || thread.createdAt,
       isPinned: thread.isPinned || false,
       isLocked: thread.isLocked || false,
@@ -210,15 +210,16 @@ export class ForumsComponent implements OnInit, OnDestroy {
             forum: category.forums?.[0] || null,
             postsCount: 0, // This would need to be calculated from forums data
             lastActivity: category.updatedAt,
+            viewCount: category.viewCount || 0,
             isPopular: false, // You can set this based on some criteria
           }));
           // Update both service store and component signal
           this.forumsService.setStoreDataCategory(categories);
           this.categories.set(categories);
+          console.log(categories[0]);
         }
       },
       error: (error: any) => {
-        console.error('Error loading categories:', error);
         this.isLoading.set(false);
         this.errorMessage.set('Failed to load categories');
       },

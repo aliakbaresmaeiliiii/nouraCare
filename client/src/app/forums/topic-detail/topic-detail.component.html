@@ -150,7 +150,7 @@
           </div>
           <div class="stat">
             <ion-icon name="eye-outline" class="stat-icon"></ion-icon>
-            <span class="stat-text">{{ topic.views }} views</span>
+            <span class="stat-text">{{ topic.viewCount }} views</span>
           </div>
 
           <!-- Edit/Delete buttons for post (only show if user has permission) -->
@@ -353,7 +353,36 @@
                     }}</span>
                   </div>
                 </div>
+                @if (isEditingComment === reply.id) {
+                <div class="edit-input-container">
+                  <ion-textarea
+                    [(ngModel)]="editTexts[reply.id]"
+                    placeholder="Edit your reply..."
+                    class="edit-input"
+                    rows="3"
+                    autoGrow="true"
+                  >
+                  </ion-textarea>
+                  <div class="edit-buttons">
+                    <ion-button
+                      fill="clear"
+                      class="cancel-edit-btn"
+                      (click)="cancelEdit()"
+                    >
+                      Cancel
+                    </ion-button>
+                    <ion-button
+                      [disabled]="!editTexts[reply.id].trim()"
+                      class="save-edit-btn"
+                      (click)="submitEdit(reply)"
+                    >
+                      Save
+                    </ion-button>
+                  </div>
+                </div>
+                } @else {
                 <p class="reply-text">{{ reply.content }}</p>
+                }
                 <div class="reply-actions">
                   <ion-button
                     fill="clear"
@@ -369,6 +398,24 @@
                       formatLikeCount(reply?._count?.likes || 0)
                     }}</span>
                   </ion-button>
+                  @if (canEditOrDelete(reply)) {
+                  <ion-button
+                    fill="clear"
+                    class="edit-btn"
+                    (click)="startEditComment(reply)"
+                  >
+                    <ion-icon name="create-outline"></ion-icon>
+                    <span class="edit-text">Edit</span>
+                  </ion-button>
+                  <ion-button
+                    fill="clear"
+                    class="delete-btn"
+                    (click)="deleteComment(reply)"
+                  >
+                    <ion-icon name="trash-outline"></ion-icon>
+                    <span class="delete-text">Delete</span>
+                  </ion-button>
+                  }
                 </div>
               </div>
               }

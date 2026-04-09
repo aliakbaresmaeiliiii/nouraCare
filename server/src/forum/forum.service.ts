@@ -251,40 +251,22 @@ export class ForumService {
       throw new HttpException('Comment not found', HttpStatus.NOT_FOUND);
     }
 
-    const existingLike = await this.prisma.forum_comment_likes.findUnique({
-      where: {
-        commentId_userId: {
-          commentId,
-          userId,
-        },
+    // Counter-only strategy (no per-user like tracking table)
+    const updated = await this.prisma.forum_comments.update({
+      where: { id: commentId },
+      data: {
+        likeCount: isLike ? { increment: 1 } : { decrement: 1 },
+        updatedAt: new Date(),
       },
+      select: { likeCount: true },
     });
-
-    if (isLike && !existingLike) {
-      await this.prisma.forum_comment_likes.create({
-        data: {
-          id: randomUUID(),
-          commentId,
-          userId,
-          createdAt: new Date(),
-        },
+    const likeCount = Math.max(0, updated.likeCount);
+    if (updated.likeCount < 0) {
+      await this.prisma.forum_comments.update({
+        where: { id: commentId },
+        data: { likeCount: 0 },
       });
     }
-
-    if (!isLike && existingLike) {
-      await this.prisma.forum_comment_likes.delete({
-        where: {
-          commentId_userId: {
-            commentId,
-            userId,
-          },
-        },
-      });
-    }
-
-    const likeCount = await this.prisma.forum_comment_likes.count({
-      where: { commentId },
-    });
 
     return {
       liked: isLike,

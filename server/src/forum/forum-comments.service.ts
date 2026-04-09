@@ -217,15 +217,14 @@ export class ForumCommentsService {
       throw new NotFoundException('Forum comment not found');
     }
 
-    // Check if user is the author of the comment
-    if (comment.authorId !== userId) {
+    if (Number(comment.authorId) !== Number(userId)) {
       throw new ForbiddenException('You can only update your own comments');
     }
 
     const updateData: any = {};
-    
+
     if (updateCommentDto.comment?.trim()) {
-      updateData.conmment = updateCommentDto.comment.trim();
+      updateData.comment = updateCommentDto.comment.trim();
     }
 
     return this.prismaService.forum_comments.update({
@@ -243,8 +242,7 @@ export class ForumCommentsService {
       throw new NotFoundException('Forum comment not found');
     }
 
-    // Check if user is the author of the comment
-    if (comment.authorId !== userId) {
+    if (Number(comment.authorId) !== Number(userId)) {
       throw new ForbiddenException('You can only delete your own comments');
     }
 
