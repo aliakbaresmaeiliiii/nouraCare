@@ -1965,3 +1965,87 @@
     }
   }
 }
+
+// Pregnancy section polish for smoother, cleaner UI.
+.home-content .pregnancy-section {
+  .pregnancy-hero {
+    padding: 1rem;
+    border-radius: 16px;
+  }
+
+  .pregnancy-hero .pregnancy-progress {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .pregnancy-hero .progress-container .progress-ring {
+    width: 104px;
+    height: 104px;
+  }
+
+  .pregnancy-hero .progress-container .progress-ring .progress-svg .progress-bar {
+    transition: stroke-dashoffset 280ms ease-out;
+  }
+
+  .pregnancy-hero .pregnancy-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .pregnancy-hero .pregnancy-stats .stat-card {
+    min-height: 68px;
+    align-items: center;
+  }
+
+  .baby-development-card {
+    border-radius: 16px;
+    padding: 0.9rem;
+  }
+
+  .baby-development-card .baby-visual .baby-illustration .baby-container .baby-size-indicator {
+    width: 84px;
+    height: 84px;
+  }
+
+  .baby-development-card .baby-visual .baby-illustration .baby-container .baby-size-indicator .baby-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+
+    ion-icon {
+      font-size: 22px;
+      color: #475569;
+    }
+  }
+
+  .baby-development-card .baby-info .baby-measurements {
+    gap: 8px;
+  }
+
+  .baby-development-card .baby-info .baby-measurements .measurement-card {
+    padding: 0.65rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .home-content .pregnancy-section {
+    .pregnancy-hero .pregnancy-progress {
+      grid-template-columns: 1fr;
+      justify-items: center;
+    }
+
+    .pregnancy-hero .pregnancy-stats {
+      width: 100%;
+      grid-template-columns: 1fr;
+    }
+
+    .baby-development-card .baby-info .baby-measurements {
+      grid-template-columns: 1fr;
+      display: grid;
+    }
+  }
+}

@@ -231,7 +231,9 @@
         <div class="baby-illustration">
           <div class="baby-container">
             <div class="baby-size-indicator" [class]="'week-' + pregnancyWeek">
-              <div class="baby-icon">👶</div>
+              <div class="baby-icon">
+                <ion-icon name="ellipse-outline"></ion-icon>
+              </div>
               <div class="size-text">
                 {{ getCurrentBabySize().size.split(" ")[1] }}
               </div>
