@@ -65,7 +65,6 @@ export class OnboardingService {
   private baseUrl = environment.apiEndPoint + 'onboarding';
   private meBaseUrl = environment.apiEndPoint + 'me';
 
-
   startOnboarding(): Observable<OnboardingSession> {
     return this.http.post<OnboardingSession>(`${this.baseUrl}/start`, {});
   }

@@ -80,8 +80,18 @@ export class ReproductiveStateService {
     const state = fromPrismaReproductiveState(stateRow.state);
     const base = { state, tips: [] as string[], nextPeriod: null as Date | null, week: null as number | null };
 
+    // Active pregnancy row wins over a stale reproductive_state (e.g. still CYCLE after week save).
+    const pregnancy = await this.pregnancyService.getDashboardData(tx, userId);
+    if (pregnancy.week != null) {
+      return {
+        state: 'pregnant' as const,
+        tips: [] as string[],
+        nextPeriod: null as Date | null,
+        week: pregnancy.week,
+      };
+    }
+
     if (state === 'pregnant') {
-      const pregnancy = await this.pregnancyService.getDashboardData(tx, userId);
       return { ...base, week: pregnancy.week };
     }
     if (state === 'cycle' || state === 'postpartum') {

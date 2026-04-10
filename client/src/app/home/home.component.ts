@@ -1,6 +1,22 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  effect,
+  inject,
+  NgZone,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ModalController, ToastController, ViewWillEnter } from '@ionic/angular';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import {
+  AlertController,
+  ModalController,
+  ToastController,
+  ViewWillEnter,
+} from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   add,
@@ -63,10 +79,19 @@ import {
   batteryDeadOutline,
   helpCircleOutline,
 } from 'ionicons/icons';
-import { PeriodDatePickerPageComponent, PeriodDateRange } from '../period-date-picker-page/period-date-picker-page.component';
+import {
+  PeriodDatePickerPageComponent,
+  PeriodDateRange,
+} from '../period-date-picker-page/period-date-picker-page.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
-import { FertilityResults, FertilityResultsModalComponent } from '../shared/components/fertility-results-modal/fertility-results-modal.component';
-import { PregnancyResults, PregnancyResultsModalComponent } from '../shared/components/pregnancy-results-modal/pregnancy-results-modal.component';
+import {
+  FertilityResults,
+  FertilityResultsModalComponent,
+} from '../shared/components/fertility-results-modal/fertility-results-modal.component';
+import {
+  PregnancyResults,
+  PregnancyResultsModalComponent,
+} from '../shared/components/pregnancy-results-modal/pregnancy-results-modal.component';
 import { SymptomsDto } from '../shared/models/symptoms.dto';
 import {
   BabyDevelopmentService,
@@ -76,11 +101,21 @@ import { CycleSettingsService } from '../shared/services/cycle-settings.service'
 import { MessageService } from '../shared/services/message.service';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { UserInfoService } from '../shared/services/user-info.service';
-import { UserSessionService } from '../shared/services/user-session.service';
 import { AuthService } from '../auth/services/auth';
-import { UserInfo } from '../shared/interfaces/user-info-api.interface';
+import type { UserInfo } from '../shared/interfaces/user-info-api.interface';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { OnboardingService } from '../shared/services/onboarding.service';
+import {
+  HomeReproductiveUiService,
+  type HomePageJourneyState,
+} from './services/home-reproductive-ui.service';
+import { HomeJourneyBridgeService } from './services/home-journey-bridge.service';
+import { HomeDataService } from './services/home-data.service';
+import {
+  getBabyDevelopmentFactForWeek,
+  getBabyFunFactForWeek,
+} from './data/home-baby-week-copy';
+import { HOME_POSTPARTUM_WEEK_SAMPLES } from './data/home-postpartum-sample.data';
 
 @Component({
   selector: 'app-home',
@@ -88,15 +123,19 @@ import { OnboardingService } from '../shared/services/onboarding.service';
   styleUrls: ['./home.component.scss'],
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class HomeComponent implements OnInit, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
-  private userSession = inject(UserSessionService);
   private authService = inject(AuthService);
   private onboardingService = inject(OnboardingService);
+  private homeReproUi = inject(HomeReproductiveUiService);
+  private homeJourneyBridge = inject(HomeJourneyBridgeService);
+  private homeData = inject(HomeDataService);
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private trackDataService = inject(TrackDataService);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
 
@@ -147,17 +186,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   feedingMethod: string = 'Breastfeeding';
   sleepPattern: string = 'Every 2-3 hours';
 
-  // Postpartum recovery data
-  postpartumData: any[] = [
-    { week: 1, recovery: 'Physical Healing', symptoms: ['Bleeding', 'Cramping', 'Fatigue'], tips: 'Rest as much as possible, stay hydrated' },
-    { week: 2, recovery: 'Emotional Adjustment', symptoms: ['Baby Blues', 'Mood Swings', 'Anxiety'], tips: 'Talk to your partner, seek support' },
-    { week: 3, recovery: 'Establishing Routine', symptoms: ['Sleep Deprivation', 'Breastfeeding Challenges'], tips: 'Accept help, practice self-care' },
-    { week: 4, recovery: 'Building Confidence', symptoms: ['Self-Doubt', 'Overwhelm'], tips: 'Trust your instincts, celebrate small wins' },
-    { week: 5, recovery: 'Physical Recovery', symptoms: ['Hormonal Changes', 'Body Changes'], tips: 'Gentle exercise, healthy nutrition' },
-    { week: 6, recovery: 'Emotional Balance', symptoms: ['Postpartum Depression Risk'], tips: 'Monitor mood, seek professional help if needed' },
-    { week: 8, recovery: 'New Normal', symptoms: ['Finding Balance', 'Identity Shift'], tips: 'Embrace the journey, be patient with yourself' },
-    { week: 12, recovery: 'Thriving', symptoms: ['Confidence Building', 'Routine Established'], tips: 'You\'re doing great! Keep going!' }
-  ];
+  postpartumData = HOME_POSTPARTUM_WEEK_SAMPLES;
 
   // Baby size data is now managed by BabyDevelopmentService
   // Access via: this.babyDevelopmentService.getAllBabySizeData()
@@ -175,15 +204,15 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       month: 'Dec',
       title: 'Prenatal Checkup',
       time: '10:00 AM',
-      doctor: 'Dr. Sarah Johnson'
+      doctor: 'Dr. Sarah Johnson',
     },
     {
       day: '22',
       month: 'Dec',
       title: 'Ultrasound',
       time: '2:30 PM',
-      doctor: 'Dr. Emily Rodriguez'
-    }
+      doctor: 'Dr. Emily Rodriguez',
+    },
   ];
 
   constructor(
@@ -254,25 +283,42 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       batteryDeadOutline,
       helpCircleOutline,
     });
+
+    // Reacts when week-detail pushes savedJourneyFromWeekDetail (signal) — works when ionViewWillEnter does not run.
+    effect(() => {
+      if (!this.authService.getAccessToken()) {
+        return;
+      }
+      if (this.homeJourneyBridge.savedJourneyFromWeekDetail() === null) {
+        return;
+      }
+      const state = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
+      if (!state) {
+        return;
+      }
+      this.applyJourneyStateToView(state);
+      this.cdr.markForCheck();
+      this.ngZone.run(() => this.runPeriodChartRefresh());
+    });
   }
-
-
 
   ngOnInit() {
     this.generateMessages();
-    this.loadPersistedData();
-    this.checkOnboardingStatus();
+    if (!this.authService.getAccessToken()) {
+      this.loadPersistedData();
+      this.checkOnboardingStatus();
+    }
     this.loadTodaySymptoms();
     this.loadRecentSymptomsDays();
     this.initializeHealthTip();
-    this.loadDashboardState();
+    // Embedded home tab may not always fire Ionic view enter before first paint.
+    this.syncDashboardFromServerAndRefreshChart();
 
     // Listen for symptoms updates
     // window.addEventListener('symptomsUpdated', () => {
     //   this.loadTodaySymptoms();
     //   this.loadRecentSymptomsDays();
     // });
-
   }
 
   /**
@@ -331,7 +377,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           this.cycleSettings.setUserStatus('Pregnant');
           this.cycleSettings.setPregnancyStatus(true);
           this.cycleSettings.setPostpartumStatus(false);
-
         } else if (data.pregnancy_status === 'postpartum') {
           this.userStatus = 'Postpartum';
           this.isPregnant = false;
@@ -341,7 +386,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           this.cycleSettings.setUserStatus('Postpartum');
           this.cycleSettings.setPregnancyStatus(false);
           this.cycleSettings.setPostpartumStatus(true);
-
         } else {
           // Trying to conceive or tracking
           this.userStatus = 'Trying to Conceive';
@@ -366,8 +410,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           this.periodStartDate = new Date(data.last_period);
           this.updateCycleDay();
         }
-
-
       } catch (error) {
         console.error('Error parsing onboarding data:', error);
       }
@@ -376,91 +418,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   }
 
   /**
-   * Apply server-backed onboarding / journey to home UI and {@link CycleSettingsService}.
-   */
-  private applyServerJourney(info: UserInfo): void {
-    const status = (info.pregnancyStatus || '').toUpperCase();
-
-    if (status === 'PREGNANT') {
-      this.userStatus = 'Pregnant';
-      this.isPregnant = true;
-      this.isPostpartum = false;
-      this.cycleSettings.setUserStatus('Pregnant');
-      this.cycleSettings.setPregnancyStatus(true);
-      this.cycleSettings.setPostpartumStatus(false);
-    } else if (status === 'POSTPARTUM') {
-      this.userStatus = 'Postpartum';
-      this.isPregnant = false;
-      this.isPostpartum = true;
-      this.cycleSettings.setUserStatus('Postpartum');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(true);
-    } else if (status === 'HAS_CHILD') {
-      this.userStatus = 'Parent';
-      this.isPregnant = false;
-      this.isPostpartum = false;
-      this.cycleSettings.setUserStatus('Parent');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(false);
-    } else if (status === 'NOT_PLANNING') {
-      // "I'm not pregnant" (edit profile) — show period / cycle dashboard, not onboarding
-      this.userStatus = 'Trying to Conceive';
-      this.isPregnant = false;
-      this.isPostpartum = false;
-      this.cycleSettings.setUserStatus('Trying to Conceive');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(false);
-    } else {
-      this.userStatus = 'Trying to Conceive';
-      this.isPregnant = false;
-      this.isPostpartum = false;
-      this.cycleSettings.setUserStatus('Trying to Conceive');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(false);
-    }
-
-    if (info.cycleLength != null) {
-      this.cycleSettings.setCycleLength(info.cycleLength);
-    }
-    if (info.periodLength != null) {
-      this.cycleSettings.setPeriodLength(info.periodLength);
-    }
-
-    if (info.lastPeriodDate) {
-      const iso =
-        typeof info.lastPeriodDate === 'string'
-          ? info.lastPeriodDate.split('T')[0]
-          : new Date(info.lastPeriodDate).toISOString().split('T')[0];
-      this.cycleSettings.setLastPeriodStart(iso);
-      this.periodStartDate = new Date(iso + 'T12:00:00');
-      this.updateCycleDay();
-    }
-
-    if (info.pregnancyWeek != null && info.pregnancyWeek > 0) {
-      this.pregnancyWeek = info.pregnancyWeek;
-      let pr = Math.min(100, Math.round((info.pregnancyWeek / 40) * 100));
-      if (info.pregnancyProgress != null && String(info.pregnancyProgress).trim() !== '') {
-        const parsed = parseFloat(String(info.pregnancyProgress));
-        if (!Number.isNaN(parsed)) {
-          pr = Math.min(100, Math.round(parsed));
-        }
-      }
-      this.pregnancyProgress = pr;
-      this.cycleSettings.setPregnancyWeek(info.pregnancyWeek);
-      this.cycleSettings.setPregnancyProgress(pr);
-    }
-
-    if (info.isCompleted) {
-      localStorage.setItem('onboarding_completed', 'true');
-    }
-  }
-
-  /**
    * Generate personalized messages for the user
    */
   generateMessages() {
     // Generate welcome message with user's name
-    this.welcomeMessage = this.messageService.generateWelcomeMessage(this.userName);
+    this.welcomeMessage = this.messageService.generateWelcomeMessage(
+      this.userName,
+    );
 
     // Generate daily inspirational message
     this.dailyMessage = this.messageService.generateDailyMessage();
@@ -473,8 +437,12 @@ export class HomeComponent implements OnInit, ViewWillEnter {
    * Refresh the display based on current user status
    */
   refreshDisplay() {
-    this.loadPersistedData();
-    this.checkOnboardingStatus();
+    if (!this.authService.getAccessToken()) {
+      this.loadPersistedData();
+      this.checkOnboardingStatus();
+      return;
+    }
+    this.loadDashboardState();
   }
 
   /**
@@ -485,219 +453,112 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     // Default to compact mode each time user opens Home.
     this.showMoreSections = false;
 
-    // Check both local storage and API data
-    const userInfo = this.userInfoService.getCurrentUserInfo();
+    this.syncDashboardFromServerAndRefreshChart();
+  }
 
-    // Always fetch fresh data from API when entering home page
-    this.loadDashboardState();
-    this.refreshChartWithFreshData();
+  /**
+   * One dashboard read per enter: week-detail save publishes via signal first, else GET.
+   */
+  private syncDashboardFromServerAndRefreshChart() {
+    if (!this.authService.getAccessToken()) {
+      this.runPeriodChartRefresh();
+      return;
+    }
+    if (this.homeJourneyBridge.takeSkipNextRemoteDashboardFetch()) {
+      const leftover = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
+      if (leftover) {
+        this.applyJourneyStateToView(leftover);
+        this.cdr.markForCheck();
+      }
+      this.runPeriodChartRefresh();
+      return;
+    }
+    forkJoin({
+      dashboard: this.onboardingService.getDashboard(),
+      journey: this.userInfoService
+        .getUserOnboardingData()
+        .pipe(catchError(() => of<UserInfo | null>(null))),
+    }).subscribe({
+      next: ({ dashboard, journey }) => {
+        const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+          dashboard,
+          journey,
+        );
+        this.applyJourneyStateToView(state);
+        this.runPeriodChartRefresh();
+      },
+      error: () => this.runPeriodChartRefresh(),
+    });
   }
 
   private loadDashboardState() {
     if (!this.authService.getAccessToken()) {
       return;
     }
-    this.onboardingService.getDashboard().subscribe({
-      next: (dashboard) => {
-        if (dashboard.state === 'pregnant') {
-          this.userStatus = 'Pregnant';
-          this.isPregnant = true;
-          this.isPostpartum = false;
-          this.cycleSettings.setUserStatus('Pregnant');
-          this.cycleSettings.setPregnancyStatus(true);
-          this.cycleSettings.setPostpartumStatus(false);
-          if (dashboard.week) {
-            this.pregnancyWeek = dashboard.week;
-            this.pregnancyProgress = Math.min(100, Math.round((dashboard.week / 40) * 100));
-            this.cycleSettings.setPregnancyWeek(this.pregnancyWeek);
-            this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
-          }
-          return;
-        }
-
-        if (dashboard.state === 'postpartum') {
-          this.userStatus = 'Postpartum';
-          this.isPregnant = false;
-          this.isPostpartum = true;
-          this.cycleSettings.setUserStatus('Postpartum');
-          this.cycleSettings.setPregnancyStatus(false);
-          this.cycleSettings.setPostpartumStatus(true);
-        } else {
-          this.userStatus = dashboard.state === 'planning' ? 'Trying to Conceive' : 'Cycle Tracking';
-          this.isPregnant = false;
-          this.isPostpartum = false;
-          this.cycleSettings.setUserStatus(this.userStatus);
-          this.cycleSettings.setPregnancyStatus(false);
-          this.cycleSettings.setPostpartumStatus(false);
-        }
-
-        if (dashboard.nextPeriod) {
-          const nextPeriod = new Date(dashboard.nextPeriod);
-          const cycleLen = this.cycleSettings.cycleLength() || 28;
-          const lastPeriod = new Date(nextPeriod);
-          lastPeriod.setDate(lastPeriod.getDate() - cycleLen);
-          const iso = lastPeriod.toISOString().split('T')[0];
-          this.cycleSettings.setLastPeriodStart(iso);
-          this.periodStartDate = new Date(iso + 'T12:00:00');
-          this.updateCycleDay();
-        }
-      },
-    });
-  }
-
-  /**
-   * Refresh chart with fresh data from API
-   */
-  private refreshChartWithFreshData() {
-    const runChartRefresh = () => {
-      setTimeout(() => {
-        if (this.periodChart) {
-          this.periodChart.debugState();
-          this.periodChart.refreshChart();
-          this.periodChart.debugState();
-        }
-      }, 100);
-    };
-
-    if (!this.authService.getAccessToken()) {
-      runChartRefresh();
+    if (this.homeJourneyBridge.takeSkipNextRemoteDashboardFetch()) {
+      const leftover = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
+      if (leftover) {
+        this.applyJourneyStateToView(leftover);
+        this.cdr.markForCheck();
+      }
       return;
     }
-
-    this.onboardingService.getDashboard().subscribe({
-      next: () => {
-        // `loadDashboardState` is the source-of-truth updater for home state.
-        this.loadDashboardState();
-        runChartRefresh();
-      },
-      error: () => {
-        runChartRefresh();
+    forkJoin({
+      dashboard: this.onboardingService.getDashboard(),
+      journey: this.userInfoService
+        .getUserOnboardingData()
+        .pipe(catchError(() => of<UserInfo | null>(null))),
+    }).subscribe({
+      next: ({ dashboard, journey }) => {
+        const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+          dashboard,
+          journey,
+        );
+        this.applyJourneyStateToView(state);
       },
     });
   }
 
-  /**
-   * Get current user ID using RxJS observable
-   */
-  private getCurrentUserId(): number {
-    const id = this.userSession.getCurrentUserId();
-    return id > 0 ? id : 0;
-  }
-
-  
-
-  /**
-   * Test method to debug button clicks
-   */
-  testButtonClick() {
-    this.showToast('Test button clicked!', 'success');
-  }
-
-  /**
-   * Test method to manually refresh the chart
-   */
-  testChartRefresh() {
-    if (this.periodChart) {
-      this.periodChart.debugState();
-      this.periodChart.refreshChart();
-      this.periodChart.debugState();
-    } else {
+  private applyJourneyStateToView(state: HomePageJourneyState) {
+    this.userStatus = state.userStatus;
+    this.isPregnant = state.isPregnant;
+    this.isPostpartum = state.isPostpartum;
+    if (state.pregnancyWeek != null) {
+      this.pregnancyWeek = state.pregnancyWeek;
+    }
+    if (state.pregnancyProgress != null) {
+      this.pregnancyProgress = state.pregnancyProgress;
+    }
+    this.periodStartDate = state.periodStartDate;
+    if (state.cycleDayDirty) {
+      this.updateCycleDay();
     }
   }
 
-
-  /**
-   * Get baby development facts for specific week
-   */
-  getBabyDevelopmentFacts(week: number): string {
-    const facts: { [key: number]: string } = {
-      4: "Your baby is just a tiny ball of cells called a blastocyst, but the foundation for everything is being laid!",
-      5: "The heart is beginning to form and will start beating soon. The neural tube (which becomes the brain and spinal cord) is developing.",
-      6: "Your baby's heart is now beating! The eyes, ears, and mouth are starting to form. The baby is about the size of a lentil.",
-      7: "The baby's arms and legs are beginning to form as tiny buds. The brain is developing rapidly with 100 new brain cells every minute!",
-      8: "Fingers and toes are starting to form! The baby's facial features are becoming more defined. The tail is disappearing.",
-      9: "All major organs are in place and starting to function. The baby can now move, though you won't feel it yet.",
-      10: "The baby's bones are starting to harden. The baby can now make a fist and has individual fingers and toes.",
-      11: "The baby is starting to look more human! The head is about half the size of the body. The baby can now swallow and make breathing movements.",
-      12: "The baby's reflexes are developing. The baby can now make facial expressions and may even suck their thumb!",
-      13: "The baby's vocal cords are developing. The baby can now hear sounds from outside the womb.",
-      14: "The baby's fingerprints are forming! The baby can now make facial expressions and may even smile.",
-      15: "The baby's bones are getting stronger. The baby can now make coordinated movements and may even kick!",
-      16: "The baby's eyes can now move and detect light. The baby's taste buds are developing.",
-      17: "The baby's hearing is improving. The baby can now hear your heartbeat and voice!",
-      18: "The baby's movements are becoming more coordinated. The baby can now yawn and hiccup.",
-      19: "The baby's brain is developing rapidly. The baby can now respond to touch and may even grab the umbilical cord.",
-      20: "The baby is halfway through pregnancy! The baby can now hear and respond to sounds from outside the womb.",
-      21: "The baby's digestive system is developing. The baby can now taste the amniotic fluid.",
-      22: "The baby's sense of touch is developing. The baby can now feel when you touch your belly.",
-      23: "The baby's lungs are developing rapidly. The baby can now make breathing movements.",
-      24: "The baby's eyes are fully formed and can now open and close. The baby can see light filtering through the womb.",
-      25: "The baby's brain is developing rapidly. The baby can now dream and have sleep cycles.",
-      26: "The baby's lungs are producing surfactant, which helps them breathe after birth.",
-      27: "The baby's immune system is developing. The baby can now respond to your voice and may even recognize it.",
-      28: "The baby's eyes can now focus and track light. The baby can now distinguish between different sounds.",
-      29: "The baby's bones are fully formed but still soft. The baby can now make coordinated movements.",
-      30: "The baby's brain is developing rapidly. The baby can now learn and remember sounds from outside the womb.",
-      31: "The baby's lungs are almost fully developed. The baby can now practice breathing movements.",
-      32: "The baby's skin is becoming less transparent. The baby can now make facial expressions.",
-      33: "The baby's immune system is getting stronger. The baby can now respond to your touch.",
-      34: "The baby's lungs are fully developed. The baby can now breathe on their own if born early.",
-      35: "The baby's brain is developing rapidly. The baby can now learn and remember patterns.",
-      36: "The baby's head is now in position for birth. The baby can now make coordinated movements.",
-      37: "The baby is considered full-term! The baby can now survive outside the womb with minimal support.",
-      38: "The baby's brain is developing rapidly. The baby can now learn and remember sounds.",
-      39: "The baby's lungs are fully developed. The baby can now breathe on their own.",
-      40: "The baby is ready to be born! The baby can now survive outside the womb with full support."
-    };
-
-    return facts[week] || "Your baby is growing and developing beautifully! Each week brings new milestones and amazing changes.";
+  showStartTrackingOnboarding(): boolean {
+    return this.homeReproUi.showStartTrackingSection({
+      userStatus: this.userStatus,
+      isPregnant: this.isPregnant,
+      isPostpartum: this.isPostpartum,
+    });
   }
 
-  /**
-   * Get fun facts about baby development
-   */
-  getFunFacts(week: number): string {
-    const funFacts: { [key: number]: string } = {
-      4: "At this stage, your baby is smaller than a grain of rice!",
-      5: "Your baby's heart will beat about 100,000 times a day!",
-      6: "Your baby's heart beats twice as fast as yours!",
-      7: "Your baby is developing at an incredible rate - about 1 million new cells every minute!",
-      8: "Your baby's fingerprints are already forming and will be unique!",
-      9: "Your baby can now make tiny movements, though you won't feel them yet!",
-      10: "Your baby's brain is growing at an amazing rate - about 250,000 new neurons every minute!",
-      11: "Your baby can now swallow and may even suck their thumb!",
-      12: "Your baby's reflexes are developing - they can now make a fist!",
-      13: "Your baby can now hear sounds from outside the womb!",
-      14: "Your baby's fingerprints are fully formed and unique!",
-      15: "Your baby can now make facial expressions and may even smile!",
-      16: "Your baby's taste buds are developing and can taste the amniotic fluid!",
-      17: "Your baby can now hear your heartbeat and voice!",
-      18: "Your baby can now yawn and hiccup!",
-      19: "Your baby can now respond to touch and may even grab the umbilical cord!",
-      20: "Your baby is halfway through pregnancy and can now hear and respond to sounds!",
-      21: "Your baby can now taste the amniotic fluid and may have food preferences!",
-      22: "Your baby can now feel when you touch your belly!",
-      23: "Your baby can now make breathing movements!",
-      24: "Your baby's eyes can now open and close and can see light!",
-      25: "Your baby can now dream and have sleep cycles!",
-      26: "Your baby can now respond to your voice and may even recognize it!",
-      27: "Your baby can now distinguish between different sounds!",
-      28: "Your baby can now focus and track light!",
-      29: "Your baby can now make coordinated movements!",
-      30: "Your baby can now learn and remember sounds from outside the womb!",
-      31: "Your baby can now practice breathing movements!",
-      32: "Your baby can now make facial expressions!",
-      33: "Your baby can now respond to your touch!",
-      34: "Your baby can now breathe on their own if born early!",
-      35: "Your baby can now learn and remember patterns!",
-      36: "Your baby can now make coordinated movements!",
-      37: "Your baby is considered full-term and can survive outside the womb!",
-      38: "Your baby can now learn and remember sounds!",
-      39: "Your baby can now breathe on their own!",
-      40: "Your baby is ready to be born and can survive outside the womb!"
-    };
+  private runPeriodChartRefresh() {
+    setTimeout(() => {
+      if (this.periodChart) {
+        this.periodChart.debugState();
+        this.periodChart.refreshChart();
+        this.periodChart.debugState();
+      }
+    }, 100);
+  }
 
-    return funFacts[week] || "Your baby is growing and developing beautifully! Each week brings new milestones and amazing changes.";
+  getBabyDevelopmentFacts(week: number): string {
+    return getBabyDevelopmentFactForWeek(week);
+  }
+
+  getFunFacts(week: number): string {
+    return getBabyFunFactForWeek(week);
   }
 
   /**
@@ -765,7 +626,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             this.cycleSettings.setPregnancyStatus(false);
             this.cycleSettings.setPostpartumStatus(false);
             this.showToast('Status updated to: Trying to Conceive');
-          }
+          },
         },
         {
           text: 'Pregnant',
@@ -788,13 +649,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
                   placeholder: 'Enter week (4-40)',
                   min: 4,
                   max: 40,
-                  value: 12
-                }
+                  value: 12,
+                },
               ],
               buttons: [
                 {
                   text: 'Cancel',
-                  role: 'cancel'
+                  role: 'cancel',
                 },
                 {
                   text: 'Set Week',
@@ -803,16 +664,21 @@ export class HomeComponent implements OnInit, ViewWillEnter {
                     if (week >= 4 && week <= 40) {
                       this.updatePregnancyWeek(week);
                       const babyData = this.getCurrentBabySize();
-                      this.showToast(`🎉 Week ${week}: Your baby is the size of a ${babyData.size.split(' ')[0]}!`);
+                      this.showToast(
+                        `🎉 Week ${week}: Your baby is the size of a ${babyData.size.split(' ')[0]}!`,
+                      );
                     } else {
-                      this.showToast('Please enter a valid week (4-40)', 'warning');
+                      this.showToast(
+                        'Please enter a valid week (4-40)',
+                        'warning',
+                      );
                     }
-                  }
-                }
-              ]
+                  },
+                },
+              ],
             });
             await weekAlert.present();
-          }
+          },
         },
         {
           text: 'Postpartum',
@@ -835,13 +701,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
                   placeholder: 'Enter week (1-12)',
                   min: 1,
                   max: 12,
-                  value: 1
-                }
+                  value: 1,
+                },
               ],
               buttons: [
                 {
                   text: 'Cancel',
-                  role: 'cancel'
+                  role: 'cancel',
                 },
                 {
                   text: 'Set Week',
@@ -850,29 +716,36 @@ export class HomeComponent implements OnInit, ViewWillEnter {
                     if (week >= 1 && week <= 12) {
                       this.updatePostpartumWeek(week);
                       const postpartumData = this.getCurrentPostpartumData();
-                      this.showToast(`👶 Week ${week}: ${postpartumData.recovery} - You're doing amazing!`);
+                      this.showToast(
+                        `👶 Week ${week}: ${postpartumData.recovery} - You're doing amazing!`,
+                      );
                     } else {
-                      this.showToast('Please enter a valid week (1-12)', 'warning');
+                      this.showToast(
+                        'Please enter a valid week (1-12)',
+                        'warning',
+                      );
                     }
-                  }
-                }
-              ]
+                  },
+                },
+              ],
             });
             await weekAlert.present();
-          }
+          },
         },
         {
           text: 'Cancel',
-          role: 'cancel'
-        }
-      ]
+          role: 'cancel',
+        },
+      ],
     });
     await alert.present();
   }
 
   // Pregnancy Progress
   viewPregnancyDetails() {
-    this.router.navigate(['/week-detail'], { queryParams: { week: this.pregnancyWeek } });
+    this.router.navigate(['/week-detail'], {
+      queryParams: { week: this.pregnancyWeek },
+    });
     this.showToast('Opening week ' + this.pregnancyWeek + ' details...');
   }
 
@@ -950,7 +823,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       37: '19.13 inches',
       38: '19.61 inches',
       39: '19.96 inches',
-      40: '20.16 inches'
+      40: '20.16 inches',
     };
     return lengths[this.pregnancyWeek] || 'Growing...';
   }
@@ -960,13 +833,17 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     const newWeek = this.pregnancyWeek + direction;
     if (newWeek >= 4 && newWeek <= 40) {
       this.updatePregnancyWeek(newWeek);
-      this.showToast(`Week ${newWeek}: Your baby is now the size of a ${this.getCurrentBabySize().size.split(' ')[0]}! 🎉`);
+      this.showToast(
+        `Week ${newWeek}: Your baby is now the size of a ${this.getCurrentBabySize().size.split(' ')[0]}! 🎉`,
+      );
     }
   }
 
   // Postpartum methods
   getCurrentPostpartumData() {
-    const currentData = this.postpartumData.find(data => data.week === this.postpartumWeek);
+    const currentData = this.postpartumData.find(
+      (data) => data.week === this.postpartumWeek,
+    );
     return currentData || this.postpartumData[0];
   }
 
@@ -985,7 +862,9 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     if (newWeek >= 1 && newWeek <= 12) {
       this.updatePostpartumWeek(newWeek);
       const postpartumData = this.getCurrentPostpartumData();
-      this.showToast(`Week ${newWeek}: ${postpartumData.recovery} - ${postpartumData.tips} 💕`);
+      this.showToast(
+        `Week ${newWeek}: ${postpartumData.recovery} - ${postpartumData.tips} 💕`,
+      );
     }
   }
 
@@ -993,15 +872,25 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   getBabyMilestones() {
     const milestones: { [key: number]: string[] } = {
       1: ['Lifts head briefly', 'Responds to sounds', 'Makes eye contact'],
-      2: ['Follows objects with eyes', 'Makes cooing sounds', 'Smiles responsively'],
+      2: [
+        'Follows objects with eyes',
+        'Makes cooing sounds',
+        'Smiles responsively',
+      ],
       3: ['Holds head up longer', 'Reaches for objects', 'Laughs out loud'],
       4: ['Rolls from tummy to back', 'Grasps objects', 'Babbles more'],
       5: ['Sits with support', 'Recognizes familiar faces', 'Shows excitement'],
-      6: ['Rolls both ways', 'Passes objects between hands', 'Responds to name'],
+      6: [
+        'Rolls both ways',
+        'Passes objects between hands',
+        'Responds to name',
+      ],
       8: ['Sits without support', 'Crawls or scoots', 'Says "mama" or "dada"'],
-      12: ['Pulls to stand', 'Takes first steps', 'Says first words']
+      12: ['Pulls to stand', 'Takes first steps', 'Says first words'],
     };
-    return milestones[this.postpartumWeek] || ['Growing and developing beautifully!'];
+    return (
+      milestones[this.postpartumWeek] || ['Growing and developing beautifully!']
+    );
   }
 
   // Appointment Management
@@ -1012,16 +901,16 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: 'Reschedule',
           handler: () => {
             this.router.navigate(['/tabs/consultation']);
             this.showToast('Opening appointment booking...');
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -1033,18 +922,18 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       buttons: [
         {
           text: 'No',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: 'Yes, Cancel',
           handler: () => {
             this.upcomingAppointments = this.upcomingAppointments.filter(
-              apt => apt !== appointment
+              (apt) => apt !== appointment,
             );
             this.showToast('Appointment cancelled');
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
     await alert.present();
   }
@@ -1062,33 +951,33 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: '📝 Symptoms & Mood',
           handler: () => {
             this.openSymptomsTracking();
-          }
+          },
         },
         {
           text: '💊 Medications',
           handler: () => {
             this.openMedicationReminder();
-          }
+          },
         },
         {
           text: '🥗 Nutrition',
           handler: () => {
             this.openNutritionTracker();
-          }
+          },
         },
         {
           text: '🏃‍♀️ Exercise',
           handler: () => {
             this.openExercisePlanner();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -1098,40 +987,40 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   async openCalendarView() {
     const alert = await this.alertController.create({
       header: '📅 Calendar View',
-      message: 'Choose what you\'d like to view in your calendar:',
+      message: "Choose what you'd like to view in your calendar:",
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: '📊 Cycle Tracking',
           handler: () => {
             this.router.navigate(['/tools']);
             this.showToast('Opening cycle tracking calendar...', 'success');
-          }
+          },
         },
         {
           text: '📝 Symptoms Log',
           handler: () => {
             this.router.navigate(['/tools']);
             this.showToast('Opening symptoms calendar...', 'success');
-          }
+          },
         },
         {
           text: '💊 Medication Schedule',
           handler: () => {
             this.router.navigate(['/tools']);
             this.showToast('Opening medication calendar...', 'success');
-          }
+          },
         },
         {
           text: '📅 Appointments',
           handler: () => {
             this.openAppointmentBooking();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -1139,7 +1028,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   // Quick Actions with proper functionality
   async onActionClick(action: string) {
-
     switch (action) {
       case 'pregnant':
         if (this.isPregnant) {
@@ -1168,24 +1056,24 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   // Handle "I became pregnant" action
   async handlePregnancyUpdate() {
-
     const alert = await this.alertController.create({
       header: '🎉 Congratulations!',
-      message: 'This is wonderful news! Let\'s update your status and guide you through the next steps.',
+      message:
+        "This is wonderful news! Let's update your status and guide you through the next steps.",
       buttons: [
         {
           text: 'Cancel',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'Update Status',
           handler: async () => {
             console.log('🔍 User clicked Update Status');
             await this.updatePregnancyStatus();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -1193,23 +1081,23 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   // Handle "I'm not pregnant anymore" action
   async handleNotPregnantUpdate() {
-
     const alert = await this.alertController.create({
       header: 'Update Status',
-      message: 'Are you sure you want to change your status back to "Trying to Conceive"?',
+      message:
+        'Are you sure you want to change your status back to "Trying to Conceive"?',
       buttons: [
         {
           text: 'Cancel',
           role: 'cancel',
-          cssClass: 'secondary'
+          cssClass: 'secondary',
         },
         {
           text: 'Update Status',
           handler: async () => {
             await this.updateNotPregnantStatus();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -1247,20 +1135,23 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       const successAlert = await this.alertController.create({
         header: '✅ Status Updated!',
-        message: 'Your status has been updated back to "Trying to Conceive". You can now track your cycle again.',
+        message:
+          'Your status has been updated back to "Trying to Conceive". You can now track your cycle again.',
         buttons: [
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await successAlert.present();
 
       // Show success toast
-      this.showToast('Status updated successfully! You can now track your cycle.', 'success');
-
+      this.showToast(
+        'Status updated successfully! You can now track your cycle.',
+        'success',
+      );
     } catch (error) {
       console.error('Error updating status:', error);
       this.showToast('Error updating status. Please try again.', 'danger');
@@ -1280,19 +1171,20 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         // Ask for last period date if not available from onboarding
         const lmpAlert = await this.alertController.create({
           header: '🤰 Last Period Date',
-          message: 'Please enter the date of your last menstrual period (LMP) to calculate your current pregnancy week.',
+          message:
+            'Please enter the date of your last menstrual period (LMP) to calculate your current pregnancy week.',
           inputs: [
             {
               name: 'lastPeriod',
               type: 'date',
               placeholder: 'Last menstrual period date',
-              label: 'LMP Date'
-            }
+              label: 'LMP Date',
+            },
           ],
           buttons: [
             {
               text: 'Cancel',
-              role: 'cancel'
+              role: 'cancel',
             },
             {
               text: 'Calculate & Update',
@@ -1300,18 +1192,24 @@ export class HomeComponent implements OnInit, ViewWillEnter {
                 if (data.lastPeriod) {
                   await this.calculateAndUpdatePregnancyStatus(data.lastPeriod);
                 } else {
-                  this.showToast('Please enter your last period date', 'warning');
+                  this.showToast(
+                    'Please enter your last period date',
+                    'warning',
+                  );
                 }
-              }
-            }
-          ]
+              },
+            },
+          ],
         });
 
         await lmpAlert.present();
       }
     } catch (error) {
       console.error('Error in updatePregnancyStatus:', error);
-      await this.showToast('Failed to update status. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to update status. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -1321,12 +1219,17 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       // Calculate pregnancy week based on LMP
       const lmpDate = new Date(lastPeriod);
       const today = new Date();
-      const daysDifference = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysDifference = Math.floor(
+        (today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
       const pregnancyWeek = Math.floor(daysDifference / 7) + 1;
 
       // Validate pregnancy week (should be between 4-40 weeks)
       if (pregnancyWeek < 4 || pregnancyWeek > 40) {
-        await this.showToast('Invalid date. Please enter a valid LMP date (4-40 weeks ago).', 'warning');
+        await this.showToast(
+          'Invalid date. Please enter a valid LMP date (4-40 weeks ago).',
+          'warning',
+        );
         return;
       }
 
@@ -1375,20 +1278,22 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             text: 'View Pregnancy Progress',
             handler: () => {
               // Stay on home page to see the pregnancy progress
-            }
+            },
           },
           {
             text: 'View Pregnancy Guide',
             handler: () => {
               this.router.navigate(['/tabs/tools']);
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
 
       await successAlert.present();
-      await this.showToast(`Pregnancy week ${pregnancyWeek} calculated successfully!`, 'success');
-
+      await this.showToast(
+        `Pregnancy week ${pregnancyWeek} calculated successfully!`,
+        'success',
+      );
     } catch (error) {
       console.error('Error calculating pregnancy week:', error);
       await this.showToast('Failed to calculate pregnancy week', 'danger');
@@ -1407,8 +1312,8 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.router.navigate(['/symptoms-tracker'], {
       queryParams: {
         date: today,
-        mode: 'update'
-      }
+        mode: 'update',
+      },
     });
     this.showToast('Opening symptom tracker for update...');
   }
@@ -1429,7 +1334,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   loadTodaySymptoms() {
     const today = new Date().toISOString().split('T')[0];
-    
+
     // First try to get from local service (faster)
     const localData = this.trackDataService.getTodayTrackData();
     if (localData) {
@@ -1440,57 +1345,59 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
     // If not found locally, fetch from API
 
-    this.trackDataService.getTrackDay(this.getCurrentUserId(), today).subscribe({
-      next: (data) => {
-        if (data && data.length > 0) {
-          this.todaySymptoms = data[0] as SymptomsDto;
+    this.trackDataService
+      .getTrackDay(this.homeData.getCurrentUserId(), today)
+      .subscribe({
+        next: (data) => {
+          if (data && data.length > 0) {
+            this.todaySymptoms = data[0] as SymptomsDto;
 
-          // Store in local service for future use
-          this.trackDataService.saveTrackData({
-            id: data[0].id,
-            userId: this.getCurrentUserId(),
-            date: today,
-            symptoms: data[0].symptoms,
-            mood: data[0].mood,
-            energy: data[0].energy,
-            notes: data[0].notes,
-            createdAt: data[0].createdAt,
-            updatedAt: data[0].updatedAt
-          });
-        }
-        console.log('🔍 Today symptoms from API:', this.todaySymptoms);
-      },
-      error: (error) => {
-        this.todaySymptoms = {} as SymptomsDto;
-      }
-    });
+            // Store in local service for future use
+            this.trackDataService.saveTrackData({
+              id: data[0].id,
+              userId: this.homeData.getCurrentUserId(),
+              date: today,
+              symptoms: data[0].symptoms,
+              mood: data[0].mood,
+              energy: data[0].energy,
+              notes: data[0].notes,
+              createdAt: data[0].createdAt,
+              updatedAt: data[0].updatedAt,
+            });
+          }
+          console.log('🔍 Today symptoms from API:', this.todaySymptoms);
+        },
+        error: (error) => {
+          this.todaySymptoms = {} as SymptomsDto;
+        },
+      });
   }
 
   getMoodIcon(mood: string): string {
     const moodIcons: { [key: string]: string } = {
-      'excellent': 'happy-outline',
-      'good': 'happy-outline',
-      'okay': 'remove-outline',
-      'poor': 'sad-outline',
-      'terrible': 'sad-outline'
+      excellent: 'happy-outline',
+      good: 'happy-outline',
+      okay: 'remove-outline',
+      poor: 'sad-outline',
+      terrible: 'sad-outline',
     };
     return moodIcons[mood] || 'remove-outline';
   }
 
   getEnergyIcon(energy: string): string {
     const energyIcons: { [key: string]: string } = {
-      'high': 'flash-outline',
-      'medium': 'battery-half-outline',
-      'low': 'battery-dead-outline'
+      high: 'flash-outline',
+      medium: 'battery-half-outline',
+      low: 'battery-dead-outline',
     };
     return energyIcons[energy] || 'help-outline';
   }
 
   getSeverityColor(severity: string): string {
     const severityColors: { [key: string]: string } = {
-      'mild': 'success',
-      'moderate': 'warning',
-      'severe': 'danger'
+      mild: 'success',
+      moderate: 'warning',
+      severe: 'danger',
     };
     return severityColors[severity] || 'medium';
   }
@@ -1517,7 +1424,10 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     const cycleDay = this.getCurrentCycleDay();
     if (cycleDay >= 10 && cycleDay <= 17) {
       return 'Higher chance';
-    } else if (cycleDay >= 6 && cycleDay <= 9 || cycleDay >= 18 && cycleDay <= 22) {
+    } else if (
+      (cycleDay >= 6 && cycleDay <= 9) ||
+      (cycleDay >= 18 && cycleDay <= 22)
+    ) {
       return 'Medium chance';
     } else {
       return 'Lower chance';
@@ -1537,7 +1447,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       'Include iron-rich foods in your diet',
       'Practice gentle exercise regularly',
       'Track your symptoms daily',
-      'Listen to your body\'s signals'
+      "Listen to your body's signals",
     ];
     this.healthTip = tips[Math.floor(Math.random() * tips.length)];
   }
@@ -1573,64 +1483,34 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
   viewDayDetails(date: string) {
     this.router.navigate(['/symptoms-detail'], {
-      queryParams: { date: date }
+      queryParams: { date: date },
     });
   }
-
-  // Test method to add sample data
-  addTestSymptomsData() {
-    const testData = [
-      {
-        date: new Date().toISOString().split('T')[0],
-        mood: JSON.stringify('good'),
-        energy: JSON.stringify('medium'),
-        symptoms: JSON.stringify([
-          { id: 'breast_tenderness', name: 'Breast Tenderness', icon: 'heart-outline', severity: 'mild' },
-          { id: 'shortness_breath', name: 'Shortness of Breath', icon: 'airplane-outline', severity: 'mild' },
-          { id: 'nasal_congestion', name: 'Nasal Congestion', icon: 'airplane-outline', severity: 'mild' },
-          { id: 'baby_movements', name: 'Baby Movements', icon: 'hand-left-outline', severity: 'mild' },
-          { id: 'swelling', name: 'Swelling (Edema)', icon: 'water-outline', severity: 'mild' },
-          { id: 'headache', name: 'Headache', icon: 'medical-outline', severity: 'mild' }
-        ]),
-        notes: 'Feeling good today with some mild symptoms'
-      },
-      {
-        date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        mood: JSON.stringify('okay'),
-        energy: JSON.stringify('low'),
-        symptoms: JSON.stringify([
-          { id: 'fatigue', name: 'Fatigue', icon: 'bed-outline', severity: 'moderate' },
-          { id: 'morning_sickness', name: 'Morning Sickness', icon: 'restaurant-outline', severity: 'mild' }
-        ]),
-        notes: 'Feeling tired yesterday'
-      }
-    ];
-
-    localStorage.setItem('dailySymptomsHistory', JSON.stringify(testData));
-    this.loadTodaySymptoms();
-    this.showToast('Test data added! Check the swiper now.', 'success');
-  }
-
 
   // Track symptoms
   async trackSymptoms(mood: string) {
     try {
       const moodEmoji: Record<string, string> = {
-        'great': '😊',
-        'okay': '😐',
-        'not_great': '😔'
+        great: '😊',
+        okay: '😐',
+        not_great: '😔',
       };
 
-      await this.showToast(`${moodEmoji[mood]} Symptoms tracked successfully!`, 'success');
-
+      await this.showToast(
+        `${moodEmoji[mood]} Symptoms tracked successfully!`,
+        'success',
+      );
     } catch (error) {
-      await this.showToast('Failed to track symptoms. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to track symptoms. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -1642,27 +1522,27 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: 'Prenatal Care',
           handler: () => {
             this.bookAppointment('prenatal');
-          }
+          },
         },
         {
           text: 'Nutrition Consultation',
           handler: () => {
             this.bookAppointment('nutrition');
-          }
+          },
         },
         {
           text: 'Mental Health Support',
           handler: () => {
             this.bookAppointment('mental_health');
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -1672,9 +1552,9 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   async bookAppointment(type: string) {
     try {
       const typeNames: Record<string, string> = {
-        'prenatal': 'Prenatal Care',
-        'nutrition': 'Nutrition Consultation',
-        'mental_health': 'Mental Health Support'
+        prenatal: 'Prenatal Care',
+        nutrition: 'Nutrition Consultation',
+        mental_health: 'Mental Health Support',
       };
 
       await this.showToast(`Opening ${typeNames[type]} booking...`, 'success');
@@ -1682,13 +1562,15 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       const successAlert = await this.alertController.create({
         header: '✅ Appointment Booking',
         message: `You're being redirected to book your ${typeNames[type]} appointment.`,
-        buttons: ['OK']
+        buttons: ['OK'],
       });
 
       await successAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open appointment booking. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open appointment booking. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -1699,26 +1581,29 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       const communityAlert = await this.alertController.create({
         header: '👥 Join Our Community',
-        message: 'Connect with other women on similar journeys. Share experiences, ask questions, and find support.',
+        message:
+          'Connect with other women on similar journeys. Share experiences, ask questions, and find support.',
         buttons: [
           {
             text: 'Learn More',
             handler: () => {
               // Navigate to community page
               this.router.navigate(['/tabs/social']);
-            }
+            },
           },
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await communityAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to join community. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to join community. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -1736,19 +1621,21 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             handler: () => {
               // Navigate to schedule page
               // this.router.navigate(['/counselor-schedule']);
-            }
+            },
           },
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await scheduleAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open schedule. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open schedule. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -1759,26 +1646,29 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       const consultationAlert = await this.alertController.create({
         header: '👨‍⚕️ Expert Consultation',
-        message: 'Book a consultation with our specialized experts in prenatal care, nutrition, and mental health.',
+        message:
+          'Book a consultation with our specialized experts in prenatal care, nutrition, and mental health.',
         buttons: [
           {
             text: 'Book Now',
             handler: () => {
               // Navigate to booking page
               this.router.navigate(['/tabs/consultation']);
-            }
+            },
           },
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await consultationAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open consultation booking. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open consultation booking. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -1800,31 +1690,31 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           text: '🤖 Chat with Assistant',
           handler: () => {
             this.router.navigate(['/chatbot']);
-          }
+          },
         },
         {
           text: '📝 Add Symptom Entry',
           handler: () => {
             this.openSymptomsTracking();
-          }
+          },
         },
         {
           text: '📅 Book Appointment',
           handler: () => {
             this.openAppointmentBooking();
-          }
+          },
         },
         {
           text: '📊 View Progress',
           handler: () => {
             this.router.navigate(['tabs/tools']);
-          }
+          },
         },
         {
           text: '❌ Cancel',
-          role: 'cancel'
-        }
-      ]
+          role: 'cancel',
+        },
+      ],
     });
 
     await actionSheet.present();
@@ -1835,32 +1725,38 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     try {
       const calculatorAlert = await this.alertController.create({
         header: '🧮 Fertility Calculator',
-        message: 'Calculate your most fertile days based on your cycle length and last period date.',
+        message:
+          'Calculate your most fertile days based on your cycle length and last period date.',
         buttons: [
           {
             text: 'Open Calculator',
             handler: async () => {
-              await this.showToast('Opening fertility calculator...', 'success');
+              await this.showToast(
+                'Opening fertility calculator...',
+                'success',
+              );
               // Navigate to tools page and trigger fertility calculator
-              this.router.navigate(['/tools'], { 
-                queryParams: { openTool: 'fertility' }
+              this.router.navigate(['/tools'], {
+                queryParams: { openTool: 'fertility' },
               });
-            }
+            },
           },
           {
             text: 'Continue',
             handler: async () => {
               // Show inline fertility calculator
               await this.showInlineFertilityCalculator();
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
 
       await calculatorAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open fertility calculator. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open fertility calculator. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -1869,14 +1765,17 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     try {
       // Check if user is pregnant
       const isPregnant = this.cycleSettings.isPregnant();
-      
+
       if (isPregnant) {
         await this.showPregnancyWeekCalculator();
       } else {
         await this.showRegularFertilityCalculator();
       }
     } catch (error) {
-      await this.showToast('Failed to open calculator. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open calculator. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -1884,7 +1783,8 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   async showRegularFertilityCalculator() {
     const alert = await this.alertController.create({
       header: '🧮 Fertility Calculator',
-      message: 'Calculate your most fertile days based on your cycle length and last period date.',
+      message:
+        'Calculate your most fertile days based on your cycle length and last period date.',
       inputs: [
         {
           name: 'cycleLength',
@@ -1892,30 +1792,33 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           placeholder: 'Cycle length (days)',
           min: 21,
           max: 35,
-          value: 28
+          value: 28,
         },
         {
           name: 'lastPeriod',
           type: 'date',
-          placeholder: 'Last period start date'
-        }
+          placeholder: 'Last period start date',
+        },
       ],
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: 'Calculate',
           handler: async (data) => {
             if (data.cycleLength && data.lastPeriod) {
-              await this.calculateFertileDays(data.cycleLength, data.lastPeriod);
+              await this.calculateFertileDays(
+                data.cycleLength,
+                data.lastPeriod,
+              );
             } else {
               await this.showToast('Please fill in all fields', 'warning');
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -1925,18 +1828,19 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   async showPregnancyWeekCalculator() {
     const alert = await this.alertController.create({
       header: '🤰 Pregnancy Week Calculator',
-      message: 'Calculate your current pregnancy week based on your last menstrual period (LMP) date.',
+      message:
+        'Calculate your current pregnancy week based on your last menstrual period (LMP) date.',
       inputs: [
         {
           name: 'lastPeriod',
           type: 'date',
-          placeholder: 'Last menstrual period date'
-        }
+          placeholder: 'Last menstrual period date',
+        },
       ],
       buttons: [
         {
           text: 'Cancel',
-          role: 'cancel'
+          role: 'cancel',
         },
         {
           text: 'Calculate Week',
@@ -1946,9 +1850,9 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             } else {
               await this.showToast('Please enter your LMP date', 'warning');
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -1959,31 +1863,31 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     try {
       const lastPeriodDate = new Date(lastPeriod);
       const today = new Date();
-      
+
       // Calculate ovulation day (typically 14 days before next period)
       const ovulationDay = new Date(lastPeriodDate);
       ovulationDay.setDate(ovulationDay.getDate() + cycleLength - 14);
-      
+
       // Calculate fertile window (5 days before ovulation + ovulation day)
       const fertileStart = new Date(ovulationDay);
       fertileStart.setDate(fertileStart.getDate() - 5);
-      
+
       const fertileEnd = new Date(ovulationDay);
       fertileEnd.setDate(fertileEnd.getDate() + 1);
-      
+
       // Calculate next period
       const nextPeriod = new Date(lastPeriodDate);
       nextPeriod.setDate(nextPeriod.getDate() + cycleLength);
-      
+
       // Format dates
       const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', { 
-          month: 'short', 
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
           day: 'numeric',
-          year: 'numeric'
+          year: 'numeric',
         });
       };
-      
+
       // Create fertile days array
       const fertileDays = [];
       const currentDate = new Date(fertileStart);
@@ -1991,33 +1895,33 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         fertileDays.push(formatDate(new Date(currentDate)));
         currentDate.setDate(currentDate.getDate() + 1);
       }
-      
+
       // Prepare results data
       const results: FertilityResults = {
         fertileDays,
         ovulationDay: formatDate(ovulationDay),
         nextPeriod: formatDate(nextPeriod),
         cycleLength,
-        lastPeriodDate: formatDate(lastPeriodDate)
+        lastPeriodDate: formatDate(lastPeriodDate),
       };
-      
+
       // Show results in beautiful modal
       const modal = await this.modalController.create({
         component: FertilityResultsModalComponent,
         componentProps: {
-          results: results
+          results: results,
         },
         presentingElement: await this.modalController.getTop(),
         canDismiss: true,
         showBackdrop: true,
         backdropDismiss: true,
-        cssClass: 'fertility-results-modal'
+        cssClass: 'fertility-results-modal',
       });
-      
+
       await modal.present();
-      
+
       const { data } = await modal.onWillDismiss();
-      
+
       // Handle modal actions
       if (data?.action) {
         switch (data.action) {
@@ -2032,9 +1936,8 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             break;
         }
       }
-      
+
       await this.showToast('Fertile days calculated successfully!', 'success');
-      
     } catch (error) {
       console.error('Error calculating fertile days:', error);
       await this.showToast('Failed to calculate fertile days', 'danger');
@@ -2046,36 +1949,41 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     try {
       const lmpDate = new Date(lastPeriod);
       const today = new Date();
-      const daysDifference = Math.floor((today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysDifference = Math.floor(
+        (today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
       const pregnancyWeek = Math.floor(daysDifference / 7);
-      
+
       // Validate pregnancy week
       if (pregnancyWeek < 4 || pregnancyWeek > 42) {
-        await this.showToast('Invalid date. Please enter a valid LMP date (4-42 weeks ago).', 'warning');
+        await this.showToast(
+          'Invalid date. Please enter a valid LMP date (4-42 weeks ago).',
+          'warning',
+        );
         return;
       }
-      
+
       // Calculate due date
       const dueDate = new Date(lmpDate);
       dueDate.setDate(dueDate.getDate() + 280); // 40 weeks
-      
+
       // Calculate remaining weeks
       const remainingWeeks = Math.max(0, 40 - pregnancyWeek);
-      
+
       // Calculate trimester
       const trimester = pregnancyWeek <= 13 ? 1 : pregnancyWeek <= 27 ? 2 : 3;
-      
+
       // Calculate progress percentage
       const progressPercentage = Math.round((pregnancyWeek / 40) * 100);
-      
+
       const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', { 
-          month: 'long', 
+        return date.toLocaleDateString('en-US', {
+          month: 'long',
           day: 'numeric',
-          year: 'numeric'
+          year: 'numeric',
         });
       };
-      
+
       // Prepare results data
       const results: PregnancyResults = {
         pregnancyWeek,
@@ -2084,32 +1992,35 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         progressPercentage,
         trimester,
         lastPeriodDate: formatDate(lmpDate),
-        daysSinceConception: Math.max(0, daysDifference - 14) // Conception typically 14 days after LMP
+        daysSinceConception: Math.max(0, daysDifference - 14), // Conception typically 14 days after LMP
       };
-      
+
       // Show results in beautiful modal
       const modal = await this.modalController.create({
         component: PregnancyResultsModalComponent,
         componentProps: {
-          results: results
+          results: results,
         },
         presentingElement: await this.modalController.getTop(),
         canDismiss: true,
         showBackdrop: true,
         backdropDismiss: true,
-        cssClass: 'pregnancy-results-modal'
+        cssClass: 'pregnancy-results-modal',
       });
-      
+
       await modal.present();
-      
+
       const { data } = await modal.onWillDismiss();
-      
+
       // Handle modal actions
       if (data?.action) {
         switch (data.action) {
           case 'updateProfile':
             this.cycleSettings.setPregnancyWeek(pregnancyWeek);
-            await this.showToast('Pregnancy week updated in your profile!', 'success');
+            await this.showToast(
+              'Pregnancy week updated in your profile!',
+              'success',
+            );
             break;
           case 'trackSymptoms':
             await this.openSymptomsTracking();
@@ -2119,7 +2030,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             break;
         }
       }
-      
     } catch (error) {
       console.error('Error calculating pregnancy week:', error);
       await this.showToast('Failed to calculate pregnancy week', 'danger');
@@ -2131,38 +2041,39 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     try {
       const reminderAlert = await this.alertController.create({
         header: '🔔 Set Fertility Reminder',
-        message: 'Choose when you\'d like to be reminded about your fertile window:',
+        message:
+          "Choose when you'd like to be reminded about your fertile window:",
         inputs: [
           {
             name: 'reminderType',
             type: 'radio',
             label: '1 day before fertile window',
             value: '1day',
-            checked: true
+            checked: true,
           },
           {
             name: 'reminderType',
             type: 'radio',
             label: '2 days before fertile window',
-            value: '2days'
+            value: '2days',
           },
           {
             name: 'reminderType',
             type: 'radio',
             label: 'On ovulation day',
-            value: 'ovulation'
+            value: 'ovulation',
           },
           {
             name: 'reminderType',
             type: 'radio',
             label: 'Daily during fertile window',
-            value: 'daily'
-          }
+            value: 'daily',
+          },
         ],
         buttons: [
           {
             text: 'Cancel',
-            role: 'cancel'
+            role: 'cancel',
           },
           {
             text: 'Set Reminder',
@@ -2170,9 +2081,9 @@ export class HomeComponent implements OnInit, ViewWillEnter {
               if (data) {
                 await this.scheduleFertilityReminder(results, data);
               }
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
 
       await reminderAlert.present();
@@ -2183,12 +2094,15 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   }
 
   // Schedule fertility reminder
-  private async scheduleFertilityReminder(results: FertilityResults, reminderType: string) {
+  private async scheduleFertilityReminder(
+    results: FertilityResults,
+    reminderType: string,
+  ) {
     try {
       // Calculate reminder dates
       const ovulationDate = new Date(results.ovulationDay);
       const fertileStartDate = new Date(results.fertileDays[0]);
-      
+
       let reminderDate: Date;
       let reminderMessage: string;
 
@@ -2216,8 +2130,10 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       }
 
       // Store reminder in localStorage (in a real app, you'd use proper notification scheduling)
-      const reminders = JSON.parse(localStorage.getItem('fertilityReminders') || '[]');
-      
+      const reminders = JSON.parse(
+        localStorage.getItem('fertilityReminders') || '[]',
+      );
+
       if (reminderType === 'daily') {
         // Add daily reminders for each fertile day
         results.fertileDays.forEach((day, index) => {
@@ -2228,7 +2144,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             message: `🌟 Day ${index + 1} of your fertile window! High fertility day.`,
             type: 'fertility',
             isActive: true,
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
           });
         });
       } else {
@@ -2238,7 +2154,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           message: reminderMessage,
           type: 'fertility',
           isActive: true,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -2253,18 +2169,20 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             text: 'View All Reminders',
             handler: () => {
               this.showAllReminders();
-            }
+            },
           },
           {
             text: 'Done',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await successAlert.present();
-      await this.showToast('Fertility reminder set successfully! 🔔', 'success');
-
+      await this.showToast(
+        'Fertility reminder set successfully! 🔔',
+        'success',
+      );
     } catch (error) {
       console.error('Error scheduling reminder:', error);
       await this.showToast('Failed to schedule reminder', 'danger');
@@ -2274,7 +2192,9 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Show all reminders
   private async showAllReminders() {
     try {
-      const reminders = JSON.parse(localStorage.getItem('fertilityReminders') || '[]');
+      const reminders = JSON.parse(
+        localStorage.getItem('fertilityReminders') || '[]',
+      );
       const activeReminders = reminders.filter((r: any) => r.isActive);
 
       if (activeReminders.length === 0) {
@@ -2282,14 +2202,16 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         return;
       }
 
-      const remindersList = activeReminders.map((reminder: any) => {
-        const date = new Date(reminder.date).toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-        });
-        return `• ${date}: ${reminder.message}`;
-      }).join('\n');
+      const remindersList = activeReminders
+        .map((reminder: any) => {
+          const date = new Date(reminder.date).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+          return `• ${date}: ${reminder.message}`;
+        })
+        .join('\n');
 
       const remindersAlert = await this.alertController.create({
         header: '🔔 Your Fertility Reminders',
@@ -2299,13 +2221,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             text: 'Clear All',
             handler: () => {
               this.clearAllReminders();
-            }
+            },
           },
           {
             text: 'Done',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await remindersAlert.present();
@@ -2324,16 +2246,16 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         buttons: [
           {
             text: 'Cancel',
-            role: 'cancel'
+            role: 'cancel',
           },
           {
             text: 'Clear All',
             handler: () => {
               localStorage.removeItem('fertilityReminders');
               this.showToast('All reminders cleared', 'success');
-            }
-          }
-        ]
+            },
+          },
+        ],
       });
 
       await confirmAlert.present();
@@ -2348,10 +2270,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     try {
       // Check if user is on mobile device first
       const isMobile = this.detectMobileDevice();
-      
+
       // Only allow sharing on mobile devices
       if (!isMobile) {
-        await this.showToast('Sharing is only available on mobile devices', 'warning');
+        await this.showToast(
+          'Sharing is only available on mobile devices',
+          'warning',
+        );
         return;
       }
 
@@ -2362,7 +2287,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 • Last Period: ${results.lastPeriodDate}
 
 🌟 Most Fertile Days:
-${results.fertileDays.map(day => `• ${day}`).join('\n')}
+${results.fertileDays.map((day) => `• ${day}`).join('\n')}
 
 🥚 Ovulation Day: ${results.ovulationDay}
 📅 Next Period Expected: ${results.nextPeriod}
@@ -2373,13 +2298,15 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
       // Check if Web Share API is supported
       const isHTTPS = window.location.protocol === 'https:';
-      const canShare = 'share' in navigator && (isHTTPS || window.location.hostname === 'localhost');
+      const canShare =
+        'share' in navigator &&
+        (isHTTPS || window.location.hostname === 'localhost');
 
       if (canShare) {
         try {
           await navigator.share({
             title: 'My Fertility Calendar',
-            text: shareText
+            text: shareText,
           });
           await this.showToast('Results shared successfully!', 'success');
         } catch (shareError) {
@@ -2402,31 +2329,31 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
         // Mobile fallback: Show options for different sharing methods
         const shareAlert = await this.alertController.create({
           header: '📤 Share Results',
-          message: 'Choose how you\'d like to share your fertility results:',
+          message: "Choose how you'd like to share your fertility results:",
           buttons: [
             {
               text: '📋 Copy to Clipboard',
               handler: async () => {
                 await this.copyToClipboard(shareText);
-              }
+              },
             },
             {
               text: '📱 SMS/WhatsApp',
               handler: () => {
                 this.shareViaSMS(shareText);
-              }
+              },
             },
             {
               text: '📧 Email',
               handler: () => {
                 this.shareViaEmail(shareText);
-              }
+              },
             },
             {
               text: 'Cancel',
-              role: 'cancel'
-            }
-          ]
+              role: 'cancel',
+            },
+          ],
         });
         await shareAlert.present();
       } else {
@@ -2455,21 +2382,24 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        
+
         try {
           document.execCommand('copy');
           await this.showToast('Results copied to clipboard!', 'success');
         } catch (err) {
-          await this.showToast('Please manually copy the text from the alert', 'warning');
+          await this.showToast(
+            'Please manually copy the text from the alert',
+            'warning',
+          );
           // Show the text in an alert for manual copying
           const textAlert = await this.alertController.create({
             header: '📋 Copy This Text',
             message: `<div style="font-family: monospace; font-size: 12px; text-align: left; white-space: pre-line; max-height: 300px; overflow-y: auto;">${text}</div>`,
-            buttons: ['OK']
+            buttons: ['OK'],
           });
           await textAlert.present();
         }
-        
+
         document.body.removeChild(textArea);
       }
     } catch (error) {
@@ -2485,31 +2415,30 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
       // Try WhatsApp first (more popular), then fallback to SMS
       const whatsappUrl = `https://wa.me/?text=${encodedText}`;
       const smsUrl = `sms:?body=${encodedText}`;
-      
+
       // Try WhatsApp first
       window.open(whatsappUrl, '_blank');
-      
+
       // Fallback to SMS after a short delay if WhatsApp doesn't work
       setTimeout(() => {
         const fallbackAlert = this.alertController.create({
           header: '📱 Alternative Sharing',
-          message: 'If WhatsApp didn\'t open, you can try SMS instead.',
+          message: "If WhatsApp didn't open, you can try SMS instead.",
           buttons: [
             {
               text: 'Open SMS',
               handler: () => {
                 window.open(smsUrl, '_blank');
-              }
+              },
             },
             {
               text: 'Cancel',
-              role: 'cancel'
-            }
-          ]
+              role: 'cancel',
+            },
+          ],
         });
-        fallbackAlert.then(alert => alert.present());
+        fallbackAlert.then((alert) => alert.present());
       }, 2000);
-      
     } catch (error) {
       console.error('SMS share failed:', error);
       this.showToast('Unable to open messaging app', 'danger');
@@ -2522,7 +2451,7 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
       const subject = encodeURIComponent('My Fertility Calendar Results');
       const body = encodeURIComponent(text);
       const emailUrl = `mailto:?subject=${subject}&body=${body}`;
-      
+
       window.open(emailUrl, '_blank');
       this.showToast('Opening email app...', 'success');
     } catch (error) {
@@ -2537,26 +2466,28 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
       const nutritionAlert = await this.alertController.create({
         header: '🥗 Nutrition Tracker',
-        message: 'Track your daily nutrition intake, including vitamins, minerals, and food groups essential for pregnancy.',
+        message:
+          'Track your daily nutrition intake, including vitamins, minerals, and food groups essential for pregnancy.',
         buttons: [
           {
             text: 'Start Tracking',
             handler: () => {
               this.router.navigate(['/tabs/insights']);
-
-            }
+            },
           },
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await nutritionAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open nutrition tracker. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open nutrition tracker. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -2566,26 +2497,28 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
       const exerciseAlert = await this.alertController.create({
         header: '🏃‍♀️ Exercise Planner',
-        message: 'Get personalized exercise recommendations safe for each trimester of pregnancy.',
+        message:
+          'Get personalized exercise recommendations safe for each trimester of pregnancy.',
         buttons: [
           {
             text: 'View Exercises',
             handler: () => {
               this.router.navigate(['/tabs/insights']);
-
-            }
+            },
           },
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await exerciseAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open exercise planner. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open exercise planner. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -2595,26 +2528,28 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
       const medicationAlert = await this.alertController.create({
         header: '💊 Medication Reminder',
-        message: 'Set reminders for your prenatal vitamins and medications to ensure you never miss a dose.',
+        message:
+          'Set reminders for your prenatal vitamins and medications to ensure you never miss a dose.',
         buttons: [
           {
             text: 'Set Reminders',
             handler: () => {
               this.router.navigate(['/tabs/insights']);
-
-            }
+            },
           },
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await medicationAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open medication reminder. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open medication reminder. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -2625,25 +2560,28 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
       const feedingAlert = await this.alertController.create({
         header: '🍼 Feeding Tracker',
-        message: 'Track your baby\'s feeding schedule, duration, and patterns to ensure proper nutrition.',
+        message:
+          "Track your baby's feeding schedule, duration, and patterns to ensure proper nutrition.",
         buttons: [
           {
             text: 'Start Tracking',
             handler: () => {
               this.router.navigate(['/tools']);
-            }
+            },
           },
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await feedingAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open feeding tracker. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open feeding tracker. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -2653,25 +2591,28 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
       const sleepAlert = await this.alertController.create({
         header: '😴 Sleep Tracker',
-        message: 'Monitor your baby\'s sleep patterns, duration, and quality to establish healthy sleep habits.',
+        message:
+          "Monitor your baby's sleep patterns, duration, and quality to establish healthy sleep habits.",
         buttons: [
           {
             text: 'Start Tracking',
             handler: () => {
               this.router.navigate(['/tools']);
-            }
+            },
           },
           {
             text: 'Continue',
-            role: 'cancel'
-          }
-        ]
+            role: 'cancel',
+          },
+        ],
       });
 
       await sleepAlert.present();
-
     } catch (error) {
-      await this.showToast('Failed to open sleep tracker. Please try again.', 'danger');
+      await this.showToast(
+        'Failed to open sleep tracker. Please try again.',
+        'danger',
+      );
     }
   }
 
@@ -2684,7 +2625,7 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
     return new Date().toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   }
 
@@ -2692,23 +2633,49 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
     // Get total count of available symptoms from the tracker
     // This should match the total count from symptoms-tracker component
     const sexDriveOptions = [
-      'masturbation', 'no_sex', 'protected_sex', 'unprotected_sex', 'high_sex_drive', 'low_sex_drive'
+      'masturbation',
+      'no_sex',
+      'protected_sex',
+      'unprotected_sex',
+      'high_sex_drive',
+      'low_sex_drive',
     ];
 
     const moodOptions = [
-      'calm', 'happy', 'energetic', 'frisky', 'mood_swings', 'irritated', 'sad', 'anxious',
-      'depressed', 'guilty', 'obsessive', 'low_energy', 'apathetic', 'confused', 'self_critical'
+      'calm',
+      'happy',
+      'energetic',
+      'frisky',
+      'mood_swings',
+      'irritated',
+      'sad',
+      'anxious',
+      'depressed',
+      'guilty',
+      'obsessive',
+      'low_energy',
+      'apathetic',
+      'confused',
+      'self_critical',
     ];
 
     const physicalSymptoms = [
-      'breast_tenderness', 'headache', 'leg_cramps', 'back_pain', 'morning_sickness',
-      'heartburn', 'fatigue', 'nausea', 'bloating', 'cramps'
+      'breast_tenderness',
+      'headache',
+      'leg_cramps',
+      'back_pain',
+      'morning_sickness',
+      'heartburn',
+      'fatigue',
+      'nausea',
+      'bloating',
+      'cramps',
     ];
 
-    return sexDriveOptions.length + moodOptions.length + physicalSymptoms.length;
+    return (
+      sexDriveOptions.length + moodOptions.length + physicalSymptoms.length
+    );
   }
-
-
 
   // Open period date picker modal
   async openPeriodDatePicker() {
@@ -2717,7 +2684,7 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
       componentProps: {},
       breakpoints: [0, 1],
       initialBreakpoint: 1,
-      backdropDismiss: false
+      backdropDismiss: false,
     });
 
     await modal.present();
@@ -2745,7 +2712,9 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
     this.cycleSettings.setUserStatus('Trying to Conceive');
     this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
-    this.cycleSettings.setLastPeriodStart(periodRange.startDate.toISOString().split('T')[0]);
+    this.cycleSettings.setLastPeriodStart(
+      periodRange.startDate.toISOString().split('T')[0],
+    );
   }
 
   showPregnancyDetails() {
@@ -2767,10 +2736,11 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
       days.push({
         date: dayDate.getDate(),
-        isSelected: dayDate.getDate() === today.getDate() &&
+        isSelected:
+          dayDate.getDate() === today.getDate() &&
           dayDate.getMonth() === today.getMonth() &&
           dayDate.getFullYear() === today.getFullYear(),
-        fullDate: dayDate
+        fullDate: dayDate,
       });
     }
 
@@ -2779,7 +2749,7 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
   selectDay(day: any) {
     // Update all days to not selected
-    this.getWeekDays().forEach(d => d.isSelected = false);
+    this.getWeekDays().forEach((d) => (d.isSelected = false));
 
     // Set the clicked day as selected
     day.isSelected = true;
@@ -2787,7 +2757,9 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
     // Calculate pregnancy progress based on selected date
     const selectedDate = day.fullDate;
     const pregnancyStartDate = new Date(this.pregnancyStartDate);
-    const diffTime = Math.abs(selectedDate.getTime() - pregnancyStartDate.getTime());
+    const diffTime = Math.abs(
+      selectedDate.getTime() - pregnancyStartDate.getTime(),
+    );
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     this.pregnancyDays = diffDays;
@@ -2805,7 +2777,7 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
     // Generate 8 weeks (4 weeks before current + current week + 3 weeks after)
     for (let weekOffset = -4; weekOffset <= 3; weekOffset++) {
       const weekStart = new Date(today);
-      weekStart.setDate(today.getDate() - today.getDay() + (weekOffset * 7));
+      weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
 
       const weekDays = [];
       for (let i = 0; i < 7; i++) {
@@ -2814,13 +2786,15 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
         weekDays.push({
           date: dayDate.getDate(),
-          isSelected: dayDate.getDate() === today.getDate() &&
+          isSelected:
+            dayDate.getDate() === today.getDate() &&
             dayDate.getMonth() === today.getMonth() &&
             dayDate.getFullYear() === today.getFullYear(),
-          isToday: dayDate.getDate() === today.getDate() &&
+          isToday:
+            dayDate.getDate() === today.getDate() &&
             dayDate.getMonth() === today.getMonth() &&
             dayDate.getFullYear() === today.getFullYear(),
-          fullDate: dayDate
+          fullDate: dayDate,
         });
       }
       weeks.push(weekDays);
@@ -2850,7 +2824,9 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
     // Calculate the start date based on selected week
     const today = new Date();
     const daysToSubtract = this.pregnancyDays;
-    const startDate = new Date(today.getTime() - (daysToSubtract * 24 * 60 * 60 * 1000));
+    const startDate = new Date(
+      today.getTime() - daysToSubtract * 24 * 60 * 60 * 1000,
+    );
     this.pregnancyStartDate = startDate.toISOString().split('T')[0];
   }
 
@@ -2884,16 +2860,46 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
   getBabyEmoji(week: number): string {
     const emojis = [
-      '🌱', '🌱', '🌱', '🌱', // Weeks 1-4
-      '🫘', '🫘', '🫘', '🫘', // Weeks 5-8
-      '🫐', '🫐', '🫐', '🫐', // Weeks 9-12
-      '🍊', '🍊', '🍊', '🍊', // Weeks 13-16
-      '🍑', '🍑', '🍑', '🍑', // Weeks 17-20
-      '🍎', '🍎', '🍎', '🍎', // Weeks 21-24
-      '🥑', '🥑', '🥑', '🥑', // Weeks 25-28
-      '🍐', '🍐', '🍐', '🍐', // Weeks 29-32
-      '🎃', '🎃', '🎃', '🎃', // Weeks 33-36
-      '🍉', '🍉', '🍉', '🍉'  // Weeks 37-40
+      '🌱',
+      '🌱',
+      '🌱',
+      '🌱', // Weeks 1-4
+      '🫘',
+      '🫘',
+      '🫘',
+      '🫘', // Weeks 5-8
+      '🫐',
+      '🫐',
+      '🫐',
+      '🫐', // Weeks 9-12
+      '🍊',
+      '🍊',
+      '🍊',
+      '🍊', // Weeks 13-16
+      '🍑',
+      '🍑',
+      '🍑',
+      '🍑', // Weeks 17-20
+      '🍎',
+      '🍎',
+      '🍎',
+      '🍎', // Weeks 21-24
+      '🥑',
+      '🥑',
+      '🥑',
+      '🥑', // Weeks 25-28
+      '🍐',
+      '🍐',
+      '🍐',
+      '🍐', // Weeks 29-32
+      '🎃',
+      '🎃',
+      '🎃',
+      '🎃', // Weeks 33-36
+      '🍉',
+      '🍉',
+      '🍉',
+      '🍉', // Weeks 37-40
     ];
 
     return emojis[Math.min(week - 1, emojis.length - 1)] || '👶';
@@ -2905,12 +2911,15 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
   }
 
   // Utility method to show toast messages
-  async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+  async showToast(
+    message: string,
+    color: 'success' | 'danger' | 'warning' = 'success',
+  ) {
     const toast = await this.toastController.create({
       message: message,
       duration: 3000,
       color: color,
-      position: 'bottom'
+      position: 'bottom',
     });
     await toast.present();
   }
@@ -2930,9 +2939,12 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
   getCycleDayDescription(): string {
     if (this.currentCycleDay <= 0) return 'Start tracking your cycle';
-    if (this.currentCycleDay <= this.periodLength) return `Day ${this.currentCycleDay} of your period`;
-    if (this.currentCycleDay <= 14) return 'Your body is preparing for ovulation';
-    if (this.currentCycleDay <= 28) return 'Your body is preparing for the next period';
+    if (this.currentCycleDay <= this.periodLength)
+      return `Day ${this.currentCycleDay} of your period`;
+    if (this.currentCycleDay <= 14)
+      return 'Your body is preparing for ovulation';
+    if (this.currentCycleDay <= 28)
+      return 'Your body is preparing for the next period';
     return 'Time to start tracking your next cycle';
   }
 
@@ -2953,20 +2965,25 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
   // Detect if user is on mobile device
   private detectMobileDevice(): boolean {
     // Check for mobile device using multiple methods
-    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-    
+    const userAgent =
+      navigator.userAgent || navigator.vendor || (window as any).opera;
+
     // Check for mobile user agents
-    const isMobileUserAgent = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-    
+    const isMobileUserAgent =
+      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        userAgent.toLowerCase(),
+      );
+
     // Check for touch capability
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
+    const isTouchDevice =
+      'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
     // Check screen width (mobile-like width)
     const isMobileWidth = window.innerWidth <= 768;
-    
+
     // Check if Web Share API is supported (typically mobile)
     const hasWebShare = 'share' in navigator;
-    
+
     // Device is considered mobile if it meets multiple criteria
     return isMobileUserAgent && (isTouchDevice || isMobileWidth || hasWebShare);
   }
@@ -2989,7 +3006,7 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
     if (this.isPostpartum) {
       return 'Welcome to your postpartum journey. Take care of yourself.';
     }
-    return 'Ready to start your health journey? Let\'s begin tracking!';
+    return "Ready to start your health journey? Let's begin tracking!";
   }
 
   getStatusIcon(): string {
@@ -3015,14 +3032,17 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
 
   getStatusDescription(): string {
     if (this.isPregnant) return `Your baby is growing beautifully!`;
-    if (this.userStatus === 'Trying to Conceive') return `Day ${this.currentCycleDay} of your cycle`;
+    if (this.userStatus === 'Trying to Conceive')
+      return `Day ${this.currentCycleDay} of your cycle`;
     if (this.isPostpartum) return 'Focus on recovery and bonding';
     return 'Set up your profile to get started';
   }
 
   openStatusDetails(): void {
     if (this.isPregnant) {
-      this.router.navigate(['/week-detail']);
+      this.router.navigate(['/week-detail'], {
+        queryParams: { week: this.pregnancyWeek },
+      });
     } else if (this.userStatus === 'Trying to Conceive') {
       this.openSymptomsTracking();
     } else {
@@ -3052,8 +3072,11 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
   getDueDate(): string {
     if (!this.pregnancyStartDate) return 'Not set';
     const dueDate = new Date(this.pregnancyStartDate);
-    dueDate.setDate(dueDate.getDate() + (40 * 7));
-    return dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    dueDate.setDate(dueDate.getDate() + 40 * 7);
+    return dueDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
   }
 
   getTrimester(): string {
@@ -3076,13 +3099,9 @@ Generated by Gahvareh Health App To Elahi Fatat besham Azizam`;
     return Math.round((this.pregnancyWeek / 40) * 100);
   }
 
-
-
   viewExpertProfile(): void {
     this.router.navigate(['/tabs/consultation']);
   }
-
-
 
   // UI State Properties
   hasUserAvatar = false;

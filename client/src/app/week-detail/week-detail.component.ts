@@ -3,6 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { OnboardingService } from '../shared/services/onboarding.service';
+import { UserInfoService } from '../shared/services/user-info.service';
+import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
+import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
 
 interface WeekData {
   week: number;
@@ -48,6 +51,9 @@ export class WeekDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private toastController = inject(ToastController);
   private onboardingService = inject(OnboardingService);
+  private userInfoService = inject(UserInfoService);
+  private homeReproUi = inject(HomeReproductiveUiService);
+  private homeJourneyBridge = inject(HomeJourneyBridgeService);
 
   pregnancyWeek: number = 4;
   weekData: WeekData | null = null;
@@ -55,26 +61,20 @@ export class WeekDetailComponent implements OnInit {
   isSavingWeek = false;
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      const fromQuery = parseInt(params['week']);
+    this.route.queryParams.subscribe((params) => {
+      const fromQuery = parseInt(params['week'], 10);
       this.pregnancyWeek = Number.isFinite(fromQuery)
         ? Math.min(40, Math.max(4, fromQuery))
         : 4;
       this.loadWeekData();
     });
 
-    this.onboardingService.getDashboard().subscribe({
-      next: (dashboard) => {
-        if (dashboard.state === 'pregnant' && dashboard.week) {
-          this.pregnancyWeek = Math.min(40, Math.max(4, dashboard.week));
-          this.loadWeekData();
-        }
-      },
-    });
+    this.loadWeekFromStateApi();
   }
 
   loadWeekData() {
-    this.weekData = this.getWeekData(this.pregnancyWeek);
+    const base = this.getWeekData(this.pregnancyWeek);
+    this.weekData = { ...base, week: this.pregnancyWeek };
   }
 
   previousWeek() {
@@ -132,15 +132,47 @@ export class WeekDetailComponent implements OnInit {
         pregnancyStartDate,
       })
       .subscribe({
-        next: async () => {
+        next: async (dashboard) => {
+          const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+            dashboard,
+            this.userInfoService.onboardingJourney(),
+          );
+          this.homeJourneyBridge.pushJourneyStateFromWeekDetail(state);
           this.isSavingWeek = false;
           await this.showToast(`Saved week ${this.pregnancyWeek}`);
+          this.navCtrl.navigateBack('/tabs/home');
         },
         error: async () => {
           this.isSavingWeek = false;
           await this.showToast('Could not save pregnancy week. Try again.');
         },
       });
+  }
+
+  private loadWeekFromStateApi() {
+    this.onboardingService.getDashboard().subscribe({
+      next: (dashboard) => {
+        if (dashboard.state !== 'pregnant') {
+          return;
+        }
+        // Opening from home with ?week=N — keep that week; dashboard can lag local UI.
+        if (this.routeHasExplicitWeekQuery()) {
+          return;
+        }
+        const weekFromApi = dashboard.week ?? 4;
+        this.pregnancyWeek = Math.min(40, Math.max(4, weekFromApi));
+        this.loadWeekData();
+      },
+    });
+  }
+
+  private routeHasExplicitWeekQuery(): boolean {
+    const raw = this.route.snapshot.queryParamMap.get('week');
+    if (raw == null || raw === '') {
+      return false;
+    }
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n);
   }
 
   private estimatePregnancyStartDate(week: number): string {

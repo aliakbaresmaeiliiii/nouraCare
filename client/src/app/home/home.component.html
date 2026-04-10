@@ -26,7 +26,11 @@
       </div>
 
       <!-- Quick Status Card -->
-      @if (userStatus && userStatus !== 'Not Set') {
+      @if (
+        (userStatus && userStatus !== 'Not Set') ||
+        isPregnant ||
+        isPostpartum
+      ) {
         <div class="status-card">
           <div class="status-content">
             <div class="status-icon" [ngClass]="getStatusIconClass()">
@@ -49,7 +53,7 @@
   
 
   <!-- Default State - Onboarding Section -->
-  @if (!userStatus || userStatus === 'Not Set') {
+  @if (showStartTrackingOnboarding()) {
     <div class="onboarding-section">
     <div class="onboarding-card">
       <div class="onboarding-illustration">
