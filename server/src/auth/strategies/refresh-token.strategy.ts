@@ -4,6 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { RefreshTokenService } from '../refresh-token.service';
 import { PrismaService } from '../../prisma/services/prisma.service';
+import { userIdFromJwtSub } from '../utils/jwt-user-id.util';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') {
@@ -27,7 +28,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') 
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const userId = decoded.sub;
+    const userId = userIdFromJwtSub(decoded.sub);
 
     // Validate the refresh token against the database
     const isValid = await this.refreshTokenService.validateRefreshToken(refreshToken, userId);

@@ -16,6 +16,8 @@ export enum PregnancyStatus {
   PLANNING_PREGNANCY = 'PLANNING_PREGNANCY',
   PREGNANT = 'PREGNANT',
   NOT_PLANNING = 'NOT_PLANNING',
+  HAS_CHILD = 'HAS_CHILD',
+  POSTPARTUM = 'POSTPARTUM',
 }
 
 export class CreateUserDto {

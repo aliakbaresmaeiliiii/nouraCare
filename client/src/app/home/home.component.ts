@@ -76,6 +76,9 @@ import { CycleSettingsService } from '../shared/services/cycle-settings.service'
 import { MessageService } from '../shared/services/message.service';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { UserInfoService } from '../shared/services/user-info.service';
+import { UserSessionService } from '../shared/services/user-session.service';
+import { AuthService } from '../auth/services/auth';
+import { UserInfo } from '../shared/interfaces/user-info-api.interface';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
@@ -90,6 +93,8 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
+  private userSession = inject(UserSessionService);
+  private authService = inject(AuthService);
   private trackDataService = inject(TrackDataService);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
 
@@ -368,6 +373,86 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   }
 
   /**
+   * Apply server-backed onboarding / journey to home UI and {@link CycleSettingsService}.
+   */
+  private applyServerJourney(info: UserInfo): void {
+    const status = (info.pregnancyStatus || '').toUpperCase();
+
+    if (status === 'PREGNANT') {
+      this.userStatus = 'Pregnant';
+      this.isPregnant = true;
+      this.isPostpartum = false;
+      this.cycleSettings.setUserStatus('Pregnant');
+      this.cycleSettings.setPregnancyStatus(true);
+      this.cycleSettings.setPostpartumStatus(false);
+    } else if (status === 'POSTPARTUM') {
+      this.userStatus = 'Postpartum';
+      this.isPregnant = false;
+      this.isPostpartum = true;
+      this.cycleSettings.setUserStatus('Postpartum');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(true);
+    } else if (status === 'HAS_CHILD') {
+      this.userStatus = 'Parent';
+      this.isPregnant = false;
+      this.isPostpartum = false;
+      this.cycleSettings.setUserStatus('Parent');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(false);
+    } else if (status === 'NOT_PLANNING') {
+      // "I'm not pregnant" (edit profile) — show period / cycle dashboard, not onboarding
+      this.userStatus = 'Trying to Conceive';
+      this.isPregnant = false;
+      this.isPostpartum = false;
+      this.cycleSettings.setUserStatus('Trying to Conceive');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(false);
+    } else {
+      this.userStatus = 'Trying to Conceive';
+      this.isPregnant = false;
+      this.isPostpartum = false;
+      this.cycleSettings.setUserStatus('Trying to Conceive');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(false);
+    }
+
+    if (info.cycleLength != null) {
+      this.cycleSettings.setCycleLength(info.cycleLength);
+    }
+    if (info.periodLength != null) {
+      this.cycleSettings.setPeriodLength(info.periodLength);
+    }
+
+    if (info.lastPeriodDate) {
+      const iso =
+        typeof info.lastPeriodDate === 'string'
+          ? info.lastPeriodDate.split('T')[0]
+          : new Date(info.lastPeriodDate).toISOString().split('T')[0];
+      this.cycleSettings.setLastPeriodStart(iso);
+      this.periodStartDate = new Date(iso + 'T12:00:00');
+      this.updateCycleDay();
+    }
+
+    if (info.pregnancyWeek != null && info.pregnancyWeek > 0) {
+      this.pregnancyWeek = info.pregnancyWeek;
+      let pr = Math.min(100, Math.round((info.pregnancyWeek / 40) * 100));
+      if (info.pregnancyProgress != null && String(info.pregnancyProgress).trim() !== '') {
+        const parsed = parseFloat(String(info.pregnancyProgress));
+        if (!Number.isNaN(parsed)) {
+          pr = Math.min(100, Math.round(parsed));
+        }
+      }
+      this.pregnancyProgress = pr;
+      this.cycleSettings.setPregnancyWeek(info.pregnancyWeek);
+      this.cycleSettings.setPregnancyProgress(pr);
+    }
+
+    if (info.isCompleted) {
+      localStorage.setItem('onboarding_completed', 'true');
+    }
+  }
+
+  /**
    * Generate personalized messages for the user
    */
   generateMessages() {
@@ -408,36 +493,29 @@ export class HomeComponent implements OnInit, ViewWillEnter {
    * Refresh chart with fresh data from API
    */
   private refreshChartWithFreshData() {
+    const runChartRefresh = () => {
+      setTimeout(() => {
+        if (this.periodChart) {
+          this.periodChart.debugState();
+          this.periodChart.refreshChart();
+          this.periodChart.debugState();
+        }
+      }, 100);
+    };
 
-    // Get user ID
-    const userId = this.getCurrentUserId();
+    if (!this.authService.getAccessToken()) {
+      runChartRefresh();
+      return;
+    }
 
-    // Fetch fresh data from API
-    this.userInfoService.getUserOnboardingData(userId).subscribe({
+    this.userInfoService.getUserOnboardingData().subscribe({
       next: (userInfo) => {
-
-        // Update the chart with fresh data
-        setTimeout(() => {
-          if (this.periodChart) {
-            this.periodChart.debugState(); // Debug current state
-            this.periodChart.refreshChart();
-            this.periodChart.debugState(); // Debug state after refresh
-          } else {
-          }
-        }, 100);
+        this.applyServerJourney(userInfo);
+        runChartRefresh();
       },
-      error: (error) => {
-
-        // Fallback to cached data
-        setTimeout(() => {
-          if (this.periodChart) {
-            this.periodChart.debugState();
-            this.periodChart.refreshChart();
-            this.periodChart.debugState();
-          } else {
-          }
-        }, 100);
-      }
+      error: () => {
+        runChartRefresh();
+      },
     });
   }
 
@@ -445,13 +523,8 @@ export class HomeComponent implements OnInit, ViewWillEnter {
    * Get current user ID using RxJS observable
    */
   private getCurrentUserId(): number {
-    const userInfo = localStorage.getItem('userInfo');
-    if (userInfo) {
-      const parsed = JSON.parse(userInfo);
-      return parsed.userId || parsed.user?.id || parsed.id || 1;
-    }
-    
-    return 1; 
+    const id = this.userSession.getCurrentUserId();
+    return id > 0 ? id : 0;
   }
 
   

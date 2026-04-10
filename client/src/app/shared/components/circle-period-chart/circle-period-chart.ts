@@ -79,11 +79,11 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   // Reactive effects - must be field initializers for injection context
   private watchUserInfo = effect(() => {
-    const userInfo = this.userInfoService.userInfo();
+    const userInfo = this.userInfoService.onboardingJourney();
     if (userInfo) {
       this.cycleLength = userInfo.cycleLength || 28;
       this.periodLength = userInfo.periodLength || 5;
-      this.startDate = userInfo.lastPeriodDate || null;
+      this.startDate = this.toPeriodIso(userInfo.lastPeriodDate);
       if (this.startDate) {
         this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
       }
@@ -219,6 +219,16 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     this.fetchDataFromAPI();
   }
 
+  private toPeriodIso(raw: string | Date | null | undefined): string | null {
+    if (raw == null) {
+      return null;
+    }
+    if (typeof raw === 'string') {
+      return raw.split('T')[0];
+    }
+    return raw.toISOString().split('T')[0];
+  }
+
   /**
    * Fetch fresh data from API
    */
@@ -232,7 +242,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       next: (userInfo) => {
         this.cycleLength = userInfo.cycleLength || 28;
         this.periodLength = userInfo.periodLength || 5;
-        this.startDate = userInfo.lastPeriodDate || null;
+        this.startDate = this.toPeriodIso(userInfo.lastPeriodDate);
         this.isLoading = false;
         this.recomputeEverything();
       },

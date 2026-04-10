@@ -154,45 +154,26 @@ export class OnboardingService {
     });
 
     if (existingRecord) {
-      // Update existing record
       await this.prisma.onboarding_data.update({
         where: { userId },
-        data: filteredData,
+        data: {
+          ...filteredData,
+          updatedAt: new Date(),
+        },
       });
     } else {
-      // Use explicit typing to avoid TypeScript issues
-      const createData: any = {
-        userId: userId,
+      const createData = {
+        userId,
+        updatedAt: new Date(),
+        cycleLength: 28,
+        periodDuration: 5,
+        notificationsEnabled: true,
+        onboardingStep: 1,
         ...filteredData,
       };
 
       await this.prisma.onboarding_data.create({
-        data: createData,
-      });
-    }
-
-    // Also update critical user fields for backward compatibility
-    const userUpdateData = {
-      status: this.mapPregnancyStatus(onboardingData.pregnancy_status),
-      lastPeriodStartDate: onboardingData.last_period,
-      menstrualCycleLength: onboardingData.cycle_length,
-      periodDuration: onboardingData.period_length,
-      pregnancyWeek: onboardingData.pregnancy_week,
-      pregnancyProgress: onboardingData.pregnancy_progress,
-      healthGoals: onboardingData.health_goals,
-      notificationsEnabled: this.mapNotifications(onboardingData.notifications),
-    };
-
-    const filteredUserData = Object.fromEntries(
-      Object.entries(userUpdateData).filter(
-        ([_, value]) => value !== undefined,
-      ),
-    );
-
-    if (Object.keys(filteredUserData).length > 0) {
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: filteredUserData,
+        data: createData as any,
       });
     }
   }
@@ -205,6 +186,7 @@ export class OnboardingService {
       pregnant: 'PREGNANT',
       has_child: 'HAS_CHILD',
       planning: 'PLANNING_PREGNANCY',
+      postpartum: 'POSTPARTUM',
     };
 
     return statusMap[status.toLowerCase()] || status.toUpperCase();

@@ -9,6 +9,7 @@ import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { jwtConfig } from './config/jwt.config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { OnboardingModule } from '../onboarding/onboarding.module';
+import { UserModule } from '../users/user.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { OnboardingModule } from '../onboarding/onboarding.module';
     JwtModule.register(jwtConfig),
     PrismaModule,
     OnboardingModule,
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [

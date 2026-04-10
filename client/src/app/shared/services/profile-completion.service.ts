@@ -125,7 +125,7 @@ export class ProfileCompletionService {
     let userId = this.userSession.getCurrentUserId();
     if (!userId) {
       const info = this.userInfoService.getCurrentUserInfo();
-      const raw = info?.data?.id ?? info?.userId;
+      const raw = info?.data?.id ?? info?.user?.id ?? info?.userId;
       if (raw != null && raw !== '') {
         const n = Number(raw);
         if (Number.isFinite(n) && n > 0) {

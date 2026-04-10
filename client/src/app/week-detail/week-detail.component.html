@@ -1,87 +1,98 @@
-<ion-header>
-  <ion-toolbar color="primary">
+<ion-header class="week-detail-header">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>Week {{ pregnancyWeek }} Details</ion-title>
+    <ion-title>Week {{ pregnancyWeek }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="showToast('Week ' + pregnancyWeek + ' Information')">
-        <ion-icon name="information-circle-outline"></ion-icon>
+      <ion-button fill="clear" (click)="showToast('Week ' + pregnancyWeek + ' Information')">
+        <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 @if (weekData) {
-<ion-content class="week-detail-content">
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="week-header">
-      <div class="week-number">{{ weekData.week }}</div>
-      <div class="week-info">
+<ion-content class="week-detail-content" [fullscreen]="true">
+  <div class="week-detail-inner">
+    <section class="hero-card" aria-label="Week summary">
+      <div class="hero-top">
+        <span class="week-pill">Week {{ weekData.week }}</span>
         <h1 class="week-title">{{ weekData.title }}</h1>
-        <p class="week-subtitle">Week {{ weekData.week }} of Pregnancy</p>
+        <p class="week-subtitle">of pregnancy</p>
       </div>
-    </div>
-    
-    <!-- Baby Size Card -->
-    <div class="baby-size-card">
-      <div class="size-emoji">👶</div>
-      <div class="size-info">
-        <h3>Baby Size: {{ weekData.babySize }}</h3>
-        <div class="baby-stats">
-          <div class="stat">
-            <ion-icon name="scale-outline"></ion-icon>
-            <span>{{ weekData.babyWeight }}</span>
-          </div>
-          <div class="stat">
-            <ion-icon name="resize-outline"></ion-icon>
-            <span>{{ weekData.babyLength }}</span>
+
+      <div class="baby-summary">
+        <span class="baby-emoji" aria-hidden="true">👶</span>
+        <div class="baby-summary-text">
+          <p class="baby-size-label">About the size of</p>
+          <p class="baby-size-value">{{ weekData.babySize }}</p>
+          <div class="baby-chips">
+            <span class="chip">
+              <ion-icon name="scale-outline" aria-hidden="true"></ion-icon>
+              {{ weekData.babyWeight }}
+            </span>
+            <span class="chip">
+              <ion-icon name="resize-outline" aria-hidden="true"></ion-icon>
+              {{ weekData.babyLength }}
+            </span>
           </div>
         </div>
       </div>
+
+      <div class="week-stepper">
+        <button
+          type="button"
+          class="stepper-btn"
+          (click)="previousWeek()"
+          [disabled]="pregnancyWeek <= 4"
+          aria-label="Previous week"
+        >
+          <ion-icon name="chevron-back" aria-hidden="true"></ion-icon>
+        </button>
+        <span class="stepper-label">{{ pregnancyWeek }} / 40</span>
+        <button
+          type="button"
+          class="stepper-btn"
+          (click)="nextWeek()"
+          [disabled]="pregnancyWeek >= 40"
+          aria-label="Next week"
+        >
+          <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+        </button>
+      </div>
+    </section>
+
+    <div class="tab-navigation">
+      <ion-segment
+        [(ngModel)]="activeTab"
+        (ionChange)="setActiveTab($event)"
+        scrollable="true"
+        class="week-segment"
+      >
+        <ion-segment-button value="development" layout="icon-top">
+          <ion-icon name="leaf-outline"></ion-icon>
+          <ion-label>Develop</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="nutrition" layout="icon-top">
+          <ion-icon name="nutrition-outline"></ion-icon>
+          <ion-label>Food</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="activities" layout="icon-top">
+          <ion-icon name="fitness-outline"></ion-icon>
+          <ion-label>Move</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="intimacy" layout="icon-top">
+          <ion-icon name="heart-outline"></ion-icon>
+          <ion-label>Intimacy</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="medical" layout="icon-top">
+          <ion-icon name="medical-outline"></ion-icon>
+          <ion-label>Medical</ion-label>
+        </ion-segment-button>
+      </ion-segment>
     </div>
 
-    <!-- Week Navigation -->
-    <div class="week-navigation">
-      <ion-button fill="clear" (click)="previousWeek()" [disabled]="pregnancyWeek <= 4">
-        <ion-icon name="chevron-back-outline"></ion-icon>
-        Previous Week
-      </ion-button>
-      <ion-button fill="clear" (click)="nextWeek()" [disabled]="pregnancyWeek >= 40">
-        Next Week
-        <ion-icon name="chevron-forward-outline"></ion-icon>
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Tab Navigation -->
-  <div class="tab-navigation">
-    <ion-segment [(ngModel)]="activeTab" (ionChange)="setActiveTab($event)">
-      <ion-segment-button value="development">
-        <ion-icon name="leaf-outline"></ion-icon>
-        <ion-label>Development</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="nutrition">
-        <ion-icon name="nutrition-outline"></ion-icon>
-        <ion-label>Nutrition</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="activities">
-        <ion-icon name="fitness-outline"></ion-icon>
-        <ion-label>Activities</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="intimacy">
-        <ion-icon name="heart-outline"></ion-icon>
-        <ion-label>Intimacy</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="medical">
-        <ion-icon name="medical-outline"></ion-icon>
-        <ion-label>Medical</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </div>
-
-  <!-- Tab Content -->
   <div class="tab-content">
     
     <!-- Development Tab -->
@@ -89,47 +100,44 @@
     <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="leaf-outline" class="section-icon"></ion-icon>
-          <h3>Baby Development</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="leaf-outline"></ion-icon>
+          </span>
+          <h2>Baby development</h2>
         </div>
-        <div class="development-list">
+        <ul class="detail-list">
           @for (item of weekData.development; track $index) {
-          <div class="development-item">
-            <ion-icon name="checkmark-circle" class="check-icon"></ion-icon>
-            <span>{{ item }}</span>
-          </div>
+          <li class="detail-row">{{ item }}</li>
           }
-        </div>
+        </ul>
       </div>
 
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="warning-outline" class="section-icon"></ion-icon>
-          <h3>Common Symptoms</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="pulse-outline"></ion-icon>
+          </span>
+          <h2>Common symptoms</h2>
         </div>
-        <div class="symptoms-list">
+        <ul class="detail-list">
           @for (symptom of weekData.symptoms; track $index) {
-          <div class="symptom-item">
-            <ion-icon name="ellipse" class="symptom-dot"></ion-icon>
-            <span>{{ symptom }}</span>
-          </div>
+          <li class="detail-row detail-row--muted">{{ symptom }}</li>
           }
-        </div>
+        </ul>
       </div>
 
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="bulb-outline" class="section-icon"></ion-icon>
-          <h3>Fun Facts</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="bulb-outline"></ion-icon>
+          </span>
+          <h2>Fun facts</h2>
         </div>
-        <div class="fun-facts">
+        <ul class="detail-list">
           @for (fact of weekData.funFacts; track $index) {
-          <div class="fact-item">
-            <ion-icon name="star-outline" class="star-icon"></ion-icon>
-            <span>{{ fact }}</span>
-          </div>
+          <li class="detail-row">{{ fact }}</li>
           }
-        </div>
+        </ul>
       </div>
     </div>
     }
@@ -139,47 +147,44 @@
     <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="restaurant-outline" class="section-icon"></ion-icon>
-          <h3>Foods to Eat</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="restaurant-outline"></ion-icon>
+          </span>
+          <h2>Foods to enjoy</h2>
         </div>
-        <div class="food-list">
+        <ul class="detail-list">
           @for (food of weekData.nutrition.foods; track $index) {
-          <div class="food-item">
-            <ion-icon name="checkmark-circle" class="food-icon"></ion-icon>
-            <span>{{ food }}</span>
-          </div>
+          <li class="detail-row">{{ food }}</li>
           }
-        </div>
+        </ul>
       </div>
 
-      <div class="section-card">
+      <div class="section-card section-card--soft-warn">
         <div class="section-header">
-          <ion-icon name="close-circle-outline" class="section-icon avoid-icon"></ion-icon>
-          <h3>Foods to Avoid</h3>
+          <span class="section-icon-wrap section-icon-wrap--warn" aria-hidden="true">
+            <ion-icon name="remove-circle-outline"></ion-icon>
+          </span>
+          <h2>Limit or avoid</h2>
         </div>
-        <div class="avoid-list">
+        <ul class="detail-list">
           @for (avoid of weekData.nutrition.avoid; track $index) {
-          <div class="avoid-item">
-            <ion-icon name="close-circle" class="avoid-icon"></ion-icon>
-            <span>{{ avoid }}</span>
-          </div>
+          <li class="detail-row detail-row--warn">{{ avoid }}</li>
           }
-        </div>
+        </ul>
       </div>
 
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="medical-outline" class="section-icon"></ion-icon>
-          <h3>Supplements</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="medical-outline"></ion-icon>
+          </span>
+          <h2>Supplements</h2>
         </div>
-        <div class="supplements-list">
+        <ul class="detail-list">
           @for (supplement of weekData.nutrition.supplements; track $index) {
-          <div class="supplement-item">
-            <ion-icon name="medical" class="supplement-icon"></ion-icon>
-            <span>{{ supplement }}</span>
-          </div>
+          <li class="detail-row">{{ supplement }}</li>
           }
-        </div>
+        </ul>
       </div>
     </div>
     }
@@ -189,47 +194,44 @@
     <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="fitness-outline" class="section-icon"></ion-icon>
-          <h3>Exercise & Fitness</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="fitness-outline"></ion-icon>
+          </span>
+          <h2>Movement</h2>
         </div>
-        <div class="activities-list">
+        <ul class="detail-list">
           @for (exercise of weekData.activities.exercise; track $index) {
-          <div class="activity-item">
-            <ion-icon name="checkmark-circle" class="activity-icon"></ion-icon>
-            <span>{{ exercise }}</span>
-          </div>
+          <li class="detail-row">{{ exercise }}</li>
           }
-        </div>
+        </ul>
       </div>
 
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="flower-outline" class="section-icon"></ion-icon>
-          <h3>Relaxation & Self-Care</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="flower-outline"></ion-icon>
+          </span>
+          <h2>Rest & care</h2>
         </div>
-        <div class="relaxation-list">
+        <ul class="detail-list">
           @for (relaxation of weekData.activities.relaxation; track $index) {
-          <div class="relaxation-item">
-            <ion-icon name="leaf" class="relaxation-icon"></ion-icon>
-            <span>{{ relaxation }}</span>
-          </div>
+          <li class="detail-row">{{ relaxation }}</li>
           }
-        </div>
+        </ul>
       </div>
 
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="list-outline" class="section-icon"></ion-icon>
-          <h3>Preparation Tasks</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="list-outline"></ion-icon>
+          </span>
+          <h2>Prep checklist</h2>
         </div>
-        <div class="preparation-list">
+        <ul class="detail-list">
           @for (prep of weekData.activities.preparation; track $index) {
-          <div class="preparation-item">
-            <ion-icon name="clipboard" class="preparation-icon"></ion-icon>
-            <span>{{ prep }}</span>
-          </div>
+          <li class="detail-row">{{ prep }}</li>
           }
-        </div>
+        </ul>
       </div>
     </div>
     }
@@ -239,36 +241,34 @@
     <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="heart-outline" class="section-icon"></ion-icon>
-          <h3>Intimacy & Sex</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="heart-outline"></ion-icon>
+          </span>
+          <h2>Intimacy</h2>
         </div>
-        <div class="intimacy-status">
-          <div class="status-indicator" [class.safe]="weekData.intimacy.safe" [class.caution]="!weekData.intimacy.safe">
-            <ion-icon [name]="weekData.intimacy.safe ? 'checkmark-circle' : 'warning'"></ion-icon>
-            <span>{{ weekData.intimacy.safe ? 'Safe for Intimacy' : 'Use Caution' }}</span>
-          </div>
-        </div>
-        
-        <div class="intimacy-tips">
-          <h4>Tips & Guidelines</h4>
-          @for (tip of weekData.intimacy.tips; track $index) {
-          <div class="tip-item">
-            <ion-icon name="bulb-outline" class="tip-icon"></ion-icon>
-            <span>{{ tip }}</span>
-          </div>
-          }
+        <div
+          class="status-banner"
+          [class.status-banner--ok]="weekData.intimacy.safe"
+          [class.status-banner--caution]="!weekData.intimacy.safe"
+        >
+          <ion-icon [name]="weekData.intimacy.safe ? 'checkmark-circle-outline' : 'alert-circle-outline'"></ion-icon>
+          <span>{{ weekData.intimacy.safe ? 'Generally safe — listen to your body' : 'Use caution — check with your care provider' }}</span>
         </div>
 
-        @if (weekData.intimacy.positions.length > 0) {
-        <div class="intimacy-positions">
-          <h4>Comfortable Positions</h4>
-          @for (position of weekData.intimacy.positions; track $index) {
-          <div class="position-item">
-            <ion-icon name="heart" class="position-icon"></ion-icon>
-            <span>{{ position }}</span>
-          </div>
+        <h3 class="subsection-title">Tips</h3>
+        <ul class="detail-list">
+          @for (tip of weekData.intimacy.tips; track $index) {
+          <li class="detail-row">{{ tip }}</li>
           }
-        </div>
+        </ul>
+
+        @if (weekData.intimacy.positions.length > 0) {
+        <h3 class="subsection-title">Comfort ideas</h3>
+        <ul class="detail-list">
+          @for (position of weekData.intimacy.positions; track $index) {
+          <li class="detail-row detail-row--muted">{{ position }}</li>
+          }
+        </ul>
         }
       </div>
     </div>
@@ -279,68 +279,64 @@
     <div class="tab-panel">
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="calendar-outline" class="section-icon"></ion-icon>
-          <h3>Appointments</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="calendar-outline"></ion-icon>
+          </span>
+          <h2>Appointments</h2>
         </div>
-        <div class="appointments-list">
+        <ul class="detail-list">
           @for (appointment of weekData.medical.appointments; track $index) {
-          <div class="appointment-item">
-            <ion-icon name="calendar" class="appointment-icon"></ion-icon>
-            <span>{{ appointment }}</span>
-          </div>
+          <li class="detail-row">{{ appointment }}</li>
           }
-        </div>
+        </ul>
       </div>
 
       <div class="section-card">
         <div class="section-header">
-          <ion-icon name="flask-outline" class="section-icon"></ion-icon>
-          <h3>Tests & Screenings</h3>
+          <span class="section-icon-wrap" aria-hidden="true">
+            <ion-icon name="flask-outline"></ion-icon>
+          </span>
+          <h2>Tests & screenings</h2>
         </div>
-        <div class="tests-list">
+        <ul class="detail-list">
           @for (test of weekData.medical.tests; track $index) {
-          <div class="test-item">
-            <ion-icon name="flask" class="test-icon"></ion-icon>
-            <span>{{ test }}</span>
-          </div>
+          <li class="detail-row">{{ test }}</li>
           }
-        </div>
+        </ul>
       </div>
 
-      <div class="section-card">
+      <div class="section-card section-card--soft-warn">
         <div class="section-header">
-          <ion-icon name="warning-outline" class="section-icon"></ion-icon>
-          <h3>Things to Watch For</h3>
+          <span class="section-icon-wrap section-icon-wrap--warn" aria-hidden="true">
+            <ion-icon name="medkit-outline"></ion-icon>
+          </span>
+          <h2>When to call your provider</h2>
         </div>
-        <div class="concerns-list">
+        <ul class="detail-list">
           @for (concern of weekData.medical.concerns; track $index) {
-          <div class="concern-item">
-            <ion-icon name="alert-circle" class="concern-icon"></ion-icon>
-            <span>{{ concern }}</span>
-          </div>
+          <li class="detail-row detail-row--warn">{{ concern }}</li>
           }
-        </div>
+        </ul>
       </div>
     </div>
     }
   </div>
 
-  <!-- Tips Section -->
-  <div class="tips-section">
-    <div class="section-card">
-      <div class="section-header">
-        <ion-icon name="bulb-outline" class="section-icon"></ion-icon>
-        <h3>This Week's Tips</h3>
-      </div>
-      <div class="tips-list">
-        @for (tip of weekData.tips; track $index) {
-        <div class="tip-item">
-          <ion-icon name="star" class="tip-star"></ion-icon>
-          <span>{{ tip }}</span>
+    <section class="tips-footer" aria-label="This week's tips">
+      <div class="section-card section-card--accent">
+        <div class="section-header">
+          <span class="section-icon-wrap section-icon-wrap--on-accent" aria-hidden="true">
+            <ion-icon name="bulb-outline"></ion-icon>
+          </span>
+          <h2>This week</h2>
         </div>
-        }
+        <ul class="detail-list detail-list--on-accent">
+          @for (tip of weekData.tips; track $index) {
+          <li class="detail-row">{{ tip }}</li>
+          }
+        </ul>
       </div>
-    </div>
+    </section>
   </div>
 </ion-content>
 }

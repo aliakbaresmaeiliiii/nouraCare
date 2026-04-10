@@ -12,6 +12,8 @@ import { randomUUID } from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 import SendMail from '../helper/send_email';
 import { EmailProvider } from './config/email';
+import { OnboardingService as UserOnboardingService } from '../users/onboarding.service';
+import { mapRegisterOnboardingPayload } from './utils/map-register-onboarding.util';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private refreshTokenService: RefreshTokenService,
+    private userOnboarding: UserOnboardingService,
   ) {
     this.emailProvider = new EmailProvider();
     this.sendMail = new SendMail(this.emailProvider);
@@ -70,6 +73,20 @@ export class AuthService {
     } catch (error) {
       console.error('Failed to send verification email:', error);
       // Don't throw error here, just log it
+    }
+
+    const onboardingDto = mapRegisterOnboardingPayload(
+      registerDto.onboardingData,
+    );
+    if (onboardingDto) {
+      try {
+        await this.userOnboarding.saveOnboardingData(user.id, onboardingDto);
+      } catch (err) {
+        console.error(
+          'Failed to persist onboarding_data at registration:',
+          err,
+        );
+      }
     }
 
     // Generate tokens
@@ -307,7 +324,8 @@ export class AuthService {
   }
 
   private generateTokens(userId: number, email: string) {
-    const payload = { sub: userId, email };
+    // `sub` must be a string per JWT RFC; keeps Prisma Int lookups safe after parse
+    const payload = { sub: String(userId), email };
 
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: '15m',

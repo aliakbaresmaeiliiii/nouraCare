@@ -1,10 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { UserInfo } from '../interfaces/user-info-api.interface';
+import { map, tap } from 'rxjs/operators';
+import {
+  ApiEnvelope,
+  UserInfo,
+} from '../interfaces/user-info-api.interface';
 import { environment } from '../../../environments/environment';
 import { UserSessionService } from './user-session.service';
+import { AuthService } from '../../auth/services/auth';
 
 export interface OnboardingData {
   pregnancy_status: string;
@@ -13,7 +17,7 @@ export interface OnboardingData {
   period_length: number;
   pregnancy_week?: number;
   health_goals: string;
-  notifications: string;
+  notifications: string | boolean;
 }
 
 @Injectable({
@@ -22,56 +26,64 @@ export interface OnboardingData {
 export class UserInfoService {
   private http = inject(HttpClient);
   private userSession = inject(UserSessionService);
+  private authService = inject(AuthService);
 
-  userInfo = signal<UserInfo | null>(null);
+  /** Last journey payload from `GET user/me/onboarding` (and PATCH). */
+  onboardingJourney = signal<UserInfo | null>(null);
+
+  /** @deprecated Prefer {@link onboardingJourney}; kept for edit-profile merges. */
+  userInfo = signal<any>(null);
 
   saveOnboardingData(onboardingData: OnboardingData): Observable<UserInfo> {
-    const userId = this.userSession.getCurrentUserId();
-    if (!userId) {
-      return throwError(() => new Error('No user id'));
+    if (!this.authService.getAccessToken()) {
+      return throwError(() => new Error('Not authenticated'));
     }
     const payload = this.transformOnboardingData(onboardingData);
     return this.http
-      .post<UserInfo>(
-        `${environment.apiEndPoint}user/${userId}/onboarding`,
+      .patch<ApiEnvelope<UserInfo>>(
+        `${environment.apiEndPoint}user/me/onboarding`,
         payload,
       )
       .pipe(
-        tap((response) => {
-          this.userInfo.set(response);
-        }),
+        map((res) => this.unwrap(res)),
+        tap((data) => this.onboardingJourney.set(data)),
       );
   }
 
   savePregnancyStatus(
-    userId: number,
+    _userId: number,
     pregnancyStatus: string,
   ): Observable<UserInfo> {
+    if (!this.authService.getAccessToken()) {
+      return throwError(() => new Error('Not authenticated'));
+    }
+    const server = this.mapClientStatusToServer(pregnancyStatus);
     return this.http
-      .post<UserInfo>(`${environment.apiEndPoint}user/${userId}/onboarding`, {
-        pregnancyStatus,
-      })
+      .patch<ApiEnvelope<UserInfo>>(
+        `${environment.apiEndPoint}user/me/onboarding`,
+        { pregnancyStatus: server },
+      )
       .pipe(
-        tap((response) => {
-          this.userInfo.set(response);
-        }),
+        map((res) => this.unwrap(res)),
+        tap((data) => this.onboardingJourney.set(data)),
       );
   }
 
-  getUserOnboardingData(userId?: number): Observable<UserInfo> {
-    const targetUserId =
-      userId != null ? userId : this.userSession.getCurrentUserId();
-    if (!targetUserId) {
-      return throwError(() => new Error('No user id'));
+  /**
+   * Authenticated: loads the signed-in user's journey from `GET user/me/onboarding`.
+   * The optional userId parameter is ignored (kept for call-site compatibility).
+   */
+  getUserOnboardingData(_userId?: number): Observable<UserInfo> {
+    if (!this.authService.getAccessToken()) {
+      return throwError(() => new Error('Not authenticated'));
     }
     return this.http
-      .get<UserInfo>(
-        `${environment.apiEndPoint}user/${targetUserId}/onboarding`,
+      .get<ApiEnvelope<UserInfo>>(
+        `${environment.apiEndPoint}user/me/onboarding`,
       )
       .pipe(
-        tap((response) => {
-          this.userInfo.set(response);
-        }),
+        map((res) => this.unwrap(res)),
+        tap((data) => this.onboardingJourney.set(data)),
       );
   }
 
@@ -80,66 +92,105 @@ export class UserInfoService {
     return this.getUserOnboardingData(userId);
   }
 
+  /** Auth/session store shape from localStorage (not the onboarding journey signal). */
   getCurrentUserInfo(): any | null {
-    return this.userInfo();
+    return this.userSession.parseUserInfoStore();
   }
 
-  private transformOnboardingData(data: OnboardingData): Partial<UserInfo> {
-    const pregnancyStatus = this.mapPregnancyStatus(data.pregnancy_status);
-    const healthGoals = data.health_goals ? JSON.parse(data.health_goals) : [];
+  private unwrap<T>(res: ApiEnvelope<T>): T {
+    if (res?.data === undefined || res?.data === null) {
+      throw new Error('Invalid API response');
+    }
+    return res.data;
+  }
 
-    return {
+  private transformOnboardingData(data: OnboardingData): Record<string, unknown> {
+    const pregnancyStatus = this.mapClientStatusToServer(data.pregnancy_status);
+    const healthGoals = this.parseHealthGoalsField(data.health_goals);
+    const notificationsEnabled =
+      data.notifications === true ||
+      data.notifications === 'yes' ||
+      data.notifications === 'true';
+    const out: Record<string, unknown> = {
       pregnancyStatus,
-      lastPeriodDate: data.last_period,
+      lastPeriodDate: data.last_period || undefined,
       cycleLength: data.cycle_length,
       periodLength: data.period_length,
       pregnancyWeek: data.pregnancy_week,
-      pregnancyProgress: data.pregnancy_week
-        ? (data.pregnancy_week / 40) * 100
-        : undefined,
-      healthGoals,
-      notificationsEnabled: data.notifications === 'yes',
+      notificationsEnabled,
     };
+    if (data.pregnancy_week != null) {
+      out['pregnancyProgress'] = String((data.pregnancy_week / 40) * 100);
+    }
+    if (healthGoals.length > 0) {
+      out['healthGoals'] = healthGoals;
+    }
+    return out;
   }
 
-  private mapPregnancyStatus(
-    status: string,
-  ): 'pregnant' | 'trying' | 'postpartum' | 'tracking' {
-    switch (status) {
-      case 'pregnant':
-        return 'pregnant';
-      case 'trying':
-        return 'trying';
-      case 'postpartum':
-        return 'postpartum';
-      case 'tracking':
-        return 'tracking';
-      default:
-        return 'tracking';
+  private parseHealthGoalsField(raw: unknown): string[] {
+    if (raw == null || raw === '') {
+      return [];
     }
+    if (typeof raw === 'string') {
+      try {
+        const p = JSON.parse(raw) as unknown;
+        return Array.isArray(p)
+          ? p.filter((x): x is string => typeof x === 'string')
+          : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+
+  private mapClientStatusToServer(status: string): string {
+    const s = (status || '').toLowerCase().replace(/\s+/g, '_');
+    const map: Record<string, string> = {
+      pregnant: 'PREGNANT',
+      trying: 'PLANNING_PREGNANCY',
+      trying_to_conceive: 'PLANNING_PREGNANCY',
+      tracking: 'PLANNING_PREGNANCY',
+      postpartum: 'POSTPARTUM',
+      has_child: 'HAS_CHILD',
+      parent: 'HAS_CHILD',
+      not_planning: 'NOT_PLANNING',
+    };
+    if (map[s]) {
+      return map[s];
+    }
+    const up = (status || '').toUpperCase();
+    if (
+      [
+        'PLANNING_PREGNANCY',
+        'PREGNANT',
+        'NOT_PLANNING',
+        'HAS_CHILD',
+        'POSTPARTUM',
+      ].includes(up)
+    ) {
+      return up;
+    }
+    return 'PLANNING_PREGNANCY';
   }
 
   clearUserInfo(): void {
     localStorage.removeItem('userInfo');
     this.userInfo.set(null);
+    this.onboardingJourney.set(null);
   }
 
   hasUserInfo(): boolean {
-    return this.userInfo() !== null;
+    return this.onboardingJourney() !== null;
   }
 
   /**
-   * Hydrate the onboarding signal from `localStorage`, or from GET onboarding when storage is empty and id is known.
+   * When authenticated, loads journey from the API into {@link onboardingJourney}.
    */
   loadUserInfoOnInit(): void {
-    const fromStorage = this.userSession.parseUserInfoStore();
-    if (fromStorage) {
-      this.userInfo.set(fromStorage as unknown as UserInfo);
-      return;
-    }
-    const userId = this.userSession.getCurrentUserId();
-    if (userId > 0) {
-      this.getUserOnboardingData(userId).subscribe({
+    if (this.authService.getAccessToken()) {
+      this.getUserOnboardingData().subscribe({
         error: () => {
           /* optional: onboarding not available */
         },
@@ -148,7 +199,7 @@ export class UserInfoService {
   }
 
   getUserInfoSummary(): string {
-    const info = this.userInfo();
+    const info = this.onboardingJourney();
     if (!info || !info.pregnancyStatus) {
       return 'No user info available';
     }

@@ -168,9 +168,9 @@ export class EditProfileComponent implements OnInit {
 
   private loadUserDataFromAPI() {
     try {
-      const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-      if (currentUserInfo?.data?.id) {
-        this.fetchUserDataAndOnboardingData(currentUserInfo.data.id);
+      const id = this.userSession.getCurrentUserId();
+      if (id > 0) {
+        this.fetchUserDataAndOnboardingData(id);
       } else {
         console.error('No user info available');
       }
@@ -603,6 +603,7 @@ export class EditProfileComponent implements OnInit {
     const currentUserInfo = this.userInfoService.getCurrentUserInfo();
     const id =
       currentUserInfo?.data?.id ??
+      currentUserInfo?.user?.id ??
       currentUserInfo?.userId ??
       this.userSession.getCurrentUserId();
     if (!id) {
@@ -807,7 +808,11 @@ export class EditProfileComponent implements OnInit {
   saveReproductiveStatus(): void {
     if (this.currentReproductiveStatus) {
       const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-      const id = currentUserInfo?.data?.id ?? currentUserInfo?.userId;
+      const id =
+        currentUserInfo?.data?.id ??
+        currentUserInfo?.user?.id ??
+        currentUserInfo?.userId ??
+        this.userSession.getCurrentUserId();
 
       const apiStatus = this.mapUiReproductiveToApiPregnancyStatus(
         this.currentReproductiveStatus,

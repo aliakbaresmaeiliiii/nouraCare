@@ -52,6 +52,16 @@ export class OnboardingDataDto {
   @IsOptional()
   @IsBoolean()
   notificationsEnabled?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(20)
+  onboardingStep?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  isCompleted?: boolean;
 }
 
 export class UserInfoResponseDto {
@@ -65,6 +75,8 @@ export class UserInfoResponseDto {
   pregnancyProgress: string | null;
   healthGoals: string[];
   notificationsEnabled: boolean;
+  isCompleted: boolean;
+  onboardingStep: number;
   createdAt: Date;
   updatedAt: Date;
 }

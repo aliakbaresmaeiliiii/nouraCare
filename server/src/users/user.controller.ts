@@ -4,11 +4,14 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Req,
   Param,
+  Patch,
   Post,
   Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import type { Request } from 'express';
@@ -21,6 +24,7 @@ import { UpdateUserDto } from './dto/user.dto';
 import { OnboardingService } from './onboarding.service';
 import { OnboardingDataDto } from './dto/onboarding.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -28,6 +32,37 @@ export class UserController {
     private userService: UserService,
     private onboardingService: OnboardingService,
   ) {}
+
+  @Get('me/onboarding')
+  @UseGuards(JwtAuthGuard)
+  async getMyOnboarding(@Req() req: Request) {
+    const user = req.user as { id: number };
+    const result = await this.onboardingService.getUserOnboardingData(user.id);
+    if (!result) {
+      throw new NotFoundException('User not found');
+    }
+    return ApiResponseHelper.success(
+      result,
+      'Onboarding data retrieved successfully',
+    );
+  }
+
+  @Patch('me/onboarding')
+  @UseGuards(JwtAuthGuard)
+  async patchMyOnboarding(
+    @Req() req: Request,
+    @Body() onboardingData: OnboardingDataDto,
+  ) {
+    const user = req.user as { id: number };
+    const result = await this.onboardingService.saveOnboardingData(
+      user.id,
+      onboardingData,
+    );
+    return ApiResponseHelper.updated(
+      result,
+      'Onboarding data updated successfully',
+    );
+  }
 
   @Get(':id')
   async getUser(@Param('id') id: string) {
@@ -115,7 +150,13 @@ export class UserController {
   @Get(':id/onboarding')
   async getUserOnboardingData(@Param('id') id: string) {
     const result = await this.onboardingService.getUserOnboardingData(+id);
-    return ApiResponseHelper.success(result, 'Onboarding data retrieved successfully');
+    if (!result) {
+      throw new NotFoundException('User not found');
+    }
+    return ApiResponseHelper.success(
+      result,
+      'Onboarding data retrieved successfully',
+    );
   }
 
   @Delete(':id')
