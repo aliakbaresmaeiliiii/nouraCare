@@ -36,12 +36,34 @@ export interface CompleteOnboardingResponse {
   accessToken?: string;
 }
 
+export type ReproductiveState = 'cycle' | 'planning' | 'pregnant' | 'postpartum';
+
+export interface InitializeReproductiveStateDto {
+  state: ReproductiveState;
+  pregnancyStartDate?: string;
+  tryingSince?: string;
+  notes?: string;
+  lastPeriodDate?: string;
+  cycleLength?: number;
+  currentWeek?: number;
+}
+
+export interface DashboardResponse {
+  state: ReproductiveState;
+  week: number | null;
+  tips: string[];
+  nextPeriod: string | null;
+  tryingSince?: string | null;
+  notes?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class OnboardingService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiEndPoint + 'onboarding';
+  private meBaseUrl = environment.apiEndPoint + 'me';
 
 
   startOnboarding(): Observable<OnboardingSession> {
@@ -109,5 +131,21 @@ export class OnboardingService {
    */
   clearSessionId(): void {
     localStorage.removeItem('onboarding_session_id');
+  }
+
+  initializeReproductiveState(
+    payload: InitializeReproductiveStateDto,
+  ): Observable<DashboardResponse> {
+    return this.http.post<DashboardResponse>(this.baseUrl, payload);
+  }
+
+  getDashboard(): Observable<DashboardResponse> {
+    return this.http.get<DashboardResponse>(`${this.meBaseUrl}/dashboard`);
+  }
+
+  updateReproductiveState(
+    payload: InitializeReproductiveStateDto,
+  ): Observable<DashboardResponse> {
+    return this.http.patch<DashboardResponse>(`${this.meBaseUrl}/state`, payload);
   }
 }

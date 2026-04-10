@@ -10,6 +10,7 @@ import { TrackDayModule } from './track-day/track-day.module';
 import { DoctorsModule } from './doctors/doctors.module';
 import { SecretChatsModule } from './secret-chats/secret-chats.module';
 import { ForumModule } from './forum/forum.module';
+import { ReproductiveModule } from './reproductive/reproductive.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ForumModule } from './forum/forum.module';
     DoctorsModule,
     SecretChatsModule,
     ForumModule,
+    ReproductiveModule,
   ],
   controllers: [AppController],
   providers: [AppService],

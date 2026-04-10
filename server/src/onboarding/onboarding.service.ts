@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { OnboardingDataDto, CompleteOnboardingDto } from './dto/onboarding.dto';
+import { InitializeOnboardingDto } from './dto/initialize-onboarding.dto';
+import { ReproductiveStateService } from '../reproductive/reproductive-state.service';
 
 interface TemporaryOnboardingData {
   sessionId: string;
@@ -12,9 +14,16 @@ interface TemporaryOnboardingData {
 export class OnboardingService {
   private temporaryData = new Map<string, TemporaryOnboardingData>();
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    private readonly reproductiveStateService: ReproductiveStateService,
+  ) {
     // Clean up expired sessions every hour
     setInterval(() => this.cleanupExpiredSessions(), 60 * 60 * 1000);
+  }
+
+  async initializeOnboarding(userId: number, dto: InitializeOnboardingDto) {
+    return this.reproductiveStateService.initializeForUser(userId, dto);
   }
 
   async saveTemporaryOnboardingData(onboardingData: OnboardingDataDto) {

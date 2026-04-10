@@ -14,10 +14,12 @@ import {
 import {
   OnboardingService,
   OnboardingDataDto,
+  InitializeReproductiveStateDto,
 } from '../shared/services/onboarding.service';
 import { OnboardingStateService } from '../shared/services/onboarding-state.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { NotificationPermissionComponent } from '../shared/components/notification-permission/notification-permission.component';
+import { AuthService } from '../auth/services/auth';
 
 interface OnboardingStep {
   id: string;
@@ -47,6 +49,7 @@ export class OnboardingComponent implements OnInit {
   private userInfoService = inject(UserInfoService);
   private onboardingService = inject(OnboardingService);
   private onboardingStateService = inject(OnboardingStateService);
+  private authService = inject(AuthService);
 
   currentStep = 0;
   answers: { [key: string]: any } = {};
@@ -356,21 +359,49 @@ export class OnboardingComponent implements OnInit {
    * Complete onboarding and redirect to registration
    */
   async completeOnboarding() {
-    // Save final onboarding data
+    const reproductivePayload = this.toReproductivePayload();
+    this.saveAnswers();
     this.saveOnboardingProgress();
 
-    // Save to local services for immediate use
-    this.saveAnswers();
+    if (this.authService.getAccessToken()) {
+      this.onboardingService.initializeReproductiveState(reproductivePayload).subscribe({
+        next: () => {
+          this.isCompleted = true;
+          setTimeout(() => this.router.navigate(['/tabs/home']), 1200);
+        },
+        error: () => {
+          this.showErrorAlert('Failed to initialize your health profile. Please try again.');
+        },
+      });
+      return;
+    }
 
-    // Show completion screen briefly, then navigate to registration
     this.isCompleted = true;
-
-    // Navigate to registration page after a short delay
     setTimeout(() => {
       this.router.navigate(['/auth/sign-in'], {
         queryParams: { tab: 'register' },
       });
-    }, 2000); // 2 second delay to show completion message
+    }, 2000);
+  }
+
+  private toReproductivePayload(): InitializeReproductiveStateDto {
+    const status = this.answers['pregnancy_status'];
+    const mappedState =
+      status === 'pregnant'
+        ? 'pregnant'
+        : status === 'postpartum'
+          ? 'postpartum'
+          : status === 'trying'
+            ? 'planning'
+            : 'cycle';
+    return {
+      state: mappedState,
+      lastPeriodDate: this.answers['last_period'] || undefined,
+      cycleLength: this.answers['cycle_length'] || undefined,
+      currentWeek: this.answers['pregnancy_week'] || undefined,
+      tryingSince: mappedState === 'planning' ? this.answers['last_period'] || undefined : undefined,
+      pregnancyStartDate: mappedState === 'pregnant' ? this.answers['last_period'] || undefined : undefined,
+    };
   }
 
   /**

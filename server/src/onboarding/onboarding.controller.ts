@@ -1,12 +1,25 @@
-import { Body, Controller, Post, Get, Param, Logger } from '@nestjs/common';
+import { Body, Controller, Post, Get, Param, Logger, Req, UseGuards } from '@nestjs/common';
 import { OnboardingService } from './onboarding.service';
 import { OnboardingDataDto } from './dto/onboarding.dto';
+import { InitializeOnboardingDto } from './dto/initialize-onboarding.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { Request } from 'express';
 
 @Controller('onboarding')
 export class OnboardingController {
   private readonly logger = new Logger(OnboardingController.name);
 
   constructor(private onboardingService: OnboardingService) {}
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  async initializeOnboarding(
+    @Req() req: Request,
+    @Body() payload: InitializeOnboardingDto,
+  ) {
+    const user = req.user as { id: number };
+    return this.onboardingService.initializeOnboarding(user.id, payload);
+  }
 
   @Post('save')
   async saveOnboardingData(@Body() onboardingData: OnboardingDataDto) {

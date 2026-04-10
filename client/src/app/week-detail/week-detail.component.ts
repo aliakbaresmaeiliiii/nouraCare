@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { OnboardingService } from '../shared/services/onboarding.service';
 
 interface WeekData {
   week: number;
@@ -46,15 +47,29 @@ export class WeekDetailComponent implements OnInit {
   private navCtrl = inject(NavController);
   private route = inject(ActivatedRoute);
   private toastController = inject(ToastController);
+  private onboardingService = inject(OnboardingService);
 
-  pregnancyWeek: number = 1;
+  pregnancyWeek: number = 4;
   weekData: WeekData | null = null;
   activeTab: string = 'development';
+  isSavingWeek = false;
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
-      this.pregnancyWeek = parseInt(params['week']) || 1;
+      const fromQuery = parseInt(params['week']);
+      this.pregnancyWeek = Number.isFinite(fromQuery)
+        ? Math.min(40, Math.max(4, fromQuery))
+        : 4;
       this.loadWeekData();
+    });
+
+    this.onboardingService.getDashboard().subscribe({
+      next: (dashboard) => {
+        if (dashboard.state === 'pregnant' && dashboard.week) {
+          this.pregnancyWeek = Math.min(40, Math.max(4, dashboard.week));
+          this.loadWeekData();
+        }
+      },
     });
   }
 
@@ -92,6 +107,47 @@ export class WeekDetailComponent implements OnInit {
 
   goBack() {
     this.navCtrl.back();
+  }
+
+  onWeekRangeChange(event: any) {
+    const value = Number(event?.detail?.value);
+    if (!Number.isFinite(value)) {
+      return;
+    }
+    this.pregnancyWeek = Math.min(40, Math.max(4, Math.round(value)));
+    this.loadWeekData();
+  }
+
+  async saveWeek() {
+    if (this.isSavingWeek) {
+      return;
+    }
+    this.isSavingWeek = true;
+    const pregnancyStartDate = this.estimatePregnancyStartDate(this.pregnancyWeek);
+
+    this.onboardingService
+      .updateReproductiveState({
+        state: 'pregnant',
+        currentWeek: this.pregnancyWeek,
+        pregnancyStartDate,
+      })
+      .subscribe({
+        next: async () => {
+          this.isSavingWeek = false;
+          await this.showToast(`Saved week ${this.pregnancyWeek}`);
+        },
+        error: async () => {
+          this.isSavingWeek = false;
+          await this.showToast('Could not save pregnancy week. Try again.');
+        },
+      });
+  }
+
+  private estimatePregnancyStartDate(week: number): string {
+    const now = new Date();
+    const daysBack = Math.max(0, (week - 1) * 7);
+    now.setDate(now.getDate() - daysBack);
+    return now.toISOString().split('T')[0];
   }
 
   async showToast(message: string) {

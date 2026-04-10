@@ -3,6 +3,7 @@ import { ImageUrlService } from './image-url.service';
 import { UserInfoService } from './user-info.service';
 import { UserSessionService } from './user-session.service';
 import { User } from './user';
+import { OnboardingService } from './onboarding.service';
 import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 
@@ -14,6 +15,7 @@ export class ProfileCompletionService {
   private userInfoService = inject(UserInfoService);
   private userSession = inject(UserSessionService);
   private userService = inject(User);
+  private onboardingService = inject(OnboardingService);
 
   // Signal to store user data
   private userData = signal<any>({});
@@ -145,12 +147,12 @@ export class ProfileCompletionService {
     const userData$ = this.userService.getUser(String(userId)).pipe(
       catchError(() => of({ data: null })),
     );
-    const onboardingData$ = this.userInfoService.getUserOnboardingData(userId).pipe(
+    const onboardingData$ = this.onboardingService.getDashboard().pipe(
       catchError(() =>
         of({
-          cycleLength: 28,
-          periodLength: 5,
-          lastPeriodDate: null,
+          state: 'cycle',
+          week: null,
+          nextPeriod: null,
         }),
       ),
     );
@@ -190,11 +192,11 @@ export class ProfileCompletionService {
           dateOfBirth,
           profileImageRaw,
           profileImage,
-          status: ob.pregnancyStatus ?? u.status ?? null,
+          status: this.mapDashboardStateToStatus(ob.state) ?? u.status ?? null,
           city: u.city ?? '',
-          menstrualCycleLength: ob.cycleLength || 28,
-          periodDuration: ob.periodLength || 5,
-          lastPeriodStartDate: ob.lastPeriodDate ?? null,
+          menstrualCycleLength: 28,
+          periodDuration: 5,
+          lastPeriodStartDate: null,
         };
       }),
       tap({
@@ -250,5 +252,16 @@ export class ProfileCompletionService {
     });
 
     return Math.round((totalProgress / totalWeight) * 100);
+  }
+
+  private mapDashboardStateToStatus(
+    state: string | null | undefined,
+  ): string | null {
+    if (!state) return null;
+    if (state === 'pregnant') return 'PREGNANT';
+    if (state === 'planning') return 'PLANNING_PREGNANCY';
+    if (state === 'postpartum') return 'POSTPARTUM';
+    if (state === 'cycle') return 'NOT_PREGNANT';
+    return null;
   }
 }

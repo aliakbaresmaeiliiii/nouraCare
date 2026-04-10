@@ -61,6 +61,29 @@
           <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
         </button>
       </div>
+
+      <div class="week-save-panel">
+        <div class="week-range-row">
+          <span class="range-label">Choose week</span>
+          <span class="range-value">Week {{ pregnancyWeek }}</span>
+        </div>
+        <ion-range
+          min="4"
+          max="40"
+          step="1"
+          snaps="true"
+          [value]="pregnancyWeek"
+          (ionChange)="onWeekRangeChange($event)"
+        ></ion-range>
+        <ion-button
+          expand="block"
+          class="save-week-button"
+          (click)="saveWeek()"
+          [disabled]="isSavingWeek"
+        >
+          {{ isSavingWeek ? 'Saving...' : 'Save This Week' }}
+        </ion-button>
+      </div>
     </section>
 
     <div class="tab-navigation">

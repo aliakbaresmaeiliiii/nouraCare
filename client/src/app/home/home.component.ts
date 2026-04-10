@@ -80,6 +80,7 @@ import { UserSessionService } from '../shared/services/user-session.service';
 import { AuthService } from '../auth/services/auth';
 import { UserInfo } from '../shared/interfaces/user-info-api.interface';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { OnboardingService } from '../shared/services/onboarding.service';
 
 @Component({
   selector: 'app-home',
@@ -95,6 +96,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private userInfoService = inject(UserInfoService);
   private userSession = inject(UserSessionService);
   private authService = inject(AuthService);
+  private onboardingService = inject(OnboardingService);
   private trackDataService = inject(TrackDataService);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
 
@@ -263,6 +265,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.loadTodaySymptoms();
     this.loadRecentSymptomsDays();
     this.initializeHealthTip();
+    this.loadDashboardState();
 
     // Listen for symptoms updates
     // window.addEventListener('symptomsUpdated', () => {
@@ -486,7 +489,60 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     const userInfo = this.userInfoService.getCurrentUserInfo();
 
     // Always fetch fresh data from API when entering home page
+    this.loadDashboardState();
     this.refreshChartWithFreshData();
+  }
+
+  private loadDashboardState() {
+    if (!this.authService.getAccessToken()) {
+      return;
+    }
+    this.onboardingService.getDashboard().subscribe({
+      next: (dashboard) => {
+        if (dashboard.state === 'pregnant') {
+          this.userStatus = 'Pregnant';
+          this.isPregnant = true;
+          this.isPostpartum = false;
+          this.cycleSettings.setUserStatus('Pregnant');
+          this.cycleSettings.setPregnancyStatus(true);
+          this.cycleSettings.setPostpartumStatus(false);
+          if (dashboard.week) {
+            this.pregnancyWeek = dashboard.week;
+            this.pregnancyProgress = Math.min(100, Math.round((dashboard.week / 40) * 100));
+            this.cycleSettings.setPregnancyWeek(this.pregnancyWeek);
+            this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
+          }
+          return;
+        }
+
+        if (dashboard.state === 'postpartum') {
+          this.userStatus = 'Postpartum';
+          this.isPregnant = false;
+          this.isPostpartum = true;
+          this.cycleSettings.setUserStatus('Postpartum');
+          this.cycleSettings.setPregnancyStatus(false);
+          this.cycleSettings.setPostpartumStatus(true);
+        } else {
+          this.userStatus = dashboard.state === 'planning' ? 'Trying to Conceive' : 'Cycle Tracking';
+          this.isPregnant = false;
+          this.isPostpartum = false;
+          this.cycleSettings.setUserStatus(this.userStatus);
+          this.cycleSettings.setPregnancyStatus(false);
+          this.cycleSettings.setPostpartumStatus(false);
+        }
+
+        if (dashboard.nextPeriod) {
+          const nextPeriod = new Date(dashboard.nextPeriod);
+          const cycleLen = this.cycleSettings.cycleLength() || 28;
+          const lastPeriod = new Date(nextPeriod);
+          lastPeriod.setDate(lastPeriod.getDate() - cycleLen);
+          const iso = lastPeriod.toISOString().split('T')[0];
+          this.cycleSettings.setLastPeriodStart(iso);
+          this.periodStartDate = new Date(iso + 'T12:00:00');
+          this.updateCycleDay();
+        }
+      },
+    });
   }
 
   /**
@@ -508,9 +564,10 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       return;
     }
 
-    this.userInfoService.getUserOnboardingData().subscribe({
-      next: (userInfo) => {
-        this.applyServerJourney(userInfo);
+    this.onboardingService.getDashboard().subscribe({
+      next: () => {
+        // `loadDashboardState` is the source-of-truth updater for home state.
+        this.loadDashboardState();
         runChartRefresh();
       },
       error: () => {
@@ -1161,7 +1218,12 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Update not pregnant status
   async updateNotPregnantStatus() {
     try {
-      // Update the status back to "Trying to Conceive"
+      await new Promise<void>((resolve, reject) => {
+        this.onboardingService
+          .updateReproductiveState({ state: 'cycle' })
+          .subscribe({ next: () => resolve(), error: () => reject() });
+      });
+
       this.userStatus = 'Trying to Conceive';
       this.isPregnant = false;
       this.isPostpartum = false;
@@ -1267,6 +1329,16 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         await this.showToast('Invalid date. Please enter a valid LMP date (4-40 weeks ago).', 'warning');
         return;
       }
+
+      await new Promise<void>((resolve, reject) => {
+        this.onboardingService
+          .updateReproductiveState({
+            state: 'pregnant',
+            pregnancyStartDate: lastPeriod,
+            currentWeek: pregnancyWeek,
+          })
+          .subscribe({ next: () => resolve(), error: () => reject() });
+      });
 
       // Update pregnancy status
       this.userStatus = 'Pregnant';

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ReproductiveStatusService } from '../../../shared/services/reproductive-status.service';
+import { OnboardingService, ReproductiveState } from '../../../shared/services/onboarding.service';
 
 export type ReproductiveStatusOption = 'period' | 'pregnant' | 'planning' | 'postpartum';
 
@@ -16,7 +16,7 @@ export type ReproductiveStatusOption = 'period' | 'pregnant' | 'planning' | 'pos
 })
 export class ReproductiveStatusComponent {
   private router = inject(Router);
-  private reproductiveStatusService = inject(ReproductiveStatusService);
+  private onboardingService = inject(OnboardingService);
 
   selectedStatus = signal<ReproductiveStatusOption | null>(null);
 
@@ -49,22 +49,11 @@ export class ReproductiveStatusComponent {
 
   selectStatus(status: ReproductiveStatusOption): void {
     this.selectedStatus.set(status);
-    
-    switch (status) {
-      case 'planning':
-        this.router.navigate(['/pregnancy-planning']);
-        break;
-      case 'pregnant':
-        this.router.navigate(['/pregnancy-journey']);
-        break;
-      case 'postpartum':
-        this.router.navigate(['/postpartum']);
-        break;
-      case 'period':
-        this.showCycleTrackingMessage();
-        this.updateReproductiveStatus(status);
-        break;
-    }
+    const state = this.mapStatus(status);
+    this.onboardingService.updateReproductiveState({ state }).subscribe({
+      next: () => this.router.navigate(['/tabs/home']),
+      error: () => alert('Failed to update status. Please try again.'),
+    });
   }
 
   private showCycleTrackingMessage(): void {
@@ -72,14 +61,8 @@ export class ReproductiveStatusComponent {
     alert('Cycle tracking activated');
   }
 
-  private updateReproductiveStatus(status: ReproductiveStatusOption): void {
-    // Here we would update the reproductive status via the service
-    // For now, we'll just log it since the actual implementation would require user context
-    console.log('Updating reproductive status:', status);
-    
-    // Example of how we would update the status when we have user context:
-    // this.reproductiveStatusService.updateReproductiveStatus(userId, {
-    //   // Update relevant fields based on the selected status
-    // }).subscribe();
+  private mapStatus(status: ReproductiveStatusOption): ReproductiveState {
+    if (status === 'period') return 'cycle';
+    return status;
   }
 }

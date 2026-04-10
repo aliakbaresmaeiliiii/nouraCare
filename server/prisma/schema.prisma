@@ -103,11 +103,11 @@ model forum_comments {
   comment   String   @db.Text
   postId    String
   authorId  Int
-  likeCount Int      @default(0)
   parentId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime
   isDeleted Boolean  @default(false)
+  likeCount Int      @default(0)
 
   @@index([authorId], map: "forum_comments_authorId_fkey")
   @@index([parentId], map: "forum_comments_parentId_fkey")
@@ -121,8 +121,8 @@ model forum_comment_likes {
   createdAt DateTime @default(now())
 
   @@unique([commentId, userId])
-  @@index([commentId], map: "forum_comment_likes_commentId_idx")
-  @@index([userId], map: "forum_comment_likes_userId_idx")
+  @@index([commentId])
+  @@index([userId])
 }
 
 model forum_posts {
@@ -146,12 +146,12 @@ model forum_threads {
   content   String   @db.Text
   forumId   String
   authorId  Int
-  likeCount Int      @default(0)
   isPinned  Boolean  @default(false)
   isLocked  Boolean  @default(false)
   viewCount Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime
+  likeCount Int      @default(0)
 
   @@index([authorId], map: "forum_threads_authorId_fkey")
   @@index([forumId], map: "forum_threads_forumId_fkey")
@@ -277,6 +277,37 @@ model pregnancy_planning {
   @@index([userId], map: "pregnancy_planning_userId_fkey")
 }
 
+model reproductive_state {
+  id        Int                      @id @default(autoincrement())
+  userId    Int                      @unique
+  state     reproductive_state_state
+  updatedAt DateTime
+  createdAt DateTime                 @default(now())
+
+  @@index([state], map: "reproductive_state_state_idx")
+}
+
+model pregnancy {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  startDate   DateTime
+  endDate     DateTime?
+  currentWeek Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@index([userId, endDate], map: "pregnancy_user_end_idx")
+}
+
+model cycle_data {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  lastPeriodDate DateTime?
+  cycleLength    Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+}
+
 model refresh_tokens {
   id        String   @id
   token     String   @unique
@@ -376,4 +407,11 @@ enum doctors_consultationType {
   ONLINE
   IN_PERSON
   BOTH
+}
+
+enum reproductive_state_state {
+  CYCLE
+  PLANNING
+  PREGNANT
+  POSTPARTUM
 }

@@ -33,6 +33,7 @@ import { User } from '../shared/services/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { ImageUrlService } from '../shared/services/image-url.service';
+import { OnboardingService, ReproductiveState } from '../shared/services/onboarding.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HomeDataService } from '../home/services/home-data.service';
@@ -70,6 +71,7 @@ export class EditProfileComponent implements OnInit {
   userId = 0;
   private homeService = inject(HomeDataService);
   private userSession = inject(UserSessionService);
+  private onboardingService = inject(OnboardingService);
 
   @ViewChild('cropPreviewCanvas')
   cropPreviewCanvas!: ElementRef<HTMLCanvasElement>;
@@ -180,7 +182,7 @@ export class EditProfileComponent implements OnInit {
 
   private fetchUserDataAndOnboardingData(userId: number) {
     const userData$ = this.userService.getUser(String(userId));
-    const onboardingData$ = this.userInfoService.getUserOnboardingData(userId);
+    const onboardingData$ = this.onboardingService.getDashboard();
 
     forkJoin({
       userData: userData$,
@@ -195,20 +197,20 @@ export class EditProfileComponent implements OnInit {
       ),
     }).subscribe({
       next: (data) => {
-        const onboarding = (data.onboardingData as any)?.data ?? data.onboardingData;
+        const onboarding = data.onboardingData as any;
         const mergedData = {
           fullName: data.userData.data?.fullName || '',
           email: data.userData.data?.email || '',
           dateOfBirth: data.userData.data?.dateOfBirth || '',
           profileImage: data.userData.data?.profileImage || '',
           status: this.normalizeReproductiveStatusForForm(
-            onboarding?.pregnancyStatus,
+            onboarding?.state,
           ),
         };
 
         this.patchFormWithUserData(mergedData);
         const repro = this.normalizeReproductiveStatusForForm(
-          onboarding?.pregnancyStatus,
+          onboarding?.state,
         );
         this.currentReproductiveStatus = repro;
       },
@@ -634,8 +636,18 @@ export class EditProfileComponent implements OnInit {
       payload.profileImage = persistedImage;
     }
 
-    this.userService.updateUserInfo(String(id), payload).subscribe({
-      next: (res: any) => {
+    const selectedStatus =
+      this.currentReproductiveStatus ?? this.form.get('status')?.value ?? null;
+    const reproductiveState = this.mapUiReproductiveToApiPregnancyStatus(selectedStatus);
+    const reproductiveReq = reproductiveState
+      ? this.onboardingService.updateReproductiveState({ state: reproductiveState })
+      : of(null);
+
+    forkJoin({
+      profile: this.userService.updateUserInfo(String(id), payload),
+      reproductive: reproductiveReq,
+    }).subscribe({
+      next: () => {
         this.updateUserInfoService(formValues);
         this.showSuccessAlert('Profile updated successfully!');
       },
@@ -682,6 +694,7 @@ export class EditProfileComponent implements OnInit {
 
   setStatus(statusValue: string | null): void {
     this.form.patchValue({ status: statusValue });
+    this.currentReproductiveStatus = statusValue;
     
     // Navigate to pregnancy planning when "Planning Pregnancy" is selected
     if (statusValue === 'PLANNING_PREGNANCY') {
@@ -807,19 +820,12 @@ export class EditProfileComponent implements OnInit {
 
   saveReproductiveStatus(): void {
     if (this.currentReproductiveStatus) {
-      const currentUserInfo = this.userInfoService.getCurrentUserInfo();
-      const id =
-        currentUserInfo?.data?.id ??
-        currentUserInfo?.user?.id ??
-        currentUserInfo?.userId ??
-        this.userSession.getCurrentUserId();
-
       const apiStatus = this.mapUiReproductiveToApiPregnancyStatus(
         this.currentReproductiveStatus,
       );
 
-      if (id && apiStatus) {
-        this.userInfoService.savePregnancyStatus(id, apiStatus).subscribe({
+      if (apiStatus) {
+        this.onboardingService.updateReproductiveState({ state: apiStatus }).subscribe({
           next: () => {
             this.form.patchValue({ status: this.currentReproductiveStatus });
             this.isEditingReproductiveStatus = false;
@@ -833,8 +839,7 @@ export class EditProfileComponent implements OnInit {
           },
         });
       } else {
-        this.isEditingReproductiveStatus = false;
-        this.showSuccessAlert('Reproductive status saved!');
+        this.showErrorAlert('Invalid reproductive status selected.');
       }
     }
   }
@@ -844,6 +849,10 @@ export class EditProfileComponent implements OnInit {
     raw: string | null | undefined,
   ): string | null {
     if (!raw) return null;
+    if (raw === 'pregnant') return 'PREGNANT';
+    if (raw === 'planning') return 'PLANNING_PREGNANCY';
+    if (raw === 'postpartum') return 'POSTPARTUM';
+    if (raw === 'cycle') return 'NOT_PREGNANT';
     if (raw === 'ACTIVE' || raw === 'INACTIVE' || raw === 'SUSPENDED') {
       return null;
     }
@@ -853,16 +862,12 @@ export class EditProfileComponent implements OnInit {
 
   private mapUiReproductiveToApiPregnancyStatus(
     ui: string | null,
-  ): 'PLANNING_PREGNANCY' | 'PREGNANT' | 'NOT_PLANNING' | null {
+  ): ReproductiveState | null {
     if (!ui) return null;
-    if (ui === 'NOT_PREGNANT') return 'NOT_PLANNING';
-    if (
-      ui === 'PLANNING_PREGNANCY' ||
-      ui === 'PREGNANT' ||
-      ui === 'NOT_PLANNING'
-    ) {
-      return ui;
-    }
+    if (ui === 'NOT_PREGNANT') return 'cycle';
+    if (ui === 'PLANNING_PREGNANCY') return 'planning';
+    if (ui === 'PREGNANT') return 'pregnant';
+    if (ui === 'POSTPARTUM') return 'postpartum';
     return null;
   }
 

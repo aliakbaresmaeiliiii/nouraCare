@@ -165,6 +165,37 @@
   letter-spacing: 0.04em;
 }
 
+.week-save-panel {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(var(--ion-color-primary-rgb, 82, 96, 255), 0.06);
+}
+
+.week-range-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.range-label {
+  font-size: 0.82rem;
+  color: var(--ion-color-medium, #6b6b73);
+}
+
+.range-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ion-color-primary, #5260ff);
+}
+
+.save-week-button {
+  margin-top: 8px;
+  --border-radius: 12px;
+  font-weight: 600;
+}
+
 // —— Sticky tabs ——
 .tab-navigation {
   position: sticky;
