@@ -1,55 +1,55 @@
-<div class="home-content">
-  <!-- Welcome Hero Section -->
-  <div class="welcome-hero ">
-    <div class="hero-background">
-      <div class="floating-bubble bubble-1"></div>
-      <div class="floating-bubble bubble-2"></div>
-      <div class="floating-bubble bubble-3"></div>
-    </div>
-
-    <div class="hero-content ">
-      <div class="greeting-section">
-        <div class="greeting-avatar">
-          <img
-            src="assets/images/user-avatar.png"
-            alt="User"
-            onerror="this.style.display='none'"
-          />
-          @if (hasUserAvatar) {
-            <ion-icon name="person-circle"></ion-icon>
-          }
-        </div>
-        <div class="greeting-text">
-          <h1 class="greeting-title">{{ getGreetingMessage() }}</h1>
-          <p class="greeting-subtitle">{{ getPersonalizedMessage() }}</p>
-        </div>
+<div class="home-content" [class.home-content--pregnancy-today]="isPregnant">
+  <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
+  @if (!isPregnant) {
+    <div class="welcome-hero ">
+      <div class="hero-background">
+        <div class="floating-bubble bubble-1"></div>
+        <div class="floating-bubble bubble-2"></div>
+        <div class="floating-bubble bubble-3"></div>
       </div>
 
-      <!-- Quick Status Card -->
-      @if (
-        (userStatus && userStatus !== 'CYCLE') ||
-        isPregnant ||
-        isPostpartum
-      ) {
-        <div class="status-card">
-          <div class="status-content">
-            <div class="status-icon" [ngClass]="getStatusIconClass()">
-              <ion-icon [name]="getStatusIcon()"></ion-icon>
-            </div>
-            <div class="status-info">
-              <h3 class="status-title">{{ getStatusTitle() }}</h3>
-              <p class="status-description">{{ getStatusDescription() }}</p>
-            </div>
-            <div class="status-action">
-              <ion-button fill="clear" size="small" (click)="openStatusDetails()">
-                <ion-icon name="chevron-forward"></ion-icon>
-              </ion-button>
-            </div>
+      <div class="hero-content ">
+        <div class="greeting-section">
+          <div class="greeting-avatar">
+            <img
+              src="assets/images/user-avatar.png"
+              alt="User"
+              onerror="this.style.display='none'"
+            />
+            @if (hasUserAvatar) {
+              <ion-icon name="person-circle"></ion-icon>
+            }
+          </div>
+          <div class="greeting-text">
+            <h1 class="greeting-title">{{ getGreetingMessage() }}</h1>
+            <p class="greeting-subtitle">{{ getPersonalizedMessage() }}</p>
           </div>
         </div>
-      }
+
+        @if (
+          (userStatus && userStatus !== 'CYCLE') ||
+          isPostpartum
+        ) {
+          <div class="status-card">
+            <div class="status-content">
+              <div class="status-icon" [ngClass]="getStatusIconClass()">
+                <ion-icon [name]="getStatusIcon()"></ion-icon>
+              </div>
+              <div class="status-info">
+                <h3 class="status-title">{{ getStatusTitle() }}</h3>
+                <p class="status-description">{{ getStatusDescription() }}</p>
+              </div>
+              <div class="status-action">
+                <ion-button fill="clear" size="small" (click)="openStatusDetails()">
+                  <ion-icon name="chevron-forward"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
     </div>
-  </div>
+  }
   
 
   <!-- Default State - Onboarding Section -->
@@ -138,162 +138,113 @@
     </div>
   }
 
-  <!-- Pregnancy Progress Section (Enhanced) -->
+  <!-- Pregnancy “Today” layout (reference UI above Quick Actions) -->
   @if (isPregnant) {
-    <div class="pregnancy-section">
-    <div class="pregnancy-hero">
-      <div class="pregnancy-header">
-        <div class="header-content">
-          <h2 class="pregnancy-title">Pregnancy Progress</h2>
-          <p class="pregnancy-subtitle">
-            Week {{ pregnancyWeek }} of 40 • {{ getTrimester() }}
-          </p>
-          <div class="milestone-badge">
-            <ion-icon name="trophy"></ion-icon>
-            <span>{{ getMilestone() }}</span>
-          </div>
-        </div>
+    <div class="pregnancy-today-shell">
+      <div class="pregnancy-today-bg" aria-hidden="true">
+        <div class="pregnancy-today-blob pregnancy-today-blob--1"></div>
+        <div class="pregnancy-today-blob pregnancy-today-blob--2"></div>
+        <div class="pregnancy-today-blob pregnancy-today-blob--3"></div>
       </div>
 
-      <div class="pregnancy-progress">
-        <div class="progress-container">
+      <div
+        #pregnancyCalendarScroll
+        class="pregnancy-calendar-swiper"
+        role="region"
+        aria-label="Week calendar, swipe sideways"
+      >
+        @for (week of getPregnancyCalendarWeeks(); track week.weekKey) {
+          <div class="pregnancy-calendar-week">
+            @for (d of week.days; track d.isoKey) {
+              <button
+                type="button"
+                class="pregnancy-calendar-col"
+                [class.pregnancy-calendar-col--today]="d.isToday"
+                [class.pregnancy-calendar-col--selected]="
+                  isPregnancyCalendarDaySelected(d) &&
+                  !isPregnancyCalendarDayDisabled(d)
+                "
+                [disabled]="isPregnancyCalendarDayDisabled(d)"
+                (click)="onPregnancyCalendarPickDay(d)"
+              >
+                <span class="pregnancy-calendar-label">{{ d.label }}</span>
+                <span class="pregnancy-calendar-date-wrap">
+                  <span class="pregnancy-calendar-date">{{ d.dateNum }}</span>
+                </span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="pregnancy-hero-wrap">
+        <div class="pregnancy-hero-disk">
+          <div class="pregnancy-hero-week-row">
+            <div class="pregnancy-hero-week-text">
+              <span class="pregnancy-hero-weeks">{{ getPregnancyDisplayWeek() }} Weeks</span>
+              <span class="pregnancy-hero-days">{{ getPregnancyHeroExtraDays() }} Days</span>
+            </div>
+            <button
+              type="button"
+              class="pregnancy-hero-info"
+              (click)="openCurrentPregnancyWeekDetail()"
+              aria-label="Week details"
+            >
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="pregnancy-hero-visual" aria-hidden="true">
+            <div class="pregnancy-hero-fetus">
+              <span class="pregnancy-hero-fetus-emoji">{{ getPregnancyBabyEmoji() }}</span>
+            </div>
+          </div>
+
           <button
             type="button"
-            class="progress-ring progress-ring--tappable"
+            class="pregnancy-hero-details-btn"
             (click)="openCurrentPregnancyWeekDetail()"
-            aria-label="Open week {{ pregnancyWeek }} details"
           >
-            <svg class="progress-svg" viewBox="0 0 140 140" aria-hidden="true">
-              <defs>
-                <linearGradient
-                  id="progressGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop
-                    offset="0%"
-                    style="stop-color: #ff6b9d; stop-opacity: 1"
-                  />
-                  <stop
-                    offset="100%"
-                    style="stop-color: #c44569; stop-opacity: 1"
-                  />
-                </linearGradient>
-              </defs>
-              <circle class="progress-bg" cx="70" cy="70" r="60"></circle>
-              <circle
-                class="progress-bar"
-                cx="70"
-                cy="70"
-                r="60"
-                fill="none"
-                [style.stroke-dasharray]="getProgressCircumference()"
-                [style.stroke-dashoffset]="getProgressOffset()"
-              ></circle>
-            </svg>
-            <div class="progress-content">
-              <div class="week-display">
-                <span class="progress-week">{{ pregnancyWeek }}</span>
-                <span class="progress-label">weeks</span>
-              </div>
-              <div class="progress-percentage">
-                {{ getProgressPercentage() }}%
-              </div>
-            </div>
+            Details
           </button>
         </div>
-
-        <div class="pregnancy-stats">
-          <div class="stat-card days-card">
-            <div class="stat-icon">
-              <ion-icon name="heart"></ion-icon>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">{{ getDaysRemaining() }}</span>
-              <span class="stat-label">days to go</span>
-            </div>
-          </div>
-
-          <div class="stat-card due-card">
-            <div class="stat-icon">
-              <ion-icon name="calendar"></ion-icon>
-            </div>
-            <div class="stat-info">
-              <span class="stat-value">{{ getDueDate() }}</span>
-              <span class="stat-label">due date</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Baby Development Card -->
-    <div class="baby-development-card">
-      <div class="card-background">
-        <div class="baby-pattern"></div>
       </div>
 
-      <div class="baby-visual">
-        <div class="baby-illustration">
-          <div class="baby-container">
-            <div class="baby-size-indicator" [class]="'week-' + pregnancyWeek">
-              <div class="baby-icon">
-                <ion-icon name="ellipse-outline"></ion-icon>
-              </div>
-              <div class="size-text">
-                {{ getCurrentBabySize().size.split(" ")[1] }}
-              </div>
-            </div>
-            <div class="growth-ring"></div>
+      <div class="pregnancy-daily-insights">
+        <h2 class="pregnancy-daily-insights-title">{{ getPregnancyInsightsHeading() }}</h2>
+        <div class="pregnancy-insight-cards" role="list">
+          <div class="pregnancy-insight-card pregnancy-insight-card--lavender" role="listitem">
+            <span class="pregnancy-insight-card-label">Pregnancy day</span>
+            <span class="pregnancy-insight-card-value">{{ getTotalPregnancyDaysAlong() }}</span>
           </div>
+
+          <button
+            type="button"
+            class="pregnancy-insight-card pregnancy-insight-card--mint pregnancy-insight-card--btn"
+            role="listitem"
+            (click)="openCurrentPregnancyWeekDetail()"
+          >
+            <span class="pregnancy-insight-pill pregnancy-insight-pill--muted">{{ getPregnancyDisplayWeek() }} weeks</span>
+            <span class="pregnancy-insight-icon pregnancy-insight-icon--teal">
+              <ion-icon name="medical"></ion-icon>
+            </span>
+            <span class="pregnancy-insight-card-footer">Your baby</span>
+          </button>
+
+          <button
+            type="button"
+            class="pregnancy-insight-card pregnancy-insight-card--yellow pregnancy-insight-card--btn"
+            role="listitem"
+            (click)="openPregnancyWatchouts()"
+          >
+            <span class="pregnancy-insight-pill pregnancy-insight-pill--accent">{{ getTrimesterInsightLabel() }}</span>
+            <span class="pregnancy-insight-icon pregnancy-insight-icon--orange">
+              <ion-icon name="add"></ion-icon>
+            </span>
+            <span class="pregnancy-insight-card-footer">Watch-outs</span>
+          </button>
         </div>
       </div>
-
-      <div class="baby-info">
-        <div class="info-header">
-          <h3 class="baby-title">Baby Development</h3>
-          <div class="week-badge">Week {{ pregnancyWeek }}</div>
-        </div>
-
-        <div class="baby-details">
-          <p class="baby-size">
-            Size of {{ getCurrentBabySize().size.split(" ")[0] }}
-          </p>
-          <p class="baby-description">{{ getCurrentBabySize().description }}</p>
-        </div>
-
-        <div class="baby-measurements">
-          <div class="measurement-card weight-card">
-            <div class="measurement-icon">
-              <ion-icon name="scale"></ion-icon>
-            </div>
-            <div class="measurement-content">
-              <span class="measurement-value">{{ babyWeight }}</span>
-              <span class="measurement-label">Weight</span>
-            </div>
-          </div>
-
-          <div class="measurement-card length-card">
-            <div class="measurement-icon">
-              <ion-icon name="resize"></ion-icon>
-            </div>
-            <div class="measurement-content">
-              <span class="measurement-value">{{ getBabyLength() }}</span>
-              <span class="measurement-label">Length</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="development-highlights">
-          <div class="highlight-item">
-            <ion-icon name="checkmark-circle"></ion-icon>
-            <span>Major development milestone reached</span>
-          </div>
-        </div>
-      </div>
-    </div>
     </div>
   }
 
