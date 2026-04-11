@@ -116,58 +116,16 @@ export class HomeReproductiveUiService {
     };
   }
 
+  /**
+   * Previously merged `GET user/me/onboarding` into cycle/planning dashboard rows.
+   * That overwrote a fresh `PATCH /me/state` (e.g. not pregnant) when onboarding still said PREGNANT.
+   * {@link DashboardResponse.state} is authoritative; do not infer mode from the onboarding row here.
+   */
   private mergeLegacyOnboardingJourney(
-    dashboard: DashboardResponse,
-    journey: UserInfo | null | undefined,
-    state: HomePageJourneyState,
-  ): void {
-    if (dashboard.state === 'pregnant' || dashboard.state === 'postpartum') {
-      return;
-    }
-    const j = journey ?? this.userInfoService.onboardingJourney();
-    if (!j) {
-      return;
-    }
-    const status = String(j.pregnancyStatus ?? '')
-      .toUpperCase()
-      .replace(/\s+/g, '_');
-    const rawWeek = j.pregnancyWeek ?? dashboard.week;
-    const weekHint =
-      rawWeek != null && rawWeek !== undefined
-        ? Math.min(40, Math.max(4, Number(rawWeek) || 4))
-        : null;
-    const explicitlyPregnant = status === 'PREGNANT';
-    const blockedImplyFromWeek =
-      status === 'POSTPARTUM' ||
-      status === 'HAS_CHILD' ||
-      status === 'NOT_PLANNING';
-    const impliedPregnantByWeek =
-      weekHint != null && weekHint >= 4 && !blockedImplyFromWeek;
-
-    if (explicitlyPregnant || impliedPregnantByWeek) {
-      const week = weekHint ?? 4;
-      const pregnancyProgress = Math.min(100, Math.round((week / 40) * 100));
-      this.cycleSettings.setUserStatus('Pregnant');
-      this.cycleSettings.setPregnancyStatus(true);
-      this.cycleSettings.setPostpartumStatus(false);
-      this.cycleSettings.setPregnancyWeek(week);
-      this.cycleSettings.setPregnancyProgress(pregnancyProgress);
-      state.userStatus = 'Pregnant';
-      state.isPregnant = true;
-      state.isPostpartum = false;
-      state.pregnancyWeek = week;
-      state.pregnancyProgress = pregnancyProgress;
-      return;
-    }
-    if (status === 'POSTPARTUM') {
-      this.cycleSettings.setUserStatus('Postpartum');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(true);
-      state.userStatus = 'Postpartum';
-      state.isPregnant = false;
-      state.isPostpartum = true;
-    }
-  }
+    _dashboard: DashboardResponse,
+    _journey: UserInfo | null | undefined,
+    _state: HomePageJourneyState,
+  ): void {}
 
   private finalizePregnancyStorageFromDashboard(
     dashboard: DashboardResponse,
@@ -177,5 +135,7 @@ export class HomeReproductiveUiService {
       return;
     }
     this.cycleSettings.setPregnancyStatus(false);
+    this.cycleSettings.setPregnancyWeek(12);
+    this.cycleSettings.setPregnancyProgress(0);
   }
 }

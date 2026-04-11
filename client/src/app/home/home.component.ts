@@ -523,11 +523,16 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.userStatus = state.userStatus;
     this.isPregnant = state.isPregnant;
     this.isPostpartum = state.isPostpartum;
-    if (state.pregnancyWeek != null) {
-      this.pregnancyWeek = state.pregnancyWeek;
-    }
-    if (state.pregnancyProgress != null) {
-      this.pregnancyProgress = state.pregnancyProgress;
+    if (state.isPregnant) {
+      if (state.pregnancyWeek != null) {
+        this.pregnancyWeek = state.pregnancyWeek;
+      }
+      if (state.pregnancyProgress != null) {
+        this.pregnancyProgress = state.pregnancyProgress;
+      }
+    } else {
+      this.pregnancyWeek = this.cycleSettings.pregnancyWeek();
+      this.pregnancyProgress = this.cycleSettings.pregnancyProgress();
     }
     this.periodStartDate = state.periodStartDate;
     if (state.cycleDayDirty) {

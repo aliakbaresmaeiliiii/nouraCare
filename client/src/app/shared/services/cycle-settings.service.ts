@@ -53,7 +53,8 @@ export class CycleSettingsService {
   }
 
   setPregnancyProgress(progress: number) {
-    this.pregnancyProgress.set(Math.max(0, Math.min(100, Math.floor(progress || 30))));
+    const p = Number.isFinite(progress) ? progress : 30;
+    this.pregnancyProgress.set(Math.max(0, Math.min(100, Math.floor(p))));
     this.saveToStorage();
   }
 

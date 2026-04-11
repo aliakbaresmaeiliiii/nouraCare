@@ -33,10 +33,16 @@ import { User } from '../shared/services/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { ImageUrlService } from '../shared/services/image-url.service';
-import { OnboardingService, ReproductiveState } from '../shared/services/onboarding.service';
+import {
+  DashboardResponse,
+  OnboardingService,
+  ReproductiveState,
+} from '../shared/services/onboarding.service';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HomeDataService } from '../home/services/home-data.service';
+import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
+import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
 import { UserSessionService } from '../shared/services/user-session.service';
 
 @Component({
@@ -72,6 +78,8 @@ export class EditProfileComponent implements OnInit {
   private homeService = inject(HomeDataService);
   private userSession = inject(UserSessionService);
   private onboardingService = inject(OnboardingService);
+  private homeReproUi = inject(HomeReproductiveUiService);
+  private homeJourneyBridge = inject(HomeJourneyBridgeService);
 
   @ViewChild('cropPreviewCanvas')
   cropPreviewCanvas!: ElementRef<HTMLCanvasElement>;
@@ -826,9 +834,20 @@ export class EditProfileComponent implements OnInit {
 
       if (apiStatus) {
         this.onboardingService.updateReproductiveState({ state: apiStatus }).subscribe({
-          next: () => {
+          next: (dashboard) => {
             this.form.patchValue({ status: this.currentReproductiveStatus });
             this.isEditingReproductiveStatus = false;
+            this.pushHomeJourneyFromDashboard(dashboard);
+            if (this.currentReproductiveStatus === 'PREGNANT') {
+              const w = dashboard?.week;
+              const week =
+                w != null && Number.isFinite(w)
+                  ? Math.min(40, Math.max(4, Math.round(Number(w))))
+                  : 12;
+              this.router.navigate(['/week-detail'], { queryParams: { week } });
+              this.showSuccessAlert('Opening your pregnancy week…');
+              return;
+            }
             this.showSuccessAlert('Reproductive status updated successfully!');
           },
           error: (error: any) => {
@@ -842,6 +861,15 @@ export class EditProfileComponent implements OnInit {
         this.showErrorAlert('Invalid reproductive status selected.');
       }
     }
+  }
+
+  /** Same path as week-detail save: home tab updates via signal even when view enter does not run. */
+  private pushHomeJourneyFromDashboard(dashboard: DashboardResponse): void {
+    const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+      dashboard,
+      this.userInfoService.onboardingJourney(),
+    );
+    this.homeJourneyBridge.pushJourneyStateFromWeekDetail(state);
   }
 
   /** Map GET user.status (account) away; align API NOT_PLANNING with UI NOT_PREGNANT. */
