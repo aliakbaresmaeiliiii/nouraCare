@@ -479,62 +479,77 @@ export class SymptomsTrackerComponent implements OnInit {
       });
 
       if (this.isUpdateMode) {
-        this.updateSymptomsInAPI(apiData);
+        this.updateSymptomsInAPI(apiData, selectedSymptoms);
       } else {
-        this.sendSymptomsToAPI(apiData);
+        this.sendSymptomsToAPI(apiData, selectedSymptoms);
       }
-
-      // Update local history with API-compatible format
-      const dailyData: DailySymptoms = {
-        date: this.selectedDate,
-        mood: this.currentMood as any,
-        energy: this.currentEnergy as any,
-        symptoms: [...this.selectedSymptoms],
-        notes: this.notes,
-      };
-
-      // Convert to API format (JSON strings for symptoms, mood, energy)
-      const apiFormattedData = {
-        ...dailyData,
-        symptoms: JSON.stringify(dailyData.symptoms),
-        mood: JSON.stringify(dailyData.mood),
-        energy: JSON.stringify(dailyData.energy),
-      };
-
-      const existingIndex = this.dailySymptomsHistory.findIndex(
-        (d) => d.date === this.selectedDate,
-      );
-      if (existingIndex >= 0) {
-        this.dailySymptomsHistory[existingIndex] =
-          apiFormattedData as unknown as DailySymptoms;
-      } else {
-        this.dailySymptomsHistory.push(
-          apiFormattedData as unknown as DailySymptoms,
-        );
-      }
-
-      // Show success message
-      this.showToast(`✅ Symptoms saved successfully!`, 'success');
-
-      // Show summary of what was saved
-      // await this.showSaveSummary(dailyData);
-
-      // Refresh home page data
-      this.refreshHomePageData();
-
-      // Navigate back to home
-      this.navCtrl.back();
     } catch (error) {
       console.error('Error saving symptoms:', error);
       this.showToast('❌ Failed to save symptoms. Please try again.', 'danger');
     }
   }
 
-  sendSymptomsToAPI(data: any) {
+  /** Nest/HTTP error body message, if any */
+  private getApiErrorMessage(err: unknown): string {
+    const e = err as {
+      error?: { message?: string | string[] };
+    };
+    const m = e?.error?.message;
+    if (typeof m === 'string') {
+      return m;
+    }
+    if (Array.isArray(m) && m.length > 0) {
+      return String(m[0]);
+    }
+    return '';
+  }
+
+  private isTrackDayConflictError(err: unknown): boolean {
+    const status = (err as { status?: number })?.status;
+    if (status !== 409) {
+      return false;
+    }
+    const msg = this.getApiErrorMessage(err).toLowerCase();
+    return (
+      msg.includes('already exists') ||
+      msg.includes('track day') ||
+      msg.includes('conflict')
+    );
+  }
+
+  /** Run only after API confirms save/update — keeps UI in sync with server */
+  private mergeDailyHistoryAndRefresh(selectedSymptoms: SymptomData[]) {
+    const dailyData: DailySymptoms = {
+      date: this.selectedDate,
+      mood: this.currentMood as DailySymptoms['mood'],
+      energy: this.currentEnergy as DailySymptoms['energy'],
+      symptoms: [...selectedSymptoms] as DailySymptoms['symptoms'],
+      notes: this.notes,
+    };
+    const apiFormattedData = {
+      ...dailyData,
+      symptoms: JSON.stringify(dailyData.symptoms),
+      mood: JSON.stringify(dailyData.mood),
+      energy: JSON.stringify(dailyData.energy),
+    };
+    const existingIndex = this.dailySymptomsHistory.findIndex(
+      (d) => d.date === this.selectedDate,
+    );
+    if (existingIndex >= 0) {
+      this.dailySymptomsHistory[existingIndex] =
+        apiFormattedData as unknown as DailySymptoms;
+    } else {
+      this.dailySymptomsHistory.push(
+        apiFormattedData as unknown as DailySymptoms,
+      );
+    }
+    this.refreshHomePageData();
+  }
+
+  sendSymptomsToAPI(data: any, selectedSymptoms: SymptomData[]) {
     try {
       this.trackDataService.createSymptoms(this.getUserId(), data).subscribe({
         next: (response) => {
-          // Store in local service for quick access
           this.trackDataService.saveTrackData({
             id: response.id,
             userId: parseInt(this.getUserId()),
@@ -547,100 +562,113 @@ export class SymptomsTrackerComponent implements OnInit {
             updatedAt: response.updatedAt,
           });
 
-          // Show success message
-          this.showToast('Symptoms saved successfully!', 'success');
-
-          // Navigate back
+          this.mergeDailyHistoryAndRefresh(selectedSymptoms);
+          void this.showToast('Symptoms saved successfully!', 'success', {
+            duration: 2500,
+          });
           this.router.navigate(['/tabs/home']);
         },
         error: (error) => {
           console.error('API Error:', error);
 
-          // Check if it's a 409 Conflict error (day already exists)
-          if (
-            error.status === 409 &&
-            error.error?.message?.includes('already exists')
-          ) {
-            this.handleExistingDayConflict(data.date);
-          } else {
-            this.showToast('Failed to save symptoms', 'danger');
+          if (this.isTrackDayConflictError(error)) {
+            void this.handleExistingDayConflict(data.date);
+            return;
           }
+          void this.showToast(
+            this.getApiErrorMessage(error) || 'Failed to save symptoms',
+            'danger',
+            { duration: 3500 },
+          );
         },
       });
     } catch (error) {
       console.error('API Error:', error);
-      this.showToast('Failed to save symptoms', 'danger');
+      void this.showToast('Failed to save symptoms', 'danger');
       throw error;
     }
   }
 
-  updateSymptomsInAPI(data: any) {
+  updateSymptomsInAPI(data: any, selectedSymptoms: SymptomData[]) {
     try {
       this.trackDataService
         .updateSymptoms(this.getUserId(), this.selectedDate, data)
-        .subscribe((response) => {
-          // Update in local service
-          this.trackDataService.saveTrackData({
-            id: response.id,
-            userId: parseInt(this.getUserId()),
-            date: data.date,
-            symptoms: data.symptoms,
-            mood: data.mood,
-            energy: data.energy,
-            notes: data.notes,
-            createdAt: response.createdAt,
-            updatedAt: response.updatedAt,
-          });
+        .subscribe({
+          next: (response) => {
+            this.trackDataService.saveTrackData({
+              id: response.id,
+              userId: parseInt(this.getUserId()),
+              date: data.date,
+              symptoms: data.symptoms,
+              mood: data.mood,
+              energy: data.energy,
+              notes: data.notes,
+              createdAt: response.createdAt,
+              updatedAt: response.updatedAt,
+            });
 
-          // Show success message
-          this.showToast('Symptoms updated successfully!', 'success');
-
-          // Navigate back
-          this.router.navigate(['/tabs/home']);
+            this.mergeDailyHistoryAndRefresh(selectedSymptoms);
+            void this.showToast('Symptoms updated successfully!', 'success', {
+              duration: 2500,
+            });
+            this.router.navigate(['/tabs/home']);
+          },
+          error: (error) => {
+            console.error('Update API Error:', error);
+            void this.showToast(
+              this.getApiErrorMessage(error) || 'Failed to update symptoms',
+              'danger',
+              { duration: 3500 },
+            );
+          },
         });
     } catch (error) {
       console.error('Update API Error:', error);
-      this.showToast('Failed to update symptoms', 'danger');
+      void this.showToast('Failed to update symptoms', 'danger');
       throw error;
     }
   }
 
-  handleExistingDayConflict(date: string) {
-    // Fetch existing data for this date
+  async handleExistingDayConflict(date: string) {
+    const dateLabel = this.symptomsUIService.getFormattedDate(date);
+    await this.showToast(
+      `You already saved symptoms for ${dateLabel}. Use the date arrows to pick another day, or use "Edit this day" in the popup to update that entry.`,
+      'warning',
+      { duration: 6000 },
+    );
+
     this.trackDataService
       .getTrackDay(parseInt(this.getUserId()), date)
       .subscribe({
         next: (existingData) => {
           if (existingData && existingData.length > 0) {
-            // Show the existing data to the user
-            this.showExistingDayAlert(existingData[0], date);
+            void this.showExistingDayAlert(existingData[0], date);
           } else {
-            this.showToast('Day already exists but no data found', 'warning');
+            void this.showToast(
+              'This day is already logged. Try a different date.',
+              'warning',
+              { duration: 4500 },
+            );
           }
         },
-        error: (error) => {
-          console.error('Error fetching existing day data:', error);
-          this.showToast(
-            'Day already exists. Please try updating instead.',
+        error: () => {
+          void this.showToast(
+            'This day is already logged. Try a different date or try again later.',
             'warning',
+            { duration: 4500 },
           );
         },
       });
   }
 
   async showExistingDayAlert(existingData: any, date: string) {
+    const dateLabel = this.symptomsUIService.getFormattedDate(date);
     const alert = await this.alertController.create({
-      header: 'Day Already Tracked',
-      message: `You have already tracked symptoms for ${date}. Would you like to view or update the existing data?`,
+      header: 'Already saved for this day',
+      message: `You already have an entry for ${dateLabel}. You can load it to edit, or cancel and choose another date.`,
       buttons: [
         {
-          text: 'View Data',
-          handler: () => {
-            this.loadExistingDataFromAPI(existingData);
-          },
-        },
-        {
-          text: 'Update Data',
+          text: 'Edit this day',
           handler: () => {
             this.loadExistingDataFromAPI(existingData);
             this.isUpdateMode = true;

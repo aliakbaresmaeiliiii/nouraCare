@@ -50,10 +50,12 @@ export const environment = {
   profileImageFallback: 'assets/images/bg-01.png',
 };
 
-// ********************* MobileApp (Current IP: 10.51.190.186) ********************
+// ********************* Mobile / physical device (use PC LAN IP, not localhost) ********************
 // export const environment = {
 //   production: false,
-//   apiEndPoint: 'http://10.51.190.186:8080/api/v1/',
-//   urlProfileImg: 'http://10.51.190.186:8080/uploads/',
+//   apiEndPoint: 'http://192.168.1.113:3000/api/v1/',
+//   urlProfileImg: 'http://192.168.1.113:3000/uploads/',
+//   profileImageFallback: 'assets/images/bg-01.png',
+//   firebaseConfig: { ...same as above... },
 // };
 
