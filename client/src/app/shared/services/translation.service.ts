@@ -144,7 +144,7 @@ export class TranslationService {
       'menu.mainMenu': 'Main Menu',
       'menu.settingsSupport': 'Settings & Support',
       'menu.followUs': 'Follow Us',
-      'menu.gahvarehPro': 'Gahvareh Pro',
+      'menu.muslimKidsPro': 'Muslim Kids Pro',
       'menu.myPurchases': 'My Purchases',
       'menu.myFavorites': 'My Favorites',
       'menu.savedInformation': 'Saved Information',
@@ -155,7 +155,7 @@ export class TranslationService {
       'menu.checkUpdates': 'Check for Updates',
       'menu.inviteFriends': 'Invite Friends',
       'menu.notifications': 'Notifications',
-      'menu.aboutGahvareh': 'About Gahvareh',
+      'menu.aboutMuslimKids': 'About Muslim Kids',
       'menu.logOut': 'Log Out'
     },
     zh: {
@@ -296,7 +296,7 @@ export class TranslationService {
       'menu.mainMenu': '主菜单',
       'menu.settingsSupport': '设置与支持',
       'menu.followUs': '关注我们',
-      'menu.gahvarehPro': 'Gahvareh专业版',
+      'menu.muslimKidsPro': '穆斯林儿童专业版',
       'menu.myPurchases': '我的购买',
       'menu.myFavorites': '我的收藏',
       'menu.savedInformation': '保存的信息',
@@ -307,7 +307,7 @@ export class TranslationService {
       'menu.checkUpdates': '检查更新',
       'menu.inviteFriends': '邀请朋友',
       'menu.notifications': '通知',
-      'menu.aboutGahvareh': '关于Gahvareh',
+      'menu.aboutMuslimKids': '关于穆斯林儿童',
       'menu.logOut': '退出登录'
     },
     ms: {
@@ -449,7 +449,7 @@ export class TranslationService {
       'menu.mainMenu': 'Menu Utama',
       'menu.settingsSupport': 'Tetapan & Sokongan',
       'menu.followUs': 'Ikuti Kami',
-      'menu.gahvarehPro': 'Gahvareh Pro',
+      'menu.muslimKidsPro': 'Muslim Kids Pro',
       'menu.myPurchases': 'Pembelian Saya',
       'menu.myFavorites': 'Kegemaran Saya',
       'menu.savedInformation': 'Maklumat Tersimpan',
@@ -460,7 +460,7 @@ export class TranslationService {
       'menu.checkUpdates': 'Semak Kemas Kini',
       'menu.inviteFriends': 'Jemput Rakan',
       'menu.notifications': 'Notifikasi',
-      'menu.aboutGahvareh': 'Tentang Gahvareh',
+      'menu.aboutMuslimKids': 'Tentang Muslim Kids',
       'menu.logOut': 'Log Keluar'
     },
     fa: {
@@ -486,10 +486,10 @@ export class TranslationService {
       'auth.verifyEmail': 'تأیید ایمیل',
       'profile.editProfile': 'ویرایش پروفایل',
       'profile.editPeriod': 'ویرایش دوره',
-      'welcome.title': 'به گاهواره‌ای خوش آمدید',
+      'welcome.title': 'به Muslim Kids خوش آمدید',
       'welcome.subtitle': 'همراه بارداری شما',
       'welcome.getStarted': 'شروع کنید',
-      'welcome.joinTitle': 'به گاهواره‌ای بپیوندید',
+      'welcome.joinTitle': 'به Muslim Kids بپیوندید',
       'welcome.joinSubtitle': 'سفر بارداری خود را امروز آغاز کنید',
       'welcome.welcomeBack': 'خوش برگشتید',
       'welcome.continueJourney': 'برای ادامه سفر خود وارد شوید',
@@ -519,7 +519,7 @@ export class TranslationService {
       'welcome.toolFeature1': 'پیگیری دوره و باروری',
       'welcome.toolFeature2': 'نظارت بر علائم و خلق‌وخو',
       'welcome.toolFeature3': 'برنامه‌ریزی تغذیه و ورزش',
-      'home.welcomeTitle': 'به گاهواره‌ای خوش آمدید',
+      'home.welcomeTitle': 'به Muslim Kids خوش آمدید',
       'home.newMessage': 'پیام جدید',
       'home.refresh': 'تازه‌سازی',
       'home.cycleDay': 'روز دوره',
@@ -601,7 +601,7 @@ export class TranslationService {
       'menu.mainMenu': 'منوی اصلی',
       'menu.settingsSupport': 'تنظیمات و پشتیبانی',
       'menu.followUs': 'ما را دنبال کنید',
-      'menu.gahvarehPro': 'گاهواره پرو',
+      'menu.muslimKidsPro': 'مسلمان کیدز پرو',
       'menu.myPurchases': 'خریدهای من',
       'menu.myFavorites': 'علاقه‌مندی‌های من',
       'menu.savedInformation': 'اطلاعات ذخیره شده',
@@ -612,7 +612,7 @@ export class TranslationService {
       'menu.checkUpdates': 'بررسی به‌روزرسانی‌ها',
       'menu.inviteFriends': 'دعوت دوستان',
       'menu.notifications': 'اعلان‌ها',
-      'menu.aboutGahvareh': 'درباره گاهواره',
+      'menu.aboutMuslimKids': 'درباره مسلمان کیدز',
       'menu.logOut': 'خروج'
     }
   };

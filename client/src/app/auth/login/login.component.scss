@@ -1,5 +1,10 @@
 .login-page {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: linear-gradient(
+    145deg,
+    #5b4fd4 0%,
+    #6d28d9 38%,
+    #0f766e 100%
+  );
   --color: #333;
 }
 
@@ -36,21 +41,29 @@
   margin-bottom: 1rem;
 }
 
-.logo-icon {
-  font-size: 4rem;
-  color: #fff;
-  margin-bottom: 1rem;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-  animation: pulse 2s infinite;
+.logo-mark {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.brand-logo-img {
+  width: clamp(88px, 26vw, 120px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35))
+    drop-shadow(0 0 20px rgba(254, 243, 199, 0.35));
+  animation: logoFloat 4s ease-in-out infinite;
 }
 
 .app-title {
   font-size: 2.5rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #fff;
   margin: 0 0 0.5rem 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Poppins', 'Vazirmatn', 'Segoe UI', system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .app-subtitle {
@@ -298,12 +311,13 @@
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
+@keyframes logoFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
   }
   50% {
-    transform: scale(1.05);
+    transform: translateY(-6px) scale(1.02);
   }
 }
 

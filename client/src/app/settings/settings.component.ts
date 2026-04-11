@@ -113,7 +113,7 @@ export class SettingsComponent implements OnInit {
     },
     {
       id: 'about',
-      title: 'About Gahvareh',
+      title: 'About Muslim Kids',
       subtitle: 'Version 1.0.0',
       icon: 'information-circle-outline',
       type: 'link',
@@ -242,9 +242,9 @@ export class SettingsComponent implements OnInit {
 
   sendFeedback() {
     // Open email client or feedback form
-    const subject = encodeURIComponent('Gahvareh App Feedback');
-    const body = encodeURIComponent('Hi Gahvareh team,\n\nI would like to share the following feedback:\n\n');
-    window.open(`mailto:support@gahvareh.com?subject=${subject}&body=${body}`);
+    const subject = encodeURIComponent('Muslim Kids App Feedback');
+    const body = encodeURIComponent('Hi Muslim Kids team,\n\nI would like to share the following feedback:\n\n');
+    window.open(`mailto:support@muslimkids.app?subject=${subject}&body=${body}`);
   }
 
   exportData() {

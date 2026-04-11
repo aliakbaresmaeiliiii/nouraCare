@@ -41,7 +41,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   appVersion: string = '1.0.0';
 
   menuItemsTop: MenuItem[] = [
-    { icon: 'diamond-outline', label: 'menu.gahvarehPro', badge: 'PRO' },
+    { icon: 'diamond-outline', label: 'menu.muslimKidsPro', badge: 'PRO' },
     { icon: 'bag-outline', label: 'menu.myPurchases' },
     { icon: 'heart-outline', label: 'menu.myFavorites' },
     { icon: 'bookmark-outline', label: 'menu.savedInformation' },
@@ -55,7 +55,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
     { icon: 'refresh-outline', label: 'menu.checkUpdates' },
     { icon: 'person-add-outline', label: 'menu.inviteFriends' },
     { icon: 'notifications-outline', label: 'menu.notifications' },
-    { icon: 'information-circle-outline', label: 'menu.aboutGahvareh' },
+    { icon: 'information-circle-outline', label: 'menu.aboutMuslimKids' },
     { icon: 'log-out-outline', label: 'menu.logOut' },
   ];
 
@@ -86,7 +86,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
     this.activeIndexBottom = index;
     if (item.label === 'menu.logOut') {
       this.logout();
-    } else if (item.label === 'menu.aboutGahvareh') {
+    } else if (item.label === 'menu.aboutMuslimKids') {
       await this.router.navigate(['/tabs/about']);
     } else if (item.label === 'menu.checkUpdates') {
       await this.router.navigate(['/check-version']);
@@ -110,8 +110,8 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
 
   openSocialLink(platform: string) {
     const socialLinks = {
-      instagram: 'https://instagram.com/gahvareh',
-      telegram: 'https://t.me/gahvareh'
+      instagram: 'https://instagram.com/muslimkids',
+      telegram: 'https://t.me/muslimkids'
     };
     
     if (socialLinks[platform as keyof typeof socialLinks]) {

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Muslim Kids</string>
+    <string name="title_activity_main">Muslim Kids</string>
+    <string name="package_name">com.tecknnycs.muslimkids</string>
+    <string name="custom_url_scheme">com.tecknnycs.muslimkids</string>
+</resources>

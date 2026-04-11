@@ -1,5 +1,5 @@
 {
-  "name": "noura-app",
+  "name": "muslim-kids-app",
   "type": "module",
   "version": "0.0.1",
   "author": "Ionic Framework",
@@ -88,13 +88,12 @@
     "ngx-build-plus": "^20.0.0",
     "typescript": "~5.9.3"
   },
-  "description": "TrackCycling is a comprehensive cycling tracking application built with Ionic and Angular. It offers features such as route tracking, performance analytics, and social sharing to enhance the cycling experience for users of all levels.",
+  "description": "Muslim Kids is a family-friendly app built with Ionic and Angular.",
   "keywords": [
     "ionic",
     "angular",
-    "cycling",
-    "tracking",
-    "performance analytics",
-    "social sharing"
+    "muslim kids",
+    "islamic",
+    "family"
   ] 
 }

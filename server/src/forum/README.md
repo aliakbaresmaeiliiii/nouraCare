@@ -1,6 +1,6 @@
 # Forum Module
 
-This module provides forum functionality for the Gahvareh application, including forum categories, forums, threads, and posts.
+This module provides forum functionality for the Muslim Kids application, including forum categories, forums, threads, and posts.
 
 ## Database Schema
 

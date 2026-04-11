@@ -64,7 +64,7 @@ export class CheckVersionComponent implements OnInit {
           'Enhanced security features'
         ],
         isUpdateAvailable: true,
-        downloadUrl: 'https://play.google.com/store/apps/details?id=com.gahvareh.app'
+        downloadUrl: 'https://play.google.com/store/apps/details?id=com.tecknnycs.muslimkids'
       };
       this.lastChecked = new Date().toLocaleString();
       this.isLoading = false;

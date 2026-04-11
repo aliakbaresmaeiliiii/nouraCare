@@ -3,9 +3,17 @@
   <div class="hero-section">
     <div class="hero-content">
       <div class="logo-container">
-        <ion-icon name="heart" class="logo-icon"></ion-icon>
-        <h1 class="app-title">Gahvaremi</h1>
-        <p class="app-subtitle">Your Pregnancy Companion</p>
+        <div class="logo-mark" aria-hidden="true">
+          <img
+            src="assets/branding/muslim-kids-logo.svg"
+            alt=""
+            width="120"
+            height="120"
+            class="brand-logo-img"
+          />
+        </div>
+        <h1 class="app-title">Muslim Kids</h1>
+        <p class="app-subtitle">Faith, learning, and stories for young hearts</p>
       </div>
     </div>
   </div>
@@ -89,8 +97,8 @@
     @if (activeTab === 'register') {
     <div class="form-container">
       <div class="form-header">
-        <h2 class="form-title">Join Gahvaremi</h2>
-        <p class="form-subtitle">Start your pregnancy journey today</p>
+        <h2 class="form-title">Join Muslim Kids</h2>
+        <p class="form-subtitle">Create an account for your family</p>
       </div>
 
       <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
