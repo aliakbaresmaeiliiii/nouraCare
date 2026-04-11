@@ -322,4 +322,9 @@ export class InsightsComponent implements OnInit, OnDestroy {
     });
     await toast.present();
   }
+
+  /** Pull-to-refresh on Insights tab (layout). */
+  async runPullToRefresh(): Promise<void> {
+    await new Promise((r) => setTimeout(r, 400));
+  }
 }

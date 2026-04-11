@@ -1,21 +1,48 @@
-// Minimal, correct sizing so tab pages can scroll/click
-// :host {
-//   display: block;
-//   height: 100%;
-// }
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  // Extra inset inside tab ion-content (keep 0 when header is in normal flow above tabs).
+  --layout-tab-scroll-padding-top: 0px;
+  // Small gap only; tab bar is a sibling — do not stack large padding here + page wrappers.
+  --layout-tab-scroll-padding-bottom: 8px;
+}
 
-// ion-tabs.tabs {
-//   height: 100%;
-// }
+// Tabs fill space between app header and bottom tab bar (mobile / Capacitor)
+#main-content {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
-// ion-router-outlet {
-//   display: block;
-// }
+#main-content .ion-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
 
-// Modern Layout Styles
+#main-content .ion-page > ion-content.tab-page-content {
+  flex: 1 1 auto;
+  min-height: 0;
+}
 
 // Header Styles
- .modern-header {
+// ion-header defaults to fixed/absolute in Ionic; that removes it from flex flow so ion-tabs
+// starts at y=0 and home scrolls under the toolbar. Keep this header in normal flow.
+ion-header.modern-header {
+   flex-shrink: 0;
+   position: relative !important;
+   z-index: 10;
+   width: 100%;
+   // Status bar / notch: apply on all widths (not only narrow breakpoints).
+   padding-top: env(safe-area-inset-top, 0px);
    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
    ion-toolbar {
      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -23,14 +50,14 @@
      --border-width: 0;
      --padding-start: 0;
      --padding-end: 0;
-     --min-height: 64px;
+     --min-height: 56px;
      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
    }
    .header-toolbar {
      display: flex;
      align-items: center;
      justify-content: space-between;
-     height: 80px;
+     height: 56px;
      max-width: var(--app-content-max-width);
      margin: 0 auto;
    }
@@ -129,14 +156,10 @@
      }
    }
  }
- .tabs{
-   margin-top: 2rem;
- }
-
-// Tab pages: clear bottom tab bar + safe area; light top gap below inner toolbar
+// Tab scroll area: optional extra top inset via --layout-tab-scroll-padding-top on app-layout.
 ion-content.tab-page-content {
-  --padding-top: 12px;
-  --padding-bottom: calc(0px + max(1px, env(safe-area-inset-bottom, 16px)));
+  --padding-top: var(--layout-tab-scroll-padding-top, 0px);
+  --padding-bottom: var(--layout-tab-scroll-padding-bottom, 8px);
   --padding-start: 0;
   --padding-end: 0;
 }
@@ -382,8 +405,6 @@ ion-content.tab-page-content {
 // Responsive Design
 @media (max-width: 768px) {
   .modern-header {
-    padding-top: env(safe-area-inset-top, 0px);
-
     .header-toolbar {
       --min-height: 56px;
       height: 56px;
@@ -434,8 +455,6 @@ ion-content.tab-page-content {
 
 @media (max-width: 480px) {
   .modern-header {
-    padding-top: env(safe-area-inset-top, 0px);
-
     .header-center {
       .title-container {
         gap: 6px;

@@ -55,7 +55,12 @@
   line-height: var(--line-height-normal);
 }
 
-// Body typography
+// Full viewport for Ionic / Capacitor (tabs + header fill screen)
+html,
+body {
+  height: 100%;
+}
+
 body {
   font-family: var(--font-primary);
   font-size: var(--font-size-base);
@@ -63,6 +68,21 @@ body {
   line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+ion-app {
+  height: 100%;
+}
+
+ion-router-outlet {
+  display: block;
+  height: 100%;
+}
+
+/* Reinforce main header above tab content (Ionic header can use fixed positioning internally). */
+app-layout > ion-header.modern-header {
+  flex-shrink: 0;
+  position: relative !important;
 }
 
 // Headings with beautiful typography
@@ -174,6 +194,8 @@ ion-card {
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-inset-left: env(safe-area-inset-left, 0px);
   --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  /* Fixed FAB above bottom tab bar (single source; avoid stacking with ion-content padding) */
+  --app-tab-fab-clearance: 72px;
 }
 
 /* Global Container System */

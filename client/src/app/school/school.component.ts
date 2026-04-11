@@ -442,4 +442,9 @@ export class SchoolComponent implements OnInit {
     });
     await toast.present();
   }
+
+  /** Pull-to-refresh on School tab (layout). */
+  async runPullToRefresh(): Promise<void> {
+    this.loadPregnancyData();
+  }
 }

@@ -29,6 +29,11 @@ export class ConsultationComponent implements OnInit {
     this.loadDoctors();
   }
 
+  /** Pull-to-refresh on Consultation tab (layout). */
+  async runPullToRefresh(): Promise<void> {
+    await this.loadDoctors();
+  }
+
   // Load limited doctors for consultation page
   async loadDoctors() {
     this.isLoading = true;

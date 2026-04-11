@@ -1,16 +1,20 @@
 // Incredible User-Friendly Home Page Styles
 // Wrapper is a div inside layout ion-content (single scroll — no nested ion-content)
+:host {
+  display: block;
+  width: 100%;
+}
+
 .home-content {
   display: block;
   box-sizing: border-box;
-  // Tab bar spacing is on layout `tab-page-content`; keep room for bottom FAB
-  padding-bottom: calc(40px + max(8px, env(safe-area-inset-bottom, 8px)));
+  // Room for fixed FAB only (tab bar sits outside ion-content; no extra safe-area stack here).
+  padding-bottom: var(--app-tab-fab-clearance, 72px);
   padding-left: 0;
   padding-right: 0;
   --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   background: var(--background);
   overflow-x: hidden;
-  min-height: 100%;
   position: relative;
   z-index: 1;
 }
@@ -503,6 +507,22 @@
           width: 140px;
           height: 140px;
 
+          &.progress-ring--tappable {
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            font: inherit;
+            color: inherit;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            text-align: inherit;
+
+            &:active {
+              transform: scale(0.98);
+            }
+          }
+
           .progress-svg {
             width: 100%;
             height: 100%;
@@ -560,7 +580,8 @@
       .pregnancy-stats {
         flex: 1;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: nowrap;
         gap: 1rem;
 
         .stat-card {
@@ -1655,13 +1676,13 @@
 @media (max-width: 768px) {
   .welcome-hero {
     padding: 1.5rem 1rem 1rem;
-    
+
     .hero-content .greeting-section {
       .greeting-avatar {
         width: 50px;
         height: 50px;
       }
-      
+
       .greeting-text .greeting-title {
         font-size: 1.5rem;
       }
@@ -1671,12 +1692,6 @@
   .actions-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
-  }
-
-  .pregnancy-section .pregnancy-hero .pregnancy-progress {
-    flex-direction: column;
-    gap: 1.5rem;
-    text-align: center;
   }
 
   .baby-development-card {
@@ -1768,35 +1783,28 @@
     }
 
     .pregnancy-progress {
-      gap: 1rem;
+      gap: 0.75rem;
+      flex-wrap: wrap;
 
-      .progress-container .progress-ring {
-        width: 118px;
-        height: 118px;
-
-        .progress-svg {
-          .progress-bg {
-            stroke: #e2e8f0;
-          }
-
-          .progress-bar {
-            stroke: #6366f1;
-            filter: none;
-          }
+      .progress-container .progress-ring .progress-svg {
+        .progress-bg {
+          stroke: rgba(15, 23, 42, 0.1);
         }
 
-        .progress-content {
-          .week-display .progress-week {
-            font-size: 1.9rem;
-            color: #0f172a;
-            text-shadow: none;
-          }
+        .progress-bar {
+          filter: drop-shadow(0 0 6px rgba(255, 107, 157, 0.35));
+        }
+      }
 
-          .week-display .progress-label,
-          .progress-percentage {
-            color: #64748b;
-            opacity: 1;
-          }
+      .progress-content {
+        .week-display .progress-week {
+          color: #0f172a;
+          text-shadow: none;
+        }
+
+        .week-display .progress-label,
+        .progress-percentage {
+          color: #64748b;
         }
       }
 
@@ -1892,29 +1900,16 @@
     border-radius: 16px;
   }
 
-  .pregnancy-hero .pregnancy-progress {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 12px;
-    align-items: center;
-  }
-
-  .pregnancy-hero .progress-container .progress-ring {
-    width: 104px;
-    height: 104px;
-  }
-
-  .pregnancy-hero .progress-container .progress-ring .progress-svg .progress-bar {
-    transition: stroke-dashoffset 280ms ease-out;
-  }
-
   .pregnancy-hero .pregnancy-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: 8px;
   }
 
   .pregnancy-hero .pregnancy-stats .stat-card {
+    flex: 1 1 0;
+    min-width: 0;
     min-height: 68px;
     align-items: center;
   }
@@ -1953,13 +1948,22 @@
 @media (max-width: 768px) {
   .home-content .pregnancy-section {
     .pregnancy-hero .pregnancy-progress {
-      grid-template-columns: 1fr;
-      justify-items: center;
-    }
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
 
-    .pregnancy-hero .pregnancy-stats {
-      width: 100%;
-      grid-template-columns: 1fr;
+      .pregnancy-stats {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-self: stretch;
+
+        .stat-card {
+          flex: 1 1 0;
+          min-width: 0;
+        }
+      }
     }
 
     .baby-development-card .baby-info .baby-measurements {

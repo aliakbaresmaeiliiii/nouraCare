@@ -1,9 +1,15 @@
 // Insights Page Styles
+:host {
+  display: block;
+  width: 100%;
+}
+
 .insights-content {
   --background: #1a1a1a;
   background: #1a1a1a;
   color: white;
-  padding: 0;
+  box-sizing: border-box;
+  padding: 0 0 12px;
 }
 
 // Premium Unlock Animation Overlay
@@ -593,7 +599,7 @@
 // Extra small screens
 @media (max-width: 480px) {
   .premium-banner {
-    margin-top: 5rem;
+    margin-top: 16px;
 
     .banner-content {
       .banner-text p {

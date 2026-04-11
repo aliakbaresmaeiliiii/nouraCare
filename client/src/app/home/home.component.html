@@ -155,11 +155,15 @@
         </div>
       </div>
 
-      <!-- Progress Ring -->
       <div class="pregnancy-progress">
         <div class="progress-container">
-          <div class="progress-ring">
-            <svg class="progress-svg" viewBox="0 0 140 140">
+          <button
+            type="button"
+            class="progress-ring progress-ring--tappable"
+            (click)="openCurrentPregnancyWeekDetail()"
+            aria-label="Open week {{ pregnancyWeek }} details"
+          >
+            <svg class="progress-svg" viewBox="0 0 140 140" aria-hidden="true">
               <defs>
                 <linearGradient
                   id="progressGradient"
@@ -184,6 +188,7 @@
                 cx="70"
                 cy="70"
                 r="60"
+                fill="none"
                 [style.stroke-dasharray]="getProgressCircumference()"
                 [style.stroke-dashoffset]="getProgressOffset()"
               ></circle>
@@ -197,10 +202,9 @@
                 {{ getProgressPercentage() }}%
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
-        <!-- Stats Cards -->
         <div class="pregnancy-stats">
           <div class="stat-card days-card">
             <div class="stat-icon">

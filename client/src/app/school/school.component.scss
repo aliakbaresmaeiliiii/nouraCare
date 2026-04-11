@@ -1,17 +1,27 @@
 // Baby Development Page Styles
+:host {
+  display: block;
+  width: 100%;
+}
+
 .baby-development-content {
   --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: 12px;
 }
 
 .not-pregnant-content {
   --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+  box-sizing: border-box;
+  min-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-left: var(--app-side-padding, 1rem);
+  padding-right: var(--app-side-padding, 1rem);
+  padding-bottom: 12px;
 }
 
 // Hero Section
