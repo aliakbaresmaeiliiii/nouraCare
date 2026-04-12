@@ -45,16 +45,16 @@ export const environment = {
     measurementId: 'G-Y8RLZHZ7NM',
   },
   production: false,
-  apiEndPoint: 'http://localhost:3000/api/v1/',
-  urlProfileImg: 'http://localhost:3000/uploads/',
+  apiEndPoint: 'http://172.20.10.4:3000/api/v1/',
+  urlProfileImg: 'http://172.20.10.4:3000/uploads/',
   profileImageFallback: 'assets/images/bg-01.png',
 };
 
 // ********************* Mobile / physical device (use PC LAN IP, not localhost) ********************
 // export const environment = {
 //   production: false,
-//   apiEndPoint: 'http://192.168.1.113:3000/api/v1/',
-//   urlProfileImg: 'http://192.168.1.113:3000/uploads/',
+//   apiEndPoint: 'http://172.20.10.4:3000/api/v1/',
+//   urlProfileImg: 'http://172.20.10.4:3000/uploads/',
 //   profileImageFallback: 'assets/images/bg-01.png',
 //   firebaseConfig: { ...same as above... },
 // };

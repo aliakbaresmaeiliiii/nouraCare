@@ -2,6 +2,9 @@
 :host {
   display: block;
   width: 100%;
+  /* Breathing room so premium row + search are not clipped at the top of the tab scroll */
+  padding-top: 16px;
+  box-sizing: border-box;
 }
 
 .insights-content {
