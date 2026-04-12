@@ -1,35 +1,96 @@
 .login-page {
-  --background: linear-gradient(
-    145deg,
-    #5b4fd4 0%,
-    #6d28d9 38%,
-    #0f766e 100%
-  );
+  --background: #f4eff8;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
   --color: #333;
 }
 
-/* Hero Section */
+.login-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* Full-bleed header: illustration covers area; light scrim keeps type readable */
+.login-header {
+  position: relative;
+  flex-shrink: 0;
+  min-height: clamp(220px, 46vh, 400px);
+  padding-top: env(safe-area-inset-top, 0px);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.login-header-bg {
+  position: absolute;
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.login-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 0%;
+  display: block;
+  transform: scale(1.04);
+  transform-origin: center center;
+}
+
+.login-header-scrim {
+  pointer-events: none;
+  position: absolute;
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(124, 58, 237, 0.12) 38%,
+    rgba(13, 148, 136, 0.18) 100%
+  );
+}
+
+.login-header-scrim::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(15, 23, 42, 0.05) 0%,
+    transparent 35%,
+    transparent 65%,
+    rgba(15, 23, 42, 0.05) 100%
+  );
+}
+
+.login-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: linear-gradient(180deg, #f3effa 0%, #faf8fc 45%, #ffffff 100%);
+}
+
+/* Hero sits on top of header image + scrim */
 .hero-section {
-  height: 40vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2rem 1rem;
+  padding: clamp(1.25rem, 4vw, 2.25rem) 1.25rem clamp(1.75rem, 5vw, 2.75rem);
   position: relative;
-  overflow: hidden;
-}
-
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  backdrop-filter: blur(10px);
-  border-radius: 0 0 50% 50% / 0 0 20% 20%;
+  z-index: 2;
+  width: 100%;
 }
 
 .hero-content {
@@ -51,8 +112,8 @@
   width: clamp(88px, 26vw, 120px);
   height: auto;
   display: block;
-  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35))
-    drop-shadow(0 0 20px rgba(254, 243, 199, 0.35));
+  filter: drop-shadow(0 6px 20px rgba(15, 23, 42, 0.25))
+    drop-shadow(0 0 16px rgba(255, 255, 255, 0.35));
   animation: logoFloat 4s ease-in-out infinite;
 }
 
@@ -61,30 +122,37 @@
   font-weight: 800;
   color: #fff;
   margin: 0 0 0.5rem 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.45),
+    0 4px 24px rgba(15, 23, 42, 0.35);
   font-family: 'Poppins', 'Vazirmatn', 'Segoe UI', system-ui, sans-serif;
   letter-spacing: -0.02em;
 }
 
 .app-subtitle {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.94);
   margin: 0;
   font-weight: 300;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.4),
+    0 2px 16px rgba(15, 23, 42, 0.25);
 }
 
 /* Auth Container */
 .auth-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 30px 30px 0 0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 28px 28px 0 0;
   padding: 2rem 1.5rem;
-  margin-top: -20px;
+  padding-bottom: max(2rem, env(safe-area-inset-bottom, 0px));
+  margin-top: -28px;
   position: relative;
   z-index: 3;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-  min-height: 60vh;
+  box-shadow: 0 -8px 36px rgba(15, 23, 42, 0.08);
+  flex: 1;
+  min-height: min(58vh, 520px);
 }
 
 /* Tab Container */
@@ -321,20 +389,67 @@
   }
 }
 
+/* Tablet / desktop: taller header, centered form */
+@media (min-width: 768px) {
+  .login-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .login-header {
+    min-height: clamp(280px, 42vh, 480px);
+    border-radius: 0 0 28px 28px;
+    box-shadow: 0 12px 40px rgba(15, 23, 42, 0.1);
+  }
+
+  .login-hero-img {
+    object-position: center 20%;
+  }
+
+  .login-header-scrim {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(124, 58, 237, 0.1) 40%,
+      rgba(13, 148, 136, 0.15) 100%
+    );
+  }
+
+  .login-panel {
+    flex: 1;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 clamp(1.25rem, 5vw, 2.5rem) clamp(1.5rem, 3vh, 2.5rem);
+  }
+
+  .auth-container {
+    margin-top: -32px;
+    border-radius: 24px;
+    min-height: unset;
+    flex: 0 1 auto;
+    width: 100%;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.1);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 480px) {
-  .hero-section {
-    height: 35vh;
+  .login-header {
+    min-height: min(42vh, 320px);
   }
-  
+
   .app-title {
     font-size: 2rem;
   }
-  
+
   .auth-container {
     padding: 1.5rem 1rem;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
   }
-  
+
   .form-title {
     font-size: 1.5rem;
   }
@@ -342,6 +457,33 @@
 
 /* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
+  .login-page {
+    --background: #1a1625;
+  }
+
+  .login-header-scrim {
+    background: linear-gradient(
+      180deg,
+      rgba(15, 23, 42, 0.15) 0%,
+      rgba(76, 29, 149, 0.35) 50%,
+      rgba(15, 118, 110, 0.38) 100%
+    );
+  }
+
+  .login-header-scrim::after {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.2) 0%,
+      transparent 40%,
+      transparent 60%,
+      rgba(0, 0, 0, 0.2) 100%
+    );
+  }
+
+  .login-panel {
+    background: linear-gradient(180deg, #1e1b2e 0%, #252030 50%, #1a1625 100%);
+  }
+
   .auth-container {
     background: rgba(33, 37, 41, 0.95);
     color: #fff;

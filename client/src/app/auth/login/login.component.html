@@ -1,25 +1,39 @@
-<ion-content class="login-page">
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="hero-content">
-      <div class="logo-container">
-        <div class="logo-mark" aria-hidden="true">
-          <img
-            src="assets/branding/muslim-kids-logo.svg"
-            alt=""
-            width="120"
-            height="120"
-            class="brand-logo-img"
-          />
-        </div>
-        <h1 class="app-title">Muslim Kids</h1>
-        <p class="app-subtitle">Faith, learning, and stories for young hearts</p>
+<ion-content class="login-page" [fullscreen]="true">
+  <div class="login-shell">
+    <header class="login-header">
+      <div class="login-header-bg" aria-hidden="true">
+        <img
+          src="assets/images/image1.png"
+          alt=""
+          class="login-hero-img"
+          width="1024"
+          height="1024"
+          decoding="async"
+        />
       </div>
-    </div>
-  </div>
+      <div class="login-header-scrim" aria-hidden="true"></div>
+      <div class="hero-section">
+        <div class="hero-content">
+          <div class="logo-container">
+            <!-- <div class="logo-mark" aria-hidden="true">
+              <img
+                src="assets/branding/muslim-kids-logo.svg"
+                alt=""
+                width="120"
+                height="120"
+                class="brand-logo-img"
+              />
+            </div> -->
+            <h1 class="app-title">Muslim Kids</h1>
+            <p class="app-subtitle">Faith, learning, and stories for young hearts</p>
+          </div>
+        </div>
+      </div>
+    </header>
 
-  <!-- Auth Forms Container -->
-  <div class="auth-container">
+    <div class="login-panel">
+      <!-- Auth Forms Container -->
+      <div class="auth-container">
     <!-- Toggle Buttons -->
     <div class="tab-container">
       <button
@@ -167,6 +181,8 @@
       </form>
     </div>
     }
+      </div>
+    </div>
   </div>
 
   <!-- Toast for notifications -->
