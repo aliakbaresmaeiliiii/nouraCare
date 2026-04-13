@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/guards/auth.guard';
 import { LayoutComponent } from './layout/layout.component';
+import { ReactWrapperComponent } from './react-wrapper/react-wrapper.component';
 
 export const routes: Routes = [
   {
     path: 'pregnancy',
-    redirectTo: '/pregnancy-planning',
-    pathMatch: 'full',
+    component: ReactWrapperComponent,
   },
   {
     path: 'onboarding',

@@ -16,7 +16,7 @@
 			"prefix": "app",
 			"architect": {
 				"build": {
-					"builder": "@angular-devkit/build-angular:browser",
+					"builder": "ngx-build-plus:browser",
 					"options": {
 						"outputPath": "dist/app",
 						"index": "src/index.html",
@@ -41,7 +41,8 @@
 						"allowedCommonJsDependencies": [
 							"mapbox-gl"
 						],
-						"main": "src/main.ts"
+						"main": "src/main.ts",
+						"commonChunk": false
 					},
 					"configurations": {
 						"production": {
@@ -98,7 +99,7 @@
 					"defaultConfiguration": "production"
 				},
 				"serve": {
-					"builder": "@angular-devkit/build-angular:dev-server",
+					"builder": "ngx-build-plus:dev-server",
 					"options": {
 						"proxyConfig": "proxy.conf.json",
 						"port": 4200,
@@ -130,9 +131,10 @@
 					"defaultConfiguration": "development"
 				},
 				"extract-i18n": {
-					"builder": "@angular-devkit/build-angular:extract-i18n",
+					"builder": "ngx-build-plus:extract-i18n",
 					"options": {
-						"buildTarget": "app:build"
+						"browserTarget": "app:build",
+						"proxyConfig": "proxy.conf.json"
 					}
 				},
 				"test": {
