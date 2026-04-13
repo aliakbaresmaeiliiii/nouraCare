@@ -37,6 +37,7 @@ declare global {
   imports: [...SHARED_STANDALONE_IMPORTS],
   styleUrls: ['./profile.component.scss'],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'ion-page' },
 })
 export class ProfileComponent implements OnInit, ViewWillEnter {
   // Use the service's computed signal for percent

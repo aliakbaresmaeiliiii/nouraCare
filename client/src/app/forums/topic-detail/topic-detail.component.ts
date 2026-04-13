@@ -52,6 +52,7 @@ import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
   styleUrls: ['./topic-detail.component.scss'],
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
+  host: { class: 'ion-page' },
 })
 export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   // Dependency injection

@@ -19,7 +19,8 @@ interface ArticleCard {
   templateUrl: './insights.component.html',
   styleUrls: ['./insights.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule],
+  host: { class: 'ion-page' },
 })
 export class InsightsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -239,13 +240,13 @@ export class InsightsComponent implements OnInit, OnDestroy {
   // Get fallback image
   getFallbackImage(category: string): string {
     const fallbacks = {
-      pregnancy: 'assets/images/welcome1.jpg',
-      intimacy: 'assets/images/welcome2.jpg',
-      symptoms: 'assets/images/welcome3.jpg',
-      nutrition: 'assets/images/welcome1.jpg',
-      baby: 'assets/images/welcome2.jpg'
+      pregnancy: 'assets/images/image1.png',
+      intimacy: 'assets/images/welcome2.png',
+      symptoms: 'assets/images/bg-01.png',
+      nutrition: 'assets/images/image1.png',
+      baby: 'assets/images/welcome2.png',
     };
-    return fallbacks[category as keyof typeof fallbacks] || 'assets/images/heart.png';
+    return fallbacks[category as keyof typeof fallbacks] || 'assets/images/bg-01.png';
   }
 
   // Check if article is favorite
@@ -326,5 +327,16 @@ export class InsightsComponent implements OnInit, OnDestroy {
   /** Pull-to-refresh on Insights tab (layout). */
   async runPullToRefresh(): Promise<void> {
     await new Promise((r) => setTimeout(r, 400));
+  }
+
+  async onTabPullRefresh(event: Event): Promise<void> {
+    const target = event.target as HTMLIonRefresherElement;
+    try {
+      await this.runPullToRefresh();
+    } catch {
+      /* non-fatal */
+    } finally {
+      target.complete();
+    }
   }
 }

@@ -1,7 +1,7 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="primary" class="saved-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="tabs" class="back-button" (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" class="back-button" (click)="goBack()"></ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">Saved Information</ion-title>
     <ion-buttons slot="end">
@@ -87,7 +87,7 @@
         @for (item of filteredItems; track item.id) {
         <div class="item-card" (click)="openItem(item)">
           <div class="card-image">
-            <img [src]="item.imageUrl || 'assets/images/heart.png'" 
+            <img [src]="item.imageUrl || 'assets/images/bg-01.png'" 
                  [alt]="item.title"
                  class="item-image"
                  (error)="onImageError($event)">

@@ -9,6 +9,7 @@ import {
   IonicRouteStrategy,
   provideIonicAngular,
 } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
 import { ModalController } from '@ionic/angular';
 
 import { routes } from './app/app.routes';
@@ -25,6 +26,23 @@ import { LanguageService } from './app/shared/services/language.service';
 import { TranslationService } from './app/shared/services/translation.service';
 import { AuthInterceptor } from './app/auth/interceptor/auth-interceptor';
 
+function initialIonicMode(): 'ios' | 'md' {
+  try {
+    if (Capacitor.isNativePlatform()) {
+      return Capacitor.getPlatform() === 'ios' ? 'ios' : 'md';
+    }
+  } catch {
+    /* non-browser */
+  }
+  if (typeof navigator !== 'undefined') {
+    const ua = navigator.userAgent || '';
+    const isIos =
+      /iPad|iPhone|iPod/.test(ua) ||
+      (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints ?? 0) > 1);
+    return isIos ? 'ios' : 'md';
+  }
+  return 'md';
+}
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -34,7 +52,12 @@ bootstrapApplication(AppComponent, {
     ),
 
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
+    provideIonicAngular({
+      mode: initialIonicMode(),
+      animated: true,
+      rippleEffect: true,
+      swipeBackEnabled: true,
+    }),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     ModalController,
 

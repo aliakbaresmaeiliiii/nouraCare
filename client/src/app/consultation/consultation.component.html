@@ -1,3 +1,10 @@
+<ion-content class="tab-page-content" [fullscreen]="false">
+  <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
+    <ion-refresher-content
+      pullingText="Pull to refresh"
+      refreshingText="Refreshing…"
+    ></ion-refresher-content>
+  </ion-refresher>
 <div class="consultation-content">
   <!-- Hero Section -->
   <div class="consultation-hero">
@@ -31,9 +38,17 @@
     
     <!-- Loading State -->
     @if (isLoading) {
-      <div class="loading-container">
-        <ion-spinner name="crescent"></ion-spinner>
-        <p>Loading doctors...</p>
+      <div class="doctors-skeleton" aria-busy="true" aria-label="Loading specialists">
+        @for (row of [1, 2, 3]; track row) {
+        <div class="doctors-skeleton-card">
+          <ion-skeleton-text [animated]="true" class="sk-avatar"></ion-skeleton-text>
+          <div class="doctors-skeleton-text">
+            <ion-skeleton-text [animated]="true" class="sk-title"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" class="sk-line"></ion-skeleton-text>
+            <ion-skeleton-text [animated]="true" class="sk-line sk-line--short"></ion-skeleton-text>
+          </div>
+        </div>
+        }
       </div>
     }
 
@@ -167,3 +182,4 @@
     </ion-fab-button>
   </ion-fab>
 </div>
+</ion-content>

@@ -2,7 +2,7 @@
 
 <app-side-menu></app-side-menu>
 
-<ion-header class="modern-header">
+<ion-header class="modern-header" [translucent]="false">
   <div class="app-container">
     <ion-toolbar class="header-toolbar">
       <ion-buttons slot="start" class="header-left">
@@ -42,74 +42,21 @@
   </div>
 </ion-header>
 <ion-tabs id="main-content">
-  <ion-tab tab="home">
-    <div id="home-page" class="ion-page">
-      <ion-content class="tab-page-content" [fullscreen]="false">
-        <ion-refresher slot="fixed" (ionRefresh)="onPullRefresh($event, 'home')">
-          <ion-refresher-content
-            pullingText="Pull to refresh"
-            refreshingText="Refreshing…"
-          ></ion-refresher-content>
-        </ion-refresher>
-        <app-home #tabHome></app-home>
-      </ion-content>
-    </div>
-  </ion-tab>
-  <ion-tab tab="insights">
-    <div id="insights-page" class="ion-page">
-      <ion-content class="tab-page-content" [fullscreen]="false">
-        <ion-refresher slot="fixed" (ionRefresh)="onPullRefresh($event, 'insights')">
-          <ion-refresher-content
-            pullingText="Pull to refresh"
-            refreshingText="Refreshing…"
-          ></ion-refresher-content>
-        </ion-refresher>
-        <app-insights #tabInsights></app-insights>
-      </ion-content>
-    </div>
-  </ion-tab>
-
-  <ion-tab tab="consultation">
-    <div id="consultation-page" class="ion-page">
-      <ion-content class="tab-page-content" [fullscreen]="false">
-        <ion-refresher slot="fixed" (ionRefresh)="onPullRefresh($event, 'consultation')">
-          <ion-refresher-content
-            pullingText="Pull to refresh"
-            refreshingText="Refreshing…"
-          ></ion-refresher-content>
-        </ion-refresher>
-        <app-consultation #tabConsultation></app-consultation>
-      </ion-content>
-    </div>
-  </ion-tab>
-  <ion-tab tab="school">
-    <div id="school-page" class="ion-page">
-      <ion-content class="tab-page-content" [fullscreen]="false">
-        <ion-refresher slot="fixed" (ionRefresh)="onPullRefresh($event, 'school')">
-          <ion-refresher-content
-            pullingText="Pull to refresh"
-            refreshingText="Refreshing…"
-          ></ion-refresher-content>
-        </ion-refresher>
-        <app-school #tabSchool></app-school>
-      </ion-content>
-    </div>
-  </ion-tab>
-
-  <ion-tab-bar slot="bottom">
-    <ion-tab-button tab="home">
+  <!-- <ion-router-outlet></ion-router-outlet> -->
+  <ion-tab-bar slot="bottom" class="app-tab-bar">
+    <ion-tab-button tab="home" href="/tabs/home">
       <ion-icon name="home-outline"></ion-icon>
       <span class="tab-label">{{ "nav.home" | translate }}</span>
     </ion-tab-button>
-    <ion-tab-button tab="insights">
+    <ion-tab-button tab="insights" href="/tabs/insights">
       <ion-icon name="bulb-outline"></ion-icon>
       <span class="tab-label">{{ "nav.insights" | translate }}</span>
     </ion-tab-button>
-    <ion-tab-button tab="consultation">
+    <ion-tab-button tab="consultation" href="/tabs/consultation">
       <ion-icon name="calendar-outline"></ion-icon>
       <span class="tab-label">{{ "nav.consultation" | translate }}</span>
     </ion-tab-button>
-    <ion-tab-button tab="school">
+    <ion-tab-button tab="school" href="/tabs/school">
       <ion-icon name="school-outline"></ion-icon>
       <span class="tab-label">{{ "nav.school" | translate }}</span>
     </ion-tab-button>

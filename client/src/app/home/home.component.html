@@ -1,3 +1,10 @@
+<ion-content class="tab-page-content" [fullscreen]="false">
+  <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
+    <ion-refresher-content
+      pullingText="Pull to refresh"
+      refreshingText="Refreshing…"
+    ></ion-refresher-content>
+  </ion-refresher>
 <div class="home-content" [class.home-content--pregnancy-today]="isPregnant">
   <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
   @if (!isPregnant) {
@@ -624,3 +631,4 @@
     </ion-fab-button>
   </ion-fab>
 </div>
+</ion-content>

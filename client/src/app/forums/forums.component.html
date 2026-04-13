@@ -2,7 +2,7 @@
   <ion-toolbar color="primary" class="forums-header">
     <ion-buttons slot="start">
       <ion-back-button
-        defaultHref="tabs"
+        defaultHref="/tabs/home"
         class="back-button"
         (click)="goBack()"
       ></ion-back-button>
@@ -20,6 +20,12 @@
 </ion-header>
 
 <ion-content class="forums-content">
+  <ion-refresher slot="fixed" (ionRefresh)="onForumsPullRefresh($event)">
+    <ion-refresher-content
+      pullingText="Pull to refresh"
+      refreshingText="Refreshing…"
+    ></ion-refresher-content>
+  </ion-refresher>
   <div class="container">
     <!-- Search Bar -->
     <div class="search-section">
@@ -105,9 +111,14 @@
 
     <!-- Loading State -->
     @if (isLoading()) {
-    <div class="loading-container">
-      <ion-spinner name="crescent" class="loading-spinner"></ion-spinner>
-      <p class="loading-text">Loading forums...</p>
+    <div class="forums-skeleton" aria-busy="true" aria-label="Loading forums">
+      @for (row of [1, 2, 3, 4, 5]; track row) {
+      <div class="forums-skeleton-row">
+        <ion-skeleton-text [animated]="true" class="sk-title"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="sk-line"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="sk-line sk-line--short"></ion-skeleton-text>
+      </div>
+      }
     </div>
     }
 

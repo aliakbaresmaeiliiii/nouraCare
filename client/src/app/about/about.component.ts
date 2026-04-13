@@ -9,7 +9,8 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone.js';
   styleUrls: ['./about.component.scss'],
   standalone: true,
   imports:[...SHARED_STANDALONE_IMPORTS],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA]
+  schemas:[CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'ion-page' },
 })
 export class AboutComponent implements OnInit {
 

@@ -1,3 +1,10 @@
+<ion-content class="tab-page-content" [fullscreen]="false">
+  <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
+    <ion-refresher-content
+      pullingText="Pull to refresh"
+      refreshingText="Refreshing…"
+    ></ion-refresher-content>
+  </ion-refresher>
 <div class="insights-content">
 
   <!-- Premium Unlock Animation Overlay -->
@@ -311,3 +318,4 @@
   </div>
 
 </div>
+</ion-content>

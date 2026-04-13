@@ -22,6 +22,7 @@ interface Notification {
   styleUrls: ['./notifications.component.scss'],
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
+  host: { class: 'ion-page' },
 })
 export class NotificationsComponent implements OnInit {
   private router = inject(Router);

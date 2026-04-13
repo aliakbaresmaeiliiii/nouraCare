@@ -2,9 +2,14 @@
 :host {
   display: block;
   width: 100%;
-  /* Breathing room so premium row + search are not clipped at the top of the tab scroll */
-  padding-top: 16px;
+  /* Desktop: small nudge; mobile/native: ion-content.tab-page-content supplies header clearance */
+  padding-top: 24px;
   box-sizing: border-box;
+}
+
+:host-context(html.plt-mobile),
+:host-context(html.plt-capacitor) {
+  padding-top: 0;
 }
 
 .insights-content {
@@ -13,6 +18,12 @@
   color: white;
   box-sizing: border-box;
   padding: 0 0 12px;
+  margin-top: 1.3rem;
+
+  :host-context(html.plt-mobile) &,
+  :host-context(html.plt-capacitor) & {
+    margin-top: 0;
+  }
 }
 
 // Premium Unlock Animation Overlay
@@ -118,10 +129,12 @@
 // Premium Banner
 .premium-banner {
   background: linear-gradient(135deg, #8b5a9f 0%, #6b4c93 100%);
-  margin: 16px;
+  margin: 12px 16px 10px;
   border-radius: 16px;
-  padding: 16px 20px;
+  padding: 14px 16px;
   position: relative;
+  z-index: 2;
+  flex-shrink: 0;
   transition: all 0.3s ease;
   
   .banner-content {
@@ -231,6 +244,8 @@
 
 // Search Section
 .search-section {
+  position: relative;
+  z-index: 2;
   padding: 0 16px 16px;
   
   .search-container {

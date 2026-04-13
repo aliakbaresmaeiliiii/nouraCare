@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 120" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="wm-mark-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14b8a6"/>
+      <stop offset="55%" stop-color="#0d9488"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+  </defs>
+  <!-- Small mark + clean wordmark (two-tone, not per-letter rainbow) -->
+  <g transform="translate(20 24) scale(0.42)">
+    <path
+      fill="url(#wm-mark-grad)"
+      d="M54 19 L64.2 41.4 L88 54 L64.2 66.6 L54 89 L43.8 66.6 L20 54 L43.8 41.4 Z"
+    />
+    <circle fill="#fbbf24" cx="81" cy="28" r="5.5"/>
+    <circle fill="#f9a8d4" cx="24" cy="36" r="4.5"/>
+  </g>
+  <text
+    x="72"
+    y="78"
+    font-family="Fredoka, 'Fredoka One', ui-rounded, 'Segoe UI', system-ui, sans-serif"
+    font-size="46"
+    font-weight="700"
+    letter-spacing="-0.5"
+  >
+    <tspan fill="#0f766e">Muslim </tspan><tspan fill="#be185d">Kids</tspan>
+  </text>
+  <path
+    fill="none"
+    stroke="#14b8a6"
+    stroke-width="4"
+    stroke-linecap="round"
+    opacity="0.55"
+    d="M 72 92 Q 210 108 348 92"
+  />
+</svg>

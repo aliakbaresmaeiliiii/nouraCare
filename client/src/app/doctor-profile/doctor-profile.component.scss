@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 100dvh;
   
   .loading-spinner {
     text-align: center;
@@ -31,7 +31,7 @@
 
 // Profile Container
 .profile-container {
-  min-height: 100vh;
+  min-height: 100dvh;
   position: relative;
 }
 

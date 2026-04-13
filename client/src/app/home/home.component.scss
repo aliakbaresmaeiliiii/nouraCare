@@ -69,6 +69,12 @@
   // margin-bottom: 1rem;
   margin-top: 3rem;
 
+  :host-context(html.plt-mobile) &,
+  :host-context(html.plt-capacitor) & {
+    /* ion-content.tab-page-content gets header clearance on native/phone; avoid double gap */
+    margin-top: 0;
+  }
+
   .hero-background {
     position: absolute;
     top: 0;
@@ -417,8 +423,8 @@
 
 .pregnancy-today-shell {
   position: relative;
-  margin-top: 4rem;
-  padding: 0 var(--app-side-padding, 1rem) 1.25rem;
+  margin-top: 0;
+  padding: 0.75rem var(--app-side-padding, 1rem) 1.25rem;
   z-index: 1;
 }
 
@@ -494,7 +500,7 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0.15rem;
   text-align: center;
-  padding: 0 0.15rem 0.15rem;
+  padding: 0.35rem 0.15rem 0.35rem;
   box-sizing: border-box;
 }
 
@@ -526,12 +532,13 @@
 }
 
 .pregnancy-calendar-label {
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   font-weight: 600;
   color: #c57656;
   letter-spacing: 0.04em;
-  line-height: 1.1;
+  line-height: 1.2;
   text-transform: uppercase;
+  padding-top: 0.1rem;
 }
 
 .pregnancy-calendar-col--today .pregnancy-calendar-label {

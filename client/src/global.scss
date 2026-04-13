@@ -55,10 +55,11 @@
   line-height: var(--line-height-normal);
 }
 
-// Full viewport for Ionic / Capacitor (tabs + header fill screen)
+// Full viewport for Ionic / Capacitor (dynamic viewport avoids mobile browser chrome / 100vh bugs)
 html,
 body {
   height: 100%;
+  // min-height: 100dvh;
 }
 
 body {
@@ -72,7 +73,29 @@ body {
 
 ion-app {
   height: 100%;
+  min-height: 100dvh;
 }
+
+/* Tab stack pages: spacing + keyboard-friendly scroll (Ionic adjusts --keyboard-offset on native) */
+ion-content.tab-page-content {
+  --padding-top: var(--layout-tab-scroll-padding-top, 8px);
+  --padding-bottom: var(--layout-tab-scroll-padding-bottom, 12px);
+  --padding-start: max(0px, env(safe-area-inset-left, 0px));
+  --padding-end: max(0px, env(safe-area-inset-right, 0px));
+}
+
+/*
+ * Main shell header (app-layout) sits outside ion-content. On desktop browsers it usually
+ * participates in flex layout; on Capacitor / many mobile WebViews the header can paint over
+ * the tab scroll root, so the first pixels of ion-content sit underneath it.
+ */
+html.plt-mobile ion-content.tab-page-content,
+html.plt-capacitor ion-content.tab-page-content {
+  --padding-top: calc(
+    var(--layout-tab-scroll-padding-top, 8px) + env(safe-area-inset-top, 0px) + 58px
+  );
+}
+
 
 ion-router-outlet {
   display: block;
@@ -83,6 +106,12 @@ ion-router-outlet {
 app-layout > ion-header.modern-header {
   flex-shrink: 0;
   position: relative !important;
+  // Solid toolbar so week rows / insights don’t paint through on mobile WebViews.
+  --opacity-translucent: 1;
+}
+
+app-layout > ion-header.modern-header ion-toolbar {
+  --opacity-translucent: 1;
 }
 
 // Headings with beautiful typography
@@ -186,6 +215,8 @@ ion-card {
 
 /* App Container System for Consistent Layout */
 :root {
+  --app-motion-duration: 280ms;
+  --app-motion-ease: cubic-bezier(0.36, 0.66, 0.04, 1);
   --app-max-width: 1200px;
   --app-side-padding: 1rem;
   --app-container-padding: 0 var(--app-side-padding);
@@ -259,13 +290,13 @@ ion-card {
 .fertility-results-modal,
 .pregnancy-results-modal {
   --height: auto;
-  --max-height: 90vh;
+  --max-height: 90dvh;
   --border-radius: 20px 20px 0 0;
   --backdrop-opacity: 0.4;
   
   ion-modal {
     --height: auto;
-    --max-height: 90vh;
+    --max-height: 90dvh;
     --border-radius: 20px 20px 0 0;
     
     &::part(content) {
@@ -281,14 +312,14 @@ ion-card {
   .pregnancy-results-modal {
     --width: 100%;
     --height: auto;
-    --max-height: 90vh;
-    --min-height: 50vh;
+    --max-height: 90dvh;
+    --min-height: 50dvh;
     
     ion-modal {
       --width: 100%;
       --height: auto;
-      --max-height: 90vh;
-      --min-height: 50vh;
+      --max-height: 90dvh;
+      --min-height: 50dvh;
       
       &::part(content) {
         position: absolute;
@@ -297,8 +328,8 @@ ion-card {
         right: 0;
         top: auto;
         height: auto;
-        max-height: 90vh;
-        min-height: 50vh;
+        max-height: 90dvh;
+        min-height: 50dvh;
         border-radius: 20px 20px 0 0;
         transform: translateY(100%);
         transition: transform 0.3s ease-out;
@@ -317,13 +348,13 @@ ion-card {
   .pregnancy-results-modal {
     --width: 600px;
     --height: auto;
-    --max-height: 80vh;
+    --max-height: 80dvh;
     --border-radius: 16px;
     
     ion-modal {
       --width: 600px;
       --height: auto;
-      --max-height: 80vh;
+      --max-height: 80dvh;
       --border-radius: 16px;
       
       &::part(content) {
@@ -415,7 +446,25 @@ ion-card {
   }
 }
 ion-item {
-  --transition: none;
+  --transition: background-color 200ms ease, transform 200ms ease;
+}
+
+/* Minimum 44×44pt touch targets (Apple HIG); Ionic buttons often need explicit min size on mobile */
+@media (max-width: 768px) {
+  ion-button[fill='clear']:not(.button-small),
+  ion-menu-button,
+  ion-back-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  ion-tab-button {
+    min-height: 48px;
+  }
+
+  ion-segment-button {
+    min-height: 44px;
+  }
 }
 
 /* Instagram-style profile photo crop (ion-modal is portaled; must be global) */

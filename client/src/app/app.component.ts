@@ -1,5 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
+import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
 import { UserInfoService } from './shared/services/user-info.service';
 import { OnboardingStateService } from './shared/services/onboarding-state.service';
 import { SHARED_STANDALONE_IMPORTS } from './shared/shared-standalone';
@@ -39,6 +41,11 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.handleInitialRouting();
+    if (Capacitor.isNativePlatform()) {
+      void Keyboard.setResizeMode({ mode: KeyboardResize.Ionic }).catch(() => {
+        /* optional plugin */
+      });
+    }
   }
 
   private handleInitialRouting() {

@@ -70,7 +70,7 @@ export class SavedInformationComponent implements OnInit {
           title: 'Understanding Your Menstrual Cycle',
           description: 'A comprehensive guide to tracking and understanding your menstrual cycle phases.',
           category: 'article',
-          imageUrl: 'assets/images/heart.png',
+          imageUrl: 'assets/images/bg-01.png',
           savedAt: '2024-01-15T10:30:00Z',
           type: 'article',
           readTime: 5,
@@ -81,7 +81,7 @@ export class SavedInformationComponent implements OnInit {
           title: 'Natural Remedies for Period Pain',
           description: 'Effective home remedies and natural treatments for menstrual cramps.',
           category: 'tip',
-          imageUrl: 'assets/images/heart.png',
+          imageUrl: 'assets/images/bg-01.png',
           savedAt: '2024-01-14T14:20:00Z',
           type: 'tip',
           readTime: 3,
@@ -92,7 +92,7 @@ export class SavedInformationComponent implements OnInit {
           title: 'Pregnancy Nutrition Guide',
           description: 'Essential nutrients and diet tips for a healthy pregnancy.',
           category: 'resource',
-          imageUrl: 'assets/images/heart.png',
+          imageUrl: 'assets/images/bg-01.png',
           savedAt: '2024-01-13T09:15:00Z',
           type: 'resource',
           readTime: 8,
@@ -103,7 +103,7 @@ export class SavedInformationComponent implements OnInit {
           title: 'Yoga for Women\'s Health',
           description: 'Gentle yoga poses specifically designed for women\'s reproductive health.',
           category: 'video',
-          imageUrl: 'assets/images/heart.png',
+          imageUrl: 'assets/images/bg-01.png',
           savedAt: '2024-01-12T16:45:00Z',
           type: 'video',
           readTime: 15,
@@ -193,7 +193,7 @@ export class SavedInformationComponent implements OnInit {
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
     if (target) {
-      target.src = 'assets/images/heart.png';
+      target.src = 'assets/images/bg-01.png';
     }
   }
 

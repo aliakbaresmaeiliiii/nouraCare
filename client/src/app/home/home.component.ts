@@ -126,6 +126,7 @@ import { HOME_POSTPARTUM_WEEK_SAMPLES } from './data/home-postpartum-sample.data
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'ion-page' },
 })
 export class HomeComponent implements OnInit, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
@@ -473,6 +474,17 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       this.clearPregnancyCalendarSelectionIfInvalid();
     }
     this.scheduleScrollPregnancyCalendarToAnchor();
+  }
+
+  async onTabPullRefresh(event: Event): Promise<void> {
+    const target = event.target as HTMLIonRefresherElement;
+    try {
+      await this.runPullToRefresh();
+    } catch {
+      /* non-fatal */
+    } finally {
+      target.complete();
+    }
   }
 
   /**

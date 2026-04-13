@@ -264,9 +264,45 @@
   }
 }
 
-.social-icon {
-  font-size: 18px;
+/* Rounded brand tiles — same visual language as the Instagram app icon */
+.social-icon-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   margin-right: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+
+  ion-icon {
+    color: #fff;
+  }
+}
+
+.social-icon-badge--instagram {
+  background: linear-gradient(
+    45deg,
+    #f09433 0%,
+    #e6683c 25%,
+    #dc2743 50%,
+    #cc2366 75%,
+    #bc1888 100%
+  );
+
+  ion-icon {
+    font-size: 22px;
+  }
+}
+
+.social-icon-badge--telegram {
+  background: linear-gradient(145deg, #37aee2 0%, #1e96c8 50%, #0088cc 100%);
+
+  ion-icon {
+    font-size: 21px;
+    transform: translate(1px, -1px);
+  }
 }
 
 .social-text {

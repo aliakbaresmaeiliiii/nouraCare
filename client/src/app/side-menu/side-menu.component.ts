@@ -1,5 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { logoInstagram, paperPlaneOutline } from 'ionicons/icons';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 import { ImageUrlService } from '../shared/services/image-url.service';
@@ -59,7 +61,9 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
     { icon: 'log-out-outline', label: 'menu.logOut' },
   ];
 
-  constructor() {}
+  constructor() {
+    addIcons({ logoInstagram, paperPlaneOutline });
+  }
 
   async setActiveTop(index: number) {
     this.activeIndexTop = index;

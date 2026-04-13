@@ -11,7 +11,8 @@ import { BabyDevelopmentService } from '../shared/services/baby-development.serv
   styleUrls: ['./school.component.scss'],
   standalone: true,
   imports:[...SHARED_STANDALONE_IMPORTS],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA]
+  schemas:[CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'ion-page' },
 })
 export class SchoolComponent implements OnInit {
   private cycleSettings = inject(CycleSettingsService);
@@ -446,5 +447,16 @@ export class SchoolComponent implements OnInit {
   /** Pull-to-refresh on School tab (layout). */
   async runPullToRefresh(): Promise<void> {
     this.loadPregnancyData();
+  }
+
+  async onTabPullRefresh(event: Event): Promise<void> {
+    const target = event.target as HTMLIonRefresherElement;
+    try {
+      await this.runPullToRefresh();
+    } catch {
+      /* non-fatal */
+    } finally {
+      target.complete();
+    }
   }
 }

@@ -76,13 +76,17 @@
       <div class="social-links">
         <ion-menu-toggle>
           <ion-button fill="clear" class="social-btn instagram" (click)="openSocialLink('instagram')">
-            <ion-icon name="logo-instagram" class="social-icon"></ion-icon>
+            <span class="social-icon-badge social-icon-badge--instagram" aria-hidden="true">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </span>
             <span class="social-text">Instagram</span>
           </ion-button>
         </ion-menu-toggle>
         <ion-menu-toggle>
           <ion-button fill="clear" class="social-btn telegram" (click)="openSocialLink('telegram')">
-            <img src="assets/images/telegram.png" alt="Telegram" class="social-icon w-5 h-5">
+            <span class="social-icon-badge social-icon-badge--telegram" aria-hidden="true">
+              <ion-icon name="paper-plane-outline"></ion-icon>
+            </span>
             <span class="social-text">Telegram</span>
           </ion-button>
         </ion-menu-toggle>

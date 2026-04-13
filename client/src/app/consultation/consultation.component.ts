@@ -11,7 +11,8 @@ import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
   styleUrls: ['./consultation.component.scss'],
   standalone: true,
   imports:[...SHARED_STANDALONE_IMPORTS],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA]
+  schemas:[CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'ion-page' },
 })
 export class ConsultationComponent implements OnInit {
   doctors: DoctorDto[] = [];
@@ -32,6 +33,17 @@ export class ConsultationComponent implements OnInit {
   /** Pull-to-refresh on Consultation tab (layout). */
   async runPullToRefresh(): Promise<void> {
     await this.loadDoctors();
+  }
+
+  async onTabPullRefresh(event: Event): Promise<void> {
+    const target = event.target as HTMLIonRefresherElement;
+    try {
+      await this.runPullToRefresh();
+    } catch {
+      /* non-fatal */
+    } finally {
+      target.complete();
+    }
   }
 
   // Load limited doctors for consultation page

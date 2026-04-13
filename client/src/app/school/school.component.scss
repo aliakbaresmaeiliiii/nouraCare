@@ -22,6 +22,12 @@
   padding-left: var(--app-side-padding, 1rem);
   padding-right: var(--app-side-padding, 1rem);
   padding-bottom: 12px;
+  margin-top: 2.7rem;
+
+  :host-context(html.plt-mobile) &,
+  :host-context(html.plt-capacitor) & {
+    margin-top: 0;
+  }
 }
 
 // Hero Section

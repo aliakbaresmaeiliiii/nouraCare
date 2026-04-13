@@ -100,10 +100,6 @@ export class SymptomsDetailComponent implements OnInit {
     });
   }
 
-  goBack() {
-    this.router.navigate(['tabs/home']);
-  }
-
   editDay() {
     this.router.navigate(['/symptoms-tracker'], {
       queryParams: { date: this.selectedDate }

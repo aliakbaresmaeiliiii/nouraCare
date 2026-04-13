@@ -1,5 +1,6 @@
 import {
   Component,
+  CUSTOM_ELEMENTS_SCHEMA,
   OnDestroy,
   OnInit,
   computed,
@@ -7,7 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import {
+  Subject,
+  debounceTime,
+  distinctUntilChanged,
+  lastValueFrom,
+  takeUntil,
+} from 'rxjs';
 import { ForumService } from '../shared/services/forum.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { ForumCategory, ForumTopic } from '../shared/models/forum';
@@ -18,6 +25,8 @@ import { ForumCategory, ForumTopic } from '../shared/models/forum';
   styleUrls: ['./forums.component.scss'],
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
+  host: { class: 'ion-page' },
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ForumsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
@@ -193,37 +202,93 @@ export class ForumsComponent implements OnInit, OnDestroy {
       });
   }
 
+  private applyCategoriesFromApiResponse(response: any): void {
+    if (response?.success === true) {
+      const categories = response.data.map((category: any) => ({
+        id: category.id,
+        name: category.name,
+        description: category.description,
+        icon: category.icon,
+        color: category.color,
+        topicsCount: category.forums?.length || 0,
+        forum: category.forums?.[0] || null,
+        postsCount: 0,
+        lastActivity: category.updatedAt,
+        viewCount: category.viewCount || 0,
+        isPopular: false,
+      }));
+      this.forumsService.setStoreDataCategory(categories);
+      this.categories.set(categories);
+    }
+  }
+
   fetchDataCategories() {
     this.isLoading.set(true);
+    this.errorMessage.set('');
     this.forumsService.getCategories().subscribe({
       next: (response: any) => {
-        if (response.success === true) {
-          this.isLoading.set(false);
-          // Map the backend data to our frontend interface
-          const categories = response.data.map((category: any) => ({
-            id: category.id,
-            name: category.name,
-            description: category.description,
-            icon: category.icon,
-            color: category.color,
-            topicsCount: category.forums?.length || 0,
-            forum: category.forums?.[0] || null,
-            postsCount: 0, // This would need to be calculated from forums data
-            lastActivity: category.updatedAt,
-            viewCount: category.viewCount || 0,
-            isPopular: false, // You can set this based on some criteria
-          }));
-          // Update both service store and component signal
-          this.forumsService.setStoreDataCategory(categories);
-          this.categories.set(categories);
-          console.log(categories[0]);
-        }
+        this.isLoading.set(false);
+        this.applyCategoriesFromApiResponse(response);
       },
-      error: (error: any) => {
+      error: () => {
         this.isLoading.set(false);
         this.errorMessage.set('Failed to load categories');
       },
     });
+  }
+
+  async onForumsPullRefresh(event: Event): Promise<void> {
+    const target = event.target as HTMLIonRefresherElement;
+    try {
+      this.errorMessage.set('');
+      const response: any = await lastValueFrom(this.forumsService.getCategories());
+      this.applyCategoriesFromApiResponse(response);
+      if (this.viewMode() === 'topics') {
+        const sel = this.selectedCategory();
+        this.topicsCache.delete('all');
+        if (sel !== 'all') {
+          this.topicsCache.delete(sel);
+        }
+        await this.refreshTopicsForCurrentViewSilent();
+      }
+    } catch {
+      this.errorMessage.set('Failed to refresh');
+    } finally {
+      target.complete();
+    }
+  }
+
+  private async refreshTopicsForCurrentViewSilent(): Promise<void> {
+    const sel = this.selectedCategory();
+    try {
+      if (sel === 'all') {
+        const response: any = await lastValueFrom(this.forumsService.getAllThreads());
+        if (response?.success && response.data?.threads) {
+          const threads = response.data.threads.map((thread: any) => ({
+            ...this.mapThreadToTopic(thread),
+          }));
+          this.topics.set(threads);
+          this.topicsCache.set('all', threads);
+        }
+      } else {
+        const response: any = await lastValueFrom(
+          this.forumsService.getThreadsByCategory(sel),
+        );
+        if (response?.success && response.data?.threads) {
+          const threads = response.data.threads.map((thread: any) => ({
+            ...this.mapThreadToTopic(thread),
+          }));
+          this.topics.set(threads);
+          this.topicsCache.set(sel, threads);
+          this.forumsService.setStoreDataThread(threads);
+        } else {
+          this.topics.set([]);
+          this.topicsCache.set(sel, []);
+        }
+      }
+    } catch {
+      /* keep list; pull-to-refresh is best-effort */
+    }
   }
 
   loadCategories() {

@@ -1,10 +1,4 @@
-import {
-  Component,
-  CUSTOM_ELEMENTS_SCHEMA,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
@@ -21,66 +15,20 @@ import {
 import { Subscription } from 'rxjs';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { LanguageService } from '../shared/services/language.service';
-import { HomeComponent } from '../home/home.component';
-import { InsightsComponent } from '../insights/insights.component';
-import { ConsultationComponent } from '../consultation/consultation.component';
-import { SchoolComponent } from '../school/school.component';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
   standalone: true,
-  imports: [
-    ...SHARED_STANDALONE_IMPORTS,
-    HomeComponent,
-    InsightsComponent,
-    ConsultationComponent,
-    SchoolComponent,
-    SideMenuComponent,
-  ],
+  imports: [...SHARED_STANDALONE_IMPORTS, SideMenuComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class LayoutComponent implements OnInit, OnDestroy {
-  @ViewChild('tabHome') tabHome?: HomeComponent;
-  @ViewChild('tabInsights') tabInsights?: InsightsComponent;
-  @ViewChild('tabConsultation') tabConsultation?: ConsultationComponent;
-  @ViewChild('tabSchool') tabSchool?: SchoolComponent;
-
   selectedTitle = 'Home';
   private languageSubscription!: Subscription;
   hasNotifications = true;
   hasUserAvatar = false;
-
-  /**
-   * Pull-to-refresh (Instagram / LinkedIn style): drag down from top of tab content.
-   */
-  async onPullRefresh(
-    event: Event,
-    tab: 'home' | 'insights' | 'consultation' | 'school',
-  ): Promise<void> {
-    const target = (event.target as unknown as { complete: () => void }) ?? { complete: () => {} };
-    try {
-      switch (tab) {
-        case 'home':
-          await this.tabHome?.runPullToRefresh();
-          break;
-        case 'insights':
-          await this.tabInsights?.runPullToRefresh();
-          break;
-        case 'consultation':
-          await this.tabConsultation?.runPullToRefresh();
-          break;
-        case 'school':
-          await this.tabSchool?.runPullToRefresh();
-          break;
-      }
-    } catch {
-      /* non-fatal */
-    } finally {
-      target.complete();
-    }
-  }
 
   constructor(
     private router: Router,

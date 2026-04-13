@@ -1,3 +1,10 @@
+<ion-content class="tab-page-content" [fullscreen]="false">
+  <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
+    <ion-refresher-content
+      pullingText="Pull to refresh"
+      refreshingText="Refreshing…"
+    ></ion-refresher-content>
+  </ion-refresher>
 
 @if (isPregnant) {
 <div class="baby-development-content">
@@ -111,3 +118,4 @@
   </div>
 </div>
 }
+</ion-content>
