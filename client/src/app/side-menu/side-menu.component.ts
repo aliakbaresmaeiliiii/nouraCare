@@ -115,8 +115,8 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
 
   openSocialLink(platform: string) {
     const socialLinks = {
-      instagram: 'https://instagram.com/muslimkids',
-      telegram: 'https://t.me/muslimkids'
+      instagram: 'https://instagram.com/nouraflow',
+      telegram: 'https://t.me/nouraflow'
     };
     
     if (socialLinks[platform as keyof typeof socialLinks]) {

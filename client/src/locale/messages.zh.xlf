@@ -96,8 +96,8 @@
       
       <!-- Welcome Page -->
       <trans-unit id="welcome.title" datatype="html">
-        <source>Welcome to Gahvaremi</source>
-        <target>欢迎来到Gahvaremi</target>
+        <source>Welcome to NouraFlow</source>
+        <target>欢迎来到NouraFlow</target>
       </trans-unit>
       <trans-unit id="welcome.subtitle" datatype="html">
         <source>Your Pregnancy Companion</source>
@@ -108,8 +108,8 @@
         <target>开始使用</target>
       </trans-unit>
       <trans-unit id="welcome.joinTitle" datatype="html">
-        <source>Join Gahvaremi</source>
-        <target>加入Gahvaremi</target>
+        <source>Join NouraFlow</source>
+        <target>加入NouraFlow</target>
       </trans-unit>
       <trans-unit id="welcome.joinSubtitle" datatype="html">
         <source>Start your pregnancy journey today</source>

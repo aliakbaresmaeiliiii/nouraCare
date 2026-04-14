@@ -71,12 +71,12 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
   initializeChat() {
     // Add welcome message
     this.addBotMessage(
-      'Hello! I\'m the Muslim Kids assistant. I\'m here to help with Islamic learning, family-friendly guidance, and app questions. How can I help today?',
+      'Hello! I\'m the NouraFlow assistant. I\'m here to help with your health journey and app questions. How can I help today?',
       'text',
       undefined,
       undefined,
       {
-        text: 'Learn more about Muslim Kids',
+        text: 'Learn more about NouraFlow',
         url: '/about'
       }
     );

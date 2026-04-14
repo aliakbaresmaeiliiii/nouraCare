@@ -1,5 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 76" fill="none" aria-hidden="true">
-  <!-- Android 12+ splash branding strip -->
   <text
     x="220"
     y="50"
@@ -9,6 +8,6 @@
     font-weight="700"
     letter-spacing="-0.3"
   >
-    <tspan fill="#0f766e">Muslim </tspan><tspan fill="#be185d">Kids</tspan>
+    <tspan fill="#0f766e">Noura</tspan><tspan fill="#be185d">Flow</tspan>
   </text>
 </svg>

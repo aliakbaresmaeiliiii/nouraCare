@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
@@ -21,12 +21,10 @@ import {
   styleUrl: 'app.component.scss',
   imports: [...SHARED_STANDALONE_IMPORTS],
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
   private userInfoService = inject(UserInfoService);
   private onboardingStateService = inject(OnboardingStateService);
   private router = inject(Router);
-  private splashTimeoutId: ReturnType<typeof setTimeout> | null = null;
-  showStartupWelcome = true;
 
   constructor() {
     addIcons({
@@ -44,20 +42,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.handleInitialRouting();
-    this.splashTimeoutId = setTimeout(() => {
-      this.showStartupWelcome = false;
-    }, 2200);
     if (Capacitor.isNativePlatform()) {
       void Keyboard.setResizeMode({ mode: KeyboardResize.Ionic }).catch(() => {
         /* optional plugin */
       });
-    }
-  }
-
-  ngOnDestroy(): void {
-    if (this.splashTimeoutId) {
-      clearTimeout(this.splashTimeoutId);
-      this.splashTimeoutId = null;
     }
   }
 

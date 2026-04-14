@@ -317,8 +317,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     try {
       // Create share data
       const shareData = {
-        title: 'My Profile - Muslim Kids',
-        text: `Check out my profile on Muslim Kids! I'm ${
+        title: 'My Profile - NouraFlow',
+        text: `Check out my profile on NouraFlow! I'm ${
           this.fullName || 'a user'
         } and my profile is ${this.percent}% complete.`,
         url: window.location.href,
@@ -350,7 +350,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       console.error('Error sharing profile:', error);
       // Final fallback: Copy to clipboard
       try {
-        const fallbackText = `My Profile - Muslim Kids\nCheck out my profile: ${window.location.href}`;
+        const fallbackText = `My Profile - NouraFlow\nCheck out my profile: ${window.location.href}`;
         await this.copyToClipboard(fallbackText);
         this.showShareSuccessAlert();
       } catch (clipboardError) {
@@ -480,7 +480,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     document.body.appendChild(alert);
 
     // Also copy to clipboard
-    const shareText = `My Profile - Muslim Kids\nCheck out my profile: ${window.location.href}`;
+    const shareText = `My Profile - NouraFlow\nCheck out my profile: ${window.location.href}`;
     this.copyToClipboard(shareText);
 
     setTimeout(() => {

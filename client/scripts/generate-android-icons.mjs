@@ -12,8 +12,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientRoot = path.join(__dirname, '..');
 const branding = path.join(clientRoot, 'src/assets/branding');
 const launcherPngPath = path.join(branding, 'download.png');
-const wordmarkSvgPath = path.join(branding, 'muslim-kids-wordmark.svg');
-const splashNameSvgPath = path.join(branding, 'muslim-kids-splash-name.svg');
+const wordmarkSvgPath = path.join(branding, 'nouraflow-wordmark.svg');
+const splashNameSvgPath = path.join(branding, 'nouraflow-splash-name.svg');
 const resRoot = path.join(clientRoot, 'android/app/src/main/res');
 
 /**

@@ -60,7 +60,7 @@ export class OnboardingComponent implements OnInit {
   steps: OnboardingStep[] = [
     {
       id: 'welcome',
-      title: 'Welcome to Gahvaremi! 👋',
+      title: 'Welcome to NouraFlow! 👋',
       subtitle: "Let's personalize your experience",
       question:
         "We'll ask you a few questions to provide the best support for your journey.",

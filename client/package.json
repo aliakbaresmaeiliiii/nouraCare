@@ -1,6 +1,6 @@
 {
 
-  "name": "muslim-kids-app",
+  "name": "nouraflow-app",
 
   "type": "module",
 
@@ -188,7 +188,7 @@
 
   },
 
-  "description": "Muslim Kids is a family-friendly app built with Ionic and Angular.",
+  "description": "NouraFlow is a family-friendly app built with Ionic and Angular.",
 
   "keywords": [
 
@@ -196,7 +196,7 @@
 
     "angular",
 
-    "muslim kids",
+    "nouraflow",
 
     "islamic",
 

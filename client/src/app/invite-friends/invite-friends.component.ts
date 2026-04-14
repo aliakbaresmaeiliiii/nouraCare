@@ -139,9 +139,9 @@ export class InviteFriendsComponent implements OnInit {
   shareApp() {
     if (navigator.share) {
       navigator.share({
-        title: 'Join me on Muslim Kids',
-        text: 'I think you\'d love Muslim Kids! A fun, faith-centered app for families.',
-        url: 'https://muslimkids.app/invite?ref=user123'
+        title: 'Join me on NouraFlow',
+        text: 'I think you\'d love NouraFlow! A smart health app for women and families.',
+        url: 'https://nouraflow.app/invite?ref=user123'
       }).then(() => {
         this.showSuccessAlert('App shared successfully!');
       }).catch((error) => {
@@ -154,10 +154,10 @@ export class InviteFriendsComponent implements OnInit {
   }
 
   inviteViaEmail() {
-    const subject = encodeURIComponent('Join me on Muslim Kids!');
+    const subject = encodeURIComponent('Join me on NouraFlow!');
     const body = encodeURIComponent(
-      'Hi!\n\nI think you\'d love Muslim Kids! A fun, faith-centered app for families.\n\n' +
-      'Download it here: https://muslimkids.app/invite?ref=user123\n\n' +
+      'Hi!\n\nI think you\'d love NouraFlow! A smart health app for women and families.\n\n' +
+      'Download it here: https://nouraflow.app/invite?ref=user123\n\n' +
       'Best regards,\n[Your Name]'
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
@@ -166,14 +166,14 @@ export class InviteFriendsComponent implements OnInit {
 
   inviteViaSMS() {
     const message = encodeURIComponent(
-      'Hi! I think you\'d love Muslim Kids! Download it here: https://muslimkids.app/invite?ref=user123'
+      'Hi! I think you\'d love NouraFlow! Download it here: https://nouraflow.app/invite?ref=user123'
     );
     window.open(`sms:?body=${message}`);
     this.showSuccessAlert('SMS app opened. Please send the invitation.');
   }
 
   copyInviteLink() {
-    const inviteLink = 'https://muslimkids.app/invite?ref=user123';
+    const inviteLink = 'https://nouraflow.app/invite?ref=user123';
     
     if (navigator.clipboard) {
       navigator.clipboard.writeText(inviteLink).then(() => {

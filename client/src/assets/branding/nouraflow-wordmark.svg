@@ -6,7 +6,6 @@
       <stop offset="100%" stop-color="#db2777"/>
     </linearGradient>
   </defs>
-  <!-- Small mark + clean wordmark (two-tone, not per-letter rainbow) -->
   <g transform="translate(20 24) scale(0.42)">
     <path
       fill="url(#wm-mark-grad)"
@@ -23,7 +22,7 @@
     font-weight="700"
     letter-spacing="-0.5"
   >
-    <tspan fill="#0f766e">Muslim </tspan><tspan fill="#be185d">Kids</tspan>
+    <tspan fill="#0f766e">Noura</tspan><tspan fill="#be185d">Flow</tspan>
   </text>
   <path
     fill="none"
