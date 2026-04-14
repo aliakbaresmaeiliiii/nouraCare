@@ -14,7 +14,7 @@ ion-input-otp.custom {
 }
 
 .verify-page {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
   --color: #333;
 }
 
@@ -108,7 +108,7 @@ ion-input-otp.custom {
 
 .verify-subtitle {
   font-size: 0.95rem;
-  color: #6c757d;
+  color: #475569;
   margin: 0;
   font-weight: 400;
   line-height: 1.4;
@@ -130,7 +130,7 @@ ion-input-otp.custom {
   --border-radius: 15px;
   --border-width: 2px;
   --border-color: #e9ecef;
-  --border-color-focus: #667eea;
+  --border-color-focus: var(--ion-color-primary);
   --background: #fff;
   --color: #2c3e50;
   --font-size: 1.2rem;
@@ -142,8 +142,8 @@ ion-input-otp.custom {
 }
 
 .custom-otp:focus {
-  --border-color: #667eea;
-  --box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  --border-color: var(--ion-color-primary);
+  --box-shadow: 0 0 0 3px rgba(var(--flo-primary-rgb), 0.1);
   transform: translateY(-2px);
   transition: all 0.3s ease;
 }
@@ -153,17 +153,17 @@ ion-input-otp.custom {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: #6c757d;
+  color: #475569;
   font-size: 0.85rem;
   margin-top: 1rem;
   padding: 0.75rem;
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(var(--flo-primary-rgb), 0.1);
   border-radius: 10px;
-  border-left: 3px solid #667eea;
+  border-left: 3px solid var(--ion-color-primary);
 }
 
 .otp-hint ion-icon {
-  color: #667eea;
+  color: var(--ion-color-primary);
   font-size: 1rem;
 }
 
@@ -254,8 +254,8 @@ ion-input-otp.custom {
 }
 
 .resend-button {
-  --border-color: #667eea;
-  --color: #667eea;
+  --border-color: var(--ion-color-primary);
+  --color: var(--ion-color-primary);
   --border-radius: 15px;
   --padding-top: 1rem;
   --padding-bottom: 1rem;
@@ -264,14 +264,14 @@ ion-input-otp.custom {
 }
 
 .resend-button:hover {
-  --background: #667eea;
+  --background: var(--ion-color-primary-shade);
   --color: #fff;
   transform: translateY(-2px);
 }
 
 .resend-button:disabled {
-  --border-color: #6c757d;
-  --color: #6c757d;
+  --border-color: #475569;
+  --color: #475569;
   opacity: 0.6;
 }
 
@@ -279,9 +279,9 @@ ion-input-otp.custom {
 .help-section {
   margin-top: 2rem;
   padding: 1.5rem;
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(var(--flo-primary-rgb), 0.05);
   border-radius: 15px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(var(--flo-primary-rgb), 0.1);
 }
 
 .help-item {
@@ -305,7 +305,7 @@ ion-input-otp.custom {
 }
 
 .help-icon {
-  color: #667eea;
+  color: var(--ion-color-primary);
   font-size: 1.2rem;
   flex-shrink: 0;
 }
@@ -367,11 +367,11 @@ ion-input-otp.custom {
   }
   
   .verify-subtitle {
-    color: #adb5bd;
+    color: #64748b;
   }
   
   .otp-hint {
-    background: rgba(102, 126, 234, 0.2);
+    background: rgba(var(--flo-primary-rgb), 0.2);
     color: #dee2e6;
   }
   

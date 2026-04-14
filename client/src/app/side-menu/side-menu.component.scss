@@ -1,11 +1,11 @@
 // Custom Menu Styles
 .custom-menu {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --color: white;
+  --background: var(--app-gradient-header);
+  --color: var(--brand-text);
   --width: 320px;
   --max-width: 85vw;
-  --border-radius: 0 24px 24px 0;
-  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.15);
+  --border-radius: 0 var(--app-radius-lg) var(--app-radius-lg) 0;
+  box-shadow: 8px 0 28px rgba(var(--brand-text-rgb), 0.1);
   /* Let Ionic position/layer the menu. Forcing fixed + high z-index can block app interactions. */
   
   ion-menu::part(backdrop) {
@@ -14,7 +14,7 @@
   }
   
   ion-menu::part(container) {
-    border-radius: 0 24px 24px 0;
+    border-radius: 0 var(--app-radius-lg) var(--app-radius-lg) 0;
     height: 100%;
     margin-top: env(safe-area-inset-top, 0px);
     margin-bottom: env(safe-area-inset-bottom, 0px);
@@ -29,13 +29,13 @@
 // Profile Header
 .profile-header {
   --background: transparent;
-  --color: white;
+  --color: var(--brand-text);
   padding: 0;
 }
 
 .profile-toolbar {
   --background: transparent;
-  --color: white;
+  --color: var(--brand-text);
   padding: 20px 16px;
 }
 
@@ -46,17 +46,17 @@
   position: relative;
   cursor: pointer;
   padding: 8px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  border-radius: var(--app-radius-md);
+  transition: all var(--app-duration-fast) var(--app-ease-standard);
   
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(var(--brand-text-rgb), 0.06);
     transform: translateY(-1px);
   }
   
   &:active {
     transform: translateY(0);
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(var(--brand-text-rgb), 0.1);
   }
 }
 
@@ -68,7 +68,7 @@
 .profile-avatar {
   width: 60px;
   height: 60px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid rgba(var(--brand-text-rgb), 0.15);
   border-radius: 50%;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -87,7 +87,7 @@
   width: 16px;
   height: 16px;
   background: #4ade80;
-  border: 2px solid white;
+  border: 2px solid var(--brand-surface);
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -101,7 +101,7 @@
   margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 600;
-  color: white;
+  color: var(--brand-text);
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -117,7 +117,7 @@
 .progress-bar {
   width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(var(--brand-text-rgb), 0.1);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -131,13 +131,13 @@
 
 .progress-text {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(var(--brand-text-rgb), 0.65);
   font-weight: 500;
 }
 
 .edit-profile-btn {
-  --color: white;
-  --background: rgba(255, 255, 255, 0.1);
+  --color: var(--brand-text);
+  --background: rgba(var(--brand-text-rgb), 0.08);
   --border-radius: 50%;
   width: 36px;
   height: 36px;
@@ -145,14 +145,14 @@
   flex-shrink: 0;
   
   &:hover {
-    --background: rgba(255, 255, 255, 0.2);
+    --background: rgba(var(--brand-text-rgb), 0.12);
   }
 }
 
 // Menu Content
 .menu-content {
   --background: transparent;
-  --color: white;
+  --color: var(--brand-text);
   padding: 0;
 }
 
@@ -168,7 +168,7 @@
   margin: 0 0 16px 0;
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(var(--brand-text-rgb), 0.5);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -181,41 +181,41 @@
 
 .menu-item {
   --background: transparent;
-  --color: white;
-  --border-radius: 12px;
+  --color: var(--brand-text);
+  --border-radius: var(--app-radius-md);
   --padding-start: 12px;
   --padding-end: 12px;
   --min-height: 48px;
   margin: 0;
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  border-radius: var(--app-radius-md);
+  transition: all var(--app-duration-fast) var(--app-ease-standard);
   
   &:hover {
-    --background: rgba(255, 255, 255, 0.1);
+    --background: rgba(var(--brand-text-rgb), 0.06);
   }
   
   &.active {
-    --background: rgba(255, 255, 255, 0.15);
-    --color: white;
+    --background: rgba(var(--brand-text-rgb), 0.1);
+    --color: var(--brand-text);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 }
 
 .menu-icon {
   font-size: 20px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(var(--brand-text-rgb), 0.55);
   margin-right: 12px;
 }
 
 .menu-label {
   font-size: 15px;
   font-weight: 500;
-  color: white;
+  color: var(--brand-text);
 }
 
 .menu-badge {
-  --background: #ef4444;
-  --color: white;
+  --background: var(--brand-accent);
+  --color: var(--brand-text);
   font-size: 10px;
   font-weight: 600;
   padding: 2px 6px;
@@ -229,7 +229,7 @@
 
   .menu-icon,
   .menu-label {
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(var(--brand-text-rgb), 0.45);
   }
 }
 
@@ -238,7 +238,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(var(--brand-text-rgb), 0.45);
   white-space: nowrap;
   flex-shrink: 0;
   margin-inline-start: 8px;
@@ -247,7 +247,7 @@
 // Divider
 .menu-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(var(--brand-text-rgb), 0.12), transparent);
   margin: 8px 16px;
 }
 
@@ -264,17 +264,17 @@
 
 .social-btn {
   --background: transparent;
-  --color: white;
-  --border-radius: 12px;
+  --color: var(--brand-text);
+  --border-radius: var(--app-radius-md);
   --padding-start: 12px;
   --padding-end: 12px;
   --min-height: 44px;
   margin: 0;
-  border-radius: 12px;
-  transition: all 0.2s ease;
+  border-radius: var(--app-radius-md);
+  transition: all var(--app-duration-fast) var(--app-ease-standard);
   
   &:hover {
-    --background: rgba(255, 255, 255, 0.1);
+    --background: rgba(var(--brand-text-rgb), 0.06);
   }
   
   &.instagram:hover {
@@ -290,7 +290,7 @@
 .social-icon-badge {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--app-radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -336,31 +336,31 @@
 .app-version {
   padding: 16px;
   text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(var(--brand-text-rgb), 0.1);
   margin-top: auto;
 }
 
 .version-text {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(var(--brand-text-rgb), 0.5);
   font-weight: 400;
 }
 
 // Main Header
 .main-header {
-  --background: white;
-  --color: #1f2937;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --background: var(--brand-surface);
+  --color: var(--brand-text);
+  box-shadow: var(--app-shadow-soft);
 }
 
 .main-toolbar {
-  --background: white;
-  --color: #1f2937;
+  --background: var(--brand-surface);
+  --color: var(--brand-text);
   padding: 8px 16px;
 }
 
 .menu-button {
-  --color: #1f2937;
+  --color: var(--brand-text);
   --background: transparent;
   margin: 0;
   
@@ -372,11 +372,11 @@
 .main-title {
   font-size: 20px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--brand-text);
 }
 
 .notification-btn {
-  --color: #1f2937;
+  --color: var(--brand-text);
   --background: transparent;
   margin: 0;
   
@@ -466,7 +466,7 @@
 
 // Hover Effects
 .menu-item:hover .menu-icon {
-  color: white;
+  color: var(--brand-text);
   transform: scale(1.1);
   transition: all 0.2s ease;
 }
@@ -480,6 +480,6 @@
 .menu-item:focus-visible,
 .social-btn:focus-visible,
 .edit-profile-btn:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline: 2px solid rgba(var(--brand-primary-rgb), 0.55);
   outline-offset: 2px;
 }

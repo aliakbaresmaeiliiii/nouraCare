@@ -5,8 +5,8 @@
 }
 
 .consultation-content {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
+  background: var(--app-gradient-header);
   box-sizing: border-box;
   margin-top: 2.7rem;
   padding-bottom: var(--app-tab-fab-clearance, 72px);
@@ -335,7 +335,7 @@
     .appointment-icon {
       width: 50px;
       height: 50px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: var(--app-gradient-header);
       border-radius: 15px;
       display: flex;
       align-items: center;
@@ -1028,11 +1028,11 @@ ion-fab {
   }
   
   ion-button {
-    --background: linear-gradient(135deg, #667eea, #764ba2);
+    --background: var(--app-gradient-header);
     --color: white;
     --border-radius: 12px;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(var(--flo-primary-rgb), 0.3);
   }
 }
 

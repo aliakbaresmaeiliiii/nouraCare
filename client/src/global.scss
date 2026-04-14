@@ -15,10 +15,10 @@
 // Beautiful Typography System
 :root {
   // Font Families
-  --font-primary: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-secondary: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-primary: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-secondary: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-persian: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
-  --font-display: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
   // Font Weights
   --font-weight-light: 300;
@@ -32,7 +32,7 @@
   // Font Sizes
   --font-size-xs: 0.75rem;    // 12px
   --font-size-sm: 0.875rem;  // 14px
-  --font-size-base: 1rem;    // 16px
+  --font-size-base: 1.03rem; // ~16.5px
   --font-size-lg: 1.125rem;  // 18px
   --font-size-xl: 1.25rem;   // 20px
   --font-size-2xl: 1.5rem;   // 24px
@@ -43,16 +43,14 @@
   // Line Heights
   --line-height-tight: 1.25;
   --line-height-snug: 1.375;
-  --line-height-normal: 1.5;
+  --line-height-normal: 1.6;
   --line-height-relaxed: 1.625;
   --line-height-loose: 2;
 }
 
 // Global Font Application
-* {
+*:not(ion-icon) {
   font-family: var(--font-primary);
-  font-weight: var(--font-weight-normal);
-  line-height: var(--line-height-normal);
 }
 
 // Full viewport for Ionic / Capacitor (dynamic viewport avoids mobile browser chrome / 100vh bugs)
@@ -65,10 +63,23 @@ body {
 body {
   font-family: var(--font-primary);
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-normal);
+  font-weight: 450;
   line-height: var(--line-height-normal);
+  color: var(--flo-text, #374151);
+  background: var(--flo-bg, #fffdf7);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.005em;
+}
+
+:where(p, li, label, input, textarea, button, ion-label, ion-text) {
+  line-height: 1.62;
+  color: var(--brand-text);
+}
+
+:where(small, .muted, .text-muted, .subtitle, ion-note) {
+  color: var(--brand-text-secondary);
 }
 
 ion-app {
@@ -159,15 +170,125 @@ ion-button {
   letter-spacing: 0.025em;
 }
 
+/* Unified design system primitives (buttons, forms, cards, lists, modals) */
+ion-button {
+  --border-radius: var(--app-radius-md);
+  --box-shadow: 0 4px 14px rgba(var(--brand-primary-rgb), 0.2);
+  --padding-start: 16px;
+  --padding-end: 16px;
+  min-height: 44px;
+  transition: transform var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard),
+    opacity var(--app-duration-fast) var(--app-ease-standard);
+
+  &:not(.button-disabled):hover {
+    transform: translateY(-1px);
+    --box-shadow: 0 8px 18px rgba(var(--brand-primary-rgb), 0.26);
+  }
+
+  &:not(.button-disabled):active {
+    transform: translateY(0);
+  }
+}
+
+ion-button[fill='outline'] {
+  --border-width: 1px;
+  --border-color: rgba(var(--brand-primary-rgb), 0.35);
+  --color: var(--brand-primary);
+  --background: transparent;
+  --box-shadow: none;
+}
+
+ion-button[fill='clear'] {
+  --color: var(--brand-primary-dark);
+  --box-shadow: none;
+}
+
+ion-button.button-disabled,
+ion-button[disabled] {
+  --background: rgba(var(--brand-text-rgb), 0.14);
+  --color: rgba(var(--brand-text-rgb), 0.55);
+  --box-shadow: none;
+  opacity: 1;
+}
+
 // Input typography
 ion-input, ion-textarea {
   font-family: var(--font-primary);
   font-size: var(--font-size-base);
 }
 
+ion-input,
+ion-textarea,
+ion-select {
+  --background: var(--brand-surface);
+  --color: var(--brand-text);
+  --placeholder-color: var(--brand-text-secondary);
+  --border-radius: var(--app-radius-md);
+}
+
+ion-item {
+  --background: var(--brand-surface);
+  --border-radius: var(--app-radius-md);
+  --padding-start: 14px;
+  --inner-padding-end: 12px;
+  margin-bottom: 8px;
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.12);
+  box-shadow: 0 1px 8px rgba(var(--brand-text-rgb), 0.04);
+  transition: border-color var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard),
+    transform var(--app-duration-fast) var(--app-ease-standard);
+}
+
+ion-item.item-has-focus,
+ion-item.ion-focused {
+  border-color: rgba(var(--brand-primary-rgb), 0.4);
+  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.14);
+}
+
 // Card typography
 ion-card {
   font-family: var(--font-primary);
+  --background: var(--brand-surface);
+  border-radius: var(--app-radius-lg);
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.08);
+  box-shadow: var(--app-shadow-card);
+  transition: transform var(--app-duration-normal) var(--app-ease-standard),
+    box-shadow var(--app-duration-normal) var(--app-ease-standard);
+}
+
+ion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--app-shadow-card-hover);
+}
+
+ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+ion-modal {
+  --border-radius: var(--app-radius-lg);
+  --box-shadow: 0 20px 44px rgba(var(--brand-text-rgb), 0.12);
+}
+
+ion-modal::part(content) {
+  background: var(--brand-surface);
+}
+
+ion-toolbar {
+  --min-height: 56px;
+}
+
+ion-title {
+  color: var(--brand-text);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Accessible and consistent focus treatment */
+:where(button, a, ion-button, ion-item, ion-tab-button, ion-menu-button):focus-visible {
+  outline: 2px solid rgba(var(--brand-primary-rgb), 0.45);
+  outline-offset: 2px;
 }
 
 // Persian language specific fonts
@@ -227,6 +348,12 @@ ion-card {
   --safe-area-inset-right: env(safe-area-inset-right, 0px);
   /* Fixed FAB above bottom tab bar (single source; avoid stacking with ion-content padding) */
   --app-tab-fab-clearance: 72px;
+  --app-space-1: 4px;
+  --app-space-2: 8px;
+  --app-space-3: 12px;
+  --app-space-4: 16px;
+  --app-space-5: 20px;
+  --app-space-6: 24px;
 }
 
 /* Global Container System */
@@ -245,6 +372,47 @@ ion-card {
   padding: 0 var(--app-side-padding);
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Reusable page spacing and hierarchy helpers */
+.app-section {
+  margin-bottom: var(--app-space-6);
+}
+
+.app-section-title {
+  color: var(--brand-text);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--app-space-3);
+}
+
+.app-section-subtitle {
+  color: var(--brand-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--app-space-4);
+}
+
+.app-surface {
+  background: var(--brand-surface);
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.08);
+  border-radius: var(--app-radius-lg);
+  box-shadow: var(--app-shadow-card);
+}
+
+.app-list-item {
+  background: var(--brand-surface);
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
+  border-radius: var(--app-radius-md);
+  padding: var(--app-space-3) var(--app-space-4);
+  transition: transform var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard),
+    border-color var(--app-duration-fast) var(--app-ease-standard);
+}
+
+.app-list-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(var(--brand-primary-rgb), 0.2);
+  box-shadow: 0 8px 20px rgba(var(--brand-primary-rgb), 0.08);
 }
 
 /* Safe Area Insets for Modern Devices */
@@ -291,16 +459,16 @@ ion-card {
 .pregnancy-results-modal {
   --height: auto;
   --max-height: 90dvh;
-  --border-radius: 20px 20px 0 0;
+  --border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
   --backdrop-opacity: 0.4;
   
   ion-modal {
     --height: auto;
     --max-height: 90dvh;
-    --border-radius: 20px 20px 0 0;
+    --border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
     
     &::part(content) {
-      border-radius: 20px 20px 0 0;
+      border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
       overflow: hidden;
     }
   }
@@ -330,7 +498,7 @@ ion-card {
         height: auto;
         max-height: 90dvh;
         min-height: 50dvh;
-        border-radius: 20px 20px 0 0;
+        border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
         transform: translateY(100%);
         transition: transform 0.3s ease-out;
       }
@@ -385,6 +553,18 @@ ion-card {
       background: var(--ion-color-primary-shade);
     }
   }
+}
+
+/* Shared modal backdrop and card-like dialogs */
+ion-modal::part(backdrop) {
+  background: rgba(var(--brand-text-rgb), 0.22);
+  backdrop-filter: blur(3px);
+}
+
+ion-alert,
+ion-action-sheet {
+  --background: var(--brand-surface);
+  --color: var(--brand-text);
 }
 
 /* Enhanced Button Styles */
@@ -447,6 +627,19 @@ ion-card {
 }
 ion-item {
   --transition: background-color 200ms ease, transform 200ms ease;
+}
+
+ion-label {
+  color: var(--brand-text);
+}
+
+ion-label p,
+ion-note {
+  color: var(--brand-text-secondary);
+}
+
+ion-icon {
+  color: inherit;
 }
 
 /* Minimum 44×44pt touch targets (Apple HIG); Ionic buttons often need explicit min size on mobile */

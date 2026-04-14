@@ -52,7 +52,7 @@
   color: #64748b;
 
   ion-spinner {
-    --color: #667eea;
+    --color: var(--ion-color-primary);
     margin-bottom: 1rem;
   }
 
@@ -95,7 +95,7 @@
     }
 
     ion-button {
-      --background: linear-gradient(135deg, #667eea, #764ba2);
+      --background: var(--app-gradient-header);
       --border-radius: 16px;
       font-weight: 600;
     }
@@ -248,7 +248,7 @@
   .content-paragraph {
     font-size: 1.1rem;
     line-height: 1.7;
-    color: #374151;
+    color: #0f172a;
     margin: 0 0 1.5rem 0;
     text-align: justify;
   }
@@ -267,7 +267,7 @@
       bottom: -0.5rem;
       width: 40px;
       height: 3px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: var(--app-gradient-header);
       border-radius: 2px;
     }
   }
@@ -277,7 +277,7 @@
 
     .list-intro {
       font-size: 1.1rem;
-      color: #374151;
+      color: #0f172a;
       margin: 0 0 1rem 0;
       font-weight: 500;
     }
@@ -292,7 +292,7 @@
         padding: 0.75rem 0 0.75rem 2rem;
         font-size: 1rem;
         line-height: 1.6;
-        color: #374151;
+        color: #0f172a;
         border-bottom: 1px solid #f1f5f9;
 
         &:last-child {
@@ -306,7 +306,7 @@
           top: 1.2rem;
           width: 8px;
           height: 8px;
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: var(--app-gradient-header);
           border-radius: 50%;
         }
 
@@ -391,7 +391,7 @@
         transition: all 0.3s ease;
 
         &:hover {
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: var(--app-gradient-header);
           color: white;
           transform: translateY(-2px);
         }
@@ -414,15 +414,15 @@
     }
 
     .share-action-btn {
-      --border-color: #667eea;
-      --color: #667eea;
+      --border-color: var(--ion-color-primary);
+      --color: var(--ion-color-primary);
       --border-radius: 16px;
       --padding-top: 16px;
       --padding-bottom: 16px;
       font-weight: 600;
 
       &:hover {
-        --background: #667eea;
+        --background: var(--ion-color-primary-shade);
         --color: white;
       }
     }
@@ -453,14 +453,14 @@
 
         &:hover {
           background: #e2e8f0;
-          border-color: #667eea;
+          border-color: var(--ion-color-primary);
           transform: translateY(-2px);
         }
 
         .related-image {
           width: 48px;
           height: 48px;
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: var(--app-gradient-header);
           border-radius: 12px;
           display: flex;
           align-items: center;

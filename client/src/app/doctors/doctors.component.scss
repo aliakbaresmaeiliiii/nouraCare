@@ -1,7 +1,7 @@
 // Modern Doctors Page Styles
 .doctors-content {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
+  background: var(--app-gradient-header);
   min-height: 100dvh;
   position: relative;
 }
@@ -323,7 +323,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    background: var(--app-gradient-ribbon);
     opacity: 0;
     transition: opacity 0.3s ease;
   }
@@ -352,7 +352,7 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(var(--flo-primary-rgb), 0.1) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -385,7 +385,7 @@
         height: 78px;
         border: 2px solid transparent;
         border-radius: 50%;
-        background: linear-gradient(45deg, #667eea, #764ba2) border-box;
+        background: var(--app-gradient-header-45) border-box;
         mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
         mask-composite: exclude;
         transition: transform 0.3s ease;
@@ -485,14 +485,14 @@
         .rating-number {
           font-size: 14px;
           font-weight: 600;
-          color: #666;
+          color: #334155;
         }
       }
     }
     
     .doctor-specialty {
       font-size: 16px;
-      color: #667eea;
+      color: var(--ion-color-primary);
       font-weight: 600;
       margin: 0 0 16px 0;
     }
@@ -509,12 +509,12 @@
         
         ion-icon {
           font-size: 16px;
-          color: #999;
+          color: #475569;
         }
         
         span {
           font-size: 14px;
-          color: #666;
+          color: #334155;
           font-weight: 500;
         }
       }
@@ -523,7 +523,7 @@
     .doctor-description {
       p {
         font-size: 14px;
-        color: #666;
+        color: #334155;
         line-height: 1.5;
         margin: 0;
       }
@@ -537,9 +537,9 @@
     align-items: center;
     margin-bottom: 24px;
     padding: 16px 20px;
-    background: rgba(102, 126, 234, 0.05);
+    background: rgba(var(--flo-primary-rgb), 0.05);
     border-radius: 16px;
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(var(--flo-primary-rgb), 0.1);
     
     .price-container {
       .price {
@@ -550,7 +550,7 @@
       
       .price-label {
         font-size: 12px;
-        color: #999;
+        color: #475569;
         font-weight: 500;
       }
     }
@@ -579,7 +579,7 @@
   // Action Section
   .action-section {
     .book-btn {
-      --background: linear-gradient(45deg, #667eea, #764ba2);
+      --background: var(--app-gradient-header-45);
       --color: white;
       --border-radius: 16px;
       --padding-top: 16px;
@@ -587,12 +587,12 @@
       font-weight: 600;
       font-size: 16px;
       margin-bottom: 16px;
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 8px 20px rgba(var(--flo-primary-rgb), 0.3);
       
       &:hover {
         --background: linear-gradient(45deg, #5a6fd8, #6a42a0);
         transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 12px 24px rgba(var(--flo-primary-rgb), 0.4);
       }
     }
     
@@ -602,15 +602,15 @@
       gap: 12px;
       
       .secondary-btn {
-        --background: rgba(102, 126, 234, 0.1);
-        --color: #667eea;
+        --background: rgba(var(--flo-primary-rgb), 0.1);
+        --color: var(--ion-color-primary);
         --border-radius: 12px;
         width: 48px;
         height: 48px;
         transition: all 0.3s ease;
         
         &:hover {
-          --background: rgba(102, 126, 234, 0.2);
+          --background: rgba(var(--flo-primary-rgb), 0.2);
           transform: translateY(-2px);
         }
         

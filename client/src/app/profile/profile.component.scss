@@ -8,13 +8,13 @@
 
 // Header Styles - Beautiful Gradient Design
 .profile-header {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
   --border-width: 0;
   --min-height: 60px;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 20px rgba(var(--flo-primary-rgb), 0.3);
   
   .header-title {
-    color: white;
+    color: #1e293b;
     font-weight: 700;
     font-size: 22px;
     letter-spacing: -0.3px;
@@ -23,8 +23,8 @@
   
   .back-button,
   .share-button {
-    color: white;
-    --color-hover: rgba(255, 255, 255, 0.8);
+    color: #1e293b;
+    --color-hover: rgba(30, 41, 59, 0.8);
     
     ion-icon {
       font-size: 24px;
@@ -49,12 +49,12 @@
 .hero-section {
   position: relative;
   padding: 2rem 1.5rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--app-gradient-header);
   border-radius: 0 0 32px 32px;
   overflow: hidden;
   margin-bottom: 1rem;
   text-align: center;
-  color: white;
+  color: #1e293b;
 
   .hero-background {
     position: absolute;
@@ -245,7 +245,7 @@
     .progress-percentage {
       font-size: 18px;
       font-weight: 700;
-      color: #667eea;
+      color: var(--ion-color-primary);
     }
   }
   
@@ -261,7 +261,7 @@
     
     .progress-fill {
       height: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--app-gradient-header);
       border-radius: 4px;
       transition: width 0.5s ease;
     }
@@ -287,13 +287,13 @@
     --padding-top: 18px;
     --padding-bottom: 18px;
     --background: white;
-    --color: #667eea;
+    --color: var(--ion-color-primary);
     font-weight: 700;
     font-size: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     
     ion-icon {
-      color: #667eea;
+      color: var(--ion-color-primary);
     }
   }
 
@@ -337,7 +337,7 @@
       .summary-icon {
         width: 48px;
         height: 48px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--app-gradient-header);
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -381,7 +381,7 @@
           display: block;
           font-size: 24px;
           font-weight: 700;
-          color: #667eea;
+          color: var(--ion-color-primary);
           margin-bottom: 4px;
         }
 
@@ -397,7 +397,7 @@
 
     .summary-actions {
       .summary-action-btn {
-        --color: #667eea;
+        --color: var(--ion-color-primary);
         font-weight: 600;
         font-size: 14px;
 
@@ -451,7 +451,7 @@
     .field-icon {
       width: 48px;
       height: 48px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--app-gradient-header);
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -519,7 +519,7 @@
       
       .segment-btn {
         --background-checked: white;
-        --color-checked: #667eea;
+        --color-checked: var(--ion-color-primary);
         --border-radius: 8px;
         min-height: 44px;
         font-weight: 600;
@@ -569,8 +569,8 @@
       
       .empty-action-btn {
         --border-radius: 12px;
-        --border-color: #667eea;
-        --color: #667eea;
+        --border-color: var(--ion-color-primary);
+        --color: var(--ion-color-primary);
         font-weight: 600;
       }
     }
@@ -596,11 +596,11 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--app-gradient-header);
     border-radius: 16px;
-    color: white;
+    color: #1e293b;
     margin-bottom: 20px;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 8px 32px rgba(var(--flo-primary-rgb), 0.15);
     border: 1px solid rgba(255, 255, 255, 0.1);
 
     .status-content {
@@ -620,7 +620,7 @@
 
         ion-icon {
           font-size: 24px;
-          color: white;
+          color: #1e293b;
         }
       }
 
@@ -643,8 +643,8 @@
 
     ion-button {
       --background: rgba(255, 255, 255, 0.2);
-      --color: white;
-      --border-color: rgba(255, 255, 255, 0.3);
+      --color: #1e293b;
+      --border-color: rgba(30, 41, 59, 0.3);
       --border-radius: 20px;
       --padding-start: 16px;
       --padding-end: 16px;
@@ -695,7 +695,7 @@
         ion-datetime-button {
           --padding-start: 0;
           font-weight: 500;
-          --color: #667eea;
+          --color: var(--ion-color-primary);
         }
 
         ion-select {
@@ -709,12 +709,12 @@
       --border-radius: 14px;
       --padding-top: 18px;
       --padding-bottom: 18px;
-      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --background: var(--app-gradient-header);
       margin-bottom: 16px;
       font-weight: 700;
       font-size: 16px;
       letter-spacing: -0.1px;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 16px rgba(var(--flo-primary-rgb), 0.3);
     }
 
     .calendar-btn {
@@ -722,8 +722,8 @@
       --padding-top: 18px;
       --padding-bottom: 18px;
       --border-width: 2px;
-      --border-color: #667eea;
-      --color: #667eea;
+      --border-color: var(--ion-color-primary);
+      --color: var(--ion-color-primary);
       font-weight: 600;
       font-size: 16px;
       letter-spacing: -0.1px;
@@ -732,7 +732,7 @@
 
   // Current Info Section - Modern Design
   .current-info {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--app-gradient-accent-warm);
     border-radius: 16px;
     padding: 20px;
     margin-top: 16px;
@@ -785,7 +785,7 @@
 // Focus States
 ion-button:focus-visible,
 ion-item:focus-visible {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--ion-color-primary);
   outline-offset: 2px;
   border-radius: 8px;
 }

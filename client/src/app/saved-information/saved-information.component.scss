@@ -1,5 +1,5 @@
 .saved-header {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
   --color: white;
   
   .back-button {
@@ -50,8 +50,8 @@
     
     .category-button {
       --color: #64748b;
-      --color-checked: #667eea;
-      --indicator-color: #667eea;
+      --color-checked: var(--ion-color-primary);
+      --indicator-color: var(--ion-color-primary);
       --border-radius: 8px;
       min-height: 48px;
       
@@ -81,7 +81,7 @@
     width: 48px;
     height: 48px;
     margin-bottom: 16px;
-    --color: #667eea;
+    --color: var(--ion-color-primary);
   }
   
   .loading-text {
@@ -114,8 +114,8 @@
   }
   
   .retry-button {
-    --color: #667eea;
-    --border-color: #667eea;
+    --color: var(--ion-color-primary);
+    --border-color: var(--ion-color-primary);
     --border-width: 2px;
     font-weight: 500;
   }
@@ -151,8 +151,8 @@
   }
   
   .browse-button {
-    --color: #667eea;
-    --border-color: #667eea;
+    --color: var(--ion-color-primary);
+    --border-color: var(--ion-color-primary);
     --border-width: 2px;
     font-weight: 500;
   }
@@ -230,7 +230,7 @@
           padding: 4px 8px;
           
           .type-icon {
-            color: #667eea;
+            color: var(--ion-color-primary);
             font-size: 14px;
           }
         }

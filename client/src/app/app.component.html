@@ -1,3 +1,21 @@
 <ion-app>
+  @if (showStartupWelcome) {
+    <div class="startup-welcome" aria-live="polite">
+      <div class="startup-welcome__bg-image" aria-hidden="true"></div>
+      <div class="startup-welcome__card">
+        <div class="startup-welcome__icon-wrap">
+          <img
+            class="startup-welcome__icon"
+            src="assets/branding/download.png"
+            alt="App icon"
+            width="128"
+            height="128"
+          />
+        </div>
+        <h1 class="startup-welcome__title">Welcome to your pregnancy companion</h1>
+        <p class="startup-welcome__subtitle">A calm space for your pregnancy journey</p>
+      </div>
+    </div>
+  }
   <ion-router-outlet></ion-router-outlet>
 </ion-app>

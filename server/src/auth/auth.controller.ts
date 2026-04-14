@@ -12,6 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 import { AuthService } from './auth.service';
 
@@ -49,6 +50,12 @@ export class AuthController {
 
     const result = await this.authService.login(email);
     return ApiResponseHelper.success(result, 'Login successful');
+  }
+
+  @Post('social-login')
+  async socialLogin(@Body() socialLoginDto: SocialLoginDto) {
+    const result = await this.authService.socialLogin(socialLoginDto);
+    return ApiResponseHelper.success(result, 'Social login successful');
   }
 
   @Post('refresh')

@@ -18,10 +18,10 @@
 
 // Header Styles - Matching Profile Page Design
 .profile-header {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
   --border-width: 0;
   --min-height: 60px;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 20px rgba(var(--flo-primary-rgb), 0.3);
   
   .header-title {
     color: white;
@@ -37,7 +37,7 @@
   margin-top: 3.5rem;
   position: relative;
   padding: 2rem 1.5rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--app-gradient-header);
   border-radius: 0 0 32px 32px;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -197,7 +197,7 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   
   .card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--app-gradient-header);
     padding: 20px;
     display: flex;
     align-items: center;
@@ -263,7 +263,7 @@
   }
   
   .datetime-button {
-    --color: #667eea;
+    --color: var(--ion-color-primary);
     font-weight: 600;
   }
   
@@ -273,7 +273,7 @@
   }
 
   .date-button {
-    --background: #667eea;
+    --background: var(--ion-color-primary-shade);
     --color: white;
     --border-radius: 8px;
     font-size: 14px;
@@ -302,12 +302,12 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--app-gradient-header);
       color: white;
       padding: 12px 20px;
       border-radius: 20px;
       font-weight: 600;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 16px rgba(var(--flo-primary-rgb), 0.3);
       
       .current-status-icon {
         font-size: 18px;
@@ -336,13 +336,13 @@
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        border-color: var(--status-color, #667eea);
+        border-color: var(--status-color, var(--ion-color-primary));
       }
       
       &.selected {
-        border-color: var(--status-color, #667eea);
-        background: linear-gradient(135deg, rgba(var(--status-color-rgb, 102, 126, 234), 0.05) 0%, rgba(var(--status-color-rgb, 102, 126, 234), 0.02) 100%);
-        box-shadow: 0 8px 32px rgba(var(--status-color-rgb, 102, 126, 234), 0.15);
+        border-color: var(--status-color, var(--ion-color-primary));
+        background: linear-gradient(135deg, rgba(var(--status-color-rgb, 236, 97, 139), 0.05) 0%, rgba(var(--status-color-rgb, 236, 97, 139), 0.02) 100%);
+        box-shadow: 0 8px 32px rgba(var(--status-color-rgb, 236, 97, 139), 0.15);
         
         &::before {
           content: '';
@@ -351,7 +351,7 @@
           left: 0;
           right: 0;
           height: 3px;
-          background: linear-gradient(90deg, var(--status-color, #667eea) 0%, rgba(var(--status-color-rgb, 102, 126, 234), 0.8) 100%);
+          background: linear-gradient(90deg, var(--status-color, var(--ion-color-primary)) 0%, rgba(var(--status-color-rgb, 236, 97, 139), 0.8) 100%);
         }
       }
       
@@ -364,7 +364,7 @@
           width: 48px;
           height: 48px;
           border-radius: 12px;
-          background: linear-gradient(135deg, var(--status-color, #667eea) 0%, rgba(var(--status-color-rgb, 102, 126, 234), 0.8) 100%);
+          background: linear-gradient(135deg, var(--status-color, var(--ion-color-primary)) 0%, rgba(var(--status-color-rgb, 236, 97, 139), 0.8) 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -398,7 +398,7 @@
         .status-checkmark {
           .checkmark-icon {
             font-size: 24px;
-            color: var(--status-color, #667eea);
+            color: var(--status-color, var(--ion-color-primary));
           }
         }
       }
@@ -412,7 +412,7 @@
   padding: 24px;
   
   .city-button {
-    --color: #667eea;
+    --color: var(--ion-color-primary);
     font-weight: 600;
     text-transform: none;
     --border-radius: 12px;
@@ -434,18 +434,18 @@
     margin-top: 20px;
     
     .location-button {
-      --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --background: var(--app-gradient-header);
       --color: white;
       --border-radius: 12px;
       font-weight: 600;
       width: 100%;
       --padding-top: 18px;
       --padding-bottom: 18px;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 16px rgba(var(--flo-primary-rgb), 0.3);
       
       &:hover {
         transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 6px 20px rgba(var(--flo-primary-rgb), 0.4);
       }
     }
   }
@@ -690,16 +690,16 @@
     --border-radius: 14px;
     --padding-top: 18px;
     --padding-bottom: 18px;
-    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --background: var(--app-gradient-header);
     --color: white;
     font-weight: 700;
     font-size: 16px;
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 16px rgba(var(--flo-primary-rgb), 0.3);
     width: 100%;
     
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 20px rgba(var(--flo-primary-rgb), 0.4);
     }
   }
 }
@@ -718,13 +718,13 @@ ion-modal::part(backdrop) {
 }
 
 ion-modal ion-toolbar {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
   --color: white;
 }
 
 // Date Picker Modal Styling - Modern Design
 .picker-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--app-gradient-header);
   border-radius: 20px 20px 0 0;
   padding: 0;
   
@@ -799,13 +799,13 @@ ion-modal ion-toolbar {
       font-weight: 500;
       
       &:hover {
-        background: #667eea;
+        background: var(--ion-color-primary-shade);
         color: white;
       }
     }
     
     &::part(month-year) {
-      background: #667eea;
+      background: var(--ion-color-primary-shade);
       color: white;
       border-radius: 8px;
       font-weight: 600;
@@ -860,8 +860,8 @@ ion-modal ion-toolbar {
       
       .zoom-range {
         --bar-background: #e2e8f0;
-        --bar-background-active: #667eea;
-        --knob-background: #667eea;
+        --bar-background-active: var(--ion-color-primary);
+        --knob-background: var(--ion-color-primary-shade);
         --knob-size: 20px;
         --bar-height: 6px;
         --bar-border-radius: 3px;
@@ -900,7 +900,7 @@ ion-modal ion-toolbar {
 // Focus States
 ion-button:focus-visible,
 ion-item:focus-visible {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--ion-color-primary);
   outline-offset: 2px;
   border-radius: 8px;
 }

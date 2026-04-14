@@ -83,6 +83,59 @@ export class AuthService {
   }
 
   /**
+   * Social login (Google / Apple)
+   */
+  socialLogin(
+    provider: 'google' | 'apple',
+    email: string,
+    fullName?: string,
+  ): Observable<TokenResponse> {
+    const payload: {
+      provider: 'google' | 'apple';
+      email: string;
+      fullName?: string;
+    } = { provider, email };
+    if (fullName?.trim()) {
+      payload.fullName = fullName.trim();
+    }
+
+    return this.http
+      .post<TokenResponse>(`${this.baseUrl}/social-login`, payload)
+      .pipe(
+        tap((response: TokenResponse) => {
+          this.handleTokenResponse(response);
+        }),
+      );
+  }
+
+  /**
+   * Normalize user info payload from social login response
+   */
+  setUserInfoFromSocialResponse(response: TokenResponse): void {
+    if (response?.data?.accessToken) {
+      this.handleTokenResponse(response);
+    }
+
+    const user = response?.data?.user;
+    if (!user) {
+      return;
+    }
+
+    this.setUserInfo({
+      id: user.id,
+      email: user.email,
+      phone: user.phone ?? '',
+      name: user['name'],
+      profileImage: user['profileImage'],
+      isVerified: user.isVerified,
+      status: user['status'],
+      city: user['city'],
+      birthday: user['birthday'],
+      createdAt: user['createdAt'],
+    } as User);
+  }
+
+  /**
    * Handle successful token response
    */
   private handleTokenResponse(response: TokenResponse): void {

@@ -1,2 +1,143 @@
-// For information on how to create your own theme, please see:
-// http://ionicframework.com/docs/theming/
+// Brand design tokens — calm premium and readable.
+// https://ionicframework.com/docs/theming/
+
+:root {
+  /* Brand */
+  --brand-primary: #6366f1;
+  --brand-primary-rgb: 99, 102, 241;
+  --brand-primary-dark: #4f46e5;
+  --brand-primary-dark-rgb: 79, 70, 229;
+  --brand-secondary: #14b8a6;
+  --brand-secondary-rgb: 20, 184, 166;
+  --brand-accent: #f59e0b;
+  --brand-accent-rgb: 245, 158, 11;
+
+  /* Surfaces and text */
+  --brand-bg: #f8fafc;
+  --brand-bg-rgb: 248, 250, 252;
+  --brand-surface: #ffffff;
+  --brand-surface-rgb: 255, 255, 255;
+  --brand-text: #0f172a;
+  --brand-text-rgb: 15, 23, 42;
+  --brand-text-secondary: #334155;
+  --brand-text-secondary-rgb: 51, 65, 85;
+
+  /* Legacy alias compatibility */
+  --flo-primary: var(--brand-primary);
+  --flo-primary-rgb: var(--brand-primary-rgb);
+  --flo-dark: var(--brand-primary-dark);
+  --flo-dark-rgb: var(--brand-primary-dark-rgb);
+  --flo-light: var(--brand-secondary);
+  --flo-light-rgb: var(--brand-secondary-rgb);
+  --flo-bg: var(--brand-bg);
+  --flo-surface: var(--brand-surface);
+  --flo-text: var(--brand-text);
+  --flo-text-rgb: var(--brand-text-rgb);
+  --flo-text-secondary: var(--brand-text-secondary);
+  --flo-text-secondary-rgb: var(--brand-text-secondary-rgb);
+
+  /* Gradients — subtle and calm */
+  --app-gradient-soft: linear-gradient(135deg, #eef2ff 0%, #dbeafe 100%);
+  --app-gradient-header: linear-gradient(135deg, #eef2ff 0%, #dbeafe 52%, #ccfbf1 100%);
+  --app-gradient-header-45: linear-gradient(45deg, #e0e7ff, #ccfbf1);
+  --app-gradient-header-90: linear-gradient(90deg, #eef2ff, #dbeafe);
+  --app-gradient-ribbon: linear-gradient(90deg, #e0e7ff, #bfdbfe, #ccfbf1);
+  --app-gradient-fade: linear-gradient(90deg, #dbeafe, transparent);
+  --app-gradient-accent-warm: linear-gradient(135deg, #fef3c7 0%, #ffedd5 100%);
+
+  /* Radius and shadows */
+  --app-radius-sm: 8px;
+  --app-radius-md: 12px;
+  --app-radius-lg: 16px;
+  --app-shadow-card: 0 6px 24px rgba(var(--brand-text-rgb), 0.05);
+  --app-shadow-card-hover: 0 10px 30px rgba(var(--brand-text-rgb), 0.08);
+  --app-shadow-header: 0 2px 14px rgba(var(--brand-text-rgb), 0.06);
+  --app-shadow-soft: 0 2px 12px rgba(var(--brand-text-rgb), 0.06);
+
+  /* Motion */
+  --app-duration-fast: 180ms;
+  --app-duration-normal: 240ms;
+  --app-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /** Ionic */
+  --ion-color-primary: #6366f1;
+  --ion-color-primary-rgb: 99, 102, 241;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #4f46e5;
+  --ion-color-primary-tint: #818cf8;
+
+  --ion-color-secondary: #14b8a6;
+  --ion-color-secondary-rgb: 20, 184, 166;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #0f9f90;
+  --ion-color-secondary-tint: #2ec4b4;
+
+  --ion-color-tertiary: #f59e0b;
+  --ion-color-tertiary-rgb: 245, 158, 11;
+  --ion-color-tertiary-contrast: #0f172a;
+  --ion-color-tertiary-contrast-rgb: 15, 23, 42;
+  --ion-color-tertiary-shade: #d88b0a;
+  --ion-color-tertiary-tint: #f6aa23;
+
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  --ion-color-warning: #f59e0b;
+  --ion-color-warning-rgb: 245, 158, 11;
+  --ion-color-warning-contrast: #0f172a;
+  --ion-color-warning-contrast-rgb: 15, 23, 42;
+  --ion-color-warning-shade: #d88b0a;
+  --ion-color-warning-tint: #f6aa23;
+
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
+
+  --ion-color-dark: #0f172a;
+  --ion-color-dark-rgb: 15, 23, 42;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #0d1424;
+  --ion-color-dark-tint: #1f2937;
+
+  --ion-color-medium: #334155;
+  --ion-color-medium-rgb: 51, 65, 85;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #2b3444;
+  --ion-color-medium-tint: #475569;
+
+  --ion-color-light: #f8fafc;
+  --ion-color-light-rgb: 248, 250, 252;
+  --ion-color-light-contrast: #0f172a;
+  --ion-color-light-contrast-rgb: 15, 23, 42;
+  --ion-color-light-shade: #dadee1;
+  --ion-color-light-tint: #f9fbfd;
+
+  --ion-background-color: #f8fafc;
+  --ion-background-color-rgb: 248, 250, 252;
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+  --ion-toolbar-background: var(--brand-surface);
+  --ion-toolbar-color: var(--brand-text);
+  --ion-item-background: var(--brand-surface);
+  --ion-card-background: var(--brand-surface);
+}
+
+ion-content {
+  --background: var(--ion-background-color);
+}
+
+ion-card {
+  --background: var(--brand-surface);
+  box-shadow: var(--app-shadow-card);
+}

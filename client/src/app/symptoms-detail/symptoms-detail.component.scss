@@ -15,7 +15,7 @@
   
   .loading-icon {
     font-size: 3rem;
-    color: #667eea;
+    color: var(--ion-color-primary);
     margin-bottom: 1rem;
     animation: spin 1s linear infinite;
   }
@@ -67,7 +67,7 @@
   text-align: center;
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--app-gradient-header);
   border-radius: 20px;
   color: white;
   
@@ -105,7 +105,7 @@
       
       .card-icon {
         font-size: 1.3rem;
-        color: #667eea;
+        color: var(--ion-color-primary);
       }
     }
   }
@@ -131,7 +131,7 @@
         }
         
         .mood-icon {
-          color: #667eea;
+          color: var(--ion-color-primary);
         }
         
         .energy-icon {
@@ -179,7 +179,7 @@
       
       .card-icon {
         font-size: 1.3rem;
-        color: #667eea;
+        color: var(--ion-color-primary);
       }
     }
   }
@@ -215,8 +215,8 @@
           
           .symptom-icon {
             font-size: 1.5rem;
-            color: #667eea;
-            filter: drop-shadow(0 2px 4px rgba(102, 126, 234, 0.2));
+            color: var(--ion-color-primary);
+            filter: drop-shadow(0 2px 4px rgba(var(--flo-primary-rgb), 0.2));
           }
           
           .symptom-details {
@@ -325,7 +325,7 @@
       
       .card-icon {
         font-size: 1.3rem;
-        color: #667eea;
+        color: var(--ion-color-primary);
       }
     }
   }

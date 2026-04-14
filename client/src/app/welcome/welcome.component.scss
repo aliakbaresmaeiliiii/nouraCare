@@ -57,8 +57,8 @@
   height: 100%;
   background: linear-gradient(
     135deg,
-    rgba(102, 126, 234, 0.8) 0%,
-    rgba(118, 75, 162, 0.8) 100%
+    rgba(var(--flo-primary-rgb), 0.8) 0%,
+    rgba(var(--flo-primary-rgb), 0.78) 100%
   );
   display: flex;
   align-items: center;
@@ -200,7 +200,7 @@
 
 .section-subtitle {
   font-size: 1rem;
-  color: #6c757d;
+  color: #475569;
   margin: 0;
   font-weight: 400;
 }
@@ -336,7 +336,7 @@
 }
 
 .test-login-form p {
-  color: #6c757d;
+  color: #475569;
   margin-bottom: 1.5rem;
   line-height: 1.5;
 }
@@ -367,7 +367,7 @@
   border-radius: 12px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #6c757d;
+  color: #475569;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -382,9 +382,9 @@
 }
 
 .tab-button.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--app-gradient-header);
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(var(--flo-primary-rgb), 0.4);
   transform: translateY(-2px);
 }
 
@@ -410,7 +410,7 @@
 
 .form-subtitle {
   font-size: 1rem;
-  color: #6c757d;
+  color: #475569;
   margin: 0;
   font-weight: 400;
 }
@@ -436,7 +436,7 @@
 }
 
 .label-icon {
-  color: #667eea;
+  color: var(--ion-color-primary);
   font-size: 1.1rem;
 }
 
@@ -453,27 +453,27 @@
 
 .form-input:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--ion-color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--flo-primary-rgb), 0.1);
   transform: translateY(-1px);
 }
 
 .submit-button {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
   --background-hover: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
   --background-activated: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
   --border-radius: 15px;
   --padding-top: 1rem;
   --padding-bottom: 1rem;
   --font-weight: 600;
-  --box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  --box-shadow: 0 4px 15px rgba(var(--flo-primary-rgb), 0.4);
   margin-top: 1rem;
   transition: all 0.3s ease;
 }
 
 .submit-button:hover {
   transform: translateY(-2px);
-  --box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  --box-shadow: 0 6px 20px rgba(var(--flo-primary-rgb), 0.5);
 }
 
 .submit-button.register {
@@ -503,7 +503,7 @@
   }
   
   .section-subtitle {
-    color: #adb5bd;
+    color: #64748b;
   }
   
   .test-login-form {
@@ -516,7 +516,7 @@
   }
   
   .test-login-form p {
-    color: #adb5bd;
+    color: #64748b;
   }
 
   .inline-login-form {
@@ -529,7 +529,7 @@
   }
   
   .form-subtitle {
-    color: #adb5bd;
+    color: #64748b;
   }
   
   .form-label {
@@ -538,12 +538,12 @@
   
   .form-input {
     background: #495057;
-    border-color: #6c757d;
+    border-color: #475569;
     color: #fff;
   }
   
   .form-input:focus {
-    border-color: #667eea;
+    border-color: var(--ion-color-primary);
   }
   
   .tab-container {
@@ -551,7 +551,7 @@
   }
   
   .tab-button {
-    color: #adb5bd;
+    color: #64748b;
   }
   
   .tab-button:hover {
@@ -588,7 +588,7 @@
 }
 
 .forgot-link {
-  color: #667eea;
+  color: var(--ion-color-primary);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
@@ -602,13 +602,13 @@
 
 .terms-text {
   font-size: 0.8rem;
-  color: #6c757d;
+  color: #475569;
   line-height: 1.4;
   margin: 0;
 }
 
 .terms-link {
-  color: #667eea;
+  color: var(--ion-color-primary);
   text-decoration: none;
   font-weight: 500;
 }

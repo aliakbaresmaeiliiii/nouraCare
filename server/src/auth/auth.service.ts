@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma/services/prisma.service';
 import { RefreshTokenService } from './refresh-token.service';
 import { randomUUID } from 'crypto';
 import { RegisterDto } from './dto/register.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 import SendMail from '../helper/send_email';
 import { EmailProvider } from './config/email';
 import { OnboardingService as UserOnboardingService } from '../users/onboarding.service';
@@ -225,6 +226,89 @@ export class AuthService {
 
     return {
       user: data,
+      ...tokens,
+    };
+  }
+
+  async socialLogin(socialLoginDto: SocialLoginDto) {
+    const email = socialLoginDto.email?.trim().toLowerCase();
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+
+    let user = await this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        phoneNumber: true,
+        fullName: true,
+        role: true,
+        status: true,
+        isVerified: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    // Create user if this is first social login.
+    if (!user) {
+      const displayName =
+        socialLoginDto.fullName?.trim() ||
+        email.split('@')[0]?.replace(/[._-]/g, ' ') ||
+        'User';
+      const uniquePhone = `${socialLoginDto.provider}_${randomUUID().replace(/-/g, '').slice(0, 20)}`;
+
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          fullName: displayName,
+          phoneNumber: uniquePhone,
+          isVerified: true,
+          updatedAt: new Date(),
+        },
+        select: {
+          id: true,
+          email: true,
+          phoneNumber: true,
+          fullName: true,
+          role: true,
+          status: true,
+          isVerified: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    } else if (!user.isVerified) {
+      // Existing account can be promoted to verified via trusted social auth flow.
+      user = await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          isVerified: true,
+          emailVerificationCode: null,
+          emailVerificationCodeExpires: null,
+        },
+        select: {
+          id: true,
+          email: true,
+          phoneNumber: true,
+          fullName: true,
+          role: true,
+          status: true,
+          isVerified: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    }
+
+    if (user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Account is not active');
+    }
+
+    const tokens = await this.generateTokens(user.id, user.email);
+    return {
+      user,
       ...tokens,
     };
   }

@@ -32,6 +32,7 @@ import {
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  isSocialLoading = false;
   onboardingData = signal<OnboardingDataDto | null>(null);
   onboardingService = inject(OnboardingService);
   activeTab: 'login' | 'register' = 'login';
@@ -237,6 +238,81 @@ export class LoginComponent {
 
   onLogin() {
     this.loginClick$.next();
+  }
+
+  onSocialLogin(provider: 'google' | 'apple') {
+    if (this.isSocialLoading || this.isLoading) {
+      return;
+    }
+
+    const activeForm = this.activeTab === 'login' ? this.loginForm : this.registerForm;
+    const formEmail = (activeForm.value.email || '').trim();
+    const promptEmail = this.requestSocialEmail(provider);
+    const email = (promptEmail || formEmail).trim();
+
+    if (!email || !this.isValidEmail(email)) {
+      this.message = 'A valid email is required for social login.';
+      this.success = false;
+      this.showToast = true;
+      return;
+    }
+
+    this.isSocialLoading = true;
+    this.cdr.detectChanges();
+
+    this.service
+      .socialLogin(provider, email)
+      .pipe(
+        finalize(() => {
+          this.isSocialLoading = false;
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          this.message = `${provider === 'google' ? 'Google' : 'Apple'} login successful!`;
+          this.success = true;
+          this.showToast = true;
+
+          if (res?.data?.accessToken) {
+            this.service.setUserInfoFromSocialResponse(res);
+          }
+
+          const isEmailVerified = !!res?.data?.user?.isVerified;
+          if (!isEmailVerified) {
+            this.router.navigate(['/auth/verify-email']);
+          } else {
+            this.router.navigate(['/tabs/home']);
+          }
+        },
+        error: (err) => {
+          this.message =
+            err?.error?.message ||
+            `${provider === 'google' ? 'Google' : 'Apple'} login is currently unavailable.`;
+          this.success = false;
+          this.showToast = true;
+        },
+      });
+  }
+
+  private requestSocialEmail(provider: 'google' | 'apple'): string {
+    const activeForm = this.activeTab === 'login' ? this.loginForm : this.registerForm;
+    const existingEmail = (activeForm.value.email || '').trim();
+    if (this.isValidEmail(existingEmail)) {
+      return existingEmail;
+    }
+
+    const providerName = provider === 'google' ? 'Google' : 'Apple';
+    return (
+      window.prompt(
+        `Enter your ${providerName} account email:`,
+        '',
+      ) || ''
+    ).trim();
+  }
+
+  private isValidEmail(email: string): boolean {
+    return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
   resolved(captchaResponse: any) {
     // console.log(`Captcha resolved with response: ${captchaResponse}`);

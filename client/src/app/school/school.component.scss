@@ -5,15 +5,15 @@
 }
 
 .baby-development-content {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
+  background: var(--app-gradient-header);
   box-sizing: border-box;
   padding-bottom: 12px;
 }
 
 .not-pregnant-content {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: var(--app-gradient-header);
+  background: var(--app-gradient-header);
   box-sizing: border-box;
   min-height: 100%;
   display: flex;

@@ -17,7 +17,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #666;
+      color: #334155;
       transition: all 0.2s ease;
       
       &:hover {
@@ -100,7 +100,7 @@
       
       p {
         font-size: 16px;
-        color: #666;
+        color: #334155;
         margin: 0;
         font-weight: 500;
       }
@@ -168,7 +168,7 @@
           display: flex;
           justify-content: space-between;
           font-size: 12px;
-          color: #666;
+          color: #334155;
           font-weight: 500;
         }
       }
@@ -232,7 +232,7 @@
             
             p {
               font-size: 14px;
-              color: #666;
+              color: #334155;
               margin: 0;
               line-height: 1.4;
             }
@@ -287,7 +287,7 @@
           h4 {
             font-size: 14px;
             font-weight: 600;
-            color: #666;
+            color: #334155;
             margin: 0 0 8px 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -303,7 +303,7 @@
           
           .info-subtitle {
             font-size: 12px;
-            color: #999;
+            color: #475569;
             font-weight: 500;
           }
         }
@@ -482,7 +482,7 @@
         position: relative;
         z-index: 2;
         font-size: 20px;
-        color: #666;
+        color: #334155;
         margin-top: 2px;
         flex-shrink: 0;
       }
@@ -491,7 +491,7 @@
         position: relative;
         z-index: 2;
         font-size: 13px;
-        color: #666;
+        color: #334155;
         margin: 0;
         line-height: 1.4;
       }

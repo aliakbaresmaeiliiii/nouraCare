@@ -15,7 +15,7 @@
     padding: 0 0.5rem;
 
     .nav-button {
-      --color: #666;
+      --color: #334155;
       --color-hover: #333;
       --padding-start: 8px;
       --padding-end: 8px;
@@ -40,7 +40,7 @@
 
       .year-name {
         font-size: 1rem;
-        color: #666;
+        color: #334155;
         margin: 0;
         font-weight: 500;
       }
@@ -59,7 +59,7 @@
       text-align: center;
       font-size: 0.875rem;
       font-weight: 600;
-      color: #666;
+      color: #334155;
       padding: 0.5rem 0;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -117,8 +117,8 @@
 
         // Today styling
         &.today {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-color: #667eea;
+          background: var(--app-gradient-header);
+          border-color: var(--ion-color-primary);
           transform: scale(1.1);
 
           .day-number {
@@ -228,7 +228,7 @@
       align-items: center;
       gap: 0.5rem;
       font-size: 0.75rem;
-      color: #666;
+      color: #334155;
 
       .legend-indicator {
         width: 8px;
@@ -424,12 +424,12 @@
 
 // Focus states for accessibility
 .calendar-day:focus {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--ion-color-primary);
   outline-offset: 2px;
 }
 
 .nav-button:focus {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--ion-color-primary);
   outline-offset: 2px;
   border-radius: 8px;
 }

@@ -102,6 +102,36 @@
           {{ isLoading ? 'Signing In...' : 'Sign In' }}
         </ion-button>
 
+        <div class="social-divider">
+          <span>or continue with</span>
+        </div>
+
+        <div class="social-buttons">
+          <ion-button
+            type="button"
+            fill="outline"
+            class="social-button google"
+            [disabled]="isLoading || isSocialLoading"
+            (click)="onSocialLogin('google')"
+            expand="block"
+          >
+            <ion-icon name="logo-google" slot="start"></ion-icon>
+            Continue with Google
+          </ion-button>
+
+          <ion-button
+            type="button"
+            fill="outline"
+            class="social-button apple"
+            [disabled]="isLoading || isSocialLoading"
+            (click)="onSocialLogin('apple')"
+            expand="block"
+          >
+            <ion-icon name="logo-apple" slot="start"></ion-icon>
+            Continue with Apple
+          </ion-button>
+        </div>
+
         <div class="form-footer">
           <a href="#" class="forgot-link">Forgot Password?</a>
         </div>
@@ -172,6 +202,36 @@
           }
           {{ isLoading ? 'Creating Account...' : 'Create Account' }}
         </ion-button>
+
+        <div class="social-divider">
+          <span>or sign up with</span>
+        </div>
+
+        <div class="social-buttons">
+          <ion-button
+            type="button"
+            fill="outline"
+            class="social-button google"
+            [disabled]="isLoading || isSocialLoading"
+            (click)="onSocialLogin('google')"
+            expand="block"
+          >
+            <ion-icon name="logo-google" slot="start"></ion-icon>
+            Continue with Google
+          </ion-button>
+
+          <ion-button
+            type="button"
+            fill="outline"
+            class="social-button apple"
+            [disabled]="isLoading || isSocialLoading"
+            (click)="onSocialLogin('apple')"
+            expand="block"
+          >
+            <ion-icon name="logo-apple" slot="start"></ion-icon>
+            Continue with Apple
+          </ion-button>
+        </div>
 
         <div class="form-footer">
           <p class="terms-text">

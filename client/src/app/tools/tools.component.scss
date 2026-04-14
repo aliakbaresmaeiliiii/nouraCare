@@ -6,7 +6,7 @@
 
 // Hero Section
 .tools-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--app-gradient-header);
   padding: 3rem 1.5rem 2rem;
   text-align: center;
   color: white;
@@ -104,7 +104,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--app-gradient-header);
     transform: scaleX(0);
     transition: transform 0.3s ease;
   }
@@ -112,7 +112,7 @@
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-    border-color: #667eea;
+    border-color: var(--ion-color-primary);
     
     &::before {
       transform: scaleX(1);
@@ -120,7 +120,7 @@
   }
   
   &.primary {
-    border-color: #667eea;
+    border-color: var(--ion-color-primary);
     
     &::before {
       transform: scaleX(1);
@@ -131,7 +131,7 @@
     width: 60px;
     height: 60px;
     margin: 0 auto 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--app-gradient-header);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -165,7 +165,7 @@
   }
   
   .tool-action {
-    --color: #667eea;
+    --color: var(--ion-color-primary);
     font-weight: 500;
     margin: 0 auto;
     display: block;
@@ -203,7 +203,7 @@
     &:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-      border-color: #667eea;
+      border-color: var(--ion-color-primary);
     }
     
     .progress-icon {
@@ -268,16 +268,16 @@
 // Floating Action Button
 ion-fab {
   ion-fab-button {
-    --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --background: var(--app-gradient-header);
     --color: white;
     --border-radius: 50%;
     width: 56px;
     height: 56px;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 20px rgba(var(--flo-primary-rgb), 0.4);
     
     &:hover {
       transform: scale(1.1);
-      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+      box-shadow: 0 6px 25px rgba(var(--flo-primary-rgb), 0.5);
     }
   }
 }
@@ -334,7 +334,7 @@ ion-fab {
     }
     
     .tool-description {
-      color: #a0a0a0;
+      color: #64748b;
     }
   }
   
@@ -344,7 +344,7 @@ ion-fab {
     }
     
     .section-subtitle {
-      color: #a0a0a0;
+      color: #64748b;
     }
   }
 }
@@ -377,7 +377,7 @@ ion-fab {
 }
 
 .tool-card:hover .tool-title {
-  color: #667eea;
+  color: var(--ion-color-primary);
   transition: color 0.3s ease;
 }
 

@@ -80,7 +80,7 @@ export class CreateDiscussionModalComponent implements OnInit {
       id: 'support',
       name: 'Emotional Support',
       icon: 'people',
-      color: '#667eea',
+      color: '#a7f3d0',
       description: 'Mental health and emotional wellbeing'
     },
     {

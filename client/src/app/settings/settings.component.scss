@@ -8,7 +8,7 @@
 // Beautiful Header
 .settings-header {
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--app-gradient-header);
   padding: 2rem 1.5rem 1.5rem;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -95,7 +95,7 @@
 
     ion-icon {
       font-size: 4rem;
-      color: #667eea;
+      color: var(--ion-color-primary);
     }
 
     .avatar-badge {
@@ -155,7 +155,7 @@
   }
 
   .edit-profile-btn {
-    --color: #667eea;
+    --color: var(--ion-color-primary);
     padding: 0.5rem;
     
     ion-icon {
@@ -205,11 +205,11 @@
       margin: 0 auto 0.5rem;
 
       &.profile-icon {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: var(--app-gradient-header);
       }
 
       &.language-icon {
-        background: linear-gradient(135deg, #f093fb, #f5576c);
+        background: var(--app-gradient-accent-warm);
       }
 
       &.security-icon {
@@ -229,7 +229,7 @@
     .action-label {
       font-size: 0.75rem;
       font-weight: 600;
-      color: #374151;
+      color: #0f172a;
     }
   }
 }
@@ -258,7 +258,7 @@
     .group-decoration {
       flex: 1;
       height: 2px;
-      background: linear-gradient(90deg, #667eea, transparent);
+      background: var(--app-gradient-fade);
       border-radius: 1px;
     }
   }
@@ -306,7 +306,7 @@
     justify-content: center;
 
     &.icon-profile {
-      background: linear-gradient(135deg, #667eea, #764ba2);
+      background: var(--app-gradient-header);
     }
 
     &.icon-privacy {
@@ -318,7 +318,7 @@
     }
 
     &.icon-language {
-      background: linear-gradient(135deg, #f093fb, #f5576c);
+      background: var(--app-gradient-accent-warm);
     }
 
     &.icon-theme {
@@ -388,7 +388,7 @@
   .card-action {
     .beautiful-toggle {
       --background: #e5e7eb;
-      --background-checked: #667eea;
+      --background-checked: var(--ion-color-primary-shade);
       --handle-background: white;
       --handle-background-checked: white;
     }
@@ -417,7 +417,7 @@
 
     &:hover {
       --background: #f9fafb;
-      --color: #374151;
+      --color: #0f172a;
     }
 
     ion-icon {
@@ -444,7 +444,7 @@
     text-align: center;
 
     ion-spinner {
-      --color: #667eea;
+      --color: var(--ion-color-primary);
       width: 2rem;
       height: 2rem;
     }
@@ -488,7 +488,7 @@
     }
 
     ion-button {
-      --background: #667eea;
+      --background: var(--ion-color-primary-shade);
       --color: white;
       --border-radius: 0.75rem;
       height: 2.5rem;
