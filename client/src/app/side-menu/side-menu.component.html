@@ -35,15 +35,23 @@
       <h4 class="section-title">{{ 'menu.mainMenu' | translate }}</h4>
       <div class="menu-items">
         @for (item of menuItemsTop; track $index) {
-        <ion-menu-toggle>
-          <ion-item class="menu-item" [class.active]="activeIndexTop === $index" button (click)="setActiveTop($index)">
-            <ion-icon [name]="item.icon" slot="start" class="menu-icon"></ion-icon>
-            <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
-            @if (item.badge) {
-            <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
-            }
-          </ion-item>
-        </ion-menu-toggle>
+          @if (item.disabled) {
+            <ion-item class="menu-item menu-item--disabled" disabled="true" lines="none">
+              <ion-icon [name]="item.icon" slot="start" class="menu-icon"></ion-icon>
+              <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
+              <span slot="end" class="menu-soon">{{ 'menu.comingSoon' | translate }}</span>
+            </ion-item>
+          } @else {
+            <ion-menu-toggle>
+              <ion-item class="menu-item" [class.active]="activeIndexTop === $index" button (click)="setActiveTop($index)">
+                <ion-icon [name]="item.icon" slot="start" class="menu-icon"></ion-icon>
+                <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
+                @if (item.badge) {
+                  <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
+                }
+              </ion-item>
+            </ion-menu-toggle>
+          }
         }
       </div>
     </div>

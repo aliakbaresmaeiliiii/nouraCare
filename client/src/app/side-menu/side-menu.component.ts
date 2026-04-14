@@ -13,6 +13,8 @@ interface MenuItem {
   icon: string;
   label: string;
   badge?: string;
+  /** When true, row is non-interactive and shows the “coming soon” hint. */
+  disabled?: boolean;
 }
 
 @Component({
@@ -44,12 +46,12 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
 
   menuItemsTop: MenuItem[] = [
     { icon: 'diamond-outline', label: 'menu.muslimKidsPro', badge: 'PRO' },
-    { icon: 'bag-outline', label: 'menu.myPurchases' },
+    { icon: 'bag-outline', label: 'menu.myPurchases', disabled: true },
     { icon: 'heart-outline', label: 'menu.myFavorites' },
     { icon: 'bookmark-outline', label: 'menu.savedInformation' },
     { icon: 'people-outline', label: 'menu.myFriends' },
     { icon: 'chatbubbles-outline', label: 'menu.forums' },
-    { icon: 'ban-outline', label: 'menu.blockedUsers' },
+    { icon: 'ban-outline', label: 'menu.blockedUsers', disabled: true },
   ];
 
   menuItemsBottom: MenuItem[] = [
@@ -66,16 +68,15 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   }
 
   async setActiveTop(index: number) {
-    this.activeIndexTop = index;
-    
-    // Get the menu item
     const item = this.menuItemsTop[index];
-    
+    if (item.disabled) {
+      return;
+    }
+    this.activeIndexTop = index;
+
     // Add navigation logic for specific menu items
     if (item.label === 'menu.myFavorites') {
       await this.router.navigate(['/my-favorites']);
-    } else if (item.label === 'menu.blockedUsers') {
-      await this.router.navigate(['/blocked-users']);
     } else if (item.label === 'menu.savedInformation') {
       await this.router.navigate(['/saved-information']);
     } else if (item.label === 'menu.myFriends') {
