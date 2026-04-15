@@ -289,7 +289,7 @@ export const routes: Routes = [
 
   {
     path: '',
-    redirectTo: 'onboarding',
+    redirectTo: 'welcome',
     pathMatch: 'full',
   },
 ];

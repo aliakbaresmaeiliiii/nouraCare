@@ -47,7 +47,10 @@ export class HomeReproductiveUiService {
     if (this.cycleSettings.isPregnant() || this.cycleSettings.isPostpartum()) {
       return false;
     }
-    if (state.userStatus && state.userStatus !== 'Not Set') {
+    // Keep onboarding visible until user has an actual cycle start date.
+    // Status may get auto-populated from APIs shortly after load.
+    const hasPeriodStartDate = !!this.cycleSettings.lastPeriodStartDate();
+    if (hasPeriodStartDate) {
       return false;
     }
     return true;

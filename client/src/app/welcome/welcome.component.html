@@ -15,7 +15,7 @@
         <div class="slide-overlay">
           <div class="slide-content">
             <div class="slide-icon">
-              <ion-icon name="heart" class="heart-icon"></ion-icon>
+              <img src="assets/branding/AppIcon-welcome.png" alt="NouraCare app icon" class="welcome-brand-icon" />
             </div>
             <h1 class="slide-title">{{ 'welcome.title' | translate }}</h1>
             <p class="slide-subtitle">{{ 'welcome.subtitle' | translate }}</p>
@@ -43,7 +43,7 @@
         <div class="slide-overlay">
           <div class="slide-content">
             <div class="slide-icon">
-              <ion-icon name="people" class="heart-icon"></ion-icon>
+              <img src="assets/branding/AppIcon-welcome-transparent.png" alt="NouraCare app icon" class="welcome-brand-icon" />
             </div>
             <h1 class="slide-title">{{ 'welcome.expertSupport' | translate }}</h1>
             <p class="slide-subtitle">{{ 'welcome.guidanceCare' | translate }}</p>
@@ -71,7 +71,7 @@
         <div class="slide-overlay">
           <div class="slide-content">
             <div class="slide-icon">
-              <ion-icon name="construct" class="heart-icon"></ion-icon>
+              <img src="assets/branding/AppIcon-welcome-transparent.png" alt="NouraCare app icon" class="welcome-brand-icon" />
             </div>
             <h1 class="slide-title">{{ 'welcome.smartTools' | translate }}</h1>
             <p class="slide-subtitle">{{ 'welcome.trackJourney' | translate }}</p>
@@ -113,82 +113,7 @@
         <h2 class="section-title">{{ 'welcome.joinTitle' | translate }}</h2>
         <p class="section-subtitle">{{ 'welcome.joinSubtitle' | translate }}</p>
       </div>
-
-      <!-- Login Component -->
-      <!-- <app-login></app-login> -->
-
-      <!-- Temporary Inline Login Form for Testing -->
-      <div class="inline-login-form">
-        <div class="tab-container">
-          <button type="button" (click)="activeTab = 'login'" [class.active]="activeTab === 'login'" class="tab-button">
-            <ion-icon name="log-in-outline"></ion-icon>
-            {{ 'auth.signIn' | translate }}
-          </button>
-          <button type="button" (click)="activeTab = 'register'" [class.active]="activeTab === 'register'"
-            class="tab-button">
-            <ion-icon name="person-add-outline"></ion-icon>
-            {{ 'auth.signUp' | translate }}
-          </button>
-        </div>
-
-        <!-- Login Form -->
-        @if (activeTab === 'login') {
-        <div class="form-container">
-          <div class="form-header">
-            <h2 class="form-title">{{ 'welcome.welcomeBack' | translate }}</h2>
-            <p class="form-subtitle">{{ 'welcome.continueJourney' | translate }}</p>
-          </div>
-
-          <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
-            <div class="form-group">
-              <label class="form-label">
-                <ion-icon name="mail-outline" class="label-icon"></ion-icon>
-                {{ 'welcome.emailAddress' | translate }}
-              </label>
-              <input type="email" formControlName="email" [placeholder]="'welcome.enterEmail' | translate"
-                class="form-input" [class.error]="isFieldInvalid(loginForm, 'email')" />
-              @if (isFieldInvalid(loginForm, 'email')) {
-              <div class="error-message">
-                <ion-icon name="alert-circle-outline"></ion-icon>
-                {{ getFieldError(loginForm, 'email') }}
-              </div>
-              }
-            </div>
-
-            <!-- <div class="form-group">
-              <label class="form-label">
-                <ion-icon name="lock-closed-outline" class="label-icon"></ion-icon>
-                Password
-              </label>
-              <input
-                type="password"
-                formControlName="password"
-                placeholder="Enter your password"
-                class="form-input"
-                [class.error]="isFieldInvalid(loginForm, 'password')"
-              />
-              @if (isFieldInvalid(loginForm, 'password')) {
-                <div class="error-message">
-                  <ion-icon name="alert-circle-outline"></ion-icon>
-                  {{ getFieldError(loginForm, 'password') }}
-                </div>
-              }
-            </div> -->
-
-            <ion-button type="submit" class="submit-button" [disabled]="loginForm.invalid" expand="block">
-              <ion-icon name="log-in-outline" slot="start"></ion-icon>
-              {{ 'auth.signIn' | translate }}
-            </ion-button>
-
-            <div class="form-footer">
-              <a href="#" class="forgot-link">{{ 'welcome.forgotPassword' | translate }}</a>
-            </div>
-          </form>
-        </div>
-        }
-
-      
-      </div>
+      <app-login></app-login>
 
     </div>
   </div>
