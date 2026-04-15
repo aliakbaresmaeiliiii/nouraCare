@@ -96,8 +96,8 @@
       
       <!-- Welcome Page -->
       <trans-unit id="welcome.title" datatype="html">
-        <source>Welcome to NouraFlow</source>
-        <target>Selamat Datang ke NouraFlow</target>
+        <source>Welcome to NouraCare</source>
+        <target>Selamat Datang ke NouraCare</target>
       </trans-unit>
       <trans-unit id="welcome.subtitle" datatype="html">
         <source>Your Pregnancy Companion</source>
@@ -108,8 +108,8 @@
         <target>Mula</target>
       </trans-unit>
       <trans-unit id="welcome.joinTitle" datatype="html">
-        <source>Join NouraFlow</source>
-        <target>Sertai NouraFlow</target>
+        <source>Join NouraCare</source>
+        <target>Sertai NouraCare</target>
       </trans-unit>
       <trans-unit id="welcome.joinSubtitle" datatype="html">
         <source>Start your pregnancy journey today</source>

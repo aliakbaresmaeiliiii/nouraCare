@@ -1,6 +1,6 @@
 {
 
-  "name": "nouraflow-app",
+  "name": "nouracare-app",
 
   "type": "module",
 
@@ -89,6 +89,8 @@
     "@capacitor/share": "^8.0.1",
 
     "@capacitor/status-bar": "^8.0.1",
+
+    "@capgo/capacitor-social-login": "^8.3.13",
 
     "@ionic/angular": "^8.8.1",
 
@@ -188,7 +190,7 @@
 
   },
 
-  "description": "NouraFlow is a family-friendly app built with Ionic and Angular.",
+  "description": "NouraCare is a family-friendly app built with Ionic and Angular.",
 
   "keywords": [
 
@@ -196,7 +198,7 @@
 
     "angular",
 
-    "nouraflow",
+    "nouracare",
 
     "islamic",
 

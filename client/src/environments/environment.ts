@@ -20,4 +20,10 @@ export const environment = {
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',
   mapboxToken:
     'pk.eyJ1Ijoic2FtYW5laGJhc21lY2hpIiwiYSI6ImNrb3p0MHZsZDEzNnIydXFnb2ZzMHRkcXUifQ.5U7YQXoqKOsIMuIJR6OVgA',
+
+  /** OAuth 2.0 Web client ID (Google Cloud Console). Same as GIS `client_id` for Sign In With Google. */
+  googleWebClientId:
+    '1088321651982-l914r5o4bj5c73cua6qdcg0ttjnd8hbh.apps.googleusercontent.com',
+  /** iOS OAuth client ID; only needed for native iOS builds. */
+  googleIOSClientId: '',
 };

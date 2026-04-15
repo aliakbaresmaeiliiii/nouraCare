@@ -11,16 +11,17 @@ import sharp from 'sharp';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientRoot = path.join(__dirname, '..');
 const branding = path.join(clientRoot, 'src/assets/branding');
-const launcherPngPath = path.join(branding, 'download.png');
-const wordmarkSvgPath = path.join(branding, 'nouraflow-wordmark.svg');
-const splashNameSvgPath = path.join(branding, 'nouraflow-splash-name.svg');
+const launcherIconPath = path.join(branding, 'nouracare-icon.svg');
+const wordmarkSvgPath = path.join(branding, 'nouracare-wordmark.svg');
+const splashNameSvgPath = path.join(branding, 'nouracare-splash-name.svg');
 const resRoot = path.join(clientRoot, 'android/app/src/main/res');
 
 /**
- * Scale factor > 1 zooms in slightly so the subject fills the squircle after
- * OEM masking (portrait art reads larger on the home screen).
+ * Clean icon style:
+ * - soft palette background
+ * - centered icon with padding (not edge-to-edge crop)
  */
-const LAUNCHER_COVER_ZOOM = 1.08;
+const ICON_INSET_RATIO = 0.06;
 
 const DENSITIES = [
   { folder: 'mipmap-mdpi', legacy: 48, foreground: 108 },
@@ -30,34 +31,36 @@ const DENSITIES = [
   { folder: 'mipmap-xxxhdpi', legacy: 192, foreground: 432 },
 ];
 
-async function renderCoverSquare(pngPath, outSize, outPath) {
-  const z = LAUNCHER_COVER_ZOOM;
-  const inner = Math.ceil(outSize * z);
-  const resized = await sharp(pngPath)
-    .resize(inner, inner, {
-      fit: 'cover',
-      position: 'centre',
+async function renderCleanSquare(pngPath, outSize, outPath) {
+  const inset = Math.round(outSize * ICON_INSET_RATIO);
+  const iconSize = outSize - inset * 2;
+  const icon = await sharp(pngPath)
+    .resize(iconSize, iconSize, {
+      fit: 'contain',
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
     .png()
     .toBuffer();
 
-  await sharp(resized)
-    .extract({
-      left: Math.floor((inner - outSize) / 2),
-      top: Math.floor((inner - outSize) / 2),
+  await sharp({
+    create: {
       width: outSize,
       height: outSize,
-    })
+      channels: 4,
+      background: { r: 248, g: 250, b: 252, alpha: 1 },
+    },
+  })
+    .composite([{ input: icon, gravity: 'center' }])
     .png()
     .toFile(outPath);
 }
 
 async function renderLegacy(size, pngPath, outPath) {
-  await renderCoverSquare(pngPath, size, outPath);
+  await renderCleanSquare(pngPath, size, outPath);
 }
 
 async function renderForeground(size, pngPath, outPath) {
-  await renderCoverSquare(pngPath, size, outPath);
+  await renderCleanSquare(pngPath, size, outPath);
 }
 
 async function renderSplashWordmark(outPath) {
@@ -99,7 +102,7 @@ async function renderSplashAppName(outPath) {
 }
 
 async function main() {
-  for (const p of [launcherPngPath, wordmarkSvgPath, splashNameSvgPath]) {
+  for (const p of [launcherIconPath, wordmarkSvgPath, splashNameSvgPath]) {
     if (!fs.existsSync(p)) {
       console.error('Missing asset:', p);
       process.exit(1);
@@ -120,10 +123,10 @@ async function main() {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    await renderLegacy(legacy, launcherPngPath, path.join(dir, 'ic_launcher.png'));
-    await renderLegacy(legacy, launcherPngPath, path.join(dir, 'ic_launcher_round.png'));
-    await renderForeground(foreground, launcherPngPath, path.join(dir, 'ic_launcher_foreground.png'));
-    console.log(folder, '→', legacy, '/', foreground, '(download.png cover)');
+    await renderLegacy(legacy, launcherIconPath, path.join(dir, 'ic_launcher.png'));
+    await renderLegacy(legacy, launcherIconPath, path.join(dir, 'ic_launcher_round.png'));
+    await renderForeground(foreground, launcherIconPath, path.join(dir, 'ic_launcher_foreground.png'));
+    console.log(folder, '→', legacy, '/', foreground, '(nouracare-icon.svg clean)');
   }
 
   await renderSplashWordmark(path.join(drawableNodpi, 'splash_full.png'));

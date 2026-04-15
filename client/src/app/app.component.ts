@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnDestroy, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
@@ -21,7 +21,10 @@ import {
   styleUrl: 'app.component.scss',
   imports: [...SHARED_STANDALONE_IMPORTS],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
+  private splashTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private splashForceHideTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  showStartupWelcome = true;
   private userInfoService = inject(UserInfoService);
   private onboardingStateService = inject(OnboardingStateService);
   private router = inject(Router);
@@ -41,11 +44,45 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.handleInitialRouting();
+    // Always schedule welcome dismissal first so it never blocks app startup.
+    this.splashTimeoutId = setTimeout(() => {
+      this.dismissStartupWelcome();
+    }, 1200);
+    // Fallback hide for slower Android WebViews / startup errors.
+    this.splashForceHideTimeoutId = setTimeout(() => {
+      this.dismissStartupWelcome(true);
+    }, 2600);
+    try {
+      this.handleInitialRouting();
+    } catch {
+      // Keep app usable even if startup routing throws.
+      this.dismissStartupWelcome(true);
+    }
     if (Capacitor.isNativePlatform()) {
       void Keyboard.setResizeMode({ mode: KeyboardResize.Ionic }).catch(() => {
         /* optional plugin */
       });
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.splashTimeoutId) {
+      clearTimeout(this.splashTimeoutId);
+      this.splashTimeoutId = null;
+    }
+    if (this.splashForceHideTimeoutId) {
+      clearTimeout(this.splashForceHideTimeoutId);
+      this.splashForceHideTimeoutId = null;
+    }
+  }
+
+  dismissStartupWelcome(forceDomHide = false): void {
+    this.showStartupWelcome = false;
+    if (forceDomHide && typeof document !== 'undefined') {
+      const overlay = document.querySelector('.startup-welcome') as HTMLElement | null;
+      if (overlay) {
+        overlay.style.display = 'none';
+      }
     }
   }
 

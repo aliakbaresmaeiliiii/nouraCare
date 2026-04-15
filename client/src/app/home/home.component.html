@@ -7,7 +7,7 @@
   </ion-refresher>
 <div class="home-content" [class.home-content--pregnancy-today]="isPregnant">
   <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
-  @if (!isPregnant) {
+  @if (!isPregnant && !showStartTrackingOnboarding() && userStatus !== 'Trying to Conceive') {
     <div class="welcome-hero ">
       <div class="hero-background">
         <div class="floating-bubble bubble-1"></div>
@@ -104,44 +104,67 @@
     </div>
   }
 
-  <!-- Period Chart Section (Enhanced) -->
+  <!-- Cycle overview card layout (matches compact reference UI) -->
   @if (!isPregnant && !isPostpartum && userStatus === 'Trying to Conceive') {
-    <div class="dashboard-section">
-    <div class="section-header">
-      <h2 class="section-title">Your Cycle Overview</h2>
-      <p class="section-subtitle">Track your cycle and patterns</p>
-    </div>
-
-    <div class="cycle-dashboard">
-      <div class="cycle-chart-container">
-        <app-circle-period-chart #periodChart></app-circle-period-chart>
+    <div class="cycle-compact-section">
+      <div class="cycle-hello-card">
+        <div class="cycle-hello-copy">
+          <h2 class="cycle-hello-title">Hello, {{ getCycleWelcomeName() }}</h2>
+          <p class="cycle-hello-subtitle">How are you feeling today?</p>
+        </div>
+        <button type="button" class="cycle-hello-fav" aria-label="Favorites">
+          <ion-icon name="heart-outline"></ion-icon>
+        </button>
       </div>
 
-      <!-- Cycle Insights -->
-      @if (currentCycleDay > 0) {
-        <div class="cycle-insights">
-        <div class="insight-card primary-insight">
-          <div class="insight-icon">
-            <ion-icon name="calendar-number"></ion-icon>
+      <div class="cycle-compact-card">
+        <div class="cycle-compact-header">
+          <h3 class="cycle-compact-title">Current Cycle</h3>
+          <span class="cycle-day-pill">Day {{ getCycleDisplayDay() }}</span>
+        </div>
+
+        <div class="cycle-progress-row">
+          <div class="cycle-progress-track">
+            <div
+              class="cycle-progress-fill"
+              [style.width.%]="getCycleProgressPercent()"
+            ></div>
           </div>
-          <div class="insight-content">
-            <h3 class="insight-title">Day {{ currentCycleDay }}</h3>
-            <p class="insight-description">{{ getCycleDayStatus() }}</p>
+          <span class="cycle-progress-label">{{ getCycleDisplayDay() }}/{{ currentCycleLength }}</span>
+        </div>
+
+        <div class="cycle-metrics-grid">
+          <div class="cycle-metric-card">
+            <div class="cycle-metric-icon cycle-metric-icon--mint">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <p class="cycle-metric-label">Next Period</p>
+            <p class="cycle-metric-value">{{ getNextPeriodInDays() }} days</p>
+          </div>
+
+          <div class="cycle-metric-card">
+            <div class="cycle-metric-icon cycle-metric-icon--pink">
+              <ion-icon name="pulse-outline"></ion-icon>
+            </div>
+            <p class="cycle-metric-label">Fertile Window</p>
+            <p class="cycle-metric-value">{{ getFertileWindowDays() }} days</p>
+          </div>
+
+          <div class="cycle-metric-card">
+            <div class="cycle-metric-icon cycle-metric-icon--amber">
+              <ion-icon name="heart-outline"></ion-icon>
+            </div>
+            <p class="cycle-metric-label">Ovulation</p>
+            <p class="cycle-metric-value">{{ getOvulationSummary() }}</p>
           </div>
         </div>
 
-        <div class="insight-card secondary-insight">
-          <div class="insight-icon">
-            <ion-icon name="trending-up"></ion-icon>
-          </div>
-          <div class="insight-content">
-            <h4 class="insight-title">Today's Focus</h4>
-            <p class="insight-description">{{ getCycleDayDescription() }}</p>
-          </div>
+        <div class="cycle-track-row">
+          <button type="button" class="cycle-track-btn" (click)="openCycleCalendar()">
+            Track
+          </button>
         </div>
-        </div>
-      }
-    </div>
+      </div>
     </div>
   }
 

@@ -20,9 +20,14 @@ import {
   exhaustMap,
   filter,
   finalize,
+  firstValueFrom,
   takeUntil,
   tap,
 } from 'rxjs';
+import {
+  GoogleSignInNotConfiguredError,
+  GoogleSignInService,
+} from '../services/google-sign-in.service';
 
 @Component({  
   selector: 'app-login',
@@ -60,6 +65,7 @@ export class LoginComponent {
   // matcher = new ErrorStateMatcher();
 
   service = inject(AuthService);
+  private googleSignIn = inject(GoogleSignInService);
   private onboardingStateService = inject(OnboardingService);
   selectedRole: string = '';
   private destroy$ = new Subject<void>();
@@ -240,14 +246,19 @@ export class LoginComponent {
     this.loginClick$.next();
   }
 
-  onSocialLogin(provider: 'google' | 'apple') {
+  async onSocialLogin(provider: 'google' | 'apple') {
     if (this.isSocialLoading || this.isLoading) {
+      return;
+    }
+
+    if (provider === 'google') {
+      await this.completeGoogleSocialLogin();
       return;
     }
 
     const activeForm = this.activeTab === 'login' ? this.loginForm : this.registerForm;
     const formEmail = (activeForm.value.email || '').trim();
-    const promptEmail = this.requestSocialEmail(provider);
+    const promptEmail = this.requestAppleEmail();
     const email = (promptEmail || formEmail).trim();
 
     if (!email || !this.isValidEmail(email)) {
@@ -270,7 +281,7 @@ export class LoginComponent {
       )
       .subscribe({
         next: (res) => {
-          this.message = `${provider === 'google' ? 'Google' : 'Apple'} login successful!`;
+          this.message = 'Apple login successful!';
           this.success = true;
           this.showToast = true;
 
@@ -287,27 +298,66 @@ export class LoginComponent {
         },
         error: (err) => {
           this.message =
-            err?.error?.message ||
-            `${provider === 'google' ? 'Google' : 'Apple'} login is currently unavailable.`;
+            err?.error?.message || 'Apple login is currently unavailable.';
           this.success = false;
           this.showToast = true;
         },
       });
   }
 
-  private requestSocialEmail(provider: 'google' | 'apple'): string {
+  private async completeGoogleSocialLogin(): Promise<void> {
+    this.isSocialLoading = true;
+    this.cdr.detectChanges();
+
+    try {
+      const { email, fullName } = await this.googleSignIn.signInWithGoogle();
+      const res = await firstValueFrom(
+        this.service.socialLogin('google', email, fullName),
+      );
+
+      this.message = 'Google login successful!';
+      this.success = true;
+      this.showToast = true;
+
+      if (res?.data?.accessToken) {
+        this.service.setUserInfoFromSocialResponse(res);
+      }
+
+      const isEmailVerified = !!res?.data?.user?.isVerified;
+      if (!isEmailVerified) {
+        this.router.navigate(['/auth/verify-email']);
+      } else {
+        this.router.navigate(['/tabs/home']);
+      }
+    } catch (err: unknown) {
+      if (err instanceof GoogleSignInNotConfiguredError) {
+        this.message =
+          'Google Sign-In is not configured. Add your OAuth Web Client ID as googleWebClientId in environments (Google Cloud Console).';
+      } else {
+        const httpLike = err as { error?: { message?: string } };
+        this.message =
+          httpLike?.error?.message ||
+          (err instanceof Error ? err.message : '') ||
+          'Google sign-in was cancelled or is unavailable.';
+      }
+      this.success = false;
+      this.showToast = true;
+    } finally {
+      this.isSocialLoading = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  /** Apple sign-in still uses email from the form or a browser prompt as a fallback. */
+  private requestAppleEmail(): string {
     const activeForm = this.activeTab === 'login' ? this.loginForm : this.registerForm;
     const existingEmail = (activeForm.value.email || '').trim();
     if (this.isValidEmail(existingEmail)) {
       return existingEmail;
     }
 
-    const providerName = provider === 'google' ? 'Google' : 'Apple';
     return (
-      window.prompt(
-        `Enter your ${providerName} account email:`,
-        '',
-      ) || ''
+      window.prompt('Enter your Apple account email:', '') || ''
     ).trim();
   }
 

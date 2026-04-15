@@ -10,6 +10,11 @@ export const environment = {
   mapboxToken:
     'pk.eyJ1Ijoic2FtYW5laGJhc21lY2hpIiwiYSI6ImNrb3p0MHZsZDEzNnIydXFnb2ZzMHRkcXUifQ.5U7YQXoqKOsIMuIJR6OVgA',
 
+  /** Same OAuth 2.0 Web client as dev (Google Cloud Console → Credentials). */
+  googleWebClientId:
+    '1088321651982-l914r5o4bj5c73cua6qdcg0ttjnd8hbh.apps.googleusercontent.com',
+  googleIOSClientId: '',
+
 
  
   // firebaseConfig: {

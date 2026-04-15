@@ -113,7 +113,7 @@ export class SettingsComponent implements OnInit {
     },
     {
       id: 'about',
-      title: 'About NouraFlow',
+      title: 'About NouraCare',
       subtitle: 'Version 1.0.0',
       icon: 'information-circle-outline',
       type: 'link',
@@ -242,9 +242,9 @@ export class SettingsComponent implements OnInit {
 
   sendFeedback() {
     // Open email client or feedback form
-    const subject = encodeURIComponent('NouraFlow App Feedback');
-    const body = encodeURIComponent('Hi NouraFlow team,\n\nI would like to share the following feedback:\n\n');
-    window.open(`mailto:support@nouraflow.app?subject=${subject}&body=${body}`);
+    const subject = encodeURIComponent('NouraCare App Feedback');
+    const body = encodeURIComponent('Hi NouraCare team,\n\nI would like to share the following feedback:\n\n');
+    window.open(`mailto:support@nouracare.app?subject=${subject}&body=${body}`);
   }
 
   exportData() {

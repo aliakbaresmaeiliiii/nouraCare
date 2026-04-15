@@ -334,6 +334,182 @@
   }
 }
 
+// Compact cycle overview (reference-like first screen)
+.cycle-compact-section {
+  padding: 0 var(--app-side-padding) 1rem;
+}
+
+.cycle-hello-card {
+  background: #ffffff;
+  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
+  border-radius: 20px;
+  padding: 1rem 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(var(--brand-text-rgb), 0.06);
+  margin-bottom: 0.8rem;
+}
+
+.cycle-hello-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.cycle-hello-subtitle {
+  margin: 0.22rem 0 0;
+  color: #6b7280;
+  font-size: 0.92rem;
+}
+
+.cycle-hello-fav {
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(var(--brand-secondary-rgb), 0.25);
+  color: #0f766e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.cycle-compact-card {
+  background: #ffffff;
+  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
+  border-radius: 20px;
+  padding: 1rem 1.05rem 1.1rem;
+  box-shadow: 0 2px 12px rgba(var(--brand-text-rgb), 0.06);
+}
+
+.cycle-compact-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.cycle-compact-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+.cycle-day-pill {
+  background: rgba(var(--brand-secondary-rgb), 0.18);
+  color: #0f766e;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.cycle-progress-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.9rem;
+}
+
+.cycle-progress-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #eceff3;
+  overflow: hidden;
+}
+
+.cycle-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8b5cf6 0%, #14b8a6 100%);
+}
+
+.cycle-progress-label {
+  font-size: 0.88rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.cycle-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.cycle-track-row {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.cycle-track-btn {
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #8b5cf6 0%, #14b8a6 100%);
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+
+  &:active {
+    opacity: 0.92;
+    transform: scale(0.99);
+  }
+}
+
+.cycle-metric-card {
+  background: #f7f8fb;
+  border-radius: 14px;
+  padding: 0.7rem 0.45rem;
+  text-align: center;
+}
+
+.cycle-metric-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.4rem;
+}
+
+.cycle-metric-icon--mint {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.cycle-metric-icon--pink {
+  color: #ec4899;
+  background: rgba(236, 72, 153, 0.15);
+}
+
+.cycle-metric-icon--amber {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.cycle-metric-label {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.cycle-metric-value {
+  margin: 0.2rem 0 0;
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
 // Dashboard Section
 .dashboard-section {
   padding: 0 var(--app-side-padding) 2rem;

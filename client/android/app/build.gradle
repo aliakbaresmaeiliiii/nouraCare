@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.tecknnycs.muslimkids"
+    namespace = "com.tecknnycs.nouracare"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.tecknnycs.muslimkids"
+        applicationId "com.tecknnycs.nouracare"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

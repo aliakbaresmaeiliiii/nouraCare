@@ -1,178 +1,88 @@
-<ion-header class="ion-no-border">
-  <ion-toolbar class="profile-header">
+<ion-header class="ion-no-border cc-header">
+  <ion-toolbar class="cc-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/profile" class="back-button"></ion-back-button>
+      <ion-back-button
+        defaultHref="/tabs/home"
+        text=""
+        class="cc-back"
+      ></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">My Cycle Calendar</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="cycle-calendar-content">
-  <!-- Current Status Section -->
-  <div class="status-section">
-    <h2 class="section-title">Current Cycle</h2>
-    
-    <div class="status-cards">
-      <!-- Last Period Card -->
-      @if (reproductiveStatus.lastPeriodDate) {
-      <div class="status-card">
-        <div class="card-icon">
-          <ion-icon name="calendar-outline"></ion-icon>
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">Last Period</h3>
-          <p class="card-value">{{ formatDate(reproductiveStatus.lastPeriodDate) }}</p>
-        </div>
-      </div>
-      }
+<ion-content class="cc-content" [fullscreen]="true">
+  <div class="cc-page">
+    <nav class="cc-month-bar" aria-label="Month">
+      <button type="button" class="cc-nav-btn" (click)="prevMonth()" aria-label="Previous month">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h1 class="cc-month-title">{{ monthTitle }}</h1>
+      <button type="button" class="cc-nav-btn" (click)="nextMonth()" aria-label="Next month">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
+    </nav>
 
-      <!-- Next Period Card -->
-      @if (nextPeriodDate) {
-      <div class="status-card">
-        <div class="card-icon">
-          <ion-icon name="arrow-forward-circle-outline"></ion-icon>
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">Next Expected</h3>
-          <p class="card-value">{{ formatDate(nextPeriodDate) }}</p>
-        </div>
-      </div>
-      }
-
-      <!-- Cycle Length Card -->
-      @if (reproductiveStatus.cycleLength) {
-      <div class="status-card">
-        <div class="card-icon">
-          <ion-icon name="repeat-outline"></ion-icon>
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">Cycle Length</h3>
-          <p class="card-value">{{ reproductiveStatus.cycleLength }} days</p>
-        </div>
-      </div>
-      }
+    <div class="cc-legend" role="list">
+      <span class="cc-legend-pill cc-legend-pill--period" role="listitem">
+        <span class="cc-legend-dot cc-legend-dot--period"></span>
+        Period
+      </span>
+      <span class="cc-legend-pill cc-legend-pill--fertile" role="listitem">
+        <span class="cc-legend-dot cc-legend-dot--fertile"></span>
+        Fertile Window
+      </span>
+      <span class="cc-legend-pill cc-legend-pill--ovulation" role="listitem">
+        <span class="cc-legend-dot cc-legend-dot--ovulation"></span>
+        Ovulation
+      </span>
     </div>
-  </div>
 
-  <!-- Fertile Window Section -->
-  @if (fertileWindow) {
-  <div class="fertile-section">
-    <h2 class="section-title">Fertile Window</h2>
-    <div class="fertile-card">
-      <div class="fertile-icon">
-        <ion-icon name="heart-outline"></ion-icon>
+    <div class="cc-calendar-card">
+      <div class="cc-dow-row" aria-hidden="true">
+        @for (w of weekdayLabels; track w) {
+          <span class="cc-dow">{{ w }}</span>
+        }
       </div>
-      <div class="fertile-content">
-        <h3 class="fertile-title">Estimated Fertile Days</h3>
-        <p class="fertile-dates">
-          {{ formatDate(fertileWindow.start) }} - {{ formatDate(fertileWindow.end) }}
+
+      <div class="cc-grid">
+        @for (week of calendarWeeks; track $index) {
+          <div class="cc-week">
+            @for (cell of week; track cell.key) {
+              @if (cell.kind === 'empty') {
+                <div class="cc-cell cc-cell--empty" aria-hidden="true"></div>
+              } @else {
+                <div
+                  class="cc-cell"
+                  [class.cc-cell--muted]="cell.kind === 'muted'"
+                  [class.cc-cell--today]="cell.kind === 'today'"
+                  [class.cc-cell--period]="cell.kind === 'period'"
+                  [class.cc-cell--fertile]="cell.kind === 'fertile'"
+                  [class.cc-cell--ovulation]="cell.kind === 'ovulation'"
+                >
+                  <span class="cc-date-num">{{ cell.dayNum }}</span>
+                </div>
+              }
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (!hasCycleData) {
+      <div class="cc-hint">
+        <p class="cc-hint-text">
+          Add your last period in your profile to see predictions on the calendar.
         </p>
-        <p class="fertile-note">This is an estimate based on your cycle length</p>
+        <ion-button
+          fill="outline"
+          size="small"
+          class="cc-hint-btn"
+          (click)="goToProfile()"
+        >
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          Go to profile
+        </ion-button>
       </div>
-    </div>
+    }
   </div>
-  }
-
-  <!-- Mood Tracking Section -->
-  <div class="mood-section">
-    <h2 class="section-title">Today's Mood</h2>
-    <div class="mood-buttons">
-      <ion-button 
-        fill="outline" 
-        size="small" 
-        class="mood-btn"
-        (click)="trackMood('Happy')"
-      >
-        <ion-icon name="happy-outline" slot="start"></ion-icon>
-        Happy
-      </ion-button>
-      <ion-button 
-        fill="outline" 
-        size="small" 
-        class="mood-btn"
-        (click)="trackMood('Neutral')"
-      >
-        <ion-icon name="ellipse-outline" slot="start"></ion-icon>
-        Neutral
-      </ion-button>
-      <ion-button 
-        fill="outline" 
-        size="small" 
-        class="mood-btn"
-        (click)="trackMood('Sad')"
-      >
-        <ion-icon name="sad-outline" slot="start"></ion-icon>
-        Sad
-      </ion-button>
-      <ion-button 
-        fill="outline" 
-        size="small" 
-        class="mood-btn"
-        (click)="trackMood('Tired')"
-      >
-        <ion-icon name="bed-outline" slot="start"></ion-icon>
-        Tired
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Past Logs Section -->
-  @if (pastLogs.length > 0) {
-  <div class="logs-section">
-    <h2 class="section-title">Past Period Logs</h2>
-    <div class="logs-list">
-      @for (log of pastLogs; track log.date) {
-      <div class="log-item">
-        <div class="log-date">
-          <strong>{{ formatDate(log.date) }}</strong>
-        </div>
-        <div class="log-details">
-          <div class="log-mood">
-            @if (log.mood === 'Happy') {
-            <ion-icon name="happy-outline"></ion-icon>
-            }
-            @if (log.mood === 'Neutral') {
-            <ion-icon name="ellipse-outline"></ion-icon>
-            }
-            @if (log.mood === 'Sad') {
-            <ion-icon name="sad-outline"></ion-icon>
-            }
-            @if (log.mood === 'Tired') {
-            <ion-icon name="bed-outline"></ion-icon>
-            }
-            {{ log.mood }}
-          </div>
-          @if (log.notes) {
-          <div class="log-notes">
-            {{ log.notes }}
-          </div>
-          }
-          @if (log.symptoms && log.symptoms.length > 0) {
-          <div class="log-symptoms">
-            @for (symptom of log.symptoms; track symptom) {
-            <span class="symptom-tag">{{ symptom }}</span>
-            }
-          </div>
-          }
-        </div>
-      </div>
-      }
-    </div>
-  </div>
-  }
-
-  <!-- Empty State -->
-  @if (!reproductiveStatus.lastPeriodDate) {
-  <div class="empty-state">
-    <div class="empty-icon">
-      <ion-icon name="calendar-outline"></ion-icon>
-    </div>
-    <h3 class="empty-title">No Cycle Data</h3>
-    <p class="empty-description">Set up your period tracking in your profile to see cycle predictions</p>
-    <ion-button fill="outline" class="empty-action-btn" (click)="goToProfile()">
-      <ion-icon name="person-outline" slot="start"></ion-icon>
-      Go to Profile
-    </ion-button>
-  </div>
-  }
 </ion-content>

@@ -1,249 +1,213 @@
-.cycle-calendar-content {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
+.cc-header {
+  background: transparent;
 }
 
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--ion-color-dark);
-  margin: 24px 0 16px 0;
-  
-  &:first-child {
-    margin-top: 0;
-  }
+.cc-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  --min-height: 48px;
 }
 
-.status-section {
-  .status-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.cc-back {
+  --color: #374151;
+}
+
+.cc-content {
+  --background: #f5f6f8;
+}
+
+.cc-page {
+  padding: 0 16px 28px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.cc-month-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  background: #ffffff;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.cc-nav-btn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #374151;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 22px;
   }
-  
-  .status-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: var(--ion-color-light);
-    border-radius: 12px;
-    
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--ion-color-primary);
-      border-radius: 8px;
-      
-      ion-icon {
-        font-size: 20px;
-        color: white;
-      }
-    }
-    
-    .card-content {
-      flex: 1;
-      
-      .card-title {
-        margin: 0 0 4px 0;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--ion-color-medium);
-      }
-      
-      .card-value {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--ion-color-dark);
-      }
-    }
+
+  &:active {
+    opacity: 0.7;
   }
 }
 
-.fertile-section {
-  .fertile-card {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-    border-radius: 12px;
-    color: white;
-    
-    .fertile-icon {
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 8px;
-      
-      ion-icon {
-        font-size: 20px;
-        color: white;
-      }
-    }
-    
-    .fertile-content {
-      flex: 1;
-      
-      .fertile-title {
-        margin: 0 0 4px 0;
-        font-size: 14px;
-        font-weight: 500;
-        opacity: 0.9;
-      }
-      
-      .fertile-dates {
-        margin: 0 0 4px 0;
-        font-size: 16px;
-        font-weight: 600;
-      }
-      
-      .fertile-note {
-        margin: 0;
-        font-size: 12px;
-        opacity: 0.8;
-      }
-    }
-  }
-}
-
-.mood-section {
-  .mood-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    
-    .mood-btn {
-      --border-radius: 20px;
-      --padding-start: 12px;
-      --padding-end: 12px;
-      font-size: 14px;
-      
-      ion-icon {
-        font-size: 16px;
-      }
-    }
-  }
-}
-
-.logs-section {
-  .logs-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .log-item {
-    padding: 16px;
-    background: var(--ion-color-light);
-    border-radius: 12px;
-    
-    .log-date {
-      margin-bottom: 8px;
-      font-size: 14px;
-      color: var(--ion-color-dark);
-    }
-    
-    .log-details {
-      .log-mood {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 8px;
-        font-size: 14px;
-        color: var(--ion-color-medium);
-        
-        ion-icon {
-          font-size: 16px;
-        }
-      }
-      
-      .log-notes {
-        margin-bottom: 8px;
-        font-size: 14px;
-        color: var(--ion-color-dark);
-        line-height: 1.4;
-      }
-      
-      .log-symptoms {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        
-        .symptom-tag {
-          padding: 4px 8px;
-          background: var(--ion-color-primary);
-          color: white;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 500;
-        }
-      }
-    }
-  }
-}
-
-.empty-state {
+.cc-month-title {
+  margin: 0;
+  flex: 1;
   text-align: center;
-  padding: 40px 20px;
-  
-  .empty-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--ion-color-light);
-    border-radius: 50%;
-    
-    ion-icon {
-      font-size: 32px;
-      color: var(--ion-color-medium);
-    }
-  }
-  
-  .empty-title {
-    margin: 0 0 8px 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-  }
-  
-  .empty-description {
-    margin: 0 0 24px 0;
-    font-size: 14px;
-    color: var(--ion-color-medium);
-    line-height: 1.4;
-  }
-  
-  .empty-action-btn {
-    --border-radius: 20px;
-  }
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1f2937;
 }
 
-// Responsive adjustments
-@media (min-width: 768px) {
-  .status-section .status-cards {
-    flex-direction: row;
-    flex-wrap: wrap;
-    
-    .status-card {
-      flex: 1;
-      min-width: 200px;
-    }
-  }
-  
-  .mood-section .mood-buttons {
-    justify-content: center;
-  }
+.cc-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.cc-legend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.01em;
+}
+
+.cc-legend-pill--period {
+  background: #fff0f5;
+}
+
+.cc-legend-pill--fertile {
+  background: #e8fcf0;
+}
+
+.cc-legend-pill--ovulation {
+  background: #fff8e6;
+}
+
+.cc-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cc-legend-dot--period {
+  background: #ec4899;
+}
+
+.cc-legend-dot--fertile {
+  background: #22c55e;
+}
+
+.cc-legend-dot--ovulation {
+  background: #f59e0b;
+}
+
+.cc-calendar-card {
+  background: #ffffff;
+  border-radius: 20px 20px 16px 16px;
+  padding: 16px 12px 18px;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+}
+
+.cc-dow-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.cc-dow {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.cc-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cc-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.cc-cell {
+  aspect-ratio: 1;
+  max-height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.cc-cell--empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.cc-date-num {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.cc-cell--muted .cc-date-num {
+  color: #374151;
+}
+
+.cc-cell--today {
+  background: #f0f2f5;
+}
+
+.cc-cell--period {
+  background: #fff0f5;
+}
+
+.cc-cell--fertile {
+  background: #d8f5e4;
+}
+
+.cc-cell--ovulation {
+  background: #fff4d2;
+}
+
+.cc-hint {
+  margin-top: 24px;
+  text-align: center;
+  padding: 0 8px;
+}
+
+.cc-hint-text {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.cc-hint-btn {
+  --border-radius: 999px;
 }

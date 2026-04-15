@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="nc-bg" x1="64" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="55%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="nc-shine" x1="140" y1="120" x2="380" y2="380" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="36" y="36" width="440" height="440" rx="112" fill="url(#nc-bg)"/>
+  <rect x="62" y="62" width="388" height="388" rx="96" fill="url(#nc-shine)"/>
+
+  <text
+    x="256"
+    y="306"
+    text-anchor="middle"
+    font-family="Poppins, Inter, 'Segoe UI', system-ui, sans-serif"
+    font-size="180"
+    font-weight="800"
+    letter-spacing="-6"
+    fill="#ffffff"
+  >
+    NC
+  </text>
+</svg>

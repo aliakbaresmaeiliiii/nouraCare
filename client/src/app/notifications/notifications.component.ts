@@ -75,7 +75,7 @@ export class NotificationsComponent implements OnInit {
     {
       id: 4,
       title: 'App Update Available',
-      message: 'A new version of NouraFlow is available with improved features',
+      message: 'A new version of NouraCare is available with improved features',
       type: 'update',
       category: 'update',
       isRead: true,
