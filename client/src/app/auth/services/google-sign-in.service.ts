@@ -153,15 +153,22 @@ export class GoogleSignInService {
           }
 
           const SIGN_IN_TIMEOUT_MS = 120_000;
+          let settled = false;
           const timeoutId = window.setTimeout(() => {
-            reject(
-              new Error(
-                'Google sign-in timed out. If you closed the popup, try again.',
+            finish(() =>
+              reject(
+                new Error(
+                  'Google sign-in timed out. If you closed the popup, try again.',
+                ),
               ),
             );
           }, SIGN_IN_TIMEOUT_MS);
 
           const finish = (fn: () => void) => {
+            if (settled) {
+              return;
+            }
+            settled = true;
             window.clearTimeout(timeoutId);
             fn();
           };

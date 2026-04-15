@@ -1,54 +1,53 @@
 <div class="period-date-picker">
-  <!-- Calendar Header -->
-  <div class="calendar-header">
-    <ion-button fill="clear" size="small" class="nav-button" (click)="previousMonth()">
+  <nav class="pdp-month-bar" aria-label="Month">
+    <button type="button" class="pdp-nav-btn" (click)="previousMonth()" aria-label="Previous month">
       <ion-icon name="chevron-back-outline"></ion-icon>
-    </ion-button>
-    <div class="month-year">
-      <h3 class="month-name">{{ monthName() }}</h3>
-      <p class="year-name">{{ yearName() }}</p>
-    </div>
-    <ion-button fill="clear" size="small" class="nav-button" (click)="nextMonth()">
+    </button>
+    <h2 class="pdp-month-title">{{ monthYearTitle() }}</h2>
+    <button type="button" class="pdp-nav-btn" (click)="nextMonth()" aria-label="Next month">
       <ion-icon name="chevron-forward-outline"></ion-icon>
-    </ion-button>
+    </button>
+  </nav>
+
+  <div class="pdp-legend" role="list">
+    <span class="pdp-legend-pill pdp-legend-pill--start" role="listitem">
+      <span class="pdp-legend-dot pdp-legend-dot--start"></span>
+      First day
+    </span>
+    <span class="pdp-legend-pill pdp-legend-pill--period" role="listitem">
+      <span class="pdp-legend-dot pdp-legend-dot--period"></span>
+      Period
+    </span>
+    <span class="pdp-legend-pill pdp-legend-pill--today" role="listitem">
+      <span class="pdp-legend-dot pdp-legend-dot--today"></span>
+      Today
+    </span>
   </div>
 
-  <!-- Week Days Header -->
-  <div class="weekdays-header">
-    @for (day of weekDays(); track day) {
-    <div class="weekday">{{ day }}</div>
-    }
-  </div>
+  <div class="pdp-calendar-card">
+    <div class="pdp-dow-row" aria-hidden="true">
+      @for (day of weekDays(); track day) {
+        <span class="pdp-dow">{{ day }}</span>
+      }
+    </div>
 
-  <!-- Calendar Grid -->
-  <div class="calendar-grid">
-    @for (day of calendarDays(); track day.getTime()) {
-    <div class="calendar-day-wrapper">
-      <div 
-        class="calendar-day" 
-        [class]="getDateClasses(day)"
-        (click)="onDateSelect(day)"
-        [class.clickable]="isCurrentMonth(day)">
-        <span class="day-number">{{ day.getDate() }}</span>
-        <div class="period-indicator" [class]="getPeriodIndicatorClass(day)"></div>
-      </div>
-    </div>
-    }
-  </div>
-
-  <!-- Legend -->
-  <div class="calendar-legend">
-    <div class="legend-item">
-      <div class="legend-indicator past-start"></div>
-      <span>Past Period</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-indicator upcoming-period"></div>
-      <span>Upcoming Period</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-indicator future-start"></div>
-      <span>Selected Date</span>
+    <div class="pdp-grid">
+      @for (day of calendarDays(); track day.getTime()) {
+        <div class="pdp-cell-wrap">
+          <button
+            type="button"
+            class="pdp-cell"
+            [class.pdp-cell--other]="!isCurrentMonth(day)"
+            [class.pdp-cell--today]="isToday(day)"
+            [class.pdp-cell--start]="isSelectedStartDate(day)"
+            [class.pdp-cell--period]="isInPeriodRange(day) && !isSelectedStartDate(day)"
+            [disabled]="!isCurrentMonth(day)"
+            (click)="onDateSelect(day)"
+          >
+            <span class="pdp-day-num">{{ day.getDate() }}</span>
+          </button>
+        </div>
+      }
     </div>
   </div>
 </div>

@@ -124,10 +124,10 @@ async function main() {
 
   // 3. Users
   const adminUser = await db.user.upsert({
-    where: { email: 'admin@muslimkids.app' },
+    where: { email: 'admin@nouracare.app' },
     update: { fullName: 'Admin User', updatedAt: now() },
     create: {
-      email: 'admin@muslimkids.app',
+      email: 'admin@nouracare.app',
       phoneNumber: '+989121111111',
       fullName: 'Admin User',
       role: 'ADMIN',
@@ -138,10 +138,10 @@ async function main() {
     },
   });
   const seedUser = await db.user.upsert({
-    where: { email: 'user@muslimkids.app' },
+    where: { email: 'user@nouracare.app' },
     update: { fullName: 'Seed User', updatedAt: now() },
     create: {
-      email: 'user@muslimkids.app',
+      email: 'user@nouracare.app',
       phoneNumber: '+989122222222',
       fullName: 'Seed User',
       role: 'USER',

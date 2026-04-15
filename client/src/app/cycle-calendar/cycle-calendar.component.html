@@ -12,6 +12,18 @@
 
 <ion-content class="cc-content" [fullscreen]="true">
   <div class="cc-page">
+    <div class="cc-actions">
+      <ion-button
+        class="cc-log-period-btn"
+        size="small"
+        fill="solid"
+        (click)="openLogPeriodModal()"
+      >
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Log period
+      </ion-button>
+    </div>
+
     <nav class="cc-month-bar" aria-label="Month">
       <button type="button" class="cc-nav-btn" (click)="prevMonth()" aria-label="Previous month">
         <ion-icon name="chevron-back-outline"></ion-icon>
@@ -71,7 +83,7 @@
     @if (!hasCycleData) {
       <div class="cc-hint">
         <p class="cc-hint-text">
-          Add your last period in your profile to see predictions on the calendar.
+          Log your last period above, or add cycle details in your profile for predictions.
         </p>
         <ion-button
           fill="outline"
@@ -84,5 +96,31 @@
         </ion-button>
       </div>
     }
+
+    <section class="cc-history" aria-labelledby="cc-history-heading">
+      <div class="cc-history-header">
+        <h2 id="cc-history-heading" class="cc-history-title">Tracking history</h2>
+        <p class="cc-history-sub">Recent period starts you saved in this app</p>
+      </div>
+
+      @if (historyEntries.length === 0) {
+        <div class="cc-history-empty">
+          <ion-icon name="calendar-outline" class="cc-history-empty-icon"></ion-icon>
+          <p>No entries yet. Tap <strong>Log period</strong> when your period begins.</p>
+        </div>
+      } @else {
+        <ul class="cc-history-list">
+          @for (entry of historyEntries; track entry.lastPeriodStartDate + entry.recordedAt) {
+            <li class="cc-history-item">
+              <div class="cc-history-dot" aria-hidden="true"></div>
+              <div class="cc-history-body">
+                <p class="cc-history-main">Period started {{ formatHistoryDay(entry.lastPeriodStartDate) }}</p>
+                <p class="cc-history-meta">Logged {{ formatRecordedAt(entry.recordedAt) }}</p>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
   </div>
 </ion-content>

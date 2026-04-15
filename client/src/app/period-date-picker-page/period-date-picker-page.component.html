@@ -1,72 +1,52 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header class="ion-no-border pdp-page-header">
+  <ion-toolbar class="pdp-page-toolbar">
     <ion-buttons slot="start">
-      <ion-button (click)="cancel()">
-        <ion-icon name="close"></ion-icon>
+      <ion-button fill="clear" class="pdp-toolbar-btn" (click)="cancel()" aria-label="Close">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Select Period Start Date</ion-title>
+    <ion-title class="pdp-page-title">Last period</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="savePeriod()" [disabled]="!selectedDate">
-        <ion-icon name="checkmark"></ion-icon>
+      <ion-button
+        fill="solid"
+        class="pdp-save-btn"
+        [disabled]="!selectedRange"
+        (click)="savePeriod()"
+        aria-label="Save"
+      >
+        Save
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div class="date-picker-container">
-    <div class="header-section">
-      <h2>When did your last period start?</h2>
-      <p>Select the first day of your last period to track your cycle</p>
+<ion-content class="pdp-page-content" [fullscreen]="true">
+  <div class="pdp-page-inner">
+    <div class="pdp-intro">
+      <h2 class="pdp-intro-title">When did your last period start?</h2>
+      <p class="pdp-intro-text">
+        Tap the first day. We’ll highlight the days that match your usual length so you can confirm before saving.
+      </p>
     </div>
 
-    <div class="datetime-container">
-      <ion-datetime 
-        presentation="date" 
-        [value]="selectedDate"
-        [highlightedDates]="highlightedDates"
-        (ionChange)="onDateChange($event)"
-        [min]="'2020-01-01'"
-        [max]="'2030-12-31'">
-      </ion-datetime>
-    </div>
+    <app-period-date-picker
+      [periodLength]="periodLength"
+      [initialStartIso]="initialStartIso"
+      (dateSelected)="onRangeSelected($event)"
+    ></app-period-date-picker>
 
-    @if (selectedDate) {
-    <div class="period-info">
-      <h3>Period Range</h3>
-      <div class="period-dates">
-        @for (date of highlightedDates; track $index; let i = $index) {
-        <div class="date-item">
-          <div class="date-circle" [style.background-color]="date.backgroundColor">
-            <span class="date-number">{{ getDateNumber(date.date) }}</span>
-          </div>
-          <span class="date-label">
-            {{ i === 0 ? 'Start' : 'Day ' + (i + 1) }}
-          </span>
-        </div>
-        }
+    @if (selectedRange) {
+      <div class="pdp-summary">
+        <p class="pdp-summary-label">Selected range</p>
+        <p class="pdp-summary-dates">
+          {{ selectedRange.startDate | date: 'mediumDate' }}
+          —
+          {{
+            selectedRange.periodDates[selectedRange.periodDates.length - 1]
+              | date: 'mediumDate'
+          }}
+        </p>
       </div>
-    </div>
     }
-
-    <div class="legend">
-      <div class="legend-item">
-        <div class="legend-dot start"></div>
-        <span>Period Start</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-dot past"></div>
-        <span>Past Days</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-dot today"></div>
-        <span>Today</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-dot future"></div>
-        <span>Future Days</span>
-      </div>
-    </div>
   </div>
 </ion-content>

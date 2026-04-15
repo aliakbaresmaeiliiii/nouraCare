@@ -1,435 +1,195 @@
 .period-date-picker {
-  background: white;
-  border-radius: 16px;
-  padding: 1rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  max-width: 100%;
+  max-width: 480px;
   margin: 0 auto;
+}
 
-  // Calendar Header
-  .calendar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-    padding: 0 0.5rem;
+.pdp-month-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  background: #ffffff;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
 
-    .nav-button {
-      --color: #334155;
-      --color-hover: #333;
-      --padding-start: 8px;
-      --padding-end: 8px;
-      min-width: 40px;
-      height: 40px;
+.pdp-nav-btn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #374151;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 
-      ion-icon {
-        font-size: 20px;
-      }
-    }
-
-    .month-year {
-      text-align: center;
-      flex: 1;
-
-      .month-name {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #333;
-        margin: 0 0 0.25rem 0;
-      }
-
-      .year-name {
-        font-size: 1rem;
-        color: #334155;
-        margin: 0;
-        font-weight: 500;
-      }
-    }
+  ion-icon {
+    font-size: 22px;
   }
 
-  // Weekdays Header
-  .weekdays-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    margin-bottom: 1rem;
-    padding: 0 0.5rem;
-
-    .weekday {
-      text-align: center;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #334155;
-      padding: 0.5rem 0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-  }
-
-  // Calendar Grid
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-    margin-bottom: 1.5rem;
-
-    .calendar-day-wrapper {
-      aspect-ratio: 1;
-      padding: 2px;
-
-      .calendar-day {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-        background: transparent;
-        border: 2px solid transparent;
-
-        .day-number {
-          font-size: 0.875rem;
-          font-weight: 500;
-          color: #333;
-          z-index: 2;
-          position: relative;
-        }
-
-        .period-indicator {
-          position: absolute;
-          bottom: 4px;
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          transition: all 0.3s ease;
-        }
-
-        // Other month styling
-        &.other-month {
-          .day-number {
-            color: #ccc;
-          }
-        }
-
-        // Today styling
-        &.today {
-          background: var(--app-gradient-header);
-          border-color: var(--ion-color-primary);
-          transform: scale(1.1);
-
-          .day-number {
-            color: white;
-            font-weight: 700;
-          }
-        }
-
-        // Selected start date styling
-        &.selected-start {
-          background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
-          border-color: #ec4899;
-          transform: scale(1.15);
-          box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
-
-          .day-number {
-            color: white;
-            font-weight: 700;
-          }
-        }
-
-        // Period range styling
-        &.period-past {
-          background: rgba(239, 68, 68, 0.1);
-          border-color: rgba(239, 68, 68, 0.3);
-        }
-
-        &.period-upcoming {
-          background: rgba(245, 158, 11, 0.1);
-          border-color: rgba(245, 158, 11, 0.3);
-          border-style: dashed;
-        }
-
-        &.period-future {
-          background: rgba(16, 185, 129, 0.1);
-          border-color: rgba(16, 185, 129, 0.3);
-        }
-
-        // Hover effects
-        &:hover:not(.other-month) {
-          transform: scale(1.05);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        &:active:not(.other-month) {
-          transform: scale(0.95);
-        }
-
-        // Clickable state
-        &.clickable {
-          cursor: pointer;
-        }
-
-        &:not(.clickable) {
-          cursor: default;
-        }
-      }
-    }
-  }
-
-  // Period Indicators
-  .period-indicator {
-    &.past-start {
-      background: #ef4444;
-      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
-    }
-
-    &.today-start {
-      background: #f59e0b;
-      box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
-    }
-
-    &.future-start {
-      background: #10b981;
-      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
-    }
-
-    &.past-period {
-      background: #ef4444;
-      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
-    }
-
-    &.upcoming-period {
-      background: #f59e0b;
-      border: 2px dashed #f59e0b;
-      background: transparent;
-    }
-
-    &.future-period {
-      background: #10b981;
-      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
-    }
-  }
-
-  // Legend
-  .calendar-legend {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 0.75rem;
-    padding: 1rem;
-    background: #f8fafc;
-    border-radius: 12px;
-    margin-top: 1rem;
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.75rem;
-      color: #334155;
-
-      .legend-indicator {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        flex-shrink: 0;
-
-        &.past-start {
-          background: #ef4444;
-        }
-
-        &.today-start {
-          background: #f59e0b;
-        }
-
-        &.future-start {
-          background: #10b981;
-        }
-
-        &.past-period {
-          background: #ef4444;
-        }
-
-        &.upcoming-period {
-          background: transparent;
-          border: 2px dashed #f59e0b;
-        }
-
-        &.future-period {
-          background: #10b981;
-        }
-      }
-    }
+  &:active {
+    opacity: 0.7;
   }
 }
 
-// Responsive Design
-@media (max-width: 480px) {
-  .period-date-picker {
-    padding: 0.75rem;
+.pdp-month-title {
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #1f2937;
+}
 
-    .calendar-header {
-      .month-year {
-        .month-name {
-          font-size: 1.25rem;
-        }
+.pdp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
 
-        .year-name {
-          font-size: 0.875rem;
-        }
-      }
-    }
+.pdp-legend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #374151;
+}
 
-    .calendar-grid {
-      gap: 2px;
+.pdp-legend-pill--start {
+  background: #fce7f3;
+}
 
-      .calendar-day-wrapper {
-        .calendar-day {
-          border-radius: 8px;
+.pdp-legend-pill--period {
+  background: #fff0f5;
+}
 
-          .day-number {
-            font-size: 0.75rem;
-          }
+.pdp-legend-pill--today {
+  background: #f0f2f5;
+}
 
-          .period-indicator {
-            width: 4px;
-            height: 4px;
-            bottom: 2px;
-          }
-        }
-      }
-    }
+.pdp-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 
-    .calendar-legend {
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
-      padding: 0.75rem;
+.pdp-legend-dot--start {
+  background: #db2777;
+}
 
-      .legend-item {
-        font-size: 0.7rem;
-      }
-    }
+.pdp-legend-dot--period {
+  background: #ec4899;
+}
+
+.pdp-legend-dot--today {
+  background: #9ca3af;
+}
+
+.pdp-calendar-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 14px 10px 16px;
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+}
+
+.pdp-dow-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 0 2px;
+}
+
+.pdp-dow {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.pdp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.pdp-cell-wrap {
+  aspect-ratio: 1;
+  max-height: 52px;
+}
+
+.pdp-cell {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition:
+    background 0.15s ease,
+    transform 0.12s ease;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  &:not(:disabled):active {
+    transform: scale(0.96);
   }
 }
 
-// Tablet and larger screens
-@media (min-width: 768px) {
-  .period-date-picker {
-    padding: 1.5rem;
-    max-width: 500px;
+.pdp-day-num {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+}
 
-    .calendar-grid {
-      gap: 6px;
+.pdp-cell--other .pdp-day-num {
+  color: #cbd5e1;
+}
 
-      .calendar-day-wrapper {
-        .calendar-day {
-          border-radius: 16px;
+.pdp-cell--today:not(.pdp-cell--start):not(.pdp-cell--period) {
+  background: #f0f2f5;
+}
 
-          .day-number {
-            font-size: 1rem;
-          }
+.pdp-cell--period {
+  background: #fff0f5;
+}
 
-          .period-indicator {
-            width: 8px;
-            height: 8px;
-            bottom: 6px;
-          }
-        }
-      }
-    }
+.pdp-cell--start {
+  background: linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%);
+  box-shadow: 0 2px 10px rgba(236, 72, 153, 0.25);
 
-    .calendar-legend {
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      padding: 1.5rem;
-
-      .legend-item {
-        font-size: 0.875rem;
-      }
-    }
+  .pdp-day-num {
+    color: #831843;
   }
 }
 
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  .period-date-picker {
-    background: #1f2937;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-
-    .calendar-header {
-      .month-year {
-        .month-name {
-          color: #f9fafb;
-        }
-
-        .year-name {
-          color: #9ca3af;
-        }
-      }
-    }
-
-    .weekdays-header {
-      .weekday {
-        color: #9ca3af;
-      }
-    }
-
-    .calendar-grid {
-      .calendar-day-wrapper {
-        .calendar-day {
-          .day-number {
-            color: #f9fafb;
-          }
-
-          &.other-month {
-            .day-number {
-              color: #4b5563;
-            }
-          }
-        }
-      }
-    }
-
-    .calendar-legend {
-      background: #374151;
-
-      .legend-item {
-        color: #9ca3af;
-      }
-    }
-  }
+.pdp-cell--period:not(.pdp-cell--start) .pdp-day-num {
+  color: #9d174d;
 }
 
-// Smooth animations
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.period-date-picker {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.calendar-day {
-  animation: fadeIn 0.2s ease-out;
-}
-
-// Focus states for accessibility
-.calendar-day:focus {
-  outline: 2px solid var(--ion-color-primary);
-  outline-offset: 2px;
-}
-
-.nav-button:focus {
-  outline: 2px solid var(--ion-color-primary);
-  outline-offset: 2px;
-  border-radius: 8px;
+.pdp-cell--today.pdp-cell--period .pdp-day-num,
+.pdp-cell--today.pdp-cell--start .pdp-day-num {
+  color: inherit;
 }

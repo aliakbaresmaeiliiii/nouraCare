@@ -25,7 +25,7 @@ export const environment = {
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.tecknnycs.muslimkids',
+  appId: 'com.tecknnycs.nouracare',
   appName: 'Social Sharing App',
   webDir: 'www',
   server: {

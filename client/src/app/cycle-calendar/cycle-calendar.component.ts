@@ -1,12 +1,26 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { addIcons } from 'ionicons';
+import {
+  addCircleOutline,
+  calendarOutline,
+  chevronBackOutline,
+  chevronForwardOutline,
+} from 'ionicons/icons';
+import { ModalController } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import {
   ReproductiveStatusService,
   ReproductiveStatusData,
 } from '../shared/services/reproductive-status.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import {
+  PeriodHistoryService,
+  PeriodHistoryEntry,
+} from '../shared/services/period-history.service';
 import { Router } from '@angular/router';
 import { HomeDataService } from '../home/services/home-data.service';
+import { PeriodDatePickerPageComponent } from '../period-date-picker-page/period-date-picker-page.component';
+import { PeriodDateRange } from '../shared/components/period-date-picker/period-date-picker.component';
 
 export type CycleDayKind =
   | 'empty'
@@ -32,8 +46,19 @@ export interface CalendarCell {
   imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class CycleCalendarComponent implements OnInit {
+  constructor() {
+    addIcons({
+      addCircleOutline,
+      calendarOutline,
+      chevronBackOutline,
+      chevronForwardOutline,
+    });
+  }
+
   private reproductiveStatusService = inject(ReproductiveStatusService);
   private cycleSettings = inject(CycleSettingsService);
+  private periodHistory = inject(PeriodHistoryService);
+  private modalController = inject(ModalController);
   private router = inject(Router);
   homeService = inject(HomeDataService);
 
@@ -43,11 +68,21 @@ export class CycleCalendarComponent implements OnInit {
   calendarWeeks: CalendarCell[][] = [];
   weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   hasCycleData = false;
+  historyEntries: PeriodHistoryEntry[] = [];
 
   ngOnInit() {
     this.refreshCalendar();
+    this.refreshHistory();
     const userId = this.homeService.getCurrentUserId();
     this.loadReproductiveStatus(userId);
+  }
+
+  refreshHistory() {
+    const iso = this.cycleSettings.lastPeriodStartDate();
+    if (iso) {
+      this.periodHistory.seedFromCurrentIfEmpty(iso);
+    }
+    this.historyEntries = this.periodHistory.getEntries();
   }
 
   loadReproductiveStatus(userId: number) {
@@ -55,10 +90,60 @@ export class CycleCalendarComponent implements OnInit {
       next: (data) => {
         this.reproductiveStatus = data;
         this.refreshCalendar();
+        this.refreshHistory();
       },
       error: () => {
         this.refreshCalendar();
+        this.refreshHistory();
       },
+    });
+  }
+
+  async openLogPeriodModal() {
+    const modal = await this.modalController.create({
+      component: PeriodDatePickerPageComponent,
+      componentProps: {
+        initialStartIso: this.cycleSettings.lastPeriodStartDate(),
+      },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
+      backdropDismiss: true,
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss();
+    if (data) {
+      this.applyPeriodRange(data as PeriodDateRange);
+    }
+  }
+
+  private applyPeriodRange(periodRange: PeriodDateRange) {
+    const iso = periodRange.startDate.toISOString().split('T')[0];
+    this.cycleSettings.setUserStatus('Trying to Conceive');
+    this.cycleSettings.setPregnancyStatus(false);
+    this.cycleSettings.setPostpartumStatus(false);
+    this.cycleSettings.setLastPeriodStart(iso);
+    this.periodHistory.addEntry(iso);
+    this.refreshHistory();
+    this.refreshCalendar();
+    this.loadReproductiveStatus(this.homeService.getCurrentUserId());
+  }
+
+  formatHistoryDay(iso: string): string {
+    const [y, m, d] = iso.split('T')[0].split('-').map((n) => parseInt(n, 10));
+    const date = new Date(y, m - 1, d);
+    return date.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+
+  formatRecordedAt(iso: string): string {
+    return new Date(iso).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
   }
 

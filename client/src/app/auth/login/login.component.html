@@ -3,15 +3,15 @@
     <header class="login-header">
       <div class="login-header-bg" aria-hidden="true">
         <img
+          class="login-hero-img"
           src="assets/images/image1.png"
           alt=""
-          class="login-hero-img"
           width="1024"
           height="1024"
           decoding="async"
         />
       </div>
-      <div class="login-header-scrim" aria-hidden="true"></div>
+      <div class="login-header-fade" aria-hidden="true"></div>
       <div class="hero-section">
         <div class="hero-content">
           <div class="logo-container">
@@ -33,221 +33,214 @@
       </div>
     </header>
 
-    <div class="login-panel">
-      <!-- Auth Forms Container -->
+    <main class="login-panel">
       <div class="auth-container">
-    <!-- Toggle Buttons -->
-    <div class="tab-container">
-      <button
-        type="button"
-        (click)="activeTab = 'login'"
-        [class.active]="activeTab === 'login'"
-        class="tab-button"
-      >
-        <ion-icon name="log-in-outline" slot="start"></ion-icon>
-        Sign In
-      </button>
-      <button
-        type="button"
-        (click)="activeTab = 'register'"
-        [class.active]="activeTab === 'register'"
-        class="tab-button"
-      >
-        <ion-icon name="person-add-outline" slot="start"></ion-icon>
-        Sign Up
-      </button>
-    </div>
+        <div class="tab-container" role="tablist" aria-label="Sign in or sign up">
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="activeTab === 'login'"
+            (click)="activeTab = 'login'"
+            [class.active]="activeTab === 'login'"
+            class="tab-button"
+          >
+            <ion-icon name="log-in-outline" aria-hidden="true"></ion-icon>
+            Sign in
+          </button>
+          <button
+            type="button"
+            role="tab"
+            [attr.aria-selected]="activeTab === 'register'"
+            (click)="activeTab = 'register'"
+            [class.active]="activeTab === 'register'"
+            class="tab-button"
+          >
+            <ion-icon name="person-add-outline" aria-hidden="true"></ion-icon>
+            Sign up
+          </button>
+        </div>
 
-    <!-- Login Form -->
-    @if (activeTab === 'login') {
-    <div class="form-container">
-      <div class="form-header">
-        <h2 class="form-title">Welcome Back</h2>
-        <p class="form-subtitle">Sign in to continue your journey</p>
-      </div>
+        @if (activeTab === 'login') {
+          <div class="form-container">
+            <div class="form-header">
+              <h2 class="form-title">Welcome back</h2>
+              <p class="form-subtitle">Enter your email to continue</p>
+            </div>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
-        <div class="form-group">
-          <label class="form-label">
-            <ion-icon name="mail-outline" class="label-icon"></ion-icon>
-            Email Address
-          </label>
-          <input
-            type="email"
-            formControlName="email"
-            placeholder="Enter your email"
-            class="form-input"
-            [class.error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
-          />
-          @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
-          <div class="error-message">
-            <ion-icon name="alert-circle-outline"></ion-icon>
-            Please enter a valid email address
+            <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
+              <div class="form-group">
+                <label class="form-label" for="login-email">Email</label>
+                <input
+                  id="login-email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="you@example.com"
+                  class="form-input"
+                  autocomplete="email"
+                  inputmode="email"
+                  [class.error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
+                />
+                @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
+                  <div class="error-message">
+                    <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+                    Please enter a valid email
+                  </div>
+                }
+              </div>
+
+              <ion-button
+                type="submit"
+                class="submit-button"
+                [disabled]="loginForm.invalid || isLoading"
+                expand="block"
+              >
+                @if (!isLoading) {
+                  <ion-icon name="log-in-outline" slot="start" aria-hidden="true"></ion-icon>
+                }
+                @if (isLoading) {
+                  <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+                }
+                {{ isLoading ? 'Signing in…' : 'Continue' }}
+              </ion-button>
+
+              <div class="social-divider">
+                <span>Or continue with</span>
+              </div>
+
+              <div class="social-buttons">
+                <ion-button
+                  type="button"
+                  fill="outline"
+                  class="social-button google"
+                  [disabled]="isLoading || isSocialLoading"
+                  (click)="onSocialLogin('google')"
+                  expand="block"
+                >
+                  <ion-icon name="logo-google" slot="start" aria-hidden="true"></ion-icon>
+                  Google
+                </ion-button>
+
+                <ion-button
+                  type="button"
+                  fill="outline"
+                  class="social-button apple"
+                  [disabled]="isLoading || isSocialLoading"
+                  (click)="onSocialLogin('apple')"
+                  expand="block"
+                >
+                  <ion-icon name="logo-apple" slot="start" aria-hidden="true"></ion-icon>
+                  Apple
+                </ion-button>
+              </div>
+
+              <div class="form-footer">
+                <a href="#" class="forgot-link">Forgot password?</a>
+              </div>
+            </form>
           </div>
-          }
-        </div>
+        }
 
-        <ion-button 
-          type="submit" 
-          class="submit-button"
-          [disabled]="loginForm.invalid || isLoading"
-          expand="block"
-        >
-          @if (!isLoading) {
-          <ion-icon name="log-in-outline" slot="start"></ion-icon>
-          }
-          @if (isLoading) {
-          <ion-spinner name="crescent"></ion-spinner>
-          }
-          {{ isLoading ? 'Signing In...' : 'Sign In' }}
-        </ion-button>
+        @if (activeTab === 'register') {
+          <div class="form-container">
+            <div class="form-header">
+              <h2 class="form-title">Create your account</h2>
+              <p class="form-subtitle">A few details to get started</p>
+            </div>
 
-        <div class="social-divider">
-          <span>or continue with</span>
-        </div>
+            <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
+              <div class="form-group">
+                <label class="form-label" for="register-email">Email</label>
+                <input
+                  id="register-email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="you@example.com"
+                  class="form-input"
+                  autocomplete="email"
+                  inputmode="email"
+                  [class.error]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+                />
+                @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
+                  <div class="error-message">
+                    <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+                    Please enter a valid email
+                  </div>
+                }
+              </div>
 
-        <div class="social-buttons">
-          <ion-button
-            type="button"
-            fill="outline"
-            class="social-button google"
-            [disabled]="isLoading || isSocialLoading"
-            (click)="onSocialLogin('google')"
-            expand="block"
-          >
-            <ion-icon name="logo-google" slot="start"></ion-icon>
-            Continue with Google
-          </ion-button>
+              <div class="form-group">
+                <label class="form-label" for="register-phone">Phone <span class="optional">(optional)</span></label>
+                <input
+                  id="register-phone"
+                  type="tel"
+                  formControlName="phoneNumber"
+                  placeholder="Phone number"
+                  class="form-input"
+                  autocomplete="tel"
+                  inputmode="tel"
+                />
+              </div>
 
-          <ion-button
-            type="button"
-            fill="outline"
-            class="social-button apple"
-            [disabled]="isLoading || isSocialLoading"
-            (click)="onSocialLogin('apple')"
-            expand="block"
-          >
-            <ion-icon name="logo-apple" slot="start"></ion-icon>
-            Continue with Apple
-          </ion-button>
-        </div>
+              <ion-button
+                type="submit"
+                class="submit-button register"
+                [disabled]="registerForm.invalid || isLoading"
+                expand="block"
+              >
+                @if (!isLoading) {
+                  <ion-icon name="person-add-outline" slot="start" aria-hidden="true"></ion-icon>
+                }
+                @if (isLoading) {
+                  <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+                }
+                {{ isLoading ? 'Creating account…' : 'Create account' }}
+              </ion-button>
 
-        <div class="form-footer">
-          <a href="#" class="forgot-link">Forgot Password?</a>
-        </div>
-      </form>
-    </div>
-    }
+              <div class="social-divider">
+                <span>Or sign up with</span>
+              </div>
 
-    <!-- Register Form -->
-    @if (activeTab === 'register') {
-    <div class="form-container">
-      <div class="form-header">
-        <h2 class="form-title">Join NouraCare</h2>
-        <p class="form-subtitle">Create an account for your family</p>
-      </div>
+              <div class="social-buttons">
+                <ion-button
+                  type="button"
+                  fill="outline"
+                  class="social-button google"
+                  [disabled]="isLoading || isSocialLoading"
+                  (click)="onSocialLogin('google')"
+                  expand="block"
+                >
+                  <ion-icon name="logo-google" slot="start" aria-hidden="true"></ion-icon>
+                  Google
+                </ion-button>
 
-      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
-        <div class="form-group">
-          <label class="form-label">
-            <ion-icon name="mail-outline" class="label-icon"></ion-icon>
-            Email Address
-          </label>
-          <input
-            type="email"
-            formControlName="email"
-            placeholder="Enter your email"
-            class="form-input"
-            [class.error]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
-          />
-          @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
-          <div class="error-message">
-            <ion-icon name="alert-circle-outline"></ion-icon>
-            Please enter a valid email address
+                <ion-button
+                  type="button"
+                  fill="outline"
+                  class="social-button apple"
+                  [disabled]="isLoading || isSocialLoading"
+                  (click)="onSocialLogin('apple')"
+                  expand="block"
+                >
+                  <ion-icon name="logo-apple" slot="start" aria-hidden="true"></ion-icon>
+                  Apple
+                </ion-button>
+              </div>
+
+              <div class="form-footer">
+                <p class="terms-text">
+                  By signing up you agree to our
+                  <a href="#" class="terms-link">Terms</a>
+                  and
+                  <a href="#" class="terms-link">Privacy</a>.
+                </p>
+              </div>
+            </form>
           </div>
-          }
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">
-            <ion-icon name="call-outline" class="label-icon"></ion-icon>
-            Phone Number
-          </label>
-          <input
-            type="tel"
-            formControlName="phoneNumber"
-            placeholder="Enter your phone number"
-            class="form-input"
-            [class.error]="registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid"
-          />
-          @if (registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid) {
-          <div class="error-message">
-            <ion-icon name="alert-circle-outline"></ion-icon>
-            Please enter a valid phone number
-          </div>
-          }
-        </div>
-
-        <ion-button 
-          type="submit" 
-          class="submit-button register"
-          [disabled]="registerForm.invalid || isLoading"
-          expand="block"
-        >
-          @if (!isLoading) {
-          <ion-icon name="person-add-outline" slot="start"></ion-icon>
-          }
-          @if (isLoading) {
-          <ion-spinner name="crescent"></ion-spinner>
-          }
-          {{ isLoading ? 'Creating Account...' : 'Create Account' }}
-        </ion-button>
-
-        <div class="social-divider">
-          <span>or sign up with</span>
-        </div>
-
-        <div class="social-buttons">
-          <ion-button
-            type="button"
-            fill="outline"
-            class="social-button google"
-            [disabled]="isLoading || isSocialLoading"
-            (click)="onSocialLogin('google')"
-            expand="block"
-          >
-            <ion-icon name="logo-google" slot="start"></ion-icon>
-            Continue with Google
-          </ion-button>
-
-          <ion-button
-            type="button"
-            fill="outline"
-            class="social-button apple"
-            [disabled]="isLoading || isSocialLoading"
-            (click)="onSocialLogin('apple')"
-            expand="block"
-          >
-            <ion-icon name="logo-apple" slot="start"></ion-icon>
-            Continue with Apple
-          </ion-button>
-        </div>
-
-        <div class="form-footer">
-          <p class="terms-text">
-            By signing up, you agree to our 
-            <a href="#" class="terms-link">Terms of Service</a> and 
-            <a href="#" class="terms-link">Privacy Policy</a>
-          </p>
-        </div>
-      </form>
-    </div>
-    }
+        }
       </div>
-    </div>
+    </main>
   </div>
 
-  <!-- Toast for notifications -->
   <ion-toast
     [isOpen]="showToast"
     [message]="message"

@@ -211,3 +211,106 @@
 .cc-hint-btn {
   --border-radius: 999px;
 }
+
+.cc-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.cc-log-period-btn {
+  --border-radius: 999px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.cc-history {
+  margin-top: 28px;
+  padding-top: 8px;
+}
+
+.cc-history-header {
+  margin-bottom: 14px;
+}
+
+.cc-history-title {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.cc-history-sub {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.cc-history-empty {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.45;
+
+  strong {
+    color: #374151;
+  }
+}
+
+.cc-history-empty-icon {
+  font-size: 2rem;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+
+.cc-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cc-history-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+}
+
+.cc-history-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #ec4899, #f472b6);
+}
+
+.cc-history-body {
+  min-width: 0;
+}
+
+.cc-history-main {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.cc-history-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #9ca3af;
+}

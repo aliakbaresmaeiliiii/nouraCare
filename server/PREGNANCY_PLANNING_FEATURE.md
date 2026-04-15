@@ -1,7 +1,7 @@
 # Pregnancy Planning Feature Implementation
 
 ## Overview
-The Pregnancy Planning feature has been successfully implemented in the Muslim Kids server application. This feature allows users to track and manage their pregnancy planning journey with comprehensive data tracking and fertility calculations.
+The Pregnancy Planning feature has been successfully implemented in the NouraCare server application. This feature allows users to track and manage their pregnancy planning journey with comprehensive data tracking and fertility calculations.
 
 ## Database Schema
 

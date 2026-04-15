@@ -377,6 +377,49 @@
   cursor: pointer;
 }
 
+.cycle-ring-shell {
+  background: #ffffff;
+  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
+  border-radius: 22px;
+  padding: 0.35rem 0.5rem 0.85rem;
+  margin-bottom: 0.8rem;
+  box-shadow: 0 4px 20px rgba(var(--brand-text-rgb), 0.07);
+  overflow: hidden;
+
+  ::ng-deep .cycle-chart-container {
+    position: relative;
+  }
+
+  ::ng-deep .chart-header {
+    padding-top: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  ::ng-deep .chart-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #1f2937;
+  }
+
+  ::ng-deep .chart-subtitle {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-bottom: 0;
+  }
+
+  ::ng-deep .chart-wrapper {
+    margin-top: -0.25rem;
+  }
+
+  ::ng-deep .cycle-chart {
+    max-height: min(72vw, 340px);
+    width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+}
+
 .cycle-compact-card {
   background: #ffffff;
   border: 1px solid rgba(var(--brand-text-rgb), 0.08);

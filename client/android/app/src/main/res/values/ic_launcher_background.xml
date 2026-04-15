@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Matches cream tone in assets/branding/download.png (adaptive icon mask) -->
-    <color name="ic_launcher_background">#F9F6F1</color>
+    <color name="ic_launcher_background">#FFFFFF</color>
 </resources>

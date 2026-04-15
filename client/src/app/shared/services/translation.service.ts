@@ -145,7 +145,7 @@ export class TranslationService {
       'menu.mainMenu': 'Main Menu',
       'menu.settingsSupport': 'Settings & Support',
       'menu.followUs': 'Follow Us',
-      'menu.muslimKidsPro': 'NouraCare Pro',
+      'menu.nouracarePro': 'NouraCare Pro',
       'menu.myPurchases': 'My Purchases',
       'menu.myFavorites': 'My Favorites',
       'menu.savedInformation': 'Saved Information',
@@ -157,7 +157,7 @@ export class TranslationService {
       'menu.checkUpdates': 'Check for Updates',
       'menu.inviteFriends': 'Invite Friends',
       'menu.notifications': 'Notifications',
-      'menu.aboutMuslimKids': 'About NouraCare',
+      'menu.aboutNouracare': 'About NouraCare',
       'menu.logOut': 'Log Out'
     },
     zh: {
@@ -299,7 +299,7 @@ export class TranslationService {
       'menu.mainMenu': '主菜单',
       'menu.settingsSupport': '设置与支持',
       'menu.followUs': '关注我们',
-      'menu.muslimKidsPro': 'NouraCare 专业版',
+      'menu.nouracarePro': 'NouraCare 专业版',
       'menu.myPurchases': '我的购买',
       'menu.myFavorites': '我的收藏',
       'menu.savedInformation': '保存的信息',
@@ -311,7 +311,7 @@ export class TranslationService {
       'menu.checkUpdates': '检查更新',
       'menu.inviteFriends': '邀请朋友',
       'menu.notifications': '通知',
-      'menu.aboutMuslimKids': '关于 NouraCare',
+      'menu.aboutNouracare': '关于 NouraCare',
       'menu.logOut': '退出登录'
     },
     ms: {
@@ -454,7 +454,7 @@ export class TranslationService {
       'menu.mainMenu': 'Menu Utama',
       'menu.settingsSupport': 'Tetapan & Sokongan',
       'menu.followUs': 'Ikuti Kami',
-      'menu.muslimKidsPro': 'NouraCare Pro',
+      'menu.nouracarePro': 'NouraCare Pro',
       'menu.myPurchases': 'Pembelian Saya',
       'menu.myFavorites': 'Kegemaran Saya',
       'menu.savedInformation': 'Maklumat Tersimpan',
@@ -466,7 +466,7 @@ export class TranslationService {
       'menu.checkUpdates': 'Semak Kemas Kini',
       'menu.inviteFriends': 'Jemput Rakan',
       'menu.notifications': 'Notifikasi',
-      'menu.aboutMuslimKids': 'Tentang NouraCare',
+      'menu.aboutNouracare': 'Tentang NouraCare',
       'menu.logOut': 'Log Keluar'
     },
     fa: {
@@ -608,7 +608,7 @@ export class TranslationService {
       'menu.mainMenu': 'منوی اصلی',
       'menu.settingsSupport': 'تنظیمات و پشتیبانی',
       'menu.followUs': 'ما را دنبال کنید',
-      'menu.muslimKidsPro': 'نورا فلو پرو',
+      'menu.nouracarePro': 'نورا فلو پرو',
       'menu.myPurchases': 'خریدهای من',
       'menu.myFavorites': 'علاقه‌مندی‌های من',
       'menu.savedInformation': 'اطلاعات ذخیره شده',
@@ -620,7 +620,7 @@ export class TranslationService {
       'menu.checkUpdates': 'بررسی به‌روزرسانی‌ها',
       'menu.inviteFriends': 'دعوت دوستان',
       'menu.notifications': 'اعلان‌ها',
-      'menu.aboutMuslimKids': 'درباره NouraCare',
+      'menu.aboutNouracare': 'درباره NouraCare',
       'menu.logOut': 'خروج'
     }
   };

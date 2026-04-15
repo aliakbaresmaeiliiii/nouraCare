@@ -70,17 +70,17 @@
 .step-title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: white;
+  color: var(--brand-text);
   margin: 0 0 0.5rem 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
 }
 
 .step-subtitle {
   font-size: 1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--brand-text-secondary);
   margin: 0;
-  font-weight: 400;
-  line-height: 1.4;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .step-content {
@@ -99,11 +99,11 @@
 
 .question-text {
   font-size: 1.4rem;
-  color: white;
+  color: var(--brand-text);
   text-align: center;
   margin-bottom: 2rem;
-  font-weight: 500;
-  line-height: 1.4;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .options-container {
@@ -209,8 +209,8 @@ ion-button {
   font-weight: 600;
   
   &[fill="clear"] {
-    --color: white;
-    --color-hover: rgba(255, 255, 255, 0.8);
+    --color: var(--brand-text-secondary);
+    --color-hover: var(--brand-text);
   }
   
   &:not([fill="clear"]) {
@@ -248,16 +248,17 @@ ion-button {
 .completion-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: white;
+  color: var(--brand-text);
   margin-bottom: 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
 }
 
 .completion-message {
   font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--brand-text-secondary);
   margin-bottom: 3rem;
-  line-height: 1.5;
+  line-height: 1.55;
+  font-weight: 500;
 }
 
 .get-started-btn {

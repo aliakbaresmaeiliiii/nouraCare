@@ -45,7 +45,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   appVersion: string = '1.0.0';
 
   menuItemsTop: MenuItem[] = [
-    { icon: 'diamond-outline', label: 'menu.muslimKidsPro', badge: 'PRO' },
+    { icon: 'diamond-outline', label: 'menu.nouracarePro', badge: 'PRO' },
     { icon: 'bag-outline', label: 'menu.myPurchases', disabled: true },
     { icon: 'heart-outline', label: 'menu.myFavorites' },
     { icon: 'bookmark-outline', label: 'menu.savedInformation' },
@@ -59,7 +59,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
     { icon: 'refresh-outline', label: 'menu.checkUpdates' },
     { icon: 'person-add-outline', label: 'menu.inviteFriends' },
     { icon: 'notifications-outline', label: 'menu.notifications' },
-    { icon: 'information-circle-outline', label: 'menu.aboutMuslimKids' },
+    { icon: 'information-circle-outline', label: 'menu.aboutNouracare' },
     { icon: 'log-out-outline', label: 'menu.logOut' },
   ];
 
@@ -91,7 +91,7 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
     this.activeIndexBottom = index;
     if (item.label === 'menu.logOut') {
       this.logout();
-    } else if (item.label === 'menu.aboutMuslimKids') {
+    } else if (item.label === 'menu.aboutNouracare') {
       await this.router.navigate(['/tabs/about']);
     } else if (item.label === 'menu.checkUpdates') {
       await this.router.navigate(['/check-version']);

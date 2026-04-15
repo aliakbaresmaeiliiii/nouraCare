@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Named splash_background to avoid clashing with Capacitor's splash.png (same R.drawable name). -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <solid android:color="@color/ic_launcher_background" />
-        </shape>
-    </item>
-</layer-list>
