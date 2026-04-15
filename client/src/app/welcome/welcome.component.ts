@@ -47,30 +47,18 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    console.log('Welcome component view initialized');
-    console.log('Login section element:', this.loginSection);
-    if (this.loginSection) {
-      console.log('Login section found in ngAfterViewInit');
-    } else {
-      console.log('Login section NOT found in ngAfterViewInit');
-    }
+ 
   }
 
   scrollToLogin() {
-    console.log('Scroll to login clicked'); // Debug log
-    console.log('Login section reference:', this.loginSection);
-
     if (this.loginSection && this.loginSection.nativeElement) {
-      console.log('Login section found, scrolling...'); // Debug log
       this.loginSection.nativeElement.scrollIntoView({
         behavior: 'smooth',
         block: 'start',
       });
     } else {
-      console.log('Login section not found'); // Debug log
       // Try to find it manually
       const loginSection = document.querySelector('.login-section');
-      console.log('Manual search for login section:', loginSection);
       if (loginSection) {
         loginSection.scrollIntoView({
           behavior: 'smooth',
@@ -82,8 +70,8 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   testOnboarding() {
     this.router.navigate(['/onboarding']).then(
-      (success) => console.log('Navigation successful:', success),
-      (error) => console.error('Navigation failed:', error),
+      (success) => {},
+      (error) => {},
     );
   }
 }

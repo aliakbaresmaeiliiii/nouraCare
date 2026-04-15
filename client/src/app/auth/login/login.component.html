@@ -1,4 +1,4 @@
-<ion-content class="login-page" [fullscreen]="true">
+<div class="login-page">
   <div class="login-shell">
     <!-- <header class="login-header">
       <div class="login-header-bg" aria-hidden="true">
@@ -63,8 +63,7 @@
         @if (activeTab === 'login') {
           <div class="form-container">
             <div class="form-header">
-              <h2 class="form-title">Welcome back</h2>
-              <p class="form-subtitle">Enter your email to continue</p>
+              <h2 class="form-title">Sign In</h2>
             </div>
 
             <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
@@ -94,47 +93,44 @@
                 [disabled]="loginForm.invalid || isLoading"
                 expand="block"
               >
-                @if (!isLoading) {
-                  <ion-icon name="log-in-outline" slot="start" aria-hidden="true"></ion-icon>
-                }
                 @if (isLoading) {
                   <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
                 }
-                {{ isLoading ? 'Signing in…' : 'Continue' }}
+                {{ isLoading ? 'Signing in…' : 'Sign In' }}
               </ion-button>
 
               <div class="social-divider">
                 <span>Or continue with</span>
               </div>
 
-              <div class="social-buttons">
+              <div class="social-buttons social-buttons--icons">
                 <ion-button
                   type="button"
-                  fill="outline"
+                  fill="clear"
                   class="social-button google"
                   [disabled]="isLoading || isSocialLoading"
                   (click)="onSocialLogin('google')"
-                  expand="block"
+                  aria-label="Continue with Google"
                 >
-                  <ion-icon name="logo-google" slot="start" aria-hidden="true"></ion-icon>
-                  Google
+                  <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
                 </ion-button>
 
                 <ion-button
                   type="button"
-                  fill="outline"
+                  fill="clear"
                   class="social-button apple"
                   [disabled]="isLoading || isSocialLoading"
                   (click)="onSocialLogin('apple')"
-                  expand="block"
+                  aria-label="Continue with Apple"
                 >
-                  <ion-icon name="logo-apple" slot="start" aria-hidden="true"></ion-icon>
-                  Apple
+                  <ion-icon name="logo-apple" aria-hidden="true"></ion-icon>
                 </ion-button>
+
+                <button type="button" class="social-button x" aria-label="X login placeholder">X</button>
               </div>
 
               <div class="form-footer">
-                <a href="#" class="forgot-link">Forgot password?</a>
+                <a href="#" class="forgot-link">Learn user licence agreement</a>
               </div>
             </form>
           </div>
@@ -143,8 +139,7 @@
         @if (activeTab === 'register') {
           <div class="form-container">
             <div class="form-header">
-              <h2 class="form-title">Create your account</h2>
-              <p class="form-subtitle">A few details to get started</p>
+              <h2 class="form-title">Sign Up</h2>
             </div>
 
             <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
@@ -187,52 +182,44 @@
                 [disabled]="registerForm.invalid || isLoading"
                 expand="block"
               >
-                @if (!isLoading) {
-                  <ion-icon name="person-add-outline" slot="start" aria-hidden="true"></ion-icon>
-                }
                 @if (isLoading) {
                   <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
                 }
-                {{ isLoading ? 'Creating account…' : 'Create account' }}
+                {{ isLoading ? 'Creating account…' : 'Sign Up' }}
               </ion-button>
 
               <div class="social-divider">
                 <span>Or sign up with</span>
               </div>
 
-              <div class="social-buttons">
+              <div class="social-buttons social-buttons--icons">
                 <ion-button
                   type="button"
-                  fill="outline"
+                  fill="clear"
                   class="social-button google"
                   [disabled]="isLoading || isSocialLoading"
                   (click)="onSocialLogin('google')"
-                  expand="block"
+                  aria-label="Continue with Google"
                 >
-                  <ion-icon name="logo-google" slot="start" aria-hidden="true"></ion-icon>
-                  Google
+                  <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
                 </ion-button>
 
                 <ion-button
                   type="button"
-                  fill="outline"
+                  fill="clear"
                   class="social-button apple"
                   [disabled]="isLoading || isSocialLoading"
                   (click)="onSocialLogin('apple')"
-                  expand="block"
+                  aria-label="Continue with Apple"
                 >
-                  <ion-icon name="logo-apple" slot="start" aria-hidden="true"></ion-icon>
-                  Apple
+                  <ion-icon name="logo-apple" aria-hidden="true"></ion-icon>
                 </ion-button>
+
+                <button type="button" class="social-button x" aria-label="X login placeholder">X</button>
               </div>
 
               <div class="form-footer">
-                <p class="terms-text">
-                  By signing up you agree to our
-                  <a href="#" class="terms-link">Terms</a>
-                  and
-                  <a href="#" class="terms-link">Privacy</a>.
-                </p>
+                <a href="#" class="forgot-link">Learn user licence agreement</a>
               </div>
             </form>
           </div>
@@ -250,4 +237,4 @@
     [color]="success ? 'success' : 'danger'"
   >
   </ion-toast>
-</ion-content>
+</div>

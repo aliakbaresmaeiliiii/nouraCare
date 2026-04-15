@@ -1,21 +1,12 @@
 <ion-content class="verify-page">
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="hero-content">
-      <div class="icon-container">
-        <ion-icon name="mail-check" class="hero-icon"></ion-icon>
-      </div>
-      <h1 class="hero-title">Verify Your Email</h1>
-      <p class="hero-subtitle">We've sent a verification code to your email</p>
-    </div>
-  </div>
-
-  <!-- Verification Container -->
-  <div class="verify-container">
-    <div class="verify-content">
+  <div class="verify-shell">
+    <div class="verify-card">
       <div class="verify-header">
-        <h2 class="verify-title">Enter Verification Code</h2>
-        <p class="verify-subtitle">Please check your email and enter the 6-digit code below</p>
+        <div class="icon-container">
+          <ion-icon name="mail-check" class="hero-icon"></ion-icon>
+        </div>
+        <h1 class="hero-title">Verify Your Email</h1>
+        <p class="hero-subtitle">Enter the verification code sent to your email address</p>
       </div>
 
       <form [formGroup]="form" class="verify-form">
@@ -29,74 +20,52 @@
             maxlength="6"
           >
           </ion-input-otp>
-          
-          <div class="otp-hint">
-            <ion-icon name="information-circle-outline"></ion-icon>
-            <span>Enter the 6-digit code sent to your email</span>
-          </div>
+
+          <p class="otp-hint">Enter your code to continue</p>
         </div>
 
-        <!-- Timer Section -->
         @if (!isExpired) {
-        <div class="timer-section">
-          <div class="timer-container">
+          <div class="timer-section">
             <ion-icon name="time-outline" class="timer-icon"></ion-icon>
-            <div class="timer-text">
-              <span>Code expires in:</span>
-              <strong class="timer-countdown">{{ timer }}s</strong>
-            </div>
+            <span>Code expires in</span>
+            <strong class="timer-countdown">{{ timer }}s</strong>
           </div>
-        </div>
         }
 
-        <!-- Expired Message -->
         @if (isExpired) {
-        <div class="expired-message">
-          <ion-icon name="alert-circle-outline" class="expired-icon"></ion-icon>
-          <span>Verification code has expired</span>
-        </div>
+          <div class="expired-message">
+            <ion-icon name="alert-circle-outline" class="expired-icon"></ion-icon>
+            <span>Verification code has expired</span>
+          </div>
         }
 
-        <!-- Action Buttons -->
         <div class="action-buttons">
-          <ion-button 
-            type="submit" 
+          <ion-button
+            type="submit"
             class="verify-button"
             [disabled]="form.invalid || isLoading"
             expand="block"
             (click)="onSubmit()"
           >
-            @if (!isLoading) {
-            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-            }
             @if (isLoading) {
-            <ion-spinner name="crescent"></ion-spinner>
+              <ion-spinner name="crescent"></ion-spinner>
             }
             {{ isLoading ? 'Verifying...' : 'Verify Email' }}
           </ion-button>
 
-          <ion-button 
-            fill="outline" 
+          <ion-button
+            fill="clear"
             class="resend-button"
             [disabled]="!isExpired && timer > 0"
             expand="block"
             (click)="resendCode()"
           >
-            <ion-icon name="refresh-outline" slot="start"></ion-icon>
             {{ isExpired || timer === 0 ? 'Resend Code' : 'Resend in ' + timer + 's' }}
           </ion-button>
         </div>
 
-        <!-- Help Section -->
         <div class="help-section">
-          <div class="help-item">
-            <ion-icon name="mail-outline" class="help-icon"></ion-icon>
-            <span>Check your spam folder if you don't see the email</span>
-          </div>
-          <div class="help-item">
-            <ion-icon name="call-outline" class="help-icon"></ion-icon>
-            <span>Need help? Contact our support team</span>
-          </div>
+          <span>Check your spam folder if the email is missing.</span>
         </div>
       </form>
     </div>
