@@ -249,6 +249,82 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(var(--brand-text-rgb), 0.12), transparent);
   margin: 8px 16px;
+
+  &.menu-divider--tight {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+}
+
+// Appearance (theme) — compact segment in the drawer
+.theme-section {
+  padding: 8px 16px 4px;
+}
+
+.theme-segment-card {
+  background: rgba(var(--brand-text-rgb), 0.07);
+  border-radius: var(--app-radius-md);
+  padding: 6px;
+  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+}
+
+.menu-theme-segment {
+  --background: transparent;
+  border-radius: calc(var(--app-radius-md) - 4px);
+  min-height: 52px;
+
+  ion-segment-button {
+    --background: transparent;
+    --background-checked: rgba(var(--brand-surface-rgb), 0.92);
+    --color: rgba(var(--brand-text-rgb), 0.55);
+    --color-checked: var(--brand-text);
+    --indicator-color: transparent;
+    --border-radius: 10px;
+    --padding-start: 4px;
+    --padding-end: 4px;
+    margin: 0 2px;
+    min-height: 48px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: none;
+
+    &::part(native) {
+      border-radius: 10px;
+    }
+
+    ion-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+      color: rgba(var(--brand-text-rgb), 0.5);
+    }
+
+    &.segment-button-checked ion-icon {
+      color: var(--brand-primary);
+    }
+  }
+}
+
+.theme-chip-label {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.theme-hint {
+  margin: 10px 4px 0;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 500;
+  color: rgba(var(--brand-text-rgb), 0.52);
+  text-align: center;
 }
 
 // Social Section
@@ -277,12 +353,10 @@
     --background: rgba(var(--brand-text-rgb), 0.06);
   }
   
-  &.instagram:hover {
-    --background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-  }
-  
+  &.instagram:hover,
   &.telegram:hover {
-    --background: linear-gradient(45deg, #0088cc, #229ed9);
+    --background: rgba(var(--brand-primary-rgb), 0.12);
+    --color: var(--brand-primary-dark);
   }
 }
 
@@ -403,6 +477,10 @@
   .menu-section {
     padding: 16px 12px;
   }
+
+  .theme-section {
+    padding-inline: 12px;
+  }
   
   .menu-item {
     --min-height: 44px;
@@ -418,7 +496,7 @@
 }
 
 // Dark Mode Support
-@media (prefers-color-scheme: dark) {
+:host-context(html.ion-palette-dark) {
   .main-header {
     --background: #1f2937;
     --color: white;
@@ -440,6 +518,30 @@
   
   .main-title {
     color: white;
+  }
+
+  .theme-segment-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  }
+
+  .menu-theme-segment ion-segment-button {
+    --color: rgba(255, 255, 255, 0.55);
+    --background-checked: rgba(255, 255, 255, 0.14);
+    --color-checked: #f8fafc;
+
+    ion-icon {
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    &.segment-button-checked ion-icon {
+      color: #a5b4fc;
+    }
+  }
+
+  .theme-hint {
+    color: rgba(255, 255, 255, 0.45);
   }
 }
 

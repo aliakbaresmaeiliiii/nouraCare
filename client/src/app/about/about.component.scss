@@ -525,8 +525,8 @@
 // Floating Action Button
 ion-fab {
   ion-fab-button {
-    --background: linear-gradient(135deg, #ff6b6b, #feca57);
-    --color: white;
+    --background: var(--app-gradient-header);
+    --color: var(--brand-text);
     --border-radius: 50%;
     box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
     transition: all 0.3s ease;

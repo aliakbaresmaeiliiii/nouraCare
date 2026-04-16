@@ -31,7 +31,8 @@ export class HomeReproductiveUiService {
     journey: UserInfo | null | undefined,
   ): HomePageJourneyState {
     const state = this.applyDashboardResponse(dashboard);
-    this.mergeLegacyOnboardingJourney(dashboard, journey, state);
+    this.mergeJourneyLastPeriodIntoCycleState(journey, state);
+    this.hydratePeriodStartFromLocalCycle(state);
     this.finalizePregnancyStorageFromDashboard(dashboard, state);
     return state;
   }
@@ -47,10 +48,10 @@ export class HomeReproductiveUiService {
     if (this.cycleSettings.isPregnant() || this.cycleSettings.isPostpartum()) {
       return false;
     }
-    // Keep onboarding visible until user has an actual cycle start date.
-    // Status may get auto-populated from APIs shortly after load.
-    const hasPeriodStartDate = !!this.cycleSettings.lastPeriodStartDate();
-    if (hasPeriodStartDate) {
+    // Show until local cycle storage has a last-period start (LMP).
+    // Journey is merged into cycle settings in the same sync; using the signal here caused
+    // stale journey data or timing to hide the CTA when the user still had nothing local.
+    if (this.cycleSettings.lastPeriodStartDate()) {
       return false;
     }
     return true;
@@ -99,17 +100,6 @@ export class HomeReproductiveUiService {
     this.cycleSettings.setUserStatus(userStatus);
     this.cycleSettings.setPostpartumStatus(false);
 
-    if (dashboard.nextPeriod) {
-      const nextPeriod = new Date(dashboard.nextPeriod);
-      const cycleLen = this.cycleSettings.cycleLength() || 28;
-      const lastPeriod = new Date(nextPeriod);
-      lastPeriod.setDate(lastPeriod.getDate() - cycleLen);
-      const iso = lastPeriod.toISOString().split('T')[0];
-      this.cycleSettings.setLastPeriodStart(iso);
-      periodStartDate = new Date(iso + 'T12:00:00');
-      cycleDayDirty = true;
-    }
-
     return {
       userStatus,
       isPregnant: false,
@@ -120,15 +110,61 @@ export class HomeReproductiveUiService {
   }
 
   /**
-   * Previously merged `GET user/me/onboarding` into cycle/planning dashboard rows.
-   * That overwrote a fresh `PATCH /me/state` (e.g. not pregnant) when onboarding still said PREGNANT.
-   * {@link DashboardResponse.state} is authoritative; do not infer mode from the onboarding row here.
+   * When the server journey has a last-period date but local cycle storage does not,
+   * copy it so the home ring, metrics, and “start tracking” gate stay consistent.
+   * Does not infer LMP from {@link DashboardResponse.nextPeriod} (that hid the CTA without user input).
    */
-  private mergeLegacyOnboardingJourney(
-    _dashboard: DashboardResponse,
-    _journey: UserInfo | null | undefined,
-    _state: HomePageJourneyState,
-  ): void {}
+  /** When the dashboard merge did not set `periodStartDate`, bind it from saved cycle settings (common on logged-in first paint). */
+  private hydratePeriodStartFromLocalCycle(state: HomePageJourneyState): void {
+    if (state.isPregnant || state.isPostpartum) {
+      return;
+    }
+    if (state.periodStartDate) {
+      return;
+    }
+    const iso = this.cycleSettings.lastPeriodStartDate();
+    if (!iso) {
+      return;
+    }
+    const day = iso.includes('T') ? iso.split('T')[0] : iso.slice(0, 10);
+    state.periodStartDate = new Date(`${day}T12:00:00`);
+    state.cycleDayDirty = true;
+  }
+
+  private mergeJourneyLastPeriodIntoCycleState(
+    journey: UserInfo | null | undefined,
+    state: HomePageJourneyState,
+  ): void {
+    const iso = this.journeyLastPeriodIso(journey);
+    if (!iso) {
+      return;
+    }
+    if (!this.cycleSettings.lastPeriodStartDate()) {
+      this.cycleSettings.setLastPeriodStart(iso);
+    }
+    if (!state.periodStartDate) {
+      state.periodStartDate = new Date(`${iso}T12:00:00`);
+      state.cycleDayDirty = true;
+    }
+  }
+
+  private journeyLastPeriodIso(journey: UserInfo | null | undefined): string | null {
+    const raw = journey?.lastPeriodDate;
+    if (raw == null || raw === '') {
+      return null;
+    }
+    if (typeof raw === 'string') {
+      const s = raw.trim();
+      if (!s) {
+        return null;
+      }
+      return s.includes('T') ? s.split('T')[0] : s.slice(0, 10);
+    }
+    if (raw instanceof Date && !Number.isNaN(raw.getTime())) {
+      return raw.toISOString().split('T')[0];
+    }
+    return null;
+  }
 
   private finalizePregnancyStorageFromDashboard(
     dashboard: DashboardResponse,

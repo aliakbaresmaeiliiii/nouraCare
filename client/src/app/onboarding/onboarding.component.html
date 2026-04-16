@@ -13,13 +13,13 @@
   @if (!isCompleted) {
     <div class="step-container">
     <div class="step-header">
-      <h1 class="step-title">{{ currentStepData.title }}</h1>
-      <p class="step-subtitle">{{ currentStepData.subtitle }}</p>
+      <h1 class="step-title">{{ getStepTitle() }}</h1>
+      <p class="step-subtitle">{{ getStepSubtitle() }}</p>
     </div>
 
     <div class="step-content">
       <div class="question-container">
-        <h2 class="question-text">{{ currentStepData.question }}</h2>
+        <h2 class="question-text">{{ getStepQuestion() }}</h2>
 
         <!-- Radio Options -->
         @if (currentStepData.type === 'radio' && currentStepData.id !== 'notifications') {
@@ -73,7 +73,7 @@
           @if (currentStepData.id === 'last_period' && answers[currentStepData.id] && !isValidLastPeriodDate(answers[currentStepData.id])) {
             <div class="validation-error">
               <ion-icon name="warning-outline"></ion-icon>
-              The start date of your last menstrual period cannot be in the future.
+              {{ getLastPeriodValidationMessage() || 'Please adjust the date so it is valid.' }}
             </div>
           }
           </div>

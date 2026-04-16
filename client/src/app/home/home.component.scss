@@ -1403,7 +1403,7 @@
         .add-symptom-btn {
           --background: var(--app-gradient-header);
           --border-radius: 50%;
-          --color: white;
+          --color: var(--brand-text);
           width: 56px;
           height: 56px;
           box-shadow: 0 4px 20px rgba(var(--flo-primary-rgb), 0.3);
@@ -1891,7 +1891,7 @@
 .quick-fab {
   .main-fab {
     --background: var(--app-gradient-header);
-    --color: white;
+    --color: var(--brand-text);
     --border-radius: 50%;
     width: 60px;
     height: 60px;

@@ -9,8 +9,8 @@
   <!-- Hero Section -->
   <div class="consultation-hero">
     <div class="hero-content">
-      <h1 class="hero-title">Expert Consultation</h1>
-      <p class="hero-subtitle">Book appointments with healthcare professionals</p>
+      <h1 class="hero-title">Talk to a specialist</h1>
+      <p class="hero-subtitle">Book online or in person. Same trusted care, fewer steps.</p>
       <div class="hero-stats">
         <div class="stat">
           <span class="stat-number">50+</span>
@@ -33,7 +33,8 @@
   <!-- Available Specialists -->
   <div class="specialists-section">
     <div class="section-header">
-      <h2 class="section-title">Available Specialists</h2>
+      <h2 class="section-title">Available specialists</h2>
+      <p class="section-subtitle">Tap a card to book, or open a full profile first.</p>
     </div>
     
     <!-- Loading State -->
@@ -66,7 +67,10 @@
           <p class="specialist-specialty">{{ doctor.specialty }}</p>
           <div class="specialist-details">
             @if (doctor.rating) {
-              <span class="rating">⭐ {{ doctor.rating }}/5</span>
+              <span class="rating">
+                <ion-icon name="star" aria-hidden="true"></ion-icon>
+                {{ doctor.rating }}/5
+              </span>
             }
             <span class="experience">{{ doctor.experienceYears }}+ years experience</span>
           </div>
@@ -101,10 +105,10 @@
         </div>
         <div class="specialist-actions">
           <ion-button fill="solid" size="small" class="book-btn" (click)="bookWithDoctor(doctor); $event.stopPropagation()">
-            Book Now
+            Book
           </ion-button>
           <ion-button fill="outline" size="small" (click)="viewDoctorProfile(doctor); $event.stopPropagation()">
-            View Profile
+            Profile
           </ion-button>
         </div>
           </div>
@@ -145,15 +149,15 @@
 
   <!-- Quick Booking -->
   <div class="quick-booking">
-    <h2 class="section-title">Quick Booking</h2>
+    <h2 class="section-title">Quick booking</h2>
     <div class="booking-options">
       <ion-button expand="block" fill="solid" class="booking-btn primary" (click)="bookDoctorAppointment()">
         <ion-icon name="medical" slot="start"></ion-icon>
-        Book Doctor Appointment
+        Book a doctor visit
       </ion-button>
       <ion-button expand="block" fill="outline" class="booking-btn" (click)="bookNutritionConsultation()">
         <ion-icon name="nutrition" slot="start"></ion-icon>
-        Nutrition Consultation
+        Nutrition consult
       </ion-button>
     </div>
   </div>
@@ -165,11 +169,11 @@
         <ion-icon name="warning"></ion-icon>
       </div>
       <div class="emergency-content">
-        <h3 class="emergency-title">Emergency Contact</h3>
-        <p class="emergency-description">Need immediate assistance?</p>
+        <h3 class="emergency-title">Emergency</h3>
+        <p class="emergency-description">Life-threatening emergency? Call your local number (e.g. 911).</p>
         <ion-button fill="solid" color="danger" expand="block">
           <ion-icon name="call" slot="start"></ion-icon>
-          Call Emergency: 911
+          Call 911
         </ion-button>
       </div>
     </div>

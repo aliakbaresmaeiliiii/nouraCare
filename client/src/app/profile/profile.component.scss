@@ -298,14 +298,12 @@
   }
 
   .pregnancy-planning-btn {
-    --border-radius: 14px;
+    --border-radius: var(--app-button-radius);
     --padding-top: 18px;
     --padding-bottom: 18px;
-    --background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    font-weight: 700;
+    font-weight: var(--app-button-font-weight);
     font-size: 16px;
     letter-spacing: -0.1px;
-    box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
   }
 }
 

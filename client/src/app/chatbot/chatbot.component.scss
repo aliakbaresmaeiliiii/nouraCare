@@ -370,7 +370,7 @@
 }
 
 // Dark mode support
-@media (prefers-color-scheme: dark) {
+:host-context(html.ion-palette-dark) {
   .chatbot-content {
     --background: var(--ion-color-dark);
   }

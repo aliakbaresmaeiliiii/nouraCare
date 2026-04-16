@@ -313,7 +313,7 @@
 }
 
 // Dark mode support
-@media (prefers-color-scheme: dark) {
+:host-context(html.ion-palette-dark) {
   .invite-content {
     --background: var(--ion-color-dark);
   }

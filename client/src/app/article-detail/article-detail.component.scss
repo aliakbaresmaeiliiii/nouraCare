@@ -406,7 +406,7 @@
     gap: 1rem;
 
     .favorite-action-btn {
-      --background: linear-gradient(135deg, #ff6b9d, #f06292);
+      --background: var(--app-gradient-header);
       --border-radius: 16px;
       --padding-top: 16px;
       --padding-bottom: 16px;

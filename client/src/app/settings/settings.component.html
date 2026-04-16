@@ -115,10 +115,13 @@
           <div class="card-action">
             @if (setting.type === 'toggle') {
             <ion-list [inset]="true">
-
               <ion-item>
-                <ion-toggle [(ngModel)]="paletteToggle" (ionChange)="toggleChange($event)" justify="space-between">Dark
-                  Mode</ion-toggle>
+                <ion-toggle
+                  [checked]="autoSyncEnabled"
+                  (ionChange)="onAutoSyncIonChange($event)"
+                  justify="space-between">
+                  {{ setting.title }}
+                </ion-toggle>
               </ion-item>
             </ion-list>
             } @else {
@@ -191,8 +194,7 @@
   @if (isLoading) {
   <div class="loading-overlay">
     <div class="loading-content">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p class="loading-text">Loading settings...</p>
+      <app-logo-loading layout="embedded" message="Loading settings..." />
     </div>
   </div>
   }

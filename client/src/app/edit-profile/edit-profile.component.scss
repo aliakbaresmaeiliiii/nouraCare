@@ -24,7 +24,7 @@
   box-shadow: 0 4px 20px rgba(var(--flo-primary-rgb), 0.3);
   
   .header-title {
-    color: white;
+    color: var(--ion-color-dark);
     font-weight: 700;
     font-size: 22px;
     letter-spacing: -0.3px;
@@ -212,7 +212,7 @@
       margin: 0;
       font-size: 18px;
       font-weight: 700;
-      color: white;
+      color: var(--ion-color-dark);
       letter-spacing: -0.2px;
     }
   }
@@ -587,8 +587,8 @@
         --border-radius: 16px;
         --padding-top: 18px;
         --padding-bottom: 18px;
-        --background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
-        --color: white;
+        --background: var(--app-gradient-header);
+        --color: var(--ion-color-dark);
         font-weight: 700;
         font-size: 16px;
         box-shadow: 0 4px 20px rgba(255, 107, 157, 0.3);

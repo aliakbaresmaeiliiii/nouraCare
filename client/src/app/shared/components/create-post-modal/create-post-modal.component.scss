@@ -187,32 +187,32 @@
   }
 
   .post-btn {
-    --background: #ff4d6d;
-    --color: #ffffff;
-    --border-radius: 20px;
+    --background: var(--app-gradient-header);
+    --color: var(--brand-text);
+    --border-radius: var(--app-button-radius);
     --padding-top: 12px;
     --padding-bottom: 12px;
     --padding-start: 24px;
     --padding-end: 24px;
-    font-weight: 600;
+    font-weight: var(--app-button-font-weight);
     font-size: 1rem;
     min-width: 80px;
     height: 44px;
 
     &:disabled {
-      --background: #555555;
-      --color: #888888;
+      --background: rgba(var(--brand-text-rgb), 0.12);
+      --color: rgba(var(--brand-text-rgb), 0.5);
     }
 
     &:not(:disabled):hover {
-      --background: #ff3355;
+      --background: var(--ion-color-primary);
       transform: scale(1.02);
     }
 
     ion-spinner {
       width: 20px;
       height: 20px;
-      --color: #ffffff;
+      --color: var(--brand-text);
     }
   }
 }

@@ -3,7 +3,10 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
-import { BabyDevelopmentService } from '../shared/services/baby-development.service';
+import {
+  BabyDevelopmentService,
+  BabySizeData,
+} from '../shared/services/baby-development.service';
 
 @Component({
   selector: 'app-school',
@@ -18,10 +21,12 @@ export class SchoolComponent implements OnInit {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
 
-  // Pregnancy data
-  pregnancyWeek: number = 12;
-  isPregnant: boolean = false;
-  currentBaby: any = null;
+  /** Week shown on screen (user can explore 4–40). */
+  pregnancyWeek = 12;
+  /** Week from profile / cycle (source of truth after refresh). */
+  actualPregnancyWeek = 12;
+  isPregnant = false;
+  currentBaby: BabySizeData | null = null;
 
   constructor(
     private router: Router,
@@ -38,11 +43,52 @@ export class SchoolComponent implements OnInit {
    */
   private loadPregnancyData() {
     this.isPregnant = this.cycleSettings.isPregnant();
-    this.pregnancyWeek = this.cycleSettings.pregnancyWeek();
-    
+    this.actualPregnancyWeek = this.cycleSettings.pregnancyWeek();
+    this.pregnancyWeek = this.actualPregnancyWeek;
+
     if (this.isPregnant) {
-      this.currentBaby = this.babyDevelopmentService.getCurrentBabySize();
+      this.syncBabyToDisplayedWeek();
+    } else {
+      this.currentBaby = null;
     }
+  }
+
+  /** True when browsing a week other than the one saved in the profile. */
+  get isExploringOtherWeek(): boolean {
+    return this.isPregnant && this.pregnancyWeek !== this.actualPregnancyWeek;
+  }
+
+  private syncBabyToDisplayedWeek(): void {
+    const w = Math.max(4, Math.min(40, Math.floor(this.pregnancyWeek)));
+    this.pregnancyWeek = w;
+    this.currentBaby = this.babyDevelopmentService.getBabySizeForWeek(w);
+  }
+
+  onWeekRangeChange(event: CustomEvent<{ value: unknown }>): void {
+    const v = this.coerceRangeWeek(event.detail?.value);
+    if (v === null) {
+      return;
+    }
+    this.pregnancyWeek = v;
+    this.syncBabyToDisplayedWeek();
+  }
+
+  private coerceRangeWeek(value: unknown): number | null {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return Math.max(4, Math.min(40, Math.round(value)));
+    }
+    if (value && typeof value === 'object' && 'lower' in value) {
+      const lower = (value as { lower: number }).lower;
+      if (typeof lower === 'number' && Number.isFinite(lower)) {
+        return Math.max(4, Math.min(40, Math.round(lower)));
+      }
+    }
+    return null;
+  }
+
+  resetToProfileWeek(): void {
+    this.pregnancyWeek = this.actualPregnancyWeek;
+    this.syncBabyToDisplayedWeek();
   }
 
   /**
@@ -201,7 +247,7 @@ export class SchoolComponent implements OnInit {
   nextWeek() {
     if (this.pregnancyWeek < 40) {
       this.pregnancyWeek++;
-      this.currentBaby = this.babyDevelopmentService.getCurrentBabySize();
+      this.syncBabyToDisplayedWeek();
     }
   }
 

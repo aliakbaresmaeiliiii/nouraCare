@@ -103,7 +103,7 @@ import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
     }
 
     /* Dark mode support */
-    @media (prefers-color-scheme: dark) {
+    :host-context(html.ion-palette-dark) {
       .flag-button {
         background: rgba(30, 30, 30, 0.9);
         border-color: rgba(255, 255, 255, 0.1);

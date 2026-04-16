@@ -25,6 +25,7 @@ import {
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { ForumService } from '../../shared/services/forum.service';
+import { LogoLoadingComponent } from '../../shared/components/logo-loading/logo-loading.component';
 
 interface ForumCategory {
   id: string;
@@ -59,6 +60,7 @@ interface CreatePostForm {
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    LogoLoadingComponent,
   ],
 })
 export class CreatePostComponent implements OnInit {

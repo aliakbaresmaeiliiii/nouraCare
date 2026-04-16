@@ -5,13 +5,14 @@ import { IonicModule, AlertController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { FavoritesService, FavoriteItem, FavoriteStats } from '../shared/services/favorites.service';
+import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
 
 @Component({
   selector: 'app-my-favorites',
   templateUrl: './my-favorites.component.html',
   styleUrls: ['./my-favorites.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, LogoLoadingComponent],
 })
 export class MyFavoritesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

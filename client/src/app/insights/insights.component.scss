@@ -13,9 +13,9 @@
 }
 
 .insights-content {
-  --background: #1a1a1a;
-  background: #1a1a1a;
-  color: white;
+  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: var(--background);
+  color: var(--brand-text);
   box-sizing: border-box;
   padding: 0 0 12px;
   margin-top: 1.3rem;
@@ -33,7 +33,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(var(--brand-text-rgb), 0.88);
   backdrop-filter: blur(10px);
   z-index: 9999;
   display: flex;
@@ -62,7 +62,7 @@
         position: absolute;
         width: 8px;
         height: 8px;
-        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        background: linear-gradient(45deg, var(--brand-accent), #fcd34d);
         border-radius: 50%;
         animation: explode 2s ease-out forwards;
 
@@ -87,8 +87,8 @@
 
       .unlock-icon-main {
         font-size: 80px;
-        color: #ffd700;
-        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+        color: var(--brand-accent);
+        filter: drop-shadow(0 0 20px rgba(var(--brand-accent-rgb), 0.45));
       }
     }
 
@@ -99,9 +99,8 @@
       h2 {
         font-size: 32px;
         font-weight: 800;
-        color: white;
         margin: 0 0 8px 0;
-        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        background: linear-gradient(45deg, var(--brand-accent), #fde68a);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -109,7 +108,7 @@
 
       p {
         font-size: 16px;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.88);
         margin: 0;
       }
     }
@@ -128,8 +127,13 @@
 
 // Premium Banner
 .premium-banner {
-  background: linear-gradient(135deg, #8b5a9f 0%, #6b4c93 100%);
-  margin: 12px 16px 10px;
+  background: linear-gradient(
+    135deg,
+    var(--brand-primary-dark) 0%,
+    var(--brand-primary) 52%,
+    var(--brand-secondary) 100%
+  );
+  margin: 12px var(--app-side-padding, 1rem) 10px;
   border-radius: 16px;
   padding: 14px 16px;
   position: relative;
@@ -170,9 +174,9 @@
       
       ion-toggle {
         --background: rgba(255, 255, 255, 0.3);
-        --background-checked: white;
+        --background-checked: rgba(255, 255, 255, 0.95);
         --handle-background: white;
-        --handle-background-checked: #8b5a9f;
+        --handle-background-checked: var(--brand-primary);
       }
     }
   }
@@ -242,6 +246,18 @@
   }
 }
 
+.search-empty {
+  padding: 24px var(--app-side-padding, 1rem) 8px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+}
+
 // Search Section
 .search-section {
   position: relative;
@@ -255,11 +271,12 @@
     
     .insights-search {
       flex: 1;
-      --background: rgba(255, 255, 255, 0.1);
-      --color: white;
-      --placeholder-color: rgba(255, 255, 255, 0.6);
+      --background: var(--brand-surface);
+      --color: var(--brand-text);
+      --placeholder-color: var(--brand-text-secondary);
+      --icon-color: var(--ion-color-primary);
       --border-radius: 12px;
-      --box-shadow: none;
+      --box-shadow: var(--app-shadow-card);
       
       .searchbar-input {
         font-size: 16px;
@@ -273,7 +290,7 @@
       
       .bookmark-btn,
       .notification-btn {
-        --color: white;
+        --color: var(--ion-color-primary);
         --background: transparent;
         --border-radius: 12px;
         width: 44px;
@@ -290,8 +307,8 @@
           position: absolute;
           top: 8px;
           right: 8px;
-          background: #ff4757;
-          color: white;
+          background: var(--ion-color-danger);
+          color: var(--ion-color-danger-contrast);
           border-radius: 50%;
           width: 18px;
           height: 18px;
@@ -311,12 +328,12 @@
   margin-bottom: 32px;
   
   .section-header {
-    padding: 0 16px 16px;
+    padding: 0 var(--app-side-padding, 1rem) 16px;
     
     .section-title {
       font-size: 20px;
       font-weight: 700;
-      color: white;
+      color: #1e293b;
       margin: 0;
       line-height: 1.2;
     }
@@ -325,7 +342,7 @@
   .articles-scroll {
     display: flex;
     gap: 16px;
-    padding: 0 16px;
+    padding: 0 var(--app-side-padding, 1rem);
     overflow-x: auto;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
@@ -353,7 +370,7 @@
   
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--app-shadow-card-hover);
   }
   
   // Ensure minimum width for last card
@@ -442,16 +459,16 @@
       right: 12px;
       width: 32px;
       height: 32px;
-      background: linear-gradient(45deg, #ffd700, #ffed4e);
+      background: linear-gradient(45deg, var(--brand-accent), #fde68a);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+      box-shadow: 0 4px 12px rgba(var(--brand-accent-rgb), 0.35);
       
       ion-icon {
         font-size: 16px;
-        color: white;
+        color: var(--ion-color-tertiary-contrast);
       }
     }
 
@@ -518,8 +535,8 @@
       gap: 8px;
 
       .premium-badge {
-        background: linear-gradient(45deg, #8b5a9f, #6b4c93);
-        color: white;
+        background: linear-gradient(45deg, var(--brand-primary-dark), var(--brand-primary));
+        color: var(--ion-color-primary-contrast);
         padding: 4px 8px;
         border-radius: 12px;
         font-size: 10px;
@@ -529,8 +546,8 @@
         transition: all 0.3s ease;
 
         &.unlocked {
-          background: linear-gradient(45deg, #ffd700, #ffed4e);
-          color: #1a1a1a;
+          background: linear-gradient(45deg, var(--brand-accent), #fde68a);
+          color: var(--brand-text);
           animation: premiumGlow 0.6s ease-out;
         }
       }
@@ -736,13 +753,13 @@
 
 @keyframes unlockGlow {
   0% {
-    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+    box-shadow: 0 0 0 rgba(var(--brand-accent-rgb), 0);
   }
   50% {
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 20px rgba(var(--brand-accent-rgb), 0.45);
   }
   100% {
-    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+    box-shadow: 0 0 0 rgba(var(--brand-accent-rgb), 0);
   }
 }
 
@@ -763,13 +780,13 @@
 
 @keyframes premiumGlow {
   0% {
-    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+    box-shadow: 0 0 0 rgba(var(--brand-accent-rgb), 0);
   }
   50% {
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    box-shadow: 0 0 10px rgba(var(--brand-accent-rgb), 0.5);
   }
   100% {
-    box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+    box-shadow: 0 0 0 rgba(var(--brand-accent-rgb), 0);
   }
 }
 

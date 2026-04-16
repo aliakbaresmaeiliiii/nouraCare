@@ -4,6 +4,7 @@ import { Capacitor } from '@capacitor/core';
 import { Keyboard, KeyboardResize } from '@capacitor/keyboard';
 import { UserInfoService } from './shared/services/user-info.service';
 import { OnboardingStateService } from './shared/services/onboarding-state.service';
+import { ThemeService } from './shared/services/theme.service';
 import { SHARED_STANDALONE_IMPORTS } from './shared/shared-standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -27,6 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
   showStartupWelcome = true;
   private userInfoService = inject(UserInfoService);
   private onboardingStateService = inject(OnboardingStateService);
+  private themeService = inject(ThemeService);
   private router = inject(Router);
 
   constructor() {
@@ -41,9 +43,14 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Initialize user info service on app start
     this.userInfoService.loadUserInfoOnInit();
+    this.themeService.init();
   }
 
   ngOnInit() {
+    // `ion-app` exists after first render; palette class must live on it for Ionic dark CSS.
+    this.themeService.syncDomFromPreference();
+    queueMicrotask(() => this.themeService.syncDomFromPreference());
+
     // Always schedule welcome dismissal first so it never blocks app startup.
     this.splashTimeoutId = setTimeout(() => {
       this.dismissStartupWelcome();

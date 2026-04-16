@@ -45,6 +45,20 @@
   --app-gradient-fade: linear-gradient(90deg, #dbeafe, transparent);
   --app-gradient-accent-warm: linear-gradient(135deg, #fef3c7 0%, #ffedd5 100%);
 
+  /* Buttons — one system app-wide (see global.scss ion-button) */
+  --app-button-radius: var(--app-radius-md);
+  --app-button-min-height: 46px;
+  --app-button-min-height-sm: 40px;
+  --app-button-font-weight: 600;
+  --app-button-solid-bg: var(--app-gradient-header);
+  /* Always pair this light gradient with dark text (light + dark mode) */
+  --app-button-solid-color: var(--brand-text);
+  --app-button-solid-shadow: 0 4px 14px rgba(var(--brand-primary-rgb), 0.22),
+    0 2px 8px rgba(var(--brand-secondary-rgb), 0.14);
+  --app-button-solid-shadow-hover: 0 6px 18px rgba(var(--brand-primary-rgb), 0.28),
+    0 2px 8px rgba(var(--brand-secondary-rgb), 0.18);
+  --app-button-outline-hover-bg: rgba(var(--brand-primary-rgb), 0.08);
+
   /* Radius and shadows */
   --app-radius-sm: 8px;
   --app-radius-md: 12px;
@@ -132,6 +146,9 @@
   --ion-item-background: var(--brand-surface);
   --ion-card-background: var(--brand-surface);
 }
+
+/* Note: do not set --app-button-solid-color to a light value while --app-button-solid-bg
+   stays the pastel header gradient — that causes invisible labels. */
 
 ion-content {
   --background: var(--ion-background-color);

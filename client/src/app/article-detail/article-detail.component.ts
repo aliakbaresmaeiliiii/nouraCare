@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FavoritesService } from '../shared/services/favorites.service';
+import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
 
 interface ArticleContent {
   id: string;
@@ -29,7 +30,7 @@ interface ArticleSection {
   templateUrl: './article-detail.component.html',
   styleUrls: ['./article-detail.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, LogoLoadingComponent],
 })
 export class ArticleDetailComponent implements OnInit {
   article: ArticleContent | null = null;

@@ -1,6 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { ActionSheetController } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
+import {
+  ThemePreference,
+  ThemeService,
+} from '../shared/services/theme.service';
 
 interface SettingItem {
   id: string;
@@ -20,12 +26,16 @@ interface SettingItem {
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
-  paletteToggle = false;
+  private themeService = inject(ThemeService);
+  private actionSheetCtrl = inject(ActionSheetController);
+  private appearanceSub?: Subscription;
+
   isLoading = false;
   errorMessage = '';
   hasUserAvatar = false;
+  autoSyncEnabled = true;
 
   // Account Settings
   accountSettings: SettingItem[] = [
@@ -35,7 +45,7 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Edit your personal information',
       icon: 'person-outline',
       type: 'link',
-      route: '/edit-profile'
+      route: '/edit-profile',
     },
     {
       id: 'privacy',
@@ -43,7 +53,7 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Manage your privacy settings',
       icon: 'shield-outline',
       type: 'link',
-      route: '/privacy-settings'
+      route: '/privacy-settings',
     },
     {
       id: 'notifications',
@@ -51,8 +61,8 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Control your notification preferences',
       icon: 'notifications-outline',
       type: 'link',
-      route: '/notification-settings'
-    }
+      route: '/notification-settings',
+    },
   ];
 
   // App Settings
@@ -63,16 +73,17 @@ export class SettingsComponent implements OnInit {
       subtitle: 'English',
       icon: 'language-outline',
       type: 'link',
-      route: '/language-settings'
+      route: '/language-settings',
     },
     {
       id: 'theme',
-      title: 'Dark Mode',
-      subtitle: 'Use dark theme',
-      icon: 'moon-outline',
-      type: 'toggle',
-      value: false,
-      action: () => this.toggleTheme()
+      title: 'Appearance',
+      subtitle: '',
+      icon: 'color-palette-outline',
+      type: 'button',
+      action: () => {
+        void this.openAppearanceSheet();
+      },
     },
     {
       id: 'autoSync',
@@ -81,7 +92,6 @@ export class SettingsComponent implements OnInit {
       icon: 'sync-outline',
       type: 'toggle',
       value: true,
-      action: () => this.toggleAutoSync()
     },
     {
       id: 'dataUsage',
@@ -89,8 +99,8 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Manage your data consumption',
       icon: 'cellular-outline',
       type: 'link',
-      route: '/data-usage'
-    }
+      route: '/data-usage',
+    },
   ];
 
   // Support & About
@@ -101,7 +111,7 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Get help and contact support',
       icon: 'help-circle-outline',
       type: 'link',
-      route: '/help-support'
+      route: '/help-support',
     },
     {
       id: 'feedback',
@@ -109,7 +119,7 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Share your thoughts with us',
       icon: 'chatbubble-outline',
       type: 'button',
-      action: () => this.sendFeedback()
+      action: () => this.sendFeedback(),
     },
     {
       id: 'about',
@@ -117,7 +127,7 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Version 1.0.0',
       icon: 'information-circle-outline',
       type: 'link',
-      route: '/about'
+      route: '/about',
     },
     {
       id: 'terms',
@@ -125,7 +135,7 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Read our terms and conditions',
       icon: 'document-text-outline',
       type: 'link',
-      route: '/terms'
+      route: '/terms',
     },
     {
       id: 'privacy-policy',
@@ -133,8 +143,8 @@ export class SettingsComponent implements OnInit {
       subtitle: 'How we handle your data',
       icon: 'lock-closed-outline',
       type: 'link',
-      route: '/privacy-policy'
-    }
+      route: '/privacy-policy',
+    },
   ];
 
   // Account Actions
@@ -145,7 +155,7 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Download your data',
       icon: 'download-outline',
       type: 'button',
-      action: () => this.exportData()
+      action: () => this.exportData(),
     },
     {
       id: 'delete',
@@ -153,64 +163,80 @@ export class SettingsComponent implements OnInit {
       subtitle: 'Permanently delete your account',
       icon: 'trash-outline',
       type: 'button',
-      action: () => this.deleteAccount()
-    }
+      action: () => this.deleteAccount(),
+    },
   ];
 
-  constructor() { }
-
   ngOnInit() {
+    this.syncThemeSettingRow();
+    this.appearanceSub = this.themeService.appearanceChanged$.subscribe(() =>
+      this.syncThemeSettingRow(),
+    );
     this.loadSettings();
+  }
+
+  ngOnDestroy() {
+    this.appearanceSub?.unsubscribe();
   }
 
   loadSettings() {
     this.isLoading = true;
-    // Simulate loading settings from storage/API
     setTimeout(() => {
       this.isLoading = false;
-      // Load saved settings from localStorage
       this.loadSavedSettings();
     }, 500);
   }
 
-  initializeDarkPalette(isDark: boolean) {
-    this.paletteToggle = isDark;
-    this.toggleDarkPalette(isDark);
-  }
-  toggleChange(event: CustomEvent) {
-    this.toggleDarkPalette(event.detail.checked);
+  private syncThemeSettingRow(): void {
+    const themeSetting = this.appSettings.find((s) => s.id === 'theme');
+    if (themeSetting) {
+      themeSetting.subtitle = this.themeService.subtitleForCurrent();
+    }
   }
 
-  toggleDarkPalette(shouldAdd: boolean) {
-    document.documentElement.classList.toggle('ion-palette-dark', shouldAdd);
+  async openAppearanceSheet(): Promise<void> {
+    const current = this.themeService.getPreference();
+    const mark = (p: ThemePreference) => (current === p ? ' ✓' : '');
+
+    const sheet = await this.actionSheetCtrl.create({
+      header: 'Appearance',
+      buttons: [
+        {
+          text: `Light${mark('light')}`,
+          handler: () => this.themeService.setPreference('light'),
+        },
+        {
+          text: `Dark${mark('dark')}`,
+          handler: () => this.themeService.setPreference('dark'),
+        },
+        {
+          text: `System (device)${mark('system')}`,
+          handler: () => this.themeService.setPreference('system'),
+        },
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+      ],
+    });
+    await sheet.present();
   }
+
   loadSavedSettings() {
-    const savedTheme = localStorage.getItem('darkMode');
     const savedAutoSync = localStorage.getItem('autoSync');
-
-    if (savedTheme) {
-      const themeSetting = this.appSettings.find(s => s.id === 'theme');
-      if (themeSetting) {
-        themeSetting.value = savedTheme === 'true';
-
-        // Apply saved theme using Ionic's native dark mode
-        document.body.classList.toggle('dark', themeSetting.value);
-      }
+    if (savedAutoSync !== null) {
+      this.autoSyncEnabled = savedAutoSync === 'true';
     }
-
-    if (savedAutoSync) {
-      const autoSyncSetting = this.appSettings.find(s => s.id === 'autoSync');
-      if (autoSyncSetting) {
-        autoSyncSetting.value = savedAutoSync === 'true';
-      }
+    const autoSyncSetting = this.appSettings.find((s) => s.id === 'autoSync');
+    if (autoSyncSetting) {
+      autoSyncSetting.value = this.autoSyncEnabled;
     }
+    this.syncThemeSettingRow();
   }
 
   onSettingClick(setting: SettingItem) {
     if (setting.type === 'toggle') {
-      if (setting.action) {
-        setting.action();
-      }
+      return;
     } else if (setting.type === 'link' && setting.route) {
       this.router.navigate([setting.route]);
     } else if (setting.type === 'button' && setting.action) {
@@ -218,45 +244,36 @@ export class SettingsComponent implements OnInit {
     }
   }
 
-  toggleTheme() {
-    const themeSetting = this.appSettings.find(s => s.id === 'theme');
-    if (themeSetting) {
-      themeSetting.value = !themeSetting.value;
-      localStorage.setItem('darkMode', themeSetting.value.toString());
-
-      // Use Ionic's native dark mode
-      document.body.classList.toggle('dark', themeSetting.value);
-
-      this.showSuccessAlert(`Dark mode ${themeSetting.value ? 'enabled' : 'disabled'}`);
-    }
+  onAutoSyncIonChange(event: CustomEvent<{ checked: boolean }>): void {
+    this.onAutoSyncToggle(!!event.detail?.checked);
   }
 
-  toggleAutoSync() {
-    const autoSyncSetting = this.appSettings.find(s => s.id === 'autoSync');
+  onAutoSyncToggle(checked: boolean) {
+    this.autoSyncEnabled = checked;
+    const autoSyncSetting = this.appSettings.find((s) => s.id === 'autoSync');
     if (autoSyncSetting) {
-      autoSyncSetting.value = !autoSyncSetting.value;
-      localStorage.setItem('autoSync', autoSyncSetting.value.toString());
-      this.showSuccessAlert(`Auto sync ${autoSyncSetting.value ? 'enabled' : 'disabled'}`);
+      autoSyncSetting.value = checked;
     }
+    localStorage.setItem('autoSync', String(checked));
+    this.showSuccessAlert(`Auto sync ${checked ? 'enabled' : 'disabled'}`);
   }
 
   sendFeedback() {
-    // Open email client or feedback form
     const subject = encodeURIComponent('NouraCare App Feedback');
-    const body = encodeURIComponent('Hi NouraCare team,\n\nI would like to share the following feedback:\n\n');
+    const body = encodeURIComponent(
+      'Hi NouraCare team,\n\nI would like to share the following feedback:\n\n',
+    );
     window.open(`mailto:support@nouracare.app?subject=${subject}&body=${body}`);
   }
 
   exportData() {
     this.showSuccessAlert('Data export started. You will receive an email when ready.');
-    // Simulate data export
     setTimeout(() => {
       this.showSuccessAlert('Your data has been exported and sent to your email.');
     }, 2000);
   }
 
   deleteAccount() {
-    // Show confirmation dialog
     if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       this.showErrorAlert('Account deletion requested. Please contact support for confirmation.');
     }
@@ -268,7 +285,6 @@ export class SettingsComponent implements OnInit {
 
   logout() {
     if (confirm('Are you sure you want to sign out?')) {
-      // Clear user data and navigate to login
       localStorage.removeItem('userToken');
       localStorage.removeItem('userData');
       this.router.navigate(['/welcome']);

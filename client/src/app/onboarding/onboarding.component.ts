@@ -20,6 +20,13 @@ import { OnboardingStateService } from '../shared/services/onboarding-state.serv
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { NotificationPermissionComponent } from '../shared/components/notification-permission/notification-permission.component';
 import { AuthService } from '../auth/services/auth';
+import {
+  addCalendarDaysIso,
+  gestationalWeekFromLmp,
+  isoDateOnly,
+  isCalendarDateNotAfterToday,
+  lmpIsoFromLastBleedingDay,
+} from '../shared/utils/pregnancy-lmp.util';
 
 interface OnboardingStep {
   id: string;
@@ -83,12 +90,20 @@ export class OnboardingComponent implements OnInit {
       required: true,
     },
     {
-      id: 'last_period',
-      title: 'When was your last period?',
-      subtitle: 'This helps us calculate your cycle',
-      question: 'Please enter the start date of your last menstrual period.',
-      type: 'date',
-      placeholder: 'Select date',
+      id: 'period_length',
+      title: 'How long do your periods last?',
+      subtitle: 'Number of bleeding days',
+      question: 'On average, how many days does your period last?',
+      type: 'select',
+      options: [
+        { label: '2 days', value: 2 },
+        { label: '3 days', value: 3 },
+        { label: '4 days', value: 4 },
+        { label: '5 days (most common)', value: 5 },
+        { label: '6 days', value: 6 },
+        { label: '7 days', value: 7 },
+        { label: '8 days', value: 8 },
+      ],
       required: true,
     },
     {
@@ -118,20 +133,12 @@ export class OnboardingComponent implements OnInit {
       required: true,
     },
     {
-      id: 'period_length',
-      title: 'How long do your periods last?',
-      subtitle: 'Number of bleeding days',
-      question: 'On average, how many days does your period last?',
-      type: 'select',
-      options: [
-        { label: '2 days', value: 2 },
-        { label: '3 days', value: 3 },
-        { label: '4 days', value: 4 },
-        { label: '5 days (most common)', value: 5 },
-        { label: '6 days', value: 6 },
-        { label: '7 days', value: 7 },
-        { label: '8 days', value: 8 },
-      ],
+      id: 'last_period',
+      title: 'When was your last period?',
+      subtitle: 'This helps us calculate your cycle',
+      question: 'Please enter the start date of your last menstrual period.',
+      type: 'date',
+      placeholder: 'Select date',
       required: true,
     },
     {
@@ -196,6 +203,63 @@ export class OnboardingComponent implements OnInit {
     return this.steps[this.currentStep];
   }
 
+  getStepTitle(): string {
+    const s = this.currentStepData;
+    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
+      return 'Last day of your last period';
+    }
+    return s.title;
+  }
+
+  getStepSubtitle(): string {
+    const s = this.currentStepData;
+    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
+      return 'We use this with your usual bleed length to find day 1 of that period (LMP), then your pregnancy week.';
+    }
+    if (s.id === 'pregnancy_week' && this.answers['pregnancy_status'] === 'pregnant') {
+      return 'Estimated from your bleeding dates. Change only if your clinician gave a different week.';
+    }
+    return s.subtitle;
+  }
+
+  getStepQuestion(): string {
+    const s = this.currentStepData;
+    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
+      return 'Choose the last day you still had bleeding from your most recent period (not a future date).';
+    }
+    if (s.id === 'pregnancy_week' && this.answers['pregnancy_status'] === 'pregnant') {
+      return 'Your estimated week of pregnancy (based on LMP from those dates):';
+    }
+    return s.question;
+  }
+
+  getLastPeriodValidationMessage(): string {
+    const raw = this.answers['last_period'];
+    const iso = isoDateOnly(typeof raw === 'string' ? raw : '');
+    if (!iso) {
+      return '';
+    }
+    if (this.answers['pregnancy_status'] === 'pregnant') {
+      if (!isCalendarDateNotAfterToday(iso)) {
+        return 'That date cannot be in the future.';
+      }
+      const pl = Number(this.answers['period_length']) || 5;
+      const lmp = lmpIsoFromLastBleedingDay(iso, pl);
+      const week = gestationalWeekFromLmp(lmp);
+      if (week < 4) {
+        return 'From these dates, pregnancy would be under 4 weeks. Check the last bleeding day and how many days you usually bleed, or confirm with your clinician.';
+      }
+      if (week > 40) {
+        return 'From these dates, pregnancy would be over 40 weeks. Double-check the last bleeding day and bleed length.';
+      }
+      return '';
+    }
+    if (!isCalendarDateNotAfterToday(iso)) {
+      return 'The start date of your last menstrual period cannot be in the future.';
+    }
+    return '';
+  }
+
   get progressPercentage(): number {
     return ((this.currentStep + 1) / this.steps.length) * 100;
   }
@@ -226,6 +290,13 @@ export class OnboardingComponent implements OnInit {
     }
 
     this.answers[stepId] = value;
+
+    if (
+      (stepId === 'last_period' || stepId === 'period_length') &&
+      this.answers['pregnancy_status'] === 'pregnant'
+    ) {
+      this.syncPregnancyWeekFromLastPeriodAnchor();
+    }
   }
 
   /**
@@ -236,28 +307,75 @@ export class OnboardingComponent implements OnInit {
   }
 
   /**
-   * Validate last period date - cannot be in the future
+   * Last-period step: cycle users enter LMP start; pregnant users enter last bleeding day
+   * (converted to LMP using period length when saving).
    */
   isValidLastPeriodDate(dateString: string): boolean {
-    const selectedDate = new Date(dateString);
-    const today = new Date();
+    const iso = isoDateOnly(dateString);
+    if (!iso) {
+      return false;
+    }
+    if (this.answers['pregnancy_status'] === 'pregnant') {
+      return this.isValidPregnancyLastBleedAnchor(iso);
+    }
+    return isCalendarDateNotAfterToday(iso);
+  }
 
-    // Reset time components for accurate date comparison
-    selectedDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
+  private isValidPregnancyLastBleedAnchor(lastBleedIso: string): boolean {
+    if (!isCalendarDateNotAfterToday(lastBleedIso)) {
+      return false;
+    }
+    const pl = Number(this.answers['period_length']) || 5;
+    if (!Number.isFinite(pl) || pl < 1) {
+      return false;
+    }
+    const lmp = lmpIsoFromLastBleedingDay(lastBleedIso, pl);
+    const week = gestationalWeekFromLmp(lmp);
+    return week >= 4 && week <= 40;
+  }
 
-    // Date should not be in the future
-    return selectedDate <= today;
+  private syncPregnancyWeekFromLastPeriodAnchor(): void {
+    if (this.answers['pregnancy_status'] !== 'pregnant') {
+      return;
+    }
+    const bleed = isoDateOnly(this.answers['last_period']);
+    if (!bleed) {
+      return;
+    }
+    const pl = Number(this.answers['period_length']) || 5;
+    if (!this.isValidPregnancyLastBleedAnchor(bleed)) {
+      delete this.answers['pregnancy_week'];
+      return;
+    }
+    const lmp = lmpIsoFromLastBleedingDay(bleed, pl);
+    const week = gestationalWeekFromLmp(lmp);
+    this.answers['pregnancy_week'] = week;
+  }
+
+  private getEffectiveLmpIsoForStorage(): string | null {
+    const raw = isoDateOnly(this.answers['last_period']);
+    if (!raw) {
+      return null;
+    }
+    if (this.answers['pregnancy_status'] === 'pregnant') {
+      const pl = Number(this.answers['period_length']) || 5;
+      return lmpIsoFromLastBleedingDay(raw, pl);
+    }
+    return raw;
   }
 
   /**
    * Show validation error for invalid date selection
    */
   private async showDateValidationError() {
+    const msg =
+      this.answers['pregnancy_status'] === 'pregnant'
+        ? this.getLastPeriodValidationMessage() ||
+          'Please choose a valid last bleeding day so pregnancy timing is between 4 and 40 weeks.'
+        : 'The start date of your last menstrual period cannot be in the future. Please select a valid date.';
     const alert = await this.alertController.create({
       header: 'Invalid Date',
-      message:
-        'The start date of your last menstrual period cannot be in the future. Please select a valid date.',
+      message: msg,
       buttons: ['OK'],
     });
 
@@ -311,6 +429,18 @@ export class OnboardingComponent implements OnInit {
               : [],
             notifications: response.data.notifications,
           };
+          // API stores LMP for pregnant users; date step asks for last bleeding day.
+          if (
+            this.answers['pregnancy_status'] === 'pregnant' &&
+            this.answers['last_period']
+          ) {
+            const lmp = isoDateOnly(this.answers['last_period']);
+            const pl = Number(this.answers['period_length']) || 5;
+            if (lmp) {
+              this.answers['last_period'] = addCalendarDaysIso(lmp, pl - 1);
+            }
+            this.syncPregnancyWeekFromLastPeriodAnchor();
+          }
         }
       },
       error: (error) => {
@@ -332,7 +462,7 @@ export class OnboardingComponent implements OnInit {
 
     const onboardingData: OnboardingDataDto = {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
-      last_period: this.answers['last_period'] || null,
+      last_period: this.getEffectiveLmpIsoForStorage(),
       cycle_length: this.answers['cycle_length'] || 28,
       period_length: this.answers['period_length'] || 5,
       pregnancy_week: this.answers['pregnancy_week'] || undefined,
@@ -394,13 +524,14 @@ export class OnboardingComponent implements OnInit {
           : status === 'trying'
             ? 'planning'
             : 'cycle';
+    const lmp = this.getEffectiveLmpIsoForStorage();
     return {
       state: mappedState,
-      lastPeriodDate: this.answers['last_period'] || undefined,
+      lastPeriodDate: lmp || undefined,
       cycleLength: this.answers['cycle_length'] || undefined,
       currentWeek: this.answers['pregnancy_week'] || undefined,
-      tryingSince: mappedState === 'planning' ? this.answers['last_period'] || undefined : undefined,
-      pregnancyStartDate: mappedState === 'pregnant' ? this.answers['last_period'] || undefined : undefined,
+      tryingSince: mappedState === 'planning' ? lmp || undefined : undefined,
+      pregnancyStartDate: mappedState === 'pregnant' ? lmp || undefined : undefined,
     };
   }
 
@@ -422,8 +553,9 @@ export class OnboardingComponent implements OnInit {
     this.cycleSettings.setCycleLength(this.answers['cycle_length'] || 28);
     this.cycleSettings.setPeriodLength(this.answers['period_length'] || 5);
 
-    if (this.answers['last_period']) {
-      this.cycleSettings.setLastPeriodStart(this.answers['last_period']);
+    const lmp = this.getEffectiveLmpIsoForStorage();
+    if (lmp) {
+      this.cycleSettings.setLastPeriodStart(lmp);
     }
 
     // Save pregnancy status
@@ -462,7 +594,7 @@ export class OnboardingComponent implements OnInit {
     // Store complete onboarding data for registration
     const onboardingData = {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
-      last_period: this.answers['last_period'] || null,
+      last_period: this.getEffectiveLmpIsoForStorage(),
       cycle_length: this.answers['cycle_length'] || 28,
       period_length: this.answers['period_length'] || 5,
       pregnancy_week: this.answers['pregnancy_week'] || undefined,

@@ -158,7 +158,11 @@ export class TranslationService {
       'menu.inviteFriends': 'Invite Friends',
       'menu.notifications': 'Notifications',
       'menu.aboutNouracare': 'About NouraCare',
-      'menu.logOut': 'Log Out'
+      'menu.logOut': 'Log Out',
+      'menu.appearance': 'Appearance',
+      'menu.themeLight': 'Light',
+      'menu.themeDark': 'Dark',
+      'menu.themeSystem': 'System'
     },
     zh: {
       'common.welcome': '欢迎',
@@ -312,7 +316,11 @@ export class TranslationService {
       'menu.inviteFriends': '邀请朋友',
       'menu.notifications': '通知',
       'menu.aboutNouracare': '关于 NouraCare',
-      'menu.logOut': '退出登录'
+      'menu.logOut': '退出登录',
+      'menu.appearance': '外观',
+      'menu.themeLight': '浅色',
+      'menu.themeDark': '深色',
+      'menu.themeSystem': '跟随系统'
     },
     ms: {
       'common.welcome': 'Selamat Datang',
@@ -467,7 +475,11 @@ export class TranslationService {
       'menu.inviteFriends': 'Jemput Rakan',
       'menu.notifications': 'Notifikasi',
       'menu.aboutNouracare': 'Tentang NouraCare',
-      'menu.logOut': 'Log Keluar'
+      'menu.logOut': 'Log Keluar',
+      'menu.appearance': 'Penampilan',
+      'menu.themeLight': 'Cerah',
+      'menu.themeDark': 'Gelap',
+      'menu.themeSystem': 'Sistem'
     },
     fa: {
       'common.welcome': 'خوش آمدید',
@@ -621,7 +633,11 @@ export class TranslationService {
       'menu.inviteFriends': 'دعوت دوستان',
       'menu.notifications': 'اعلان‌ها',
       'menu.aboutNouracare': 'درباره NouraCare',
-      'menu.logOut': 'خروج'
+      'menu.logOut': 'خروج',
+      'menu.appearance': 'ظاهر',
+      'menu.themeLight': 'روشن',
+      'menu.themeDark': 'تاریک',
+      'menu.themeSystem': 'هماهنگ با دستگاه'
     }
   };
 

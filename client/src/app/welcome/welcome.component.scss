@@ -471,37 +471,23 @@
   transform: translateY(-1px);
 }
 
-.submit-button {
-  --background: var(--app-gradient-header);
-  --background-hover: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-  --background-activated: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-  --border-radius: 15px;
+.submit-button,
+.submit-button.register {
+  --border-radius: var(--app-button-radius);
   --padding-top: 1rem;
   --padding-bottom: 1rem;
-  --font-weight: 600;
-  --box-shadow: 0 4px 15px rgba(var(--flo-primary-rgb), 0.4);
   margin-top: 1rem;
-  transition: all 0.3s ease;
+  transition: transform var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard);
 }
 
-.submit-button:hover {
-  transform: translateY(-2px);
-  --box-shadow: 0 6px 20px rgba(var(--flo-primary-rgb), 0.5);
-}
-
-.submit-button.register {
-  --background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  --background-hover: linear-gradient(135deg, #218838 0%, #1ea085 100%);
-  --background-activated: linear-gradient(135deg, #218838 0%, #1ea085 100%);
-  --box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
-}
-
+.submit-button:hover,
 .submit-button.register:hover {
-  --box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+  transform: translateY(-2px);
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
+:host-context(html.ion-palette-dark) {
   .welcome-page {
     --background: #1a1a1a;
     --color: #fff;

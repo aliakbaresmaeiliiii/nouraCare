@@ -449,15 +449,9 @@ ion-modal::part(backdrop) {
 }
 
 ion-modal ion-toolbar {
-  --background: rgb(14 116 144);
-  --color: white;
+  --background: var(--brand-primary);
+  --color: var(--ion-color-primary-contrast);
 }
-
-ion-button {
-  --background: #0FA3B1;
-  --color: white;
-}
-
 
 
 // Graceful Ring Animation

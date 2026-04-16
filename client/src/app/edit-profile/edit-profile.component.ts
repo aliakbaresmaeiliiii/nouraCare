@@ -917,34 +917,52 @@ export class EditProfileComponent implements OnInit {
     const loadingDialog = document.createElement('div');
     loadingDialog.style.cssText = `
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(6px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: var(--font-primary, system-ui, sans-serif);
     `;
-    loadingDialog.innerHTML = `
-      <div style="
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      ">
-        <p style="margin: 0 0 16px 0; color: #374151; font-weight: 500;">${message}</p>
-        <ion-spinner name="crescent"></ion-spinner>
-      </div>
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background: var(--brand-surface, #ffffff);
+      padding: 28px 32px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+      max-width: 90vw;
     `;
+    const logo = document.createElement('img');
+    logo.src = 'assets/branding/AppIcon-welcome.png';
+    logo.alt = '';
+    logo.width = 80;
+    logo.height = 80;
+    logo.style.cssText = `
+      display: block;
+      margin: 0 auto 16px;
+      border-radius: 18px;
+      object-fit: cover;
+      box-shadow: 0 8px 28px rgba(99, 102, 241, 0.25);
+      animation: app-brand-logo-pulse 1.6s ease-in-out infinite;
+    `;
+    const msg = document.createElement('p');
+    msg.textContent = message;
+    msg.style.cssText = `
+      margin: 0;
+      color: #64748b;
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 1.45;
+    `;
+    card.appendChild(logo);
+    card.appendChild(msg);
+    loadingDialog.appendChild(card);
     document.body.appendChild(loadingDialog);
     setTimeout(() => {
-      if (loadingDialog.parentNode) {
-        loadingDialog.remove();
-      }
+      loadingDialog.remove();
     }, 3000);
   }
 

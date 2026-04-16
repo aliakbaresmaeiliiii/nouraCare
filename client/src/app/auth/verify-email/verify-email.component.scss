@@ -122,15 +122,9 @@
 }
 
 .verify-button {
-  --background: linear-gradient(90deg, #1f86cc, #20b2cf);
-  --background-hover: linear-gradient(90deg, #1a76b2, #1e9db8);
-  --background-activated: linear-gradient(90deg, #1a76b2, #1e9db8);
-  --color: #ffffff;
-  --border-radius: 999px;
-  --box-shadow: 0 8px 16px rgba(20, 140, 210, 0.35);
+  --border-radius: var(--app-button-radius);
   --padding-top: 0.9rem;
   --padding-bottom: 0.9rem;
-  --font-weight: 700;
 }
 
 .resend-button {

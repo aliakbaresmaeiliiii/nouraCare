@@ -68,8 +68,13 @@
   <!-- Search Bar -->
   <div class="search-section">
     <div class="search-container">
-      <ion-searchbar placeholder="Search" class="insights-search">
-      </ion-searchbar>
+      <ion-searchbar
+        placeholder="Search articles"
+        class="insights-search"
+        [debounce]="200"
+        (ionInput)="onSearchInput($event)"
+        (ionClear)="onSearchClear()"
+      ></ion-searchbar>
       <div class="search-icons">
         <ion-button fill="clear" class="bookmark-btn" (click)="router.navigate(['/my-favorites'])">
           <ion-icon name="heart-outline"></ion-icon>
@@ -82,14 +87,21 @@
     </div>
   </div>
 
+  @if (hasActiveSearch() && !hasAnySearchResults()) {
+  <div class="search-empty">
+    <p>No articles match your search.</p>
+  </div>
+  }
+
   <!-- Nutrition need to know -->
+  @if (!hasActiveSearch() || filteredArticles().nutritionNeedToKnow.length > 0) {
   <div class="section">
     <div class="section-header">
       <h2 class="section-title">Nutrition need to know</h2>
     </div>
 
     <div class="articles-scroll">
-       @for (article of nutritionNeedToKnow; track article.id) {
+       @for (article of filteredArticles().nutritionNeedToKnow; track article.id) {
        <div class="article-card" (click)="openArticle(article)"
          [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
@@ -128,15 +140,17 @@
       }
     </div>
   </div>
+  }
 
   <!-- All about your baby -->
+  @if (!hasActiveSearch() || filteredArticles().allAboutYourBaby.length > 0) {
   <div class="section">
     <div class="section-header">
       <h2 class="section-title">All about your baby</h2>
     </div>
 
     <div class="articles-scroll">
-       @for (article of allAboutYourBaby; track article.id) {
+       @for (article of filteredArticles().allAboutYourBaby; track article.id) {
        <div class="article-card" (click)="openArticle(article)"
          [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
@@ -175,15 +189,17 @@
       }
     </div>
   </div>
+  }
 
   <!-- Most popular in Pregnancy -->
+  @if (!hasActiveSearch() || filteredArticles().pregnancyPopular.length > 0) {
   <div class="section">
     <div class="section-header">
       <h2 class="section-title">Most popular in Pregnancy</h2>
     </div>
 
     <div class="articles-scroll">
-       @for (article of pregnancyPopular; track article.id) {
+       @for (article of filteredArticles().pregnancyPopular; track article.id) {
        <div class="article-card" (click)="openArticle(article)"
          [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
@@ -222,15 +238,17 @@
       }
     </div>
   </div>
+  }
 
   <!-- Pregnancy sex and pleasure -->
+  @if (!hasActiveSearch() || filteredArticles().pregnancySexPleasure.length > 0) {
   <div class="section">
     <div class="section-header">
       <h2 class="section-title">Pregnancy sex and pleasure</h2>
     </div>
 
     <div class="articles-scroll">
-       @for (article of pregnancySexPleasure; track article.id) {
+       @for (article of filteredArticles().pregnancySexPleasure; track article.id) {
        <div class="article-card" (click)="openArticle(article)"
          [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
@@ -269,15 +287,17 @@
       }
     </div>
   </div>
+  }
 
   <!-- Pregnancy body signs explained -->
+  @if (!hasActiveSearch() || filteredArticles().pregnancyBodySigns.length > 0) {
   <div class="section">
     <div class="section-header">
       <h2 class="section-title">Pregnancy body signs explained</h2>
     </div>
 
     <div class="articles-scroll">
-       @for (article of pregnancyBodySigns; track article.id) {
+       @for (article of filteredArticles().pregnancyBodySigns; track article.id) {
        <div class="article-card" (click)="openArticle(article)"
          [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
@@ -316,6 +336,7 @@
       }
     </div>
   </div>
+  }
 
 </div>
 </ion-content>

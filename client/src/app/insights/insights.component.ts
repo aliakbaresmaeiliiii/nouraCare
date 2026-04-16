@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -37,6 +37,8 @@ export class InsightsComponent implements OnInit, OnDestroy {
     title: 'Unlock 1000+ expert articles and resources with Flo Premium',
     isVisible: true
   };
+
+  searchQuery = signal('');
 
   // Article sections
   pregnancyPopular: ArticleCard[] = [
@@ -176,6 +178,40 @@ export class InsightsComponent implements OnInit, OnDestroy {
     }
   ];
 
+  filteredArticles = computed(() => {
+    const q = this.searchQuery().trim().toLowerCase();
+    const match = (articles: ArticleCard[]) => {
+      if (!q) {
+        return articles;
+      }
+      return articles.filter(
+        (a) =>
+          a.title.toLowerCase().includes(q) ||
+          a.category.toLowerCase().includes(q)
+      );
+    };
+    return {
+      nutritionNeedToKnow: match(this.nutritionNeedToKnow),
+      allAboutYourBaby: match(this.allAboutYourBaby),
+      pregnancyPopular: match(this.pregnancyPopular),
+      pregnancySexPleasure: match(this.pregnancySexPleasure),
+      pregnancyBodySigns: match(this.pregnancyBodySigns),
+    };
+  });
+
+  hasActiveSearch = computed(() => this.searchQuery().trim().length > 0);
+
+  hasAnySearchResults = computed(() => {
+    const f = this.filteredArticles();
+    return (
+      f.nutritionNeedToKnow.length +
+      f.allAboutYourBaby.length +
+      f.pregnancyPopular.length +
+      f.pregnancySexPleasure.length +
+      f.pregnancyBodySigns.length
+    ) > 0;
+  });
+
    router = inject(Router);
   private favoritesService = inject(FavoritesService);
   private toastController = inject(ToastController);
@@ -222,6 +258,15 @@ export class InsightsComponent implements OnInit, OnDestroy {
       this.isPremiumUnlocked = false;
       this.premiumBanner.isVisible = true;
     }
+  }
+
+  onSearchInput(event: Event): void {
+    const custom = event as CustomEvent<{ value?: string }>;
+    this.searchQuery.set(custom.detail?.value ?? '');
+  }
+
+  onSearchClear(): void {
+    this.searchQuery.set('');
   }
 
   // Open article

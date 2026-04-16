@@ -269,7 +269,7 @@
 ion-fab {
   ion-fab-button {
     --background: var(--app-gradient-header);
-    --color: white;
+    --color: var(--brand-text);
     --border-radius: 50%;
     width: 56px;
     height: 56px;
@@ -318,7 +318,7 @@ ion-fab {
 }
 
 // Dark theme support
-@media (prefers-color-scheme: dark) {
+:host-context(html.ion-palette-dark) {
   .tools-content {
     --background: #1a1a1a;
     --color: #ffffff;

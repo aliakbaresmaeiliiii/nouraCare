@@ -105,7 +105,7 @@
   }
 
   <!-- Cycle overview card layout (matches compact reference UI) -->
-  @if (!isPregnant && !isPostpartum && userStatus === 'Trying to Conceive') {
+  @if (!isPregnant && !isPostpartum && userStatus === 'Trying to Conceive' && !showStartTrackingOnboarding()) {
     <div class="cycle-compact-section">
       <div class="cycle-hello-card">
         <div class="cycle-hello-copy">
@@ -293,6 +293,32 @@
     </div>
 
     <div class="actions-grid">
+      @if (showStartTrackingOnboarding()) {
+      <div
+        class="action-card primary"
+        (click)="openPeriodDatePicker()"
+        role="button"
+        tabindex="0"
+        (keydown.enter)="openPeriodDatePicker()"
+        (keydown.space)="$event.preventDefault(); openPeriodDatePicker()"
+      >
+        <div class="action-background">
+          <div class="action-pattern"></div>
+        </div>
+        <div class="action-content">
+          <div class="action-icon">
+            <ion-icon name="calendar-number-outline"></ion-icon>
+          </div>
+          <h3 class="action-title">Start period tracking</h3>
+          <p class="action-description">
+            Log your last period to unlock your cycle ring and predictions
+          </p>
+        </div>
+        <div class="action-arrow">
+          <ion-icon name="chevron-forward"></ion-icon>
+        </div>
+      </div>
+      }
       <!-- Primary Actions -->
       <div class="action-card primary" (click)="onActionClick('symptoms')">
         <div class="action-background">

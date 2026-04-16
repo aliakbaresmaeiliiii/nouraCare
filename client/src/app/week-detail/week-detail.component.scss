@@ -462,7 +462,7 @@ ion-segment-button ion-label {
 }
 
 // —— Dark mode ——
-@media (prefers-color-scheme: dark) {
+:host-context(html.ion-palette-dark) {
   .week-detail-content {
     --wd-page-bg: var(--ion-background-color, #121218);
   }

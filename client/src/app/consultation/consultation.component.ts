@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { DoctorService } from '../shared/services/doctor.service';
 import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
+import { addIcons } from 'ionicons';
+import { star } from 'ionicons/icons';
 
 @Component({
   selector: 'app-consultation',
@@ -24,7 +26,9 @@ export class ConsultationComponent implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController,
     private doctorService: DoctorService
-  ) { }
+  ) {
+    addIcons({ star });
+  }
 
   ngOnInit() {
     this.loadDoctors();

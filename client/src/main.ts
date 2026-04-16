@@ -25,6 +25,7 @@ import { JwtInterceptor } from './app/auth/interceptor/jwt.interceptor';
 import { LanguageService } from './app/shared/services/language.service';
 import { TranslationService } from './app/shared/services/translation.service';
 import { AuthInterceptor } from './app/auth/interceptor/auth-interceptor';
+import { applyThemeDom, readStoredPreference } from './app/shared/services/theme.service';
 
 function initialIonicMode(): 'ios' | 'md' {
   try {
@@ -42,6 +43,14 @@ function initialIonicMode(): 'ios' | 'md' {
     return isIos ? 'ios' : 'md';
   }
   return 'md';
+}
+
+try {
+  if (typeof localStorage !== 'undefined') {
+    applyThemeDom(readStoredPreference());
+  }
+} catch {
+  /* theme bootstrap is best-effort */
 }
 
 bootstrapApplication(AppComponent, {

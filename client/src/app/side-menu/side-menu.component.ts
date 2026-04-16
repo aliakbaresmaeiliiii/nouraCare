@@ -1,13 +1,24 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { logoInstagram, paperPlaneOutline } from 'ionicons/icons';
+import {
+  logoInstagram,
+  moonOutline,
+  paperPlaneOutline,
+  phonePortraitOutline,
+  sunnyOutline,
+} from 'ionicons/icons';
+import { merge, Subscription } from 'rxjs';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
 import { AuthService } from '../auth/services/auth';
 import { UserSessionService } from '../shared/services/user-session.service';
+import {
+  ThemePreference,
+  ThemeService,
+} from '../shared/services/theme.service';
 
 interface MenuItem {
   icon: string;
@@ -24,7 +35,7 @@ interface MenuItem {
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
 })
-export class SideMenuComponent implements OnInit, ViewWillEnter {
+export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   activeIndexTop: number | null = null;
   activeIndexBottom: number | null = null;
   router = inject(Router);
@@ -32,6 +43,13 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   private profileCompletionService = inject(ProfileCompletionService);
   private authService = inject(AuthService);
   private userSession = inject(UserSessionService);
+  private themeService = inject(ThemeService);
+  private themeSub?: Subscription;
+
+  /** Bound to the appearance segment (light / dark / system). */
+  themePreference: ThemePreference = 'system';
+  /** Shown under the segment when following the device theme. */
+  themeHint = '';
 
   // User profile data
   userName: string = 'Aliakbar Esmaeili';
@@ -64,7 +82,42 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   ];
 
   constructor() {
-    addIcons({ logoInstagram, paperPlaneOutline });
+    addIcons({
+      logoInstagram,
+      paperPlaneOutline,
+      sunnyOutline,
+      moonOutline,
+      phonePortraitOutline,
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.themeSub?.unsubscribe();
+  }
+
+  onThemeSegmentChange(ev: Event): void {
+    const ce = ev as CustomEvent<{ value?: string | number }>;
+    const fromDetail = ce.detail?.value;
+    const target = ce.target as HTMLIonSegmentElement | null;
+    const fromTarget = target?.value;
+    const raw =
+      fromDetail !== undefined && fromDetail !== null && fromDetail !== ''
+        ? String(fromDetail)
+        : fromTarget !== undefined && fromTarget !== null && fromTarget !== ''
+          ? String(fromTarget)
+          : '';
+    const v = raw as ThemePreference;
+    if (v === 'light' || v === 'dark' || v === 'system') {
+      this.themeService.setPreference(v);
+    }
+  }
+
+  private syncThemeFromService(): void {
+    this.themePreference = this.themeService.getPreference();
+    this.themeHint =
+      this.themePreference === 'system'
+        ? this.themeService.subtitleForCurrent()
+        : '';
   }
 
   async setActiveTop(index: number) {
@@ -125,13 +178,17 @@ export class SideMenuComponent implements OnInit, ViewWillEnter {
   }
 
   ngOnInit() {
-    // Load user profile data
     this.loadUserProfile();
+    this.syncThemeFromService();
+    this.themeSub = merge(
+      this.themeService.preferenceChanges$,
+      this.themeService.appearanceChanged$,
+    ).subscribe(() => this.syncThemeFromService());
   }
 
   ionViewWillEnter(): void {
-    // Refresh profile data from API when entering the page
     this.loadUserProfile();
+    this.syncThemeFromService();
   }
 
   private loadUserProfile() {

@@ -16,10 +16,7 @@
   <div class="container">
     <!-- Loading State -->
     @if (isLoading) {
-      <div class="loading-state">
-        <ion-spinner name="crescent"></ion-spinner>
-        <p>Loading...</p>
-      </div>
+      <app-logo-loading message="Loading…" />
     }
 
     <!-- Error State -->

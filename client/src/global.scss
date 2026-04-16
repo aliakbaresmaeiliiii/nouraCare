@@ -163,53 +163,163 @@ h6 {
   font-weight: var(--font-weight-medium);
 }
 
-// Button typography
+/* -------------------------------------------------------------------------- */
+/* ion-button — single design: brand gradient solid, palette outline/clear    */
+/* -------------------------------------------------------------------------- */
 ion-button {
   font-family: var(--font-secondary);
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.025em;
-}
-
-/* Unified design system primitives (buttons, forms, cards, lists, modals) */
-ion-button {
-  --border-radius: var(--app-radius-md);
-  --box-shadow: 0 4px 14px rgba(var(--brand-primary-rgb), 0.2);
+  font-weight: var(--app-button-font-weight, 600);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  --border-radius: var(--app-button-radius, var(--app-radius-md));
   --padding-start: 16px;
   --padding-end: 16px;
-  min-height: 44px;
-  transition: transform var(--app-duration-fast) var(--app-ease-standard),
+  min-height: var(--app-button-min-height, 46px);
+  transition:
+    transform var(--app-duration-fast) var(--app-ease-standard),
     box-shadow var(--app-duration-fast) var(--app-ease-standard),
     opacity var(--app-duration-fast) var(--app-ease-standard);
 
-  &:not(.button-disabled):hover {
+  &:not(.button-disabled):not([disabled]):hover {
     transform: translateY(-1px);
-    --box-shadow: 0 8px 18px rgba(var(--brand-primary-rgb), 0.26);
   }
 
-  &:not(.button-disabled):active {
+  &:not(.button-disabled):not([disabled]):active {
     transform: translateY(0);
   }
 }
 
-ion-button[fill='outline'] {
-  --border-width: 1px;
-  --border-color: rgba(var(--brand-primary-rgb), 0.35);
-  --color: var(--brand-primary);
-  --background: transparent;
-  --box-shadow: none;
+/* Default + primary solid — pastel gradient always uses dark text for contrast */
+ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']) {
+  --background: var(--app-button-solid-bg, var(--app-gradient-header));
+  --background-hover: var(--ion-color-primary);
+  --background-activated: var(--ion-color-primary-shade);
+  --color: var(--brand-text);
+  --box-shadow: var(--app-button-solid-shadow);
 }
 
-ion-button[fill='clear'] {
+ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):hover,
+ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):focus-visible {
+  --box-shadow: var(--app-button-solid-shadow-hover);
+  /* Solid primary fill — light label */
+  --color: var(--ion-color-primary-contrast);
+}
+
+ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):active {
+  --color: var(--ion-color-primary-contrast);
+}
+
+ion-button[color='secondary']:not([fill='outline']):not([fill='clear']) {
+  --background: linear-gradient(
+    135deg,
+    var(--ion-color-secondary-tint) 0%,
+    var(--ion-color-secondary) 55%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-hover: var(--ion-color-secondary-shade);
+  --background-activated: var(--ion-color-secondary-shade);
+  --color: var(--ion-color-secondary-contrast);
+  --box-shadow: 0 4px 14px rgba(var(--ion-color-secondary-rgb), 0.28);
+}
+
+ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']) {
+  --background: linear-gradient(
+    135deg,
+    var(--ion-color-tertiary-tint) 0%,
+    var(--ion-color-tertiary) 100%
+  );
+  --background-hover: var(--ion-color-tertiary-shade);
+  --background-activated: var(--ion-color-tertiary-shade);
+  --color: var(--ion-color-tertiary-contrast);
+  --box-shadow: 0 4px 12px rgba(var(--ion-color-tertiary-rgb), 0.22);
+}
+
+ion-button[color='success']:not([fill='outline']):not([fill='clear']) {
+  --background: var(--ion-color-success);
+  --background-hover: var(--ion-color-success-shade);
+  --background-activated: var(--ion-color-success-shade);
+  --color: var(--ion-color-success-contrast);
+  --box-shadow: 0 4px 14px rgba(var(--ion-color-success-rgb), 0.28);
+}
+
+ion-button[color='warning']:not([fill='outline']):not([fill='clear']) {
+  --background: var(--ion-color-warning);
+  --background-hover: var(--ion-color-warning-shade);
+  --color: var(--ion-color-warning-contrast);
+  --box-shadow: 0 4px 12px rgba(var(--ion-color-warning-rgb), 0.22);
+}
+
+ion-button[color='danger']:not([fill='outline']):not([fill='clear']) {
+  --background: var(--ion-color-danger);
+  --background-hover: var(--ion-color-danger-shade);
+  --background-activated: var(--ion-color-danger-shade);
+  --color: var(--ion-color-danger-contrast);
+  --box-shadow: 0 4px 14px rgba(var(--ion-color-danger-rgb), 0.28);
+}
+
+ion-button[color='light']:not([fill='outline']):not([fill='clear']) {
+  --background: var(--brand-surface);
+  --color: var(--brand-text);
+  --box-shadow: var(--app-shadow-soft);
+}
+
+ion-button[color='dark']:not([fill='outline']):not([fill='clear']) {
+  --background: var(--ion-color-dark);
+  --color: var(--ion-color-dark-contrast);
+  --box-shadow: 0 4px 14px rgba(var(--ion-color-dark-rgb), 0.2);
+}
+
+/* Toolbar icon actions — no gradient slab */
+ion-toolbar ion-button[fill='clear'],
+ion-header ion-button[fill='clear'] {
+  --background: transparent;
   --color: var(--brand-primary-dark);
   --box-shadow: none;
 }
 
+ion-toolbar ion-button[fill='clear']:hover,
+ion-header ion-button[fill='clear']:hover {
+  --background: rgba(var(--brand-primary-rgb), 0.08);
+}
+
+ion-button[fill='outline'] {
+  --border-width: 1px;
+  --border-color: rgba(var(--brand-primary-rgb), 0.32);
+  --color: var(--brand-primary-dark);
+  --background: rgba(var(--brand-surface-rgb), 0.92);
+  --box-shadow: 0 1px 0 rgba(var(--brand-secondary-rgb), 0.1);
+}
+
+ion-button[fill='outline']:not(.button-disabled):not([disabled]):hover {
+  --background: var(--app-button-outline-hover-bg);
+  --border-color: rgba(var(--brand-primary-rgb), 0.45);
+}
+
+ion-button[fill='clear'] {
+  --background: transparent;
+  --color: var(--brand-primary-dark);
+  --box-shadow: none;
+}
+
+ion-button[fill='clear']:not(.button-disabled):not([disabled]):hover {
+  --background: rgba(var(--brand-primary-rgb), 0.08);
+}
+
+ion-button[size='small'] {
+  min-height: var(--app-button-min-height-sm, 40px);
+  --padding-start: 12px;
+  --padding-end: 12px;
+  font-size: 0.9rem;
+}
+
 ion-button.button-disabled,
 ion-button[disabled] {
-  --background: rgba(var(--brand-text-rgb), 0.14);
-  --color: rgba(var(--brand-text-rgb), 0.55);
-  --box-shadow: none;
+  --background: rgba(var(--brand-text-rgb), 0.12) !important;
+  --color: rgba(var(--brand-text-rgb), 0.5) !important;
+  --box-shadow: none !important;
+  --border-color: rgba(var(--brand-text-rgb), 0.12);
   opacity: 1;
+  transform: none;
 }
 
 // Input typography
@@ -453,6 +563,107 @@ ion-title {
 /* @import '@ionic/angular/css/palettes/dark.always.css'; */
 @import '@ionic/angular/css/palettes/dark.class.css';
 /* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
+/* -------------------------------------------------------------------------- */
+/* Dark: map app tokens → Ionic palette (must follow dark.class.css in cascade) */
+/* ThemeService toggles ion-palette-dark on html + ion-app; Ionic owns --ion-*. */
+/* -------------------------------------------------------------------------- */
+
+html.ion-palette-dark {
+  color-scheme: dark;
+}
+
+html.ion-palette-dark body {
+  background: #121212;
+  color: #ffffff;
+}
+
+ion-app.ion-palette-dark {
+  --brand-bg: var(--ion-background-color);
+  --brand-bg-rgb: var(--ion-background-color-rgb);
+  --brand-surface: var(--ion-card-background);
+  --brand-surface-rgb: var(--ion-background-color-rgb);
+  --brand-text: var(--ion-text-color);
+  --brand-text-rgb: var(--ion-text-color-rgb);
+  --brand-text-secondary: var(--ion-text-color-step-650);
+  --brand-text-secondary-rgb: var(--ion-color-medium-rgb);
+
+  --brand-primary: var(--ion-color-primary);
+  --brand-primary-rgb: var(--ion-color-primary-rgb);
+  --brand-primary-dark: var(--ion-color-primary-shade);
+  --brand-primary-dark-rgb: var(--ion-color-primary-rgb);
+  --brand-secondary: var(--ion-color-secondary);
+  --brand-secondary-rgb: var(--ion-color-secondary-rgb);
+  --brand-accent: var(--ion-color-warning);
+  --brand-accent-rgb: var(--ion-color-warning-rgb);
+
+  --flo-primary: var(--brand-primary);
+  --flo-primary-rgb: var(--brand-primary-rgb);
+  --flo-dark: var(--brand-primary-dark);
+  --flo-dark-rgb: var(--brand-primary-dark-rgb);
+  --flo-light: var(--brand-secondary);
+  --flo-light-rgb: var(--brand-secondary-rgb);
+  --flo-bg: var(--brand-bg);
+  --flo-surface: var(--brand-surface);
+  --flo-text: var(--brand-text);
+  --flo-text-rgb: var(--brand-text-rgb);
+  --flo-text-secondary: var(--brand-text-secondary);
+  --flo-text-secondary-rgb: var(--brand-text-secondary-rgb);
+
+  --app-gradient-soft: linear-gradient(
+    135deg,
+    var(--ion-background-color-step-100) 0%,
+    var(--ion-background-color) 100%
+  );
+  --app-gradient-header: linear-gradient(
+    135deg,
+    var(--ion-background-color-step-100) 0%,
+    var(--ion-background-color-step-50) 45%,
+    var(--ion-background-color) 100%
+  );
+  --app-gradient-header-45: linear-gradient(
+    45deg,
+    var(--ion-background-color-step-150),
+    var(--ion-background-color-step-50)
+  );
+  --app-gradient-header-90: linear-gradient(
+    90deg,
+    var(--ion-background-color-step-100),
+    var(--ion-background-color)
+  );
+  --app-gradient-ribbon: linear-gradient(
+    90deg,
+    var(--ion-background-color-step-200),
+    var(--ion-background-color-step-100),
+    var(--ion-background-color-step-50)
+  );
+  --app-gradient-fade: linear-gradient(
+    90deg,
+    var(--ion-background-color-step-150),
+    transparent
+  );
+  --app-gradient-accent-warm: linear-gradient(
+    135deg,
+    var(--ion-background-color-step-200) 0%,
+    var(--ion-background-color-step-100) 100%
+  );
+
+  --app-button-solid-bg: linear-gradient(
+    135deg,
+    var(--ion-color-primary) 0%,
+    var(--ion-color-primary-shade) 52%,
+    var(--ion-color-secondary) 100%
+  );
+  --app-button-solid-color: var(--ion-color-primary-contrast);
+  --app-button-solid-shadow: 0 4px 18px rgba(var(--ion-background-color-rgb), 0.45);
+  --app-button-solid-shadow-hover: 0 8px 22px rgba(var(--ion-background-color-rgb), 0.55);
+  --app-button-outline-hover-bg: rgba(var(--ion-color-primary-rgb), 0.14);
+
+  --app-shadow-card: 0 8px 28px rgba(var(--ion-background-color-rgb), 0.35);
+  --app-shadow-card-hover: 0 12px 36px rgba(var(--ion-background-color-rgb), 0.45);
+  --app-shadow-header: 0 2px 16px rgba(var(--ion-background-color-rgb), 0.35);
+  --app-shadow-soft: 0 2px 14px rgba(var(--ion-background-color-rgb), 0.25);
+}
 
 /* Custom Modal Styles */
 .fertility-results-modal,
@@ -791,3 +1002,21 @@ ion-modal.instagram-crop-modal .insta-zoom-range {
   --knob-background: #ffffff;
   --pin-background: #ffffff;
 }
+
+/* Branded logo loader (shared + imperative overlays) */
+@keyframes app-brand-logo-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.035);
+  }
+}
+
+@keyframes app-brand-logo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+

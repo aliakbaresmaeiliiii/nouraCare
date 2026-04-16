@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DoctorService } from '../shared/services/doctor.service';
 import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
 import { Share } from '@capacitor/share';
+import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
 
 // Extend Window interface to include Capacitor
 declare global {
@@ -20,7 +21,7 @@ declare global {
   templateUrl: './doctor-profile.component.html',
   styleUrls: ['./doctor-profile.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, LogoLoadingComponent],
 })
 export class DoctorProfileComponent implements OnInit {
   doctor: DoctorDto | null = null;
