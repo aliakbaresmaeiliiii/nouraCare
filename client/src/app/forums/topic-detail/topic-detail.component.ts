@@ -16,6 +16,7 @@ import {
   chatbubblesOutline,
   createOutline,
   eyeOutline,
+  ellipsisHorizontal,
   heart,
   heartOutline,
   pin,
@@ -86,6 +87,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   categoryId = signal<string | undefined>('');
   private paramSub?: Subscription;
   private lastViewSyncAt = 0;
+  pinnedCommentId = signal<string | null>(null);
   // Computed properties for better performance
   get canEditOrDeletePost(): boolean {
     if (!this.topic) return false;
@@ -110,6 +112,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       pin,
       chatbubblesOutline,
       eyeOutline,
+      ellipsisHorizontal,
       createOutline,
       trashOutline,
       heart,
@@ -1028,6 +1031,87 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     });
 
     await alert.present();
+  }
+
+  async openPostActions(): Promise<void> {
+    if (!this.topic) return;
+
+    const dialog = await this.alertController.create({
+      header: 'Post actions',
+      cssClass: 'liquid-glass-dialog',
+      translucent: true,
+      buttons: [
+        {
+          text: '✏️ Edit',
+          handler: () => this.startEditPost(),
+        },
+        {
+          text: '🗑️ Delete',
+          role: 'destructive',
+          handler: () => this.deletePost(),
+        },
+      ],
+    });
+
+    await dialog.present();
+  }
+
+  async openCommentActions(comment: Comment): Promise<void> {
+    if (!this.canEditOrDelete(comment)) return;
+    const buttons: Array<{
+      text: string;
+      role?: 'cancel' | 'destructive';
+      handler?: () => void;
+    }> = [
+      {
+        text: '✏️ Edit',
+        handler: () => this.startEditComment(comment),
+      },
+    ];
+
+    if (!comment.parentId) {
+      const isPinned = this.pinnedCommentId() === comment.id;
+      buttons.push({
+        text: isPinned ? '📌 Unpin comment' : '📌 Pin comment',
+        handler: () => this.togglePinComment(comment.id),
+      });
+    }
+
+    buttons.push(
+      {
+        text: '🗑️ Delete',
+        role: 'destructive',
+        handler: () => this.deleteComment(comment),
+      },
+    );
+
+    const dialog = await this.alertController.create({
+      header: 'Comment actions',
+      cssClass: 'liquid-glass-dialog',
+      translucent: true,
+      buttons,
+    });
+
+    await dialog.present();
+  }
+
+  togglePinComment(commentId: string): void {
+    this.pinnedCommentId.update((current) =>
+      current === commentId ? null : commentId,
+    );
+  }
+
+  isPinnedComment(commentId: string): boolean {
+    return this.pinnedCommentId() === commentId;
+  }
+
+  getOrderedComments(): Comment[] {
+    const list = this.comments();
+    const pinnedId = this.pinnedCommentId();
+    if (!pinnedId) return list;
+    const pinned = list.find((c) => c.id === pinnedId && !c.parentId);
+    if (!pinned) return list;
+    return [pinned, ...list.filter((c) => c.id !== pinnedId)];
   }
 
   private confirmDeleteComment(comment: Comment) {

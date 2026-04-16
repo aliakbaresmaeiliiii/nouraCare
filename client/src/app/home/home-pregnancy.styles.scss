@@ -1,0 +1,547 @@
+// Pregnancy “Today” home (calendar + radial hero + insight cards) — split for style budget
+.home-content.home-content--pregnancy-today {
+  background: linear-gradient(165deg, #fdf5f0 0%, #f8ebe4 42%, #f5f0eb 100%);
+  --background: transparent;
+}
+
+.pregnancy-today-shell {
+  position: relative;
+  margin-top: 0;
+  padding: 0.75rem var(--app-side-padding, 1rem) 1.25rem;
+  z-index: 1;
+}
+
+.pregnancy-today-bg {
+  position: absolute;
+  inset: 0;
+  top: -0.5rem;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.pregnancy-today-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.55;
+}
+
+.pregnancy-today-blob--1 {
+  width: 220px;
+  height: 220px;
+  background: #ffd8c8;
+  top: -4%;
+  right: -12%;
+}
+
+.pregnancy-today-blob--2 {
+  width: 280px;
+  height: 280px;
+  background: #f5e6dc;
+  bottom: 18%;
+  left: -20%;
+}
+
+.pregnancy-today-blob--3 {
+  width: 160px;
+  height: 160px;
+  background: #e8ddf5;
+  top: 36%;
+  left: 55%;
+  opacity: 0.35;
+}
+
+.pregnancy-calendar-swiper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin: 0 calc(-1 * var(--app-side-padding, 1rem)) 0.35rem;
+  padding: 0 var(--app-side-padding, 1rem) 0.55rem;
+  box-sizing: border-box;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.pregnancy-calendar-week {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.15rem;
+  text-align: center;
+  padding: 0.35rem 0.15rem 0.35rem;
+  box-sizing: border-box;
+}
+
+.pregnancy-calendar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0.25rem 0 0.35rem;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 8px;
+
+  &:disabled {
+    opacity: 0.42;
+    cursor: default;
+  }
+
+  &:not(:disabled):active {
+    transform: scale(0.97);
+  }
+}
+
+.pregnancy-calendar-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: #c57656;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  padding-top: 0.1rem;
+}
+
+.pregnancy-calendar-col--today .pregnancy-calendar-label {
+  color: #141414;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.pregnancy-calendar-col--selected:not(:disabled) .pregnancy-calendar-label {
+  color: #141414;
+  font-weight: 800;
+}
+
+.pregnancy-calendar-date-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.1rem 0;
+  overflow: visible;
+}
+
+.pregnancy-calendar-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c57656;
+  line-height: 1.25;
+}
+
+.pregnancy-calendar-col--selected:not(:disabled) .pregnancy-calendar-date {
+  width: 2.05rem;
+  height: 2.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50%;
+  color: #b5654a;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+}
+
+.pregnancy-calendar-col--selected:not(:disabled) .pregnancy-calendar-date-wrap::after {
+  content: "";
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 14px;
+  background: #fff;
+  border-radius: 1px;
+  box-shadow: 0 1px 4px rgba(255, 255, 255, 0.85);
+}
+
+.pregnancy-hero-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.pregnancy-hero-disk {
+  width: min(78vw, 304px);
+  max-width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0.85rem 1rem;
+  box-sizing: border-box;
+  background: radial-gradient(
+    circle at 38% 28%,
+    #fff0e8 0%,
+    #ffd4c4 32%,
+    #f8b8a0 58%,
+    #e59882 88%
+  );
+  box-shadow:
+    0 20px 50px rgba(212, 120, 96, 0.38),
+    inset 0 -12px 32px rgba(255, 255, 255, 0.22);
+}
+
+.pregnancy-hero-week-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0 0.25rem;
+  margin-top: 2rem;
+}
+
+.pregnancy-hero-week-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-align: center;
+}
+
+.pregnancy-hero-weeks {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-shadow: 2px 2px 4px #000;
+}
+
+.pregnancy-hero-days {
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 2px 2px 4px #000;
+}
+
+.pregnancy-hero-info {
+  margin: 0;
+  padding: 0.2rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+
+  ion-icon {
+    font-size: 1.35rem;
+  }
+
+  &:active {
+    opacity: 0.85;
+    transform: scale(0.96);
+  }
+}
+
+.pregnancy-hero-visual {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+}
+
+.pregnancy-hero-fetus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.12));
+}
+
+.pregnancy-hero-fetus-emoji {
+  font-size: clamp(3.2rem, 14vw, 4.75rem);
+  line-height: 1;
+}
+
+.pregnancy-hero-details-btn {
+  border: none;
+  margin: 0;
+  padding: 0.55rem 1.65rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #c57656;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.pregnancy-daily-insights {
+  position: relative;
+  z-index: 2;
+  margin-top: 1.35rem;
+}
+
+.pregnancy-daily-insights-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: #141414;
+  letter-spacing: -0.01em;
+}
+
+.pregnancy-insight-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.pregnancy-insight-card {
+  flex: 0 0 auto;
+  width: 31%;
+  min-width: 104px;
+  max-width: 118px;
+  min-height: 148px;
+  border-radius: 16px;
+  padding: 0.65rem 0.55rem 0.7rem;
+  box-sizing: border-box;
+  border: 1px solid rgba(230, 120, 130, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  scroll-snap-align: start;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.pregnancy-insight-card--btn {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+  appearance: none;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.pregnancy-insight-card--lavender {
+  background: linear-gradient(165deg, #e8def6 0%, #ddd0f0 100%);
+}
+
+.pregnancy-insight-card--mint {
+  background: linear-gradient(165deg, #e6f4ef 0%, #d4ebe3 100%);
+}
+
+.pregnancy-insight-card--yellow {
+  background: linear-gradient(165deg, #fdf3d1 0%, #f8e8b8 100%);
+}
+
+.pregnancy-insight-card-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #3d3d3d;
+  line-height: 1.2;
+  align-self: flex-start;
+  width: 100%;
+  text-align: left;
+}
+
+.pregnancy-insight-card--lavender .pregnancy-insight-card-value {
+  margin: auto 0;
+  font-size: 2.35rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.pregnancy-insight-pill {
+  align-self: flex-start;
+  font-size: 0.58rem;
+  font-weight: 600;
+  padding: 0.22rem 0.45rem;
+  border-radius: 999px;
+  background: #fff;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pregnancy-insight-pill--muted {
+  color: #6b7280;
+}
+
+.pregnancy-insight-pill--accent {
+  color: #e07a3a;
+  font-weight: 700;
+}
+
+.pregnancy-insight-icon {
+  margin: 0.45rem 0 0.35rem;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 1.35rem;
+    color: #fff;
+  }
+}
+
+.pregnancy-insight-icon--teal {
+  background: #0d9488;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+}
+
+.pregnancy-insight-icon--orange {
+  background: #f97316;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+
+  ion-icon {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+}
+
+.pregnancy-insight-card-footer {
+  margin-top: auto;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #141414;
+  line-height: 1.15;
+}
+
+:host-context(html.ion-palette-dark) {
+  .home-content.home-content--pregnancy-today {
+    background: linear-gradient(
+      165deg,
+      var(--ion-background-color-step-50) 0%,
+      var(--ion-background-color) 100%
+    );
+    --background: transparent;
+  }
+
+  .pregnancy-today-blob--1 {
+    background: rgba(255, 140, 110, 0.22);
+    opacity: 0.32;
+  }
+  .pregnancy-today-blob--2 {
+    background: rgba(200, 170, 150, 0.18);
+    opacity: 0.28;
+  }
+  .pregnancy-today-blob--3 {
+    background: rgba(170, 150, 210, 0.16);
+    opacity: 0.22;
+  }
+
+  .pregnancy-calendar-col--today .pregnancy-calendar-label,
+  .pregnancy-calendar-col--selected:not(:disabled) .pregnancy-calendar-label {
+    color: var(--ion-text-color);
+  }
+
+  .pregnancy-calendar-col--selected:not(:disabled) .pregnancy-calendar-date {
+    background: var(--ion-card-background);
+    color: var(--ion-color-primary-tint);
+    box-shadow: var(--app-shadow-soft);
+  }
+
+  .pregnancy-calendar-col--selected:not(:disabled) .pregnancy-calendar-date-wrap::after {
+    background: var(--ion-color-medium);
+    box-shadow: none;
+  }
+
+  .pregnancy-hero-details-btn {
+    background: var(--ion-card-background);
+    color: var(--ion-color-primary-tint);
+    box-shadow: var(--app-shadow-card);
+  }
+
+  .pregnancy-daily-insights-title,
+  .pregnancy-insight-card-footer {
+    color: var(--ion-text-color);
+  }
+
+  .pregnancy-insight-card {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: var(--app-shadow-card);
+  }
+
+  .pregnancy-insight-card--lavender {
+    background: linear-gradient(165deg, #3d3554 0%, #2a2438 100%);
+  }
+  .pregnancy-insight-card--mint {
+    background: linear-gradient(165deg, #1e3d36 0%, #152a26 100%);
+  }
+  .pregnancy-insight-card--yellow {
+    background: linear-gradient(165deg, #45402a 0%, #2e2a1c 100%);
+  }
+
+  .pregnancy-insight-card-label {
+    color: var(--ion-color-medium);
+  }
+  .pregnancy-insight-card--lavender .pregnancy-insight-card-value {
+    color: #e8e4f5;
+    text-shadow: none;
+  }
+
+  .pregnancy-insight-pill {
+    background: rgba(0, 0, 0, 0.28);
+    color: var(--ion-text-color);
+  }
+  .pregnancy-insight-pill--muted {
+    color: var(--ion-color-medium);
+  }
+}
+
+@media (max-width: 480px) {
+  .pregnancy-today-shell {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

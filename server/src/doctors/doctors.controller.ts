@@ -1,59 +1,36 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
-import { CreateDoctorDto, UpdateDoctorDto } from './dto';
 
-@Controller('api/v1/doctors')
+@Controller('doctors')
 export class DoctorsController {
   constructor(private readonly doctorsService: DoctorsService) {}
 
-  // @Post()
-  // @HttpCode(HttpStatus.CREATED)
-  // create(@Body() createDoctorDto: CreateDoctorDto) {
-  //   return this.doctorsService.create(createDoctorDto);
-  // }
+  /**
+   * Paginated list with optional filters (search, specialty, consultationType).
+   * Query: page (default 1), limit (default 12, max 50).
+   */
+  @Get()
+  findPage(
+    @Query('page') pageStr?: string,
+    @Query('limit') limitStr?: string,
+    @Query('search') search?: string,
+    @Query('specialty') specialty?: string,
+    @Query('consultationType') consultationType?: string,
+  ) {
+    const page = Math.max(1, parseInt(pageStr || '1', 10) || 1);
+    const rawLimit = parseInt(limitStr || '12', 10) || 12;
+    const limit = Math.min(50, Math.max(1, rawLimit));
+    return this.doctorsService.findPage({
+      page,
+      limit,
+      search,
+      specialty,
+      consultationType,
+    });
+  }
 
-  // @Get()
-  // findAll(
-  //   @Query('specialty') specialty?: string,
-  //   @Query('location') location?: string,
-  //   @Query('consultationType') consultationType?: string,
-  // ) {
-  //   if (specialty) {
-  //     return this.doctorsService.findBySpecialty(specialty);
-  //   }
-  //   if (location) {
-  //     return this.doctorsService.findByLocation(location);
-  //   }
-  //   if (consultationType) {
-  //     return this.doctorsService.findByConsultationType(consultationType);
-  //   }
-  //   return this.doctorsService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.doctorsService.findOne(id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateDoctorDto: UpdateDoctorDto) {
-  //   return this.doctorsService.update(id, updateDoctorDto);
-  // }
-
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // remove(@Param('id') id: string) {
-  //   return this.doctorsService.remove(id);
-  // }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.doctorsService.findOne(id);
+  }
 }

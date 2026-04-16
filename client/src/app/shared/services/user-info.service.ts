@@ -50,6 +50,37 @@ export class UserInfoService {
       );
   }
 
+  /**
+   * Partial PATCH for signed-in user (`user/me/onboarding`).
+   * Use after local cycle actions (e.g. “Start tracking”) so GET onboarding matches server.
+   */
+  patchMeOnboarding(patch: {
+    pregnancyStatus?: string;
+    lastPeriodDate?: string;
+    cycleLength?: number;
+    periodLength?: number;
+  }): Observable<UserInfo> {
+    if (!this.authService.getAccessToken()) {
+      return throwError(() => new Error('Not authenticated'));
+    }
+    const body: Record<string, unknown> = { ...patch };
+    if (patch.lastPeriodDate != null && patch.lastPeriodDate !== '') {
+      const raw = patch.lastPeriodDate;
+      body['lastPeriodDate'] = raw.includes('T')
+        ? raw
+        : `${raw}T12:00:00.000Z`;
+    }
+    return this.http
+      .patch<ApiEnvelope<UserInfo>>(
+        `${environment.apiEndPoint}user/me/onboarding`,
+        body,
+      )
+      .pipe(
+        map((res) => this.unwrap(res)),
+        tap((data) => this.onboardingJourney.set(data)),
+      );
+  }
+
   savePregnancyStatus(
     _userId: number,
     pregnancyStatus: string,

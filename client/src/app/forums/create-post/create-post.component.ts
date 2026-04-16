@@ -132,10 +132,10 @@ export class CreatePostComponent implements OnInit {
 
   private handleQueryParams() {
     this.route.queryParams.subscribe((params) => {
-      const categoryId = params['category'];
-      if (categoryId) {
-        // Set the category ID in the form
-        this.postForm.patchValue({ categoryId });
+      const forumId = params['category'];
+      if (forumId) {
+        // Keep query-param compatibility while patching the actual form control.
+        this.postForm.patchValue({ forumId });
       }
     });
   }
@@ -298,8 +298,8 @@ export class CreatePostComponent implements OnInit {
       );
     }
 
-    if (this.postForm.get('categoryId')?.errors?.['required']) {
-      errors.push('Please select a category');
+    if (this.postForm.get('forumId')?.errors?.['required']) {
+      errors.push('Please select a forum');
     }
 
     if (errors.length > 0) {
@@ -360,8 +360,8 @@ export class CreatePostComponent implements OnInit {
   }
 
   private navigateBackToForumsWithCategory() {
-    const selectedCategoryId = this.postForm.get('categoryId')?.value;
-    if (selectedCategoryId) {
+    const selectedForumId = this.postForm.get('forumId')?.value;
+    if (selectedForumId) {
       // Navigate to forums with query parameters to select the category
       // this.router.navigate(['/forums'], {
       //   queryParams: { category: selectedCategoryId, view: 'topics' },
@@ -420,6 +420,14 @@ export class CreatePostComponent implements OnInit {
   filteredSuggestions: string[] = [];
   selectedSuggestionIndex = -1;
   @ViewChild('tagInput') tagInput!: ElementRef<HTMLInputElement>;
+
+  isTagSelected(tag: string): boolean {
+    return this.selectedTags.includes(tag);
+  }
+
+  canAddMoreTags(): boolean {
+    return this.selectedTags.length < 10;
+  }
 
   // Tag color variations for visual appeal
   getTagColor(index: number): string {
@@ -505,7 +513,18 @@ export class CreatePostComponent implements OnInit {
 
   // Enhanced popular tag addition
   addPopularTag(tag: string) {
-    if (!this.selectedTags.includes(tag) && this.selectedTags.length < 10) {
+    if (!this.isTagSelected(tag) && this.canAddMoreTags()) {
+      this.selectedTags.push(tag);
+    }
+  }
+
+  togglePopularTag(tag: string) {
+    if (this.isTagSelected(tag)) {
+      this.removeTag(tag);
+      return;
+    }
+
+    if (this.canAddMoreTags()) {
       this.selectedTags.push(tag);
     }
   }

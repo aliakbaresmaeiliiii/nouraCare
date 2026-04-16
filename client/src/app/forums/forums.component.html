@@ -27,6 +27,30 @@
     ></ion-refresher-content>
   </ion-refresher>
   <div class="container">
+    <div class="community-summary">
+      <div class="summary-card">
+        <ion-icon name="albums-outline" class="summary-icon"></ion-icon>
+        <div class="summary-copy">
+          <span class="summary-value">{{ categories().length }}</span>
+          <span class="summary-label">Categories</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <ion-icon name="chatbubbles-outline" class="summary-icon"></ion-icon>
+        <div class="summary-copy">
+          <span class="summary-value">{{ topics().length }}</span>
+          <span class="summary-label">Topics</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <ion-icon name="sparkles-outline" class="summary-icon"></ion-icon>
+        <div class="summary-copy">
+          <span class="summary-value">{{ selectedCategoryName() }}</span>
+          <span class="summary-label">Current view</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Search Bar -->
     <div class="search-section">
       <ion-searchbar
@@ -142,7 +166,10 @@
     @if (!isLoading() && !errorMessage() && viewMode() === 'categories') {
     <div class="categories-container">
       <div class="categories-header">
-        <h2 class="categories-title">Forum Categories</h2>
+        <h2 class="categories-title">
+          <ion-icon name="grid-outline" class="section-title-icon"></ion-icon>
+          Forum Categories
+        </h2>
       </div>
 
       <div class="categories-grid">
@@ -206,6 +233,10 @@
     <div class="topics-container">
       <div class="topics-header">
         <h2 class="topics-title">
+          <ion-icon
+            [name]="selectedCategory() === 'all' ? 'chatbubbles-outline' : getCategoryIcon(selectedCategoryName())"
+            class="section-title-icon"
+          ></ion-icon>
           {{ selectedCategoryName() }}
         </h2>
       </div>
@@ -293,7 +324,10 @@
             </div>
 
             <div class="topic-footer">
-              <span class="category-badge">{{ topic.category }}</span>
+              <span class="category-badge">
+                <ion-icon [name]="getCategoryIcon(topic.category)" class="category-badge-icon"></ion-icon>
+                {{ topic.category }}
+              </span>
               <span class="time-ago">{{
                 formatRelativeTime(topic.lastReply)
               }}</span>

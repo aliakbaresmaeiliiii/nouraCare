@@ -154,19 +154,10 @@
           <div class="post-actions">
             <ion-button
               fill="clear"
-              class="edit-post-btn"
-              (click)="startEditPost()"
+              class="more-actions-btn"
+              (click)="openPostActions()"
             >
-              <ion-icon name="create-outline"></ion-icon>
-              <span class="edit-post-text">Edit</span>
-            </ion-button>
-            <ion-button
-              fill="clear"
-              class="delete-post-btn"
-              (click)="deletePost()"
-            >
-              <ion-icon name="trash-outline"></ion-icon>
-              <span class="delete-post-text">Delete</span>
+              <ion-icon name="ellipsis-horizontal"></ion-icon>
             </ion-button>
           </div>
         </div>
@@ -193,7 +184,7 @@
       <!-- Comments List -->
       @if (comments().length > 0) {
       <ion-list class="comments-list">
-        @for (comment of comments(); track comment.id) {
+        @for (comment of getOrderedComments(); track comment.id) {
         <ion-item class="comment-item" [attr.data-comment-id]="comment.id">
           <div class="comment-content">
             <div class="comment-header">
@@ -211,6 +202,12 @@
                 <span class="comment-time">{{
                   formatRelativeTime(comment.createdAt)
                 }}</span>
+                @if (isPinnedComment(comment.id)) {
+                <span class="comment-pinned-badge">
+                  <ion-icon name="pin"></ion-icon>
+                  Pinned
+                </span>
+                }
               </div>
             </div>
 
@@ -275,19 +272,10 @@
               <div class="edit-delete-actions">
                 <ion-button
                   fill="clear"
-                  class="edit-btn"
-                  (click)="startEditComment(comment)"
+                  class="more-actions-btn"
+                  (click)="openCommentActions(comment)"
                 >
-                  <ion-icon name="create-outline"></ion-icon>
-                  <span class="edit-text">Edit</span>
-                </ion-button>
-                <ion-button
-                  fill="clear"
-                  class="delete-btn"
-                  (click)="deleteComment(comment)"
-                >
-                  <ion-icon name="trash-outline"></ion-icon>
-                  <span class="delete-text">Delete</span>
+                  <ion-icon name="ellipsis-horizontal"></ion-icon>
                 </ion-button>
               </div>
               }
@@ -398,19 +386,10 @@
                   @if (canEditOrDelete(reply)) {
                   <ion-button
                     fill="clear"
-                    class="edit-btn"
-                    (click)="startEditComment(reply)"
+                    class="more-actions-btn"
+                    (click)="openCommentActions(reply)"
                   >
-                    <ion-icon name="create-outline"></ion-icon>
-                    <span class="edit-text">Edit</span>
-                  </ion-button>
-                  <ion-button
-                    fill="clear"
-                    class="delete-btn"
-                    (click)="deleteComment(reply)"
-                  >
-                    <ion-icon name="trash-outline"></ion-icon>
-                    <span class="delete-text">Delete</span>
+                    <ion-icon name="ellipsis-horizontal"></ion-icon>
                   </ion-button>
                   }
                 </div>

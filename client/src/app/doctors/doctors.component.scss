@@ -4,6 +4,42 @@
   background: var(--app-gradient-header);
   min-height: 100dvh;
   position: relative;
+  --overflow: hidden;
+}
+
+.doctors-page-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.doctors-virtual-viewport {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.doctor-virtual-row {
+  padding: 0 20px 24px;
+  box-sizing: border-box;
+}
+
+.doctors-load-more {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 16px;
+
+  ion-spinner {
+    --color: var(--brand-primary);
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.results-summary .count-total {
+  margin-left: 4px;
+  opacity: 0.85;
 }
 
 // Modern Header
@@ -786,6 +822,116 @@
   .search-section {
     .filter-pills .pill-container {
       justify-content: center;
+    }
+  }
+}
+
+:host-context(html.ion-palette-dark) {
+  .modern-header ion-toolbar {
+    --background: rgba(18, 18, 18, 0.86);
+    --color: #ffffff;
+
+    .back-btn,
+    .filter-btn {
+      --color: #ffffff;
+      --background: rgba(255, 255, 255, 0.12);
+    }
+  }
+
+  .doctors-content {
+    --background: var(--app-gradient-header);
+    color: #ffffff;
+  }
+
+  .modern-hero {
+    .hero-content {
+      .hero-title,
+      .hero-subtitle,
+      .hero-metrics .metric .metric-number,
+      .hero-metrics .metric .metric-label {
+        color: #ffffff;
+      }
+    }
+  }
+
+  .search-section {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
+
+    .search-container .search-input-wrapper .modern-search {
+      --background: rgba(255, 255, 255, 0.1);
+      --color: #ffffff;
+      --placeholder-color: rgba(255, 255, 255, 0.78);
+    }
+
+    .filter-pills .pill-container .filter-pill {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+
+      &.active {
+        background: rgba(255, 255, 255, 0.14);
+      }
+    }
+
+    .results-summary {
+      .results-count .count,
+      .results-count .label,
+      .sort-option {
+        color: #ffffff;
+      }
+    }
+  }
+
+  .doctor-card {
+    background: var(--ion-card-background);
+    border-color: rgba(255, 255, 255, 0.14);
+
+    &:hover {
+      background: var(--ion-card-background);
+    }
+
+    .doctor-info-section {
+      .doctor-header-info {
+        .doctor-name,
+        .rating-container .rating-number {
+          color: #ffffff;
+        }
+      }
+
+      .doctor-meta .meta-item {
+        ion-icon,
+        span {
+          color: #ffffff;
+        }
+      }
+
+      .doctor-description p {
+        color: #ffffff;
+      }
+    }
+
+    .price-section {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.14);
+
+      .price-container {
+        .price,
+        .price-label {
+          color: #ffffff;
+        }
+      }
+    }
+
+    .action-section .book-btn {
+      --color: #ffffff;
+    }
+  }
+
+  .no-results .no-results-content {
+    h3,
+    p {
+      color: #ffffff;
     }
   }
 }

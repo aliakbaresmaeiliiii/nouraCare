@@ -33,7 +33,7 @@
 
         <div class="doctor-main-info">
           <div class="doctor-avatar">
-            <img [src]="doctor.profileImageUrl || 'assets/images/doctor.jpg'" [alt]="doctor.fullName">
+            <img [src]="getDoctorAvatar(doctor)" [alt]="doctor.fullName" />
             <div class="avatar-ring"></div>
             <div class="online-status">
               <ion-icon name="checkmark"></ion-icon>

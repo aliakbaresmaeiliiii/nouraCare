@@ -24,6 +24,8 @@ declare global {
   imports: [IonicModule, CommonModule, LogoLoadingComponent],
 })
 export class DoctorProfileComponent implements OnInit {
+  private readonly avatarWomenPath = 'assets/images/avatarWomen.png';
+  private readonly avatarMenPath = 'assets/images/avatarMan.png';
   doctor: DoctorDto | null = null;
   isLoading = true;
   selectedTab = 'about';
@@ -64,30 +66,32 @@ export class DoctorProfileComponent implements OnInit {
   ngOnInit() {
     const doctorId = this.route.snapshot.paramMap.get('id');
     if (doctorId) {
-      this.loadDoctorProfile(Number(doctorId));
+      this.loadDoctorProfile(doctorId);
+    } else {
+      this.isLoading = false;
     }
   }
 
-  loadDoctorProfile(id: number) {
+  loadDoctorProfile(id: string) {
     this.isLoading = true;
-    setTimeout(() => {
-      this.doctor = {
-        id: id,
-        fullName: 'Dr. Sarah Johnson',
-        specialty: 'Obstetrics & Gynecology',
-        experienceYears: 12,
-        about: 'Dr. Sarah Johnson is a board-certified obstetrician and gynecologist with over 12 years of experience.',
-        rating: 4.8,
-        profileImageUrl: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop',
-        clinicName: 'Women\'s Health Center',
-        location: 'New York, NY',
-        contactEmail: 'sarah.johnson@whc.com',
-        contactPhone: '+1 (555) 123-4567',
-        consultationType: 'BOTH' as any,
-        fee: 200
-      };
-      this.isLoading = false;
-    }, 1000);
+    this.doctorService.getDoctorById(id).subscribe({
+      next: (d) => {
+        this.doctor = d;
+        this.isLoading = false;
+      },
+      error: async () => {
+        this.isLoading = false;
+        this.doctor = null;
+        const toast = await this.toastController.create({
+          message: 'Doctor not found or could not be loaded.',
+          duration: 2500,
+          color: 'danger',
+          position: 'bottom',
+        });
+        await toast.present();
+        void this.router.navigate(['/doctors']);
+      },
+    });
   }
 
   selectTab(tab: string) {
@@ -114,6 +118,18 @@ export class DoctorProfileComponent implements OnInit {
       case ConsultationType.BOTH: return 'globe';
       default: return 'medical';
     }
+  }
+
+  getDoctorAvatar(doctor: DoctorDto): string {
+    if (doctor.profileImageUrl?.trim()) {
+      return doctor.profileImageUrl;
+    }
+    const seed = `${doctor.id ?? ''}${doctor.fullName ?? ''}`.toLowerCase().trim();
+    if (!seed) {
+      return this.avatarWomenPath;
+    }
+    const codeSum = Array.from(seed).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+    return codeSum % 2 === 0 ? this.avatarWomenPath : this.avatarMenPath;
   }
 
   async bookAppointment(value?:any) {

@@ -123,33 +123,53 @@ async function main() {
   console.log('✅ Cities & districts');
 
   // 3. Users
-  const adminUser = await db.user.upsert({
-    where: { email: 'admin@nouracare.app' },
-    update: { fullName: 'Admin User', updatedAt: now() },
-    create: {
-      email: 'admin@nouracare.app',
-      phoneNumber: '+989121111111',
-      fullName: 'Admin User',
-      role: 'ADMIN',
-      status: 'ACTIVE',
-      isVerified: true,
-      createdAt: now(),
-      updatedAt: now(),
-    },
+  const upsertUserByEmailOrPhone = async (args: {
+    email: string;
+    phoneNumber: string;
+    fullName: string;
+    role: 'ADMIN' | 'USER';
+  }) => {
+    const existing = await db.user.findFirst({
+      where: { OR: [{ email: args.email }, { phoneNumber: args.phoneNumber }] },
+    });
+    if (existing) {
+      return db.user.update({
+        where: { id: existing.id },
+        data: {
+          email: args.email,
+          phoneNumber: args.phoneNumber,
+          fullName: args.fullName,
+          role: args.role,
+          status: 'ACTIVE',
+          isVerified: true,
+          updatedAt: now(),
+        },
+      });
+    }
+    return db.user.create({
+      data: {
+        email: args.email,
+        phoneNumber: args.phoneNumber,
+        fullName: args.fullName,
+        role: args.role,
+        status: 'ACTIVE',
+        isVerified: true,
+        createdAt: now(),
+        updatedAt: now(),
+      },
+    });
+  };
+  const adminUser = await upsertUserByEmailOrPhone({
+    email: 'admin@nouracare.app',
+    phoneNumber: '+989121111111',
+    fullName: 'Admin User',
+    role: 'ADMIN',
   });
-  const seedUser = await db.user.upsert({
-    where: { email: 'user@nouracare.app' },
-    update: { fullName: 'Seed User', updatedAt: now() },
-    create: {
-      email: 'user@nouracare.app',
-      phoneNumber: '+989122222222',
-      fullName: 'Seed User',
-      role: 'USER',
-      status: 'ACTIVE',
-      isVerified: true,
-      createdAt: now(),
-      updatedAt: now(),
-    },
+  const seedUser = await upsertUserByEmailOrPhone({
+    email: 'user@nouracare.app',
+    phoneNumber: '+989122222222',
+    fullName: 'Seed User',
+    role: 'USER',
   });
   console.log('✅ Users');
 
@@ -181,26 +201,68 @@ async function main() {
   }
   console.log('✅ Post categories');
 
-  // 6. Doctors (fixed id so seed is idempotent)
-  const doctorSeedId = '11111111-1111-1111-1111-111111111111';
-  await db.doctors.upsert({
-    where: { id: doctorSeedId },
-    update: { updatedAt: now() },
-    create: {
-      id: doctorSeedId,
-      fullName: 'Dr. Sarah Smith',
-      specialty: 'Obstetrics & Gynecology',
-      experienceYears: 12,
-      about: 'Expert in maternal health.',
-      rating: 4.8,
-      consultationType: 'BOTH',
-      isVerified: true,
-      verifiedAt: now(),
-      createdAt: now(),
-      updatedAt: now(),
-    },
-  });
-  console.log('✅ Doctors');
+  // 6. Doctors — 50 deterministic UUIDs (idempotent upserts)
+  const deterministicDoctorUuid = (index: number) => {
+    const hex = (index + 1).toString(16).padStart(12, '0');
+    return `f0000000-0000-4000-8000-${hex}`;
+  };
+  const doctorSpecialties = [
+    'Obstetrics & Gynecology',
+    'Maternal-Fetal Medicine',
+    'Reproductive Endocrinology',
+    'Fertility Specialist',
+    'Prenatal Care',
+    'High-Risk Pregnancy',
+  ] as const;
+  const doctorCities = ['Tehran', 'Shiraz', 'Mashhad', 'Isfahan', 'New York, NY', 'Los Angeles, CA'];
+  const consultRotation = ['ONLINE', 'IN_PERSON', 'BOTH'] as const;
+
+  for (let i = 0; i < 50; i++) {
+    const id = deterministicDoctorUuid(i);
+    const n = i + 1;
+    const specialty = doctorSpecialties[i % doctorSpecialties.length];
+    const consultationType = consultRotation[i % consultRotation.length];
+    await db.doctors.upsert({
+      where: { id },
+      update: {
+        fullName: `Dr. Seed Provider ${n}`,
+        specialty,
+        experienceYears: 5 + (i % 20),
+        about: `Board-certified specialist in ${specialty}. Seed profile #${n} for development and demos.`,
+        rating: 4.2 + (i % 8) * 0.1,
+        profileImageUrl: 'assets/images/user-avatar.png',
+        clinicName: `Wellness Clinic ${n}`,
+        location: doctorCities[i % doctorCities.length],
+        contactEmail: `doctor.seed${n}@nouracare.app`,
+        contactPhone: `+98912100${String(n).padStart(3, '0')}`,
+        consultationType,
+        fee: 150 + (i % 10) * 15,
+        isVerified: true,
+        verifiedAt: now(),
+        updatedAt: now(),
+      },
+      create: {
+        id,
+        fullName: `Dr. Seed Provider ${n}`,
+        specialty,
+        experienceYears: 5 + (i % 20),
+        about: `Board-certified specialist in ${specialty}. Seed profile #${n} for development and demos.`,
+        rating: 4.2 + (i % 8) * 0.1,
+        profileImageUrl: 'assets/images/user-avatar.png',
+        clinicName: `Wellness Clinic ${n}`,
+        location: doctorCities[i % doctorCities.length],
+        contactEmail: `doctor.seed${n}@nouracare.app`,
+        contactPhone: `+98912100${String(n).padStart(3, '0')}`,
+        consultationType,
+        fee: 150 + (i % 10) * 15,
+        isVerified: true,
+        verifiedAt: now(),
+        createdAt: now(),
+        updatedAt: now(),
+      },
+    });
+  }
+  console.log('✅ Doctors (50 seed records)');
 
   // 7. Addresses (no unique key except id; create if none)
   const hasAddress = await db.address.findFirst({ where: { userId: adminUser.id } });

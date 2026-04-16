@@ -37,26 +37,6 @@ export class HomeReproductiveUiService {
     return state;
   }
 
-  showStartTrackingSection(state: {
-    userStatus: string;
-    isPregnant: boolean;
-    isPostpartum: boolean;
-  }): boolean {
-    if (state.isPregnant || state.isPostpartum) {
-      return false;
-    }
-    if (this.cycleSettings.isPregnant() || this.cycleSettings.isPostpartum()) {
-      return false;
-    }
-    // Show until local cycle storage has a last-period start (LMP).
-    // Journey is merged into cycle settings in the same sync; using the signal here caused
-    // stale journey data or timing to hide the CTA when the user still had nothing local.
-    if (this.cycleSettings.lastPeriodStartDate()) {
-      return false;
-    }
-    return true;
-  }
-
   private applyDashboardResponse(
     dashboard: DashboardResponse,
   ): HomePageJourneyState {
@@ -95,8 +75,12 @@ export class HomeReproductiveUiService {
       };
     }
 
+    // Server defaults reproductive_state to `cycle`; `planning` is TTC. Both use the same
+    // home layout (cycle ring, metrics). `userStatus === 'Trying to Conceive'` gates that UI.
     const userStatus =
-      dashboard.state === 'planning' ? 'Trying to Conceive' : 'Cycle Tracking';
+      dashboard.state === 'planning' || dashboard.state === 'cycle'
+        ? 'Trying to Conceive'
+        : 'Cycle Tracking';
     this.cycleSettings.setUserStatus(userStatus);
     this.cycleSettings.setPostpartumStatus(false);
 

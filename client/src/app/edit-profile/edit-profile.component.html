@@ -128,69 +128,78 @@
         Keep your fertility and pregnancy information up to date.
       </p>
 
-      <!-- Current Status Display -->
       @if (getCurrentStatus()) {
-      <div class="current-reproductive-status">
-        <div class="current-status-badge">
-          <span class="status-emoji">{{
-            getSelectedReproductiveStatusEmoji()
-          }}</span>
-          <span class="current-status-text">{{
-            getSelectedReproductiveStatusLabel()
-          }}</span>
+        <div class="repro-current-summary" role="status">
+          <div
+            class="repro-current-summary__icon"
+            [style.--repro-accent]="getSelectedReproductiveOption()?.color"
+          >
+            <ion-icon
+              [name]="getSelectedReproductiveOption()?.icon || 'help-circle-outline'"
+              aria-hidden="true"
+            ></ion-icon>
+          </div>
+          <div class="repro-current-summary__text">
+            <span class="repro-current-summary__label">Your selection</span>
+            <span class="repro-current-summary__title">{{
+              getSelectedReproductiveStatusLabel()
+            }}</span>
+          </div>
         </div>
-      </div>
       }
 
-      <!-- Status Options Grid -->
       <div class="reproductive-status-options">
-        <p class="status-hint">
-          Select the option that best describes your current situation
+        <p class="repro-step-hint">
+          Choose the option that fits you, then tap
+          <strong>Continue</strong> to save. You can change this anytime.
         </p>
 
-        <div class="status-grid">
+        <div class="repro-choice-list" role="radiogroup" aria-label="Reproductive status">
           @for (option of reproductiveStatusOptions; track option.value) {
-            <div
-              class="status-card"
-              [class.selected]="isStatusSelected(option.value)"
+            <button
+              type="button"
+              class="repro-choice"
+              [class.repro-choice--selected]="isStatusSelected(option.value)"
               (click)="setStatus(option.value)"
-              [style.--status-color]="option.color"
+              [attr.aria-checked]="isStatusSelected(option.value)"
+              role="radio"
+              [style.--repro-accent]="option.color"
             >
-              <div class="status-card-content">
-                <div class="status-emoji-container">
-                  <span class="status-emoji">{{ option.emoji }}</span>
-                </div>
-                <div class="status-info">
-                  <h4 class="status-title">{{ option.label }}</h4>
-                </div>
-                @if (isStatusSelected(option.value)) {
-                <div class="status-checkmark">
-                  <ion-icon
-                    name="checkmark-circle"
-                    class="checkmark-icon"
-                  ></ion-icon>
-                </div>
-                }
-              </div>
-            </div>
+              <span class="repro-choice__radio" aria-hidden="true"></span>
+              <span class="repro-choice__icon-wrap">
+                <ion-icon [name]="option.icon" aria-hidden="true"></ion-icon>
+              </span>
+              <span class="repro-choice__body">
+                <span class="repro-choice__title">{{ option.label }}</span>
+                <span class="repro-choice__subtitle">{{ option.subtitle }}</span>
+              </span>
+              @if (isStatusSelected(option.value)) {
+                <ion-icon
+                  name="checkmark-circle"
+                  class="repro-choice__check"
+                  aria-hidden="true"
+                ></ion-icon>
+              }
+            </button>
           }
         </div>
 
-        <!-- Continue Button -->
-        @if (getCurrentStatus()) {
         <div class="continue-button-container">
           <ion-button
+            expand="block"
             class="continue-button"
+            [disabled]="!getCurrentStatus()"
             (click)="saveReproductiveStatus()"
           >
-            <ion-icon name="checkmark" slot="start"></ion-icon>
+            <ion-icon name="arrow-forward" slot="end" aria-hidden="true"></ion-icon>
             Continue
           </ion-button>
+          @if (!getCurrentStatus()) {
+            <p class="repro-continue-hint">Select an option above to continue.</p>
+          }
         </div>
-        }
       </div>
 
-      <!-- Optional Note -->
       <p class="optional-note">
         You can update your status anytime as your health journey evolves.
       </p>

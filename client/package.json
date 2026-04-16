@@ -62,6 +62,8 @@
 
     "@angular/animations": "^21.2.1",
 
+    "@angular/cdk": "^21.2.6",
+
     "@angular/common": "^21.2.1",
 
     "@angular/compiler": "^21.2.1",

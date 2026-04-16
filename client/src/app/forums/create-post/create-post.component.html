@@ -18,18 +18,57 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="ion-padding">
-  <div class="create-post-container">
-    <!-- Header Section -->
-    <div class="header-section">
-      <h1 class="page-title">Share Your Thoughts</h1>
-      <p class="page-subtitle">Start a conversation with the community</p>
-    </div>
+<ion-content [fullscreen]="true" class="create-post-content">
+  <div class="create-post-shell">
+    <section class="hero-section">
+      <div class="hero-copy">
+        <span class="eyebrow">Community Post</span>
+        <h1 class="page-title">Create a post people can understand quickly</h1>
+        <p class="page-subtitle">
+          Choose the right forum, write a clear title, and share enough detail
+          for helpful replies.
+        </p>
+      </div>
 
-    <!-- Form Section -->
+      <div class="hero-tips">
+        <div class="tip-chip">
+          <ion-icon name="folder-open-outline"></ion-icon>
+          <span>Pick the best forum</span>
+        </div>
+        <div class="tip-chip">
+          <ion-icon name="create-outline"></ion-icon>
+          <span>Use a short clear title</span>
+        </div>
+        <div class="tip-chip">
+          <ion-icon name="chatbox-ellipses-outline"></ion-icon>
+          <span>Add enough context</span>
+        </div>
+      </div>
+    </section>
+
     <form [formGroup]="postForm" (ngSubmit)="submitPost()" class="post-form">
-      <!-- Forum Selection -->
-      <div class="form-section">
+      <section class="surface-card intro-card">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Before you post</span>
+            <h2>Make it easy for others to help</h2>
+          </div>
+          <span class="status-pill">{{ selectedTags.length }}/10 tags</span>
+        </div>
+        <p class="section-description">
+          A good post usually has a relevant forum, a title that explains the
+          topic, and a message with enough detail to avoid back-and-forth.
+        </p>
+      </section>
+
+      <section class="surface-card form-section">
+        <div class="section-heading compact">
+          <div>
+            <span class="section-kicker">Step 1</span>
+            <h2>Choose a forum</h2>
+          </div>
+        </div>
+
         <ion-item class="form-item" lines="none">
           <ion-label position="stacked" class="form-label">
             <ion-icon name="folder-outline" class="label-icon"></ion-icon>
@@ -39,7 +78,7 @@
           <ion-select
             formControlName="forumId"
             interface="action-sheet"
-            placeholder="Select a forum"
+            placeholder="Select the forum that matches your topic"
             class="forum-select"
             [disabled]="isLoading"
             (ionChange)="onForumSelect($event)"
@@ -60,125 +99,137 @@
             } }
           </ion-select>
         </ion-item>
+        <p class="field-hint">Choose the forum that best matches your topic.</p>
         @if (postForm.get('forumId')?.invalid &&
         postForm.get('forumId')?.touched) {
         <div class="error-message">Please select a forum</div>
         }
-      </div>
+      </section>
 
-      <!-- Title Input -->
-      <div class="form-section">
-        <ion-item class="form-item" lines="none">
-          <ion-label position="stacked" class="form-label">
-            <ion-icon name="pricetag-outline" class="label-icon"></ion-icon>
-            Post Title
-            <span class="required">*</span>
-          </ion-label>
-          <ion-input
-            formControlName="title"
-            type="text"
-            placeholder="Enter a clear and descriptive title"
-            class="title-input"
-            maxlength="200"
-          >
-          </ion-input>
-        </ion-item>
-        <div class="input-helpers">
-          <span class="char-count"
-            >{{ postForm.get("title")?.value?.length || 0 }}/200</span
-          >
+      <section class="surface-card form-section">
+        <div class="section-heading compact">
+          <div>
+            <span class="section-kicker">Step 2</span>
+            <h2>Write your post</h2>
+          </div>
         </div>
-        @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
-        <div class="error-message">
-          @if (postForm.get('title')?.errors?.['required']) {
-          <span>Title is required</span>
-          } @if (postForm.get('title')?.errors?.['minlength']) {
-          <span>Title must be at least 5 characters</span>
-          } @if (postForm.get('title')?.errors?.['maxlength']) {
-          <span>Title must be less than 200 characters</span>
+
+        <div class="field-block">
+          <ion-item class="form-item" lines="none">
+            <ion-label position="stacked" class="form-label">
+              <ion-icon name="pricetag-outline" class="label-icon"></ion-icon>
+              Post title
+              <span class="required">*</span>
+            </ion-label>
+            <ion-input
+              formControlName="title"
+              type="text"
+              placeholder="Example: Is this normal in early pregnancy?"
+              class="title-input"
+              maxlength="200"
+              clearInput="true"
+            >
+            </ion-input>
+          </ion-item>
+          <div class="input-helpers">
+            <span class="field-hint">Keep it short and specific.</span>
+            <span class="char-count"
+              >{{ postForm.get("title")?.value?.length || 0 }}/200</span
+            >
+          </div>
+          @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
+          <div class="error-message">
+            @if (postForm.get('title')?.errors?.['required']) {
+            <span>Title is required</span>
+            } @if (postForm.get('title')?.errors?.['minlength']) {
+            <span>Title must be at least 5 characters</span>
+            } @if (postForm.get('title')?.errors?.['maxlength']) {
+            <span>Title must be less than 200 characters</span>
+            }
+          </div>
           }
         </div>
-        }
-      </div>
 
-      <!-- Content Input -->
-      <div class="form-section">
-        <ion-item class="form-item" lines="none">
-          <ion-label position="stacked" class="form-label">
-            <ion-icon
-              name="document-text-outline"
-              class="label-icon"
-            ></ion-icon>
-            Post Content
-            <span class="required">*</span>
-          </ion-label>
-          <!-- <ion-textarea
-            formControlName="content"
-            placeholder="Share your thoughts, questions, or experiences..."
-            rows="8"
-            autoGrow="true"
-            class="content-textarea"
-            maxlength="{{ maxContentLength }}"
-          >
-          </ion-textarea> -->
-          <ion-textarea
-            labelPlacement="floating"
-            formControlName="content"
-            placeholder="Share your thoughts, questions, or experiences..."
-          >
-          </ion-textarea>
-        </ion-item>
-        <div class="input-helpers">
-          <span class="char-count"
-            >{{ characterCount }}/{{ maxContentLength }}</span
-          >
+        <div class="field-block">
+          <ion-item class="form-item textarea-item" lines="none">
+            <ion-label position="stacked" class="form-label">
+              <ion-icon
+                name="document-text-outline"
+                class="label-icon"
+              ></ion-icon>
+              Post content
+              <span class="required">*</span>
+            </ion-label>
+            <ion-textarea
+              formControlName="content"
+              placeholder="Describe what is happening, what you tried, and what kind of help you need."
+              rows="8"
+              autoGrow="true"
+              class="content-textarea"
+            >
+            </ion-textarea>
+          </ion-item>
+          <div class="content-meta">
+            <span class="field-hint"
+              >Include enough context so others can give useful replies.</span
+            >
+            <span class="char-count"
+              >{{ characterCount }}/{{ maxContentLength }}</span
+            >
+          </div>
           <ion-progress-bar
             [value]="getContentPercentage() / 100"
             [color]="getContentColor()"
             class="progress-bar"
           >
           </ion-progress-bar>
-        </div>
-        @if (postForm.get('content')?.invalid &&
-        postForm.get('content')?.touched) {
-        <div class="error-message">
-          @if (postForm.get('content')?.errors?.['required']) {
-          <span>Content is required</span>
-          } @if (postForm.get('content')?.errors?.['minlength']) {
-          <span>Content must be at least 10 characters</span>
-          } @if (postForm.get('content')?.errors?.['maxlength']) {
-          <span>Content is too long</span>
+          @if (postForm.get('content')?.invalid &&
+          postForm.get('content')?.touched) {
+          <div class="error-message">
+            @if (postForm.get('content')?.errors?.['required']) {
+            <span>Content is required</span>
+            } @if (postForm.get('content')?.errors?.['minlength']) {
+            <span>Content must be at least 10 characters</span>
+            } @if (postForm.get('content')?.errors?.['maxlength']) {
+            <span>Content is too long</span>
+            }
+          </div>
           }
         </div>
-        }
-      </div>
+      </section>
 
-      <!-- Tags Section -->
-      <div class="form-section">
-        <div class="tags-header">
-          <ion-label class="form-label">
-            <ion-icon name="pricetags-outline" class="label-icon"></ion-icon>
-            Tags
-          </ion-label>
-          <span class="optional">(Optional but recommended)</span>
-          <span class="tag-count">{{ selectedTags.length }}/10</span>
+      <section class="surface-card form-section">
+        <div class="section-heading compact">
+          <div>
+            <span class="section-kicker">Step 3</span>
+            <h2>Add tags</h2>
+          </div>
+          <span class="optional">Optional but recommended</span>
         </div>
 
-        <!-- Selected Tags -->
         @if (selectedTags.length > 0) {
         <div class="selected-tags">
           @for (tag of selectedTags; track tag; let i = $index) {
-          <div class="tag-chip" [class]="getTagColor(i)" [@tagAnimation]>
+          <div class="tag-chip" [class]="getTagColor(i)">
             <span class="tag-text">{{ tag }}</span>
-            <button class="tag-remove" (click)="removeTag(tag)" aria-label="Remove tag">
+            <button
+              type="button"
+              class="tag-remove"
+              (click)="removeTag(tag)"
+              aria-label="Remove tag"
+            >
               <ion-icon name="close"></ion-icon>
             </button>
           </div>
           }
         </div>
+        } @else {
+        <div class="empty-tags-state">
+          <ion-icon name="pricetags-outline"></ion-icon>
+          <p>No tags added yet. Tags help more people find your post.</p>
+        </div>
         }
 
-        <!-- Tag Input with Autocomplete -->
         <div class="tag-input-container">
           <div class="tag-input-wrapper">
             <input
@@ -189,14 +240,14 @@
               (keydown)="onTagInputKeyDown($event)"
               (focus)="showSuggestions = true"
               (blur)="onTagInputBlur()"
-              placeholder="Type to add tags..."
+              placeholder="Type a tag and press Enter"
               class="tag-input-field"
               maxlength="30"
             />
-            <button 
-              class="tag-add-btn" 
+            <button
+              class="tag-add-btn"
               type="button"
-              (click)="addTag()" 
+              (click)="addTag()"
               [disabled]="!currentTag.trim() || selectedTags.length >= 10"
               [class.disabled]="!currentTag.trim() || selectedTags.length >= 10"
             >
@@ -204,16 +255,18 @@
             </button>
           </div>
 
-          <!-- Autocomplete Suggestions -->
           @if (showSuggestions && filteredSuggestions.length > 0) {
-          <div class="autocomplete-dropdown" [@dropdownAnimation]>
+          <div class="autocomplete-dropdown">
             @for (suggestion of filteredSuggestions; track suggestion) {
-            <div 
-              class="suggestion-item" 
+            <div
+              class="suggestion-item"
               (mousedown)="selectSuggestion(suggestion)"
               [class.selected]="selectedSuggestionIndex === $index"
             >
-              <ion-icon name="pricetag-outline" class="suggestion-icon"></ion-icon>
+              <ion-icon
+                name="pricetag-outline"
+                class="suggestion-icon"
+              ></ion-icon>
               <span class="suggestion-text">{{ suggestion }}</span>
               @if (selectedTags.includes(suggestion)) {
               <ion-icon name="checkmark" class="suggestion-check"></ion-icon>
@@ -223,74 +276,78 @@
           </div>
           }
 
-          <!-- Input Helpers -->
           <div class="tag-input-helpers">
             <span class="tag-input-hint">
-              Press Enter or click + to add • Max 10 tags
+              Press Enter or use the + button to add a tag.
             </span>
           </div>
         </div>
 
-        <!-- Popular Tags -->
         @if (popularTags.length > 0) {
         <div class="popular-tags-section">
           <div class="popular-tags-header">
-            <ion-icon name="trending-up" class="trending-icon"></ion-icon>
-            <span class="popular-tags-title">Popular Tags</span>
+            <ion-icon name="sparkles-outline" class="trending-icon"></ion-icon>
+            <span class="popular-tags-title">Suggested tags</span>
           </div>
           <div class="popular-tags-grid">
             @for (tag of popularTags; track tag) {
-            <button 
-              class="popular-tag" 
+            <button
+              class="popular-tag"
               type="button"
-              [class.selected]="selectedTags.includes(tag)"
-              [class.disabled]="selectedTags.length >= 10"
-              (click)="addPopularTag(tag)"
-              [disabled]="selectedTags.includes(tag) || selectedTags.length >= 10"
+              [class.selected]="isTagSelected(tag)"
+              [class.disabled]="!isTagSelected(tag) && !canAddMoreTags()"
+              (click)="togglePopularTag(tag)"
+              [disabled]="!isTagSelected(tag) && !canAddMoreTags()"
             >
               <span class="popular-tag-text">{{ tag }}</span>
-              @if (selectedTags.includes(tag)) {
-              <ion-icon name="checkmark" class="popular-tag-check"></ion-icon>
+              @if (isTagSelected(tag)) {
+              <ion-icon name="checkmark-circle" class="popular-tag-check"></ion-icon>
               } @else {
-              <ion-icon name="add" class="popular-tag-add"></ion-icon>
+              <ion-icon name="add-circle-outline" class="popular-tag-add"></ion-icon>
               }
             </button>
             }
           </div>
         </div>
         }
-      </div>
+      </section>
 
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <ion-button
-          type="submit"
-          expand="block"
-          color="primary"
-          size="large"
-          [disabled]="isSubmitting || postForm.invalid"
-          class="submit-button"
-        >
-          @if (isSubmitting) {
-          <ion-spinner name="crescent"></ion-spinner>
-          } @else {
-          <span>Create Post</span>
-          }
-        </ion-button>
+      <section class="surface-card action-panel">
+        <div class="action-copy">
+          <h3>Ready to post?</h3>
+          <p>You can preview your post first or publish it now.</p>
+        </div>
 
-        <ion-button
-          expand="block"
-          fill="outline"
-          color="medium"
-          size="large"
-          (click)="clearForm()"
-          [disabled]="isSubmitting"
-          class="clear-button"
-        >
-          <ion-icon name="trash-outline" slot="start"></ion-icon>
-          Clear Form
-        </ion-button>
-      </div>
+        <div class="action-buttons">
+          <ion-button
+            type="submit"
+            expand="block"
+            color="primary"
+            size="large"
+            [disabled]="isSubmitting || postForm.invalid"
+            class="submit-button"
+          >
+            @if (isSubmitting) {
+            <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+            <span>Create Post</span>
+            }
+          </ion-button>
+
+          <ion-button
+            expand="block"
+            fill="outline"
+            color="medium"
+            size="large"
+            (click)="clearForm()"
+            [disabled]="isSubmitting"
+            class="clear-button"
+          >
+            <ion-icon name="refresh-outline" slot="start"></ion-icon>
+            Start Over
+          </ion-button>
+        </div>
+      </section>
     </form>
 
     <!-- Loading State -->

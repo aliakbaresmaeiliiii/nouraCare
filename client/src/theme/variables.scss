@@ -145,6 +145,13 @@
   --ion-toolbar-color: var(--brand-text);
   --ion-item-background: var(--brand-surface);
   --ion-card-background: var(--brand-surface);
+
+  /* ion-icon / Ionicons use currentColor on the host — tune without piercing shadow */
+  --app-icon-default: var(--brand-text-secondary);
+  --app-icon-muted: var(--brand-text-secondary);
+  --app-icon-toolbar: var(--brand-text);
+  --app-icon-accent: var(--ion-color-primary);
+  --app-icon-shine-filter: none;
 }
 
 /* Note: do not set --app-button-solid-color to a light value while --app-button-solid-bg

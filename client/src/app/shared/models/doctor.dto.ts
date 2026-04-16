@@ -5,7 +5,7 @@ export enum ConsultationType {
 }
 
 export interface DoctorDto {
-  id?: number;
+  id?: string;
   fullName: string;
   specialty: string;
   experienceYears: number;
@@ -21,6 +21,23 @@ export interface DoctorDto {
   availableSlots?: any;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface PaginatedDoctorsResponse {
+  items: DoctorDto[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+export interface DoctorListQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  specialty?: string;
+  consultationType?: string;
 }
 
 export interface CreateDoctorDto {

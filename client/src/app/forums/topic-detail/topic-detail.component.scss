@@ -191,54 +191,6 @@
         align-items: center;
         gap: 8px;
         margin-left: auto;
-        
-        .edit-post-btn, .delete-post-btn {
-          --padding-start: 8px;
-          --padding-end: 8px;
-          --background: transparent;
-          min-height: 32px;
-          
-          ion-icon {
-            font-size: 16px;
-          }
-          
-          .edit-post-text, .delete-post-text {
-            font-size: 12px;
-            margin-left: 4px;
-          }
-        }
-        
-        .edit-post-btn {
-          --color: #2196f3;
-          
-          ion-icon {
-            color: #2196f3;
-          }
-          
-          &:hover {
-            --color: #1976d2;
-            
-            ion-icon {
-              color: #1976d2;
-            }
-          }
-        }
-        
-        .delete-post-btn {
-          --color: #f44336;
-          
-          ion-icon {
-            color: #f44336;
-          }
-          
-          &:hover {
-            --color: #d32f2f;
-            
-            ion-icon {
-              color: #d32f2f;
-            }
-          }
-        }
       }
     }
 
@@ -373,6 +325,9 @@
       }
       
       .comment-info {
+        display: flex;
+        flex-direction: column;
+
         .comment-author {
           display: block;
           font-size: 14px;
@@ -383,6 +338,24 @@
         .comment-time {
           font-size: 12px;
           color: #475569;
+        }
+
+        .comment-pinned-badge {
+          margin-top: 4px;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          width: fit-content;
+          font-size: 11px;
+          color: #b45309;
+          background: #fef3c7;
+          border: 1px solid #fcd34d;
+          border-radius: 999px;
+          padding: 2px 8px;
+
+          ion-icon {
+            font-size: 11px;
+          }
         }
       }
     }
@@ -434,54 +407,6 @@
         align-items: center;
         gap: 8px;
         margin-left: auto;
-        
-        .edit-btn, .delete-btn {
-          --padding-start: 6px;
-          --padding-end: 6px;
-          --background: transparent;
-          min-height: 28px;
-          
-          ion-icon {
-            font-size: 14px;
-          }
-          
-          .edit-text, .delete-text {
-            font-size: 11px;
-            margin-left: 2px;
-          }
-        }
-        
-        .edit-btn {
-          --color: #2196f3;
-          
-          ion-icon {
-            color: #2196f3;
-          }
-          
-          &:hover {
-            --color: #1976d2;
-            
-            ion-icon {
-              color: #1976d2;
-            }
-          }
-        }
-        
-        .delete-btn {
-          --color: #f44336;
-          
-          ion-icon {
-            color: #f44336;
-          }
-          
-          &:hover {
-            --color: #d32f2f;
-            
-            ion-icon {
-              color: #d32f2f;
-            }
-          }
-        }
       }
     }
 
@@ -680,6 +605,23 @@
   }
 }
 
+.more-actions-btn {
+  --padding-start: 6px;
+  --padding-end: 6px;
+  --background: transparent;
+  --color: #64748b;
+  min-height: 28px;
+
+  ion-icon {
+    font-size: 16px;
+    color: inherit;
+  }
+}
+
+.post-actions .more-actions-btn {
+  min-height: 32px;
+}
+
 // Deleted content styles
 .topic-card.deleted,
 .comment-item.deleted,
@@ -742,5 +684,77 @@ ion-avatar img {
   &::before {
     content: '👤';
     font-size: 20px;
+  }
+}
+
+:host-context(html.ion-palette-dark) {
+  .topic-content {
+    --background: #0f172a;
+  }
+
+  .topic-card,
+  .comments-list .comment-content,
+  .comment-footer,
+  .topic-card .topic-body .edit-post-container,
+  .comments-list .comment-content .edit-input-container,
+  .comments-list .comment-content .reply-input-container,
+  .comments-list .comment-content .replies-container .reply-item {
+    background: #111827;
+    border-color: rgba(148, 163, 184, 0.2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  .topic-card .topic-header .topic-info .author-info .author-name,
+  .topic-card .topic-body .topic-title,
+  .comments-section .comments-header .comments-title,
+  .comments-list .comment-content .comment-header .comment-info .comment-author,
+  .comments-list .comment-content .replies-container .reply-item .reply-header .reply-info .reply-author {
+    color: #f8fafc;
+  }
+
+  .loading-container .loading-text,
+  .topic-card .topic-header .topic-info .author-info .topic-time,
+  .topic-card .topic-body .topic-content-text,
+  .topic-card .topic-body .topic-stats .stat .stat-icon,
+  .topic-card .topic-body .topic-stats .stat .stat-text,
+  .empty-comments .empty-title,
+  .empty-comments .empty-text,
+  .comments-list .comment-content .comment-header .comment-info .comment-time,
+  .comments-list .comment-content .comment-text,
+  .comments-list .comment-content .comment-actions .like-btn .like-count,
+  .comments-list .comment-content .comment-actions .reply-btn .reply-text,
+  .comments-list .comment-content .replies-container .reply-item .reply-header .reply-info .reply-time,
+  .comments-list .comment-content .replies-container .reply-item .reply-text {
+    color: #cbd5e1;
+  }
+
+  .topic-card .topic-body .topic-tags .tag-chip {
+    --background: #334155;
+    --color: #e2e8f0;
+  }
+
+  .topic-card .topic-body .edit-post-container .edit-post-title,
+  .topic-card .topic-body .edit-post-container .edit-post-content,
+  .comments-list .comment-content .edit-input-container .edit-input,
+  .comments-list .comment-content .reply-input-container .reply-input,
+  .comment-footer .comment-input-container .comment-input {
+    --background: #1f2937;
+    color: #f8fafc;
+  }
+
+  .topic-card .topic-header .author-avatar .avatar,
+  .comments-list .comment-content .comment-header .comment-avatar,
+  .comments-list .comment-content .replies-container .reply-item .reply-header .reply-avatar {
+    border-color: rgba(148, 163, 184, 0.25);
+  }
+
+  .comment-footer {
+    border-top-color: rgba(148, 163, 184, 0.2);
+  }
+
+  .comments-list .comment-content .comment-header .comment-info .comment-pinned-badge {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.4);
   }
 }

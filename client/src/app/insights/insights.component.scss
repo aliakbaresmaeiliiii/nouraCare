@@ -555,6 +555,45 @@
   }
 }
 
+:host-context(html.ion-palette-dark) {
+  .insights-content {
+    --background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+    color: #e5e7eb;
+  }
+
+  .search-empty p {
+    color: #9ca3af;
+  }
+
+  .search-section {
+    .search-container {
+      .insights-search {
+        --background: rgba(255, 255, 255, 0.08);
+        --color: #f3f4f6;
+        --placeholder-color: #9ca3af;
+        --icon-color: #c4b5fd;
+        --box-shadow: none;
+      }
+
+      .search-icons {
+        .bookmark-btn,
+        .notification-btn {
+          --color: #e5e7eb;
+          --background: rgba(255, 255, 255, 0.05);
+        }
+      }
+    }
+  }
+
+  .section {
+    .section-header {
+      .section-title {
+        color: #f9fafb;
+      }
+    }
+  }
+}
+
 // Responsive Design
 @media (max-width: 768px) {
   .premium-banner {

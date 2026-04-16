@@ -14,7 +14,8 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="doctors-content">
+<ion-content class="doctors-content" [scrollY]="false">
+  <div class="doctors-page-inner">
 
   <!-- Modern Hero Section -->
   <div class="modern-hero">
@@ -85,7 +86,9 @@
     <div class="results-summary">
       <div class="results-count">
         <span class="count">{{ filteredDoctors.length }}</span>
-        <span class="label">doctors available</span>
+        <span class="label">showing</span>
+        <span class="count count-total"> / {{ totalDoctors }}</span>
+        <span class="label">total</span>
       </div>
       <div class="sort-option">
         <ion-icon name="swap-vertical"></ion-icon>
@@ -94,136 +97,164 @@
     </div>
   </div>
 
-  <!-- Loading State -->
-  @if (isLoading) {
+  @if (isLoading && doctors.length === 0) {
   <app-logo-loading message="Loading doctors..." />
   }
-  <!-- Modern Doctors Grid -->
-  @if(!isLoading && filteredDoctors.length > 0) {
-  <div class="doctors-grid">
-    @for (doctor of filteredDoctors; track doctor.id) {
-    <div class="doctor-card" (click)="bookWithDoctor(doctor)">
 
-      <!-- Card Glow Effect -->
-      <div class="card-glow"></div>
-
-      <!-- Doctor Avatar Section -->
-      <div class="doctor-avatar-section">
-        <div class="avatar-container">
-          <img [src]="doctor.profileImageUrl || 'assets/images/doctor-placeholder.jpg'" [alt]="doctor.fullName">
-          <div class="avatar-ring"></div>
-          <div class="status-indicator"
-            [class.online]="doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH'">
-            <ion-icon name="checkmark"></ion-icon>
-          </div>
-        </div>
-
-        <div class="consultation-type-badge" [class]="doctor.consultationType.toLowerCase()">
-          <ion-icon [name]="getConsultationIcon(doctor.consultationType)"></ion-icon>
-          <span>{{ getConsultationTypeLabel(doctor.consultationType) }}</span>
-        </div>
-      </div>
-
-      <!-- Doctor Info Section -->
-      <div class="doctor-info-section">
-        <div class="doctor-header-info">
-          <h3 class="doctor-name">{{ doctor.fullName }}</h3>
-          @if(doctor.rating) {
-          <div class="rating-container">
-            <div class="stars">
-              @for (item of getStars(doctor.rating || 0); track $index) {
-              @if(item) {
-              <ion-icon name="star"></ion-icon>
-              }
-              }
-            </div>
-            <span class="rating-number">{{ doctor.rating }}</span>
-          </div>
-          }
-        </div>
-
-        <p class="doctor-specialty">{{ doctor.specialty }}</p>
-
-        <div class="doctor-meta">
-          <div class="meta-item">
-            <ion-icon name="time-outline"></ion-icon>
-            <span>{{ doctor.experienceYears }}+ years</span>
-          </div>
-          @if(doctor.location) {
-          <div class="meta-item">
-            <ion-icon name="location-outline"></ion-icon>
-            <span>{{ doctor.location }}</span>
-          </div>
-          }
-        </div>
-
-        <div class="doctor-description">
-          <p>{{ doctor.about.substring(0, 100) }}{{ doctor.about.length > 100 ? '...' : '' }}</p>
-        </div>
-      </div>
-
-      <!-- Price Section -->
-      <div class="price-section">
-        <div class="price-container">
-          <span class="price">${{ doctor.fee }}</span>
-          <span class="price-label">per consultation</span>
-        </div>
-        <div class="availability">
-          <div class="availability-dot"></div>
-          <span>Available today</span>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="action-section">
-        <ion-button fill="solid" expand="block" class="book-btn"
-          (click)="bookWithDoctor(doctor); $event.stopPropagation()">
-          <ion-icon name="calendar-outline" slot="start"></ion-icon>
-          Book Consultation
+  @if (!isLoading || doctors.length > 0) {
+    @if (!isLoading && filteredDoctors.length === 0) {
+    <div class="no-results">
+      <div class="no-results-content">
+        <ion-icon name="search-outline"></ion-icon>
+        <h3>No Doctors Found</h3>
+        @if(searchTerm || selectedSpecialty !== 'all' || selectedConsultationType !== 'all') {
+        <p>
+          No doctors match your current search and filter criteria.
+        </p>
+        }
+        @if(!searchTerm && selectedSpecialty === 'all' && selectedConsultationType === 'all') {
+        <p>
+          No doctors are currently available.
+        </p>
+        <ion-button fill="outline" (click)="clearFilters()">
+          <ion-icon name="refresh" slot="start"></ion-icon>
+          Clear Filters
         </ion-button>
-
-        <div class="secondary-actions">
-          <ion-button fill="clear" size="small" class="secondary-btn"
-            (click)="viewDoctorProfile(doctor); $event.stopPropagation()">
-            <ion-icon name="person-outline"></ion-icon>
-          </ion-button>
-
-          @if(doctor.contactPhone) {
-          <ion-button fill="clear" size="small" class="secondary-btn" (click)="$event.stopPropagation()"
-            [href]="'tel:' + doctor.contactPhone">
-            <ion-icon name="call-outline"></ion-icon>
-          </ion-button>
-          }
-          <ion-button fill="clear" size="small" class="secondary-btn" (click)="$event.stopPropagation()">
-            <ion-icon name="heart-outline"></ion-icon>
-          </ion-button>
-        </div>
+        }
       </div>
     </div>
     }
-  </div>
-  }
-  <!-- No Results State -->
-  @if(!isLoading && filteredDoctors.length === 0) {
-  <div class="no-results">
-    <div class="no-results-content">
-      <ion-icon name="search-outline"></ion-icon>
-      <h3>No Doctors Found</h3>
-      @if(searchTerm || selectedSpecialty !== 'all' || selectedConsultationType !== 'all') {
-      <p>
-        No doctors match your current search and filter criteria.
-      </p>
-      }
-      @if(!searchTerm && selectedSpecialty === 'all' && selectedConsultationType === 'all') {
-      <p>
-        No doctors are currently available.
-      </p>
-      <ion-button fill="outline" (click)="clearFilters()">
-        <ion-icon name="refresh" slot="start"></ion-icon>
-        Clear Filters
-      </ion-button>
-      }
+
+    @if (filteredDoctors.length > 0) {
+    <cdk-virtual-scroll-viewport
+      class="doctors-virtual-viewport"
+      [itemSize]="virtualItemSizePx"
+      minBufferPx="900"
+      maxBufferPx="1600"
+      #doctorViewport
+      (scrolledIndexChange)="onVirtualScroll(doctorViewport)"
+    >
+      <div
+        *cdkVirtualFor="let doctor of filteredDoctors; trackBy: trackByDoctorId"
+        class="doctor-virtual-row"
+      >
+        <div class="doctor-card" (click)="bookWithDoctor(doctor)">
+          <div class="card-glow"></div>
+
+          <div class="doctor-avatar-section">
+            <div class="avatar-container">
+              <img [src]="getDoctorAvatar(doctor)" [alt]="doctor.fullName" />
+              <div class="avatar-ring"></div>
+              <div
+                class="status-indicator"
+                [class.online]="doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH'"
+              >
+                <ion-icon name="checkmark"></ion-icon>
+              </div>
+            </div>
+
+            <div class="consultation-type-badge" [class]="(doctor.consultationType + '').toLowerCase()">
+              <ion-icon [name]="getConsultationIcon(doctor.consultationType + '')"></ion-icon>
+              <span>{{ getConsultationTypeLabel(doctor.consultationType + '') }}</span>
+            </div>
+          </div>
+
+          <div class="doctor-info-section">
+            <div class="doctor-header-info">
+              <h3 class="doctor-name">{{ doctor.fullName }}</h3>
+              @if (doctor.rating) {
+              <div class="rating-container">
+                <div class="stars">
+                  @for (item of getStars(doctor.rating || 0); track $index) {
+                  @if (item) {
+                  <ion-icon name="star"></ion-icon>
+                  }
+                  }
+                </div>
+                <span class="rating-number">{{ doctor.rating }}</span>
+              </div>
+              }
+            </div>
+
+            <p class="doctor-specialty">{{ doctor.specialty }}</p>
+
+            <div class="doctor-meta">
+              <div class="meta-item">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>{{ doctor.experienceYears }}+ years</span>
+              </div>
+              @if (doctor.location) {
+              <div class="meta-item">
+                <ion-icon name="location-outline"></ion-icon>
+                <span>{{ doctor.location }}</span>
+              </div>
+              }
+            </div>
+
+            <div class="doctor-description">
+              <p>{{ doctor.about.substring(0, 100) }}{{ doctor.about.length > 100 ? '...' : '' }}</p>
+            </div>
+          </div>
+
+          <div class="price-section">
+            <div class="price-container">
+              <span class="price">${{ doctor.fee }}</span>
+              <span class="price-label">per consultation</span>
+            </div>
+            <div class="availability">
+              <div class="availability-dot"></div>
+              <span>Available today</span>
+            </div>
+          </div>
+
+          <div class="action-section">
+            <ion-button
+              fill="solid"
+              expand="block"
+              class="book-btn"
+              (click)="bookWithDoctor(doctor); $event.stopPropagation()"
+            >
+              <ion-icon name="calendar-outline" slot="start"></ion-icon>
+              Book Consultation
+            </ion-button>
+
+            <div class="secondary-actions">
+              <ion-button
+                fill="clear"
+                size="small"
+                class="secondary-btn"
+                (click)="viewDoctorProfile(doctor); $event.stopPropagation()"
+              >
+                <ion-icon name="person-outline"></ion-icon>
+              </ion-button>
+
+              @if (doctor.contactPhone) {
+              <ion-button
+                fill="clear"
+                size="small"
+                class="secondary-btn"
+                (click)="$event.stopPropagation()"
+                [href]="'tel:' + doctor.contactPhone"
+              >
+                <ion-icon name="call-outline"></ion-icon>
+              </ion-button>
+              }
+              <ion-button fill="clear" size="small" class="secondary-btn" (click)="$event.stopPropagation()">
+                <ion-icon name="heart-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </cdk-virtual-scroll-viewport>
+    }
+
+    @if (loadingMore && doctors.length > 0) {
+    <div class="doctors-load-more" aria-hidden="true">
+      <ion-spinner name="crescent"></ion-spinner>
     </div>
-  </div>
+    }
   }
+
+  </div>
 </ion-content>

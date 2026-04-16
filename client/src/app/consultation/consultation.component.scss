@@ -939,3 +939,71 @@ ion-fab {
 .doctors-skeleton-text .sk-line--short {
   width: 45%;
 }
+
+:host-context(html.ion-palette-dark) {
+  .consultation-content {
+    --background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+  }
+
+  .consultation-hero .hero-title,
+  .section-title,
+  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-name,
+  .specialists-section
+    .doctors-grid
+    .specialist-card
+    .specialist-info
+    .specialist-availability
+    .fee {
+    color: #f9fafb;
+  }
+
+  .consultation-hero .hero-subtitle,
+  .consultation-hero .hero-stats .stat .stat-label,
+  .section-header .section-subtitle,
+  .loading-container p,
+  .show-more-section .show-more-text,
+  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-specialty,
+  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-details .experience,
+  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-location span,
+  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-clinic span {
+    color: #9ca3af;
+  }
+
+  .consultation-hero .hero-stats .stat,
+  .quick-booking,
+  .search-section,
+  .specialists-section .doctors-grid .specialist-card,
+  .doctors-skeleton-card,
+  .show-more-section .show-more-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  }
+
+  .search-section ion-searchbar {
+    --background: rgba(255, 255, 255, 0.08);
+    --color: #f3f4f6;
+    --placeholder-color: #9ca3af;
+  }
+
+  .specialists-section .doctors-grid .specialist-card .specialist-avatar img {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+
+  .specialists-section
+    .doctors-grid
+    .specialist-card
+    .specialist-info
+    .specialist-availability
+    .fee {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .specialists-section .doctors-grid .specialist-card .specialist-actions ion-button[fill='outline'],
+  .show-more-section .show-more-btn {
+    --color: #c4b5fd;
+    --border-color: rgba(196, 181, 253, 0.45);
+    --background: transparent;
+  }
+}

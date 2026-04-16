@@ -1,46 +1,59 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DoctorDto } from '../models/doctor.dto';
+import {
+  DoctorDto,
+  DoctorListQuery,
+  PaginatedDoctorsResponse,
+} from '../models/doctor.dto';
 import { environment } from '../../../environments/environment.prod';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DoctorService {
   http = inject(HttpClient);
-  private baseUrl = environment.apiEndPoint + 'doctors';
+  private readonly baseUrl = environment.apiEndPoint + 'doctors';
 
-  // Get all doctors
-  getDoctors(): Observable<DoctorDto[]> {
-    return this.http.get<DoctorDto[]>(`${this.baseUrl}`);
+  getDoctorsPage(query: DoctorListQuery = {}): Observable<PaginatedDoctorsResponse> {
+    let params = new HttpParams();
+    if (query.page != null) {
+      params = params.set('page', String(query.page));
+    }
+    if (query.limit != null) {
+      params = params.set('limit', String(query.limit));
+    }
+    if (query.search?.trim()) {
+      params = params.set('search', query.search.trim());
+    }
+    if (query.specialty != null && query.specialty !== '') {
+      params = params.set('specialty', query.specialty);
+    }
+    if (query.consultationType != null && query.consultationType !== '') {
+      params = params.set('consultationType', query.consultationType);
+    }
+    return this.http.get<PaginatedDoctorsResponse>(this.baseUrl, { params });
   }
 
-  // Get doctor by ID
-  getDoctorById(id: number): Observable<DoctorDto | undefined> {
-    return this.http.get<DoctorDto>(`${this.baseUrl}/${id}`);
+  getDoctorById(id: string): Observable<DoctorDto> {
+    return this.http.get<DoctorDto>(`${this.baseUrl}/${encodeURIComponent(id)}`);
   }
 
-
-
-  // Update doctor
-  updateDoctor(id: number, doctorData: Partial<DoctorDto>): Observable<DoctorDto | null> {
-    return this.http.put<DoctorDto>(`${this.baseUrl}/${id}`, doctorData);
+  updateDoctor(id: string, doctorData: Partial<DoctorDto>): Observable<DoctorDto | null> {
+    return this.http.put<DoctorDto>(`${this.baseUrl}/${encodeURIComponent(id)}`, doctorData);
   }
 
-  // Delete doctor
-  deleteDoctor(id: number): Observable<boolean> {
-    return this.http.delete<boolean>(`${this.baseUrl}/${id}`);
+  deleteDoctor(id: string): Observable<boolean> {
+    return this.http.delete<boolean>(`${this.baseUrl}/${encodeURIComponent(id)}`);
   }
 
-  // Get doctors by specialty
   getDoctorsBySpecialty(specialty: string): Observable<DoctorDto[]> {
-    return this.http.get<DoctorDto[]>(`${this.baseUrl}/specialty/${specialty}`);
+    return this.http.get<DoctorDto[]>(`${this.baseUrl}/specialty/${encodeURIComponent(specialty)}`);
   }
 
-  // Search doctors
   searchDoctors(query: string): Observable<DoctorDto[]> {
-    return this.http.get<DoctorDto[]>(`${this.baseUrl}/search?query=${query}`);
+    return this.http.get<DoctorDto[]>(`${this.baseUrl}/search`, {
+      params: new HttpParams().set('query', query),
+    });
   }
-
 }

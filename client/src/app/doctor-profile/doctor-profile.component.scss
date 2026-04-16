@@ -778,3 +778,107 @@
     padding: 16px 12px 120px;
   }
 }
+
+:host-context(html.ion-palette-dark) {
+  .doctor-profile-content {
+    --background: var(--app-gradient-header);
+    color: #ffffff;
+  }
+
+  .profile-header {
+    .header-actions {
+      .back-btn,
+      .action-buttons .action-btn {
+        --color: #ffffff;
+        --background: rgba(255, 255, 255, 0.12);
+      }
+    }
+
+    .doctor-main-info .doctor-details {
+      .doctor-name,
+      .doctor-specialty,
+      .doctor-stats .stat-item .stat-value,
+      .doctor-stats .stat-item .stat-label {
+        color: #ffffff;
+      }
+    }
+
+    .consultation-info {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.16);
+
+      .consultation-type,
+      .consultation-fee .fee-amount,
+      .consultation-fee .fee-label {
+        color: #ffffff;
+      }
+    }
+  }
+
+  .tab-navigation {
+    background: var(--ion-card-background);
+
+    .tab-buttons .tab-btn {
+      color: #ffffff;
+    }
+  }
+
+  .tab-content {
+    background: transparent;
+  }
+
+  .about-section .section-card,
+  .reviews-section .reviews-summary,
+  .reviews-section .reviews-list .review-card,
+  .schedule-section .time-slots .time-slot {
+    background: var(--ion-card-background);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .about-section .section-card {
+    .section-title,
+    .about-text,
+    .clinic-info .info-item {
+      color: #ffffff;
+    }
+  }
+
+  .reviews-section {
+    .reviews-summary .rating-overview .rating-details p,
+    .reviews-list .review-card .review-header .reviewer-info .reviewer-details .reviewer-name,
+    .reviews-list .review-card .review-header .reviewer-info .reviewer-details .review-meta .review-date,
+    .reviews-list .review-card .review-comment {
+      color: #ffffff;
+    }
+  }
+
+  .schedule-section {
+    .schedule-header h3,
+    .schedule-header p {
+      color: #ffffff;
+    }
+
+    .time-slots .time-slot {
+      .slot-time,
+      .slot-status.unavailable-text {
+        color: #ffffff;
+      }
+
+      &.unavailable {
+        background: rgba(255, 255, 255, 0.08);
+      }
+    }
+  }
+
+  .floating-actions {
+    .book-appointment-btn {
+      --color: #ffffff;
+    }
+
+    .contact-buttons .contact-btn {
+      --color: #ffffff;
+      --background: rgba(255, 255, 255, 0.12);
+      --border-color: rgba(255, 255, 255, 0.28);
+    }
+  }
+}

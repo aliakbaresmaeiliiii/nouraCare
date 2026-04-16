@@ -50,46 +50,26 @@ export class ConsultationComponent implements OnInit {
     }
   }
 
-  // Load limited doctors for consultation page
+  /** First page of doctors from API for the consultation tab preview. */
   async loadDoctors() {
     this.isLoading = true;
-    // Create mock doctors for consultation page display
-    const mockDoctors: DoctorDto[] = [
-      {
-        id: 1,
-        fullName: 'Dr. Sarah Johnson',
-        specialty: 'Obstetrics & Gynecology',
-        experienceYears: 12,
-        about: 'Specialized in high-risk pregnancies and fertility treatments.',
-        rating: 4.8,
-        profileImageUrl: 'assets/images/doctor-sarah.jpg',
-        clinicName: 'Women\'s Health Center',
-        location: 'New York, NY',
-        contactEmail: 'sarah.johnson@whc.com',
-        contactPhone: '+1 (555) 123-4567',
-        consultationType: 'BOTH' as any,
-        fee: 200
+    this.doctorService.getDoctorsPage({ page: 1, limit: 8 }).subscribe({
+      next: (res) => {
+        this.doctors = res.items;
+        this.isLoading = false;
       },
-      {
-        id: 2,
-        fullName: 'Dr. Emily Rodriguez',
-        specialty: 'Maternal-Fetal Medicine',
-        experienceYears: 8,
-        about: 'Expert in prenatal care and fetal development monitoring.',
-        rating: 4.9,
-        profileImageUrl: 'assets/images/doctor-emily.jpg',
-        clinicName: 'Maternal Care Clinic',
-        location: 'Los Angeles, CA',
-        contactEmail: 'emily.rodriguez@mcc.com',
-        contactPhone: '+1 (555) 987-6543',
-        consultationType: 'ONLINE' as any,
-        fee: 180
-      }
-    ];
-    
-    // Show only 2 doctors on consultation page
-    this.doctors = mockDoctors;
-    this.isLoading = false;
+      error: async () => {
+        this.doctors = [];
+        this.isLoading = false;
+        const toast = await this.toastController.create({
+          message: 'Could not load doctors. Open Find Doctors to retry.',
+          duration: 3000,
+          color: 'warning',
+          position: 'bottom',
+        });
+        await toast.present();
+      },
+    });
   }
 
   // Navigate to doctors page

@@ -314,3 +314,67 @@
   font-size: 0.78rem;
   color: #9ca3af;
 }
+
+:host-context(html.ion-palette-dark) {
+  .cc-back {
+    --color: #f3f4f6;
+  }
+
+  .cc-content {
+    --background: #121218;
+  }
+
+  .cc-month-bar,
+  .cc-calendar-card,
+  .cc-history-empty,
+  .cc-history-item {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+  }
+
+  .cc-month-title,
+  .cc-history-title,
+  .cc-history-empty strong,
+  .cc-history-main {
+    color: #f9fafb;
+  }
+
+  .cc-nav-btn,
+  .cc-legend-pill,
+  .cc-date-num,
+  .cc-cell--muted .cc-date-num {
+    color: #e5e7eb;
+  }
+
+  .cc-dow,
+  .cc-history-sub,
+  .cc-history-meta,
+  .cc-hint-text,
+  .cc-history-empty {
+    color: #9ca3af;
+  }
+
+  .cc-cell--today {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .cc-legend-pill--period,
+  .cc-cell--period {
+    background: rgba(236, 72, 153, 0.26);
+  }
+
+  .cc-legend-pill--fertile,
+  .cc-cell--fertile {
+    background: rgba(34, 197, 94, 0.24);
+  }
+
+  .cc-legend-pill--ovulation,
+  .cc-cell--ovulation {
+    background: rgba(245, 158, 11, 0.24);
+  }
+
+  .cc-history-empty-icon {
+    color: #6b7280;
+  }
+}

@@ -16,7 +16,9 @@ import { AuthService } from '../services/auth';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import {
   BehaviorSubject,
+  EMPTY,
   Subject,
+  catchError,
   exhaustMap,
   filter,
   finalize,
@@ -123,6 +125,13 @@ export class LoginComponent {
           };
 
           return this.service.login(payload).pipe(
+            catchError((err) => {
+              this.message =
+                err?.error?.message || 'Login failed. Please try again.';
+              this.success = false;
+              this.showToast = true;
+              return EMPTY;
+            }),
             finalize(() => {
               this.isLoading = false;
               this.cdr.detectChanges();
@@ -159,12 +168,6 @@ export class LoginComponent {
           } else {
             this.router.navigate(['/tabs/home']);
           }
-        },
-        error: (err) => {
-          this.message =
-            err?.error?.message || 'Login failed. Please try again.';
-          this.success = false;
-          this.showToast = true;
         },
       });
   }

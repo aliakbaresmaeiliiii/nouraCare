@@ -7,7 +7,7 @@
   </ion-refresher>
 <div class="home-content" [class.home-content--pregnancy-today]="isPregnant">
   <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
-  @if (!isPregnant && !showStartTrackingOnboarding() && userStatus !== 'Trying to Conceive') {
+  @if (!isPregnant && !showStartTrackingOnboarding() && !isHomeCycleTrackingLayout()) {
     <div class="welcome-hero ">
       <div class="hero-background">
         <div class="floating-bubble bubble-1"></div>
@@ -60,7 +60,7 @@
   
 
   <!-- Default State - Onboarding Section -->
-  @if (showStartTrackingOnboarding()) {
+   @if (showStartTrackingOnboarding()) {
     <div class="onboarding-section">
     <div class="onboarding-card">
       <div class="onboarding-illustration">
@@ -103,9 +103,8 @@
     </div>
     </div>
   }
-
   <!-- Cycle overview card layout (matches compact reference UI) -->
-  @if (!isPregnant && !isPostpartum && userStatus === 'Trying to Conceive' && !showStartTrackingOnboarding()) {
+  @if (!isPregnant && !isPostpartum && isHomeCycleTrackingLayout() && !showStartTrackingOnboarding()) {
     <div class="cycle-compact-section">
       <div class="cycle-hello-card">
         <div class="cycle-hello-copy">

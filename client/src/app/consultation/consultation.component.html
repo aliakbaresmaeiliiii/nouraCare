@@ -59,7 +59,7 @@
         @for (doctor of doctors; track doctor.id) {
           <div class="specialist-card" (click)="bookWithDoctor(doctor)">
         <div class="specialist-avatar">
-          <img [src]="doctor.profileImageUrl || 'assets/images/doctor-placeholder.jpg'" [alt]="doctor.fullName">
+          <img [src]="doctor.profileImageUrl || 'assets/images/avatarMen.png'" [alt]="doctor.fullName">
           <div class="online-indicator" [class.offline]="doctor.consultationType === 'IN_PERSON'"></div>
         </div>
         <div class="specialist-info">

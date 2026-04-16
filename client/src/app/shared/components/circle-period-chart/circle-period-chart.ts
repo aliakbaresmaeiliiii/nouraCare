@@ -7,9 +7,9 @@ import { UserInfoService } from '../../services/user-info.service';
 import { environment } from '../../../../environments/environment';
 
 export interface Segment {
-  label: string; // نام بخش، مثلا "پریود"
-  days: number; // تعداد روزها
-  color: string; // رنگ بخش
+  label: string;
+  days: number; 
+  color: string;
 }
 
 @Component({
@@ -243,6 +243,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
         this.cycleLength = userInfo.cycleLength || 28;
         this.periodLength = userInfo.periodLength || 5;
         this.startDate = this.toPeriodIso(userInfo.lastPeriodDate);
+        if (this.startDate) {
+          this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+        }
         this.isLoading = false;
         this.recomputeEverything();
       },

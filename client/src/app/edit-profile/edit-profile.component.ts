@@ -26,6 +26,9 @@ import {
   heartDislike,
   removeOutline,
   addOutline,
+  pulseOutline,
+  arrowForward,
+  helpCircleOutline,
 } from 'ionicons/icons';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -117,31 +120,35 @@ export class EditProfileComponent implements OnInit {
     }
   ];
 
-  // Reproductive Status Options
+  // Reproductive Status Options (icons + short copy; user confirms with Continue)
   reproductiveStatusOptions: {
     label: string;
     value: string;
-    emoji: string;
+    subtitle: string;
+    icon: string;
     color: string;
   }[] = [
     {
-      label: 'I\'m pregnant',
+      label: "I'm pregnant",
       value: 'PREGNANT',
-      emoji: '🩷',
-      color: '#ff6b9d'
+      subtitle: 'Track weeks, symptoms, and appointments in one place.',
+      icon: 'heart',
+      color: '#ec4899',
     },
     {
-      label: 'I\'m planning to get pregnant',
+      label: "I'm planning to get pregnant",
       value: 'PLANNING_PREGNANCY',
-      emoji: '🌸',
-      color: '#ff8fab'
+      subtitle: 'Log cycles and get planning tips when you are ready.',
+      icon: 'sparkles',
+      color: '#8b5cf6',
     },
     {
-      label: 'I\'m not pregnant',
+      label: "I'm not pregnant",
       value: 'NOT_PREGNANT',
-      emoji: '💧',
-      color: '#8bc5ff'
-    }
+      subtitle: 'Period tracking and general wellness without pregnancy mode.',
+      icon: 'pulse-outline',
+      color: '#0ea5e9',
+    },
   ];
 
   isEditingReproductiveStatus = false;
@@ -165,6 +172,9 @@ export class EditProfileComponent implements OnInit {
       heartDislike,
       removeOutline,
       addOutline,
+      pulseOutline,
+      arrowForward,
+      helpCircleOutline,
     });
   }
 
@@ -700,18 +710,21 @@ export class EditProfileComponent implements OnInit {
 
  
 
+  /** Select only — user confirms with Continue (no immediate navigation). */
   setStatus(statusValue: string | null): void {
     this.form.patchValue({ status: statusValue });
     this.currentReproductiveStatus = statusValue;
-    
-    // Navigate to pregnancy planning when "Planning Pregnancy" is selected
-    if (statusValue === 'PLANNING_PREGNANCY') {
-      this.navigateToPregnancyPlanning();
-    }
+    this.cdr.markForCheck();
   }
 
-  navigateToPregnancyPlanning(): void {
-    this.router.navigate(['/pregnancy-planning']);
+  getSelectedReproductiveOption():
+    | (typeof this.reproductiveStatusOptions)[number]
+    | undefined {
+    const v = this.form.get('status')?.value as string | null;
+    if (!v) {
+      return undefined;
+    }
+    return this.reproductiveStatusOptions.find((o) => o.value === v);
   }
 
   checkFormControlState(): void {
@@ -827,40 +840,53 @@ export class EditProfileComponent implements OnInit {
   }
 
   saveReproductiveStatus(): void {
-    if (this.currentReproductiveStatus) {
-      const apiStatus = this.mapUiReproductiveToApiPregnancyStatus(
-        this.currentReproductiveStatus,
-      );
-
-      if (apiStatus) {
-        this.onboardingService.updateReproductiveState({ state: apiStatus }).subscribe({
-          next: (dashboard) => {
-            this.form.patchValue({ status: this.currentReproductiveStatus });
-            this.isEditingReproductiveStatus = false;
-            this.pushHomeJourneyFromDashboard(dashboard);
-            if (this.currentReproductiveStatus === 'PREGNANT') {
-              const w = dashboard?.week;
-              const week =
-                w != null && Number.isFinite(w)
-                  ? Math.min(40, Math.max(4, Math.round(Number(w))))
-                  : 12;
-              this.router.navigate(['/week-detail'], { queryParams: { week } });
-              this.showSuccessAlert('Opening your pregnancy week…');
-              return;
-            }
-            this.showSuccessAlert('Reproductive status updated successfully!');
-          },
-          error: (error: any) => {
-            console.error('Error updating reproductive status:', error);
-            this.showErrorAlert(
-              'Failed to update reproductive status. Please try again.',
-            );
-          },
-        });
-      } else {
-        this.showErrorAlert('Invalid reproductive status selected.');
-      }
+    const selected =
+      this.currentReproductiveStatus ??
+      (this.form.get('status')?.value as string | null);
+    if (!selected) {
+      this.showErrorAlert('Please choose an option first.');
+      return;
     }
+
+    const apiStatus = this.mapUiReproductiveToApiPregnancyStatus(selected);
+    if (!apiStatus) {
+      this.showErrorAlert('Invalid reproductive status selected.');
+      return;
+    }
+
+    this.onboardingService.updateReproductiveState({ state: apiStatus }).subscribe({
+      next: (dashboard) => {
+        this.form.patchValue({ status: selected });
+        this.currentReproductiveStatus = selected;
+        this.isEditingReproductiveStatus = false;
+        this.pushHomeJourneyFromDashboard(dashboard);
+
+        if (selected === 'PREGNANT') {
+          const w = dashboard?.week;
+          const week =
+            w != null && Number.isFinite(w)
+              ? Math.min(40, Math.max(4, Math.round(Number(w))))
+              : 12;
+          this.router.navigate(['/week-detail'], { queryParams: { week } });
+          this.showSuccessAlert('Opening your pregnancy week…');
+          return;
+        }
+
+        if (selected === 'PLANNING_PREGNANCY') {
+          this.showSuccessAlert('Saved. Next, set up your planning details.');
+          this.router.navigate(['/pregnancy-planning']);
+          return;
+        }
+
+        this.showSuccessAlert('Reproductive status updated successfully!');
+      },
+      error: (error: any) => {
+        console.error('Error updating reproductive status:', error);
+        this.showErrorAlert(
+          'Failed to update reproductive status. Please try again.',
+        );
+      },
+    });
   }
 
   /** Same path as week-detail save: home tab updates via signal even when view enter does not run. */
@@ -899,18 +925,9 @@ export class EditProfileComponent implements OnInit {
     return null;
   }
 
-  getSelectedReproductiveStatusEmoji(): string {
-    if (!this.currentReproductiveStatus) return '❓';
-    
-    const selectedOption = this.reproductiveStatusOptions.find(option => option.value === this.currentReproductiveStatus);
-    return selectedOption?.emoji || '❓';
-  }
-
   getSelectedReproductiveStatusLabel(): string {
-    if (!this.currentReproductiveStatus) return 'Not selected';
-    
-    const selectedOption = this.reproductiveStatusOptions.find(option => option.value === this.currentReproductiveStatus);
-    return selectedOption?.label || 'Not selected';
+    const opt = this.getSelectedReproductiveOption();
+    return opt?.label ?? 'Not selected yet';
   }
 
   showLoadingAlert(message: string): void {

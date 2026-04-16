@@ -43,6 +43,56 @@
   }
 }
 
+.community-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.summary-icon {
+  font-size: 20px;
+  color: #4f46e5;
+}
+
+.summary-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.summary-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summary-label {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.section-title-icon {
+  font-size: 18px;
+  margin-right: 8px;
+  color: #4f46e5;
+  vertical-align: -2px;
+}
+
 .search-section {
   margin-bottom: 20px;
   
@@ -596,6 +646,13 @@
           border-radius: 6px;
           font-size: 11px;
           font-weight: 600;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .category-badge-icon {
+          font-size: 12px;
         }
         
         .time-ago {
@@ -609,6 +666,10 @@
 
 // Responsive design
 @media (max-width: 768px) {
+  .community-summary {
+    grid-template-columns: 1fr;
+  }
+
   .forums-content .container {
     padding: 12px;
   }
@@ -695,4 +756,95 @@ ion-avatar img {
 
 .forums-skeleton-row .sk-line--short {
   width: 72%;
+}
+
+:host-context(html.ion-palette-dark) {
+  .forums-content {
+    --background: #0f172a;
+  }
+
+  .summary-card {
+    background: #111827;
+    border-color: rgba(148, 163, 184, 0.2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  .summary-value {
+    color: #f8fafc;
+  }
+
+  .summary-label {
+    color: #cbd5e1;
+  }
+
+  .summary-icon,
+  .section-title-icon {
+    color: #818cf8;
+  }
+
+  .search-section .search-bar,
+  .view-toggle-section .view-segment,
+  .category-filter-section,
+  .categories-container .category-card,
+  .topics-container .topics-list .topic-content,
+  .forums-skeleton-row {
+    background: #111827;
+    border-color: rgba(148, 163, 184, 0.2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  .categories-title,
+  .topics-title,
+  .category-filter-section .filter-header .filter-title,
+  .categories-container .category-card .category-content .category-name,
+  .topics-container .topics-list .topic-content .topic-header .topic-title {
+    color: #f8fafc;
+  }
+
+  .loading-container .loading-text,
+  .categories-container .category-card .category-content .category-description,
+  .categories-container .category-card .category-content .category-stats .stat .stat-text,
+  .categories-container .category-card .category-content .category-stats .stat .stat-icon,
+  .categories-container .category-card .category-content .last-activity .activity-text,
+  .categories-container .category-card .category-content .last-activity .activity-icon,
+  .topics-container .topics-list .topic-content .topic-excerpt,
+  .topics-container .topics-list .topic-content .topic-meta .author-info .author-name,
+  .topics-container .topics-list .topic-content .topic-meta .topic-stats .stat .stat-text,
+  .topics-container .topics-list .topic-content .topic-meta .topic-stats .stat .stat-icon,
+  .topics-container .topics-list .topic-content .topic-footer .time-ago,
+  .empty-container .empty-title,
+  .empty-container .empty-text {
+    color: #cbd5e1;
+  }
+
+  .category-filter-section .filter-header .filter-actions .clear-button {
+    --background: #1f2937;
+    --color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.28);
+  }
+
+  .category-filter-section .category-filters .filter-chip {
+    background: #1f2937;
+    border-color: rgba(148, 163, 184, 0.25);
+    color: #cbd5e1;
+
+    .chip-icon {
+      color: #cbd5e1;
+    }
+
+    &.active {
+      background: #6366f1;
+      border-color: #6366f1;
+      color: #fff;
+    }
+  }
+
+  .topics-container .topics-list .topic-content .topic-meta .topic-tags .tag {
+    background: #334155;
+    color: #e2e8f0;
+  }
+
+  .topics-container .topics-list .topic-content .topic-footer {
+    border-top-color: rgba(148, 163, 184, 0.2);
+  }
 }

@@ -337,6 +337,28 @@ ion-select {
   --border-radius: var(--app-radius-md);
 }
 
+/* Unified search input style across app */
+ion-searchbar {
+  --background: var(--brand-surface);
+  --color: #111827;
+  --placeholder-color: var(--brand-text-secondary);
+  --icon-color: var(--brand-text-secondary);
+  --clear-button-color: var(--brand-text-secondary);
+  --border-radius: 12px;
+  --box-shadow: 0 2px 8px rgba(var(--brand-text-rgb), 0.08);
+  --cancel-button-color: var(--brand-primary-dark);
+}
+
+ion-searchbar .searchbar-input {
+  color: #111827 !important;
+}
+
+/* Force readable search text in light mode even if page-level styles override */
+html:not(.ion-palette-dark) ion-searchbar .searchbar-input,
+html:not(.ion-palette-dark) ion-searchbar input.searchbar-input {
+  color: #111827 !important;
+}
+
 ion-item {
   --background: var(--brand-surface);
   --border-radius: var(--app-radius-md);
@@ -663,6 +685,71 @@ ion-app.ion-palette-dark {
   --app-shadow-card-hover: 0 12px 36px rgba(var(--ion-background-color-rgb), 0.45);
   --app-shadow-header: 0 2px 16px rgba(var(--ion-background-color-rgb), 0.35);
   --app-shadow-soft: 0 2px 14px rgba(var(--ion-background-color-rgb), 0.25);
+
+  /* Icons: readable on dark surfaces + glow for “shine” where we accent */
+  --app-icon-default: var(--ion-text-color-step-400);
+  --app-icon-muted: var(--ion-text-color-step-650);
+  --app-icon-toolbar: var(--ion-text-color);
+  --app-icon-accent: var(--ion-color-primary-tint);
+  --app-icon-shine-filter: drop-shadow(0 0 10px rgba(var(--ion-color-primary-rgb), 0.55));
+}
+
+html.ion-palette-dark ion-searchbar {
+  --background: #1f2937;
+  --color: #f8fafc;
+  --placeholder-color: #94a3b8;
+  --icon-color: #94a3b8;
+  --clear-button-color: #94a3b8;
+  --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* -------------------------------------------------------------------------- */
+/* ion-icon — theme tokens (Ionicons SVG uses currentColor from host)         */
+/* -------------------------------------------------------------------------- */
+
+ion-icon {
+  color: var(--app-icon-default, var(--brand-text-secondary));
+}
+
+ion-header ion-icon,
+ion-toolbar ion-icon,
+ion-buttons ion-icon {
+  color: var(--app-icon-toolbar, inherit);
+}
+
+ion-item ion-icon[slot='start'],
+ion-item ion-icon[slot='end'] {
+  color: var(--app-icon-muted, inherit);
+}
+
+ion-tab-button ion-icon {
+  color: inherit;
+}
+
+ion-tab-button.tab-selected ion-icon {
+  color: var(--app-icon-accent, var(--ion-color-primary));
+}
+
+ion-app.ion-palette-dark ion-tab-button.tab-selected ion-icon {
+  filter: var(--app-icon-shine-filter, none);
+}
+
+ion-app.ion-palette-dark ion-segment-button.segment-button-checked ion-icon {
+  color: var(--app-icon-accent, var(--ion-color-primary));
+  filter: var(--app-icon-shine-filter, none);
+}
+
+ion-button[color='primary'] ion-icon,
+ion-icon[color='primary'] {
+  color: var(--ion-color-primary-contrast);
+}
+
+ion-button[fill='clear'] ion-icon {
+  color: var(--app-icon-toolbar, inherit);
+}
+
+ion-menu .menu-icon {
+  color: var(--app-icon-muted, inherit);
 }
 
 /* Custom Modal Styles */
@@ -778,6 +865,70 @@ ion-action-sheet {
   --color: var(--brand-text);
 }
 
+/* iPhone-like liquid glass dialog style for action popups */
+ion-alert.liquid-glass-dialog {
+  --backdrop-opacity: 0.3;
+}
+
+ion-alert.liquid-glass-dialog::part(backdrop) {
+  background: rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(10px) saturate(135%);
+}
+
+ion-alert.liquid-glass-dialog .alert-wrapper {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.38) 100%
+  ) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 14px 36px rgba(15, 23, 42, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+ion-alert.liquid-glass-dialog .alert-head,
+ion-alert.liquid-glass-dialog .alert-message {
+  color: #0f172a !important;
+}
+
+ion-alert.liquid-glass-dialog .alert-button-group .alert-button {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+ion-alert.liquid-glass-dialog .alert-button-inner.sc-ion-alert-ios {
+  justify-content: flex-start;
+  margin-left: 10px;
+}
+
+ion-alert.liquid-glass-dialog .alert-button-group .alert-button.alert-button-role-destructive {
+  color: #dc2626;
+}
+
+html.ion-palette-dark ion-alert.liquid-glass-dialog .alert-wrapper {
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.7) 0%,
+    rgba(30, 41, 59, 0.5) 100%
+  ) !important;
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+html.ion-palette-dark ion-alert.liquid-glass-dialog .alert-head,
+html.ion-palette-dark ion-alert.liquid-glass-dialog .alert-message {
+  color: #e2e8f0 !important;
+}
+
+html.ion-palette-dark ion-alert.liquid-glass-dialog .alert-button-group .alert-button {
+  color: #e2e8f0;
+}
+
 /* Enhanced Button Styles */
 .fertility-results-modal,
 .pregnancy-results-modal {
@@ -847,10 +998,6 @@ ion-label {
 ion-label p,
 ion-note {
   color: var(--brand-text-secondary);
-}
-
-ion-icon {
-  color: inherit;
 }
 
 /* Minimum 44×44pt touch targets (Apple HIG); Ionic buttons often need explicit min size on mobile */
