@@ -4,9 +4,10 @@ import { ProfileController } from './profile.controller';
 import { UserService } from './user.service';
 import { OnboardingService } from './onboarding.service';
 import { PrismaModule } from '../prisma/prisma.module';
+import { HealthEngagementModule } from '../health-engagement/health-engagement.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, HealthEngagementModule],
   controllers: [UserController, ProfileController],
   providers: [UserService, OnboardingService],
   exports: [UserService, OnboardingService],

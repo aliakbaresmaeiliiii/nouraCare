@@ -10,6 +10,7 @@ import { jwtConfig } from './config/jwt.config';
 import { PrismaModule } from '../prisma/prisma.module';
 import { OnboardingModule } from '../onboarding/onboarding.module';
 import { UserModule } from '../users/user.module';
+import { GrowthModule } from '../growth/growth.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UserModule } from '../users/user.module';
     PrismaModule,
     OnboardingModule,
     UserModule,
+    GrowthModule,
   ],
   controllers: [AuthController],
   providers: [

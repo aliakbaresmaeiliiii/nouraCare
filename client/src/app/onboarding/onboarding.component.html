@@ -1,167 +1,210 @@
-<ion-content class="onboarding-content">
-  <!-- Progress Bar -->
-  <div class="progress-container">
-    <div class="progress-bar">
+<ion-content class="onboarding-content" [scrollY]="currentStepData.id !== 'welcome'">
+  <div class="progress-container" [class.progress-welcome]="currentStepData.id === 'welcome'">
+    <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="currentStep + 1" [attr.aria-valuemin]="1" [attr.aria-valuemax]="steps.length" [attr.aria-label]="getStepProgressLabel()">
       <div class="progress-fill" [style.width.%]="progressPercentage"></div>
     </div>
     <div class="progress-text">
-      Step {{ currentStep + 1 }} of {{ steps.length }}
+      <span class="progress-label">{{ getStepProgressLabel() }}</span>
+      <span class="progress-fraction" aria-hidden="true">{{ currentStep + 1 }} / {{ steps.length }}</span>
     </div>
   </div>
 
-  <!-- Step Content -->
-  @if (!isCompleted) {
-    <div class="step-container">
-    <div class="step-header">
-      <h1 class="step-title">{{ getStepTitle() }}</h1>
-      <p class="step-subtitle">{{ getStepSubtitle() }}</p>
-    </div>
+  <div class="step-container" [class.step-welcome]="currentStepData.id === 'welcome'">
+    @if (currentStepData.id === 'welcome') {
+      <div class="welcome-hero">
+        <div class="welcome-badge" aria-hidden="true">✨</div>
+        <h1 class="welcome-title">{{ getStepTitle() }}</h1>
+        <p class="welcome-lead">{{ getStepSubtitle() }}</p>
+        <p class="welcome-body">{{ getStepQuestion() }}</p>
+        <ion-button
+          class="welcome-primary"
+          expand="block"
+          size="large"
+          (click)="startFromWelcome()"
+          [disabled]="isFinishing"
+        >
+          Get started
+        </ion-button>
+        <p class="welcome-footnote">Takes about a minute · Private on this device until you sign in</p>
+      </div>
+    } @else if (!isPersonalizedResultStep) {
+      <div class="step-header">
+        <h1 class="step-title">{{ getStepTitle() }}</h1>
+        <p class="step-subtitle">{{ getStepSubtitle() }}</p>
+      </div>
+    }
 
+    @if (currentStepData.id !== 'welcome') {
     <div class="step-content">
       <div class="question-container">
-        <h2 class="question-text">{{ getStepQuestion() }}</h2>
+        @if (!isPersonalizedResultStep && currentStepData.id !== 'welcome') {
+          <h2 class="question-text">{{ getStepQuestion() }}</h2>
+        }
 
-        <!-- Radio Options -->
-        @if (currentStepData.type === 'radio' && currentStepData.id !== 'notifications') {
+        @if (currentStepData.type === 'radio' && currentStepData.id !== 'welcome') {
           <div class="options-container">
-          @for (option of currentStepData.options; track option.value) {
-            <div 
-              class="option-card" 
-              [class.selected]="answers[currentStepData.id] === option.value"
-              (click)="selectOption(currentStepData.id, option.value)">
-              @if (option.icon) {
-                <div class="option-icon">{{ option.icon }}</div>
-              }
-              <span class="option-label">{{ option.label }}</span>
-              @if (answers[currentStepData.id] === option.value) {
-                <ion-icon 
-                  name="checkmark-circle" 
-                  class="check-icon">
-                </ion-icon>
-              }
-            </div>
+            @for (option of currentStepData.options; track option.value) {
+              <button
+                type="button"
+                class="option-card"
+                [class.selected]="answers[currentStepData.id] === option.value"
+                (click)="selectOption(currentStepData.id, option.value)"
+                [attr.aria-pressed]="answers[currentStepData.id] === option.value"
+              >
+                @if (option.icon) {
+                  <span class="option-icon" aria-hidden="true">{{ option.icon }}</span>
+                }
+                <span class="option-label">{{ option.label }}</span>
+                @if (answers[currentStepData.id] === option.value) {
+                  <ion-icon name="checkmark-circle" class="check-icon" aria-hidden="true"></ion-icon>
+                }
+              </button>
+            }
+          </div>
+          @if (currentStepData.id === 'pregnancy_status') {
+            <p class="step-reassurance">Your choice only shapes what we show first—not a diagnosis.</p>
           }
+        }
+
+        @if (currentStepData.type === 'notify') {
+          <div class="notify-step">
+            <ion-item lines="none" class="notify-toggle-item">
+              <ion-label class="notify-label">Cycle and health reminders</ion-label>
+              <ion-toggle
+                slot="end"
+                [checked]="answers['notifications'] === 'yes'"
+                (ionChange)="onNotificationToggle($event.detail.checked === true)"
+              ></ion-toggle>
+            </ion-item>
+            <p class="notify-hint">You can change this anytime in Settings.</p>
           </div>
         }
 
-        <!-- Notification Permission Component -->
-        @if (currentStepData.id === 'notifications') {
-          <div class="notification-step">
-            <app-notification-permission></app-notification-permission>
-          </div>
-        }
-
-        <!-- Date Input -->
         @if (currentStepData.type === 'date') {
           <div class="input-container">
-          <ion-datetime-button 
-            datetime="date-picker">
-          </ion-datetime-button>
-          <ion-modal [keepContentsMounted]="true">
-            <ng-template>
-              <ion-datetime 
-                id="date-picker"
-                presentation="date"
-                [value]="answers[currentStepData.id]"
-                [max]="getMaxDate()"
-                (ionChange)="selectOption(currentStepData.id, $event.detail.value)">
-              </ion-datetime>
-            </ng-template>
-          </ion-modal>
-          
-          <!-- Validation message -->
-          @if (currentStepData.id === 'last_period' && answers[currentStepData.id] && !isValidLastPeriodDate(answers[currentStepData.id])) {
-            <div class="validation-error">
-              <ion-icon name="warning-outline"></ion-icon>
-              {{ getLastPeriodValidationMessage() || 'Please adjust the date so it is valid.' }}
-            </div>
-          }
+            <p class="date-picker-hint">Tap below to open the calendar.</p>
+            <ion-datetime-button datetime="date-picker"></ion-datetime-button>
+            <ion-modal [keepContentsMounted]="true">
+              <ng-template>
+                <ion-datetime
+                  id="date-picker"
+                  presentation="date"
+                  [value]="answers[currentStepData.id]"
+                  [max]="getMaxDate()"
+                  (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
+                ></ion-datetime>
+              </ng-template>
+            </ion-modal>
+
+            @if (
+              currentStepData.id === 'last_period' &&
+              answers[currentStepData.id] &&
+              !isValidLastPeriodDate(answers[currentStepData.id])
+            ) {
+              <div class="validation-error">
+                <ion-icon name="warning-outline"></ion-icon>
+                {{
+                  getLastPeriodValidationMessage() ||
+                    'Please adjust the date so it is valid.'
+                }}
+              </div>
+            }
           </div>
         }
 
-        <!-- Select Options -->
         @if (currentStepData.type === 'select') {
           <div class="select-container">
-          <ion-select 
-            [value]="answers[currentStepData.id]"
-            (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
-            [placeholder]="currentStepData.placeholder || 'Select an option'">
-            @for (option of currentStepData.options; track option.value) {
-              <ion-select-option 
-                [value]="option.value">
-                {{ option.label }}
-              </ion-select-option>
-            }
-          </ion-select>
+            <ion-select
+              [value]="answers[currentStepData.id]"
+              (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
+              [placeholder]="currentStepData.placeholder || 'Select an option'"
+            >
+              @for (option of currentStepData.options; track option.value) {
+                <ion-select-option [value]="option.value">{{
+                  option.label
+                }}</ion-select-option>
+              }
+            </ion-select>
           </div>
         }
 
-        <!-- Number Input -->
         @if (currentStepData.type === 'number') {
           <div class="input-container">
-          <ion-input 
-            type="number"
-            [value]="answers[currentStepData.id]"
-            [placeholder]="currentStepData.placeholder"
-            [min]="currentStepData.min"
-            [max]="currentStepData.max"
-            (ionInput)="selectOption(currentStepData.id, $event.detail.value)">
-          </ion-input>
+            <ion-input
+              type="number"
+              [value]="answers[currentStepData.id]"
+              [placeholder]="currentStepData.placeholder"
+              [min]="currentStepData.min"
+              [max]="currentStepData.max"
+              (ionInput)="selectOption(currentStepData.id, $event.detail.value)"
+            ></ion-input>
+          </div>
+        }
+
+        @if (currentStepData.type === 'result') {
+          <div class="result-panel">
+            <div class="result-success" aria-hidden="true">
+              <ion-icon name="checkmark-circle" class="result-success-icon"></ion-icon>
+            </div>
+            <h1 class="result-screen-title">{{ getStepTitle() }}</h1>
+            <p class="result-headline">{{ getResultHeadline() }}</p>
+            <p class="result-subcopy">{{ getResultSubcopy() }}</p>
+            <ul class="result-list">
+              @for (row of getResultBullets(); track row.label) {
+                <li class="result-row">
+                  <span class="result-label">{{ row.label }}</span>
+                  <span class="result-value">{{ row.value }}</span>
+                </li>
+              }
+            </ul>
           </div>
         }
       </div>
     </div>
+    }
 
-    <!-- Navigation Buttons -->
-    <div class="navigation-container">
-      <div class="nav-buttons">
-        <ion-button 
-          fill="clear" 
-          (click)="previousStep()"
-          [disabled]="currentStep === 0">
-          <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
-          Previous
-        </ion-button>
-
-        <div class="nav-right">
-          @if (!currentStepData.required && currentStep < steps.length - 1) {
-            <ion-button 
-              fill="clear" 
-              (click)="skipStep()">
-              Skip
-            </ion-button>
-          }
-          
-          <ion-button 
-            [disabled]="!canProceed"
-            (click)="nextStep()">
-            {{ currentStep === steps.length - 1 ? 'Complete' : 'Next' }}
-            @if (currentStep < steps.length - 1) {
-              <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-            }
+    @if (currentStepData.id !== 'welcome') {
+      <div class="navigation-container">
+        <div class="nav-buttons">
+          <ion-button
+            fill="clear"
+            (click)="previousStep()"
+            [disabled]="currentStep === 0 || isFinishing"
+          >
+            <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
+            Back
           </ion-button>
+
+          <div class="nav-right">
+            @if (!currentStepData.required && currentStep < steps.length - 1) {
+              <ion-button fill="clear" (click)="skipStep()" [disabled]="isFinishing">
+                Skip for now
+              </ion-button>
+            }
+
+            <ion-button
+              class="nav-primary"
+              [disabled]="!canProceed || isFinishing"
+              (click)="nextStep()"
+            >
+              @if (isFinishing) {
+                Saving…
+              } @else if (currentStepData.id === 'personalized_result') {
+                @if (authService.getAccessToken()) {
+                  Go to home
+                } @else {
+                  Create account
+                }
+              } @else {
+                Continue
+                @if (currentStep < steps.length - 1) {
+                  <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+                }
+              }
+            </ion-button>
+          </div>
         </div>
       </div>
-    </div>
-    </div>
-  }
-
-  <!-- Completion Screen -->
-  @if (isCompleted) {
-    <div class="completion-screen">
-    <div class="completion-content">
-      <div class="completion-icon">🎉</div>
-      <h1 class="completion-title">Profile Setup Complete! 🎉</h1>
-      <p class="completion-message">Your profile has been set up successfully. Now let's create your account to get started!</p>
-      
-      <ion-button 
-        size="large" 
-        (click)="navigateToWelcome()"
-        class="get-started-btn">
-        Continue to Registration
-        <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-      </ion-button>
-    </div>
-    </div>
-  }
+    }
+  </div>
 </ion-content>

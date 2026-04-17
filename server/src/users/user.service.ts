@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/user.dto';
 import { PrismaService } from '../prisma/services/prisma.service';
+import { EngagementService } from '../health-engagement/engagement.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private readonly engagement: EngagementService,
+  ) {}
 
   async getUserById(userId: number) {
     const user = await this.prismaService.user.findUnique({
@@ -120,25 +124,63 @@ export class UserService {
     throw new NotFoundException('Pregnancy planning feature has been replaced with HealthRecord system');
   }
 
-  // Period Log Methods - REMOVED (use HealthRecord model instead)
   async createPeriodLog(userId: number, dto: any): Promise<any> {
-    throw new NotFoundException('Period log feature has been replaced with HealthRecord system');
+    const now = new Date();
+    const row = await this.prismaService.period_logs.create({
+      data: {
+        userId,
+        lastPeriodDate: dto.lastPeriodDate instanceof Date ? dto.lastPeriodDate : new Date(dto.lastPeriodDate),
+        mood: dto.mood ?? null,
+        notes: dto.notes ?? null,
+        averagePeriodDuration:
+          dto.averagePeriodDuration != null ? Math.round(Number(dto.averagePeriodDuration)) : null,
+        updatedAt: now,
+      },
+    });
+    void this.engagement.refreshEngagementMetrics(userId).catch(() => undefined);
+    return row;
   }
 
   async getPeriodLogs(userId: number): Promise<any[]> {
-    throw new NotFoundException('Period log feature has been replaced with HealthRecord system');
+    return this.prismaService.period_logs.findMany({
+      where: { userId },
+      orderBy: { lastPeriodDate: 'desc' },
+    });
   }
 
   async getPeriodLogById(userId: number, periodLogId: number): Promise<any> {
-    throw new NotFoundException('Period log feature has been replaced with HealthRecord system');
+    const row = await this.prismaService.period_logs.findFirst({
+      where: { id: periodLogId, userId },
+    });
+    if (!row) {
+      throw new NotFoundException('Period log not found');
+    }
+    return row;
   }
 
   async updatePeriodLog(userId: number, periodLogId: number, dto: any): Promise<any> {
-    throw new NotFoundException('Period log feature has been replaced with HealthRecord system');
+    await this.getPeriodLogById(userId, periodLogId);
+    const now = new Date();
+    return this.prismaService.period_logs.update({
+      where: { id: periodLogId },
+      data: {
+        ...(dto.lastPeriodDate !== undefined && {
+          lastPeriodDate: dto.lastPeriodDate instanceof Date ? dto.lastPeriodDate : new Date(dto.lastPeriodDate),
+        }),
+        ...(dto.mood !== undefined && { mood: dto.mood }),
+        ...(dto.notes !== undefined && { notes: dto.notes }),
+        ...(dto.averagePeriodDuration !== undefined && {
+          averagePeriodDuration:
+            dto.averagePeriodDuration != null ? Math.round(Number(dto.averagePeriodDuration)) : null,
+        }),
+        updatedAt: now,
+      },
+    });
   }
 
   async deletePeriodLog(userId: number, periodLogId: number): Promise<void> {
-    throw new NotFoundException('Period log feature has been replaced with HealthRecord system');
+    await this.getPeriodLogById(userId, periodLogId);
+    await this.prismaService.period_logs.delete({ where: { id: periodLogId } });
   }
 
   async deleteUser(userId: number): Promise<void> {

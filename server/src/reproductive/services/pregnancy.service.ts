@@ -1,26 +1,33 @@
 import { Injectable } from '@nestjs/common';
+import { resolveLmpFromPregnancyInputs } from '../utils/pregnancy-lmp.util';
+import {
+  computePregnancyMetricsFromLmp,
+  tipsForPregnancyWeek,
+} from '../utils/pregnancy-metrics.util';
 
 @Injectable()
 export class PregnancyService {
+  /**
+   * Persists LMP as `pregnancy.startDate` (single source of truth). Clears `currentWeek`.
+   */
   async upsertPregnancyData(
     tx: any,
     userId: number,
-    payload: { pregnancyStartDate?: string; currentWeek?: number },
+    payload: { pregnancyStartDate?: string; currentWeek?: number; pregnancyDueDate?: string },
   ) {
+    const { lmp } = resolveLmpFromPregnancyInputs(payload);
     const now = new Date();
     await tx.pregnancy.upsert({
       where: { userId },
       create: {
         userId,
-        startDate: payload.pregnancyStartDate ? new Date(payload.pregnancyStartDate) : now,
-        currentWeek: payload.currentWeek ?? null,
+        startDate: lmp,
+        currentWeek: null,
         updatedAt: now,
       },
       update: {
-        ...(payload.pregnancyStartDate !== undefined && {
-          startDate: payload.pregnancyStartDate ? new Date(payload.pregnancyStartDate) : undefined,
-        }),
-        ...(payload.currentWeek !== undefined && { currentWeek: payload.currentWeek }),
+        startDate: lmp,
+        currentWeek: null,
         endDate: null,
         updatedAt: now,
       },
@@ -34,21 +41,34 @@ export class PregnancyService {
     });
   }
 
+  /**
+   * Active pregnancy: `endDate` null. Metrics always derived from stored LMP (`startDate`).
+   */
   async getDashboardData(tx: any, userId: number) {
-    const pregnancy = await tx.pregnancy.findUnique({ where: { userId } });
-    if (!pregnancy || pregnancy.endDate) {
-      return { week: null };
-    }
-
-    const computedWeek = this.computeWeek(pregnancy.startDate);
-    return { week: pregnancy.currentWeek ?? computedWeek };
+    return this.computeDashboardFromRow(tx, userId);
   }
 
-  private computeWeek(startDate: Date) {
-    const days = Math.max(
-      0,
-      Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24)),
-    );
-    return Math.floor(days / 7) + 1;
+  private async computeDashboardFromRow(tx: any, userId: number) {
+    const pregnancy = await tx.pregnancy.findUnique({ where: { userId } });
+    if (!pregnancy || pregnancy.endDate) {
+      return {
+        week: null as number | null,
+        day: null as number | null,
+        progress: null as number | null,
+        tips: [] as string[],
+        lastMenstrualPeriod: null as string | null,
+      };
+    }
+
+    const metrics = computePregnancyMetricsFromLmp(pregnancy.startDate, new Date());
+    const tips = tipsForPregnancyWeek(metrics.week);
+    const lastMenstrualPeriod = pregnancy.startDate.toISOString().split('T')[0];
+    return {
+      week: metrics.week,
+      day: metrics.day,
+      progress: metrics.progress,
+      tips,
+      lastMenstrualPeriod,
+    };
   }
 }

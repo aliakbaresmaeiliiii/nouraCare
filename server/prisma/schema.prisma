@@ -300,12 +300,18 @@ model pregnancy {
 }
 
 model cycle_data {
-  id             Int      @id @default(autoincrement())
-  userId         Int      @unique
-  lastPeriodDate DateTime?
-  cycleLength    Int?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime
+  id                         Int      @id @default(autoincrement())
+  userId                     Int      @unique
+  lastPeriodDate             DateTime?
+  cycleLength                Int?
+  /** Running cycle length estimate updated when actual vs predicted period is observed (days). */
+  adaptiveCycleLength        Float?
+  /** Last up to 5 prediction errors in days: actualPeriodStart − predictedPeriodStart (FIFO). */
+  predictionErrors           Json?
+  /** Last published next-period date (ISO YYYY-MM-DD) for error tracking. */
+  lastPredictedNextPeriodIso String?  @db.VarChar(12)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime
 }
 
 model refresh_tokens {
@@ -345,6 +351,50 @@ model trackday {
   @@unique([userId, date])
 }
 
+/** One row per app-open event (used for 30d engagement opens count). */
+model user_app_open {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  createdAt DateTime @default(now())
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt], map: "user_app_open_userId_createdAt_idx")
+}
+
+/** Cached engagement + notification throttling per user. */
+model user_engagement {
+  userId                            Int       @id
+  lastOpenAt                        DateTime?
+  /** Preferred local delivery hour 0–23 (client-supplied; digest uses UTC hour as fallback). */
+  lastActiveHour                    Int?
+  engagementScore                   Float     @default(0)
+  engagementTier                    String    @default("LOW") @db.VarChar(8)
+  lastNotificationSentAt            DateTime?
+  /** UTC calendar day YYYY-MM-DD of last outbound notification (max 1/day). */
+  lastNotificationDayIso          String?   @db.VarChar(10)
+  consecutiveIgnoredNotifications Int       @default(0)
+  /** Organic growth: referral rewards + daily check-in bonuses (not currency). */
+  growthPoints                      Int       @default(0)
+  /** Consecutive UTC calendar days with at least one check-in. */
+  checkInStreak                     Int       @default(0)
+  /** UTC YYYY-MM-DD of last successful daily check-in. */
+  lastCheckInDayIso                 String?   @db.VarChar(10)
+  createdAt                         DateTime  @default(now())
+  updatedAt                         DateTime  @updatedAt
+  user                              user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model health_notification_log {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String   @db.VarChar(48)
+  message   String   @db.Text
+  sentAt    DateTime @default(now())
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sentAt], map: "health_notification_log_user_sent_idx")
+}
+
 model user {
   id                           Int         @id @default(autoincrement())
   email                        String      @unique
@@ -358,6 +408,63 @@ model user {
   emailVerificationCode        String?
   emailVerificationCodeExpires DateTime?
   dateOfBirth                  DateTime?
+  user_app_open                user_app_open[]
+  user_engagement              user_engagement?
+  health_notification_log      health_notification_log[]
+  user_subscription            user_subscription?
+  referral_code                referral_code?
+  referrals_sent               referral[]  @relation("ReferralReferrer")
+  referral_received            referral?   @relation("ReferralReferred")
+}
+
+/** Stable invite code per user (for referral links). */
+model referral_code {
+  userId    Int      @id
+  code      String   @unique @db.VarChar(12)
+  createdAt DateTime @default(now())
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/** One row when a new user successfully joins with a referrer's code (rewards both). */
+model referral {
+  id             Int      @id @default(autoincrement())
+  referrerUserId Int
+  referredUserId Int      @unique
+  code           String   @db.VarChar(12)
+  createdAt      DateTime @default(now())
+  referrer       user     @relation("ReferralReferrer", fields: [referrerUserId], references: [id], onDelete: Cascade)
+  referred       user     @relation("ReferralReferred", fields: [referredUserId], references: [id], onDelete: Cascade)
+
+  @@index([referrerUserId], map: "referral_referrer_user_idx")
+}
+
+/** Freemium / trial / subscription state (single row per user). */
+model user_subscription {
+  userId                   Int                               @id
+  tier                     user_subscription_tier           @default(FREE)
+  /** First authenticated subscription API touch; drives “days of use” paywall. */
+  firstOpenedAt            DateTime?
+  trialStartedAt           DateTime?
+  trialEndsAt              DateTime?
+  /** Active paid access until (mock billing sets this). */
+  premiumUntil             DateTime?
+  billingInterval          user_subscription_billing_interval?
+  /** Random 3–5: suggest usage-based paywall after this many local usage days. */
+  usageDayPaywallThreshold Int                               @default(4)
+  createdAt                DateTime                          @default(now())
+  updatedAt                DateTime                          @updatedAt
+  user                     user                              @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum user_subscription_tier {
+  FREE
+  PREMIUM_TRIAL
+  PREMIUM
+}
+
+enum user_subscription_billing_interval {
+  MONTH
+  YEAR
 }
 
 model user_profile {

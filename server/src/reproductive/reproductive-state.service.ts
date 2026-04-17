@@ -75,32 +75,90 @@ export class ReproductiveStateService {
         tips: [] as string[],
         nextPeriod: null as Date | null,
         week: null as number | null,
+        day: null as number | null,
+        progress: null as number | null,
+        cycleDay: null as number | null,
+        ovulationDate: null as string | null,
+        fertileWindow: null as { start: string; end: string } | null,
+        confidence: null as number | null,
+        avgCycleLength: null as number | null,
+        avgPeriodLength: null as number | null,
+        cycleLength: null as number | null,
+        insight: null as string | null,
       };
     }
     const state = fromPrismaReproductiveState(stateRow.state);
-    const base = { state, tips: [] as string[], nextPeriod: null as Date | null, week: null as number | null };
+    const base = {
+      state,
+      tips: [] as string[],
+      nextPeriod: null as Date | null,
+      week: null as number | null,
+      day: null as number | null,
+      progress: null as number | null,
+      cycleDay: null as number | null,
+      ovulationDate: null as string | null,
+      fertileWindow: null as { start: string; end: string } | null,
+      confidence: null as number | null,
+      avgCycleLength: null as number | null,
+      avgPeriodLength: null as number | null,
+      cycleLength: null as number | null,
+      insight: null as string | null,
+    };
 
-    // Active pregnancy row wins over a stale reproductive_state (e.g. still CYCLE after week save).
     const pregnancy = await this.pregnancyService.getDashboardData(tx, userId);
-    if (pregnancy.week != null) {
-      return {
-        state: 'pregnant' as const,
-        tips: [] as string[],
-        nextPeriod: null as Date | null,
-        week: pregnancy.week,
-      };
-    }
 
     if (state === 'pregnant') {
-      return { ...base, week: pregnancy.week };
+      if (pregnancy.week == null) {
+        return {
+          ...base,
+          state: 'pregnant' as const,
+          needsPregnancyInput: true,
+          lastMenstrualPeriod: null as string | null,
+        };
+      }
+      return {
+        state: 'pregnant' as const,
+        week: pregnancy.week,
+        day: pregnancy.day,
+        progress: pregnancy.progress,
+        tips: pregnancy.tips,
+        nextPeriod: null as Date | null,
+        needsPregnancyInput: false,
+        lastMenstrualPeriod: pregnancy.lastMenstrualPeriod,
+      };
     }
     if (state === 'cycle' || state === 'postpartum') {
       const cycle = await this.cycleService.getDashboardData(userId);
-      return { ...base, nextPeriod: cycle.nextPeriod };
+      return {
+        ...base,
+        nextPeriod: cycle.nextPeriod,
+        cycleDay: cycle.cycleDay,
+        ovulationDate: cycle.ovulationDate,
+        fertileWindow: cycle.fertileWindow,
+        confidence: cycle.confidence,
+        avgCycleLength: cycle.avgCycleLength,
+        avgPeriodLength: cycle.avgPeriodLength,
+        cycleLength: cycle.cycleLength,
+        insight: cycle.insight,
+      };
     }
     if (state === 'planning') {
       const planning = await this.planningService.getDashboardData(tx, userId);
-      return { ...base, tryingSince: planning.tryingSince, notes: planning.notes };
+      const cycle = await this.cycleService.getDashboardData(userId);
+      return {
+        ...base,
+        tryingSince: planning.tryingSince,
+        notes: planning.notes,
+        nextPeriod: cycle.nextPeriod,
+        cycleDay: cycle.cycleDay,
+        ovulationDate: cycle.ovulationDate,
+        fertileWindow: cycle.fertileWindow,
+        confidence: cycle.confidence,
+        avgCycleLength: cycle.avgCycleLength,
+        avgPeriodLength: cycle.avgPeriodLength,
+        cycleLength: cycle.cycleLength,
+        insight: cycle.insight,
+      };
     }
     return base;
   }
@@ -115,6 +173,7 @@ export class ReproductiveStateService {
       await this.pregnancyService.upsertPregnancyData(tx, userId, {
         pregnancyStartDate: dto.pregnancyStartDate,
         currentWeek: dto.currentWeek,
+        pregnancyDueDate: dto.pregnancyDueDate,
       });
       return;
     }

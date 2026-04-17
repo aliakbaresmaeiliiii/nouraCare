@@ -7,7 +7,13 @@ export class UpdateReproductiveStateDto {
 
   @IsOptional()
   @IsDateString()
+  /** First day of last menstrual period (LMP), ISO date. One of LMP, currentWeek, or pregnancyDueDate when state is pregnant. */
   pregnancyStartDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  /** Estimated due date, ISO date. Mutually exclusive with pregnancyStartDate and currentWeek for pregnancy. */
+  pregnancyDueDate?: string;
 
   @IsOptional()
   @IsDateString()
@@ -29,7 +35,8 @@ export class UpdateReproductiveStateDto {
 
   @IsOptional()
   @IsInt()
-  @Min(1)
+  @Min(0)
   @Max(42)
+  /** Completed full weeks since LMP; LMP is derived as today minus (currentWeek × 7) calendar days. */
   currentWeek?: number;
 }

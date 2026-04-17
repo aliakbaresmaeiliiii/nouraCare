@@ -5,10 +5,14 @@ import {
 } from '@nestjs/common';
 import { CreateTrackDayDto, UpdateTrackDayDto } from './dto/track-day.dto';
 import { PrismaService } from '../prisma/services/prisma.service';
+import { EngagementService } from '../health-engagement/engagement.service';
 
 @Injectable()
 export class TrackDayService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly engagement: EngagementService,
+  ) {}
 
   async createTrackDay(userId: number, createTrackDayDto: CreateTrackDayDto) {
     const { date, mood, energy, symptoms, notes } = createTrackDayDto;
@@ -29,7 +33,7 @@ export class TrackDayService {
       throw new ConflictException('Track day already exists for this date');
     }
 
-    return this.prisma.trackday.create({
+    const row = await this.prisma.trackday.create({
       data: {
         userId,
         date: dayStart,
@@ -39,6 +43,8 @@ export class TrackDayService {
         notes,
       },
     });
+    void this.engagement.refreshEngagementMetrics(userId).catch(() => undefined);
+    return row;
   }
 
   async updateTrackDay(

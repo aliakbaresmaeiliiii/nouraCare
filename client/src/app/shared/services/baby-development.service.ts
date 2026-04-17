@@ -179,12 +179,15 @@ export class BabyDevelopmentService {
       const cycleSettings = localStorage.getItem('cycleSettings');
       if (cycleSettings) {
         const data = JSON.parse(cycleSettings);
-        return data.pregnancyWeek || 12; // Default to week 12
+        const w = Number(data.pregnancyWeek);
+        if (Number.isFinite(w)) {
+          return Math.min(40, Math.max(1, w + 1));
+        }
       }
     } catch (error) {
       console.error('Error getting pregnancy week from localStorage:', error);
     }
-    return 12; // Default fallback
+    return 8;
   }
 
   /**

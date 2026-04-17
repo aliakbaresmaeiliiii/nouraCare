@@ -38,9 +38,12 @@ import { UserInfoService } from '../shared/services/user-info.service';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import {
   DashboardResponse,
+  InitializeReproductiveStateDto,
   OnboardingService,
   ReproductiveState,
 } from '../shared/services/onboarding.service';
+import { ModalController } from '@ionic/angular/standalone';
+import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { HomeDataService } from '../home/services/home-data.service';
@@ -83,6 +86,7 @@ export class EditProfileComponent implements OnInit {
   private onboardingService = inject(OnboardingService);
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
+  private modalController = inject(ModalController);
 
   @ViewChild('cropPreviewCanvas')
   cropPreviewCanvas!: ElementRef<HTMLCanvasElement>;
@@ -618,7 +622,7 @@ export class EditProfileComponent implements OnInit {
     this.form.patchValue({ dateOfBirth: this.toDateOnly(date) });
   }
 
-  onSubmit() {
+  async onSubmit() {
     const formValues = this.form.value;
     const currentUserInfo = this.userInfoService.getCurrentUserInfo();
     const id =
@@ -657,8 +661,22 @@ export class EditProfileComponent implements OnInit {
     const selectedStatus =
       this.currentReproductiveStatus ?? this.form.get('status')?.value ?? null;
     const reproductiveState = this.mapUiReproductiveToApiPregnancyStatus(selectedStatus);
-    const reproductiveReq = reproductiveState
-      ? this.onboardingService.updateReproductiveState({ state: reproductiveState })
+    let reproductivePayload: InitializeReproductiveStateDto | null = null;
+    if (reproductiveState === 'pregnant') {
+      const modal = await this.modalController.create({
+        component: PregnancySetupSheetComponent,
+      });
+      await modal.present();
+      const { data, role } = await modal.onWillDismiss<InitializeReproductiveStateDto>();
+      if (role !== 'confirm' || !data) {
+        return;
+      }
+      reproductivePayload = data;
+    } else if (reproductiveState) {
+      reproductivePayload = { state: reproductiveState };
+    }
+    const reproductiveReq = reproductivePayload
+      ? this.onboardingService.updateReproductiveState(reproductivePayload)
       : of(null);
 
     forkJoin({

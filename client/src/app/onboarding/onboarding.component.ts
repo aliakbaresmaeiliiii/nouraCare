@@ -8,32 +8,28 @@ import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import {
-  UserInfoService,
-  OnboardingData,
-} from '../shared/services/user-info.service';
-import {
   OnboardingService,
   OnboardingDataDto,
   InitializeReproductiveStateDto,
 } from '../shared/services/onboarding.service';
 import { OnboardingStateService } from '../shared/services/onboarding-state.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
-import { NotificationPermissionComponent } from '../shared/components/notification-permission/notification-permission.component';
 import { AuthService } from '../auth/services/auth';
 import {
   addCalendarDaysIso,
   gestationalWeekFromLmp,
   isoDateOnly,
   isCalendarDateNotAfterToday,
-  lmpIsoFromLastBleedingDay,
 } from '../shared/utils/pregnancy-lmp.util';
+import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
+import { FirstWeekPlanService } from '../shared/services/first-week-plan.service';
 
 interface OnboardingStep {
   id: string;
   title: string;
   subtitle: string;
   question: string;
-  type: 'radio' | 'date' | 'number' | 'select';
+  type: 'radio' | 'date' | 'number' | 'select' | 'notify' | 'result';
   options?: { label: string; value: any; icon?: string }[];
   placeholder?: string;
   min?: number;
@@ -46,153 +42,84 @@ interface OnboardingStep {
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS, NotificationPermissionComponent],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class OnboardingComponent implements OnInit {
   private router = inject(Router);
   private alertController = inject(AlertController);
   private cycleSettings = inject(CycleSettingsService);
-  private userInfoService = inject(UserInfoService);
   private onboardingService = inject(OnboardingService);
   private onboardingStateService = inject(OnboardingStateService);
-  private authService = inject(AuthService);
+  readonly authService = inject(AuthService);
+  private reproductiveStatus = inject(ReproductiveStatusService);
+  private firstWeekPlan = inject(FirstWeekPlanService);
 
   currentStep = 0;
   answers: { [key: string]: any } = {};
-  isCompleted = false;
   sessionId: string | null = null;
   isSaving = false;
+  isFinishing = false;
 
+  /** Five steps: welcome → intent → last period → optional notifications → personalized summary. */
   steps: OnboardingStep[] = [
     {
       id: 'welcome',
-      title: 'Welcome to NouraCare! 👋',
-      subtitle: "Let's personalize your experience",
+      title: 'Welcome to NouraCare',
+      subtitle: 'Health support that fits your life',
       question:
-        "We'll ask you a few questions to provide the best support for your journey.",
+        'In a few quick steps we will personalize your calendar, reminders, and insights. Nothing here replaces care from your clinician.',
       type: 'radio',
-      options: [{ label: "Let's get started!", value: 'start', icon: '🚀' }],
+      options: [{ label: 'Continue', value: 'start', icon: '✨' }],
       required: true,
     },
     {
       id: 'pregnancy_status',
-      title: "What's your current status?",
-      subtitle: 'This helps us show you the right content',
-      question: 'Are you currently pregnant or trying to conceive?',
+      title: 'What would you like help with?',
+      subtitle: 'You can change this later',
+      question: 'We will ask for one date on the next screen so estimates feel right for you.',
       type: 'radio',
       options: [
+        { label: 'Track my cycle', value: 'tracking', icon: '📅' },
+        { label: 'Trying to conceive', value: 'trying', icon: '💕' },
         { label: "I'm pregnant", value: 'pregnant', icon: '🤰' },
-        { label: "I'm trying to conceive", value: 'trying', icon: '💕' },
-        { label: "I'm postpartum", value: 'postpartum', icon: '👶' },
-        { label: 'Just tracking my cycle', value: 'tracking', icon: '📅' },
-      ],
-      required: true,
-    },
-    {
-      id: 'period_length',
-      title: 'How long do your periods last?',
-      subtitle: 'Number of bleeding days',
-      question: 'On average, how many days does your period last?',
-      type: 'select',
-      options: [
-        { label: '2 days', value: 2 },
-        { label: '3 days', value: 3 },
-        { label: '4 days', value: 4 },
-        { label: '5 days (most common)', value: 5 },
-        { label: '6 days', value: 6 },
-        { label: '7 days', value: 7 },
-        { label: '8 days', value: 8 },
-      ],
-      required: true,
-    },
-    {
-      id: 'cycle_length',
-      title: "What's your cycle length?",
-      subtitle: 'How many days between periods?',
-      question:
-        'On average, how many days are there between the start of your periods?',
-      type: 'select',
-      options: [
-        { label: '21 days', value: 21 },
-        { label: '22 days', value: 22 },
-        { label: '23 days', value: 23 },
-        { label: '24 days', value: 24 },
-        { label: '25 days', value: 25 },
-        { label: '26 days', value: 26 },
-        { label: '27 days', value: 27 },
-        { label: '28 days (most common)', value: 28 },
-        { label: '29 days', value: 29 },
-        { label: '30 days', value: 30 },
-        { label: '31 days', value: 31 },
-        { label: '32 days', value: 32 },
-        { label: '33 days', value: 33 },
-        { label: '34 days', value: 34 },
-        { label: '35 days', value: 35 },
       ],
       required: true,
     },
     {
       id: 'last_period',
-      title: 'When was your last period?',
-      subtitle: 'This helps us calculate your cycle',
-      question: 'Please enter the start date of your last menstrual period.',
+      title: 'When did your last period start?',
+      subtitle: 'First day of bleeding',
+      question: 'We use this to estimate your next period and fertile days.',
       type: 'date',
       placeholder: 'Select date',
       required: true,
     },
     {
-      id: 'pregnancy_week',
-      title: 'What week are you in?',
-      subtitle: "Only if you're pregnant",
-      question: "If you're pregnant, what week are you currently in?",
-      type: 'select',
-      options: Array.from({ length: 37 }, (_, i) => ({
-        label: `Week ${i + 4}`,
-        value: i + 4,
-      })),
+      id: 'notifications',
+      title: 'Stay on track',
+      subtitle: 'Optional',
+      question: 'Gentle reminders for your cycle and check-ins. You are always in control.',
+      type: 'notify',
       required: false,
     },
     {
-      id: 'health_goals',
-      title: 'What are your health goals?',
-      subtitle: 'Help us personalize your experience',
-      question: 'What would you like to focus on? (You can select multiple)',
-      type: 'radio',
-      options: [
-        { label: 'Track my cycle', value: 'cycle_tracking', icon: '📊' },
-        { label: 'Monitor symptoms', value: 'symptoms', icon: '🏥' },
-        { label: 'Nutrition guidance', value: 'nutrition', icon: '🥗' },
-        { label: 'Exercise tips', value: 'exercise', icon: '💪' },
-        { label: 'Mental health support', value: 'mental_health', icon: '🧘' },
-        { label: 'Community support', value: 'community', icon: '👥' },
-      ],
-      required: true,
-    },
-    {
-      id: 'notifications',
-      title: 'Stay informed! 🔔',
-      subtitle: 'Get helpful reminders',
-      question:
-        'Would you like to receive notifications for period reminders, ovulation alerts, and health tips?',
-      type: 'radio',
-      options: [
-        { label: 'Yes, send me notifications', value: 'yes', icon: '✅' },
-        { label: "No, I'll check manually", value: 'no', icon: '❌' },
-      ],
-      required: true,
+      id: 'personalized_result',
+      title: 'You are all set',
+      subtitle: 'Estimates only—not medical advice',
+      question: '',
+      type: 'result',
+      required: false,
     },
   ];
 
   ngOnInit() {
-    // Initialize with default values
     this.answers = {
       cycle_length: 28,
       period_length: 5,
-      notifications: 'yes',
+      notifications: 'no',
     };
 
-    // Check for existing session
     this.sessionId = this.onboardingService.getSessionId();
     if (this.sessionId) {
       this.loadExistingOnboardingData();
@@ -203,10 +130,14 @@ export class OnboardingComponent implements OnInit {
     return this.steps[this.currentStep];
   }
 
+  get isPersonalizedResultStep(): boolean {
+    return this.currentStepData.id === 'personalized_result';
+  }
+
   getStepTitle(): string {
     const s = this.currentStepData;
     if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
-      return 'Last day of your last period';
+      return 'First day of your last period (LMP)';
     }
     return s.title;
   }
@@ -214,10 +145,7 @@ export class OnboardingComponent implements OnInit {
   getStepSubtitle(): string {
     const s = this.currentStepData;
     if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
-      return 'We use this with your usual bleed length to find day 1 of that period (LMP), then your pregnancy week.';
-    }
-    if (s.id === 'pregnancy_week' && this.answers['pregnancy_status'] === 'pregnant') {
-      return 'Estimated from your bleeding dates. Change only if your clinician gave a different week.';
+      return 'We use this date to estimate how far along you are.';
     }
     return s.subtitle;
   }
@@ -225,10 +153,7 @@ export class OnboardingComponent implements OnInit {
   getStepQuestion(): string {
     const s = this.currentStepData;
     if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
-      return 'Choose the last day you still had bleeding from your most recent period (not a future date).';
-    }
-    if (s.id === 'pregnancy_week' && this.answers['pregnancy_status'] === 'pregnant') {
-      return 'Your estimated week of pregnancy (based on LMP from those dates):';
+      return 'Choose the first day of bleeding from your most recent period (not a future date).';
     }
     return s.question;
   }
@@ -243,14 +168,12 @@ export class OnboardingComponent implements OnInit {
       if (!isCalendarDateNotAfterToday(iso)) {
         return 'That date cannot be in the future.';
       }
-      const pl = Number(this.answers['period_length']) || 5;
-      const lmp = lmpIsoFromLastBleedingDay(iso, pl);
-      const week = gestationalWeekFromLmp(lmp);
+      const week = gestationalWeekFromLmp(iso);
       if (week < 4) {
-        return 'From these dates, pregnancy would be under 4 weeks. Check the last bleeding day and how many days you usually bleed, or confirm with your clinician.';
+        return 'From this date, pregnancy would be under 4 weeks. Double-check the first day of your last period or confirm with your clinician.';
       }
       if (week > 40) {
-        return 'From these dates, pregnancy would be over 40 weeks. Double-check the last bleeding day and bleed length.';
+        return 'From this date, pregnancy would be over 40 weeks. Double-check your LMP.';
       }
       return '';
     }
@@ -260,8 +183,93 @@ export class OnboardingComponent implements OnInit {
     return '';
   }
 
+  formatMediumDate(iso: string | null | undefined): string {
+    const d = isoDateOnly(typeof iso === 'string' ? iso : '');
+    if (!d) return '';
+    const parsed = new Date(`${d}T12:00:00`);
+    return parsed.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }
+
+  getResultHeadline(): string {
+    const status = this.answers['pregnancy_status'];
+    if (status === 'pregnant') {
+      const w = this.answers['pregnancy_week'];
+      return typeof w === 'number' ? `About week ${w}` : 'Pregnancy';
+    }
+    if (status === 'trying') {
+      return 'Fertility snapshot';
+    }
+    return 'Cycle snapshot';
+  }
+
+  getResultSubcopy(): string {
+    const status = this.answers['pregnancy_status'];
+    if (status === 'pregnant') {
+      return 'Based on your last period. Your clinician may use a different dating method.';
+    }
+    return 'Based on a typical 28-day cycle. You can fine-tune length later in the app.';
+  }
+
+  getResultBullets(): { label: string; value: string }[] {
+    const lmp = this.getEffectiveLmpIsoForStorage();
+    const cl = Number(this.answers['cycle_length']) || 28;
+    const status = this.answers['pregnancy_status'];
+    if (!lmp) {
+      return [];
+    }
+    if (status === 'pregnant') {
+      const edd = addCalendarDaysIso(lmp, 280);
+      return [
+        { label: 'Last period started', value: this.formatMediumDate(lmp) },
+        {
+          label: 'Rough due date',
+          value: this.formatMediumDate(edd),
+        },
+      ];
+    }
+    const next = this.reproductiveStatus.calculateNextPeriod(lmp, cl);
+    const fw = this.reproductiveStatus.calculateFertileWindow(lmp, cl);
+    const nextIso = next.toISOString().slice(0, 10);
+    const startIso = fw.start.toISOString().slice(0, 10);
+    const endIso = fw.end.toISOString().slice(0, 10);
+    return [
+      { label: 'Next period (estimate)', value: this.formatMediumDate(nextIso) },
+      {
+        label: 'Fertile window (estimate)',
+        value: `${this.formatMediumDate(startIso)} – ${this.formatMediumDate(endIso)}`,
+      },
+    ];
+  }
+
+  onNotificationToggle(enabled: boolean): void {
+    this.answers['notifications'] = enabled ? 'yes' : 'no';
+  }
+
   get progressPercentage(): number {
     return ((this.currentStep + 1) / this.steps.length) * 100;
+  }
+
+  /** Short label for the progress line so steps feel purposeful, not bureaucratic. */
+  getStepProgressLabel(stepIndex: number = this.currentStep): string {
+    const id = this.steps[stepIndex]?.id;
+    const labels: Record<string, string> = {
+      welcome: 'Quick intro',
+      pregnancy_status: 'Your goal',
+      last_period: 'Important date',
+      notifications: 'Reminders',
+      personalized_result: 'Your snapshot',
+    };
+    return labels[id ?? ''] ?? `Step ${stepIndex + 1}`;
+  }
+
+  /** One tap from welcome: no separate “select card then Continue”. */
+  startFromWelcome(): void {
+    this.answers['welcome'] = 'start';
+    this.nextStep();
   }
 
   get canProceed(): boolean {
@@ -281,7 +289,6 @@ export class OnboardingComponent implements OnInit {
   }
 
   selectOption(stepId: string, value: any) {
-    // For last period date, validate before setting
     if (stepId === 'last_period' && value) {
       if (!this.isValidLastPeriodDate(value)) {
         this.showDateValidationError();
@@ -291,87 +298,51 @@ export class OnboardingComponent implements OnInit {
 
     this.answers[stepId] = value;
 
-    if (
-      (stepId === 'last_period' || stepId === 'period_length') &&
-      this.answers['pregnancy_status'] === 'pregnant'
-    ) {
-      this.syncPregnancyWeekFromLastPeriodAnchor();
+    if (stepId === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
+      this.syncPregnancyWeekFromLmp();
     }
   }
 
-  /**
-   * Get maximum selectable date (today)
-   */
   getMaxDate(): string {
     return new Date().toISOString();
   }
 
-  /**
-   * Last-period step: cycle users enter LMP start; pregnant users enter last bleeding day
-   * (converted to LMP using period length when saving).
-   */
   isValidLastPeriodDate(dateString: string): boolean {
     const iso = isoDateOnly(dateString);
     if (!iso) {
       return false;
     }
     if (this.answers['pregnancy_status'] === 'pregnant') {
-      return this.isValidPregnancyLastBleedAnchor(iso);
+      if (!isCalendarDateNotAfterToday(iso)) {
+        return false;
+      }
+      const week = gestationalWeekFromLmp(iso);
+      return week >= 4 && week <= 40;
     }
     return isCalendarDateNotAfterToday(iso);
   }
 
-  private isValidPregnancyLastBleedAnchor(lastBleedIso: string): boolean {
-    if (!isCalendarDateNotAfterToday(lastBleedIso)) {
-      return false;
-    }
-    const pl = Number(this.answers['period_length']) || 5;
-    if (!Number.isFinite(pl) || pl < 1) {
-      return false;
-    }
-    const lmp = lmpIsoFromLastBleedingDay(lastBleedIso, pl);
-    const week = gestationalWeekFromLmp(lmp);
-    return week >= 4 && week <= 40;
-  }
-
-  private syncPregnancyWeekFromLastPeriodAnchor(): void {
+  private syncPregnancyWeekFromLmp(): void {
     if (this.answers['pregnancy_status'] !== 'pregnant') {
       return;
     }
-    const bleed = isoDateOnly(this.answers['last_period']);
-    if (!bleed) {
-      return;
-    }
-    const pl = Number(this.answers['period_length']) || 5;
-    if (!this.isValidPregnancyLastBleedAnchor(bleed)) {
+    const lmp = isoDateOnly(this.answers['last_period']);
+    if (!lmp || !this.isValidLastPeriodDate(lmp)) {
       delete this.answers['pregnancy_week'];
       return;
     }
-    const lmp = lmpIsoFromLastBleedingDay(bleed, pl);
-    const week = gestationalWeekFromLmp(lmp);
-    this.answers['pregnancy_week'] = week;
+    this.answers['pregnancy_week'] = gestationalWeekFromLmp(lmp);
   }
 
   private getEffectiveLmpIsoForStorage(): string | null {
-    const raw = isoDateOnly(this.answers['last_period']);
-    if (!raw) {
-      return null;
-    }
-    if (this.answers['pregnancy_status'] === 'pregnant') {
-      const pl = Number(this.answers['period_length']) || 5;
-      return lmpIsoFromLastBleedingDay(raw, pl);
-    }
-    return raw;
+    return isoDateOnly(this.answers['last_period']);
   }
 
-  /**
-   * Show validation error for invalid date selection
-   */
   private async showDateValidationError() {
     const msg =
       this.answers['pregnancy_status'] === 'pregnant'
         ? this.getLastPeriodValidationMessage() ||
-          'Please choose a valid last bleeding day so pregnancy timing is between 4 and 40 weeks.'
+          'Please choose a valid first day of your last period (about 4–40 weeks along).'
         : 'The start date of your last menstrual period cannot be in the future. Please select a valid date.';
     const alert = await this.alertController.create({
       header: 'Invalid Date',
@@ -383,14 +354,17 @@ export class OnboardingComponent implements OnInit {
   }
 
   nextStep() {
-    if (this.canProceed) {
-      if (this.currentStep < this.steps.length - 1) {
-        this.currentStep++;
-        // Save progress after each step
-        this.saveOnboardingProgress();
-      } else {
-        this.completeOnboarding();
-      }
+    if (!this.canProceed) {
+      return;
+    }
+    if (this.currentStepData.id === 'notifications') {
+      this.answers['notifications'] = this.answers['notifications'] ?? 'no';
+    }
+    if (this.currentStep < this.steps.length - 1) {
+      this.currentStep++;
+      this.saveOnboardingProgress();
+    } else {
+      this.completeOnboarding();
     }
   }
 
@@ -401,8 +375,12 @@ export class OnboardingComponent implements OnInit {
   }
 
   skipStep() {
+    if (this.currentStepData.id === 'notifications') {
+      this.answers['notifications'] = 'no';
+    }
     if (this.currentStep < this.steps.length - 1) {
       this.currentStep++;
+      this.saveOnboardingProgress();
     } else {
       this.completeOnboarding();
     }
@@ -416,102 +394,111 @@ export class OnboardingComponent implements OnInit {
 
     this.onboardingService.getOnboardingData(this.sessionId).subscribe({
       next: (response) => {
-        console.log('Loaded existing onboarding data:', response);
         if (response.data) {
+          let healthGoals: unknown[] = [];
+          try {
+            const parsed = response.data.health_goals
+              ? JSON.parse(response.data.health_goals)
+              : [];
+            healthGoals = Array.isArray(parsed) ? parsed : [];
+          } catch {
+            healthGoals = [];
+          }
           this.answers = {
             pregnancy_status: response.data.pregnancy_status,
             last_period: response.data.last_period,
             cycle_length: response.data.cycle_length,
             period_length: response.data.period_length,
             pregnancy_week: response.data.pregnancy_week,
-            health_goals: response.data.health_goals
-              ? JSON.parse(response.data.health_goals)
-              : [],
-            notifications: response.data.notifications,
+            health_goals: healthGoals,
+            notifications: response.data.notifications || 'no',
           };
-          // API stores LMP for pregnant users; date step asks for last bleeding day.
           if (
             this.answers['pregnancy_status'] === 'pregnant' &&
             this.answers['last_period']
           ) {
-            const lmp = isoDateOnly(this.answers['last_period']);
-            const pl = Number(this.answers['period_length']) || 5;
-            if (lmp) {
-              this.answers['last_period'] = addCalendarDaysIso(lmp, pl - 1);
-            }
-            this.syncPregnancyWeekFromLastPeriodAnchor();
+            this.syncPregnancyWeekFromLmp();
           }
         }
       },
-      error: (error) => {
-        console.error('Error loading existing onboarding data:', error);
-        // Clear invalid session ID
+      error: () => {
         this.onboardingService.clearSessionId();
         this.sessionId = null;
       },
     });
   }
 
-  /**
-   * Save onboarding progress to API
-   */
-  private saveOnboardingProgress() {
-    if (this.isSaving) return;
-
-    this.isSaving = true;
-
-    const onboardingData: OnboardingDataDto = {
+  private buildOnboardingDto(): OnboardingDataDto {
+    return {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
       last_period: this.getEffectiveLmpIsoForStorage(),
       cycle_length: this.answers['cycle_length'] || 28,
       period_length: this.answers['period_length'] || 5,
       pregnancy_week: this.answers['pregnancy_week'] || undefined,
       health_goals: JSON.stringify(this.answers['health_goals'] || []),
-      notifications: this.answers['notifications'] || 'yes',
+      notifications: this.answers['notifications'] || 'no',
     };
+  }
+
+  private saveOnboardingProgress() {
+    if (this.isSaving) return;
+
+    this.isSaving = true;
+    const onboardingData = this.buildOnboardingDto();
 
     this.onboardingService.saveOnboardingData(onboardingData).subscribe({
       next: (response) => {
-        console.log('Onboarding data saved successfully:', response);
         this.sessionId = response.sessionId;
         this.onboardingService.saveSessionId(this.sessionId);
         this.isSaving = false;
       },
-      error: (error) => {
-        console.error('Error saving onboarding data:', error);
+      error: () => {
         this.isSaving = false;
         this.showErrorAlert('Failed to save your progress. Please try again.');
       },
     });
   }
 
-  /**
-   * Complete onboarding and redirect to registration
-   */
-  async completeOnboarding() {
-    const reproductivePayload = this.toReproductivePayload();
-    this.saveAnswers();
-    this.saveOnboardingProgress();
-
-    if (this.authService.getAccessToken()) {
-      this.onboardingService.initializeReproductiveState(reproductivePayload).subscribe({
-        next: () => {
-          this.isCompleted = true;
-          setTimeout(() => this.router.navigate(['/tabs/home']), 1200);
-        },
-        error: () => {
-          this.showErrorAlert('Failed to initialize your health profile. Please try again.');
-        },
-      });
+  completeOnboarding() {
+    if (this.isFinishing) {
       return;
     }
+    const reproductivePayload = this.toReproductivePayload();
+    this.saveAnswers();
 
-    this.isCompleted = true;
-    setTimeout(() => {
-      this.router.navigate(['/auth/sign-in'], {
-        queryParams: { tab: 'register' },
-      });
-    }, 2000);
+    this.isFinishing = true;
+    const onboardingData = this.buildOnboardingDto();
+
+    this.onboardingService.saveOnboardingData(onboardingData).subscribe({
+      next: (response) => {
+        this.sessionId = response.sessionId;
+        this.onboardingService.saveSessionId(this.sessionId);
+        const token = this.authService.getAccessToken();
+        if (token) {
+          this.onboardingService.initializeReproductiveState(reproductivePayload).subscribe({
+            next: () => {
+              this.isFinishing = false;
+              this.router.navigate(['/tabs/home']);
+            },
+            error: () => {
+              this.isFinishing = false;
+              this.showErrorAlert(
+                'Failed to initialize your health profile. Please try again.',
+              );
+            },
+          });
+          return;
+        }
+        this.isFinishing = false;
+        this.router.navigate(['/auth/sign-in'], {
+          queryParams: { tab: 'register' },
+        });
+      },
+      error: () => {
+        this.isFinishing = false;
+        this.showErrorAlert('Failed to save your profile. Please try again.');
+      },
+    });
   }
 
   private toReproductivePayload(): InitializeReproductiveStateDto {
@@ -529,8 +516,8 @@ export class OnboardingComponent implements OnInit {
       state: mappedState,
       lastPeriodDate: lmp || undefined,
       cycleLength: this.answers['cycle_length'] || undefined,
-      currentWeek: this.answers['pregnancy_week'] || undefined,
       tryingSince: mappedState === 'planning' ? lmp || undefined : undefined,
+      // Pregnant: LMP only — server derives weeks; do not send currentWeek (avoids conflicting inputs).
       pregnancyStartDate: mappedState === 'pregnant' ? lmp || undefined : undefined,
     };
   }
@@ -574,24 +561,26 @@ export class OnboardingComponent implements OnInit {
       this.cycleSettings.setUserStatus('Postpartum');
       this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(true);
-    } else {
+    } else if (pregnancyStatus === 'trying') {
       this.cycleSettings.setUserStatus('Trying to Conceive');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(false);
+    } else {
+      this.cycleSettings.setUserStatus('Cycle Tracking');
       this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(false);
     }
 
-    // Save other preferences (you can extend this)
     localStorage.setItem('onboarding_completed', 'true');
     localStorage.setItem(
       'health_goals',
-      JSON.stringify(this.answers['health_goals']),
+      JSON.stringify(this.answers['health_goals'] || []),
     );
     localStorage.setItem(
       'notifications_enabled',
       this.answers['notifications'] === 'yes' ? 'true' : 'false',
     );
 
-    // Store complete onboarding data for registration
     const onboardingData = {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
       last_period: this.getEffectiveLmpIsoForStorage(),
@@ -599,16 +588,11 @@ export class OnboardingComponent implements OnInit {
       period_length: this.answers['period_length'] || 5,
       pregnancy_week: this.answers['pregnancy_week'] || undefined,
       health_goals: JSON.stringify(this.answers['health_goals'] || []),
-      notifications: this.answers['notifications'] || 'yes',
+      notifications: this.answers['notifications'] || 'no',
     };
     localStorage.setItem('onboarding_data', JSON.stringify(onboardingData));
 
-    // Mark onboarding as completed for this user
     this.onboardingStateService.markOnboardingCompleted();
-  }
-
-  navigateToWelcome() {
-    // After completing onboarding, navigate to registration/sign-in
-    this.router.navigate(['/auth/sign-in']);
+    this.firstWeekPlan.ensurePlanStarted();
   }
 }

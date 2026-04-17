@@ -10,6 +10,10 @@ export class InitializeOnboardingDto {
 
   @IsOptional()
   @IsDateString()
+  pregnancyDueDate?: string;
+
+  @IsOptional()
+  @IsDateString()
   tryingSince?: string;
 
   @IsOptional()
@@ -28,7 +32,7 @@ export class InitializeOnboardingDto {
 
   @IsOptional()
   @IsInt()
-  @Min(1)
+  @Min(0)
   @Max(42)
   currentWeek?: number;
 }

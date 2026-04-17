@@ -11,7 +11,13 @@ export interface HomePageJourneyState {
   isPostpartum: boolean;
   /** Set only when API / merge defines week (omit for cycle/postpartum so prior UI values stay). */
   pregnancyWeek?: number;
+  /** 0–6, from dashboard; omitted until known. */
+  pregnancyDay?: number;
   pregnancyProgress?: number;
+  /** Server indicates pregnant without saved LMP yet. */
+  needsPregnancyInput?: boolean;
+  lastMenstrualPeriodIso?: string | null;
+  dashboardTips?: string[];
   periodStartDate: Date | null;
   /** Call {@link updateCycleDay} on the component when true. */
   cycleDayDirty: boolean;
@@ -44,11 +50,25 @@ export class HomeReproductiveUiService {
     let periodStartDate: Date | null = null;
 
     if (dashboard.state === 'pregnant') {
-      const week = dashboard.week ?? 4;
-      const pregnancyProgress = Math.min(100, Math.round((week / 40) * 100));
       this.cycleSettings.setUserStatus('Pregnant');
       this.cycleSettings.setPregnancyStatus(true);
       this.cycleSettings.setPostpartumStatus(false);
+
+      if (dashboard.needsPregnancyInput || dashboard.week == null) {
+        return {
+          userStatus: 'Pregnant',
+          isPregnant: true,
+          isPostpartum: false,
+          needsPregnancyInput: true,
+          periodStartDate: null,
+          cycleDayDirty: false,
+        };
+      }
+
+      const week = dashboard.week;
+      const day = dashboard.day ?? 0;
+      const rawProgress = dashboard.progress ?? 0;
+      const pregnancyProgress = Math.min(100, Math.round(rawProgress * 100));
       this.cycleSettings.setPregnancyWeek(week);
       this.cycleSettings.setPregnancyProgress(pregnancyProgress);
       return {
@@ -56,7 +76,11 @@ export class HomeReproductiveUiService {
         isPregnant: true,
         isPostpartum: false,
         pregnancyWeek: week,
+        pregnancyDay: day,
         pregnancyProgress,
+        needsPregnancyInput: false,
+        lastMenstrualPeriodIso: dashboard.lastMenstrualPeriod ?? null,
+        dashboardTips: dashboard.tips?.length ? dashboard.tips : [],
         periodStartDate: null,
         cycleDayDirty: false,
       };
@@ -158,7 +182,7 @@ export class HomeReproductiveUiService {
       return;
     }
     this.cycleSettings.setPregnancyStatus(false);
-    this.cycleSettings.setPregnancyWeek(12);
+    this.cycleSettings.setPregnancyWeek(0);
     this.cycleSettings.setPregnancyProgress(0);
   }
 }

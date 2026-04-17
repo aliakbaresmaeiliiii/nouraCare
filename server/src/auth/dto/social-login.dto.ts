@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class SocialLoginDto {
   @IsIn(['google', 'apple'])
@@ -10,4 +10,9 @@ export class SocialLoginDto {
   @IsOptional()
   @IsString()
   fullName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(24)
+  inviteCode?: string;
 }

@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { addCalendarDaysIso, isoDateOnly } from '../utils/pregnancy-lmp.util';
 
 export interface ReproductiveStatusData {
   isPregnant?: boolean;
@@ -81,25 +82,74 @@ export class ReproductiveStatusService {
     );
   }
 
-  // Calculate next expected period date
+  private clampCycleLength(days: number): number {
+    return Math.max(21, Math.min(60, Math.floor(Number(days)) || 28));
+  }
+
+  private utcDateFromIsoDateOnly(iso: string): Date {
+    const head = isoDateOnly(iso);
+    if (!head) {
+      const d = new Date(iso);
+      return Number.isNaN(d.getTime()) ? new Date() : d;
+    }
+    const [y, m, day] = head.split('-').map((x) => parseInt(x, 10));
+    return new Date(Date.UTC(y, m - 1, day));
+  }
+
+  /**
+   * Next period start = first day of last period + cycle length (calendar days).
+   * Uses UTC date-only math when `lastPeriodDate` is ISO `YYYY-MM-DD` (same idea as the server).
+   */
   calculateNextPeriod(lastPeriodDate: string, cycleLength: number): Date {
+    const cl = this.clampCycleLength(cycleLength);
+    const iso = isoDateOnly(lastPeriodDate);
+    if (iso) {
+      return this.utcDateFromIsoDateOnly(addCalendarDaysIso(iso, cl));
+    }
     const lastPeriod = new Date(lastPeriodDate);
     const nextPeriod = new Date(lastPeriod);
-    nextPeriod.setDate(lastPeriod.getDate() + cycleLength);
+    nextPeriod.setDate(lastPeriod.getDate() + cl);
     return nextPeriod;
   }
 
-  // Calculate fertile window
+  /**
+   * Fixed luteal-phase model (same as server cycle prediction): ovulation ≈ 14 days before the next
+   * expected period; fertile window ≈ five days before ovulation through the day after ovulation.
+   */
+  calculateOvulationDate(lastPeriodDate: string, cycleLength: number): Date {
+    const cl = this.clampCycleLength(cycleLength);
+    const iso = isoDateOnly(lastPeriodDate);
+    if (iso) {
+      const nextIso = addCalendarDaysIso(iso, cl);
+      return this.utcDateFromIsoDateOnly(addCalendarDaysIso(nextIso, -14));
+    }
+    const nextPeriod = this.calculateNextPeriod(lastPeriodDate, cycleLength);
+    const ovulation = new Date(nextPeriod);
+    ovulation.setDate(nextPeriod.getDate() - 14);
+    return ovulation;
+  }
+
   calculateFertileWindow(
     lastPeriodDate: string,
-    cycleLength: number
+    cycleLength: number,
   ): { start: Date; end: Date } {
-    const nextPeriod = this.calculateNextPeriod(lastPeriodDate, cycleLength);
-    const fertileStart = new Date(nextPeriod);
-    fertileStart.setDate(nextPeriod.getDate() - 14);
-    const fertileEnd = new Date(fertileStart);
-    fertileEnd.setDate(fertileStart.getDate() + 5);
-
+    const cl = this.clampCycleLength(cycleLength);
+    const iso = isoDateOnly(lastPeriodDate);
+    if (iso) {
+      const nextIso = addCalendarDaysIso(iso, cl);
+      const ovulationIso = addCalendarDaysIso(nextIso, -14);
+      const startIso = addCalendarDaysIso(ovulationIso, -5);
+      const endIso = addCalendarDaysIso(ovulationIso, 1);
+      return {
+        start: this.utcDateFromIsoDateOnly(startIso),
+        end: this.utcDateFromIsoDateOnly(endIso),
+      };
+    }
+    const ovulation = this.calculateOvulationDate(lastPeriodDate, cl);
+    const fertileStart = new Date(ovulation);
+    fertileStart.setDate(ovulation.getDate() - 5);
+    const fertileEnd = new Date(ovulation);
+    fertileEnd.setDate(ovulation.getDate() + 1);
     return { start: fertileStart, end: fertileEnd };
   }
 

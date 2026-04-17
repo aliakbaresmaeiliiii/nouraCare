@@ -1,0 +1,27 @@
+.intro {
+  color: var(--ion-color-medium-shade, #64748b);
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 0 0 16px;
+}
+
+.mode-segment {
+  margin-bottom: 16px;
+}
+
+.hint {
+  display: block;
+  margin: 8px 0 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.error {
+  color: var(--ion-color-danger, #c0392b);
+  font-size: 14px;
+  margin: 8px 0 16px;
+}
+
+.save {
+  margin-top: 12px;
+}

@@ -15,6 +15,7 @@ import SendMail from '../helper/send_email';
 import { EmailProvider } from './config/email';
 import { OnboardingService as UserOnboardingService } from '../users/onboarding.service';
 import { mapRegisterOnboardingPayload } from './utils/map-register-onboarding.util';
+import { GrowthService } from '../growth/growth.service';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,7 @@ export class AuthService {
     private jwtService: JwtService,
     private refreshTokenService: RefreshTokenService,
     private userOnboarding: UserOnboardingService,
+    private growthService: GrowthService,
   ) {
     this.emailProvider = new EmailProvider();
     this.sendMail = new SendMail(this.emailProvider);
@@ -54,6 +56,11 @@ export class AuthService {
         emailVerificationCode: verificationCode,
         emailVerificationCodeExpires: verificationCodeExpires,
         updatedAt: new Date(),
+        user_subscription: {
+          create: {
+            usageDayPaywallThreshold: 3 + Math.floor(Math.random() * 3),
+          },
+        },
       },
       select: {
         id: true,
@@ -88,6 +95,12 @@ export class AuthService {
           err,
         );
       }
+    }
+
+    try {
+      await this.growthService.onNewAccount(user.id, registerDto.inviteCode);
+    } catch (err) {
+      console.error('Growth referral setup failed at registration:', err);
     }
 
     // Generate tokens
@@ -266,6 +279,11 @@ export class AuthService {
           phoneNumber: uniquePhone,
           isVerified: true,
           updatedAt: new Date(),
+          user_subscription: {
+            create: {
+              usageDayPaywallThreshold: 3 + Math.floor(Math.random() * 3),
+            },
+          },
         },
         select: {
           id: true,
@@ -279,6 +297,12 @@ export class AuthService {
           updatedAt: true,
         },
       });
+
+      try {
+        await this.growthService.onNewAccount(user.id, socialLoginDto.inviteCode);
+      } catch (err) {
+        console.error('Growth referral setup failed at social registration:', err);
+      }
     } else if (!user.isVerified) {
       // Existing account can be promoted to verified via trusted social auth flow.
       user = await this.prisma.user.update({

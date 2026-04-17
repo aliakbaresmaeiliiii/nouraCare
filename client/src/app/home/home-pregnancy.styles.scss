@@ -268,12 +268,70 @@
 }
 
 .pregnancy-hero-visual {
+  position: relative;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 0;
   width: 100%;
+}
+
+.pregnancy-progress-svg {
+  position: absolute;
+  width: min(72%, 220px);
+  height: auto;
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.pregnancy-input-banner {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(197, 118, 86, 0.25);
+
+  .pregnancy-input-banner-lead {
+    margin: 0 0 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #4a3228;
+  }
+
+  p {
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #5c4037;
+  }
+}
+
+.pregnancy-tips-block {
+  margin-top: 14px;
+  padding-bottom: 8px;
+}
+
+.pregnancy-tips-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #6b4b3e;
+}
+
+.pregnancy-tips-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #5c443b;
+  font-size: 0.9rem;
+  line-height: 1.45;
+
+  li + li {
+    margin-top: 6px;
+  }
 }
 
 .pregnancy-hero-fetus {

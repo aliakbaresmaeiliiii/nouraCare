@@ -10,8 +10,8 @@ export class CycleSettingsService {
   userStatus = signal<string>('Not Set');
   isPregnant = signal<boolean>(false);
   isPostpartum = signal<boolean>(false);
-  pregnancyWeek = signal<number>(12);
-  pregnancyProgress = signal<number>(30);
+  pregnancyWeek = signal<number>(0);
+  pregnancyProgress = signal<number>(0);
 
   constructor() {
     this.loadFromStorage();
@@ -48,13 +48,13 @@ export class CycleSettingsService {
   }
 
   setPregnancyWeek(week: number) {
-    this.pregnancyWeek.set(Math.max(4, Math.min(40, Math.floor(week || 12))));
+    this.pregnancyWeek.set(Math.max(0, Math.min(45, Math.floor(week || 0))));
     this.saveToStorage();
   }
 
   setPregnancyProgress(progress: number) {
-    const p = Number.isFinite(progress) ? progress : 30;
-    this.pregnancyProgress.set(Math.max(0, Math.min(100, Math.floor(p))));
+    const p = Number.isFinite(progress) ? progress : 0;
+    this.pregnancyProgress.set(Math.max(0, Math.min(100, Math.round(p))));
     this.saveToStorage();
   }
 

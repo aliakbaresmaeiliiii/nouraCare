@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEmail, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsEmail, IsObject, MaxLength } from 'class-validator';
 
 export class RegisterDto {
   @IsEmail()
@@ -16,4 +16,10 @@ export class RegisterDto {
   @IsOptional()
   @IsObject()
   onboardingData?: Record<string, unknown>;
+
+  /** Friend's referral code from invite link (optional). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(24)
+  inviteCode?: string;
 }

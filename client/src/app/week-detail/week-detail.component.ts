@@ -64,7 +64,7 @@ export class WeekDetailComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const fromQuery = parseInt(params['week'], 10);
       this.pregnancyWeek = Number.isFinite(fromQuery)
-        ? Math.min(40, Math.max(4, fromQuery))
+        ? Math.min(40, Math.max(1, fromQuery))
         : 4;
       this.loadWeekData();
     });
@@ -78,7 +78,7 @@ export class WeekDetailComponent implements OnInit {
   }
 
   previousWeek() {
-    if (this.pregnancyWeek > 4) {
+    if (this.pregnancyWeek > 1) {
       this.pregnancyWeek--;
       this.loadWeekData();
       this.scrollToTop();
@@ -114,7 +114,7 @@ export class WeekDetailComponent implements OnInit {
     if (!Number.isFinite(value)) {
       return;
     }
-    this.pregnancyWeek = Math.min(40, Math.max(4, Math.round(value)));
+    this.pregnancyWeek = Math.min(40, Math.max(1, Math.round(value)));
     this.loadWeekData();
   }
 
@@ -123,13 +123,10 @@ export class WeekDetailComponent implements OnInit {
       return;
     }
     this.isSavingWeek = true;
-    const pregnancyStartDate = this.estimatePregnancyStartDate(this.pregnancyWeek);
-
     this.onboardingService
       .updateReproductiveState({
         state: 'pregnant',
-        currentWeek: this.pregnancyWeek,
-        pregnancyStartDate,
+        currentWeek: Math.max(0, this.pregnancyWeek - 1),
       })
       .subscribe({
         next: async (dashboard) => {
@@ -159,8 +156,11 @@ export class WeekDetailComponent implements OnInit {
         if (this.routeHasExplicitWeekQuery()) {
           return;
         }
-        const weekFromApi = dashboard.week ?? 4;
-        this.pregnancyWeek = Math.min(40, Math.max(4, weekFromApi));
+        const weekFromApi = dashboard.week;
+        if (weekFromApi == null) {
+          return;
+        }
+        this.pregnancyWeek = Math.min(40, Math.max(1, weekFromApi + 1));
         this.loadWeekData();
       },
     });
@@ -173,13 +173,6 @@ export class WeekDetailComponent implements OnInit {
     }
     const n = parseInt(raw, 10);
     return Number.isFinite(n);
-  }
-
-  private estimatePregnancyStartDate(week: number): string {
-    const now = new Date();
-    const daysBack = Math.max(0, (week - 1) * 7);
-    now.setDate(now.getDate() - daysBack);
-    return now.toISOString().split('T')[0];
   }
 
   async showToast(message: string) {

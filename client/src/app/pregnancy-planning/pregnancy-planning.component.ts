@@ -229,9 +229,10 @@ export class PregnancyPlanningComponent implements OnInit {
     );
     this.fertileWindow.set(fertileWindow);
 
-    // Calculate ovulation date (middle of fertile window)
-    const ovulation = new Date(fertileWindow.start);
-    ovulation.setDate(ovulation.getDate() + 2);
+    const ovulation = this.reproductiveStatusService.calculateOvulationDate(
+      periodDate.toISOString(),
+      cycleLength,
+    );
     this.ovulationDate.set(ovulation);
   }
 

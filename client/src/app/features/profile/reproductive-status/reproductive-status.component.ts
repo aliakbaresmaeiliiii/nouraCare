@@ -1,7 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { OnboardingService, ReproductiveState } from '../../../shared/services/onboarding.service';
+import { ModalController } from '@ionic/angular/standalone';
+import {
+  InitializeReproductiveStateDto,
+  OnboardingService,
+  ReproductiveState,
+} from '../../../shared/services/onboarding.service';
+import { PregnancySetupSheetComponent } from '../../../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
 
 export type ReproductiveStatusOption = 'period' | 'pregnant' | 'planning' | 'postpartum';
 
@@ -17,6 +23,7 @@ export type ReproductiveStatusOption = 'period' | 'pregnant' | 'planning' | 'pos
 export class ReproductiveStatusComponent {
   private router = inject(Router);
   private onboardingService = inject(OnboardingService);
+  private modalController = inject(ModalController);
 
   selectedStatus = signal<ReproductiveStatusOption | null>(null);
 
@@ -47,9 +54,24 @@ export class ReproductiveStatusComponent {
     }
   ];
 
-  selectStatus(status: ReproductiveStatusOption): void {
+  async selectStatus(status: ReproductiveStatusOption): Promise<void> {
     this.selectedStatus.set(status);
     const state = this.mapStatus(status);
+    if (state === 'pregnant') {
+      const modal = await this.modalController.create({
+        component: PregnancySetupSheetComponent,
+      });
+      await modal.present();
+      const { data, role } = await modal.onWillDismiss<InitializeReproductiveStateDto>();
+      if (role !== 'confirm' || !data) {
+        return;
+      }
+      this.onboardingService.updateReproductiveState(data).subscribe({
+        next: () => this.router.navigate(['/tabs/home']),
+        error: () => alert('Failed to update status. Please try again.'),
+      });
+      return;
+    }
     this.onboardingService.updateReproductiveState({ state }).subscribe({
       next: () => this.router.navigate(['/tabs/home']),
       error: () => alert('Failed to update status. Please try again.'),

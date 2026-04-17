@@ -41,6 +41,7 @@ export type ReproductiveState = 'cycle' | 'planning' | 'pregnant' | 'postpartum'
 export interface InitializeReproductiveStateDto {
   state: ReproductiveState;
   pregnancyStartDate?: string;
+  pregnancyDueDate?: string;
   tryingSince?: string;
   notes?: string;
   lastPeriodDate?: string;
@@ -48,13 +49,40 @@ export interface InitializeReproductiveStateDto {
   currentWeek?: number;
 }
 
+export interface DashboardFertileWindow {
+  start: string;
+  end: string;
+}
+
 export interface DashboardResponse {
   state: ReproductiveState;
   week: number | null;
+  /** Day within current pregnancy week (0–6); aligned with `week` = floor(days since LMP / 7). */
+  day?: number | null;
+  /** Progress through a 280-day model, 0–1. */
+  progress?: number | null;
   tips: string[];
   nextPeriod: string | null;
+  /** Current cycle day (1-based) when cycle/planning/postpartum; from last period start. */
+  cycleDay?: number | null;
+  /** Predicted ovulation (ISO date), luteal model: nextPeriod − 14 days. */
+  ovulationDate?: string | null;
+  /** Fertile window; widened when cycle length variability is high. */
+  fertileWindow?: DashboardFertileWindow | null;
+  /** Heuristic 0–1 from regularity + symptom hints (not medical certainty). */
+  confidence?: number | null;
+  /** Short adaptive explanation for cycle/planning/postpartum. */
+  insight?: string | null;
+  avgCycleLength?: number | null;
+  avgPeriodLength?: number | null;
+  /** Alias for predicted average cycle length on dashboard (cycle/planning/postpartum). */
+  cycleLength?: number | null;
   tryingSince?: string | null;
   notes?: string | null;
+  /** True when state is pregnant but LMP has not been saved yet. */
+  needsPregnancyInput?: boolean;
+  /** LMP stored on the server (ISO date), when pregnant and known. */
+  lastMenstrualPeriod?: string | null;
 }
 
 @Injectable({

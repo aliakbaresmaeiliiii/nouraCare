@@ -6,6 +6,51 @@
     ></ion-refresher-content>
   </ion-refresher>
 <div class="home-content" [class.home-content--pregnancy-today]="isPregnant">
+  @if (showFirstWeekRetentionCard() && getFirstWeekPlan(); as fw) {
+    <section class="first-week-retention" aria-label="Your first week with NouraCare">
+      <div class="first-week-card">
+        <div class="first-week-kicker">Day {{ fw.day }} of 7 · keeps each step under 10 seconds</div>
+        <h2 class="first-week-title">{{ fw.headline }}</h2>
+        <p class="first-week-body">{{ fw.body }}</p>
+
+        <div class="first-week-mood-block">
+          @if (!hasQuickMoodLoggedToday()) {
+            <span class="first-week-mood-label">Log mood</span>
+            <div class="first-week-chips" role="group" aria-label="Quick mood">
+              <button type="button" class="first-week-chip first-week-chip--great" (click)="logQuickMood('great')">
+                Great
+              </button>
+              <button type="button" class="first-week-chip first-week-chip--okay" (click)="logQuickMood('okay')">
+                Okay
+              </button>
+              <button type="button" class="first-week-chip first-week-chip--low" (click)="logQuickMood('low')">
+                Low
+              </button>
+            </div>
+          } @else {
+            <p class="first-week-mood-done">Mood saved for today.</p>
+          }
+        </div>
+
+        @if (fw.day === 5) {
+          <ion-button expand="block" size="small" class="first-week-tracker-btn" (click)="onFirstWeekOpenTrackerDay5()">
+            {{ fw.microActionLabel }}
+          </ion-button>
+        }
+
+        <ion-button expand="block" fill="outline" size="small" class="first-week-insight-btn" (click)="onCheckFirstWeekInsight()">
+          Check insight
+        </ion-button>
+
+        <div class="first-week-insight-preview" [attr.data-tier]="fw.insightTier">
+          <span class="first-week-insight-eyebrow">Today’s insight · level {{ fw.insightTier }} of 3</span>
+          <h3 class="first-week-insight-title">{{ fw.insightTitle }}</h3>
+          <p class="first-week-insight-text">{{ fw.insightBody }}</p>
+        </div>
+      </div>
+    </section>
+  }
+
   <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
   @if (!isPregnant && !showStartTrackingOnboarding() && !isHomeCycleTrackingLayout()) {
     <div class="welcome-hero ">
@@ -69,25 +114,18 @@
         </div>
       </div>
       <div class="onboarding-content">
-        <h2 class="onboarding-title">Start Your Health Journey</h2>
+        <h2 class="onboarding-title">{{ getPreCycleEmptyCopy().title }}</h2>
         <p class="onboarding-description">
-          Track your cycle, monitor symptoms, and get personalized insights to
-          support your reproductive health goals.
+          {{ getPreCycleEmptyCopy().body }}
         </p>
 
         <div class="onboarding-features">
-          <div class="feature-item">
-            <ion-icon name="analytics-outline"></ion-icon>
-            <span>Cycle Tracking</span>
-          </div>
-          <div class="feature-item">
-            <ion-icon name="heart-outline"></ion-icon>
-            <span>Fertility Insights</span>
-          </div>
-          <div class="feature-item">
-            <ion-icon name="medical-outline"></ion-icon>
-            <span>Symptom Monitoring</span>
-          </div>
+          @for (label of getPreCycleEmptyCopy().features; track label) {
+            <div class="feature-item">
+              <ion-icon name="analytics-outline"></ion-icon>
+              <span>{{ label }}</span>
+            </div>
+          }
         </div>
 
         <ion-button
@@ -183,6 +221,17 @@
         <div class="pregnancy-today-blob pregnancy-today-blob--3"></div>
       </div>
 
+      @if (needsPregnancyInput) {
+        <div class="pregnancy-input-banner ion-padding-horizontal">
+          <p class="pregnancy-input-banner-lead">Almost there — one short step unlocks your week-by-week view.</p>
+          <p>
+            Add your last period start, how many full weeks you are along, or your due date. We store only
+            LMP and never guess.
+          </p>
+          <ion-button size="small" (click)="presentPregnancySetupModal()">Add dates</ion-button>
+        </div>
+      }
+
       <div
         #pregnancyCalendarScroll
         class="pregnancy-calendar-swiper"
@@ -217,8 +266,8 @@
         <div class="pregnancy-hero-disk">
           <div class="pregnancy-hero-week-row">
             <div class="pregnancy-hero-week-text">
-              <span class="pregnancy-hero-weeks">{{ getPregnancyDisplayWeek() }} Weeks</span>
-              <span class="pregnancy-hero-days">{{ getPregnancyHeroExtraDays() }} Days</span>
+              <span class="pregnancy-hero-weeks">Week {{ getPregnancyDisplayWeek() }}</span>
+              <span class="pregnancy-hero-days">, day {{ getPregnancyDayDisplay() }}</span>
             </div>
             <button
               type="button"
@@ -231,6 +280,32 @@
           </div>
 
           <div class="pregnancy-hero-visual" aria-hidden="true">
+            @if (!needsPregnancyInput) {
+              <svg class="pregnancy-progress-svg" viewBox="0 0 120 120">
+                <circle
+                  class="pregnancy-progress-bg"
+                  cx="60"
+                  cy="60"
+                  r="52"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.35)"
+                  stroke-width="8"
+                />
+                <circle
+                  class="pregnancy-progress-fill"
+                  cx="60"
+                  cy="60"
+                  r="52"
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-width="8"
+                  stroke-linecap="round"
+                  transform="rotate(-90 60 60)"
+                  [attr.stroke-dasharray]="getProgressCircumference()"
+                  [attr.stroke-dashoffset]="getProgressOffset()"
+                />
+              </svg>
+            }
             <div class="pregnancy-hero-fetus">
               <span class="pregnancy-hero-fetus-emoji">{{ getPregnancyBabyEmoji() }}</span>
             </div>
@@ -260,7 +335,9 @@
             role="listitem"
             (click)="openCurrentPregnancyWeekDetail()"
           >
-            <span class="pregnancy-insight-pill pregnancy-insight-pill--muted">{{ getPregnancyDisplayWeek() }} weeks</span>
+            <span class="pregnancy-insight-pill pregnancy-insight-pill--muted"
+              >Week {{ getPregnancyDisplayWeek() }}, day {{ getPregnancyDayDisplay() }}</span
+            >
             <span class="pregnancy-insight-icon pregnancy-insight-icon--teal">
               <ion-icon name="medical"></ion-icon>
             </span>
@@ -280,6 +357,17 @@
             <span class="pregnancy-insight-card-footer">Watch-outs</span>
           </button>
         </div>
+
+        @if (!needsPregnancyInput && dashboardPregnancyTips.length > 0) {
+          <div class="pregnancy-tips-block ion-padding-horizontal">
+            <h3 class="pregnancy-tips-title">Tips for you</h3>
+            <ul class="pregnancy-tips-list">
+              @for (tip of dashboardPregnancyTips; track tip) {
+                <li>{{ tip }}</li>
+              }
+            </ul>
+          </div>
+        }
       </div>
     </div>
   }
@@ -308,9 +396,9 @@
           <div class="action-icon">
             <ion-icon name="calendar-number-outline"></ion-icon>
           </div>
-          <h3 class="action-title">Start period tracking</h3>
+          <h3 class="action-title">{{ getPreCycleEmptyCopy().title }}</h3>
           <p class="action-description">
-            Log your last period to unlock your cycle ring and predictions
+            {{ getPreCycleEmptyCopy().body }}
           </p>
         </div>
         <div class="action-arrow">
@@ -441,8 +529,17 @@
               <div class="no-symptoms-icon">
                 <ion-icon name="add-circle-outline"></ion-icon>
               </div>
-              <h3>No symptoms logged today</h3>
-              <p>Tap to add how you're feeling</p>
+              <h3>{{ getWellnessEmptyCopy().title }}</h3>
+              <p>{{ getWellnessEmptyCopy().subtitle }}</p>
+              @if (showFirstWeekRetentionCard()) {
+                <ion-button size="small" fill="solid" class="no-symptoms-primary-cta" (click)="logQuickMood('okay')">
+                  Log mood (10 sec)
+                </ion-button>
+              } @else {
+                <ion-button size="small" fill="outline" class="no-symptoms-primary-cta" (click)="openSymptomsTracking()">
+                  Log how I feel
+                </ion-button>
+              }
             </div>
           }
         </div>
@@ -554,7 +651,7 @@
   </div>
 
   <!-- Daily Insights Section -->
-  <div class="insights-section">
+  <div id="home-today-insights" class="insights-section">
     <div class="section-header">
       <h2 class="section-title">Today's Insights</h2>
       <p class="section-subtitle">Personalized tips just for you</p>

@@ -14,7 +14,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'app-doctors',
   templateUrl: './doctors.component.html',
-  styleUrls: ['./doctors.compont.scss'],
+  styleUrls: ['./doctors.component.scss'],
   standalone: true,
   imports: [
     ...SHARED_STANDALONE_IMPORTS,
