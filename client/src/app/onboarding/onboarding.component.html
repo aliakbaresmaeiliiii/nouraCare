@@ -12,7 +12,16 @@
   <div class="step-container" [class.step-welcome]="currentStepData.id === 'welcome'">
     @if (currentStepData.id === 'welcome') {
       <div class="welcome-hero">
-        <div class="welcome-badge" aria-hidden="true">✨</div>
+        <div class="welcome-brand-wrap">
+          <img
+            src="assets/branding/AppIcon-welcome.png"
+            alt="NouraCare app icon"
+            width="84"
+            height="84"
+            class="welcome-brand-icon"
+            decoding="async"
+          />
+        </div>
         <h1 class="welcome-title">{{ getStepTitle() }}</h1>
         <p class="welcome-lead">{{ getStepSubtitle() }}</p>
         <p class="welcome-body">{{ getStepQuestion() }}</p>

@@ -3,6 +3,10 @@ import { PrismaService } from '../prisma/services/prisma.service';
 import { OnboardingDataDto, CompleteOnboardingDto } from './dto/onboarding.dto';
 import { InitializeOnboardingDto } from './dto/initialize-onboarding.dto';
 import { ReproductiveStateService } from '../reproductive/reproductive-state.service';
+import {
+  normalizeIsoDateOnlyInput,
+  parseDateOnlyUtc,
+} from '../reproductive/utils/pregnancy-lmp.util';
 
 interface TemporaryOnboardingData {
   sessionId: string;
@@ -23,7 +27,105 @@ export class OnboardingService {
   }
 
   async initializeOnboarding(userId: number, dto: InitializeOnboardingDto) {
-    return this.reproductiveStateService.initializeForUser(userId, dto);
+    const dashboard = await this.reproductiveStateService.initializeForUser(userId, dto);
+    await this.persistOnboardingDataAfterReproductiveInit(userId, dto, dashboard);
+    return dashboard;
+  }
+
+  /**
+   * Keeps `onboarding_data` aligned with the reproductive domain after POST /onboarding
+   * so GET journey (`lastPeriodDate`, `pregnancyWeek`) matches dashboard LMP/week.
+   */
+  private async persistOnboardingDataAfterReproductiveInit(
+    userId: number,
+    dto: InitializeOnboardingDto,
+    dashboard: {
+      state: string;
+      week?: number | null;
+      progress?: number | null;
+      lastMenstrualPeriod?: string | null;
+    },
+  ): Promise<void> {
+    try {
+      const pregnancyStatus = this.mapInitStateToPregnancyStatus(dto.state);
+      let lastPeriodIso: string | null = null;
+      if (dto.state === 'pregnant') {
+        lastPeriodIso =
+          normalizeIsoDateOnlyInput(dto.pregnancyStartDate) ??
+          normalizeIsoDateOnlyInput(dashboard.lastMenstrualPeriod);
+      } else {
+        lastPeriodIso = normalizeIsoDateOnlyInput(dto.lastPeriodDate);
+      }
+
+      let lastPeriodDate: Date | null = null;
+      if (lastPeriodIso) {
+        lastPeriodDate = parseDateOnlyUtc(lastPeriodIso);
+      }
+
+      const pregnancyWeek =
+        dto.state === 'pregnant' && dashboard.week != null ? dashboard.week : undefined;
+      const pregnancyProgress =
+        dto.state === 'pregnant' && dashboard.progress != null
+          ? String(Math.min(100, Math.round(Number(dashboard.progress) * 100)))
+          : undefined;
+
+      const existingRecord = await this.prisma.onboarding_data.findUnique({
+        where: { userId },
+      });
+
+      const patch: Record<string, unknown> = {
+        pregnancyStatus,
+        updatedAt: new Date(),
+        isCompleted: true,
+      };
+      if (lastPeriodDate !== null) {
+        patch.lastPeriodDate = lastPeriodDate;
+      }
+      if (dto.cycleLength != null) {
+        patch.cycleLength = dto.cycleLength;
+      }
+      if (pregnancyWeek !== undefined) {
+        patch.pregnancyWeek = pregnancyWeek;
+      }
+      if (pregnancyProgress !== undefined) {
+        patch.pregnancyProgress = pregnancyProgress;
+      }
+
+      if (existingRecord) {
+        await this.prisma.onboarding_data.update({
+          where: { userId },
+          data: patch as any,
+        });
+      } else {
+        await this.prisma.onboarding_data.create({
+          data: {
+            userId,
+            updatedAt: new Date(),
+            cycleLength: dto.cycleLength ?? 28,
+            periodDuration: 5,
+            notificationsEnabled: true,
+            onboardingStep: 1,
+            ...patch,
+          } as any,
+        });
+      }
+    } catch (e) {
+      console.error(
+        'Failed to persist onboarding_data after reproductive init:',
+        (e as Error)?.message ?? e,
+      );
+    }
+  }
+
+  private mapInitStateToPregnancyStatus(state: string): string {
+    const key = String(state ?? '').toLowerCase();
+    const statusMap: Record<string, string> = {
+      cycle: 'PLANNING_PREGNANCY',
+      planning: 'PLANNING_PREGNANCY',
+      pregnant: 'PREGNANT',
+      postpartum: 'POSTPARTUM',
+    };
+    return statusMap[key] ?? key.toUpperCase();
   }
 
   async saveTemporaryOnboardingData(onboardingData: OnboardingDataDto) {
@@ -31,18 +133,30 @@ export class OnboardingService {
       const sessionId = this.generateSessionId();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-      console.log('Saving onboarding data (debug mode)', onboardingData);
-      
-      // Validate required fields based on pregnancy status
-      // For tracking status, last_period can be null initially during onboarding
-      // The user can provide it later when they have the information
-      if (onboardingData.pregnancy_status === 'tracking' && onboardingData.last_period === undefined) {
-        throw new Error('Last period date is required for period tracking');
+      const lmp =
+        normalizeIsoDateOnlyInput(onboardingData.lmp_date) ??
+        normalizeIsoDateOnlyInput(onboardingData.last_period);
+      const status = String(onboardingData.pregnancy_status ?? '').toLowerCase();
+
+      const data: OnboardingDataDto = {
+        ...onboardingData,
+        lmp_date: lmp ?? undefined,
+        last_period: lmp ?? undefined,
+      };
+      // Single source of truth: gestational week is always derived from LMP on the server / dashboard for pregnant users.
+      if (status === 'pregnant') {
+        delete data.pregnancy_week;
+      }
+
+      console.log('Saving onboarding data (debug mode)', data);
+
+      if (status === 'tracking' && !lmp) {
+        throw new Error('Last period start (LMP) is required for period tracking');
       }
 
       this.temporaryData.set(sessionId, {
         sessionId,
-        data: onboardingData,
+        data,
         expiresAt,
       });
       

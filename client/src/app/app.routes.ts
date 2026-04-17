@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/guards/auth.guard';
+import { initialRouteGuard } from './guards/initial-route.guard';
 import { LayoutComponent } from './layout/layout.component';
 import { ReactWrapperComponent } from './react-wrapper/react-wrapper.component';
 
@@ -289,7 +290,7 @@ export const routes: Routes = [
 
   {
     path: '',
-    redirectTo: 'welcome',
-    pathMatch: 'full',
+    canActivate: [initialRouteGuard],
+    children: [],
   },
 ];

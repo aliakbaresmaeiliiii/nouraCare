@@ -70,6 +70,7 @@ import {
   sad,
   sadOutline,
   scale,
+  shareOutline,
   shieldOutline,
   star,
   swapHorizontalOutline,
@@ -116,10 +117,16 @@ import {
 } from './services/home-reproductive-ui.service';
 import { HomeJourneyBridgeService } from './services/home-journey-bridge.service';
 import { HomeDataService } from './services/home-data.service';
+import { GrowthService } from '../shared/services/growth.service';
 import {
   getBabyDevelopmentFactForWeek,
   getBabyFunFactForWeek,
 } from './data/home-baby-week-copy';
+import {
+  gestationalWeekFromLmp,
+  isoDateOnly,
+  normalizeLmpInput,
+} from '../shared/utils/pregnancy-lmp.util';
 import { HOME_POSTPARTUM_WEEK_SAMPLES } from './data/home-postpartum-sample.data';
 import { FirstWeekPlanService } from '../shared/services/first-week-plan.service';
 
@@ -142,6 +149,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private homeData = inject(HomeDataService);
   private firstWeekPlan = inject(FirstWeekPlanService);
+  private growthService = inject(GrowthService);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private trackDataService = inject(TrackDataService);
@@ -157,7 +165,8 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private readonly pregnancyCalWeeksPast = 10;
   private readonly pregnancyCalWeeksFuture = 10;
   /** Matches cycle settings / week-detail usable range. */
-  private readonly pregnancyCalendarMinWeek = 0;
+  /** 1-based gestational week; calendar taps limited to typical clinical follow-up window. */
+  private readonly pregnancyCalendarMinWeek = 4;
   private readonly pregnancyCalendarMaxWeek = 40;
 
   welcomeMessage: string = '';
@@ -180,6 +189,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   pregnancyDayInWeek = 0;
   needsPregnancyInput = false;
   dashboardPregnancyTips: string[] = [];
+  private isPromotingOnboardingPregnancy = false;
 
   // Dynamic baby size data - now computed from service
   get babySize(): string {
@@ -198,7 +208,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   }
 
   // Pregnancy tracker properties
-  pregnancyStartDate: string = '2024-01-01';
+  pregnancyStartDate: string = '';
   pregnancyDays: number = 84; // 12 weeks * 7 days
   minDate: string = '2023-01-01';
   maxDate: string = '2025-12-31';
@@ -222,6 +232,14 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   temperature: number = 36.8;
   mood: string = 'Happy';
   showMoreSections: boolean = false;
+
+  /** Daily check-in + growth points (server-backed). */
+  growthStrip: {
+    visible: boolean;
+    streak: number;
+    points: number;
+    checkedInToday: boolean;
+  } = { visible: false, streak: 0, points: 0, checkedInToday: false };
 
   // Appointments
   upcomingAppointments: any[] = [
@@ -299,6 +317,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       sad,
       sadOutline,
       scale,
+      shareOutline,
       shieldOutline,
       star,
       swapHorizontalOutline,
@@ -334,6 +353,8 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     if (!this.authService.getAccessToken()) {
       this.loadPersistedData();
       this.checkOnboardingStatus();
+    } else {
+      this.hydrateFromLocalOnboardingForAuthenticatedFallback();
     }
     this.firstWeekPlan.ensurePlanStarted();
     this.loadTodaySymptoms();
@@ -378,6 +399,92 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   }
 
   /**
+   * Signed-in fallback for users who selected dates in onboarding but have not fully
+   * completed profile persistence yet. Prevents the "log last period" prompt flash
+   * and backfills the journey row once.
+   */
+  private hydrateFromLocalOnboardingForAuthenticatedFallback(): void {
+    const hasLmp = !!this.cycleSettings.lastPeriodStartDate();
+    if (hasLmp) {
+      return;
+    }
+    let data: {
+      pregnancy_status?: string;
+      lmp_date?: unknown;
+      last_period?: unknown;
+      cycle_length?: number;
+      period_length?: number;
+    } | null = null;
+    try {
+      const raw = localStorage.getItem('onboarding_data');
+      if (!raw) {
+        return;
+      }
+      data = JSON.parse(raw);
+    } catch {
+      return;
+    }
+    if (!data) {
+      return;
+    }
+
+    const lmp = normalizeLmpInput(data.lmp_date ?? data.last_period);
+    if (!lmp) {
+      return;
+    }
+
+    const status = String(data.pregnancy_status ?? '').toLowerCase();
+    const cycleLength = Number(data.cycle_length) || 28;
+    const periodLength = Number(data.period_length) || 5;
+
+    this.cycleSettings.setCycleLength(cycleLength);
+    this.cycleSettings.setPeriodLength(periodLength);
+    this.cycleSettings.setLastPeriodStart(lmp);
+    this.periodStartDate = new Date(`${lmp}T12:00:00`);
+    this.updateCycleDay();
+
+    if (status === 'pregnant') {
+      this.cycleSettings.setUserStatus('Pregnant');
+      this.cycleSettings.setPregnancyStatus(true);
+      this.cycleSettings.setPostpartumStatus(false);
+      this.pregnancyStartDate = lmp;
+      this.recomputePregnancyStatsFromLmpIfAvailable();
+    } else if (status === 'postpartum') {
+      this.cycleSettings.setUserStatus('Postpartum');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(true);
+    } else {
+      this.cycleSettings.setUserStatus('Trying to Conceive');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(false);
+    }
+
+    // One-time best-effort backfill to server journey row for signed-in users.
+    const key = '__onboarding_lmp_backfilled__';
+    if (sessionStorage.getItem(key) === '1') {
+      return;
+    }
+    this.userInfoService
+      .patchMeOnboarding({
+        pregnancyStatus:
+          status === 'pregnant'
+            ? 'PREGNANT'
+            : status === 'postpartum'
+              ? 'POSTPARTUM'
+              : 'PLANNING_PREGNANCY',
+        lastPeriodDate: lmp,
+        cycleLength,
+        periodLength,
+      })
+      .subscribe({
+        next: () => sessionStorage.setItem(key, '1'),
+        error: () => {
+          // non-fatal; dashboard sync will still run
+        },
+      });
+  }
+
+  /**
    * Check if user has completed onboarding and set appropriate status
    */
   private checkOnboardingStatus() {
@@ -394,11 +501,12 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           this.isPregnant = true;
           this.isPostpartum = false;
 
-          // Set pregnancy week if provided
-          if (data.pregnancy_week) {
-            this.pregnancyWeek = data.pregnancy_week;
-            this.pregnancyProgress = (data.pregnancy_week / 40) * 100;
-            this.cycleSettings.setPregnancyWeek(data.pregnancy_week);
+          const lmpFromStore = normalizeLmpInput(data.lmp_date ?? data.last_period);
+          if (lmpFromStore) {
+            const w = gestationalWeekFromLmp(lmpFromStore);
+            this.pregnancyWeek = w;
+            this.pregnancyProgress = Math.min(100, Math.round((w / 40) * 100));
+            this.cycleSettings.setPregnancyWeek(w);
             this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
           }
 
@@ -434,9 +542,10 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         if (data.period_length) {
           this.cycleSettings.setPeriodLength(data.period_length);
         }
-        if (data.last_period) {
-          this.cycleSettings.setLastPeriodStart(data.last_period);
-          this.periodStartDate = new Date(data.last_period);
+        const lmpForCycle = normalizeLmpInput(data.lmp_date ?? data.last_period);
+        if (lmpForCycle) {
+          this.cycleSettings.setLastPeriodStart(lmpForCycle);
+          this.periodStartDate = new Date(`${lmpForCycle}T12:00:00`);
           this.updateCycleDay();
         }
       } catch (error) {
@@ -489,6 +598,90 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.scheduleScrollPregnancyCalendarToAnchor();
     this.firstWeekPlan.ensurePlanStarted();
     this.runFirstWeekEntryHooks();
+    this.refreshGrowthStrip();
+  }
+
+  private refreshGrowthStrip(): void {
+    if (!this.authService.getAccessToken()) {
+      this.growthStrip = {
+        visible: false,
+        streak: 0,
+        points: 0,
+        checkedInToday: false,
+      };
+      return;
+    }
+    this.growthService
+      .getSummary()
+      .pipe(catchError(() => of(null)))
+      .subscribe((d) => {
+        if (!d) {
+          return;
+        }
+        this.growthStrip = {
+          visible: true,
+          streak: d.checkInStreak,
+          points: d.growthPoints,
+          checkedInToday: d.checkedInToday,
+        };
+        this.cdr.markForCheck();
+      });
+  }
+
+  async onGrowthCheckIn(): Promise<void> {
+    try {
+      const res = await firstValueFrom(this.growthService.checkIn());
+      this.growthStrip = {
+        ...this.growthStrip,
+        visible: true,
+        streak: res.checkInStreak,
+        points: res.growthPoints,
+        checkedInToday: true,
+      };
+      const toast = await this.toastController.create({
+        message: res.alreadyCheckedIn
+          ? 'You already checked in today.'
+          : 'Check-in saved — build your streak!',
+        duration: 2200,
+        color: res.alreadyCheckedIn ? 'medium' : 'success',
+      });
+      await toast.present();
+    } catch {
+      const t = await this.toastController.create({
+        message: 'Check-in could not be saved. Try again.',
+        duration: 2200,
+        color: 'danger',
+      });
+      await t.present();
+    }
+    this.cdr.markForCheck();
+  }
+
+  async shareCycleInsight(): Promise<void> {
+    try {
+      const payload = await firstValueFrom(this.growthService.getShareSummary());
+      const text = this.growthService.composeShareText(payload);
+      if (navigator.share) {
+        await navigator.share({ title: payload.title, text });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        const toast = await this.toastController.create({
+          message: 'Summary copied — paste anywhere to share.',
+          duration: 2200,
+        });
+        await toast.present();
+      }
+    } catch (e: unknown) {
+      if ((e as { name?: string })?.name === 'AbortError') {
+        return;
+      }
+      const t = await this.toastController.create({
+        message: 'Could not load a share summary.',
+        duration: 2000,
+        color: 'danger',
+      });
+      await t.present();
+    }
   }
 
   async onTabPullRefresh(event: Event): Promise<void> {
@@ -541,6 +734,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       // network errors: still refresh chart from local state
     } finally {
       this.runPeriodChartRefresh();
+      this.refreshGrowthStrip();
       this.cdr.markForCheck();
     }
   }
@@ -616,7 +810,14 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.dashboardPregnancyTips = [];
     if (state.isPregnant) {
       this.needsPregnancyInput = !!state.needsPregnancyInput;
-      if (state.pregnancyWeek != null) {
+      if (this.needsPregnancyInput) {
+        // Server has no usable pregnancy timeline yet; never reuse stale cached values.
+        this.pregnancyWeek = 0;
+        this.pregnancyDayInWeek = 0;
+        this.pregnancyProgress = 0;
+        this.cycleSettings.setPregnancyWeek(0);
+        this.cycleSettings.setPregnancyProgress(0);
+      } else if (state.pregnancyWeek != null) {
         this.pregnancyWeek = state.pregnancyWeek;
       }
       if (state.pregnancyDay != null) {
@@ -627,11 +828,15 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       }
       if (state.lastMenstrualPeriodIso) {
         this.pregnancyStartDate = state.lastMenstrualPeriodIso;
+      } else if (this.needsPregnancyInput) {
+        this.pregnancyStartDate = '';
       }
       this.dashboardPregnancyTips = state.dashboardTips ?? [];
+      this.promoteOnboardingPregnancyIfNeeded();
     } else {
       this.pregnancyWeek = this.cycleSettings.pregnancyWeek();
       this.pregnancyProgress = this.cycleSettings.pregnancyProgress();
+      this.pregnancyStartDate = '';
     }
     this.periodStartDate = state.periodStartDate;
     if (state.cycleDayDirty) {
@@ -639,9 +844,111 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     }
 
     if (this.isPregnant) {
+      this.recomputePregnancyStatsFromLmpIfAvailable();
       this.clearPregnancyCalendarSelectionIfInvalid();
       this.scheduleScrollPregnancyCalendarToAnchor();
     }
+  }
+
+  /**
+   * If dashboard says pregnancy setup is missing but onboarding already has LMP,
+   * push it once to reproductive state so Home no longer asks to add date again.
+   */
+  private promoteOnboardingPregnancyIfNeeded(): void {
+    if (!this.authService.getAccessToken()) {
+      return;
+    }
+    if (!this.isPregnant || !this.needsPregnancyInput) {
+      return;
+    }
+    if (this.isPromotingOnboardingPregnancy) {
+      return;
+    }
+    const promotedKey = '__pregnancy_lmp_promoted_from_onboarding__';
+    if (sessionStorage.getItem(promotedKey) === '1') {
+      return;
+    }
+
+    let data: {
+      pregnancy_status?: string;
+      lmp_date?: unknown;
+      last_period?: unknown;
+      cycle_length?: number;
+    } | null = null;
+    try {
+      const raw = localStorage.getItem('onboarding_data');
+      if (!raw) {
+        return;
+      }
+      data = JSON.parse(raw);
+    } catch {
+      return;
+    }
+    if (!data) {
+      return;
+    }
+    const status = String(data.pregnancy_status ?? '').toLowerCase();
+    if (status !== 'pregnant') {
+      return;
+    }
+    const lmp = normalizeLmpInput(data.lmp_date ?? data.last_period);
+    if (!lmp) {
+      return;
+    }
+
+    this.isPromotingOnboardingPregnancy = true;
+    this.onboardingService
+      .updateReproductiveState({
+        state: 'pregnant',
+        pregnancyStartDate: lmp,
+        lastPeriodDate: lmp,
+        cycleLength: Number(data.cycle_length) || undefined,
+      })
+      .subscribe({
+        next: () => {
+          sessionStorage.setItem(promotedKey, '1');
+          this.isPromotingOnboardingPregnancy = false;
+          this.syncDashboardFromServerAndRefreshChart();
+        },
+        error: () => {
+          this.isPromotingOnboardingPregnancy = false;
+        },
+      });
+  }
+
+  /**
+   * Keep UI week/day/progress anchored to LMP date when available.
+   * This prevents stale cached `pregnancyWeek` values (e.g. from older profile edits)
+   * from overriding the date-based pregnancy timeline.
+   */
+  private recomputePregnancyStatsFromLmpIfAvailable(): void {
+    if (!this.pregnancyStartDate) {
+      return;
+    }
+    const lmpIso = isoDateOnly(this.pregnancyStartDate);
+    if (!lmpIso) {
+      return;
+    }
+    const lmp = new Date(`${lmpIso}T00:00:00Z`);
+    if (Number.isNaN(lmp.getTime())) {
+      return;
+    }
+    const now = new Date();
+    const todayUtc = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
+    const diffDays = Math.max(
+      0,
+      Math.floor((todayUtc.getTime() - lmp.getTime()) / 86400000),
+    );
+    const week = Math.min(42, Math.max(1, gestationalWeekFromLmp(lmpIso, now)));
+    const day = diffDays % 7;
+    const progress = Math.min(100, Math.round((diffDays / 280) * 100));
+    this.pregnancyWeek = week;
+    this.pregnancyDayInWeek = day;
+    this.pregnancyProgress = progress;
+    this.cycleSettings.setPregnancyWeek(week);
+    this.cycleSettings.setPregnancyProgress(progress);
   }
 
   /** Drop picked day if it no longer maps to week 4–40 (e.g. start date updated). */
@@ -679,6 +986,12 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   /** First-week retention strip (days 1–7 after onboarding). */
   showFirstWeekRetentionCard(): boolean {
+    if (this.isPregnant || this.isPostpartum) {
+      return false;
+    }
+    if (this.cycleSettings.isPregnant() || this.cycleSettings.isPostpartum()) {
+      return false;
+    }
     return this.firstWeekPlan.isInFirstWeek();
   }
 
@@ -1091,8 +1404,11 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   // Update pregnancy week and recalculate progress (local preview; `week` = completed weeks since LMP)
   updatePregnancyWeek(week: number) {
-    this.pregnancyWeek = week;
-    this.pregnancyProgress = Math.min(100, Math.round(((week * 7) / 280) * 100));
+    // Keep one source of truth: LMP/server dashboard. Do not let local manual preview overwrite it.
+    if (!this.pregnancyStartDate) {
+      return;
+    }
+    this.recomputePregnancyStatsFromLmpIfAvailable();
   }
 
   // Get baby length based on week
@@ -2147,12 +2463,22 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Calculate pregnancy week
   private async calculatePregnancyWeek(lastPeriod: string) {
     try {
-      const lmpDate = new Date(lastPeriod);
-      const today = new Date();
-      const daysDifference = Math.floor(
-        (today.getTime() - lmpDate.getTime()) / (1000 * 60 * 60 * 24),
+      const lmpIso = isoDateOnly(lastPeriod) ?? String(lastPeriod).slice(0, 10);
+      const pregnancyWeek = gestationalWeekFromLmp(lmpIso);
+      const lmpDate = new Date(
+        lmpIso.includes('T') ? lmpIso : `${lmpIso}T12:00:00`,
       );
-      const pregnancyWeek = Math.floor(daysDifference / 7);
+      const lm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lmpIso);
+      const t = new Date();
+      const uL = lm
+        ? Date.UTC(Number(lm[1]), Number(lm[2]) - 1, Number(lm[3]))
+        : Date.UTC(
+            lmpDate.getFullYear(),
+            lmpDate.getMonth(),
+            lmpDate.getDate(),
+          );
+      const uT = Date.UTC(t.getFullYear(), t.getMonth(), t.getDate());
+      const daysDifference = Math.max(0, Math.floor((uT - uL) / (1000 * 60 * 60 * 24)));
 
       // Validate pregnancy week
       if (pregnancyWeek < 4 || pregnancyWeek > 42) {
@@ -2973,7 +3299,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     // Set the clicked day as selected
     day.isSelected = true;
 
-    // Calculate pregnancy progress based on selected date
+    // Preview the tapped day only; keep week/day convention 1-based and never mutate stored LMP.
     const selectedDate = day.fullDate;
     const pregnancyStartDate = new Date(this.pregnancyStartDate);
     const diffTime = Math.abs(
@@ -2982,8 +3308,9 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     this.pregnancyDays = diffDays;
-    this.pregnancyWeek = Math.floor(diffDays / 7);
-    this.pregnancyProgress = (this.pregnancyWeek / 40) * 100;
+    this.pregnancyWeek = Math.min(42, Math.max(1, Math.floor(diffDays / 7) + 1));
+    this.pregnancyDayInWeek = diffDays % 7;
+    this.pregnancyProgress = Math.min(100, Math.round((diffDays / 280) * 100));
 
     // Update baby size data
     this.updateBabySize();
@@ -3035,18 +3362,12 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   }
 
   selectWeek(week: number) {
-    this.pregnancyWeek = week;
-    this.pregnancyProgress = (week / 40) * 100;
-    this.pregnancyDays = week * 7;
+    const w = Math.min(42, Math.max(1, Math.round(Number(week) || 1)));
+    this.pregnancyWeek = w;
+    this.pregnancyDays = (w - 1) * 7;
+    this.pregnancyDayInWeek = 0;
+    this.pregnancyProgress = Math.min(100, Math.round((this.pregnancyDays / 280) * 100));
     this.updateBabySize();
-
-    // Calculate the start date based on selected week
-    const today = new Date();
-    const daysToSubtract = this.pregnancyDays;
-    const startDate = new Date(
-      today.getTime() - daysToSubtract * 24 * 60 * 60 * 1000,
-    );
-    this.pregnancyStartDate = startDate.toISOString().split('T')[0];
   }
 
   onDateChange(event: any) {
@@ -3056,8 +3377,9 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     this.pregnancyDays = diffDays;
-    this.pregnancyWeek = Math.floor(diffDays / 7);
-    this.pregnancyProgress = (this.pregnancyWeek / 40) * 100;
+    this.pregnancyWeek = Math.min(42, Math.max(1, Math.floor(diffDays / 7) + 1));
+    this.pregnancyDayInWeek = diffDays % 7;
+    this.pregnancyProgress = Math.min(100, Math.round((diffDays / 280) * 100));
 
     // Update baby size data
     this.updateBabySize();
@@ -3303,7 +3625,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     });
   }
 
-  /** Completed full weeks since LMP (same as dashboard `week`). */
+  /** 1-based gestational week since LMP (same as dashboard `week`). */
   getPregnancyDisplayWeek(): number {
     if (!this.isPregnant || !this.pregnancyCalendarViewDate) {
       return this.pregnancyWeek;
@@ -3328,18 +3650,30 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
   getPregnancyWeekDetailRouteParam(): number {
     const w = this.getPregnancyDisplayWeek();
-    return Math.min(40, Math.max(1, w + 1));
+    return Math.min(40, Math.max(1, w));
   }
 
-  private getCalendarDaysSinceLmp(ref: Date): number | null {
+  /** LMP string `YYYY-MM-DD` → UTC ms at that civil date 00:00 UTC (matches server date-only LMP). */
+  private getLmpUtcMidnightMs(): number | null {
     if (!this.pregnancyStartDate) {
       return null;
     }
-    const raw = this.pregnancyStartDate.includes('T')
-      ? this.pregnancyStartDate
-      : `${this.pregnancyStartDate}T12:00:00`;
-    const start = new Date(raw);
-    const u0 = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+    const head = isoDateOnly(this.pregnancyStartDate);
+    if (!head) {
+      return null;
+    }
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(head);
+    if (!m) {
+      return null;
+    }
+    return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+
+  private getCalendarDaysSinceLmp(ref: Date): number | null {
+    const u0 = this.getLmpUtcMidnightMs();
+    if (u0 === null) {
+      return null;
+    }
     const u1 = Date.UTC(ref.getFullYear(), ref.getMonth(), ref.getDate());
     if (u1 < u0) {
       return null;
@@ -3348,36 +3682,28 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   }
 
   /**
-   * Completed pregnancy weeks for a calendar day vs `pregnancyStartDate`, or `null` if start unknown.
-   * Dates before start return `-1`.
+   * 1-based gestational week for a calendar day vs `pregnancyStartDate` (aligned with server dashboard).
+   * Returns `null` if LMP unknown; `-1` if the day is before LMP.
    */
   private getPregnancyWeekForCalendarDay(ref: Date): number | null {
-    if (!this.pregnancyStartDate) {
+    const u0 = this.getLmpUtcMidnightMs();
+    if (u0 === null) {
       return null;
     }
-    const raw = this.pregnancyStartDate.includes('T')
-      ? this.pregnancyStartDate
-      : `${this.pregnancyStartDate}T12:00:00`;
-    const start = new Date(raw);
-    const u0 = Date.UTC(
-      start.getFullYear(),
-      start.getMonth(),
-      start.getDate(),
-    );
     const u1 = Date.UTC(ref.getFullYear(), ref.getMonth(), ref.getDate());
     if (u1 < u0) {
       return -1;
     }
     const days = Math.floor((u1 - u0) / 86400000);
-    return Math.floor(days / 7);
+    return Math.min(42, Math.max(1, Math.floor(days / 7) + 1));
   }
 
   private computePregnancyWeekForDate(ref: Date): number {
     const w = this.getPregnancyWeekForCalendarDay(ref);
-    if (w === null) {
+    if (w === null || w < 1) {
       return this.pregnancyWeek;
     }
-    return Math.max(0, w);
+    return w;
   }
 
   private getPregnancyMonday(d: Date): Date {
@@ -3547,13 +3873,18 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const ref = this.pregnancyCalendarViewDate ?? new Date();
     const d = this.getCalendarDaysSinceLmp(ref);
     if (d === null) {
-      return Math.max(1, this.pregnancyWeek * 7 + this.pregnancyDayInWeek + 1);
+      const w = this.pregnancyWeek;
+      const day = this.pregnancyDayInWeek;
+      if (w < 1) {
+        return 1;
+      }
+      return Math.max(1, (w - 1) * 7 + day + 1);
     }
     return d + 1;
   }
 
   getTrimesterInsightLabel(): string {
-    const clinical = Math.max(1, this.getPregnancyDisplayWeek() + 1);
+    const clinical = Math.max(1, this.getPregnancyDisplayWeek());
     if (clinical <= 13) return 'First trimester';
     if (clinical <= 27) return 'Second trimester';
     return 'Third trimester';
@@ -3623,14 +3954,14 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   }
 
   getTrimester(): string {
-    const clinical = Math.max(1, this.pregnancyWeek + 1);
+    const clinical = Math.max(1, this.pregnancyWeek);
     if (clinical <= 13) return '1st Trimester';
     if (clinical <= 27) return '2nd Trimester';
     return '3rd Trimester';
   }
 
   getMilestone(): string {
-    const clinical = Math.max(1, this.pregnancyWeek + 1);
+    const clinical = Math.max(1, this.pregnancyWeek);
     if (clinical <= 4) return 'Early Development';
     if (clinical <= 8) return 'Organ Formation';
     if (clinical <= 12) return 'First Trimester Complete';

@@ -30,6 +30,7 @@ import {
   GoogleSignInNotConfiguredError,
   GoogleSignInService,
 } from '../services/google-sign-in.service';
+import { PENDING_INVITE_CODE_KEY } from '../../shared/constants/growth.constants';
 
 @Component({  
   selector: 'app-login',
@@ -103,6 +104,10 @@ export class LoginComponent {
       if (params['tab'] === 'register') {
         this.activeTab = 'register';
         this.title.set('Register');
+      }
+      const ref = (params['ref'] || params['invite'] || '').trim();
+      if (ref && typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(PENDING_INVITE_CODE_KEY, ref.toUpperCase());
       }
     });
     const sessionId = this.onboardingService.getSessionId();
@@ -236,6 +241,9 @@ export class LoginComponent {
             localStorage.removeItem('onboarding_data');
             localStorage.removeItem('onboarding_completed');
           }
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
+          }
 
           this.router.navigate(['auth/verify-email']);
         },
@@ -291,6 +299,9 @@ export class LoginComponent {
           if (res?.data?.accessToken) {
             this.service.setUserInfoFromSocialResponse(res);
           }
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
+          }
 
           const isEmailVerified = !!res?.data?.user?.isVerified;
           if (!isEmailVerified) {
@@ -324,6 +335,9 @@ export class LoginComponent {
 
       if (res?.data?.accessToken) {
         this.service.setUserInfoFromSocialResponse(res);
+      }
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
       }
 
       const isEmailVerified = !!res?.data?.user?.isVerified;

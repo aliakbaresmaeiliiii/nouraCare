@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { OnboardingDataDto } from '../../shared/services/onboarding.service';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { PENDING_INVITE_CODE_KEY } from '../../shared/constants/growth.constants';
 import { LoginRequest } from '../login/model/login-request-interface';
 import { RegisterRequest } from '../login/model/register-request-interface';
 import { User } from '../login/model/uesr-interface';
@@ -97,6 +98,13 @@ export class AuthService {
     } = { provider, email };
     if (fullName?.trim()) {
       payload.fullName = fullName.trim();
+    }
+
+    if (typeof sessionStorage !== 'undefined') {
+      const inv = sessionStorage.getItem(PENDING_INVITE_CODE_KEY)?.trim();
+      if (inv) {
+        (payload as { inviteCode?: string }).inviteCode = inv;
+      }
     }
 
     return this.http
@@ -322,6 +330,13 @@ export class AuthService {
     // Include onboarding session token if provided
     if (onboardingSessionToken) {
       payload.onboardingSessionToken = onboardingSessionToken;
+    }
+
+    if (!payload.inviteCode && typeof sessionStorage !== 'undefined') {
+      const inv = sessionStorage.getItem(PENDING_INVITE_CODE_KEY)?.trim();
+      if (inv) {
+        payload.inviteCode = inv;
+      }
     }
 
     return this.http.post(`${this.baseUrl}/register`, payload);

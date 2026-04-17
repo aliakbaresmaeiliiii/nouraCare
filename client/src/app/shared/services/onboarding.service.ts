@@ -10,6 +10,8 @@ export interface OnboardingSession {
 }
 export interface OnboardingDataDto {
   pregnancy_status: string;
+  /** Canonical LMP (first day of last period), `YYYY-MM-DD`. Same as `last_period` when set. */
+  lmp_date?: string | null;
   last_period: string | null;
   cycle_length: number;
   period_length: number;
@@ -57,7 +59,7 @@ export interface DashboardFertileWindow {
 export interface DashboardResponse {
   state: ReproductiveState;
   week: number | null;
-  /** Day within current pregnancy week (0–6); aligned with `week` = floor(days since LMP / 7). */
+  /** Day within current pregnancy week (0–6); aligned with 1-based `week` from LMP. */
   day?: number | null;
   /** Progress through a 280-day model, 0–1. */
   progress?: number | null;

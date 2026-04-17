@@ -8,11 +8,12 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { LoginComponent } from '../auth/login/login.component';
 import { LanguageService } from '../shared/services/language.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { PENDING_INVITE_CODE_KEY } from '../shared/constants/growth.constants';
 
 @Component({
   selector: 'app-welcome',
@@ -29,9 +30,17 @@ export class WelcomeComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private languageService: LanguageService,
     private router: Router,
+    private route: ActivatedRoute,
   ) {}
 
   ngOnInit() {
+    this.route.queryParams.subscribe((params) => {
+      const ref = (params['ref'] || params['invite'] || '').trim();
+      if (ref && typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(PENDING_INVITE_CODE_KEY, ref.toUpperCase());
+      }
+    });
+
     // Listen to language changes to trigger updates
     this.languageSubscription = this.languageService.currentLanguage$.subscribe(
       () => {

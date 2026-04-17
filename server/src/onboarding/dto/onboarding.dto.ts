@@ -1,25 +1,23 @@
-import {
-  IsOptional,
-  IsString,
-  IsInt,
-  IsBoolean,
-  IsDate,
-  IsEnum,
-  IsArray,
-  Min,
-  Max,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsInt, Min, Max, Matches } from 'class-validator';
 
 export class OnboardingDataDto {
   @IsOptional()
   @IsString()
   pregnancy_status?: string;
 
+  /**
+   * Canonical LMP (first day of last menstrual period), `YYYY-MM-DD` only.
+   * Prefer this field; `last_period` is kept as an alias for older clients.
+   */
   @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  last_period?: Date;
+  @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  lmp_date?: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  last_period?: string;
 
   @IsOptional()
   @IsInt()

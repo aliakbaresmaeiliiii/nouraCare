@@ -101,11 +101,19 @@
   padding: 0.5rem 0 1rem;
 }
 
-.welcome-badge {
-  font-size: 2.75rem;
-  line-height: 1;
+.welcome-brand-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 1rem;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
+}
+
+.welcome-brand-icon {
+  display: block;
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(var(--brand-text-rgb), 0.12));
 }
 
 .welcome-title {
@@ -416,6 +424,11 @@ ion-button {
     font-size: 1.6rem;
     margin-bottom: 0.5rem;
   }
+
+  .welcome-brand-icon {
+    width: 72px;
+    height: 72px;
+  }
   
   .step-subtitle {
     font-size: 0.9rem;
@@ -475,6 +488,11 @@ ion-button {
     gap: 0.75rem;
     padding-top: calc(40px + env(safe-area-inset-top));
     padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+
+  .welcome-brand-icon {
+    width: 64px;
+    height: 64px;
   }
   
   .option-card {

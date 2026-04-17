@@ -3,6 +3,7 @@ import { CycleSettingsService } from '../../shared/services/cycle-settings.servi
 import { UserInfoService } from '../../shared/services/user-info.service';
 import { UserInfo } from '../../shared/interfaces/user-info-api.interface';
 import { DashboardResponse } from '../../shared/services/onboarding.service';
+import { normalizeLmpInput } from '../../shared/utils/pregnancy-lmp.util';
 
 /** Journey fields the home page binds after each dashboard + onboarding sync. */
 export interface HomePageJourneyState {
@@ -71,6 +72,10 @@ export class HomeReproductiveUiService {
       const pregnancyProgress = Math.min(100, Math.round(rawProgress * 100));
       this.cycleSettings.setPregnancyWeek(week);
       this.cycleSettings.setPregnancyProgress(pregnancyProgress);
+      const lmpIso = normalizeLmpInput(dashboard.lastMenstrualPeriod ?? undefined);
+      if (lmpIso) {
+        this.cycleSettings.setLastPeriodStart(lmpIso);
+      }
       return {
         userStatus: 'Pregnant',
         isPregnant: true,
@@ -79,7 +84,7 @@ export class HomeReproductiveUiService {
         pregnancyDay: day,
         pregnancyProgress,
         needsPregnancyInput: false,
-        lastMenstrualPeriodIso: dashboard.lastMenstrualPeriod ?? null,
+        lastMenstrualPeriodIso: lmpIso ?? dashboard.lastMenstrualPeriod ?? null,
         dashboardTips: dashboard.tips?.length ? dashboard.tips : [],
         periodStartDate: null,
         cycleDayDirty: false,
@@ -147,6 +152,30 @@ export class HomeReproductiveUiService {
     if (!iso) {
       return;
     }
+    if (state.isPregnant) {
+      // Best-practice precedence:
+      // 1) Dashboard pregnancy data (reproductive domain) is authoritative when complete.
+      // 2) Fallback to onboarding journey LMP only when dashboard lacks usable pregnancy timeline.
+      if (
+        !state.needsPregnancyInput &&
+        state.pregnancyWeek != null &&
+        state.lastMenstrualPeriodIso
+      ) {
+        return;
+      }
+      this.cycleSettings.setLastPeriodStart(iso);
+      state.lastMenstrualPeriodIso = iso;
+      const stats = this.computePregnancyStatsFromLmpIso(iso);
+      if (stats) {
+        state.pregnancyWeek = stats.week;
+        state.pregnancyDay = stats.day;
+        state.pregnancyProgress = stats.progress;
+        state.needsPregnancyInput = false;
+        this.cycleSettings.setPregnancyWeek(stats.week);
+        this.cycleSettings.setPregnancyProgress(stats.progress);
+      }
+      return;
+    }
     if (!this.cycleSettings.lastPeriodStartDate()) {
       this.cycleSettings.setLastPeriodStart(iso);
     }
@@ -172,6 +201,26 @@ export class HomeReproductiveUiService {
       return raw.toISOString().split('T')[0];
     }
     return null;
+  }
+
+  private computePregnancyStatsFromLmpIso(
+    lmpIso: string,
+  ): { week: number; day: number; progress: number } | null {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lmpIso);
+    if (!m) {
+      return null;
+    }
+    const lmpUtc = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    const now = new Date();
+    const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    if (todayUtc < lmpUtc) {
+      return null;
+    }
+    const days = Math.floor((todayUtc - lmpUtc) / 86400000);
+    const week = Math.min(42, Math.max(1, Math.floor(days / 7) + 1));
+    const day = days % 7;
+    const progress = Math.min(100, Math.round((days / 280) * 100));
+    return { week, day, progress };
   }
 
   private finalizePregnancyStorageFromDashboard(

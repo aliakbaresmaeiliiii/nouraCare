@@ -1,7 +1,10 @@
-/** Calendar-day difference in UTC (date-only, no time-of-day drift). */
+/**
+ * Whole calendar days from `from` to `to` (non-negative when to >= from).
+ * Uses UTC date parts so values stored as UTC midnight (e.g. Prisma DATE → JS Date) stay on the intended civil day.
+ */
 export function calendarDaysBetweenUtc(from: Date, to: Date): number {
-  const u0 = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate());
-  const u1 = Date.UTC(to.getFullYear(), to.getMonth(), to.getDate());
+  const u0 = Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate());
+  const u1 = Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate());
   return Math.floor((u1 - u0) / 86400000);
 }
 
@@ -12,10 +15,14 @@ export interface PregnancyMetrics {
   progress: number;
 }
 
-/** LMP = inclusive start day; days = whole days elapsed since LMP day through `today`. */
+/**
+ * LMP = first day of last menstrual period (inclusive). `days` = whole days from LMP through `today`.
+ * `week` is 1-based gestational week (same convention as client onboarding / gestationalWeekFromLmp):
+ * LMP day = week 1, day index 0 within that week.
+ */
 export function computePregnancyMetricsFromLmp(lmp: Date, today: Date = new Date()): PregnancyMetrics {
   const days = Math.max(0, calendarDaysBetweenUtc(lmp, today));
-  const week = Math.floor(days / 7);
+  const week = Math.min(42, Math.max(1, Math.floor(days / 7) + 1));
   const day = days % 7;
   const progress = Math.min(1, days / 280);
   return { days, week, day, progress };

@@ -1,5 +1,7 @@
 import { OnboardingDataDto } from '../../users/dto/onboarding.dto';
 import { PregnancyStatus } from '../../users/dto/user.dto';
+import { normalizeIsoDateOnlyInput } from '../../reproductive/utils/pregnancy-lmp.util';
+import { computePregnancyMetricsFromLmp } from '../../reproductive/utils/pregnancy-metrics.util';
 
 function mapClientPregnancyStatus(status: unknown): PregnancyStatus {
   const s = String(status ?? '')
@@ -61,12 +63,11 @@ export function mapRegisterOnboardingPayload(
   );
 
   let lastPeriodDate: Date | undefined;
-  const lp = o.last_period ?? o.lastPeriodDate;
-  if (lp != null && lp !== '') {
-    const d = new Date(String(lp));
-    if (!Number.isNaN(d.getTime())) {
-      lastPeriodDate = d;
-    }
+  const lpRaw = o.lmp_date ?? o.lmpDate ?? o.last_period ?? o.lastPeriodDate;
+  const lmpIso = normalizeIsoDateOnlyInput(lpRaw);
+  if (lmpIso) {
+    const [y, m, d] = lmpIso.split('-').map((x) => parseInt(x, 10));
+    lastPeriodDate = new Date(Date.UTC(y, m - 1, d));
   }
 
   const cycleLength =
@@ -87,6 +88,10 @@ export function mapRegisterOnboardingPayload(
   const pw = o.pregnancy_week ?? o.pregnancyWeek;
   if (typeof pw === 'number' && Number.isFinite(pw)) {
     pregnancyWeek = Math.min(42, Math.max(1, Math.floor(pw)));
+  }
+  if (pregnancyStatus === PregnancyStatus.PREGNANT && lastPeriodDate) {
+    const metrics = computePregnancyMetricsFromLmp(lastPeriodDate, new Date());
+    pregnancyWeek = metrics.week;
   }
 
   const healthGoals = parseHealthGoals(o.health_goals ?? o.healthGoals);

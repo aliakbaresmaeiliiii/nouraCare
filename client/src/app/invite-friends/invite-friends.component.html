@@ -24,7 +24,7 @@
       <div class="error-state">
         <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
         <p>{{ errorMessage }}</p>
-        <ion-button fill="outline" (click)="loadInviteHistory()">Retry</ion-button>
+        <ion-button fill="outline" (click)="loadGrowth()">Retry</ion-button>
       </div>
     }
 
@@ -35,8 +35,24 @@
         <div class="invite-section">
           <div class="section-header">
             <h2 class="section-title">Invite Your Friends</h2>
-            <p class="section-subtitle">Share NouraCare with friends and family</p>
+            <p class="section-subtitle">
+              Share your link — when a friend creates an account with your code, you both earn
+              {{ 50 }} bonus growth points.
+            </p>
           </div>
+
+          @if (referralCode) {
+            <ion-card class="code-card">
+              <ion-card-content>
+                <p class="code-label">Your invite code</p>
+                <div class="code-row">
+                  <span class="code-value">{{ referralCode }}</span>
+                  <ion-button size="small" fill="outline" (click)="copyCodeOnly()">Copy</ion-button>
+                </div>
+                <p class="code-hint">Friends can paste this at sign-up or open your link below.</p>
+              </ion-card-content>
+            </ion-card>
+          }
 
           <div class="invite-methods">
             @for (method of inviteMethods; track method.id) {
@@ -64,18 +80,18 @@
             <ion-card class="stats-card">
               <ion-card-content class="stats-content">
                 <div class="stat-item">
-                  <div class="stat-number">{{ inviteHistory.length }}</div>
-                  <div class="stat-label">Total Invites</div>
+                  <div class="stat-number">{{ successfulReferrals }}</div>
+                  <div class="stat-label">Friends joined</div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
-                  <div class="stat-number">{{ acceptedInvites }}</div>
-                  <div class="stat-label">Accepted</div>
+                  <div class="stat-number">{{ growthPoints }}</div>
+                  <div class="stat-label">Growth points</div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
-                  <div class="stat-number">{{ pendingInvites }}</div>
-                  <div class="stat-label">Pending</div>
+                  <div class="stat-number">+50</div>
+                  <div class="stat-label">Each reward</div>
                 </div>
               </ion-card-content>
             </ion-card>
@@ -87,46 +103,23 @@
       @if (showInviteHistory) {
         <div class="history-section">
           <div class="section-header">
-            <h2 class="section-title">Invite History</h2>
-            <p class="section-subtitle">Track your invitations</p>
+            <h2 class="section-title">How referrals work</h2>
+            <p class="section-subtitle">Organic growth, no paid ads</p>
           </div>
 
-          @if (inviteHistory.length === 0) {
-            <div class="empty-state">
-              <ion-icon name="people-outline" class="empty-icon"></ion-icon>
-              <h3>No Invites Yet</h3>
-              <p>Start inviting friends to see your history here</p>
-            </div>
-          } @else {
-            <ion-list class="history-list">
-              @for (invite of inviteHistory; track invite.id) {
-                <ion-item class="history-item">
-                  <ion-avatar slot="start" class="history-avatar">
-                    <img 
-                      [src]="invite.avatar || 'assets/images/nurse.png'" 
-                      [alt]="invite.name"
-                      (error)="onImageError($event)">
-                  </ion-avatar>
-                  
-                  <ion-label class="history-label">
-                    <h3 class="history-name">{{ invite.name }}</h3>
-                    @if (invite.email) {
-                      <p class="history-contact">{{ invite.email }}</p>
-                    } @else if (invite.phone) {
-                      <p class="history-contact">{{ invite.phone }}</p>
-                    }
-                    <p class="history-method">{{ invite.method }} • {{ formatDate(invite.invitedAt) }}</p>
-                  </ion-label>
-                  
-                  <ion-badge 
-                    [color]="getStatusColor(invite.status)"
-                    class="status-badge">
-                    {{ getStatusText(invite.status) }}
-                  </ion-badge>
-                </ion-item>
-              }
-            </ion-list>
-          }
+          <ion-card>
+            <ion-card-content>
+              <p>
+                Share your personal link or code. When someone <strong>creates a new account</strong> with it,
+                NouraCare credits <strong>50 growth points</strong> to both of you. Points stack with
+                daily check-ins on Home.
+              </p>
+              <p class="muted">
+                For privacy we do not list friends by name here — your “Friends joined” count updates
+                automatically after they register.
+              </p>
+            </ion-card-content>
+          </ion-card>
         </div>
       }
     }

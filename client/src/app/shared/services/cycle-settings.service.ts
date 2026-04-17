@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { normalizeLmpInput } from '../utils/pregnancy-lmp.util';
 
 @Injectable({ providedIn: 'root' })
 export class CycleSettingsService {
@@ -28,7 +29,8 @@ export class CycleSettingsService {
   }
 
   setLastPeriodStart(dateIso: string | null) {
-    this.lastPeriodStartDate.set(dateIso);
+    const canonical = dateIso == null || dateIso === '' ? null : normalizeLmpInput(dateIso);
+    this.lastPeriodStartDate.set(canonical);
     this.saveToStorage();
   }
 
@@ -66,7 +68,9 @@ export class CycleSettingsService {
       if (typeof data.cycleLength === 'number') this.cycleLength.set(data.cycleLength);
       if (typeof data.periodLength === 'number') this.periodLength.set(data.periodLength);
       if (typeof data.lastPeriodStartDate === 'string' || data.lastPeriodStartDate === null) {
-        this.lastPeriodStartDate.set(data.lastPeriodStartDate);
+        this.lastPeriodStartDate.set(
+          data.lastPeriodStartDate ? normalizeLmpInput(data.lastPeriodStartDate) : null,
+        );
       }
       if (typeof data.userStatus === 'string') this.userStatus.set(data.userStatus);
       if (typeof data.isPregnant === 'boolean') this.isPregnant.set(data.isPregnant);

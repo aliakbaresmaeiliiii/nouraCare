@@ -20,9 +20,12 @@ import {
   gestationalWeekFromLmp,
   isoDateOnly,
   isCalendarDateNotAfterToday,
+  normalizeLmpInput,
 } from '../shared/utils/pregnancy-lmp.util';
 import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
 import { FirstWeekPlanService } from '../shared/services/first-week-plan.service';
+import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
+import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
 
 interface OnboardingStep {
   id: string;
@@ -54,6 +57,8 @@ export class OnboardingComponent implements OnInit {
   readonly authService = inject(AuthService);
   private reproductiveStatus = inject(ReproductiveStatusService);
   private firstWeekPlan = inject(FirstWeekPlanService);
+  private homeReproUi = inject(HomeReproductiveUiService);
+  private homeJourneyBridge = inject(HomeJourneyBridgeService);
 
   currentStep = 0;
   answers: { [key: string]: any } = {};
@@ -160,7 +165,7 @@ export class OnboardingComponent implements OnInit {
 
   getLastPeriodValidationMessage(): string {
     const raw = this.answers['last_period'];
-    const iso = isoDateOnly(typeof raw === 'string' ? raw : '');
+    const iso = normalizeLmpInput(raw);
     if (!iso) {
       return '';
     }
@@ -197,8 +202,9 @@ export class OnboardingComponent implements OnInit {
   getResultHeadline(): string {
     const status = this.answers['pregnancy_status'];
     if (status === 'pregnant') {
-      const w = this.answers['pregnancy_week'];
-      return typeof w === 'number' ? `About week ${w}` : 'Pregnancy';
+      const lmp = this.getEffectiveLmpIsoForStorage();
+      const w = lmp ? gestationalWeekFromLmp(lmp) : 0;
+      return w > 0 ? `About week ${w}` : 'Pregnancy';
     }
     if (status === 'trying') {
       return 'Fertility snapshot';
@@ -278,7 +284,8 @@ export class OnboardingComponent implements OnInit {
 
     // For last period date, check if it's valid (not in future)
     if (step.id === 'last_period' && this.answers[step.id]) {
-      return this.isValidLastPeriodDate(this.answers[step.id]);
+      const lmp = normalizeLmpInput(this.answers[step.id]);
+      return !!lmp && this.isValidLastPeriodDate(lmp);
     }
 
     return (
@@ -289,18 +296,28 @@ export class OnboardingComponent implements OnInit {
   }
 
   selectOption(stepId: string, value: any) {
-    if (stepId === 'last_period' && value) {
-      if (!this.isValidLastPeriodDate(value)) {
+    if (stepId === 'last_period') {
+      if (value == null || value === '') {
+        delete this.answers[stepId];
+        return;
+      }
+      const normalized = normalizeLmpInput(value);
+      if (!normalized) {
+        delete this.answers[stepId];
+        return;
+      }
+      if (!this.isValidLastPeriodDate(normalized)) {
         this.showDateValidationError();
         return;
       }
+      this.answers[stepId] = normalized;
+      if (this.answers['pregnancy_status'] === 'pregnant') {
+        this.syncPregnancyWeekFromLmp();
+      }
+      return;
     }
 
     this.answers[stepId] = value;
-
-    if (stepId === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
-      this.syncPregnancyWeekFromLmp();
-    }
   }
 
   getMaxDate(): string {
@@ -308,7 +325,7 @@ export class OnboardingComponent implements OnInit {
   }
 
   isValidLastPeriodDate(dateString: string): boolean {
-    const iso = isoDateOnly(dateString);
+    const iso = normalizeLmpInput(dateString);
     if (!iso) {
       return false;
     }
@@ -326,7 +343,7 @@ export class OnboardingComponent implements OnInit {
     if (this.answers['pregnancy_status'] !== 'pregnant') {
       return;
     }
-    const lmp = isoDateOnly(this.answers['last_period']);
+    const lmp = normalizeLmpInput(this.answers['last_period']);
     if (!lmp || !this.isValidLastPeriodDate(lmp)) {
       delete this.answers['pregnancy_week'];
       return;
@@ -334,8 +351,9 @@ export class OnboardingComponent implements OnInit {
     this.answers['pregnancy_week'] = gestationalWeekFromLmp(lmp);
   }
 
+  /** Canonical LMP (first day of last period), `YYYY-MM-DD`, or null. */
   private getEffectiveLmpIsoForStorage(): string | null {
-    return isoDateOnly(this.answers['last_period']);
+    return normalizeLmpInput(this.answers['last_period']);
   }
 
   private async showDateValidationError() {
@@ -404,12 +422,12 @@ export class OnboardingComponent implements OnInit {
           } catch {
             healthGoals = [];
           }
+          const lmp = normalizeLmpInput(response.data.lmp_date ?? response.data.last_period);
           this.answers = {
             pregnancy_status: response.data.pregnancy_status,
-            last_period: response.data.last_period,
+            last_period: lmp ?? undefined,
             cycle_length: response.data.cycle_length,
             period_length: response.data.period_length,
-            pregnancy_week: response.data.pregnancy_week,
             health_goals: healthGoals,
             notifications: response.data.notifications || 'no',
           };
@@ -429,12 +447,15 @@ export class OnboardingComponent implements OnInit {
   }
 
   private buildOnboardingDto(): OnboardingDataDto {
+    const lmp = this.getEffectiveLmpIsoForStorage();
+    const pregnant = String(this.answers['pregnancy_status'] ?? '').toLowerCase() === 'pregnant';
     return {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
-      last_period: this.getEffectiveLmpIsoForStorage(),
+      lmp_date: lmp,
+      last_period: lmp,
       cycle_length: this.answers['cycle_length'] || 28,
       period_length: this.answers['period_length'] || 5,
-      pregnancy_week: this.answers['pregnancy_week'] || undefined,
+      pregnancy_week: pregnant ? undefined : this.answers['pregnancy_week'] || undefined,
       health_goals: JSON.stringify(this.answers['health_goals'] || []),
       notifications: this.answers['notifications'] || 'no',
     };
@@ -476,7 +497,12 @@ export class OnboardingComponent implements OnInit {
         const token = this.authService.getAccessToken();
         if (token) {
           this.onboardingService.initializeReproductiveState(reproductivePayload).subscribe({
-            next: () => {
+            next: (dashboard) => {
+              const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+                dashboard,
+                null,
+              );
+              this.homeJourneyBridge.pushJourneyStateFromWeekDetail(state);
               this.isFinishing = false;
               this.router.navigate(['/tabs/home']);
             },
@@ -552,10 +578,10 @@ export class OnboardingComponent implements OnInit {
       this.cycleSettings.setPregnancyStatus(true);
       this.cycleSettings.setPostpartumStatus(false);
 
-      if (this.answers['pregnancy_week']) {
-        this.cycleSettings.setPregnancyWeek(this.answers['pregnancy_week']);
-        const progress = (this.answers['pregnancy_week'] / 40) * 100;
-        this.cycleSettings.setPregnancyProgress(progress);
+      if (lmp) {
+        const w = gestationalWeekFromLmp(lmp);
+        this.cycleSettings.setPregnancyWeek(w);
+        this.cycleSettings.setPregnancyProgress(Math.min(100, Math.round((w / 40) * 100)));
       }
     } else if (pregnancyStatus === 'postpartum') {
       this.cycleSettings.setUserStatus('Postpartum');
@@ -581,12 +607,16 @@ export class OnboardingComponent implements OnInit {
       this.answers['notifications'] === 'yes' ? 'true' : 'false',
     );
 
+    const lmpOut = this.getEffectiveLmpIsoForStorage();
+    const pregnantOut = String(this.answers['pregnancy_status'] ?? '').toLowerCase() === 'pregnant';
     const onboardingData = {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
-      last_period: this.getEffectiveLmpIsoForStorage(),
+      lmp_date: lmpOut,
+      last_period: lmpOut,
       cycle_length: this.answers['cycle_length'] || 28,
       period_length: this.answers['period_length'] || 5,
-      pregnancy_week: this.answers['pregnancy_week'] || undefined,
+      pregnancy_week:
+        pregnantOut && lmpOut ? gestationalWeekFromLmp(lmpOut) : this.answers['pregnancy_week'] || undefined,
       health_goals: JSON.stringify(this.answers['health_goals'] || []),
       notifications: this.answers['notifications'] || 'no',
     };

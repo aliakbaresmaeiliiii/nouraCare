@@ -18,6 +18,35 @@ export function utcToday(): Date {
   return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()));
 }
 
+/** Normalize client/API payloads to `YYYY-MM-DD` or null (LMP = period start, date-only). */
+export function normalizeIsoDateOnlyInput(raw: unknown): string | null {
+  if (raw == null || raw === '') return null;
+  if (Array.isArray(raw)) {
+    return raw.length ? normalizeIsoDateOnlyInput(raw[0]) : null;
+  }
+  if (raw instanceof Date && !Number.isNaN(raw.getTime())) {
+    const y = raw.getUTCFullYear();
+    const m = String(raw.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(raw.getUTCDate()).padStart(2, '0');
+    const head = `${y}-${m}-${d}`;
+    return /^\d{4}-\d{2}-\d{2}$/.test(head) ? head : null;
+  }
+  const s = String(raw).trim();
+  const head = s.includes('T') ? s.split('T')[0] : s.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(head)) return null;
+  const [y, m, d] = head.split('-').map((x) => parseInt(x, 10));
+  if (!Number.isFinite(y) || !Number.isFinite(m) || !Number.isFinite(d)) return null;
+  const probe = new Date(Date.UTC(y, m - 1, d));
+  if (
+    probe.getUTCFullYear() !== y ||
+    probe.getUTCMonth() !== m - 1 ||
+    probe.getUTCDate() !== d
+  ) {
+    return null;
+  }
+  return head;
+}
+
 /**
  * When switching to pregnant, exactly one of LMP (`pregnancyStartDate`),
  * completed weeks (`currentWeek`), or due date (`pregnancyDueDate`) must be provided.

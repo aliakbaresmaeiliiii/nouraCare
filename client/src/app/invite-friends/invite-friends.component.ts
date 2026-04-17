@@ -1,6 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
+import { catchError, finalize, of } from 'rxjs';
+import { GrowthService } from '../shared/services/growth.service';
 
 interface InviteMethod {
   id: string;
@@ -9,17 +11,6 @@ interface InviteMethod {
   icon: string;
   color: string;
   action: () => void;
-}
-
-interface InviteHistory {
-  id: number;
-  name: string;
-  email?: string;
-  phone?: string;
-  method: string;
-  status: 'pending' | 'accepted' | 'declined';
-  invitedAt: string;
-  avatar?: string;
 }
 
 @Component({
@@ -31,105 +22,80 @@ interface InviteHistory {
 })
 export class InviteFriendsComponent implements OnInit {
   private router = inject(Router);
+  private growth = inject(GrowthService);
 
   isLoading = false;
   errorMessage = '';
   showInviteHistory = false;
 
-  inviteMethods: InviteMethod[] = [
-    {
-      id: 'share',
-      title: 'Share App Link',
-      subtitle: 'Share via any app',
-      icon: 'share-outline',
-      color: 'primary',
-      action: () => this.shareApp()
-    },
-    {
-      id: 'email',
-      title: 'Send Email',
-      subtitle: 'Invite via email',
-      icon: 'mail-outline',
-      color: 'secondary',
-      action: () => this.inviteViaEmail()
-    },
-    {
-      id: 'sms',
-      title: 'Send SMS',
-      subtitle: 'Invite via text message',
-      icon: 'chatbubble-outline',
-      color: 'success',
-      action: () => this.inviteViaSMS()
-    },
-    {
-      id: 'copy',
-      title: 'Copy Link',
-      subtitle: 'Copy invitation link',
-      icon: 'copy-outline',
-      color: 'warning',
-      action: () => this.copyInviteLink()
-    },
-    {
-      id: 'qr',
-      title: 'QR Code',
-      subtitle: 'Show QR code to scan',
-      icon: 'qr-code-outline',
-      color: 'tertiary',
-      action: () => this.showQRCode()
-    }
-  ];
+  referralCode = '';
+  inviteLink = '';
+  growthPoints = 0;
+  successfulReferrals = 0;
 
-  inviteHistory: InviteHistory[] = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      email: 'sarah.j@email.com',
-      method: 'Email',
-      status: 'accepted',
-      invitedAt: '2024-01-15T10:30:00Z',
-      avatar: 'assets/images/avatar1.jpg'
-    },
-    {
-      id: 2,
-      name: 'Mike Chen',
-      phone: '+1-555-0123',
-      method: 'SMS',
-      status: 'pending',
-      invitedAt: '2024-01-14T15:45:00Z',
-      avatar: 'assets/images/avatar2.jpg'
-    },
-    {
-      id: 3,
-      name: 'Emma Davis',
-      email: 'emma.d@email.com',
-      method: 'Share',
-      status: 'declined',
-      invitedAt: '2024-01-13T09:15:00Z',
-      avatar: 'assets/images/avatar3.jpg'
-    },
-    {
-      id: 4,
-      name: 'Alex Rodriguez',
-      phone: '+1-555-0456',
-      method: 'SMS',
-      status: 'accepted',
-      invitedAt: '2024-01-12T14:20:00Z',
-      avatar: 'assets/images/avatar4.jpg'
-    }
-  ];
-
-  constructor() { }
+  inviteMethods: InviteMethod[] = [];
 
   ngOnInit() {
-    this.loadInviteHistory();
+    this.inviteMethods = [
+      {
+        id: 'share',
+        title: 'Share App Link',
+        subtitle: 'Share via any app',
+        icon: 'share-outline',
+        color: 'primary',
+        action: () => this.shareApp(),
+      },
+      {
+        id: 'email',
+        title: 'Send Email',
+        subtitle: 'Invite via email',
+        icon: 'mail-outline',
+        color: 'secondary',
+        action: () => this.inviteViaEmail(),
+      },
+      {
+        id: 'sms',
+        title: 'Send SMS',
+        subtitle: 'Invite via text message',
+        icon: 'chatbubble-outline',
+        color: 'success',
+        action: () => this.inviteViaSMS(),
+      },
+      {
+        id: 'copy',
+        title: 'Copy Link',
+        subtitle: 'Copy invitation link',
+        icon: 'copy-outline',
+        color: 'warning',
+        action: () => this.copyInviteLink(),
+      },
+    ];
+    this.loadGrowth();
   }
 
-  loadInviteHistory() {
+  loadGrowth() {
     this.isLoading = true;
-    // Simulate loading invite history from API
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 1000);
+    this.errorMessage = '';
+    this.growth
+      .getSummary()
+      .pipe(
+        catchError(() => {
+          this.errorMessage = 'Could not load your invite code. Pull to try again.';
+          return of(null);
+        }),
+        finalize(() => {
+          this.isLoading = false;
+        }),
+      )
+      .subscribe((data) => {
+        if (!data) {
+          return;
+        }
+        this.referralCode = data.referralCode;
+        this.growthPoints = data.growthPoints;
+        this.successfulReferrals = data.successfulReferrals;
+        this.inviteLink = this.growth.buildInviteUrl(`/welcome?ref=${encodeURIComponent(data.referralCode)}`);
+      });
   }
 
   onInviteMethodClick(method: InviteMethod) {
@@ -137,17 +103,17 @@ export class InviteFriendsComponent implements OnInit {
   }
 
   shareApp() {
+    const text =
+      `Join me on NouraCare — smarter cycle & pregnancy support.\n\n${this.inviteLink}`;
     if (navigator.share) {
-      navigator.share({
-        title: 'Join me on NouraCare',
-        text: 'I think you\'d love NouraCare! A smart health app for women and families.',
-        url: 'https://nouracare.app/invite?ref=user123'
-      }).then(() => {
-        this.showSuccessAlert('App shared successfully!');
-      }).catch((error) => {
-        console.log('Error sharing:', error);
-        this.copyInviteLink();
-      });
+      navigator
+        .share({
+          title: 'Join me on NouraCare',
+          text,
+          url: this.inviteLink,
+        })
+        .then(() => this.showSuccessAlert('Shared!'))
+        .catch(() => this.copyInviteLink());
     } else {
       this.copyInviteLink();
     }
@@ -156,33 +122,47 @@ export class InviteFriendsComponent implements OnInit {
   inviteViaEmail() {
     const subject = encodeURIComponent('Join me on NouraCare!');
     const body = encodeURIComponent(
-      'Hi!\n\nI think you\'d love NouraCare! A smart health app for women and families.\n\n' +
-      'Download it here: https://nouracare.app/invite?ref=user123\n\n' +
-      'Best regards,\n[Your Name]'
+      `Hi!\n\nI'm using NouraCare for cycle insights and daily check-ins. When you sign up with my link, we both earn reward points in the app.\n\n${this.inviteLink}\n\n`,
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
-    this.showSuccessAlert('Email client opened. Please send the invitation.');
+    this.showSuccessAlert('Email opened — send when you are ready.');
   }
 
   inviteViaSMS() {
     const message = encodeURIComponent(
-      'Hi! I think you\'d love NouraCare! Download it here: https://nouracare.app/invite?ref=user123'
+      `Join me on NouraCare — we both get bonus points if you use my link: ${this.inviteLink}`,
     );
     window.open(`sms:?body=${message}`);
-    this.showSuccessAlert('SMS app opened. Please send the invitation.');
+    this.showSuccessAlert('Messages opened — send when you are ready.');
   }
 
   copyInviteLink() {
-    const inviteLink = 'https://nouracare.app/invite?ref=user123';
-    
+    const text = this.inviteLink || this.referralCode;
+    if (!text) {
+      this.showErrorAlert('Invite link is not ready yet.');
+      return;
+    }
     if (navigator.clipboard) {
-      navigator.clipboard.writeText(inviteLink).then(() => {
-        this.showSuccessAlert('Invitation link copied to clipboard!');
-      }).catch(() => {
-        this.fallbackCopyTextToClipboard(inviteLink);
-      });
+      navigator.clipboard.writeText(this.inviteLink).then(
+        () => this.showSuccessAlert('Invitation link copied!'),
+        () => this.fallbackCopyTextToClipboard(this.inviteLink),
+      );
     } else {
-      this.fallbackCopyTextToClipboard(inviteLink);
+      this.fallbackCopyTextToClipboard(this.inviteLink);
+    }
+  }
+
+  copyCodeOnly() {
+    if (!this.referralCode) {
+      return;
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(this.referralCode).then(
+        () => this.showSuccessAlert('Code copied!'),
+        () => this.fallbackCopyTextToClipboard(this.referralCode),
+      );
+    } else {
+      this.fallbackCopyTextToClipboard(this.referralCode);
     }
   }
 
@@ -195,74 +175,21 @@ export class InviteFriendsComponent implements OnInit {
     document.body.appendChild(textArea);
     textArea.focus();
     textArea.select();
-    
     try {
       document.execCommand('copy');
-      this.showSuccessAlert('Invitation link copied to clipboard!');
-    } catch (err) {
-      this.showErrorAlert('Failed to copy link. Please try again.');
+      this.showSuccessAlert('Copied to clipboard!');
+    } catch {
+      this.showErrorAlert('Could not copy. Try again.');
     }
-    
     document.body.removeChild(textArea);
-  }
-
-  showQRCode() {
-    // In a real app, this would show a modal with QR code
-    this.showSuccessAlert('QR code feature coming soon!');
   }
 
   toggleInviteHistory() {
     this.showInviteHistory = !this.showInviteHistory;
   }
 
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'accepted': return 'success';
-      case 'pending': return 'warning';
-      case 'declined': return 'danger';
-      default: return 'medium';
-    }
-  }
-
-  getStatusText(status: string): string {
-    switch (status) {
-      case 'accepted': return 'Accepted';
-      case 'pending': return 'Pending';
-      case 'declined': return 'Declined';
-      default: return 'Unknown';
-    }
-  }
-
-  get acceptedInvites(): number {
-    return this.inviteHistory.filter(h => h.status === 'accepted').length;
-  }
-
-  get pendingInvites(): number {
-    return this.inviteHistory.filter(h => h.status === 'pending').length;
-  }
-
-  formatDate(dateString: string): string {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    } catch (error) {
-      return 'Unknown date';
-    }
-  }
-
   goBack() {
     this.router.navigate(['/tabs']);
-  }
-
-  onImageError(event: Event): void {
-    const target = event.target as HTMLImageElement;
-    if (target) {
-      target.src = 'assets/images/nurse.png';
-    }
   }
 
   private showSuccessAlert(message: string): void {

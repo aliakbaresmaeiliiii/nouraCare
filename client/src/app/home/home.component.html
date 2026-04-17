@@ -6,6 +6,29 @@
     ></ion-refresher-content>
   </ion-refresher>
 <div class="home-content" [class.home-content--pregnancy-today]="isPregnant">
+  @if (growthStrip.visible) {
+    <div class="home-growth-strip ion-padding-horizontal">
+      <div class="home-growth-strip__text">
+        <span class="home-growth-strip__title">Daily check-in</span>
+        <span class="home-growth-strip__meta">
+          Streak {{ growthStrip.streak }} · {{ growthStrip.points }} pts
+        </span>
+      </div>
+      <div class="home-growth-strip__actions">
+        <ion-button
+          size="small"
+          [fill]="growthStrip.checkedInToday ? 'outline' : 'solid'"
+          (click)="onGrowthCheckIn()"
+        >
+          {{ growthStrip.checkedInToday ? 'Done' : 'Check in' }}
+        </ion-button>
+        <ion-button size="small" fill="clear" (click)="shareCycleInsight()">
+          <ion-icon slot="start" name="share-outline"></ion-icon>
+          Share insight
+        </ion-button>
+      </div>
+    </div>
+  }
   @if (showFirstWeekRetentionCard() && getFirstWeekPlan(); as fw) {
     <section class="first-week-retention" aria-label="Your first week with NouraCare">
       <div class="first-week-card">
