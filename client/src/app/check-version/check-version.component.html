@@ -1,114 +1,103 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="primary" class="version-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home" class="back-button" (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Check for Updates</ion-title>
+    <ion-title class="header-title">Check for updates</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="version-content">
-  <div class="container">
-    <!-- Loading State -->
+  <ion-refresher
+    slot="fixed"
+    aria-label="Pull down to check for updates again"
+    (ionRefresh)="onRefresh($event)"
+  >
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="page-inner">
     @if (isLoading) {
-    <app-logo-loading message="Checking for updates..." />
+      <app-logo-loading message="Checking for updates…" />
     }
 
-    <!-- Error State -->
     @if (errorMessage && !isLoading) {
-    <div class="error-container">
-      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
-      <p class="error-text">{{ errorMessage }}</p>
-      <ion-button fill="outline" (click)="loadVersionInfo()" class="retry-button">
-        <ion-icon name="refresh" slot="start"></ion-icon>
-        Try Again
-      </ion-button>
-    </div>
-    }
-
-    <!-- Version Info -->
-    @if (!isLoading && !errorMessage && versionInfo) {
-    <div class="version-container">
-      <!-- Current Version Card -->
-      <div class="version-card current-version">
-        <div class="card-header">
-          <ion-icon name="phone-portrait" class="card-icon"></ion-icon>
-          <h2 class="card-title">Current Version</h2>
-        </div>
-        <div class="version-number">{{ versionInfo.currentVersion }}</div>
-        <p class="version-label">You are currently using</p>
-      </div>
-
-      <!-- Update Status -->
-      @if (versionInfo.isUpdateAvailable) {
-      <div class="update-available">
-        <div class="update-badge">
-          <ion-icon name="arrow-up-circle" class="update-icon"></ion-icon>
-          <span class="update-text">Update Available!</span>
-        </div>
-        
-        <!-- Latest Version Card -->
-        <div class="version-card latest-version">
-          <div class="card-header">
-            <ion-icon name="star" class="card-icon"></ion-icon>
-            <h2 class="card-title">Latest Version</h2>
-          </div>
-          <div class="version-number">{{ versionInfo.latestVersion }}</div>
-          <p class="version-label">Released on {{ formatDate(versionInfo.releaseDate) }}</p>
-        </div>
-
-        <!-- Release Notes -->
-        <div class="release-notes">
-          <h3 class="notes-title">What's New</h3>
-          <ion-list class="notes-list">
-            @for (note of versionInfo.releaseNotes; track $index) {
-            <ion-item class="note-item">
-              <ion-icon name="checkmark-circle" slot="start" class="note-icon"></ion-icon>
-              <ion-label class="note-text">{{ note }}</ion-label>
-            </ion-item>
-            }
-          </ion-list>
-        </div>
-
-        <!-- Download Button -->
-        <ion-button expand="block" 
-                   color="primary" 
-                   size="large"
-                   (click)="downloadUpdate()"
-                   class="download-button">
-          <ion-icon name="download" slot="start"></ion-icon>
-          Download Update
+      <div class="error-container">
+        <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+        <p class="error-text">{{ errorMessage }}</p>
+        <ion-button fill="outline" (click)="loadVersionInfo()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Try again
         </ion-button>
       </div>
-      }
+    }
 
-      <!-- No Update Available -->
-      @if (!versionInfo.isUpdateAvailable) {
-      <div class="no-update">
-        <div class="no-update-badge">
-          <ion-icon name="checkmark-circle" class="no-update-icon"></ion-icon>
-          <span class="no-update-text">You're up to date!</span>
+    @if (!isLoading && !errorMessage && versionInfo) {
+      <div class="version-container">
+        <div class="version-card current-version">
+          <div class="card-header">
+            <ion-icon name="phone-portrait-outline" class="card-icon"></ion-icon>
+            <h2 class="card-title">Current version</h2>
+          </div>
+          <div class="version-number">{{ versionInfo.currentVersion }}</div>
+          <p class="version-label">Installed on this device</p>
         </div>
-        <p class="no-update-message">You have the latest version of NouraCare installed.</p>
-      </div>
-      }
 
-      <!-- Last Checked -->
-      <div class="last-checked">
-        <ion-icon name="time" class="time-icon"></ion-icon>
-        <span class="time-text">Last checked: {{ lastChecked }}</span>
-      </div>
+        @if (versionInfo.isUpdateAvailable) {
+          <div class="update-available">
+            <div class="update-badge">
+              <ion-icon name="arrow-up-circle-outline" class="update-icon"></ion-icon>
+              <span class="update-text">Update available</span>
+            </div>
 
-      <!-- Manual Check Button -->
-      <ion-button expand="block" 
-                 fill="outline" 
-                 color="medium"
-                 (click)="loadVersionInfo()"
-                 class="check-again-button">
-        <ion-icon name="refresh" slot="start"></ion-icon>
-        Check Again
-      </ion-button>
-    </div>
+            <div class="version-card latest-version">
+              <div class="card-header">
+                <ion-icon name="star-outline" class="card-icon"></ion-icon>
+                <h2 class="card-title">Latest version</h2>
+              </div>
+              <div class="version-number">{{ versionInfo.latestVersion }}</div>
+              <p class="version-label">Released {{ formatDate(versionInfo.releaseDate) }}</p>
+            </div>
+
+            <div class="release-notes">
+              <h3 class="notes-title">What is new</h3>
+              <ion-list class="notes-list" lines="none">
+                @for (note of versionInfo.releaseNotes; track $index) {
+                  <ion-item class="note-item">
+                    <ion-icon name="checkmark-circle-outline" slot="start" class="note-icon"></ion-icon>
+                    <ion-label class="note-text">{{ note }}</ion-label>
+                  </ion-item>
+                }
+              </ion-list>
+            </div>
+
+            <ion-button expand="block" color="primary" size="large" (click)="downloadUpdate()" class="download-button">
+              <ion-icon name="download-outline" slot="start"></ion-icon>
+              Get the update
+            </ion-button>
+          </div>
+        }
+
+        @if (!versionInfo.isUpdateAvailable) {
+          <div class="no-update">
+            <div class="no-update-badge">
+              <ion-icon name="checkmark-circle-outline" class="no-update-icon"></ion-icon>
+              <span class="no-update-text">You are up to date</span>
+            </div>
+            <p class="no-update-message">You already have the latest NouraCare version for this device.</p>
+          </div>
+        }
+
+        <div class="last-checked">
+          <ion-icon name="time-outline" class="time-icon"></ion-icon>
+          <span class="time-text">Last checked: {{ lastChecked }}</span>
+        </div>
+
+        <ion-button expand="block" fill="outline" color="medium" (click)="loadVersionInfo()" class="check-again-button">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Check again
+        </ion-button>
+      </div>
     }
   </div>
 </ion-content>

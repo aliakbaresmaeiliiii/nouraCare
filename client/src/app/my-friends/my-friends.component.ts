@@ -1,6 +1,27 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import {
+  alertCircleOutline,
+  ellipsisVerticalOutline,
+  heart,
+  heartOutline,
+  peopleOutline,
+  personAddOutline,
+  radioButtonOnOutline,
+  refreshOutline,
+  shieldCheckmark,
+  shieldOutline,
+  timeOutline,
+  trashOutline,
+} from 'ionicons/icons';
+import type { RefresherCustomEvent } from '@ionic/core';
+import {
+  ActionSheetController,
+  AlertController,
+  ToastController,
+} from '@ionic/angular/standalone';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 interface Friend {
   id: number;
@@ -21,48 +42,54 @@ interface Friend {
   styleUrls: ['./my-friends.component.scss'],
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
+  host: { class: 'ion-page' },
 })
 export class MyFriendsComponent implements OnInit {
-  private router = inject(Router);
-  
+  private readonly router = inject(Router);
+  private readonly toastController = inject(ToastController);
+  private readonly alertController = inject(AlertController);
+  private readonly actionSheetCtrl = inject(ActionSheetController);
+
   friends: Friend[] = [];
   isLoading = false;
   errorMessage = '';
   searchQuery = '';
   selectedFilter = 'all';
 
-  filters = [
-    { value: 'all', label: 'All Friends', icon: 'people-outline' },
+  readonly filters = [
+    { value: 'all', label: 'All', icon: 'people-outline' },
     { value: 'online', label: 'Online', icon: 'radio-button-on-outline' },
     { value: 'favorites', label: 'Favorites', icon: 'heart-outline' },
-    { value: 'recent', label: 'Recent', icon: 'time-outline' }
+    { value: 'recent', label: 'Recent', icon: 'time-outline' },
   ];
 
-  constructor() { }
-
-  ngOnInit() {
-    this.loadFriends();
+  constructor() {
+    addIcons({
+      alertCircleOutline,
+      ellipsisVerticalOutline,
+      heart,
+      heartOutline,
+      peopleOutline,
+      personAddOutline,
+      radioButtonOnOutline,
+      refreshOutline,
+      shieldCheckmark,
+      shieldOutline,
+      timeOutline,
+      trashOutline,
+    });
   }
 
-  loadFriends() {
+  ngOnInit(): void {
+    void this.loadFriends();
+  }
+
+  async loadFriends(): Promise<void> {
     this.isLoading = true;
     this.errorMessage = '';
-    
-    // TODO: Replace with actual API call when backend is ready
-    // this.friendsService.getFriends().subscribe({
-    //   next: (response: any) => {
-    //     this.friends = response.data || [];
-    //     this.isLoading = false;
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error loading friends:', error);
-    //     this.errorMessage = 'Failed to load friends. Please try again.';
-    //     this.isLoading = false;
-    //   }
-    // });
 
-    // Mock data for now
-    setTimeout(() => {
+    try {
+      await new Promise((r) => setTimeout(r, 400));
       this.friends = [
         {
           id: 1,
@@ -73,7 +100,7 @@ export class MyFriendsComponent implements OnInit {
           isFavorite: true,
           isBlocked: false,
           joinedDate: '2023-06-15T10:30:00Z',
-          bio: 'Health enthusiast and yoga lover'
+          bio: 'Health enthusiast and yoga lover',
         },
         {
           id: 2,
@@ -85,7 +112,7 @@ export class MyFriendsComponent implements OnInit {
           isFavorite: false,
           isBlocked: false,
           joinedDate: '2023-08-22T09:15:00Z',
-          bio: 'Nutrition specialist and wellness coach'
+          bio: 'Nutrition specialist and wellness coach',
         },
         {
           id: 3,
@@ -97,7 +124,7 @@ export class MyFriendsComponent implements OnInit {
           isFavorite: true,
           isBlocked: false,
           joinedDate: '2023-05-10T16:20:00Z',
-          bio: 'Fitness trainer and health advocate'
+          bio: 'Fitness trainer and health advocate',
         },
         {
           id: 4,
@@ -108,7 +135,7 @@ export class MyFriendsComponent implements OnInit {
           isFavorite: false,
           isBlocked: false,
           joinedDate: '2023-09-05T11:00:00Z',
-          bio: 'Mental health counselor'
+          bio: 'Mental health counselor',
         },
         {
           id: 5,
@@ -120,119 +147,187 @@ export class MyFriendsComponent implements OnInit {
           isFavorite: false,
           isBlocked: false,
           joinedDate: '2023-07-18T13:45:00Z',
-          bio: 'Dance instructor and wellness blogger'
-        }
+          bio: 'Dance instructor and wellness blogger',
+        },
       ];
+    } catch {
+      this.errorMessage =
+        'We could not load your friends list. Check your connection and try again.';
+    } finally {
       this.isLoading = false;
-    }, 1000);
+    }
   }
 
-  onFilterChange(filter: string | number) {
-    this.selectedFilter = filter.toString();
+  onRefresh(event: RefresherCustomEvent): void {
+    void this.loadFriends().finally(() => event.detail.complete());
   }
 
-  onSearchChange(event: any) {
-    this.searchQuery = event.detail.value || '';
+  onSearchChange(event: CustomEvent<{ value?: string | null }>): void {
+    this.searchQuery = event.detail?.value ?? '';
   }
 
-  toggleFavorite(friendId: number) {
-    const friend = this.friends.find(f => f.id === friendId);
+  private applyFavoriteToggle(friendId: number): void {
+    const friend = this.friends.find((f) => f.id === friendId);
     if (friend) {
       friend.isFavorite = !friend.isFavorite;
-      // TODO: Update via API
-      this.showSuccessAlert(friend.isFavorite ? 'Added to favorites' : 'Removed from favorites');
+      void this.showToast(
+        friend.isFavorite ? 'Added to favorites' : 'Removed from favorites',
+      );
     }
   }
 
-  blockFriend(friendId: number) {
-    const friend = this.friends.find(f => f.id === friendId);
-    if (friend) {
-      friend.isBlocked = true;
-      // TODO: Update via API
-      this.showSuccessAlert('Friend blocked successfully');
-    }
+  async openFriendActionsSheet(friend: Friend, ev: Event): Promise<void> {
+    ev.stopPropagation();
+    const bioPreview = friend.bio?.trim();
+    const sheet = await this.actionSheetCtrl.create({
+      header: friend.name,
+      subHeader:
+        bioPreview && bioPreview.length > 96
+          ? `${bioPreview.slice(0, 96)}…`
+          : bioPreview || undefined,
+      buttons: [
+        {
+          text: 'View profile',
+          handler: () => {
+            this.openFriendProfile(friend);
+          },
+        },
+        {
+          text: friend.isFavorite ? 'Remove from favorites' : 'Add to favorites',
+          handler: () => {
+            this.applyFavoriteToggle(friend.id);
+          },
+        },
+        {
+          text: friend.isBlocked ? 'Unblock' : 'Block',
+          role: friend.isBlocked ? undefined : 'destructive',
+          handler: () => {
+            void this.promptBlockToggle(friend);
+          },
+        },
+        {
+          text: 'Remove friend',
+          role: 'destructive',
+          handler: () => {
+            void this.promptRemoveFriend(friend);
+          },
+        },
+        { text: 'Cancel', role: 'cancel' },
+      ],
+    });
+    await sheet.present();
   }
 
-  unblockFriend(friendId: number) {
-    const friend = this.friends.find(f => f.id === friendId);
-    if (friend) {
+  private async promptBlockToggle(friend: Friend): Promise<void> {
+    if (friend.isBlocked) {
       friend.isBlocked = false;
-      // TODO: Update via API
-      this.showSuccessAlert('Friend unblocked successfully');
+      await this.showToast('Unblocked');
+      return;
     }
+    const alert = await this.alertController.create({
+      header: 'Block this person?',
+      message: `You will not see activity from ${friend.name} until you unblock them.`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Block',
+          role: 'destructive',
+          handler: () => {
+            friend.isBlocked = true;
+            void this.showToast('Blocked');
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
-  removeFriend(friendId: number) {
-    // TODO: Replace with actual API call when backend is ready
-    // this.friendsService.removeFriend(friendId).subscribe({
-    //   next: (response: any) => {
-    //     this.showSuccessAlert('Friend removed successfully');
-    //     this.loadFriends();
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error removing friend:', error);
-    //     this.showErrorAlert('Failed to remove friend. Please try again.');
-    //   }
-    // });
-
-    // Mock removal for now
-    this.friends = this.friends.filter(friend => friend.id !== friendId);
-    this.showSuccessAlert('Friend removed successfully');
+  private async promptRemoveFriend(friend: Friend): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Remove friend?',
+      message: `${friend.name} will be removed from this list.`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Remove',
+          role: 'destructive',
+          handler: () => {
+            this.friends = this.friends.filter((f) => f.id !== friend.id);
+            void this.showToast('Removed from friends');
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
-  openFriendProfile(friend: Friend) {
-    // TODO: Navigate to friend's profile page
-    console.log('Opening friend profile:', friend);
+  openFriendProfile(_friend: Friend): void {
+    void this.router.navigate(['/profile']);
+  }
+
+  goInviteFriends(): void {
+    void this.router.navigate(['/invite-friends']);
   }
 
   get filteredFriends(): Friend[] {
-    let friends = this.friends;
-    
-    // Filter by status
+    let list = [...this.friends];
+
     if (this.selectedFilter === 'online') {
-      friends = friends.filter(friend => friend.status === 'online');
+      list = list.filter((f) => f.status === 'online');
     } else if (this.selectedFilter === 'favorites') {
-      friends = friends.filter(friend => friend.isFavorite);
+      list = list.filter((f) => f.isFavorite);
     } else if (this.selectedFilter === 'recent') {
-      // Sort by last activity (online friends first, then by last seen)
-      friends = friends.sort((a, b) => {
-        if (a.status === 'online' && b.status !== 'online') return -1;
-        if (b.status === 'online' && a.status !== 'online') return 1;
+      list.sort((a, b) => {
+        if (a.status === 'online' && b.status !== 'online') {
+          return -1;
+        }
+        if (b.status === 'online' && a.status !== 'online') {
+          return 1;
+        }
         if (a.lastSeen && b.lastSeen) {
           return new Date(b.lastSeen).getTime() - new Date(a.lastSeen).getTime();
         }
         return 0;
       });
     }
-    
-    // Filter by search query
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase();
-      friends = friends.filter(friend => 
-        friend.name.toLowerCase().includes(query) ||
-        friend.bio?.toLowerCase().includes(query)
+
+    const q = this.searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (f) =>
+          f.name.toLowerCase().includes(q) ||
+          f.bio?.toLowerCase().includes(q),
       );
     }
-    
-    return friends;
+
+    return list;
   }
 
   getStatusColor(status: string): string {
     switch (status) {
-      case 'online': return '#10b981';
-      case 'away': return '#f59e0b';
-      case 'offline': return '#6b7280';
-      default: return '#6b7280';
+      case 'online':
+        return 'var(--ion-color-success)';
+      case 'away':
+        return 'var(--ion-color-warning)';
+      case 'offline':
+        return 'var(--ion-color-medium)';
+      default:
+        return 'var(--ion-color-medium)';
     }
   }
 
   getStatusText(status: string, lastSeen?: string): string {
     switch (status) {
-      case 'online': return 'Online';
-      case 'away': return 'Away';
-      case 'offline': 
-        return lastSeen ? `Last seen ${this.formatRelativeTime(lastSeen)}` : 'Offline';
-      default: return 'Unknown';
+      case 'online':
+        return 'Online';
+      case 'away':
+        return 'Away';
+      case 'offline':
+        return lastSeen
+          ? `Last seen ${this.formatRelativeTime(lastSeen)}`
+          : 'Offline';
+      default:
+        return 'Unknown';
     }
   }
 
@@ -246,126 +341,30 @@ export class MyFriendsComponent implements OnInit {
 
       if (diffDays > 0) {
         return diffDays === 1 ? 'yesterday' : `${diffDays} days ago`;
-      } else if (diffHours > 0) {
-        return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
-      } else {
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        return diffMinutes < 1 ? 'just now' : `${diffMinutes} minutes ago`;
       }
-    } catch (error) {
+      if (diffHours > 0) {
+        return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+      }
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return diffMinutes < 1 ? 'just now' : `${diffMinutes} minutes ago`;
+    } catch {
       return 'recently';
     }
   }
 
-  formatDate(dateString: string): string {
-    try {
-      const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Unknown date';
-      
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch (error) {
-      return 'Unknown date';
-    }
-  }
-
-  goBack() {
-    this.router.navigate(['/tabs']);
-  }
-
   onImageError(event: Event): void {
-    const target = event.target as HTMLImageElement;
+    const target = event.target as HTMLImageElement | null;
     if (target) {
       target.src = 'assets/images/nurse.png';
     }
   }
 
-  private showSuccessAlert(message: string): void {
-    const successDialog = document.createElement('div');
-    successDialog.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 16px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 300px;
-      animation: slideIn 0.3s ease-out;
-    `;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    const messageElement = document.createElement('div');
-    messageElement.innerHTML = `✅ ${message}`;
-    messageElement.style.cssText = `
-      font-size: 14px;
-      font-weight: 500;
-    `;
-
-    successDialog.appendChild(messageElement);
-    document.body.appendChild(successDialog);
-
-    setTimeout(() => {
-      if (successDialog.parentNode) {
-        successDialog.remove();
-      }
-    }, 3000);
-  }
-
-  private showErrorAlert(message: string): void {
-    const errorDialog = document.createElement('div');
-    errorDialog.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #f44336;
-      color: white;
-      padding: 16px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 300px;
-      animation: slideIn 0.3s ease-out;
-    `;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    const messageElement = document.createElement('div');
-    messageElement.innerHTML = `❌ ${message}`;
-    messageElement.style.cssText = `
-      font-size: 14px;
-      font-weight: 500;
-    `;
-
-    errorDialog.appendChild(messageElement);
-    document.body.appendChild(errorDialog);
-
-    setTimeout(() => {
-      if (errorDialog.parentNode) {
-        errorDialog.remove();
-      }
-    }, 5000);
+  private async showToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 }

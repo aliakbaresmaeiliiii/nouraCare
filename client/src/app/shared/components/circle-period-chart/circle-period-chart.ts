@@ -4,7 +4,8 @@ import { IonDatetime } from '@ionic/angular';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 import { CycleSettingsService } from '../../services/cycle-settings.service';
 import { UserInfoService } from '../../services/user-info.service';
-import { environment } from '../../../../environments/environment';
+import type { UserInfo } from '../../interfaces/user-info-api.interface';
+import { AuthService } from '../../../auth/services/auth';
 
 export interface Segment {
   label: string;
@@ -24,6 +25,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   router = inject(Router);
   private cycleSettings = inject(CycleSettingsService);
   private userInfoService = inject(UserInfoService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
   // Configuration inputs
   @Input() cycleLength: number = 28; // total cycle length in days
@@ -36,9 +38,6 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   // User selections
   startDate: string | null = null; // last period start (YYYY-MM-DD)
   endDate: string | null = null; // last period end (YYYY-MM-DD)
-
-  // Loading state
-  isLoading = false;
 
   // Period status
   get isInPeriod(): boolean {
@@ -206,17 +205,39 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    // Load data from API first, then fallback to local storage
-    this.loadDataFromAPI();
+    // Paint immediately from local journey / cycle store; home already syncs onboarding in parallel.
+    this.applyLocalCycleState();
+    this.recomputeEverything();
+    this.refreshOnboardingFromServer();
   }
 
-  /**
-   * Load data from API (UserInfoService) with fallback to local storage
-   */
-  private loadDataFromAPI() {
-    
-    // Always fetch fresh data from API first
-    this.fetchDataFromAPI();
+  private applyUserInfoToChart(userInfo: UserInfo): void {
+    this.cycleLength = userInfo.cycleLength || 28;
+    this.periodLength = userInfo.periodLength || 5;
+    this.startDate = this.toPeriodIso(userInfo.lastPeriodDate);
+    if (this.startDate) {
+      this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+    } else {
+      this.endDate = null;
+    }
+  }
+
+  /** Prefer in-memory journey row, else persisted cycle settings (same source home hydrates before network). */
+  private applyLocalCycleState(): void {
+    const journey = this.userInfoService.onboardingJourney();
+    if (journey) {
+      this.applyUserInfoToChart(journey);
+      return;
+    }
+    this.cycleLength = this.cycleSettings.cycleLength();
+    this.periodLength = this.cycleSettings.periodLength();
+    const lp = this.cycleSettings.lastPeriodStartDate();
+    this.startDate = (lp as string) || null;
+    if (this.startDate) {
+      this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+    } else {
+      this.endDate = null;
+    }
   }
 
   private toPeriodIso(raw: string | Date | null | undefined): string | null {
@@ -230,65 +251,32 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   /**
-   * Fetch fresh data from API
+   * Refresh journey from server without hiding the chart (GET is duplicated with home sync but stays non-blocking).
    */
-  private fetchDataFromAPI() {
-    this.isLoading = true;
-    
-    // Get user ID from localStorage or use default
-    const userId = this.getCurrentUserId();
-    
-    this.userInfoService.getUserOnboardingData(userId).subscribe({
+  private refreshOnboardingFromServer(): void {
+    if (!this.authService.getAccessToken()) {
+      return;
+    }
+    this.userInfoService.getUserOnboardingData().subscribe({
       next: (userInfo) => {
-        this.cycleLength = userInfo.cycleLength || 28;
-        this.periodLength = userInfo.periodLength || 5;
-        this.startDate = this.toPeriodIso(userInfo.lastPeriodDate);
-        if (this.startDate) {
-          this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
-        }
-        this.isLoading = false;
+        this.applyUserInfoToChart(userInfo);
         this.recomputeEverything();
       },
-      error: (error) => {
-        // Fallback to local storage
-        this.cycleLength = this.cycleSettings.cycleLength();
-        this.periodLength = this.cycleSettings.periodLength();
-        const lp = this.cycleSettings.lastPeriodStartDate();
-        this.startDate = lp || null;
-        this.isLoading = false;
+      error: () => {
+        this.applyLocalCycleState();
         this.recomputeEverything();
-      }
+      },
     });
   }
-
-  /**
-   * Get current user ID from localStorage
-   */
-  private getCurrentUserId(): number {
-    try {
-      const userInfo = localStorage.getItem('userInfo');
-      
-      if (userInfo) {
-        const parsed = JSON.parse(userInfo);  
-        
-        const userId = parsed.userId || parsed.id || parsed.user?.id || 1;
-        return userId;
-      }
-    } catch (error) {
-      console.error('❌ Error getting current user ID:', error);
-    }
-    
-    return 1; // Default user ID
-  }
-
 
   /**
    * Public method to manually refresh the chart
    * This can be called from parent components when data changes
    */
   public refreshChart() {
-    // Always fetch fresh data from API
-    this.fetchDataFromAPI();
+    this.applyLocalCycleState();
+    this.recomputeEverything();
+    this.refreshOnboardingFromServer();
   }
 
   /**

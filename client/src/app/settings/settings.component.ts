@@ -3,6 +3,9 @@ import { Subscription } from 'rxjs';
 import { ActionSheetController } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth/services/auth';
+import { ImageUrlService } from '../shared/services/image-url.service';
+import { UserSessionService } from '../shared/services/user-session.service';
 import {
   ThemePreference,
   ThemeService,
@@ -30,12 +33,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private themeService = inject(ThemeService);
   private actionSheetCtrl = inject(ActionSheetController);
+  private authService = inject(AuthService);
+  private userSession = inject(UserSessionService);
+  private imageUrlService = inject(ImageUrlService);
   private appearanceSub?: Subscription;
 
   isLoading = false;
   errorMessage = '';
   hasUserAvatar = false;
   autoSyncEnabled = true;
+
+  displayName = 'Account';
+  displayEmail = '';
+  avatarSrc = '';
+  showVerifiedBadge = false;
+  readonly accountStatusLabel = 'Signed in';
 
   // Account Settings
   accountSettings: SettingItem[] = [
@@ -168,6 +180,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit() {
+    this.themeService.syncDomFromPreference();
+    this.refreshAccountHeader();
     this.syncThemeSettingRow();
     this.appearanceSub = this.themeService.appearanceChanged$.subscribe(() =>
       this.syncThemeSettingRow(),
@@ -223,6 +237,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   loadSavedSettings() {
+    this.refreshAccountHeader();
     const savedAutoSync = localStorage.getItem('autoSync');
     if (savedAutoSync !== null) {
       this.autoSyncEnabled = savedAutoSync === 'true';
@@ -232,6 +247,37 @@ export class SettingsComponent implements OnInit, OnDestroy {
       autoSyncSetting.value = this.autoSyncEnabled;
     }
     this.syncThemeSettingRow();
+  }
+
+  private refreshAccountHeader(): void {
+    const store = this.userSession.parseUserInfoStore();
+    const rawUser = store?.user ?? store;
+    const u =
+      rawUser && typeof rawUser === 'object' && !Array.isArray(rawUser)
+        ? (rawUser as Record<string, unknown>)
+        : null;
+
+    if (!u) {
+      this.displayName = 'Account';
+      this.displayEmail = '';
+      this.hasUserAvatar = false;
+      this.avatarSrc = '';
+      this.showVerifiedBadge = false;
+      return;
+    }
+
+    const email = String(u['email'] ?? '').trim();
+    const nameRaw = String(u['fullName'] ?? u['name'] ?? '').trim();
+    const derived = email.includes('@') ? email.split('@')[0] : '';
+    this.displayName = nameRaw || derived || 'Account';
+    this.displayEmail = email;
+    const pic = (u['profileImage'] ?? u['profile_img'] ?? '') as string | null;
+    const picStr = typeof pic === 'string' ? pic.trim() : '';
+    this.hasUserAvatar = picStr.length > 0;
+    this.avatarSrc = this.hasUserAvatar
+      ? this.imageUrlService.getImageUrl(picStr)
+      : '';
+    this.showVerifiedBadge = Boolean(u['isVerified']);
   }
 
   onSettingClick(setting: SettingItem) {
@@ -284,11 +330,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   logout() {
-    if (confirm('Are you sure you want to sign out?')) {
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('userData');
-      this.router.navigate(['/welcome']);
+    if (!confirm('Are you sure you want to sign out?')) {
+      return;
     }
+    this.authService.logout();
   }
 
   private showSuccessAlert(message: string): void {

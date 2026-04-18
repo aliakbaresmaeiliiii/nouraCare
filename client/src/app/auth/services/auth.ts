@@ -245,25 +245,28 @@ export class AuthService {
    * Logout user
    */
   logout(): void {
-    // Get access token from storage to use for logout API call
     const accessToken = localStorage.getItem('accessToken');
     const refreshToken = JSON.parse(
       localStorage.getItem('userInfo') || '{}',
     )?.refreshToken;
-    // Call logout endpoint with access token
+
+    const finishLocalLogout = () => {
+      this.clearTokens();
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userData');
+      }
+      void this.router.navigate(['/auth/sign-in']);
+    };
+
     if (refreshToken && accessToken) {
       this.http.post(`${this.baseUrl}/logout`, { refreshToken, accessToken }).subscribe({
-        next: () => {
-          // Successfully logged out on server
-          this.clearTokens();
-          this.router.navigate(['/auth/sign-in']);
-        },
-        error: () => {
-          // Even if logout fails, clear local tokens
-          this.clearTokens();
-          this.router.navigate(['/auth/sign-in']);
-        },
+        next: () => finishLocalLogout(),
+        error: () => finishLocalLogout(),
       });
+    } else {
+      finishLocalLogout();
     }
   }
   /**

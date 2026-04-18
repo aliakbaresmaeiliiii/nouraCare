@@ -1,15 +1,28 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
-import { Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import {
+  alertCircleOutline,
+  chatbubbleEllipsesOutline,
+  chevronForwardOutline,
+  closeCircleOutline,
+  copyOutline,
+  informationCircleOutline,
+  mailOutline,
+  shareOutline,
+} from 'ionicons/icons';
+import type { RefresherCustomEvent } from '@ionic/core';
+import { ToastController } from '@ionic/angular/standalone';
 import { catchError, finalize, of } from 'rxjs';
 import { GrowthService } from '../shared/services/growth.service';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 interface InviteMethod {
   id: string;
   title: string;
   subtitle: string;
   icon: string;
-  color: string;
+  /** Ionic color name — used for icon well accents only (cards stay surface-based). */
+  accent: 'primary' | 'secondary' | 'success' | 'warning';
   action: () => void;
 }
 
@@ -19,10 +32,11 @@ interface InviteMethod {
   styleUrls: ['./invite-friends.component.scss'],
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
+  host: { class: 'ion-page' },
 })
 export class InviteFriendsComponent implements OnInit {
-  private router = inject(Router);
-  private growth = inject(GrowthService);
+  private readonly growth = inject(GrowthService);
+  private readonly toastController = inject(ToastController);
 
   isLoading = false;
   errorMessage = '';
@@ -35,56 +49,71 @@ export class InviteFriendsComponent implements OnInit {
 
   inviteMethods: InviteMethod[] = [];
 
-  ngOnInit() {
+  constructor() {
+    addIcons({
+      alertCircleOutline,
+      chatbubbleEllipsesOutline,
+      chevronForwardOutline,
+      closeCircleOutline,
+      copyOutline,
+      informationCircleOutline,
+      mailOutline,
+      shareOutline,
+    });
+  }
+
+  ngOnInit(): void {
     this.inviteMethods = [
       {
         id: 'share',
-        title: 'Share App Link',
-        subtitle: 'Share via any app',
+        title: 'Share app link',
+        subtitle: 'Use your device share sheet',
         icon: 'share-outline',
-        color: 'primary',
+        accent: 'primary',
         action: () => this.shareApp(),
       },
       {
         id: 'email',
-        title: 'Send Email',
-        subtitle: 'Invite via email',
+        title: 'Send email',
+        subtitle: 'Pre-filled message you can edit',
         icon: 'mail-outline',
-        color: 'secondary',
+        accent: 'secondary',
         action: () => this.inviteViaEmail(),
       },
       {
         id: 'sms',
         title: 'Send SMS',
-        subtitle: 'Invite via text message',
-        icon: 'chatbubble-outline',
-        color: 'success',
+        subtitle: 'Opens your messaging app',
+        icon: 'chatbubble-ellipses-outline',
+        accent: 'success',
         action: () => this.inviteViaSMS(),
       },
       {
         id: 'copy',
-        title: 'Copy Link',
-        subtitle: 'Copy invitation link',
+        title: 'Copy link',
+        subtitle: 'Put the invite URL on the clipboard',
         icon: 'copy-outline',
-        color: 'warning',
+        accent: 'warning',
         action: () => this.copyInviteLink(),
       },
     ];
     this.loadGrowth();
   }
 
-  loadGrowth() {
+  loadGrowth(onComplete?: () => void): void {
     this.isLoading = true;
     this.errorMessage = '';
     this.growth
       .getSummary()
       .pipe(
         catchError(() => {
-          this.errorMessage = 'Could not load your invite code. Pull to try again.';
+          this.errorMessage =
+            'Could not load your invite code. Pull down to refresh or try again later.';
           return of(null);
         }),
         finalize(() => {
           this.isLoading = false;
+          onComplete?.();
         }),
       )
       .subscribe((data) => {
@@ -94,71 +123,76 @@ export class InviteFriendsComponent implements OnInit {
         this.referralCode = data.referralCode;
         this.growthPoints = data.growthPoints;
         this.successfulReferrals = data.successfulReferrals;
-        this.inviteLink = this.growth.buildInviteUrl(`/welcome?ref=${encodeURIComponent(data.referralCode)}`);
+        this.inviteLink = this.growth.buildInviteUrl(
+          `/welcome?ref=${encodeURIComponent(data.referralCode)}`,
+        );
       });
   }
 
-  onInviteMethodClick(method: InviteMethod) {
+  onRefresh(event: RefresherCustomEvent): void {
+    this.loadGrowth(() => event.detail.complete());
+  }
+
+  onInviteMethodClick(method: InviteMethod): void {
     method.action();
   }
 
-  shareApp() {
-    const text =
-      `Join me on NouraCare — smarter cycle & pregnancy support.\n\n${this.inviteLink}`;
+  shareApp(): void {
+    const text = `Join me on NouraCare — smarter cycle & pregnancy support.\n\n${this.inviteLink}`;
     if (navigator.share) {
-      navigator
+      void navigator
         .share({
           title: 'Join me on NouraCare',
           text,
           url: this.inviteLink,
         })
-        .then(() => this.showSuccessAlert('Shared!'))
+        .then(() => void this.showToast('Shared'))
         .catch(() => this.copyInviteLink());
     } else {
       this.copyInviteLink();
     }
   }
 
-  inviteViaEmail() {
+  inviteViaEmail(): void {
     const subject = encodeURIComponent('Join me on NouraCare!');
     const body = encodeURIComponent(
       `Hi!\n\nI'm using NouraCare for cycle insights and daily check-ins. When you sign up with my link, we both earn reward points in the app.\n\n${this.inviteLink}\n\n`,
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
-    this.showSuccessAlert('Email opened — send when you are ready.');
+    void this.showToast('Email composer opened');
   }
 
-  inviteViaSMS() {
+  inviteViaSMS(): void {
     const message = encodeURIComponent(
       `Join me on NouraCare — we both get bonus points if you use my link: ${this.inviteLink}`,
     );
     window.open(`sms:?body=${message}`);
-    this.showSuccessAlert('Messages opened — send when you are ready.');
+    void this.showToast('Messages opened');
   }
 
-  copyInviteLink() {
+  copyInviteLink(): void {
     const text = this.inviteLink || this.referralCode;
     if (!text) {
-      this.showErrorAlert('Invite link is not ready yet.');
+      void this.showToast('Invite link is not ready yet.');
       return;
     }
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(this.inviteLink).then(
-        () => this.showSuccessAlert('Invitation link copied!'),
-        () => this.fallbackCopyTextToClipboard(this.inviteLink),
+    if (navigator.clipboard?.writeText) {
+      void navigator.clipboard.writeText(text).then(
+        () => void this.showToast('Invitation link copied'),
+        () => this.fallbackCopyTextToClipboard(text),
       );
     } else {
-      this.fallbackCopyTextToClipboard(this.inviteLink);
+      this.fallbackCopyTextToClipboard(text);
     }
   }
 
-  copyCodeOnly() {
+  copyCodeOnly(): void {
     if (!this.referralCode) {
       return;
     }
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(this.referralCode).then(
-        () => this.showSuccessAlert('Code copied!'),
+    if (navigator.clipboard?.writeText) {
+      void navigator.clipboard.writeText(this.referralCode).then(
+        () => void this.showToast('Code copied'),
         () => this.fallbackCopyTextToClipboard(this.referralCode),
       );
     } else {
@@ -166,7 +200,7 @@ export class InviteFriendsComponent implements OnInit {
     }
   }
 
-  fallbackCopyTextToClipboard(text: string) {
+  fallbackCopyTextToClipboard(text: string): void {
     const textArea = document.createElement('textarea');
     textArea.value = text;
     textArea.style.position = 'fixed';
@@ -177,36 +211,23 @@ export class InviteFriendsComponent implements OnInit {
     textArea.select();
     try {
       document.execCommand('copy');
-      this.showSuccessAlert('Copied to clipboard!');
+      void this.showToast('Copied to clipboard');
     } catch {
-      this.showErrorAlert('Could not copy. Try again.');
+      void this.showToast('Could not copy automatically.');
     }
     document.body.removeChild(textArea);
   }
 
-  toggleInviteHistory() {
+  toggleInviteHistory(): void {
     this.showInviteHistory = !this.showInviteHistory;
   }
 
-  goBack() {
-    this.router.navigate(['/tabs']);
-  }
-
-  private showSuccessAlert(message: string): void {
-    const alert = document.createElement('ion-alert');
-    alert.header = 'Success';
-    alert.message = message;
-    alert.buttons = ['OK'];
-    document.body.appendChild(alert);
-    alert.present();
-  }
-
-  private showErrorAlert(message: string): void {
-    const alert = document.createElement('ion-alert');
-    alert.header = 'Error';
-    alert.message = message;
-    alert.buttons = ['OK'];
-    document.body.appendChild(alert);
-    alert.present();
+  private async showToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2200,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 }

@@ -1,11 +1,11 @@
-<ion-header>
-  <ion-toolbar>
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>About NouraCare</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openQuickMenu()">
+      <ion-button fill="clear" aria-label="More actions" (click)="openQuickMenu()">
         <ion-icon name="ellipsis-vertical"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -247,7 +247,7 @@
 
   <!-- Floating Action Button -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="openQuickMenu()">
+    <ion-fab-button aria-label="Quick actions" (click)="openQuickMenu()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>

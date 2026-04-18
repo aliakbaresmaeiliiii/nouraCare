@@ -73,6 +73,7 @@ import {
   scale,
   shareOutline,
   shieldOutline,
+  sparkles,
   star,
   swapHorizontalOutline,
   trendingUp,
@@ -353,6 +354,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       scale,
       shareOutline,
       shieldOutline,
+      sparkles,
       star,
       swapHorizontalOutline,
       trendingUp,
@@ -1052,32 +1054,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   getFirstWeekPlan() {
     return this.firstWeekPlan.getPlanForToday();
-  }
-
-  /** Contextual copy when the user has not added a last period yet. */
-  getWellnessEmptyCopy(): { title: string; subtitle: string } {
-    if (this.isPregnant) {
-      return {
-        title: 'No check-in logged yet today',
-        subtitle: 'A quick mood or symptom note helps tips match how you feel this week.',
-      };
-    }
-    if (this.isPostpartum) {
-      return {
-        title: 'How is today going?',
-        subtitle: 'Sleep, mood, or feeding — a few seconds of logging builds a kinder picture over time.',
-      };
-    }
-    if (this.showFirstWeekRetentionCard()) {
-      return {
-        title: 'Wellness for today',
-        subtitle: 'Use the quick mood chips on the card above, or open the full tracker when you have a minute.',
-      };
-    }
-    return {
-      title: 'No symptoms logged today',
-      subtitle: 'Tap + to add how you feel, or start with a simple mood.',
-    };
   }
 
   getPreCycleEmptyCopy(): { title: string; body: string; features: string[] } {
@@ -1877,18 +1853,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.showToast('Opening symptom tracker...');
   }
 
-  // Open symptoms tracking for update mode
-  openSymptomsTrackingForUpdate() {
-    const today = this.getCurrentDate();
-    this.router.navigate(['/symptoms-tracker'], {
-      queryParams: {
-        date: today,
-        mode: 'update',
-      },
-    });
-    this.showToast('Opening symptom tracker for update...');
-  }
-
   // Navigate to school (baby development)
   navigateToSchool() {
     this.router.navigate(['/tabs/school']);
@@ -1942,39 +1906,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           this.todaySymptoms = {} as SymptomsDto;
         },
       });
-  }
-
-  getMoodIcon(mood: string): string {
-    const moodIcons: { [key: string]: string } = {
-      excellent: 'happy-outline',
-      good: 'happy-outline',
-      okay: 'remove-outline',
-      poor: 'sad-outline',
-      terrible: 'sad-outline',
-    };
-    return moodIcons[mood] || 'remove-outline';
-  }
-
-  getEnergyIcon(energy: string): string {
-    const energyIcons: { [key: string]: string } = {
-      high: 'flash-outline',
-      medium: 'battery-half-outline',
-      low: 'battery-dead-outline',
-    };
-    return energyIcons[energy] || 'help-outline';
-  }
-
-  getSeverityColor(severity: string): string {
-    const severityColors: { [key: string]: string } = {
-      mild: 'success',
-      moderate: 'warning',
-      severe: 'danger',
-    };
-    return severityColors[severity] || 'medium';
-  }
-
-  viewSymptomsHistory() {
-    this.router.navigate(['/symptoms-history']);
   }
 
   // Daily Insights Methods
@@ -2243,52 +2174,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     }
   }
 
-  // Community Actions
-  async joinCommunity() {
-    await this.navigateToCommunity();
-  }
-
   toggleMoreSections() {
     this.showMoreSections = !this.showMoreSections;
   }
 
-  // Floating Action Button
-  async openQuickMenu() {
-    const actionSheet = await this.alertController.create({
-      header: 'Quick Actions',
-      buttons: [
-        {
-          text: '🤖 Chat with Assistant',
-          handler: () => {
-            this.router.navigate(['/chatbot']);
-          },
-        },
-        {
-          text: '📝 Add Symptom Entry',
-          handler: () => {
-            this.openSymptomsTracking();
-          },
-        },
-        {
-          text: '📅 Book Appointment',
-          handler: () => {
-            this.openAppointmentBooking();
-          },
-        },
-        {
-          text: '📊 View Progress',
-          handler: () => {
-            this.router.navigate(['tabs/tools']);
-          },
-        },
-        {
-          text: '❌ Cancel',
-          role: 'cancel',
-        },
-      ],
-    });
-
-    await actionSheet.present();
+  /** Opens the assistant chat immediately (no intermediate menu). */
+  openAssistantChat(): void {
+    this.router.navigate(['/chatbot']);
   }
 
   // Health Tools Methods

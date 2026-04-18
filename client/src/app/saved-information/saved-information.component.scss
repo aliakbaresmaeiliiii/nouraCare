@@ -1,290 +1,300 @@
+// Saved information — Ionic tokens (light + html.ion-palette-dark)
 .saved-header {
   --background: var(--app-gradient-header);
-  --color: white;
-  
-  .back-button {
-    --color: white;
+  --color: #fff;
+
+  ion-back-button {
+    --color: #fff;
   }
-  
+
   .header-title {
     font-weight: 600;
-    font-size: 18px;
+    font-size: 1.05rem;
   }
-  
-  .search-button {
-    --color: white;
+
+  ion-button[fill='clear'] {
+    --color: #fff;
   }
 }
 
 .saved-content {
-  --background: #f8fafc;
-  
-  .container {
+  --background: var(--ion-background-color);
+
+  .page-inner {
     padding: 16px;
     max-width: 1200px;
     margin: 0 auto;
   }
 }
 
-// Search Section
 .search-section {
-  margin-bottom: 16px;
-  
+  margin-bottom: 14px;
+
   .search-bar {
-    --background: white;
+    --background: var(--ion-card-background, var(--ion-item-background));
     --border-radius: 12px;
-    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    --color: #1e293b;
-    --placeholder-color: #64748b;
+    --box-shadow: var(
+      --app-shadow-soft,
+      0 2px 10px rgba(var(--ion-background-color-rgb, 0, 0, 0), 0.06)
+    );
+    --color: var(--ion-text-color);
+    --placeholder-color: var(--ion-color-medium);
+    --icon-color: var(--ion-color-medium);
+    --clear-button-color: var(--ion-color-medium);
   }
 }
 
-// Category Section
 .category-section {
-  margin-bottom: 20px;
-  
+  margin-bottom: 18px;
+
   .category-segment {
-    --background: white;
+    --background: var(--ion-card-background, var(--ion-background-color-step-50));
     --border-radius: 12px;
-    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    
+    max-width: 100%;
+    box-shadow: var(
+      --app-shadow-soft,
+      0 2px 10px rgba(var(--ion-background-color-rgb, 0, 0, 0), 0.06)
+    );
+
     .category-button {
-      --color: #64748b;
+      --color: var(--ion-color-medium);
       --color-checked: var(--ion-color-primary);
       --indicator-color: var(--ion-color-primary);
       --border-radius: 8px;
       min-height: 48px;
-      
+
       .category-icon {
         font-size: 16px;
-        margin-right: 4px;
+        margin-inline-end: 4px;
       }
-      
+
       .category-label {
         font-size: 12px;
         font-weight: 500;
+        text-transform: none;
       }
     }
   }
 }
 
-// Loading State
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  text-align: center;
-  
-  .loading-spinner {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 16px;
-    --color: var(--ion-color-primary);
-  }
-  
-  .loading-text {
-    color: #64748b;
-    font-size: 16px;
-    margin: 0;
-  }
-}
-
-// Error State
 .error-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 48px 20px;
   text-align: center;
-  
+
   .error-icon {
-    font-size: 64px;
-    color: #ef4444;
-    margin-bottom: 16px;
+    font-size: 56px;
+    color: var(--ion-color-danger);
+    margin-bottom: 12px;
   }
-  
+
   .error-text {
-    color: #64748b;
-    font-size: 16px;
-    margin: 0 0 24px 0;
-    max-width: 300px;
+    color: var(--ion-color-medium);
+    font-size: 0.95rem;
+    margin: 0 0 20px;
+    max-width: 320px;
+    line-height: 1.45;
   }
-  
+
   .retry-button {
-    --color: var(--ion-color-primary);
-    --border-color: var(--ion-color-primary);
-    --border-width: 2px;
     font-weight: 500;
   }
 }
 
-// Empty State
 .empty-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px;
+  padding: 56px 20px;
   text-align: center;
-  
+
   .empty-icon {
-    font-size: 80px;
-    color: #cbd5e1;
-    margin-bottom: 24px;
+    font-size: 72px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+    opacity: 0.85;
   }
-  
+
   .empty-title {
-    color: #334155;
-    font-size: 24px;
+    color: var(--ion-text-color);
+    font-size: 1.35rem;
     font-weight: 600;
-    margin: 0 0 8px 0;
+    margin: 0 0 8px;
   }
-  
+
   .empty-text {
-    color: #64748b;
-    font-size: 16px;
-    margin: 0 0 24px 0;
-    max-width: 300px;
+    color: var(--ion-color-medium);
+    font-size: 0.95rem;
+    margin: 0 0 20px;
+    max-width: 320px;
+    line-height: 1.45;
   }
-  
+
   .browse-button {
-    --color: var(--ion-color-primary);
-    --border-color: var(--ion-color-primary);
-    --border-width: 2px;
     font-weight: 500;
   }
 }
 
-// Items Container
 .items-container {
   .items-header {
-    margin-bottom: 20px;
-    
+    margin-bottom: 14px;
+
     .items-title {
-      color: #1e293b;
-      font-size: 20px;
+      color: var(--ion-text-color);
+      font-size: 1.05rem;
       font-weight: 600;
       margin: 0;
     }
   }
-  
+
   .items-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-    
+    grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+    gap: 14px;
+
     .item-card {
-      background: white;
+      background: var(--ion-card-background, var(--ion-item-background));
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      border: 1px solid #e2e8f0;
+      box-shadow: var(
+        --app-shadow-soft,
+        0 4px 14px rgba(var(--ion-background-color-rgb, 0, 0, 0), 0.08)
+      );
+      border: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.08));
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+      &:focus-visible {
+        outline: 2px solid var(--ion-color-primary);
+        outline-offset: 2px;
       }
-      
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: var(
+            --app-shadow-card-hover,
+            0 10px 28px rgba(var(--ion-background-color-rgb, 0, 0, 0), 0.12)
+          );
+        }
+      }
+
       .card-image {
         position: relative;
-        height: 160px;
+        height: 158px;
         overflow: hidden;
-        
+
         .item-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
         }
-        
+
         .card-overlay {
           position: absolute;
           top: 8px;
-          right: 8px;
+          inset-inline-end: 8px;
           opacity: 0;
           transition: opacity 0.2s ease;
-          
+
           .remove-button {
-            --color: white;
-            --background: rgba(0, 0, 0, 0.5);
+            --color: #fff;
+            --background: rgba(0, 0, 0, 0.45);
             --border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            
+            width: 36px;
+            height: 36px;
+            margin: 0;
+
             .remove-icon {
-              font-size: 16px;
+              font-size: 18px;
             }
           }
         }
-        
+
         .type-badge {
           position: absolute;
           top: 8px;
-          left: 8px;
-          background: rgba(255, 255, 255, 0.9);
-          border-radius: 6px;
+          inset-inline-start: 8px;
+          background: var(--ion-background-color-step-100, rgba(255, 255, 255, 0.92));
+          backdrop-filter: blur(8px);
+          border-radius: 8px;
           padding: 4px 8px;
-          
+          border: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.06));
+
           .type-icon {
             color: var(--ion-color-primary);
             font-size: 14px;
           }
         }
       }
-      
-      &:hover .card-overlay {
-        opacity: 1;
+
+      @media (hover: hover) and (pointer: fine) {
+        &:hover .card-overlay {
+          opacity: 1;
+        }
       }
-      
+
+      @media (hover: none), (pointer: coarse) {
+        .card-overlay {
+          opacity: 1;
+        }
+
+        .remove-button {
+          --background: rgba(0, 0, 0, 0.4);
+        }
+      }
+
       .card-content {
-        padding: 16px;
-        
+        padding: 14px 16px;
+
         .item-title {
-          color: #1e293b;
-          font-size: 16px;
+          color: var(--ion-text-color);
+          font-size: 0.98rem;
           font-weight: 600;
-          margin: 0 0 8px 0;
-          line-height: 1.4;
+          margin: 0 0 6px;
+          line-height: 1.35;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        
+
         .item-description {
-          color: #64748b;
-          font-size: 14px;
-          margin: 0 0 12px 0;
-          line-height: 1.5;
+          color: var(--ion-color-medium);
+          font-size: 0.875rem;
+          margin: 0 0 10px;
+          line-height: 1.45;
           display: -webkit-box;
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        
+
         .item-meta {
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
-          
+
           .author,
           .read-time,
           .saved-date {
             display: flex;
             align-items: center;
             gap: 4px;
-            
+
             .meta-icon {
-              color: #94a3b8;
+              color: var(--ion-color-medium);
               font-size: 12px;
             }
-            
+
             .meta-text {
-              color: #64748b;
+              color: var(--ion-color-medium);
               font-size: 11px;
             }
           }
@@ -294,24 +304,23 @@
   }
 }
 
-// Responsive Design
 @media (max-width: 768px) {
-  .saved-content .container {
+  .saved-content .page-inner {
     padding: 12px;
   }
-  
+
   .items-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 12px;
   }
-  
+
   .category-segment .category-button {
-    min-height: 40px;
-    
+    min-height: 42px;
+
     .category-icon {
       font-size: 14px;
     }
-    
+
     .category-label {
       font-size: 11px;
     }
@@ -321,22 +330,21 @@
 @media (max-width: 480px) {
   .items-grid {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
-  
+
   .item-card .card-image {
     height: 140px;
   }
-  
+
   .card-content {
-    padding: 12px;
-    
+    padding: 12px !important;
+
     .item-title {
-      font-size: 14px;
+      font-size: 0.9rem !important;
     }
-    
+
     .item-description {
-      font-size: 13px;
+      font-size: 0.82rem !important;
     }
   }
 }

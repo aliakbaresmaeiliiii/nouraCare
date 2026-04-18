@@ -1,5 +1,6 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideIonicAngular } from '@ionic/angular/standalone';
 
 import { MyFriendsComponent } from './my-friends.component';
 
@@ -7,16 +8,16 @@ describe('MyFriendsComponent', () => {
   let component: MyFriendsComponent;
   let fixture: ComponentFixture<MyFriendsComponent>;
 
-  beforeEach(waitForAsync(() => {
-    TestBed.configureTestingModule({
-      declarations: [ MyFriendsComponent ],
-      imports: [IonicModule.forRoot()]
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MyFriendsComponent],
+      providers: [provideRouter([]), provideIonicAngular()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyFriendsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  }));
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

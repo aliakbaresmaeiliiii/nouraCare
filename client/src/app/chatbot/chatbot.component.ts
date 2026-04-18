@@ -1,6 +1,29 @@
-import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone.js';
+import { addIcons } from 'ionicons';
+import {
+  add,
+  calendarOutline,
+  chatbubbleEllipses,
+  fitnessOutline,
+  happyOutline,
+  heartOutline,
+  helpOutline,
+  medicalOutline,
+  openOutline,
+  person,
+  restaurantOutline,
+  send,
+  trashOutline,
+} from 'ionicons/icons';
+import { AlertController } from '@ionic/angular/standalone';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 interface ChatMessage {
   id: number;
@@ -27,17 +50,17 @@ interface QuickReply {
   styleUrls: ['./chatbot.component.scss'],
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
+  host: { class: 'ion-page' },
 })
-export class ChatbotComponent implements OnInit, AfterViewChecked {
-  @ViewChild('messageContainer') private messageContainer!: ElementRef;
-  @ViewChild('messageInput') private messageInput!: ElementRef;
-  
-  private router = inject(Router);
+export class ChatbotComponent implements OnInit {
+  @ViewChild('messageContainer')
+  private messageContainer!: ElementRef<HTMLElement>;
 
-  isLoading = false;
+  private readonly router = inject(Router);
+  private readonly alertController = inject(AlertController);
+
   isTyping = false;
   newMessage = '';
-  isMinimized = false;
 
   messages: ChatMessage[] = [];
   quickReplies: QuickReply[] = [
@@ -46,7 +69,7 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     { text: 'Pregnancy support', action: 'pregnancy_support' },
     { text: 'Mental wellness', action: 'mental_wellness' },
     { text: 'Nutrition advice', action: 'nutrition_advice' },
-    { text: 'Exercise tips', action: 'exercise_tips' }
+    { text: 'Exercise tips', action: 'exercise_tips' },
   ];
 
   suggestions: string[] = [
@@ -55,71 +78,84 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
     'How to maintain a healthy pregnancy?',
     'Tips for better sleep during pregnancy',
     'How to manage stress and anxiety?',
-    'What foods are good for women\'s health?'
+    "What foods are good for women's health?",
   ];
 
-  constructor() { }
+  constructor() {
+    addIcons({
+      add,
+      calendarOutline,
+      chatbubbleEllipses,
+      fitnessOutline,
+      happyOutline,
+      heartOutline,
+      helpOutline,
+      medicalOutline,
+      openOutline,
+      person,
+      restaurantOutline,
+      send,
+      trashOutline,
+    });
+  }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.initializeChat();
   }
 
-  ngAfterViewChecked() {
-    this.scrollToBottom();
-  }
-
-  initializeChat() {
-    // Add welcome message
+  initializeChat(): void {
     this.addBotMessage(
-      'Hello! I\'m the NouraCare assistant. I\'m here to help with your health journey and app questions. How can I help today?',
+      "Hello! I'm the NouraCare assistant. I can help with menstrual health, pregnancy, wellness, and how to use the app. How can I help today?",
       'text',
       undefined,
       undefined,
       {
         text: 'Learn more about NouraCare',
-        url: '/about'
-      }
+        url: '/about',
+      },
     );
   }
 
-  sendMessage() {
-    if (this.newMessage.trim() === '') return;
+  sendMessage(): void {
+    if (this.newMessage.trim() === '') {
+      return;
+    }
 
     const userMessage = this.newMessage.trim();
     this.addUserMessage(userMessage);
     this.newMessage = '';
 
-    // Simulate bot response
     this.simulateBotResponse(userMessage);
   }
 
-  sendQuickReply(action: string) {
+  sendQuickReply(action: string): void {
     this.addUserMessage(this.getQuickReplyText(action));
     this.simulateBotResponse(action);
   }
 
-  sendSuggestion(suggestion: string) {
+  sendSuggestion(suggestion: string): void {
     this.addUserMessage(suggestion);
     this.simulateBotResponse(suggestion);
   }
 
-  addUserMessage(text: string) {
+  addUserMessage(text: string): void {
     this.messages.push({
       id: Date.now(),
       text,
       sender: 'user',
       timestamp: new Date(),
-      type: 'text'
+      type: 'text',
     });
+    this.queueScrollToBottom();
   }
 
   addBotMessage(
-    text: string, 
+    text: string,
     type: 'text' | 'quick-reply' | 'suggestion' | 'link' = 'text',
     quickReplies?: string[],
     suggestions?: string[],
-    link?: { text: string; url: string }
-  ) {
+    link?: { text: string; url: string },
+  ): void {
     this.messages.push({
       id: Date.now(),
       text,
@@ -128,196 +164,221 @@ export class ChatbotComponent implements OnInit, AfterViewChecked {
       type,
       quickReplies,
       suggestions,
-      link
+      link,
     });
+    this.queueScrollToBottom();
   }
 
-  simulateBotResponse(userInput: string) {
+  simulateBotResponse(userInput: string): void {
     this.isTyping = true;
-    
-    // Simulate typing delay
-    setTimeout(() => {
+    this.queueScrollToBottom();
+
+    const delay = 1000 + Math.random() * 2000;
+    window.setTimeout(() => {
       this.isTyping = false;
       this.processUserInput(userInput);
-    }, 1000 + Math.random() * 2000);
+      this.queueScrollToBottom();
+    }, delay);
   }
 
-  processUserInput(userInput: string) {
+  processUserInput(userInput: string): void {
     const input = userInput.toLowerCase();
-    
-    // Period tracking
-    if (input.includes('period') || input.includes('cycle') || input.includes('menstrual')) {
+
+    if (
+      input.includes('period') ||
+      input.includes('cycle') ||
+      input.includes('menstrual')
+    ) {
       this.addBotMessage(
-        'I can help you track your menstrual cycle! Here are some tips:\n\n' +
-        '• Use our period tracking feature to log your cycle\n' +
-        '• Track symptoms like cramps, mood changes, and flow\n' +
-        '• Set reminders for your next expected period\n' +
-        '• Monitor cycle length and patterns\n\n' +
-        'Would you like me to show you how to set up period tracking?',
+        'I can help you track your menstrual cycle. Here are some tips:\n\n' +
+          '• Use period tracking to log your cycle\n' +
+          '• Note symptoms like cramps, mood, and flow\n' +
+          '• Set reminders for your next expected period\n' +
+          '• Watch for patterns in cycle length\n\n' +
+          'Would you like pointers on setting up tracking in the app?',
         'quick-reply',
-        ['Yes, show me', 'Not now', 'More tips']
+        ['Yes, show me', 'Not now', 'More tips'],
       );
-    }
-    
-    // Health tips
-    else if (input.includes('health') || input.includes('tip') || input.includes('wellness')) {
+    } else if (
+      input.includes('health') ||
+      input.includes('tip') ||
+      input.includes('wellness')
+    ) {
       this.addBotMessage(
-        'Here are some general health tips for women:\n\n' +
-        '• Stay hydrated - aim for 8-10 glasses of water daily\n' +
-        '• Get regular exercise - 150 minutes of moderate activity per week\n' +
-        '• Eat a balanced diet rich in fruits, vegetables, and whole grains\n' +
-        '• Get 7-9 hours of quality sleep each night\n' +
-        '• Practice stress management techniques\n\n' +
-        'What specific area would you like to focus on?',
+        'Here are some general wellness ideas:\n\n' +
+          '• Stay hydrated through the day\n' +
+          '• Aim for regular movement you enjoy\n' +
+          '• Build meals around vegetables, protein, and whole grains\n' +
+          '• Prioritize sleep where you can\n' +
+          '• Use small breaks to reset stress\n\n' +
+          'What area would you like to go deeper on?',
         'quick-reply',
-        ['Nutrition', 'Exercise', 'Mental health', 'Sleep']
+        ['Nutrition', 'Exercise', 'Mental health', 'Sleep'],
       );
-    }
-    
-    // Pregnancy support
-    else if (input.includes('pregnancy') || input.includes('pregnant') || input.includes('baby')) {
+    } else if (
+      input.includes('pregnancy') ||
+      input.includes('pregnant') ||
+      input.includes('baby')
+    ) {
       this.addBotMessage(
-        'Congratulations! Pregnancy is an exciting journey. Here\'s how I can help:\n\n' +
-        '• Track your pregnancy week by week\n' +
-        '• Get personalized nutrition advice\n' +
-        '• Learn about safe exercises during pregnancy\n' +
-        '• Understand common pregnancy symptoms\n' +
-        '• Prepare for labor and delivery\n\n' +
-        'Would you like to start pregnancy tracking or learn about a specific topic?',
+        "Pregnancy is a big chapter — here's how the app can support you:\n\n" +
+          '• Follow week-by-week guidance\n' +
+          '• Learn about nutrition and safe activity\n' +
+          '• Understand common symptoms (when to ask your clinician)\n' +
+          '• Prepare questions for prenatal visits\n\n' +
+          'Would you like to focus on tracking, food, movement, or symptoms?',
         'quick-reply',
-        ['Start tracking', 'Nutrition guide', 'Exercise tips', 'Symptoms']
+        ['Start tracking', 'Nutrition guide', 'Exercise tips', 'Symptoms'],
       );
-    }
-    
-    // Mental wellness
-    else if (input.includes('stress') || input.includes('anxiety') || input.includes('mental') || input.includes('mood')) {
+    } else if (
+      input.includes('stress') ||
+      input.includes('anxiety') ||
+      input.includes('mental') ||
+      input.includes('mood')
+    ) {
       this.addBotMessage(
-        'Mental wellness is crucial for overall health. Here are some strategies:\n\n' +
-        '• Practice deep breathing exercises\n' +
-        '• Try meditation or mindfulness\n' +
-        '• Maintain a regular sleep schedule\n' +
-        '• Stay connected with friends and family\n' +
-        '• Consider talking to a mental health professional\n\n' +
-        'Would you like to learn more about any of these techniques?',
+        'Mental wellness matters. Some strategies many people find helpful:\n\n' +
+          '• Short breathing exercises during tense moments\n' +
+          '• Gentle mindfulness or grounding\n' +
+          '• A steady sleep routine\n' +
+          '• Staying connected with people you trust\n' +
+          '• Speaking with a qualified professional when things feel heavy\n\n' +
+          'Want ideas for calming techniques or sleep?',
         'quick-reply',
-        ['Meditation guide', 'Breathing exercises', 'Sleep tips', 'Professional help']
+        ['Meditation guide', 'Breathing exercises', 'Sleep tips', 'Professional help'],
       );
-    }
-    
-    // Nutrition
-    else if (input.includes('food') || input.includes('nutrition') || input.includes('diet') || input.includes('eat')) {
+    } else if (
+      input.includes('food') ||
+      input.includes('nutrition') ||
+      input.includes('diet') ||
+      input.includes('eat')
+    ) {
       this.addBotMessage(
-        'Good nutrition is essential for women\'s health. Here are some key recommendations:\n\n' +
-        '• Include plenty of fruits and vegetables\n' +
-        '• Choose whole grains over refined grains\n' +
-        '• Include lean proteins like fish, poultry, and legumes\n' +
-        '• Stay hydrated with water\n' +
-        '• Limit processed foods and added sugars\n\n' +
-        'What specific nutrition topic interests you?',
+        'Balanced eating supports energy and hormones. Broad strokes:\n\n' +
+          '• Plenty of colorful produce\n' +
+          '• Whole grains and legumes\n' +
+          '• Lean proteins\n' +
+          '• Water as your default drink\n' +
+          '• Limiting ultra-processed foods when practical\n\n' +
+          'Which nutrition topic should we unpack?',
         'quick-reply',
-        ['Pregnancy nutrition', 'Period nutrition', 'General diet', 'Supplements']
+        ['Pregnancy nutrition', 'Period nutrition', 'General diet', 'Supplements'],
       );
-    }
-    
-    // Exercise
-    else if (input.includes('exercise') || input.includes('workout') || input.includes('fitness') || input.includes('activity')) {
+    } else if (
+      input.includes('exercise') ||
+      input.includes('workout') ||
+      input.includes('fitness') ||
+      input.includes('activity')
+    ) {
       this.addBotMessage(
-        'Regular exercise is great for women\'s health! Here are some recommendations:\n\n' +
-        '• Aim for 150 minutes of moderate activity per week\n' +
-        '• Include strength training 2-3 times per week\n' +
-        '• Try yoga or pilates for flexibility\n' +
-        '• Walking is a great low-impact exercise\n' +
-        '• Listen to your body and rest when needed\n\n' +
-        'What type of exercise would you like to learn about?',
+        'Movement can feel better at every life stage. General guidance:\n\n' +
+          '• Mix easy cardio, strength, and mobility over the week\n' +
+          '• Choose activities that feel sustainable\n' +
+          '• During pregnancy or painful periods, favor clinician-approved options\n' +
+          '• Rest is part of training too\n\n' +
+          'What type of movement are you curious about?',
         'quick-reply',
-        ['Pregnancy exercise', 'Period exercise', 'Yoga poses', 'Strength training']
+        ['Pregnancy exercise', 'Period exercise', 'Yoga poses', 'Strength training'],
       );
-    }
-    
-    // Default response
-    else {
+    } else {
       this.addBotMessage(
-        'I\'m here to help with women\'s health and wellness! You can ask me about:\n\n' +
-        '• Period tracking and menstrual health\n' +
-        '• Pregnancy support and guidance\n' +
-        '• Mental wellness and stress management\n' +
-        '• Nutrition and healthy eating\n' +
-        '• Exercise and fitness tips\n\n' +
-        'What would you like to know more about?',
+        "I'm here for women's health and how to use NouraCare. You can ask about:\n\n" +
+          '• Periods and cycle tracking\n' +
+          '• Pregnancy support\n' +
+          '• Stress, mood, and sleep\n' +
+          '• Food and movement\n\n' +
+          'What would you like to explore?',
         'suggestion',
         undefined,
-        this.suggestions.slice(0, 3)
+        this.suggestions.slice(0, 3),
       );
     }
   }
 
   getQuickReplyText(action: string): string {
-    const quickReply = this.quickReplies.find(qr => qr.action === action);
+    const quickReply = this.quickReplies.find((qr) => qr.action === action);
     return quickReply ? quickReply.text : action;
   }
 
-  scrollToBottom() {
+  private queueScrollToBottom(): void {
+    window.setTimeout(() => this.scrollToBottom(), 0);
+  }
+
+  scrollToBottom(): void {
     try {
-      if (this.messageContainer) {
-        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+      const el = this.messageContainer?.nativeElement;
+      if (el) {
+        el.scrollTop = el.scrollHeight;
       }
-    } catch (err) {
-      console.error('Error scrolling to bottom:', err);
+    } catch {
+      /* best-effort scroll */
     }
   }
 
-  toggleMinimize() {
-    this.isMinimized = !this.isMinimized;
+  openLink(url: string): void {
+    void this.router.navigate([url]);
   }
 
-  openLink(url: string) {
-    this.router.navigate([url]);
-  }
-
-  clearChat() {
-    if (confirm('Are you sure you want to clear the chat history?')) {
-      this.messages = [];
-      this.initializeChat();
+  async clearChat(): Promise<void> {
+    if (this.messages.length <= 1) {
+      return;
     }
+    const alert = await this.alertController.create({
+      header: 'Clear chat?',
+      message: 'Your messages on this screen will be removed and the welcome message will appear again.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Clear',
+          role: 'destructive',
+          handler: () => {
+            this.messages = [];
+            this.initializeChat();
+            this.queueScrollToBottom();
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   formatMessageText(text: string): string {
-    // Convert newlines to <br> tags for proper display
     return text.replace(/\n/g, '<br>');
   }
 
   formatTime(timestamp: Date): string {
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    
+    const diffInMinutes = Math.floor(
+      (now.getTime() - timestamp.getTime()) / (1000 * 60),
+    );
+
+    if (diffInMinutes < 1) {
+      return 'Just now';
+    }
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes}m ago`;
+    }
+
     return timestamp.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
     });
   }
 
   getQuickReplyIcon(action: string): string {
-    const iconMap: { [key: string]: string } = {
-      'period_tracking': 'calendar-outline',
-      'health_tips': 'medical-outline',
-      'pregnancy_support': 'heart-outline',
-      'mental_wellness': 'happy-outline',
-      'nutrition_advice': 'restaurant-outline',
-      'exercise_tips': 'fitness-outline'
+    const iconMap: Record<string, string> = {
+      period_tracking: 'calendar-outline',
+      health_tips: 'medical-outline',
+      pregnancy_support: 'heart-outline',
+      mental_wellness: 'happy-outline',
+      nutrition_advice: 'restaurant-outline',
+      exercise_tips: 'fitness-outline',
     };
     return iconMap[action] || 'help-outline';
   }
 
-  openQuickActions() {
-    // This could open a quick actions menu or navigate to other sections
-    this.router.navigate(['/tabs/tools']);
-  }
-
-  goBack() {
-    this.router.navigate(['/tabs']);
+  openQuickActions(): void {
+    void this.router.navigate(['/tabs/tools']);
   }
 }

@@ -1,313 +1,331 @@
+// Check version — brand + Ionic tokens (light + html / ion-app dark palette).
 .version-header {
-  --background: var(--app-gradient-header);
-  --color: white;
-  
-  .back-button {
-    --color: white;
+  --background: var(--app-gradient-header, var(--ion-color-primary));
+  --color: #fff;
+  --border-width: 0;
+  box-shadow: var(--app-shadow-header, 0 2px 12px rgba(0, 0, 0, 0.12));
+
+  ion-back-button {
+    --color: #fff;
   }
-  
+
   .header-title {
     font-weight: 600;
-    font-size: 18px;
+    font-size: 1.05rem;
+    color: #fff;
   }
 }
 
 .version-content {
-  --background: #f8fafc;
-  
-  .container {
+  --background: var(--ion-background-color);
+
+  .page-inner {
     padding: 20px;
+    padding-bottom: max(24px, calc(20px + env(safe-area-inset-bottom, 0px)));
     max-width: 600px;
     margin: 0 auto;
   }
 }
 
-// Loading State
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  text-align: center;
-  
-  .loading-spinner {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 16px;
-    --color: var(--ion-color-primary);
-  }
-  
-  .loading-text {
-    color: #64748b;
-    font-size: 16px;
-    margin: 0;
-  }
-}
-
-// Error State
 .error-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
+  padding: 48px 20px;
   text-align: center;
-  
+
   .error-icon {
-    font-size: 64px;
-    color: #ef4444;
-    margin-bottom: 16px;
+    font-size: 56px;
+    color: var(--ion-color-danger);
+    margin-bottom: 12px;
   }
-  
+
   .error-text {
-    color: #64748b;
-    font-size: 16px;
-    margin: 0 0 24px 0;
-    max-width: 300px;
-  }
-  
-  .retry-button {
-    --color: var(--ion-color-primary);
-    --border-color: var(--ion-color-primary);
-    --border-width: 2px;
-    font-weight: 500;
+    color: var(--brand-text-secondary);
+    font-size: 0.95rem;
+    margin: 0 0 20px;
+    max-width: 320px;
+    line-height: 1.45;
   }
 }
 
-// Version Container
 .version-container {
   .version-card {
-    background: white;
+    background: var(--brand-surface);
     border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    padding: 22px;
+    margin-bottom: 16px;
+    box-shadow: var(
+      --app-shadow-soft,
+      0 4px 14px rgba(var(--ion-background-color-rgb, 0, 0, 0), 0.08)
+    );
+    border: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.08));
     text-align: center;
-    
+
     .card-header {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 16px;
-      
+      gap: 8px;
+      margin-bottom: 12px;
+
       .card-icon {
-        font-size: 24px;
+        font-size: 1.35rem;
         color: var(--ion-color-primary);
-        margin-right: 8px;
       }
-      
+
       .card-title {
-        color: #1e293b;
-        font-size: 18px;
+        color: var(--brand-text);
+        font-size: 1.05rem;
         font-weight: 600;
         margin: 0;
       }
     }
-    
+
     .version-number {
-      font-size: 32px;
+      font-size: 1.85rem;
       font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 8px;
+      color: var(--brand-text);
+      margin-bottom: 6px;
     }
-    
+
     .version-label {
-      color: #64748b;
-      font-size: 14px;
+      color: var(--brand-text-secondary);
+      font-size: 0.875rem;
       margin: 0;
     }
   }
-  
+
   .current-version {
-    border-left: 4px solid #10b981;
+    border-inline-start: 4px solid var(--ion-color-success);
   }
-  
+
   .latest-version {
-    border-left: 4px solid #f59e0b;
+    border-inline-start: 4px solid var(--ion-color-warning);
   }
 }
 
-// Update Available
 .update-available {
   .update-badge {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 25px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    
+    gap: 8px;
+    background: linear-gradient(
+      135deg,
+      var(--ion-color-success) 0%,
+      var(--ion-color-success-shade) 100%
+    );
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+    box-shadow: var(--app-shadow-soft, 0 4px 14px rgba(0, 0, 0, 0.12));
+
     .update-icon {
-      font-size: 20px;
-      margin-right: 8px;
+      font-size: 1.2rem;
     }
-    
+
     .update-text {
-      font-size: 16px;
+      font-size: 0.95rem;
       font-weight: 600;
     }
   }
-  
+
   .release-notes {
-    background: white;
+    background: var(--brand-surface);
     border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
-    
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--app-shadow-soft, 0 2px 12px rgba(0, 0, 0, 0.06));
+    border: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.08));
+
     .notes-title {
-      color: #1e293b;
-      font-size: 18px;
+      color: var(--brand-text);
+      font-size: 1.05rem;
       font-weight: 600;
-      margin: 0 0 16px 0;
+      margin: 0 0 12px;
       text-align: center;
     }
-    
+
     .notes-list {
       background: transparent;
-      
+
       .note-item {
         --background: transparent;
         --padding-start: 0;
         --padding-end: 0;
-        --padding-top: 8px;
-        --padding-bottom: 8px;
+        --padding-top: 6px;
+        --padding-bottom: 6px;
+        --border-width: 0;
+        --min-height: 0;
+        margin-bottom: 0;
         border: none;
-        
+        box-shadow: none;
+
         .note-icon {
-          color: #10b981;
-          font-size: 16px;
+          color: var(--ion-color-success);
+          font-size: 1rem;
         }
-        
+
         .note-text {
-          color: #0f172a;
-          font-size: 14px;
+          color: var(--brand-text);
+          font-size: 0.875rem;
           margin: 0;
+          line-height: 1.45;
         }
       }
     }
   }
-  
+
   .download-button {
-    --background: var(--app-gradient-header);
-    --color: white;
     --border-radius: 12px;
-    --box-shadow: 0 4px 12px rgba(var(--flo-primary-rgb), 0.3);
     font-weight: 600;
-    height: 56px;
-    margin-bottom: 20px;
+    min-height: 52px;
+    margin-bottom: 16px;
   }
 }
 
-// No Update Available
 .no-update {
   text-align: center;
-  padding: 40px 20px;
-  
+  padding: 32px 16px;
+
   .no-update-badge {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 25px;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-    
+    gap: 8px;
+    background: linear-gradient(
+      135deg,
+      var(--ion-color-success) 0%,
+      var(--ion-color-success-shade) 100%
+    );
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+    box-shadow: var(--app-shadow-soft, 0 4px 14px rgba(0, 0, 0, 0.12));
+
     .no-update-icon {
-      font-size: 20px;
-      margin-right: 8px;
+      font-size: 1.2rem;
     }
-    
+
     .no-update-text {
-      font-size: 16px;
+      font-size: 0.95rem;
       font-weight: 600;
     }
   }
-  
+
   .no-update-message {
-    color: #64748b;
-    font-size: 16px;
+    color: var(--brand-text-secondary);
+    font-size: 0.95rem;
     margin: 0;
+    line-height: 1.45;
   }
 }
 
-// Last Checked
 .last-checked {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  background: white;
+  gap: 8px;
+  padding: 14px;
+  background: var(--brand-surface);
   border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e2e8f0;
-  
+  margin-bottom: 16px;
+  box-shadow: var(--app-shadow-soft, 0 2px 10px rgba(0, 0, 0, 0.06));
+  border: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.08));
+
   .time-icon {
-    color: #64748b;
-    font-size: 16px;
-    margin-right: 8px;
+    color: var(--brand-text-secondary);
+    font-size: 1rem;
   }
-  
+
   .time-text {
-    color: #64748b;
-    font-size: 14px;
+    color: var(--brand-text-secondary);
+    font-size: 0.875rem;
   }
 }
 
-// Check Again Button
-.check-again-button {
-  --color: #64748b;
-  --border-color: #cbd5e1;
-  --border-width: 2px;
-  --border-radius: 12px;
-  font-weight: 500;
-  height: 48px;
-}
-
-// Responsive Design
-@media (max-width: 480px) {
-  .version-content .container {
-    padding: 16px;
+@mixin check-version-dark-surfaces {
+  .version-header {
+    box-shadow: var(--app-shadow-header, 0 2px 16px rgba(0, 0, 0, 0.35));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
-  
-  .version-container .version-card {
-    padding: 20px;
-    
-    .card-header .card-title {
-      font-size: 16px;
-    }
-    
+
+  .version-content {
+    --background: var(--ion-background-color);
+  }
+
+  .version-container .version-card,
+  .update-available .release-notes,
+  .last-checked {
+    background: var(--brand-surface);
+    border-color: var(--ion-border-color);
+    box-shadow: var(--app-shadow-soft, 0 2px 14px rgba(0, 0, 0, 0.28));
+  }
+
+  .version-container {
+    .card-title,
     .version-number {
-      font-size: 28px;
+      color: var(--brand-text);
+    }
+
+    .version-label {
+      color: var(--brand-text-secondary);
     }
   }
-  
-  .update-available .update-badge {
-    padding: 10px 16px;
-    
-    .update-text {
-      font-size: 14px;
-    }
-  }
-  
+
   .release-notes {
-    padding: 16px;
-    
     .notes-title {
-      font-size: 16px;
+      color: var(--brand-text);
+    }
+
+    .note-text {
+      color: var(--brand-text);
     }
   }
-  
-  .download-button {
-    height: 48px;
+
+  .no-update .no-update-message {
+    color: var(--brand-text-secondary);
+  }
+
+  .last-checked {
+    .time-icon,
+    .time-text {
+      color: var(--brand-text-secondary);
+    }
+  }
+
+  .error-container .error-text {
+    color: var(--brand-text-secondary);
+  }
+}
+
+:host-context(html.ion-palette-dark) {
+  @include check-version-dark-surfaces;
+}
+
+:host-context(ion-app.ion-palette-dark) {
+  @include check-version-dark-surfaces;
+}
+
+.check-again-button {
+  font-weight: 500;
+  min-height: 48px;
+}
+
+@media (max-width: 480px) {
+  .version-content .page-inner {
+    padding: 16px;
+    padding-bottom: max(20px, calc(16px + env(safe-area-inset-bottom, 0px)));
+  }
+
+  .version-container .version-card {
+    padding: 18px;
+
+    .version-number {
+      font-size: 1.6rem;
+    }
   }
 }

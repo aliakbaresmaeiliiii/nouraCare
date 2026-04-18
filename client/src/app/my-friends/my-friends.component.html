@@ -1,11 +1,16 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="primary" class="friends-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home" class="back-button" (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">My Friends</ion-title>
+    <ion-title class="header-title">My friends</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" class="add-button">
+      <ion-button
+        fill="clear"
+        class="add-button"
+        aria-label="Invite friends"
+        (click)="goInviteFriends()"
+      >
         <ion-icon name="person-add-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,130 +18,138 @@
 </ion-header>
 
 <ion-content class="friends-content">
-  <div class="container">
-    <!-- Search Bar -->
+  <ion-refresher
+    slot="fixed"
+    aria-label="Pull down to refresh your friends list"
+    (ionRefresh)="onRefresh($event)"
+  >
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="page-inner">
     <div class="search-section">
-      <ion-searchbar 
-        placeholder="Search friends..." 
+      <ion-searchbar
+        placeholder="Search by name or bio…"
         [(ngModel)]="searchQuery"
+        name="friendSearch"
+        [debounce]="250"
         (ionInput)="onSearchChange($event)"
-        class="search-bar">
-      </ion-searchbar>
+        class="search-bar"
+        show-clear-button="focus"
+        inputmode="search"
+      ></ion-searchbar>
     </div>
 
-    <!-- Filter Tabs -->
     <div class="filter-section">
-      <ion-segment 
-        [(ngModel)]="selectedFilter" 
-        (ionChange)="onFilterChange($event.detail.value || 'all')"
-        class="filter-segment">
+      <ion-segment
+        scrollable="true"
+        [(ngModel)]="selectedFilter"
+        name="friendFilter"
+        class="filter-segment"
+      >
         @for (filter of filters; track filter.value) {
-        <ion-segment-button [value]="filter.value" class="filter-button">
-          <ion-icon [name]="filter.icon" class="filter-icon"></ion-icon>
-          <ion-label class="filter-label">{{ filter.label }}</ion-label>
-        </ion-segment-button>
+          <ion-segment-button [value]="filter.value" class="filter-button">
+            <ion-icon [name]="filter.icon" class="filter-icon"></ion-icon>
+            <ion-label class="filter-label">{{ filter.label }}</ion-label>
+          </ion-segment-button>
         }
       </ion-segment>
     </div>
 
-    <!-- Loading State -->
     @if (isLoading) {
-    <app-logo-loading message="Loading friends..." />
+      <app-logo-loading message="Loading friends…" />
     }
 
-    <!-- Error State -->
     @if (errorMessage && !isLoading) {
-    <div class="error-container">
-      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
-      <p class="error-text">{{ errorMessage }}</p>
-      <ion-button fill="outline" (click)="loadFriends()" class="retry-button">
-        <ion-icon name="refresh" slot="start"></ion-icon>
-        Try Again
-      </ion-button>
-    </div>
-    }
-
-    <!-- Empty State -->
-    @if (!isLoading && !errorMessage && filteredFriends.length === 0) {
-    <div class="empty-container">
-      <ion-icon name="people-outline" class="empty-icon"></ion-icon>
-      <h2 class="empty-title">No Friends Found</h2>
-      <p class="empty-text">
-        {{ searchQuery ? 'No friends match your search.' : 'You haven\'t added any friends yet.' }}
-      </p>
-      @if (!searchQuery) {
-      <ion-button fill="outline" class="add-friends-button">
-        <ion-icon name="person-add-outline" slot="start"></ion-icon>
-        Add Friends
-      </ion-button>
-      }
-    </div>
-    }
-
-    <!-- Friends List -->
-    @if (!isLoading && !errorMessage && filteredFriends.length > 0) {
-    <div class="friends-container">
-      <div class="friends-header">
-        <h2 class="friends-title">{{ filteredFriends.length }} {{ filteredFriends.length === 1 ? 'Friend' : 'Friends' }}</h2>
+      <div class="error-container">
+        <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+        <p class="error-text">{{ errorMessage }}</p>
+        <ion-button fill="outline" (click)="loadFriends()">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Try again
+        </ion-button>
       </div>
+    }
 
-      <ion-list class="friends-list">
-        @for (friend of filteredFriends; track friend.id) {
-        <ion-item class="friend-item" (click)="openFriendProfile(friend)">
-          <ion-avatar slot="start" class="friend-avatar">
-            <img [src]="friend.profileImage || 'assets/images/nurse.png'" 
-                 [alt]="friend.name"
-                 (error)="onImageError($event)">
-            <div class="status-indicator" 
-                 [style.background-color]="getStatusColor(friend.status)">
-            </div>
-          </ion-avatar>
-          
-          <ion-label class="friend-info">
-            <div class="friend-name-row">
-              <h3 class="friend-name">{{ friend.name }}</h3>
-              @if (friend.isFavorite) {
-              <ion-icon name="heart" class="favorite-icon"></ion-icon>
-              }
-            </div>
-            
-            @if (friend.bio) {
-            <p class="friend-bio">{{ friend.bio }}</p>
-            }
-            
-            <div class="friend-meta">
-              <span class="status-text">{{ getStatusText(friend.status, friend.lastSeen) }}</span>
-              <span class="meta-separator">•</span>
-              <span class="mutual-friends">{{ friend.mutualFriends }} mutual friends</span>
-            </div>
-          </ion-label>
-          
-          <ion-button slot="end" 
-                     fill="clear" 
-                     class="action-button"
-                     (click)="toggleFavorite(friend.id); $event.stopPropagation()">
-            <ion-icon [name]="friend.isFavorite ? 'heart' : 'heart-outline'" 
-                     [class.favorite]="friend.isFavorite">
-            </ion-icon>
+    @if (!isLoading && !errorMessage && filteredFriends.length === 0) {
+      <div class="empty-container">
+        <ion-icon name="people-outline" class="empty-icon"></ion-icon>
+        <h2 class="empty-title">No friends here</h2>
+        <p class="empty-text">
+          {{
+            searchQuery.trim()
+              ? 'No one matches that search. Try different words or switch the filter above.'
+              : 'When you connect with people in the community, they can show up in this list.'
+          }}
+        </p>
+        @if (!searchQuery.trim()) {
+          <ion-button fill="outline" (click)="goInviteFriends()">
+            <ion-icon name="person-add-outline" slot="start"></ion-icon>
+            Invite friends
           </ion-button>
-          
-          <ion-button slot="end" 
-                     fill="clear" 
-                     class="action-button"
-                     (click)="friend.isBlocked ? unblockFriend(friend.id) : blockFriend(friend.id); $event.stopPropagation()">
-            <ion-icon [name]="friend.isBlocked ? 'shield-checkmark' : 'shield-outline'"></ion-icon>
-          </ion-button>
-          
-          <ion-button slot="end" 
-                     fill="clear" 
-                     class="action-button"
-                     (click)="removeFriend(friend.id); $event.stopPropagation()">
-            <ion-icon name="trash-outline"></ion-icon>
-          </ion-button>
-        </ion-item>
         }
-      </ion-list>
-    </div>
+      </div>
+    }
+
+    @if (!isLoading && !errorMessage && filteredFriends.length > 0) {
+      <div class="friends-container">
+        <div class="friends-list-header">
+          <h2 class="friends-title">
+            {{ filteredFriends.length }}
+            {{ filteredFriends.length === 1 ? 'friend' : 'friends' }}
+          </h2>
+        </div>
+
+        <ion-list class="friends-list" lines="none">
+          @for (friend of filteredFriends; track friend.id) {
+            <ion-item class="friend-item" button="true" detail="false" (click)="openFriendProfile(friend)">
+              <ion-avatar slot="start" class="friend-avatar">
+                <img
+                  [src]="friend.profileImage || 'assets/images/nurse.png'"
+                  [alt]="friend.name"
+                  (error)="onImageError($event)"
+                />
+                <div
+                  class="status-indicator"
+                  [style.background-color]="getStatusColor(friend.status)"
+                ></div>
+              </ion-avatar>
+
+              <ion-label class="friend-info">
+                <div class="friend-name-row">
+                  <h3 class="friend-name">{{ friend.name }}</h3>
+                  @if (friend.isFavorite) {
+                    <ion-icon name="heart" class="favorite-icon" aria-hidden="true"></ion-icon>
+                  }
+                  @if (friend.isBlocked) {
+                    <span class="blocked-pill" aria-label="Blocked">Blocked</span>
+                  }
+                </div>
+                @if (friend.bio) {
+                  <p class="friend-bio">{{ friend.bio }}</p>
+                }
+                <div class="friend-meta">
+                  <span class="status-pill status-{{ friend.status }}">{{
+                    getStatusText(friend.status, friend.lastSeen)
+                  }}</span>
+                  <span class="meta-separator" aria-hidden="true">•</span>
+                  <span class="mutual-friends">{{ friend.mutualFriends }} mutual</span>
+                </div>
+              </ion-label>
+
+              <ion-button
+                slot="end"
+                fill="clear"
+                class="action-button action-more"
+                [attr.aria-label]="'More actions for ' + friend.name"
+                (click)="openFriendActionsSheet(friend, $event)"
+              >
+                <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+              </ion-button>
+            </ion-item>
+          }
+        </ion-list>
+      </div>
     }
   </div>
 </ion-content>

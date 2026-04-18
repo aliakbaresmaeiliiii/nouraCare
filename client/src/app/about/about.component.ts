@@ -1,272 +1,254 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
-import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone.js';
+import {
+  ActionSheetController,
+  AlertController,
+  ToastController,
+} from '@ionic/angular/standalone';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
   selector: 'app-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss'],
   standalone: true,
-  imports:[...SHARED_STANDALONE_IMPORTS],
-  schemas:[CUSTOM_ELEMENTS_SCHEMA],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   host: { class: 'ion-page' },
 })
-export class AboutComponent implements OnInit {
+export class AboutComponent {
+  private readonly router = inject(Router);
+  private readonly alertController = inject(AlertController);
+  private readonly toastController = inject(ToastController);
+  private readonly actionSheetController = inject(ActionSheetController);
 
-  constructor(
-    private router: Router,
-    private alertController: AlertController,
-    private toastController: ToastController
-  ) { }
-
-  ngOnInit() {}
-
-  // Contact Actions
-  async contactSupport() {
+  async contactSupport(): Promise<void> {
     const alert = await this.alertController.create({
-      header: 'Contact Support',
-      message: 'How can we help you?\n\n• Technical issues\n• Account questions\n• Feature requests\n• General inquiries\n\nChoose your preferred contact method:',
+      header: 'Contact support',
+      message:
+        'Choose how you would like to reach us:\n\n• Email for account and technical questions\n• In-app chat when available\n• Phone for urgent issues',
       buttons: [
         {
-          text: '📧 Email Support',
+          text: 'Email support',
           handler: () => {
-            this.showToast('Opening email client...', 'success');
-          }
+            void this.showToast('Opening email…');
+          },
         },
         {
-          text: '💬 Live Chat',
+          text: 'Live chat',
           handler: () => {
-            this.showToast('Opening live chat...', 'success');
-          }
+            void this.showToast('Chat will open here when enabled.');
+          },
         },
         {
-          text: '📞 Call Us',
+          text: 'Call us',
           handler: () => {
-            this.showToast('Opening phone dialer...', 'success');
-          }
+            void this.showToast('Dialer integration coming soon.');
+          },
         },
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        }
-      ]
+        { text: 'Cancel', role: 'cancel' },
+      ],
     });
-
     await alert.present();
   }
 
-  async followSocialMedia(platform: string) {
+  async followSocialMedia(platform: string): Promise<void> {
     const platforms = {
-      'instagram': { name: 'Instagram', url: 'https://instagram.com/gahvare' },
-      'facebook': { name: 'Facebook', url: 'https://facebook.com/gahvare' },
-      'twitter': { name: 'Twitter', url: 'https://twitter.com/gahvare' },
-      'youtube': { name: 'YouTube', url: 'https://youtube.com/gahvare' }
-    };
+      instagram: { name: 'Instagram', url: 'https://instagram.com/gahvare' },
+      facebook: { name: 'Facebook', url: 'https://facebook.com/gahvare' },
+      twitter: { name: 'Twitter', url: 'https://twitter.com/gahvare' },
+      youtube: { name: 'YouTube', url: 'https://youtube.com/gahvare' },
+    } as const;
 
     const platformInfo = platforms[platform as keyof typeof platforms];
-    
-    const alert = await this.alertController.create({
-      header: `Follow us on ${platformInfo.name}`,
-      message: `Stay updated with the latest news, tips, and community stories!\n\nWould you like to visit our ${platformInfo.name} page?`,
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Visit Page',
-          handler: () => {
-            this.showToast(`Opening ${platformInfo.name}...`, 'success');
-            // In a real app, you would use window.open(platformInfo.url)
-          }
-        }
-      ]
-    });
+    if (!platformInfo) {
+      return;
+    }
 
+    const alert = await this.alertController.create({
+      header: `Follow on ${platformInfo.name}`,
+      message: `Open our ${platformInfo.name} page in your browser?`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Open',
+          handler: () => {
+            window.open(platformInfo.url, '_blank', 'noopener,noreferrer');
+          },
+        },
+      ],
+    });
     await alert.present();
   }
 
-  // Team Actions
-  async viewTeamMember(memberId: string) {
-    const team = {
-      'dr-sarah': { 
-        name: 'Dr. Sarah Johnson', 
+  async viewTeamMember(memberId: string): Promise<void> {
+    const team: Record<
+      string,
+      { name: string; role: string; bio: string }
+    > = {
+      'dr-sarah': {
+        name: 'Dr. Sarah Johnson',
         role: 'Chief Medical Officer',
-        bio: 'Leading our medical team with 15+ years of experience in women\'s health.'
+        bio: "Leading our medical team with 15+ years of experience in women's health.",
       },
-      'dr-michael': { 
-        name: 'Dr. Michael Chen', 
+      'dr-michael': {
+        name: 'Dr. Michael Chen',
         role: 'Head of Nutrition',
-        bio: 'Specialized in pregnancy nutrition with a focus on personalized meal planning.'
+        bio: 'Specialized in pregnancy nutrition with a focus on personalized meal planning.',
       },
-      'dr-emily': { 
-        name: 'Dr. Emily Rodriguez', 
+      'dr-emily': {
+        name: 'Dr. Emily Rodriguez',
         role: 'Fitness Director',
-        bio: 'Expert in prenatal fitness and safe exercise programs for expecting mothers.'
+        bio: 'Expert in prenatal fitness and safe exercise programs for expecting mothers.',
       },
-      'maria': { 
-        name: 'Maria Garcia', 
+      maria: {
+        name: 'Maria Garcia',
         role: 'Community Manager',
-        bio: 'Building and nurturing our supportive community of mothers and families.'
-      }
+        bio: 'Building and nurturing our supportive community of mothers and families.',
+      },
     };
 
-    const member = team[memberId as keyof typeof team];
-    
+    const member = team[memberId];
+    if (!member) {
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: member.name,
-      message: `${member.role}\n\n${member.bio}\n\nWould you like to schedule a consultation with ${member.name}?`,
+      message: `${member.role}\n\n${member.bio}`,
       buttons: [
+        { text: 'Close', role: 'cancel' },
         {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Schedule Consultation',
+          text: 'Book consultation',
           handler: () => {
-            this.router.navigate(['/tabs/consultation']);
-            this.showToast('Opening consultation booking...', 'success');
-          }
-        }
-      ]
+            void this.router.navigate(['/tabs/consultation']);
+            void this.showToast('Opening consultations…');
+          },
+        },
+      ],
     });
-
     await alert.present();
   }
 
-  // App Features
-  async learnMoreFeature(feature: string) {
-    const features = {
-      'tracking': {
-        title: 'Cycle & Symptom Tracking',
-        description: 'Advanced tracking tools to monitor your fertility, symptoms, and overall health with detailed analytics and insights.'
+  async learnMoreFeature(feature: string): Promise<void> {
+    const features: Record<string, { title: string; description: string }> = {
+      tracking: {
+        title: 'Cycle & symptom tracking',
+        description:
+          'Log your cycle, symptoms, and patterns to see trends and reminders that match your body.',
       },
-      'consultation': {
-        title: 'Expert Consultations',
-        description: 'Connect with certified healthcare professionals for personalized advice, nutrition guidance, and mental health support.'
+      consultation: {
+        title: 'Expert consultations',
+        description:
+          'Connect with qualified professionals for personalized guidance when you need it.',
       },
-      'education': {
-        title: 'Comprehensive Education',
-        description: 'Access to expert-led courses covering pregnancy, nutrition, fitness, mental health, and newborn care.'
+      education: {
+        title: 'Education library',
+        description:
+          'Courses and articles on pregnancy, nutrition, movement, mental wellness, and newborn care.',
       },
-      'community': {
-        title: 'Supportive Community',
-        description: 'Join a community of mothers and families sharing experiences, advice, and support throughout their journey.'
-      }
+      community: {
+        title: 'Community',
+        description:
+          'Meet others on similar journeys, share experiences, and learn together in a moderated space.',
+      },
     };
 
-    const featureInfo = features[feature as keyof typeof features];
-    
+    const featureInfo = features[feature];
+    if (!featureInfo) {
+      return;
+    }
+
     const alert = await this.alertController.create({
       header: featureInfo.title,
       message: featureInfo.description,
       buttons: [
+        { text: 'Close', role: 'cancel' },
         {
-          text: 'Try Feature',
+          text: 'Explore app',
           handler: () => {
-            this.showToast('Opening feature...', 'success');
-          }
+            void this.router.navigate(['/tabs/home']);
+          },
         },
-        {
-          text: 'Close',
-          role: 'cancel'
-        }
-      ]
+      ],
     });
-
     await alert.present();
   }
 
-  // App Info
-  async viewPrivacyPolicy() {
+  async viewPrivacyPolicy(): Promise<void> {
     const alert = await this.alertController.create({
-      header: 'Privacy Policy',
-      message: 'Your privacy is our priority. We protect your personal health information with the highest security standards.\n\nKey points:\n• Data encryption\n• HIPAA compliance\n• User control\n• Transparent practices',
+      header: 'Privacy',
+      message:
+        'We take health data seriously: encryption in transit, clear controls, and practices aligned with how you use NouraCare. A full policy document can be linked from your legal team when ready.',
       buttons: [
+        { text: 'Close', role: 'cancel' },
         {
-          text: 'Read Full Policy',
+          text: 'Learn more',
           handler: () => {
-            this.showToast('Opening privacy policy...', 'success');
-          }
+            void this.showToast('Full policy link can be added here.');
+          },
         },
-        {
-          text: 'Close',
-          role: 'cancel'
-        }
-      ]
+      ],
     });
-
     await alert.present();
   }
 
-  async viewTermsOfService() {
+  async viewTermsOfService(): Promise<void> {
     const alert = await this.alertController.create({
-      header: 'Terms of Service',
-      message: 'Our terms ensure a safe and supportive environment for all users.\n\nKey terms:\n• User responsibilities\n• Service limitations\n• Intellectual property\n• Dispute resolution',
+      header: 'Terms of service',
+      message:
+        'These terms keep the community safe: acceptable use, service limits, and how disputes are handled. Your legal counsel can host the canonical document.',
       buttons: [
+        { text: 'Close', role: 'cancel' },
         {
-          text: 'Read Full Terms',
+          text: 'Learn more',
           handler: () => {
-            this.showToast('Opening terms of service...', 'success');
-          }
+            void this.showToast('Full terms link can be added here.');
+          },
         },
-        {
-          text: 'Close',
-          role: 'cancel'
-        }
-      ]
+      ],
     });
-
     await alert.present();
   }
 
-  // Quick Actions
-  async openQuickMenu() {
-    const actionSheet = await this.alertController.create({
-      header: 'Quick Actions',
+  async openQuickMenu(): Promise<void> {
+    const sheet = await this.actionSheetController.create({
+      header: 'Quick actions',
       buttons: [
         {
-          text: '📞 Contact Support',
+          text: 'Contact support',
           handler: () => {
-            this.contactSupport();
-          }
+            void this.contactSupport();
+          },
         },
         {
-          text: '📧 Send Feedback',
+          text: 'Send feedback',
           handler: () => {
-            this.showToast('Opening feedback form...', 'success');
-          }
+            void this.showToast('Feedback form can open here.');
+          },
         },
         {
-          text: '⭐ Rate App',
+          text: 'Rate the app',
           handler: () => {
-            this.showToast('Opening app store...', 'success');
-          }
+            void this.showToast('Store rating can open here.');
+          },
         },
         {
-          text: '📱 Share App',
+          text: 'Share NouraCare',
           handler: () => {
-            this.showToast('Opening share dialog...', 'success');
-          }
+            void this.router.navigate(['/invite-friends']);
+          },
         },
-        {
-          text: '❌ Cancel',
-          role: 'cancel'
-        }
-      ]
+        { text: 'Cancel', role: 'cancel' },
+      ],
     });
-
-    await actionSheet.present();
+    await sheet.present();
   }
 
-  // Utility Methods
-  async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+  private async showToast(message: string): Promise<void> {
     const toast = await this.toastController.create({
-      message: message,
-      duration: 3000,
-      color: color,
-      position: 'bottom'
+      message,
+      duration: 2500,
+      position: 'bottom',
     });
     await toast.present();
   }

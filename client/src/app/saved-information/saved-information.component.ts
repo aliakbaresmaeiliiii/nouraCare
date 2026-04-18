@@ -1,9 +1,34 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component, OnInit, inject } from '@angular/core';
-import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import {
+  alertCircleOutline,
+  bookmarkOutline,
+  bulbOutline,
+  calendarOutline,
+  closeOutline,
+  documentOutline,
+  documentTextOutline,
+  gridOutline,
+  libraryOutline,
+  personOutline,
+  playCircleOutline,
+  refreshOutline,
+  searchOutline,
+  timeOutline,
+} from 'ionicons/icons';
+import type { RefresherCustomEvent } from '@ionic/core';
+import {
+  AlertController,
+  IonSearchbar,
+  ToastController,
+} from '@ionic/angular/standalone';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 interface SavedItem {
   id: number;
+  /** When set, in-app reader opens this article id (see `article-detail` sample database). */
+  articleRouteId?: string;
   title: string;
   description: string;
   category: string;
@@ -20,266 +45,219 @@ interface SavedItem {
   styleUrls: ['./saved-information.component.scss'],
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  host: { class: 'ion-page' },
 })
 export class SavedInformationComponent implements OnInit {
-  private router = inject(Router);
-  
+  @ViewChild('savedSearch', { read: IonSearchbar })
+  private savedSearch?: IonSearchbar;
+
+  private readonly router = inject(Router);
+  private readonly toastController = inject(ToastController);
+  private readonly alertController = inject(AlertController);
+
   savedItems: SavedItem[] = [];
   isLoading = false;
   errorMessage = '';
   selectedCategory = 'all';
   searchQuery = '';
 
-  categories = [
+  readonly categories = [
     { value: 'all', label: 'All', icon: 'grid-outline' },
     { value: 'article', label: 'Articles', icon: 'document-text-outline' },
     { value: 'tip', label: 'Tips', icon: 'bulb-outline' },
     { value: 'resource', label: 'Resources', icon: 'library-outline' },
-    { value: 'video', label: 'Videos', icon: 'play-circle-outline' }
+    { value: 'video', label: 'Videos', icon: 'play-circle-outline' },
   ];
 
-  constructor() { }
-
-  ngOnInit() {
-    this.loadSavedItems();
+  constructor() {
+    addIcons({
+      alertCircleOutline,
+      bookmarkOutline,
+      bulbOutline,
+      calendarOutline,
+      closeOutline,
+      documentOutline,
+      documentTextOutline,
+      gridOutline,
+      libraryOutline,
+      personOutline,
+      playCircleOutline,
+      refreshOutline,
+      searchOutline,
+      timeOutline,
+    });
   }
 
-  loadSavedItems() {
+  ngOnInit(): void {
+    void this.loadSavedItems();
+  }
+
+  async loadSavedItems(): Promise<void> {
     this.isLoading = true;
     this.errorMessage = '';
-    
-    // TODO: Replace with actual API call when backend is ready
-    // this.savedService.getSavedItems().subscribe({
-    //   next: (response: any) => {
-    //     this.savedItems = response.data || [];
-    //     this.isLoading = false;
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error loading saved items:', error);
-    //     this.errorMessage = 'Failed to load saved items. Please try again.';
-    //     this.isLoading = false;
-    //   }
-    // });
 
-    // Mock data for now
-    setTimeout(() => {
+    try {
+      await new Promise((r) => setTimeout(r, 450));
       this.savedItems = [
         {
           id: 1,
+          articleRouteId: '1',
           title: 'Understanding Your Menstrual Cycle',
-          description: 'A comprehensive guide to tracking and understanding your menstrual cycle phases.',
+          description:
+            'A guide to tracking and understanding your cycle phases and patterns.',
           category: 'article',
           imageUrl: 'assets/images/bg-01.png',
           savedAt: '2024-01-15T10:30:00Z',
           type: 'article',
           readTime: 5,
-          author: 'Dr. Sarah Johnson'
+          author: 'Dr. Sarah Johnson',
         },
         {
           id: 2,
+          articleRouteId: '10',
           title: 'Natural Remedies for Period Pain',
-          description: 'Effective home remedies and natural treatments for menstrual cramps.',
+          description:
+            'Home care ideas and gentle approaches many people use for cramps.',
           category: 'tip',
           imageUrl: 'assets/images/bg-01.png',
           savedAt: '2024-01-14T14:20:00Z',
           type: 'tip',
           readTime: 3,
-          author: 'Health Expert'
+          author: 'Health Expert',
         },
         {
           id: 3,
+          articleRouteId: '11',
           title: 'Pregnancy Nutrition Guide',
-          description: 'Essential nutrients and diet tips for a healthy pregnancy.',
+          description:
+            'Nutrients and meal ideas that support you through pregnancy.',
           category: 'resource',
           imageUrl: 'assets/images/bg-01.png',
           savedAt: '2024-01-13T09:15:00Z',
           type: 'resource',
           readTime: 8,
-          author: 'Nutrition Specialist'
+          author: 'Nutrition Specialist',
         },
         {
           id: 4,
-          title: 'Yoga for Women\'s Health',
-          description: 'Gentle yoga poses specifically designed for women\'s reproductive health.',
+          articleRouteId: '10',
+          title: "Yoga for Women's Health",
+          description:
+            'Gentle poses often used to support comfort and mobility.',
           category: 'video',
           imageUrl: 'assets/images/bg-01.png',
           savedAt: '2024-01-12T16:45:00Z',
           type: 'video',
           readTime: 15,
-          author: 'Yoga Instructor'
-        }
+          author: 'Yoga Instructor',
+        },
       ];
+    } catch {
+      this.errorMessage =
+        'We could not load your saved items. Check your connection and try again.';
+    } finally {
       this.isLoading = false;
-    }, 1000);
+    }
   }
 
-  onCategoryChange(category: string | number) {
-    this.selectedCategory = category.toString();
+  onRefresh(event: RefresherCustomEvent): void {
+    void this.loadSavedItems().finally(() => event.detail.complete());
   }
 
-  onSearchChange(event: any) {
-    this.searchQuery = event.detail.value || '';
+  onSearchChange(event: CustomEvent<{ value?: string | null }>): void {
+    this.searchQuery = event.detail?.value ?? '';
   }
 
-  removeSavedItem(itemId: number) {
-    // TODO: Replace with actual API call when backend is ready
-    // this.savedService.removeSavedItem(itemId).subscribe({
-    //   next: (response: any) => {
-    //     this.showSuccessAlert('Item removed from saved list');
-    //     this.loadSavedItems();
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error removing saved item:', error);
-    //     this.showErrorAlert('Failed to remove item. Please try again.');
-    //   }
-    // });
-
-    // Mock removal for now
-    this.savedItems = this.savedItems.filter(item => item.id !== itemId);
-    this.showSuccessAlert('Item removed from saved list');
+  async focusSearch(): Promise<void> {
+    await this.savedSearch?.setFocus();
   }
 
-  openItem(item: SavedItem) {
-    // TODO: Navigate to the actual content page
-    console.log('Opening item:', item);
+  async confirmRemoveSavedItem(item: SavedItem, ev: Event): Promise<void> {
+    ev.stopPropagation();
+    const alert = await this.alertController.create({
+      header: 'Remove from saved?',
+      message: `"${item.title}" will disappear from this list.`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Remove',
+          role: 'destructive',
+          handler: () => {
+            this.savedItems = this.savedItems.filter((i) => i.id !== item.id);
+            void this.showToast('Removed from saved');
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  async openItem(item: SavedItem): Promise<void> {
+    const articleId = item.articleRouteId ?? String(item.id);
+    const ok = await this.router.navigate(['/article', articleId]);
+    if (!ok) {
+      await this.showToast('Could not open this item. Try again from the home screen.');
+    }
   }
 
   get filteredItems(): SavedItem[] {
     let items = this.savedItems;
-    
-    // Filter by category
+
     if (this.selectedCategory !== 'all') {
-      items = items.filter(item => item.category === this.selectedCategory);
+      items = items.filter((item) => item.category === this.selectedCategory);
     }
-    
-    // Filter by search query
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase();
-      items = items.filter(item => 
-        item.title.toLowerCase().includes(query) ||
-        item.description.toLowerCase().includes(query) ||
-        item.author?.toLowerCase().includes(query)
+
+    const q = this.searchQuery.trim().toLowerCase();
+    if (q) {
+      items = items.filter(
+        (item) =>
+          item.title.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q) ||
+          item.author?.toLowerCase().includes(q),
       );
     }
-    
+
     return items;
   }
 
   getCategoryIcon(category: string): string {
-    const cat = this.categories.find(c => c.value === category);
-    return cat?.icon || 'document-outline';
+    const cat = this.categories.find((c) => c.value === category);
+    return cat?.icon ?? 'document-outline';
   }
 
   formatDate(dateString: string): string {
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Unknown date';
-      
+      if (Number.isNaN(date.getTime())) {
+        return 'Unknown date';
+      }
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
       });
-    } catch (error) {
+    } catch {
       return 'Unknown date';
     }
   }
 
-  goBack() {
-    this.router.navigate(['/tabs']);
+  goBrowse(): void {
+    void this.router.navigate(['/forums']);
   }
 
   onImageError(event: Event): void {
-    const target = event.target as HTMLImageElement;
+    const target = event.target as HTMLImageElement | null;
     if (target) {
       target.src = 'assets/images/bg-01.png';
     }
   }
 
-  private showSuccessAlert(message: string): void {
-    const successDialog = document.createElement('div');
-    successDialog.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 16px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 300px;
-      animation: slideIn 0.3s ease-out;
-    `;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    const messageElement = document.createElement('div');
-    messageElement.innerHTML = `✅ ${message}`;
-    messageElement.style.cssText = `
-      font-size: 14px;
-      font-weight: 500;
-    `;
-
-    successDialog.appendChild(messageElement);
-    document.body.appendChild(successDialog);
-
-    setTimeout(() => {
-      if (successDialog.parentNode) {
-        successDialog.remove();
-      }
-    }, 3000);
-  }
-
-  private showErrorAlert(message: string): void {
-    const errorDialog = document.createElement('div');
-    errorDialog.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #f44336;
-      color: white;
-      padding: 16px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 300px;
-      animation: slideIn 0.3s ease-out;
-    `;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    const messageElement = document.createElement('div');
-    messageElement.innerHTML = `❌ ${message}`;
-    messageElement.style.cssText = `
-      font-size: 14px;
-      font-weight: 500;
-    `;
-
-    errorDialog.appendChild(messageElement);
-    document.body.appendChild(errorDialog);
-
-    setTimeout(() => {
-      if (errorDialog.parentNode) {
-        errorDialog.remove();
-      }
-    }, 5000);
+  private async showToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2200,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 }

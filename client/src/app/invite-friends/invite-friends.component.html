@@ -1,19 +1,37 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="primary" class="invite-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home" class="back-button" (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">Invite Friends</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" class="history-button" (click)="toggleInviteHistory()">
-        <ion-icon name="time-outline"></ion-icon>
+      <ion-button
+        fill="clear"
+        class="history-button"
+        [attr.aria-pressed]="showInviteHistory"
+        [attr.aria-label]="showInviteHistory ? 'Back to invite options' : 'How referrals work'"
+        (click)="toggleInviteHistory()"
+      >
+        <ion-icon
+          slot="start"
+          [name]="showInviteHistory ? 'close-circle-outline' : 'information-circle-outline'"
+        ></ion-icon>
+        <span class="history-button-label">{{ showInviteHistory ? 'Done' : 'How it works' }}</span>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="invite-content">
-  <div class="container">
+  <ion-refresher
+    slot="fixed"
+    aria-label="Pull down to refresh invite info"
+    (ionRefresh)="onRefresh($event)"
+  >
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="page-inner">
     <!-- Loading State -->
     @if (isLoading) {
       <app-logo-loading message="Loading…" />
@@ -47,29 +65,37 @@
                 <p class="code-label">Your invite code</p>
                 <div class="code-row">
                   <span class="code-value">{{ referralCode }}</span>
-                  <ion-button size="small" fill="outline" (click)="copyCodeOnly()">Copy</ion-button>
+                  <ion-button
+                    class="code-copy-button"
+                    size="small"
+                    fill="outline"
+                    (click)="copyCodeOnly()"
+                  >
+                    Copy
+                  </ion-button>
                 </div>
                 <p class="code-hint">Friends can paste this at sign-up or open your link below.</p>
               </ion-card-content>
             </ion-card>
           }
 
-          <div class="invite-methods">
+          <div class="invite-methods" role="list">
             @for (method of inviteMethods; track method.id) {
-              <ion-card 
-                button 
+              <ion-card
+                button
                 (click)="onInviteMethodClick(method)"
-                class="method-card"
-                [color]="method.color">
+                [class]="'method-card method-accent-' + method.accent"
+                [attr.aria-label]="method.title + '. ' + method.subtitle"
+              >
                 <ion-card-content class="method-content">
-                  <div class="method-icon">
+                  <div class="method-icon" aria-hidden="true">
                     <ion-icon [name]="method.icon"></ion-icon>
                   </div>
                   <div class="method-info">
                     <h3 class="method-title">{{ method.title }}</h3>
                     <p class="method-subtitle">{{ method.subtitle }}</p>
                   </div>
-                  <ion-icon name="chevron-forward-outline" class="chevron-icon"></ion-icon>
+                  <ion-icon name="chevron-forward-outline" class="chevron-icon" aria-hidden="true"></ion-icon>
                 </ion-card-content>
               </ion-card>
             }
@@ -115,7 +141,7 @@
                 daily check-ins on Home.
               </p>
               <p class="muted">
-                For privacy we do not list friends by name here — your “Friends joined” count updates
+                For privacy we do not list friends by name here — your "Friends joined" count updates
                 automatically after they register.
               </p>
             </ion-card-content>

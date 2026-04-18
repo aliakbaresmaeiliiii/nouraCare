@@ -1,7 +1,15 @@
-// Beautiful Settings Page Design
+// Settings — brand + Ionic tokens (light + html.ion-palette-dark / ion-app.ion-palette-dark)
+
+:host {
+  display: block;
+}
+
 .beautiful-settings {
-  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  background: var(--background);
+  --background: var(--ion-background-color);
+  --color: var(--brand-text);
+  --padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 0px));
+  background: var(--ion-background-color);
+  color: var(--brand-text);
   min-height: 100dvh;
 }
 
@@ -36,15 +44,28 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: white;
+    gap: 0.5rem;
+    color: #f8fafc;
 
-    .back-btn, .search-btn {
-      --color: white;
+    .header-title,
+    .header-subtitle {
+      color: inherit;
+    }
+
+    .back-btn {
+      --color: #f8fafc;
+      flex-shrink: 0;
       padding: 0.5rem;
-      
+
       ion-icon {
         font-size: 1.5rem;
+        color: #f8fafc;
       }
+    }
+
+    .header-end-spacer {
+      width: 44px;
+      flex-shrink: 0;
     }
 
     .header-info {
@@ -70,7 +91,7 @@
 
 // User Profile Card
 .user-profile-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--brand-surface);
   border-radius: 1.5rem;
   padding: 1.5rem;
   margin: 0 1.5rem 1.5rem;
@@ -78,8 +99,8 @@
   align-items: center;
   gap: 1rem;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.08));
+  box-shadow: var(--app-shadow-soft, 0 8px 28px rgba(0, 0, 0, 0.08));
 
   .profile-avatar {
     position: relative;
@@ -104,16 +125,16 @@
       right: -2px;
       width: 1.25rem;
       height: 1.25rem;
-      background: #4ade80;
+      background: var(--ion-color-success);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border: 2px solid white;
+      border: 2px solid var(--brand-surface);
 
       ion-icon {
         font-size: 0.75rem;
-        color: white;
+        color: var(--ion-color-success-contrast);
       }
     }
   }
@@ -124,13 +145,13 @@
     .profile-name {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #1f2937;
+      color: var(--brand-text);
       margin: 0 0 0.25rem 0;
     }
 
     .profile-email {
       font-size: 0.875rem;
-      color: #6b7280;
+      color: var(--brand-text-secondary);
       margin: 0 0 0.5rem 0;
     }
 
@@ -142,13 +163,13 @@
       .status-indicator {
         width: 0.5rem;
         height: 0.5rem;
-        background: #4ade80;
+        background: var(--ion-color-success);
         border-radius: 50%;
       }
 
       .status-text {
         font-size: 0.75rem;
-        color: #059669;
+        color: var(--ion-color-success-shade);
         font-weight: 600;
       }
     }
@@ -179,20 +200,23 @@
 
   .action-card {
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--brand-surface);
     border-radius: 1rem;
     padding: 1rem;
     text-align: center;
     min-width: 5rem;
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.08));
+    box-shadow: var(--app-shadow-soft, 0 4px 16px rgba(0, 0, 0, 0.08));
     transition: all 0.3s ease;
     cursor: pointer;
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      box-shadow: var(
+        --app-shadow-card-hover,
+        0 8px 24px rgba(var(--ion-background-color-rgb, 0, 0, 0), 0.18)
+      );
     }
 
     .action-icon {
@@ -213,11 +237,19 @@
       }
 
       &.security-icon {
-        background: linear-gradient(135deg, #4facfe, #00f2fe);
+        background: linear-gradient(
+          135deg,
+          var(--ion-color-primary-shade),
+          var(--ion-color-primary-tint)
+        );
       }
 
       &.notification-icon {
-        background: linear-gradient(135deg, #43e97b, #38f9d7);
+        background: linear-gradient(
+          135deg,
+          var(--ion-color-success-shade),
+          var(--ion-color-success-tint)
+        );
       }
 
       ion-icon {
@@ -229,7 +261,7 @@
     .action-label {
       font-size: 0.75rem;
       font-weight: 600;
-      color: #0f172a;
+      color: var(--brand-text);
     }
   }
 }
@@ -251,7 +283,7 @@
     .group-title {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #1f2937;
+      color: var(--brand-text);
       margin: 0;
     }
 
@@ -272,28 +304,31 @@
 
 // Setting Cards
 .setting-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--brand-surface);
   border-radius: 1rem;
   padding: 1rem;
   display: flex;
   align-items: center;
   gap: 1rem;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--ion-border-color, rgba(0, 0, 0, 0.08));
+  box-shadow: var(--app-shadow-soft, 0 4px 16px rgba(0, 0, 0, 0.08));
   transition: all 0.3s ease;
   cursor: pointer;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: var(
+      --app-shadow-card-hover,
+      0 8px 24px rgba(var(--ion-background-color-rgb, 0, 0, 0), 0.18)
+    );
   }
 
   &.danger-card {
-    border-left: 4px solid #ef4444;
-    
+    border-left: 4px solid var(--ion-color-danger);
+
     .card-title {
-      color: #dc2626;
+      color: var(--ion-color-danger-shade);
     }
   }
 
@@ -310,11 +345,19 @@
     }
 
     &.icon-privacy {
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-primary-shade),
+        var(--ion-color-primary-tint)
+      );
     }
 
     &.icon-notifications {
-      background: linear-gradient(135deg, #43e97b, #38f9d7);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-success-shade),
+        var(--ion-color-success-tint)
+      );
     }
 
     &.icon-language {
@@ -322,43 +365,83 @@
     }
 
     &.icon-theme {
-      background: linear-gradient(135deg, #4c1d95, #7c3aed);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-tertiary-shade),
+        var(--ion-color-tertiary-tint)
+      );
     }
 
     &.icon-autoSync {
-      background: linear-gradient(135deg, #059669, #10b981);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-success-shade),
+        var(--ion-color-success-tint)
+      );
     }
 
     &.icon-dataUsage {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-danger-shade),
+        var(--ion-color-danger-tint)
+      );
     }
 
     &.icon-help {
-      background: linear-gradient(135deg, #ea580c, #f97316);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-warning-shade),
+        var(--ion-color-warning-tint)
+      );
     }
 
     &.icon-feedback {
-      background: linear-gradient(135deg, #7c2d12, #ea580c);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-warning-shade),
+        var(--ion-color-warning)
+      );
     }
 
     &.icon-about {
-      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-primary-shade),
+        var(--ion-color-primary)
+      );
     }
 
     &.icon-terms {
-      background: linear-gradient(135deg, #374151, #6b7280);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-medium-shade),
+        var(--ion-color-medium-tint)
+      );
     }
 
     &.icon-privacy-policy {
-      background: linear-gradient(135deg, #1f2937, #374151);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-medium),
+        var(--ion-color-medium-shade)
+      );
     }
 
     &.icon-export {
-      background: linear-gradient(135deg, #059669, #10b981);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-success-shade),
+        var(--ion-color-success-tint)
+      );
     }
 
     &.icon-delete {
-      background: linear-gradient(135deg, #dc2626, #ef4444);
+      background: linear-gradient(
+        135deg,
+        var(--ion-color-danger-shade),
+        var(--ion-color-danger-tint)
+      );
     }
 
     ion-icon {
@@ -373,30 +456,41 @@
     .card-title {
       font-size: 1rem;
       font-weight: 600;
-      color: #1f2937;
+      color: var(--brand-text);
       margin: 0 0 0.25rem 0;
     }
 
     .card-subtitle {
       font-size: 0.875rem;
-      color: #6b7280;
+      color: var(--brand-text-secondary);
       margin: 0;
       line-height: 1.4;
     }
   }
 
   .card-action {
+    flex-shrink: 0;
+
     .beautiful-toggle {
-      --background: #e5e7eb;
+      --background: var(--ion-background-color-step-150);
       --background-checked: var(--ion-color-primary-shade);
-      --handle-background: white;
-      --handle-background-checked: white;
+      --handle-background: var(--brand-surface);
+      --handle-background-checked: var(--brand-surface);
+      max-width: 100%;
     }
 
     ion-icon {
       font-size: 1rem;
-      color: #9ca3af;
+      color: var(--brand-text-secondary);
     }
+  }
+}
+
+.setting-card--toggle {
+  cursor: default;
+
+  &:active {
+    transform: none;
   }
 }
 
@@ -406,8 +500,8 @@
 
   .logout-button {
     --background: transparent;
-    --color: #6b7280;
-    --border-color: #d1d5db;
+    --color: var(--brand-text-secondary);
+    --border-color: var(--ion-border-color);
     --border-width: 1px;
     --border-style: solid;
     --border-radius: 1rem;
@@ -416,8 +510,8 @@
     transition: all 0.3s ease;
 
     &:hover {
-      --background: #f9fafb;
-      --color: #0f172a;
+      --background: var(--ion-background-color-step-50);
+      --color: var(--brand-text);
     }
 
     ion-icon {
@@ -433,7 +527,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--ion-background-color) 92%, transparent);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
@@ -451,7 +545,7 @@
 
     .loading-text {
       margin-top: 1rem;
-      color: #6b7280;
+      color: var(--brand-text-secondary);
       font-weight: 500;
     }
   }
@@ -464,7 +558,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--ion-background-color) 92%, transparent);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
@@ -477,12 +571,12 @@
 
     .error-icon {
       font-size: 3rem;
-      color: #ef4444;
+      color: var(--ion-color-danger);
       margin-bottom: 1rem;
     }
 
     .error-text {
-      color: #6b7280;
+      color: var(--brand-text-secondary);
       margin-bottom: 1.5rem;
       font-weight: 500;
     }
@@ -544,4 +638,62 @@
   .quick-actions {
     flex-direction: row-reverse;
   }
+}
+
+/* Dark palette: ThemeService sets html + ion-app (see global.scss). */
+@mixin settings-dark-palette {
+  .settings-header {
+    box-shadow: var(--app-shadow-header, 0 2px 16px rgba(0, 0, 0, 0.35));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+    .header-pattern {
+      background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    }
+  }
+
+  .beautiful-settings {
+    --color: var(--brand-text);
+    color: var(--brand-text);
+  }
+
+  .user-profile-card,
+  .action-card,
+  .setting-card {
+    --background: var(--brand-surface);
+    background: var(--brand-surface);
+    border-color: var(--ion-border-color);
+    box-shadow: var(--app-shadow-soft, 0 4px 20px rgba(0, 0, 0, 0.35));
+  }
+
+  .setting-card.danger-card .card-title {
+    color: var(--ion-color-danger-tint);
+  }
+
+  .logout-button {
+    --border-color: var(--ion-border-color);
+    --color: var(--brand-text-secondary);
+  }
+
+  .logout-button:hover {
+    --background: var(--ion-background-color-step-100);
+    --color: var(--brand-text);
+  }
+
+  .loading-overlay,
+  .error-overlay {
+    background: color-mix(in srgb, var(--ion-background-color) 94%, transparent);
+  }
+
+  .card-action ion-icon {
+    color: var(--brand-text-secondary);
+  }
+}
+
+:host-context(html.ion-palette-dark) {
+  @include settings-dark-palette;
+}
+
+:host-context(ion-app.ion-palette-dark) {
+  @include settings-dark-palette;
 }

@@ -176,11 +176,9 @@
 
 // Compact first-screen readability tweaks
 .quick-actions-section,
-.symptoms-section,
 .tools-section,
 .insights-section,
-.expert-section,
-.community-section {
+.expert-section {
   margin-bottom: 0.85rem;
 }
 
@@ -650,19 +648,15 @@
 }
 
 .quick-actions-section,
-.symptoms-section,
 .tools-section,
 .insights-section,
-.community-section,
 .expert-section {
   padding: 0 var(--app-side-padding) 2rem;
 }
 
 .quick-actions-section,
-.symptoms-section,
 .tools-section,
-.insights-section,
-.community-section {
+.insights-section {
   .section-header {
     text-align: center;
     margin-bottom: 1.5rem;
@@ -801,156 +795,6 @@
         }
       }
 
-    }
-  }
-}
-
-.symptoms-section {
-  .symptoms-tracker {
-    .symptoms-main-card {
-      background: white;
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-
-      .symptoms-display {
-        flex: 1;
-
-        .symptoms-visual {
-          .symptom-indicators {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-
-            .symptom-bubble {
-              width: 40px;
-              height: 40px;
-              border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              position: relative;
-
-              &.bubble-1 {
-                background: var(--app-gradient-header);
-              }
-              &.bubble-2 {
-                background: linear-gradient(135deg, #ff6b9d, #f06292);
-              }
-              &.bubble-3 {
-                background: linear-gradient(135deg, #4facfe, #00f2fe);
-              }
-              &.bubble-4 {
-                background: linear-gradient(135deg, #a8edea, #fed6e3);
-              }
-
-              ion-icon {
-                font-size: 20px;
-                color: white;
-              }
-            }
-
-            .more-symptoms {
-              width: 40px;
-              height: 40px;
-              border-radius: 50%;
-              background: #f1f5f9;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              cursor: pointer;
-              transition: all 0.3s ease;
-
-              &:hover {
-                background: #e2e8f0;
-                transform: scale(1.1);
-              }
-
-              span {
-                font-size: 0.8rem;
-                font-weight: 600;
-                color: #64748b;
-              }
-            }
-          }
-
-          .symptoms-summary {
-            h3 {
-              font-size: 1.2rem;
-              font-weight: 700;
-              color: #1e293b;
-              margin: 0 0 0.25rem 0;
-            }
-
-            p {
-              font-size: 0.9rem;
-              color: #64748b;
-              margin: 0;
-            }
-          }
-        }
-
-        .no-symptoms-state {
-          text-align: center;
-
-          .no-symptoms-icon {
-            width: 60px;
-            height: 60px;
-            background: #f8fafc;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-
-            ion-icon {
-              font-size: 32px;
-              color: #cbd5e1;
-            }
-          }
-
-          h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #1e293b;
-            margin: 0 0 0.5rem 0;
-          }
-
-          p {
-            font-size: 0.9rem;
-            color: #64748b;
-            margin: 0 0 0.65rem;
-          }
-
-          .no-symptoms-primary-cta {
-            margin-top: 0.15rem;
-          }
-        }
-      }
-
-      .symptoms-action {
-        .add-symptom-btn {
-          --background: var(--app-gradient-header);
-          --border-radius: 50%;
-          --color: var(--brand-text);
-          width: 56px;
-          height: 56px;
-          box-shadow: 0 4px 20px rgba(var(--flo-primary-rgb), 0.3);
-
-          &:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(var(--flo-primary-rgb), 0.4);
-          }
-
-          ion-icon {
-            font-size: 24px;
-          }
-        }
-      }
     }
   }
 }
@@ -1289,76 +1133,6 @@
   }
 }
 
-.community-section {
-  .community-stats {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 2rem;
-
-    .stat-bubble {
-      text-align: center;
-      background: white;
-      border-radius: 20px;
-      padding: 1.5rem 1rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      min-width: 80px;
-
-      .stat-number {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--ion-color-primary);
-        margin-bottom: 0.25rem;
-      }
-
-      .stat-label {
-        font-size: 0.8rem;
-        color: #64748b;
-        font-weight: 600;
-      }
-    }
-  }
-
-  .community-highlight {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-
-    .highlight-content {
-      margin-bottom: 1.5rem;
-
-      .highlight-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0 0 1rem 0;
-      }
-
-      .highlight-text {
-        font-size: 0.95rem;
-        color: #64748b;
-        line-height: 1.6;
-        margin: 0;
-        font-style: italic;
-      }
-    }
-
-    .join-community-btn {
-      --border-color: var(--ion-color-primary);
-      --color: var(--ion-color-primary);
-      --border-radius: 16px;
-      --padding-top: 16px;
-      --padding-bottom: 16px;
-      font-weight: 600;
-
-      &:hover {
-        --background: var(--ion-color-primary-shade);
-        --color: white;
-      }
-    }
-  }
-}
-
 :host-context(html.ion-palette-dark) {
   .welcome-hero {
     background: var(--app-gradient-header);
@@ -1432,11 +1206,9 @@
   }
 
   .quick-actions-section,
-  .symptoms-section,
   .tools-section,
   .insights-section,
-  .expert-section,
-  .community-section {
+  .expert-section {
     .section-header .section-title {
       color: var(--ion-text-color);
     }
@@ -1469,41 +1241,6 @@
     }
     .action-content .action-icon ion-icon {
       color: #fff;
-    }
-  }
-
-  .symptoms-section .symptoms-main-card {
-    background: var(--ion-card-background);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: var(--app-shadow-card);
-    .symptoms-display .symptom-bubble.bubble-4 ion-icon {
-      color: #0f766e;
-    }
-    .symptoms-summary h3,
-    .no-symptoms-state h3 {
-      color: var(--ion-text-color);
-    }
-    .symptoms-summary p,
-    .no-symptoms-state p {
-      color: var(--ion-color-medium);
-    }
-    .more-symptoms {
-      background: rgba(255, 255, 255, 0.1);
-      span {
-        color: var(--ion-color-medium);
-      }
-      &:hover {
-        background: rgba(255, 255, 255, 0.16);
-      }
-    }
-    .no-symptoms-state .no-symptoms-icon {
-      background: rgba(255, 255, 255, 0.08);
-      ion-icon {
-        color: var(--ion-color-medium);
-      }
-    }
-    .add-symptom-btn {
-      --color: var(--ion-color-primary-contrast);
     }
   }
 
@@ -1639,77 +1376,87 @@
     }
   }
 
-  .community-section .community-stats .stat-bubble {
-    background: var(--ion-card-background);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: var(--app-shadow-card);
-    .stat-label {
-      color: var(--ion-color-medium);
-    }
-  }
-
-  .community-section .community-highlight {
-    background: var(--ion-card-background);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: var(--app-shadow-card);
-    .highlight-title {
-      color: var(--ion-text-color);
-    }
-    .highlight-text {
-      color: var(--ion-color-medium);
-    }
-    .join-community-btn:hover {
-      --color: var(--ion-color-primary-contrast);
-    }
-  }
-
-  .quick-fab .main-fab {
-    --background: var(--ion-color-primary);
-    --color: var(--ion-color-primary-contrast);
-    box-shadow: 0 8px 24px rgba(var(--ion-color-primary-rgb), 0.4);
+  .assistant-fab-host .assistant-fab {
+    box-shadow:
+      0 10px 26px rgba(var(--ion-color-primary-rgb), 0.38),
+      0 2px 8px rgba(15, 23, 42, 0.14);
     &:hover {
-      box-shadow: 0 12px 30px rgba(var(--ion-color-primary-rgb), 0.5);
+      box-shadow:
+        0 14px 32px rgba(var(--ion-color-primary-rgb), 0.45),
+        0 4px 12px rgba(15, 23, 42, 0.16);
     }
   }
 }
 
-.quick-fab {
-  right: calc(env(safe-area-inset-right, 0px) + 8px);
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+.assistant-fab-host {
+  position: fixed;
+  left: auto;
+  right: calc(env(safe-area-inset-right, 0px) + 12px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  z-index: 9;
+  pointer-events: none;
 
-  .main-fab {
-    --background: var(--ion-color-primary);
-    --background-activated: var(--ion-color-primary-shade);
-    --background-hover: var(--ion-color-primary-tint);
-    --color: var(--ion-color-primary-contrast);
-    --border-radius: 50%;
-    width: 54px;
-    height: 54px;
+  .assistant-fab {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 18px 10px 14px;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ion-color-primary-contrast);
+    background: linear-gradient(
+      145deg,
+      var(--ion-color-primary-tint) 0%,
+      var(--ion-color-primary) 48%,
+      var(--ion-color-primary-shade) 100%
+    );
     box-shadow:
-      0 10px 22px rgba(var(--ion-color-primary-rgb), 0.24),
-      0 2px 6px rgba(15, 23, 42, 0.12);
+      0 10px 26px rgba(var(--ion-color-primary-rgb), 0.32),
+      0 2px 8px rgba(15, 23, 42, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
-      transform: translateY(-1px) scale(1.03);
+      transform: translateY(-2px);
       box-shadow:
-        0 14px 28px rgba(var(--ion-color-primary-rgb), 0.3),
-        0 4px 10px rgba(15, 23, 42, 0.14);
+        0 14px 32px rgba(var(--ion-color-primary-rgb), 0.38),
+        0 4px 12px rgba(15, 23, 42, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
     }
 
     &:active {
       transform: translateY(0) scale(0.98);
     }
 
-    ion-icon {
-      font-size: 22px;
-      font-weight: 700;
+    &:focus-visible {
+      outline: 2px solid var(--ion-color-primary);
+      outline-offset: 3px;
     }
+  }
+
+  .assistant-fab__icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+  }
+
+  .assistant-fab__label {
+    line-height: 1;
+    white-space: nowrap;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .quick-fab .main-fab {
+  .assistant-fab-host .assistant-fab {
     transition: none;
 
     &:hover,
@@ -1757,28 +1504,15 @@
       min-width: 160px;
     }
   }
-
-  .community-stats {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-
-    .stat-bubble {
-      width: 100%;
-      max-width: 200px;
-    }
-  }
 }
 
 @media (max-width: 480px) {
   .welcome-hero,
   .onboarding-section,
   .quick-actions-section,
-  .symptoms-section,
   .tools-section,
   .insights-section,
-  .expert-section,
-  .community-section {
+  .expert-section {
     padding-left: 1rem;
     padding-right: 1rem;
   }

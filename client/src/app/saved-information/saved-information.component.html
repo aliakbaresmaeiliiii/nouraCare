@@ -1,11 +1,16 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="primary" class="saved-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home" class="back-button" (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Saved Information</ion-title>
+    <ion-title class="header-title">Saved information</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" class="search-button">
+      <ion-button
+        fill="clear"
+        class="search-button"
+        aria-label="Focus search"
+        (click)="focusSearch()"
+      >
         <ion-icon name="search-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,120 +18,144 @@
 </ion-header>
 
 <ion-content class="saved-content">
-  <div class="container">
-    <!-- Search Bar -->
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="page-inner">
     <div class="search-section">
-      <ion-searchbar 
-        placeholder="Search saved items..." 
+      <ion-searchbar
+        #savedSearch
+        placeholder="Search by title, description, or author…"
         [(ngModel)]="searchQuery"
+        [debounce]="250"
         (ionInput)="onSearchChange($event)"
-        class="search-bar">
-      </ion-searchbar>
+        class="search-bar"
+        show-clear-button="focus"
+        inputmode="search"
+        enterkeyhint="search"
+      ></ion-searchbar>
     </div>
 
-    <!-- Category Filter -->
     <div class="category-section">
-      <ion-segment 
-        [(ngModel)]="selectedCategory" 
-        (ionChange)="onCategoryChange($event.detail.value || 'all')"
-        class="category-segment">
+      <ion-segment
+        scrollable="true"
+        [(ngModel)]="selectedCategory"
+        name="savedCategory"
+        class="category-segment"
+      >
         @for (category of categories; track category.value) {
-        <ion-segment-button [value]="category.value" class="category-button">
-          <ion-icon [name]="category.icon" class="category-icon"></ion-icon>
-          <ion-label class="category-label">{{ category.label }}</ion-label>
-        </ion-segment-button>
+          <ion-segment-button [value]="category.value" class="category-button">
+            <ion-icon [name]="category.icon" class="category-icon"></ion-icon>
+            <ion-label class="category-label">{{ category.label }}</ion-label>
+          </ion-segment-button>
         }
       </ion-segment>
     </div>
 
-    <!-- Loading State -->
     @if (isLoading) {
-    <app-logo-loading message="Loading saved items..." />
+      <app-logo-loading message="Loading saved items…" />
     }
 
-    <!-- Error State -->
     @if (errorMessage && !isLoading) {
-    <div class="error-container">
-      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
-      <p class="error-text">{{ errorMessage }}</p>
-      <ion-button fill="outline" (click)="loadSavedItems()" class="retry-button">
-        <ion-icon name="refresh" slot="start"></ion-icon>
-        Try Again
-      </ion-button>
-    </div>
-    }
-
-    <!-- Empty State -->
-    @if (!isLoading && !errorMessage && filteredItems.length === 0) {
-    <div class="empty-container">
-      <ion-icon name="bookmark-outline" class="empty-icon"></ion-icon>
-      <h2 class="empty-title">No Saved Items</h2>
-      <p class="empty-text">
-        {{ searchQuery ? 'No items match your search.' : 'You haven\'t saved any items yet.' }}
-      </p>
-      @if (!searchQuery) {
-      <ion-button fill="outline" (click)="goBack()" class="browse-button">
-        <ion-icon name="library-outline" slot="start"></ion-icon>
-        Browse Content
-      </ion-button>
-      }
-    </div>
-    }
-
-    <!-- Saved Items Grid -->
-    @if (!isLoading && !errorMessage && filteredItems.length > 0) {
-    <div class="items-container">
-      <div class="items-header">
-        <h2 class="items-title">{{ filteredItems.length }} Saved {{ filteredItems.length === 1 ? 'Item' : 'Items' }}</h2>
+      <div class="error-container">
+        <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+        <p class="error-text">{{ errorMessage }}</p>
+        <ion-button fill="outline" (click)="loadSavedItems()" class="retry-button">
+          <ion-icon name="refresh-outline" slot="start"></ion-icon>
+          Try again
+        </ion-button>
       </div>
+    }
 
-      <div class="items-grid">
-        @for (item of filteredItems; track item.id) {
-        <div class="item-card" (click)="openItem(item)">
-          <div class="card-image">
-            <img [src]="item.imageUrl || 'assets/images/bg-01.png'" 
-                 [alt]="item.title"
-                 class="item-image"
-                 (error)="onImageError($event)">
-            <div class="card-overlay">
-              <ion-button fill="clear" 
-                         class="remove-button"
-                         (click)="removeSavedItem(item.id); $event.stopPropagation()">
-                <ion-icon name="close" class="remove-icon"></ion-icon>
-              </ion-button>
-            </div>
-            <div class="type-badge">
-              <ion-icon [name]="getCategoryIcon(item.category)" class="type-icon"></ion-icon>
-            </div>
-          </div>
-          
-          <div class="card-content">
-            <h3 class="item-title">{{ item.title }}</h3>
-            <p class="item-description">{{ item.description }}</p>
-            
-            <div class="item-meta">
-              @if (item.author) {
-              <div class="author">
-                <ion-icon name="person-outline" class="meta-icon"></ion-icon>
-                <span class="meta-text">{{ item.author }}</span>
-              </div>
-              }
-              @if (item.readTime) {
-              <div class="read-time">
-                <ion-icon name="time-outline" class="meta-icon"></ion-icon>
-                <span class="meta-text">{{ item.readTime }} min read</span>
-              </div>
-              }
-              <div class="saved-date">
-                <ion-icon name="calendar-outline" class="meta-icon"></ion-icon>
-                <span class="meta-text">{{ formatDate(item.savedAt) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+    @if (!isLoading && !errorMessage && filteredItems.length === 0) {
+      <div class="empty-container">
+        <ion-icon name="bookmark-outline" class="empty-icon"></ion-icon>
+        <h2 class="empty-title">Nothing saved yet</h2>
+        <p class="empty-text">
+          {{
+            searchQuery.trim()
+              ? 'No saved items match your search. Try different words or clear the filter.'
+              : 'Save articles, tips, and resources from around the app — they will appear here for quick access.'
+          }}
+        </p>
+        @if (!searchQuery.trim()) {
+          <ion-button fill="outline" (click)="goBrowse()" class="browse-button">
+            <ion-icon name="library-outline" slot="start"></ion-icon>
+            Browse content
+          </ion-button>
         }
       </div>
-    </div>
+    }
+
+    @if (!isLoading && !errorMessage && filteredItems.length > 0) {
+      <div class="items-container">
+        <div class="items-header">
+          <h2 class="items-title">
+            {{ filteredItems.length }}
+            saved {{ filteredItems.length === 1 ? 'item' : 'items' }}
+          </h2>
+        </div>
+
+        <div class="items-grid">
+          @for (item of filteredItems; track item.id) {
+            <article
+              class="item-card"
+              tabindex="0"
+              role="button"
+              (click)="openItem(item)"
+              (keydown.enter)="openItem(item)"
+            >
+              <div class="card-image">
+                <img
+                  [src]="item.imageUrl || 'assets/images/bg-01.png'"
+                  [alt]="item.title"
+                  class="item-image"
+                  loading="lazy"
+                  (error)="onImageError($event)"
+                />
+                <div class="card-overlay">
+                  <ion-button
+                    fill="clear"
+                    class="remove-button"
+                    aria-label="Remove from saved"
+                    (click)="confirmRemoveSavedItem(item, $event)"
+                  >
+                    <ion-icon name="close-outline" class="remove-icon"></ion-icon>
+                  </ion-button>
+                </div>
+                <div class="type-badge">
+                  <ion-icon [name]="getCategoryIcon(item.category)" class="type-icon"></ion-icon>
+                </div>
+              </div>
+
+              <div class="card-content">
+                <h3 class="item-title">{{ item.title }}</h3>
+                <p class="item-description">{{ item.description }}</p>
+
+                <div class="item-meta">
+                  @if (item.author) {
+                    <div class="author">
+                      <ion-icon name="person-outline" class="meta-icon"></ion-icon>
+                      <span class="meta-text">{{ item.author }}</span>
+                    </div>
+                  }
+                  @if (item.readTime) {
+                    <div class="read-time">
+                      <ion-icon name="time-outline" class="meta-icon"></ion-icon>
+                      <span class="meta-text">{{ item.readTime }} min read</span>
+                    </div>
+                  }
+                  <div class="saved-date">
+                    <ion-icon name="calendar-outline" class="meta-icon"></ion-icon>
+                    <span class="meta-text">{{ formatDate(item.savedAt) }}</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
     }
   </div>
 </ion-content>

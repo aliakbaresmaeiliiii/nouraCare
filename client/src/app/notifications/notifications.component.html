@@ -1,86 +1,133 @@
 <ion-header class="ion-no-border">
   <ion-toolbar color="primary" class="notifications-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home" class="back-button" (click)="goBack()"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">Notifications</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" class="action-button" (click)="markAllAsRead()">
+      @if (unreadCount > 0) {
+        <ion-badge class="header-unread-badge" color="light">{{ unreadCount }}</ion-badge>
+      }
+      <ion-button
+        fill="clear"
+        class="header-action-btn"
+        [disabled]="unreadCount === 0"
+        (click)="markAllAsRead()"
+        aria-label="Mark all as read"
+      >
         <ion-icon name="checkmark-done-outline"></ion-icon>
       </ion-button>
-      <ion-button fill="clear" class="action-button" (click)="clearAllNotifications()">
+      <ion-button
+        fill="clear"
+        class="header-action-btn"
+        [disabled]="notifications.length === 0"
+        (click)="clearAllNotifications()"
+        aria-label="Clear all notifications"
+      >
         <ion-icon name="trash-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="notifications-content">
-  <div class="container">
-    <!-- Simple Toggle - Only show unread -->
-    <ion-item lines="none" class="toggle-item">
-      <ion-icon name="mail-unread-outline" slot="start"></ion-icon>
-      <ion-label>Show unread only</ion-label>
-      <ion-toggle 
-        [(ngModel)]="showUnreadOnly" 
-        (ionChange)="toggleUnreadOnly()">
-      </ion-toggle>
-    </ion-item>
+<ion-content class="notifications-content" scrollEvents="true">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-    <!-- Simple Empty State -->
-    @if (!isLoading && !errorMessage && filteredNotifications.length === 0) {
-      <div class="empty-state">
-        <ion-icon name="notifications-off-outline" class="empty-icon"></ion-icon>
-        <h3>No Notifications</h3>
-        <p>
-          {{ showUnreadOnly ? 'You have no unread notifications.' : 'You\'re all caught up!' }}
-        </p>
+  <div class="page-inner">
+    @if (unreadCount > 0 && selectedFilter === 'all') {
+      <p class="summary-line">{{ unreadCount }} unread</p>
+    }
+
+    <ion-segment
+      class="filter-segment"
+      scrollable="true"
+      [(ngModel)]="selectedFilter"
+      name="notificationFilter"
+    >
+      @for (f of filters; track f.value) {
+        <ion-segment-button [value]="f.value">
+          <ion-icon [name]="f.icon"></ion-icon>
+          <ion-label>{{ f.label }}</ion-label>
+        </ion-segment-button>
+      }
+    </ion-segment>
+
+    @if (isLoading) {
+      <div class="state-center">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p class="state-caption">Loading notifications…</p>
       </div>
     }
 
-    <!-- Simple Notifications List -->
-    @if (!isLoading && !errorMessage && filteredNotifications.length > 0) {
-      <ion-list class="notifications-list">
-        @for (notification of filteredNotifications; track notification.id) {
-          <ion-item 
-            button 
-            (click)="onNotificationClick(notification)"
-            class="notification-item"
-            [class.unread]="!notification.isRead">
-            
-            <!-- Notification Icon -->
-            <div class="notification-icon">
-              <ion-icon [name]="notification.icon || getTypeIcon(notification.type)"></ion-icon>
-            </div>
+    @if (!isLoading && errorMessage) {
+      <div class="state-center state-error">
+        <ion-icon name="cloud-offline-outline" class="state-icon"></ion-icon>
+        <p>{{ errorMessage }}</p>
+        <ion-button fill="outline" (click)="retryLoad()">Try again</ion-button>
+      </div>
+    }
 
-            <!-- Notification Content -->
-            <div class="notification-content">
-              <h3 class="notification-title">{{ notification.title }}</h3>
-              <p class="notification-message">{{ notification.message }}</p>
-              <span class="notification-time">{{ formatRelativeTime(notification.timestamp) }}</span>
-            </div>
+    @if (!isLoading && !errorMessage) {
+      @if (notifications.length === 0) {
+        <div class="empty-state">
+          <ion-icon name="notifications-off-outline" class="empty-icon"></ion-icon>
+          <h3>No notifications yet</h3>
+          <p>When there is something new about your health, reminders, or the community, it will show up here.</p>
+        </div>
+      } @else if (filteredNotifications.length === 0) {
+        <div class="empty-state">
+          <ion-icon name="funnel-outline" class="empty-icon"></ion-icon>
+          <h3>Nothing to show</h3>
+          <p>{{ emptyFilterHint }}</p>
+        </div>
+      } @else {
+        <ion-list class="notifications-list" lines="none">
+          @for (notification of filteredNotifications; track notification.id) {
+            <ion-item
+              button="true"
+              detail="false"
+              lines="none"
+              (click)="onNotificationClick(notification)"
+              class="notification-item"
+              [class.unread]="!notification.isRead"
+            >
+              <div class="notification-icon" slot="start">
+                <ion-icon [name]="notification.icon || getTypeIcon(notification.type)"></ion-icon>
+              </div>
 
-            <!-- Notification Actions -->
-            <div class="notification-actions" slot="end">
-              @if (!notification.isRead) {
-                <ion-button 
-                  fill="clear" 
+              <ion-label class="notification-content">
+                <h3 class="notification-title">{{ notification.title }}</h3>
+                <p class="notification-message">{{ notification.message }}</p>
+                <span class="notification-time">{{ formatRelativeTime(notification.timestamp) }}</span>
+              </ion-label>
+
+              <div class="notification-actions" slot="end">
+                @if (!notification.isRead) {
+                  <ion-button
+                    fill="clear"
+                    size="small"
+                    aria-label="Mark as read"
+                    (click)="markAsRead(notification.id, $event)"
+                  >
+                    <ion-icon name="checkmark-outline"></ion-icon>
+                  </ion-button>
+                }
+                <ion-button
+                  fill="clear"
                   size="small"
-                  (click)="markAsRead(notification.id); $event.stopPropagation()">
-                  <ion-icon name="checkmark-outline"></ion-icon>
+                  color="danger"
+                  aria-label="Remove notification"
+                  (click)="deleteNotification(notification.id, $event)"
+                >
+                  <ion-icon name="close-outline"></ion-icon>
                 </ion-button>
-              }
-              <ion-button 
-                fill="clear" 
-                size="small"
-                color="danger"
-                (click)="deleteNotification(notification.id); $event.stopPropagation()">
-                <ion-icon name="close-outline"></ion-icon>
-              </ion-button>
-            </div>
-          </ion-item>
-        }
-      </ion-list>
+              </div>
+            </ion-item>
+          }
+        </ion-list>
+      }
     }
   </div>
 </ion-content>

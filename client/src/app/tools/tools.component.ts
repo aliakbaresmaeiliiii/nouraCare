@@ -414,10 +414,6 @@ export class ToolsComponent implements OnInit {
     await alert.present();
   }
 
-  async openChatbot() {
-    this.router.navigate(['/chatbot']);
-  }
-
   // Health Monitoring Tools
   async openWeightTracker() {
     const alert = await this.alertController.create({

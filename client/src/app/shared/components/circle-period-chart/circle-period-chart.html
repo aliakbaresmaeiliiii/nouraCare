@@ -5,13 +5,7 @@
     <p class="chart-subtitle">Track your fertility and cycle phases</p>
   </div>
 
-  <!-- Loading Indicator -->
-   @if (isLoading) {
-     <app-logo-loading layout="embedded" message="Loading your cycle data…" />
-    }
-
   <!-- Main Chart -->
-   @if (!isLoading) {
   <div class="chart-wrapper" >
     <svg viewBox="50 50 500 500" class="cycle-chart" aria-label="Period Cycle Chart">
       <!-- Background gradient -->
@@ -282,10 +276,8 @@
       </g>
     </svg>
   </div>
-  }
 
   <!-- Legend -->
-  @if (!isLoading) {
   <div class="cycle-legend">
     <div class="legend-item">
       <div class="legend-dot period-dot"></div>
@@ -313,7 +305,6 @@
       <span class="legend-duration">{{ pmsEnd - pmsStart + 1 }} days</span>
     </div>
   </div>
-}
 </div>
 
 

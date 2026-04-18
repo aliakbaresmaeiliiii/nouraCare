@@ -548,7 +548,8 @@
     </div>
   }
 
-  <!-- Quick Actions Section -->
+  @if (!isPregnant) {
+  <!-- Quick actions, See more / Show less, and expandable cycle sections (hidden during pregnancy) -->
   <div class="quick-actions-section">
     <div class="section-header">
       <h2 class="section-title">Quick Actions</h2>
@@ -664,75 +665,6 @@
   </div>
 
   @if (showMoreSections) {
-  <!-- Today's Symptoms Tracker -->
-  <div class="symptoms-section">
-    <div class="section-header">
-      <h2 class="section-title">Today's Wellness</h2>
-      <p class="section-subtitle">How are you feeling?</p>
-    </div>
-
-    <div class="symptoms-tracker">
-      <div class="symptoms-main-card">
-        <div class="symptoms-display">
-          @if (todaySymptoms.symptoms && todaySymptoms.symptoms.length > 0) {
-            <div class="symptoms-visual">
-              <div class="symptom-indicators">
-                @for (
-                  symptom of todaySymptoms.symptoms.slice(0, 4);
-                  track $index;
-                  let i = $index
-                ) {
-                  <div class="symptom-bubble" [class]="'bubble-' + (i + 1)">
-                    <ion-icon [name]="symptom.icon"></ion-icon>
-                  </div>
-                }
-                @if (todaySymptoms.symptoms.length > 4) {
-                  <div
-                    class="more-symptoms"
-                    (click)="openSymptomsTrackingForUpdate()"
-                  >
-                    <span>+{{ todaySymptoms.symptoms.length - 4 }}</span>
-                  </div>
-                }
-              </div>
-              <div class="symptoms-summary">
-                <h3>{{ todaySymptoms.symptoms.length }} symptoms logged</h3>
-                <p>Tap to view or add more</p>
-              </div>
-            </div>
-          } @else {
-            <div class="no-symptoms-state">
-              <div class="no-symptoms-icon">
-                <ion-icon name="add-circle-outline"></ion-icon>
-              </div>
-              <h3>{{ getWellnessEmptyCopy().title }}</h3>
-              <p>{{ getWellnessEmptyCopy().subtitle }}</p>
-              @if (showFirstWeekRetentionCard()) {
-                <ion-button size="small" fill="solid" class="no-symptoms-primary-cta" (click)="logQuickMood('okay')">
-                  Log mood (10 sec)
-                </ion-button>
-              } @else {
-                <ion-button size="small" fill="outline" class="no-symptoms-primary-cta" (click)="openSymptomsTracking()">
-                  Log how I feel
-                </ion-button>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="symptoms-action">
-          <ion-button
-            fill="clear"
-            class="add-symptom-btn"
-            (click)="openSymptomsTracking()"
-          >
-            <ion-icon name="add" slot="icon-only"></ion-icon>
-          </ion-button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Health Tools Section -->
   <div class="tools-section">
     <div class="section-header">
@@ -907,56 +839,19 @@
       </div>
     </div>
   </div>
-
-  <!-- Community Highlights -->
-  <div class="community-section">
-    <div class="section-header">
-      <h2 class="section-title">Community Highlights</h2>
-      <p class="section-subtitle">Connect with others on similar journeys</p>
-    </div>
-
-    <div class="community-stats">
-      <div class="stat-bubble">
-        <div class="stat-number">2.8K</div>
-        <div class="stat-label">Active Members</div>
-      </div>
-      <div class="stat-bubble">
-        <div class="stat-number">156</div>
-        <div class="stat-label">Success Stories</div>
-      </div>
-      <div class="stat-bubble">
-        <div class="stat-number">24/7</div>
-        <div class="stat-label">Support</div>
-      </div>
-    </div>
-
-    <div class="community-highlight">
-      <div class="highlight-content">
-        <h4 class="highlight-title">💖 Success Story</h4>
-        <p class="highlight-text">
-          "Thanks to tracking my cycle with this app, I was able to conceive
-          after 8 months of trying. The community support was amazing!" - Sarah
-          M.
-        </p>
-      </div>
-      <ion-button
-        expand="block"
-        fill="outline"
-        class="join-community-btn"
-        (click)="joinCommunity()"
-      >
-        <ion-icon name="people-circle-outline" slot="start"></ion-icon>
-        Join Our Community
-      </ion-button>
-    </div>
-  </div>
+  }
   }
 
-  <!-- Floating Quick Menu -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="quick-fab">
-    <ion-fab-button (click)="openQuickMenu()" class="main-fab">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  <div class="assistant-fab-host" slot="fixed">
+    <button
+      type="button"
+      class="assistant-fab"
+      (click)="openAssistantChat()"
+      aria-label="Assistant — open chat"
+    >
+      <ion-icon name="sparkles" class="assistant-fab__icon" aria-hidden="true"></ion-icon>
+      <span class="assistant-fab__label">Assistant</span>
+    </button>
+  </div>
 </div>
 </ion-content>

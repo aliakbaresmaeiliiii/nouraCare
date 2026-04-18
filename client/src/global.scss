@@ -349,11 +349,7 @@ ion-searchbar {
   --cancel-button-color: var(--brand-primary-dark);
 }
 
-ion-searchbar .searchbar-input {
-  color: #111827 !important;
-}
-
-/* Force readable search text in light mode even if page-level styles override */
+/* Search input: light = dark text; dark palette = light text (do not force #111827 globally). */
 html:not(.ion-palette-dark) ion-searchbar .searchbar-input,
 html:not(.ion-palette-dark) ion-searchbar input.searchbar-input {
   color: #111827 !important;
@@ -701,6 +697,11 @@ html.ion-palette-dark ion-searchbar {
   --icon-color: #94a3b8;
   --clear-button-color: #94a3b8;
   --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+html.ion-palette-dark ion-searchbar .searchbar-input,
+html.ion-palette-dark ion-searchbar input.searchbar-input {
+  color: var(--ion-text-color) !important;
 }
 
 /* -------------------------------------------------------------------------- */

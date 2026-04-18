@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
@@ -7,7 +7,7 @@ import {
   construct,
   home,
   menu,
-  notifications,
+  notificationsOutline,
   people,
   personCircle,
   school,
@@ -15,6 +15,8 @@ import {
 import { Subscription } from 'rxjs';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { LanguageService } from '../shared/services/language.service';
+import { NotificationUnreadService } from '../shared/services/notification-unread.service';
+import { TranslationService } from '../shared/services/translation.service';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
 @Component({
   selector: 'app-layout',
@@ -25,16 +27,20 @@ import { SideMenuComponent } from '../side-menu/side-menu.component';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class LayoutComponent implements OnInit, OnDestroy {
+  private readonly router = inject(Router);
+  private readonly languageService = inject(LanguageService);
+  private readonly notificationUnread = inject(NotificationUnreadService);
+  private readonly translation = inject(TranslationService);
+
   selectedTitle = 'Home';
   private languageSubscription!: Subscription;
-  hasNotifications = true;
+  private unreadSubscription!: Subscription;
   hasUserAvatar = false;
 
-  constructor(
-    private router: Router,
-    private languageService: LanguageService,
-  ) {
-    // Register the icons
+  unreadCount = 0;
+  notificationsAriaLabel = '';
+
+  constructor() {
     addIcons({
       home,
       construct,
@@ -43,32 +49,44 @@ export class LayoutComponent implements OnInit, OnDestroy {
       school,
       bulb,
       menu,
-      notifications,
+      notificationsOutline,
       personCircle,
     });
   }
 
   ngOnInit() {
-    // Listen to route changes to update the title
-    // this.router.events
-    //   .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-    //   .subscribe((event) => {
-    //     this.updateTitle(event?.url || '');
-    //   });
+    this.refreshNotificationButtonA11y();
 
-    // Listen to language changes to update the title
-    this.languageSubscription = this.languageService.currentLanguage$.subscribe(
-      () => {
-        // Trigger change detection when language changes
-        this.updateTitle(this.router.url);
-      },
-    );
+    this.unreadSubscription = this.notificationUnread.unreadCount$.subscribe((count) => {
+      this.unreadCount = count;
+      this.refreshNotificationButtonA11y();
+    });
+
+    this.languageSubscription = this.languageService.currentLanguage$.subscribe(() => {
+      this.updateTitle(this.router.url);
+      this.refreshNotificationButtonA11y();
+    });
   }
 
   ngOnDestroy() {
+    this.unreadSubscription?.unsubscribe();
     if (this.languageSubscription) {
       this.languageSubscription.unsubscribe();
     }
+  }
+
+  get unreadBadgeText(): string {
+    return this.unreadCount > 99 ? '99+' : String(this.unreadCount);
+  }
+
+  private refreshNotificationButtonA11y(): void {
+    if (this.unreadCount <= 0) {
+      this.notificationsAriaLabel = this.translation.translate('header.notifications.noUnread');
+      return;
+    }
+    this.notificationsAriaLabel = this.translation
+      .translate('header.notifications.withUnread')
+      .replace(/\{\{count\}\}/g, String(this.unreadCount));
   }
 
   private updateTitle(url: string) {

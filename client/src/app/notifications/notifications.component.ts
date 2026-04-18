@@ -1,20 +1,36 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'reminder' | 'update';
-  category: 'system' | 'health' | 'social' | 'reminder' | 'update';
-  isRead: boolean;
-  timestamp: string;
-  actionUrl?: string;
-  actionText?: string;
-  icon?: string;
-  priority: 'low' | 'medium' | 'high';
-}
+import { addIcons } from 'ionicons';
+import {
+  alarmOutline,
+  bulbOutline,
+  calendarOutline,
+  chatbubblesOutline,
+  checkmarkCircleOutline,
+  checkmarkDoneOutline,
+  checkmarkOutline,
+  closeCircleOutline,
+  closeOutline,
+  cloudOfflineOutline,
+  documentTextOutline,
+  funnelOutline,
+  informationCircleOutline,
+  listOutline,
+  mailUnreadOutline,
+  medicalOutline,
+  notificationsOffOutline,
+  peopleOutline,
+  personAddOutline,
+  personOutline,
+  refreshOutline,
+  trashOutline,
+  warningOutline,
+} from 'ionicons/icons';
+import type { RefresherCustomEvent } from '@ionic/core';
+import { AlertController, ToastController } from '@ionic/angular/standalone';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { NotificationUnreadService } from '../shared/services/notification-unread.service';
+import { NOTIFICATIONS_SEED, type Notification } from './notifications.seed';
 
 @Component({
   selector: 'app-notifications',
@@ -25,235 +41,199 @@ interface Notification {
   host: { class: 'ion-page' },
 })
 export class NotificationsComponent implements OnInit {
-  private router = inject(Router);
+  private readonly router = inject(Router);
+  private readonly alertController = inject(AlertController);
+  private readonly toastController = inject(ToastController);
+  private readonly notificationUnread = inject(NotificationUnreadService);
 
   isLoading = false;
   errorMessage = '';
   selectedFilter = 'all';
-  showUnreadOnly = false;
 
-  notifications: Notification[] = [
-    {
-      id: 1,
-      title: 'Period Reminder',
-      message: 'Your period is expected to start in 3 days. Don\'t forget to track it!',
-      type: 'reminder',
-      category: 'health',
-      isRead: false,
-      timestamp: '2024-01-15T10:30:00Z',
-      actionUrl: '/period-edit',
-      actionText: 'Update Period',
-      icon: 'calendar-outline',
-      priority: 'high'
-    },
-    {
-      id: 2,
-      title: 'New Article Available',
-      message: 'Check out our latest article on "Natural Remedies for Period Pain"',
-      type: 'info',
-      category: 'health',
-      isRead: false,
-      timestamp: '2024-01-15T09:15:00Z',
-      actionUrl: '/article/123',
-      actionText: 'Read Article',
-      icon: 'document-text-outline',
-      priority: 'medium'
-    },
-    {
-      id: 3,
-      title: 'Friend Request',
-      message: 'Sarah Johnson sent you a friend request',
-      type: 'info',
-      category: 'social',
-      isRead: true,
-      timestamp: '2024-01-14T16:45:00Z',
-      actionUrl: '/my-friends',
-      actionText: 'View Request',
-      icon: 'person-add-outline',
-      priority: 'medium'
-    },
-    {
-      id: 4,
-      title: 'App Update Available',
-      message: 'A new version of NouraCare is available with improved features',
-      type: 'update',
-      category: 'update',
-      isRead: true,
-      timestamp: '2024-01-14T14:20:00Z',
-      actionUrl: '/check-version',
-      actionText: 'Update Now',
-      icon: 'refresh-outline',
-      priority: 'low'
-    },
-    {
-      id: 5,
-      title: 'Consultation Reminder',
-      message: 'You have a consultation scheduled tomorrow at 2:00 PM',
-      type: 'reminder',
-      category: 'health',
-      isRead: false,
-      timestamp: '2024-01-14T12:30:00Z',
-      actionUrl: '/consultation',
-      actionText: 'View Details',
-      icon: 'medical-outline',
-      priority: 'high'
-    },
-    {
-      id: 6,
-      title: 'Health Tip',
-      message: 'Did you know? Drinking warm water with lemon can help with period cramps',
-      type: 'info',
-      category: 'health',
-      isRead: true,
-      timestamp: '2024-01-13T10:15:00Z',
-      icon: 'bulb-outline',
-      priority: 'low'
-    },
-    {
-      id: 7,
-      title: 'Forum Activity',
-      message: 'New discussion started in "Pregnancy Support" forum',
-      type: 'info',
-      category: 'social',
-      isRead: true,
-      timestamp: '2024-01-13T08:45:00Z',
-      actionUrl: '/forums',
-      actionText: 'Join Discussion',
-      icon: 'chatbubbles-outline',
-      priority: 'low'
-    },
-    {
-      id: 8,
-      title: 'Profile Completion',
-      message: 'Complete your profile to get personalized health insights',
-      type: 'reminder',
-      category: 'system',
-      isRead: false,
-      timestamp: '2024-01-12T15:30:00Z',
-      actionUrl: '/edit-profile',
-      actionText: 'Complete Profile',
-      icon: 'person-outline',
-      priority: 'medium'
-    }
-  ];
+  notifications: Notification[] = NOTIFICATIONS_SEED.map((n) => ({ ...n }));
 
-  filters = [
+  readonly filters: { value: string; label: string; icon: string }[] = [
     { value: 'all', label: 'All', icon: 'list-outline' },
     { value: 'unread', label: 'Unread', icon: 'mail-unread-outline' },
     { value: 'health', label: 'Health', icon: 'medical-outline' },
     { value: 'social', label: 'Social', icon: 'people-outline' },
     { value: 'reminder', label: 'Reminders', icon: 'alarm-outline' },
-    { value: 'update', label: 'Updates', icon: 'refresh-outline' }
+    { value: 'update', label: 'Updates', icon: 'refresh-outline' },
   ];
 
-  constructor() { }
-
-  ngOnInit() {
-    this.loadNotifications();
+  constructor() {
+    addIcons({
+      alarmOutline,
+      bulbOutline,
+      calendarOutline,
+      chatbubblesOutline,
+      checkmarkCircleOutline,
+      checkmarkDoneOutline,
+      checkmarkOutline,
+      closeCircleOutline,
+      closeOutline,
+      cloudOfflineOutline,
+      documentTextOutline,
+      funnelOutline,
+      informationCircleOutline,
+      listOutline,
+      mailUnreadOutline,
+      medicalOutline,
+      notificationsOffOutline,
+      peopleOutline,
+      personAddOutline,
+      personOutline,
+      refreshOutline,
+      trashOutline,
+      warningOutline,
+    });
   }
 
-  loadNotifications() {
+  ngOnInit(): void {
+    this.syncHeaderUnread();
+    void this.loadNotifications().finally(() => this.syncHeaderUnread());
+  }
+
+  private syncHeaderUnread(): void {
+    this.notificationUnread.syncFromList(this.notifications);
+  }
+
+  get emptyFilterHint(): string {
+    switch (this.selectedFilter) {
+      case 'unread':
+        return 'You have no unread notifications. Open “All” or pick another category.';
+      case 'health':
+        return 'No health notifications match this filter.';
+      case 'social':
+        return 'No social notifications match this filter.';
+      case 'reminder':
+        return 'No reminders in this list right now.';
+      case 'update':
+        return 'No app or content updates here yet.';
+      default:
+        return 'Try another filter.';
+    }
+  }
+
+  async loadNotifications(): Promise<void> {
     this.isLoading = true;
-    // Simulate loading notifications from API
-    setTimeout(() => {
+    this.errorMessage = '';
+    try {
+      await new Promise((r) => setTimeout(r, 350));
+    } catch {
+      this.errorMessage = 'Could not load notifications. Check your connection and try again.';
+    } finally {
       this.isLoading = false;
-    }, 1000);
+    }
   }
 
-  onFilterChange(filter: string | number) {
-    this.selectedFilter = filter.toString();
+  retryLoad(): void {
+    void this.loadNotifications();
   }
 
-  toggleUnreadOnly() {
-    this.showUnreadOnly = !this.showUnreadOnly;
+  onRefresh(event: RefresherCustomEvent): void {
+    void this.loadNotifications().finally(() => event.detail.complete());
   }
 
-  markAsRead(notificationId: number) {
-    const notification = this.notifications.find(n => n.id === notificationId);
+  async markAsRead(notificationId: number, ev: Event): Promise<void> {
+    ev.stopPropagation();
+    const notification = this.notifications.find((n) => n.id === notificationId);
     if (notification) {
       notification.isRead = true;
-      this.showSuccessAlert('Notification marked as read');
+      this.syncHeaderUnread();
+      await this.showToast('Marked as read');
     }
   }
 
-  markAllAsRead() {
-    this.notifications.forEach(notification => {
-      notification.isRead = true;
+  async markAllAsRead(): Promise<void> {
+    if (this.unreadCount === 0) {
+      return;
+    }
+    this.notifications.forEach((n) => {
+      n.isRead = true;
     });
-    this.showSuccessAlert('All notifications marked as read');
+    this.syncHeaderUnread();
+    await this.showToast('All notifications marked as read');
   }
 
-  deleteNotification(notificationId: number) {
-    this.notifications = this.notifications.filter(n => n.id !== notificationId);
-    this.showSuccessAlert('Notification deleted');
+  async deleteNotification(notificationId: number, ev: Event): Promise<void> {
+    ev.stopPropagation();
+    this.notifications = this.notifications.filter((n) => n.id !== notificationId);
+    this.syncHeaderUnread();
+    await this.showToast('Notification removed');
   }
 
-  clearAllNotifications() {
-    if (confirm('Are you sure you want to clear all notifications?')) {
-      this.notifications = [];
-      this.showSuccessAlert('All notifications cleared');
+  async clearAllNotifications(): Promise<void> {
+    if (this.notifications.length === 0) {
+      return;
     }
+    const alert = await this.alertController.create({
+      header: 'Clear all notifications?',
+      message: 'This removes every item from your list. You cannot undo this.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Clear all',
+          role: 'destructive',
+          handler: () => {
+            this.notifications = [];
+            this.syncHeaderUnread();
+            void this.showToast('All notifications cleared');
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
-  onNotificationClick(notification: Notification) {
-    // Mark as read when clicked
+  onNotificationClick(notification: Notification): void {
     if (!notification.isRead) {
       notification.isRead = true;
+      this.syncHeaderUnread();
     }
-
-    // Navigate to action URL if available
     if (notification.actionUrl) {
-      this.router.navigate([notification.actionUrl]);
+      void this.router.navigate([notification.actionUrl]);
     }
   }
 
   get filteredNotifications(): Notification[] {
     let filtered = this.notifications;
 
-    // Filter by selected category
-    if (this.selectedFilter !== 'all') {
-      filtered = filtered.filter(notification => notification.category === this.selectedFilter);
+    if (this.selectedFilter === 'unread') {
+      filtered = filtered.filter((n) => !n.isRead);
+    } else if (this.selectedFilter !== 'all') {
+      filtered = filtered.filter((n) => n.category === this.selectedFilter);
     }
 
-    // Filter by unread only
-    if (this.showUnreadOnly) {
-      filtered = filtered.filter(notification => !notification.isRead);
-    }
-
-    // Sort by priority and timestamp
-    return filtered.sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       const priorityOrder = { high: 3, medium: 2, low: 1 };
-      const priorityDiff = priorityOrder[b.priority] - priorityOrder[a.priority];
-      
-      if (priorityDiff !== 0) return priorityDiff;
-      
+      const priorityDiff =
+        priorityOrder[b.priority] - priorityOrder[a.priority];
+      if (priorityDiff !== 0) {
+        return priorityDiff;
+      }
       return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     });
   }
 
   get unreadCount(): number {
-    return this.notifications.filter(n => !n.isRead).length;
-  }
-
-  getTypeColor(type: string): string {
-    switch (type) {
-      case 'success': return 'success';
-      case 'warning': return 'warning';
-      case 'error': return 'danger';
-      case 'reminder': return 'primary';
-      case 'update': return 'secondary';
-      default: return 'medium';
-    }
+    return this.notifications.filter((n) => !n.isRead).length;
   }
 
   getTypeIcon(type: string): string {
     switch (type) {
-      case 'success': return 'checkmark-circle-outline';
-      case 'warning': return 'warning-outline';
-      case 'error': return 'close-circle-outline';
-      case 'reminder': return 'alarm-outline';
-      case 'update': return 'refresh-outline';
-      default: return 'information-circle-outline';
+      case 'success':
+        return 'checkmark-circle-outline';
+      case 'warning':
+        return 'warning-outline';
+      case 'error':
+        return 'close-circle-outline';
+      case 'reminder':
+        return 'alarm-outline';
+      case 'update':
+        return 'refresh-outline';
+      default:
+        return 'information-circle-outline';
     }
   }
 
@@ -266,39 +246,34 @@ export class NotificationsComponent implements OnInit {
       const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
       const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-      if (diffInMinutes < 1) return 'Just now';
-      if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-      if (diffInHours < 24) return `${diffInHours}h ago`;
-      if (diffInDays < 7) return `${diffInDays}d ago`;
-      
+      if (diffInMinutes < 1) {
+        return 'Just now';
+      }
+      if (diffInMinutes < 60) {
+        return `${diffInMinutes}m ago`;
+      }
+      if (diffInHours < 24) {
+        return `${diffInHours}h ago`;
+      }
+      if (diffInDays < 7) {
+        return `${diffInDays}d ago`;
+      }
+
       return date.toLocaleDateString('en-US', {
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
       });
-    } catch (error) {
+    } catch {
       return 'Unknown time';
     }
   }
 
-  goBack() {
-    this.router.navigate(['/tabs']);
-  }
-
-  private showSuccessAlert(message: string): void {
-    const alert = document.createElement('ion-alert');
-    alert.header = 'Success';
-    alert.message = message;
-    alert.buttons = ['OK'];
-    document.body.appendChild(alert);
-    alert.present();
-  }
-
-  private showErrorAlert(message: string): void {
-    const alert = document.createElement('ion-alert');
-    alert.header = 'Error';
-    alert.message = message;
-    alert.buttons = ['OK'];
-    document.body.appendChild(alert);
-    alert.present();
+  private async showToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 }

@@ -14,12 +14,13 @@
       <div slot="end" class="header-right">
         <ion-button
           fill="clear"
-          class="header-action"
+          class="header-action header-action--notifications"
           (click)="openNotifications()"
+          [attr.aria-label]="notificationsAriaLabel"
         >
-          <ion-icon name="notifications-outline"></ion-icon>
-          @if (hasNotifications) {
-            <div class="notification-badge">3</div>
+          <ion-icon name="notifications-outline" aria-hidden="true"></ion-icon>
+          @if (unreadCount > 0) {
+            <span class="notification-badge" aria-hidden="true">{{ unreadBadgeText }}</span>
           }
         </ion-button>
 

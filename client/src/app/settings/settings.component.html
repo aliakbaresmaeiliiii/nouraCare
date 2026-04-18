@@ -12,29 +12,32 @@
         <h1 class="header-title">Settings</h1>
         <p class="header-subtitle">Customize your experience</p>
       </div>
-      <ion-button fill="clear" class="search-btn">
-        <ion-icon name="search"></ion-icon>
-      </ion-button>
+      <div class="header-end-spacer" aria-hidden="true"></div>
     </div>
   </div>
 
   <!-- User Profile Card -->
   <div class="user-profile-card">
     <div class="profile-avatar">
-      <img src="assets/images/user-avatar.png" alt="User" onerror="this.style.display='none'">
-      @if (!hasUserAvatar) {
-      <ion-icon name="person-circle"></ion-icon>
+      @if (hasUserAvatar) {
+      <img [src]="avatarSrc" [alt]="displayName" />
+      } @else {
+      <ion-icon name="person-circle" aria-hidden="true"></ion-icon>
       }
+      @if (showVerifiedBadge) {
       <div class="avatar-badge">
-        <ion-icon name="checkmark"></ion-icon>
+        <ion-icon name="checkmark" aria-hidden="true"></ion-icon>
       </div>
+      }
     </div>
     <div class="profile-info">
-      <h3 class="profile-name">Sarah Johnson</h3>
-      <p class="profile-email">sarah.johnson@email.com</p>
+      <h3 class="profile-name">{{ displayName }}</h3>
+      @if (displayEmail) {
+      <p class="profile-email">{{ displayEmail }}</p>
+      }
       <div class="profile-status">
         <div class="status-indicator"></div>
-        <span class="status-text">Premium Member</span>
+        <span class="status-text">{{ accountStatusLabel }}</span>
       </div>
     </div>
     <ion-button fill="clear" class="edit-profile-btn">
@@ -104,6 +107,26 @@
       </div>
       <div class="settings-cards">
         @for (setting of appSettings; track setting.id) {
+        @if (setting.id === 'autoSync') {
+        <div class="setting-card setting-card--toggle">
+          <div class="card-icon icon-autoSync">
+            <ion-icon [name]="setting.icon"></ion-icon>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">{{ setting.title }}</h3>
+            <p class="card-subtitle">{{ setting.subtitle }}</p>
+          </div>
+          <div class="card-action">
+            <ion-toggle
+              class="beautiful-toggle"
+              [checked]="autoSyncEnabled"
+              (ionChange)="onAutoSyncIonChange($event)"
+              (click)="$event.stopPropagation()"
+              [attr.aria-label]="setting.title">
+            </ion-toggle>
+          </div>
+        </div>
+        } @else {
         <div class="setting-card" (click)="onSettingClick(setting)">
           <div class="card-icon" [class]="'icon-' + setting.id">
             <ion-icon [name]="setting.icon"></ion-icon>
@@ -113,22 +136,10 @@
             <p class="card-subtitle">{{ setting.subtitle }}</p>
           </div>
           <div class="card-action">
-            @if (setting.type === 'toggle') {
-            <ion-list [inset]="true">
-              <ion-item>
-                <ion-toggle
-                  [checked]="autoSyncEnabled"
-                  (ionChange)="onAutoSyncIonChange($event)"
-                  justify="space-between">
-                  {{ setting.title }}
-                </ion-toggle>
-              </ion-item>
-            </ion-list>
-            } @else {
             <ion-icon name="chevron-forward"></ion-icon>
-            }
           </div>
         </div>
+        }
         }
       </div>
     </div>

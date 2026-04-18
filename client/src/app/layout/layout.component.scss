@@ -85,6 +85,15 @@ ion-header.modern-header {
       position: relative;
       border-radius: 12px;
 
+      &::part(native) {
+        border-radius: 12px;
+      }
+
+      &:focus-visible::part(native) {
+        outline: 2px solid rgba(var(--brand-text-rgb), 0.95);
+        outline-offset: 2px;
+      }
+
       ion-icon {
         font-size: 24px;
       }
@@ -95,16 +104,20 @@ ion-header.modern-header {
         right: 4px;
         min-width: 18px;
         min-height: 18px;
-        padding: 0 4px;
+        padding: 0 5px;
+        line-height: 1;
         background: var(--brand-accent);
         color: var(--brand-text);
-        border-radius: 50%;
+        border-radius: 999px;
         font-size: 10px;
-        font-weight: 600;
-        display: flex;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         border: 2px solid var(--brand-surface);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        pointer-events: none;
       }
 
       .profile-avatar {
