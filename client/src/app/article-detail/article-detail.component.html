@@ -11,11 +11,9 @@
         <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" 
                   [class.favorited]="isFavorite"></ion-icon>
       </ion-button>
-      @if (isMobile) {
-      <ion-button (click)="shareArticle()" fill="clear" class="share-btn">
+      <ion-button (click)="shareArticle()" fill="clear" class="share-btn" aria-label="Share article">
         <ion-icon name="share-outline"></ion-icon>
       </ion-button>
-      }
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -142,7 +140,6 @@
           {{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}
         </ion-button>
         
-        @if (isMobile) {
         <ion-button 
           expand="block" 
           fill="outline" 
@@ -151,7 +148,6 @@
           <ion-icon name="share-outline" slot="start"></ion-icon>
           Share Article
         </ion-button>
-        }
       </div>
 
       <!-- Related Articles -->

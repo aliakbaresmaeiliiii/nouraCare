@@ -296,20 +296,6 @@
         </div>
 
         <div class="pregnancy-hero-wrap">
-          @if (!needsPregnancyInput) {
-            <div class="pregnancy-hero-summary" aria-live="polite">
-              <button
-                type="button"
-                class="pregnancy-hero-summary-badge"
-                (click)="openCurrentPregnancyWeekDetail()"
-                [attr.aria-label]="'Week ' + getPregnancyDisplayWeek() + ', ' + getPregnancyWeekAlongUnit() + '. Open week details'"
-              >
-                <span class="pregnancy-hero-summary-badge__num">{{ getPregnancyDisplayWeek() }}</span>
-                <span class="pregnancy-hero-summary-badge__suffix">{{ getPregnancyWeekBadgeSuffix() }}</span>
-              </button>
-            </div>
-          }
-
           <div
             class="pregnancy-hero-disk-shell"
             [class.pregnancy-hero-disk-shell--no-ring]="needsPregnancyInput"
@@ -322,21 +308,29 @@
                 [attr.aria-valuenow]="getPregnancyProgressBarPercent()"
                 aria-valuemin="0"
                 aria-valuemax="100"
-                [attr.aria-label]="'Pregnancy journey progress, about ' + getPregnancyProgressBarPercent() + ' percent complete'"
+                [attr.aria-valuetext]="getPregnancyProgressRingAriaValuetext()"
+                aria-label="Pregnancy journey along the ring"
               >
                 <defs>
                   <linearGradient
                     [attr.id]="pregnancyHeroRingGradId"
-                    x1="0%"
+                    x1="15%"
                     y1="100%"
-                    x2="100%"
+                    x2="85%"
                     y2="0%"
                   >
-                    <stop offset="0%" stop-color="#f4a582" />
-                    <stop offset="55%" stop-color="#ed8f6f" />
-                    <stop offset="100%" stop-color="#e0785c" />
+                    <stop offset="0%" stop-color="#ffcaba" />
+                    <stop offset="38%" stop-color="#f2a090" />
+                    <stop offset="100%" stop-color="#d86a52" />
                   </linearGradient>
                 </defs>
+                <circle
+                  class="pregnancy-hero-progress-ring__halo"
+                  cx="50"
+                  cy="50"
+                  r="46"
+                  fill="none"
+                />
                 <circle
                   class="pregnancy-hero-progress-ring__track"
                   cx="50"
@@ -351,13 +345,37 @@
                   r="46"
                   fill="none"
                   [attr.stroke]="'url(#' + pregnancyHeroRingGradId + ')'"
-                  stroke-width="3.4"
+                  stroke-width="4.25"
                   stroke-linecap="round"
                   transform="rotate(-90 50 50)"
                   [attr.stroke-dasharray]="getPregnancyProgressRingDasharray()"
                   [attr.stroke-dashoffset]="getPregnancyProgressRingDashoffset()"
                 />
+                @for (dot of getPregnancyRingMilestoneDots(); track dot.key) {
+                  <circle
+                    class="pregnancy-hero-progress-ring__milestone"
+                    [attr.cx]="dot.cx"
+                    [attr.cy]="dot.cy"
+                    r="2.1"
+                  />
+                }
               </svg>
+
+              <div
+                class="pregnancy-hero-ring-week"
+                aria-live="polite"
+                [ngStyle]="getPregnancyHeroRingWeekBadgeStyle()"
+              >
+                <button
+                  type="button"
+                  class="pregnancy-hero-summary-badge pregnancy-hero-summary-badge--on-ring"
+                  (click)="openCurrentPregnancyWeekDetail()"
+                  [attr.aria-label]="'Week ' + getPregnancyDisplayWeek() + ', ' + getPregnancyWeekAlongUnit() + '. Open week details'"
+                >
+                  <span class="pregnancy-hero-summary-badge__num">{{ getPregnancyDisplayWeek() }}</span>
+                  <span class="pregnancy-hero-summary-badge__suffix">{{ getPregnancyWeekBadgeSuffix() }}</span>
+                </button>
+              </div>
             }
 
             <div class="pregnancy-hero-disk pregnancy-hero-disk--illustration">
@@ -449,42 +467,67 @@
 
       <div class="pregnancy-daily-insights">
         <h2 class="pregnancy-daily-insights-title">{{ getPregnancyInsightsHeading() }}</h2>
-        <div class="pregnancy-insight-cards" role="list">
-          <div class="pregnancy-insight-card pregnancy-insight-card--lavender" role="listitem">
-            <span class="pregnancy-insight-card-label">Day along</span>
-            <div class="pregnancy-insight-card-body">
-              <span class="pregnancy-insight-card-value">{{ getTotalPregnancyDaysAlong() }}</span>
-              <span class="pregnancy-insight-card-phase">{{ getPregnancyPhaseOrInsightLine() }}</span>
+        @let pdsStoryTopics = getPregnancyDailyInsightStripTopics();
+        <div class="pds-strip" role="list" aria-label="Daily insight stories">
+          <button
+            type="button"
+            class="pds-card pds-card--summary"
+            role="listitem"
+            (click)="openPregnancyDailyInsightStory(getPregnancyDailyInsightSummaryTopic())"
+          >
+            <div class="pds-summary-stack" aria-hidden="true">
+              <span class="pds-summary-orb pds-summary-orb--a">
+                <ion-icon name="heart-dislike-outline"></ion-icon>
+              </span>
+              <span class="pds-summary-orb pds-summary-orb--b">
+                <ion-icon name="happy-outline"></ion-icon>
+              </span>
+              <span class="pds-summary-orb pds-summary-orb--c">+{{ pdsStoryTopics.length }}</span>
             </div>
-          </div>
-
-          <button
-            type="button"
-            class="pregnancy-insight-card pregnancy-insight-card--mint pregnancy-insight-card--btn"
-            role="listitem"
-            (click)="openCurrentPregnancyWeekDetail()"
-          >
-            <span class="pregnancy-insight-pill pregnancy-insight-pill--muted pregnancy-insight-pill--gestation">
-              <span class="pregnancy-insight-pill-line">Week {{ getPregnancyDisplayWeek() }}</span>
-              <span class="pregnancy-insight-pill-line">Day {{ getPregnancyDayDisplay() }}</span>
-            </span>
-            <span class="pregnancy-insight-icon pregnancy-insight-icon--teal">
-              <ion-icon name="medical"></ion-icon>
-            </span>
-            <span class="pregnancy-insight-card-footer">Your baby</span>
-          </button>
-
-          <button
-            type="button"
-            class="pregnancy-insight-card pregnancy-insight-card--yellow pregnancy-insight-card--btn"
-            role="listitem"
-            (click)="openPregnancyWatchouts()"
-          >
-            <span class="pregnancy-insight-pill pregnancy-insight-pill--accent">{{ getTrimesterInsightLabel() }}</span>
-            <span class="pregnancy-insight-icon pregnancy-insight-icon--orange">
+            <span class="pds-summary-plus" aria-hidden="true">
               <ion-icon name="add"></ion-icon>
             </span>
-            <span class="pregnancy-insight-card-footer">Watch-outs</span>
+          </button>
+
+          @for (topic of pdsStoryTopics; track topic.id) {
+            <button
+              type="button"
+              class="pds-card"
+              [class.pds-card--topic]="!topic.personalized"
+              [class.pds-card--personalized]="topic.personalized"
+              role="listitem"
+              (click)="openPregnancyDailyInsightStory(topic)"
+            >
+              @if (!topic.personalized) {
+                <span class="pds-topic-label" [style.color]="topic.accentHex">{{ topic.categoryLabel }}</span>
+                <span class="pds-topic-icon-ring" [style.--pds-accent]="topic.accentHex">
+                  <ion-icon [name]="topic.ionIcon"></ion-icon>
+                </span>
+                <span class="pds-topic-inner" [style.--pds-accent]="topic.accentHex">
+                  <span class="pds-topic-teaser">{{ topic.teaser }}</span>
+                </span>
+              } @else {
+                <p class="pds-personal-copy">
+                  <strong>{{ getCycleWelcomeName() }}</strong>, we’re looking for gentle patterns in how you feel —
+                  not to judge, just to support.
+                </p>
+                <div class="pds-personal-foot" aria-hidden="true">
+                  <span class="pds-dot"></span>
+                  <span class="pds-dot"></span>
+                  <span class="pds-dot"></span>
+                  <ion-icon class="pds-personal-help" name="help-circle-outline"></ion-icon>
+                </div>
+              }
+            </button>
+          }
+        </div>
+
+        <div class="pds-quick-links" aria-label="More pregnancy tools">
+          <button type="button" class="pds-chip" (click)="openCurrentPregnancyWeekDetail()">
+            Week {{ getPregnancyDisplayWeek() }} detail
+          </button>
+          <button type="button" class="pds-chip pds-chip--accent" (click)="openPregnancyWatchouts()">
+            Watch-outs
           </button>
         </div>
 

@@ -1,0 +1,129 @@
+.dis-ion {
+  --background: transparent;
+}
+
+.dis-ion::part(scroll) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.dis-root {
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(165deg, #1a1423 0%, #2d2438 45%, #1f1a28 100%);
+  color: #faf7ff;
+  position: relative;
+  overflow: hidden;
+}
+
+.dis-top {
+  flex-shrink: 0;
+  padding: calc(0.55rem + env(safe-area-inset-top, 0px)) 0.75rem 0.35rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  z-index: 4;
+}
+
+.dis-progress {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dis-progress-seg {
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+
+.dis-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #fff;
+  width: 0%;
+  transition: width 0.04s linear;
+}
+
+.dis-close {
+  margin: 0;
+  padding: 0.35rem;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  ion-icon {
+    font-size: 1.35rem;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.dis-tap-layer {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.dis-swiper {
+  width: 100%;
+  height: 100%;
+  --swiper-theme-color: #fff;
+}
+
+.dis-slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0.75rem 1.1rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+.dis-slide-card {
+  width: 100%;
+  max-width: 340px;
+  padding: 1.35rem 1.25rem 1.5rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  text-align: left;
+}
+
+.dis-slide-eyebrow {
+  margin: 0 0 0.65rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--accent, #f472b6) 88%, white);
+}
+
+.dis-slide-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.dis-slide-body {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.86);
+}

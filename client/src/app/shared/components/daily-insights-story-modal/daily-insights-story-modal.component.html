@@ -1,0 +1,41 @@
+<ion-content
+  class="dis-ion"
+  [fullscreen]="true"
+  [scrollY]="false"
+  [forceOverscroll]="false"
+>
+<div class="dis-root">
+  <div class="dis-top">
+    <div class="dis-progress" role="progressbar" [attr.aria-valuenow]="activeIndex + 1" [attr.aria-valuemin]="1" [attr.aria-valuemax]="slides.length">
+      @for (_ of slides; track $index; let i = $index) {
+        <div class="dis-progress-seg">
+          <div class="dis-progress-fill" [style.width]="segmentFillWidth(i)"></div>
+        </div>
+      }
+    </div>
+    <button type="button" class="dis-close" (click)="dismiss()" aria-label="Close">
+      <ion-icon name="close"></ion-icon>
+    </button>
+  </div>
+
+  <div class="dis-tap-layer" (click)="onTapDeck($event)">
+    <swiper-container
+      #swiperHost
+      class="dis-swiper"
+      slides-per-view="1"
+      space-between="0"
+      speed="280"
+    >
+      @for (slide of slides; track $index) {
+        <swiper-slide class="dis-slide">
+          <div class="dis-slide-card" [style.--accent]="topic.accentHex">
+            <p class="dis-slide-eyebrow">{{ topic.categoryLabel }}</p>
+            <h2 class="dis-slide-title">{{ slide.title }}</h2>
+            <p class="dis-slide-body">{{ slide.body }}</p>
+          </div>
+        </swiper-slide>
+      }
+    </swiper-container>
+  </div>
+</div>
+</ion-content>

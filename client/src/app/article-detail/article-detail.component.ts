@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FavoritesService } from '../shared/services/favorites.service';
 import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
@@ -36,11 +36,11 @@ export class ArticleDetailComponent implements OnInit {
   article: ArticleContent | null = null;
   isLoading = true;
   isFavorite = false;
-  isMobile = false;
 
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private favoritesService = inject(FavoritesService);
+  private toastController = inject(ToastController);
 
   // Sample article database
   private articleDatabase: { [key: string]: ArticleContent } = {
@@ -198,33 +198,10 @@ export class ArticleDetailComponent implements OnInit {
   };
 
   ngOnInit() {
-    // Detect if user is on mobile device
-    this.detectMobileDevice();
-    
     this.activatedRoute.params.subscribe(params => {
       const articleId = params['id'];
       this.loadArticle(articleId);
     });
-  }
-
-  private detectMobileDevice() {
-    // Check for mobile device using multiple methods
-    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-    
-    // Check for mobile user agents
-    const isMobileUserAgent = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-    
-    // Check for touch capability
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    
-    // Check screen width (mobile-like width)
-    const isMobileWidth = window.innerWidth <= 768;
-    
-    // Check if Web Share API is supported (typically mobile)
-    const hasWebShare = 'share' in navigator;
-    
-    // Device is considered mobile if it meets multiple criteria
-    this.isMobile = isMobileUserAgent && (isTouchDevice || isMobileWidth || hasWebShare);
   }
 
   loadArticle(articleId: string) {
@@ -266,37 +243,57 @@ export class ArticleDetailComponent implements OnInit {
     this.isFavorite = !this.isFavorite;
   }
 
-  shareArticle() {
-    if (!this.article || !this.isMobile) return;
+  async shareArticle(): Promise<void> {
+    if (!this.article) {
+      return;
+    }
 
     if (navigator.share) {
-      navigator.share({
-        title: this.article.title,
-        text: this.article.summary,
-        url: window.location.href,
-      }).catch(err => {
-        console.log('Error sharing:', err);
-        // Fallback to clipboard on mobile if share fails
-        this.copyToClipboard();
-      });
-    } else {
-      // Fallback for mobile devices without Web Share API
-      this.copyToClipboard();
+      try {
+        await navigator.share({
+          title: this.article.title,
+          text: this.article.summary,
+          url: window.location.href,
+        });
+        return;
+      } catch {
+        // User cancelled or share failed — fall through to clipboard
+      }
     }
+
+    await this.copyToClipboard();
   }
 
-  private copyToClipboard() {
-    if (!this.article) return;
-    
-    const shareText = `${this.article.title}\n\n${this.article.summary}\n\n${window.location.href}`;
-    
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(shareText).then(() => {
-        console.log('Article link copied to clipboard');
-      }).catch(err => {
-        console.log('Failed to copy to clipboard:', err);
-      });
+  private async copyToClipboard(): Promise<void> {
+    if (!this.article) {
+      return;
     }
+
+    const shareText = `${this.article.title}\n\n${this.article.summary}\n\n${window.location.href}`;
+
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(shareText);
+        const toast = await this.toastController.create({
+          message: 'Link copied to clipboard',
+          duration: 2200,
+          position: 'bottom',
+          color: 'success',
+        });
+        await toast.present();
+        return;
+      } catch {
+        // fall through
+      }
+    }
+
+    const toast = await this.toastController.create({
+      message: 'Could not copy automatically. Select the address bar to copy the link.',
+      duration: 3200,
+      position: 'bottom',
+      color: 'medium',
+    });
+    await toast.present();
   }
 
   goBack() {

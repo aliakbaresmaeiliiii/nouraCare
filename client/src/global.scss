@@ -1018,6 +1018,20 @@ ion-note {
   }
 }
 
+/* Full-screen pregnancy “daily insights” story reader */
+ion-modal.daily-insight-story-modal {
+  --width: 100%;
+  --height: 100%;
+  --max-width: 100vw;
+  --max-height: 100%;
+  --border-radius: 0;
+  --box-shadow: none;
+}
+
+ion-modal.daily-insight-story-modal::part(content) {
+  border-radius: 0;
+}
+
 /* Instagram-style profile photo crop (ion-modal is portaled; must be global) */
 ion-modal.instagram-crop-modal {
   --width: 100%;

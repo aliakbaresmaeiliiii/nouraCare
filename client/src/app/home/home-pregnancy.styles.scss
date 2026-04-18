@@ -225,17 +225,20 @@
   box-sizing: border-box;
 }
 
-/* Gestational summary: week only (circular control). */
-.pregnancy-hero-summary {
-  width: 100%;
-  max-width: 100%;
-  padding: 0;
-  box-sizing: border-box;
+/* Week badge follows the end of the progress arc (position from TS + ngStyle). */
+.pregnancy-hero-ring-week {
+  position: absolute;
+  z-index: 2;
   display: flex;
   justify-content: center;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  pointer-events: none;
+  transition:
+    left 0.65s cubic-bezier(0.33, 1, 0.68, 1),
+    top 0.65s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.pregnancy-hero-ring-week .pregnancy-hero-summary-badge {
+  pointer-events: auto;
 }
 
 .pregnancy-hero-summary-badge {
@@ -306,28 +309,46 @@
 
 .pregnancy-hero-progress-ring {
   position: absolute;
-  inset: -5px;
-  width: calc(100% + 10px);
-  height: calc(100% + 10px);
+  inset: -7px;
+  width: calc(100% + 14px);
+  height: calc(100% + 14px);
   pointer-events: none;
   overflow: visible;
 }
 
+/* Soft outer cushion so the ring reads as one control, not a thin scratch. */
+.pregnancy-hero-progress-ring__halo {
+  stroke: rgba(255, 248, 244, 0.95);
+  stroke-width: 9;
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+
 .pregnancy-hero-progress-ring__track {
-  stroke: rgba(197, 118, 86, 0.2);
-  stroke-width: 3.4;
+  stroke: rgba(197, 118, 86, 0.22);
+  stroke-width: 5.5;
+  stroke-linecap: round;
 }
 
 .pregnancy-hero-progress-ring__fill {
-  transition: stroke-dashoffset 0.55s cubic-bezier(0.33, 1, 0.68, 1);
-  filter: drop-shadow(0 0 4px rgba(224, 120, 92, 0.35));
+  transition: stroke-dashoffset 0.65s cubic-bezier(0.33, 1, 0.68, 1);
+  filter: drop-shadow(0 1px 2px rgba(90, 40, 30, 0.12))
+    drop-shadow(0 0 6px rgba(224, 120, 92, 0.22));
+}
+
+/* End of 1st / 2nd trimester (week 13 & 27 of 40) — subtle wayfinding on the track. */
+.pregnancy-hero-progress-ring__milestone {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: rgba(197, 118, 86, 0.45);
+  stroke-width: 0.55;
+  pointer-events: none;
 }
 
 .pregnancy-hero-disk-shell .pregnancy-hero-disk {
   position: relative;
   z-index: 1;
-  width: calc(100% - 18px);
-  max-width: calc(100% - 18px);
+  width: calc(100% - 22px);
+  max-width: calc(100% - 22px);
   height: auto;
   aspect-ratio: 1;
   box-sizing: border-box;
@@ -816,6 +837,252 @@
   line-height: 1.15;
 }
 
+/* “My daily insights” — horizontal story cards + chips */
+.pds-strip {
+  display: flex;
+  flex-direction: row;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding: 0.1rem 0 0.45rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.pds-card {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 128px;
+  min-height: 168px;
+  border-radius: 18px;
+  padding: 0.55rem 0.5rem 0.6rem;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+  appearance: none;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.pds-card--summary {
+  position: relative;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 0.85rem;
+}
+
+.pds-summary-stack {
+  position: absolute;
+  left: 50%;
+  top: 1rem;
+  transform: translateX(-50%);
+  width: 92px;
+  height: 52px;
+}
+
+.pds-summary-orb {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2.5px solid #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+  ion-icon {
+    font-size: 1.15rem;
+    color: #fff;
+  }
+}
+
+.pds-summary-orb--a {
+  left: 0;
+  top: 0;
+  background: #fecdd3;
+  z-index: 1;
+  ion-icon {
+    color: #e11d48;
+  }
+}
+
+.pds-summary-orb--b {
+  left: 26px;
+  top: 2px;
+  background: #fdba74;
+  z-index: 2;
+  ion-icon {
+    color: #fff;
+  }
+}
+
+.pds-summary-orb--c {
+  left: 52px;
+  top: 0;
+  background: #e5e7eb;
+  z-index: 3;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #4b5563;
+}
+
+.pds-summary-plus {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f472b6, #ec4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(236, 72, 153, 0.45);
+
+  ion-icon {
+    font-size: 1.65rem;
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.pds-card--topic {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.pds-topic-label {
+  display: block;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin-bottom: 0.35rem;
+}
+
+.pds-topic-icon-ring {
+  --pds-accent: #f97316;
+  width: 2.85rem;
+  height: 2.85rem;
+  margin: 0 auto 0.45rem;
+  border-radius: 50%;
+  background: var(--pds-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--pds-accent) 40%, transparent);
+
+  ion-icon {
+    font-size: 1.35rem;
+    color: #fff;
+  }
+}
+
+.pds-topic-inner {
+  --pds-accent: #f97316;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0.4rem 0.35rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--pds-accent);
+  background: #fff;
+}
+
+.pds-topic-teaser {
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--pds-accent);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pds-card--personalized {
+  width: 148px;
+  text-align: left;
+  padding: 0.65rem 0.65rem 0.55rem;
+  background: linear-gradient(165deg, #fff7ed 0%, #ffedd5 100%);
+  border: 2.5px solid #f472b6;
+  box-shadow: 0 6px 20px rgba(244, 114, 182, 0.2);
+}
+
+.pds-personal-copy {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #1f2937;
+  flex: 1;
+
+  strong {
+    font-weight: 800;
+  }
+}
+
+.pds-personal-foot {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 0.45rem;
+}
+
+.pds-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fb923c;
+}
+
+.pds-personal-help {
+  margin-left: 2px;
+  font-size: 1rem;
+  color: #fb923c;
+}
+
+.pds-quick-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+}
+
+.pds-chip {
+  border: 1px solid rgba(13, 148, 136, 0.35);
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.pds-chip--accent {
+  border-color: rgba(249, 115, 22, 0.45);
+  color: #c2410c;
+}
+
 /* Post–40 weeks (full-term+) — calm reassurance card */
 .pregnancy-post-due-card {
   position: relative;
@@ -930,12 +1197,6 @@
     box-shadow: var(--app-shadow-card);
   }
 
-  .pregnancy-hero-summary {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-  }
-
   .pregnancy-hero-summary-badge {
     color: var(--ion-text-color);
     background: linear-gradient(
@@ -949,17 +1210,58 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
 
+  .pregnancy-hero-progress-ring__halo {
+    stroke: rgba(255, 255, 255, 0.06);
+    opacity: 0.95;
+  }
+
   .pregnancy-hero-progress-ring__track {
-    stroke: rgba(255, 255, 255, 0.22);
+    stroke: rgba(255, 255, 255, 0.2);
+  }
+
+  .pregnancy-hero-progress-ring__milestone {
+    fill: rgba(255, 255, 255, 0.18);
+    stroke: rgba(255, 255, 255, 0.38);
   }
 
   .pregnancy-hero-progress-ring__fill {
-    filter: drop-shadow(0 0 6px rgba(var(--ion-color-primary-rgb), 0.45));
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35))
+      drop-shadow(0 0 8px rgba(var(--ion-color-primary-rgb), 0.35));
   }
 
   .pregnancy-daily-insights-title,
   .pregnancy-insight-card-footer {
     color: var(--ion-text-color);
+  }
+
+  .pds-card:not(.pds-card--personalized) {
+    background: var(--ion-card-background);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: var(--app-shadow-card);
+  }
+
+  .pds-topic-inner {
+    background: var(--ion-card-background);
+  }
+
+  .pds-card--personalized {
+    background: linear-gradient(165deg, #3a2a22 0%, #2d241c 100%);
+    border-color: rgba(244, 114, 182, 0.55);
+  }
+
+  .pds-personal-copy {
+    color: var(--ion-text-color);
+  }
+
+  .pds-chip {
+    background: rgba(0, 0, 0, 0.25);
+    color: #5eead4;
+    border-color: rgba(94, 234, 212, 0.35);
+  }
+
+  .pds-chip--accent {
+    color: #fdba74;
+    border-color: rgba(251, 146, 60, 0.4);
   }
 
   .pregnancy-insight-card {
