@@ -28,6 +28,18 @@ export function computePregnancyMetricsFromLmp(lmp: Date, today: Date = new Date
   return { days, week, day, progress };
 }
 
+/** Short “where you are” line for dashboard / home (trimester + gestational week). */
+export function pregnancyDashboardInsight(week: number): string {
+  const w = Math.min(42, Math.max(1, Math.round(week)));
+  if (w <= 13) {
+    return `First trimester · week ${w}`;
+  }
+  if (w <= 27) {
+    return `Second trimester · week ${w}`;
+  }
+  return `Third trimester · week ${w}`;
+}
+
 export function tipsForPregnancyWeek(week: number): string[] {
   if (week < 0) return [];
   if (week <= 4) {

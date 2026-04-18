@@ -142,24 +142,29 @@
   }
   
   .period-day-number {
-    fill: white;
+    fill: #0f172a;
+    stroke: rgba(255, 255, 255, 0.92);
+    stroke-width: 2.5px;
+    paint-order: stroke fill;
     font-weight: 700;
-    opacity: 0.9;
-    
+    opacity: 1;
+
     &:hover {
-      opacity: 1;
-      font-weight: 800;
+      fill: #020617;
+      stroke: #fff;
     }
   }
-  
+
   .last-day-number {
-    fill: #10b981;
+    fill: #065f46;
+    stroke: rgba(255, 255, 255, 0.85);
+    stroke-width: 2px;
+    paint-order: stroke fill;
     font-weight: 700;
-    opacity: 0.9;
-    
+    opacity: 1;
+
     &:hover {
-      opacity: 1;
-      font-weight: 800;
+      fill: #064e3b;
     }
   }
 }

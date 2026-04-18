@@ -6,6 +6,12 @@
   --min-height: 52px;
 }
 
+.week-detail-toolbar-title {
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
 .week-detail-content {
   --background: var(--wd-page-bg, #eceaf2);
   --padding-start: 0;
@@ -30,7 +36,7 @@
     0 8px 24px rgba(15, 23, 42, 0.06);
   border: 1px solid rgba(15, 23, 42, 0.06);
   margin-bottom: 12px;
-  margin-top: 57px
+  margin-top: 56px;
 }
 
 .hero-top {
@@ -64,6 +70,13 @@
   margin: 0;
   font-size: 0.9rem;
   color: var(--ion-color-medium, #6b6b73);
+}
+
+.hero-lede {
+  margin: 14px 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ion-color-medium-shade, #5c5c64);
 }
 
 .baby-summary {
@@ -122,14 +135,73 @@
   color: var(--ion-color-primary, #5260ff);
 }
 
-// —— Week stepper ——
-.week-stepper {
+// —— Week controls (browse + jump + save) ——
+.week-controls {
+  margin-top: 16px;
+  padding-top: 4px;
+}
+
+.week-controls-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 16px;
-  padding-top: 4px;
   gap: 12px;
+}
+
+.week-controls-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+  flex: 1;
+}
+
+.week-controls-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium, #6b6b73);
+}
+
+.week-controls-week {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ion-text-color, #1a1a1e);
+  line-height: 1.15;
+}
+
+.week-controls-of {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium, #6b6b73);
+  margin-top: 2px;
+}
+
+.week-controls-hint {
+  margin: 10px 0 4px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ion-color-medium, #6b6b73);
+}
+
+.week-controls-save {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.week-save-explainer {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ion-color-medium-shade, #5c5c64);
+}
+
+.week-save-explainer strong {
+  color: var(--ion-text-color, #1a1a1e);
+  font-weight: 650;
 }
 
 .stepper-btn {
@@ -159,42 +231,18 @@
   font-size: 1.35rem;
 }
 
-.stepper-label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--ion-color-medium, #6b6b73);
-  letter-spacing: 0.04em;
-}
-
-.week-save-panel {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(var(--ion-color-primary-rgb, 82, 96, 255), 0.06);
-}
-
-.week-range-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.range-label {
-  font-size: 0.82rem;
-  color: var(--ion-color-medium, #6b6b73);
-}
-
-.range-value {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--ion-color-primary, #5260ff);
-}
-
 .save-week-button {
-  margin-top: 8px;
+  margin-top: 0;
   --border-radius: 12px;
   font-weight: 600;
+}
+
+.tab-segment-intro {
+  margin: 0 0 6px;
+  padding: 0 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ion-color-medium-shade, #5c5c64);
 }
 
 // —— Sticky tabs ——
@@ -224,12 +272,12 @@
 
 ion-segment-button {
   --indicator-color: transparent;
-  --padding-start: 12px;
-  --padding-end: 12px;
+  --padding-start: 10px;
+  --padding-end: 10px;
   --padding-top: 8px;
   --padding-bottom: 8px;
-  min-width: 72px;
-  max-width: 100px;
+  min-width: 76px;
+  max-width: 118px;
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.01em;

@@ -122,6 +122,7 @@ export class ReproductiveStateService {
         day: pregnancy.day,
         progress: pregnancy.progress,
         tips: pregnancy.tips,
+        insight: pregnancy.insight ?? null,
         nextPeriod: null as Date | null,
         needsPregnancyInput: false,
         lastMenstrualPeriod: pregnancy.lastMenstrualPeriod,

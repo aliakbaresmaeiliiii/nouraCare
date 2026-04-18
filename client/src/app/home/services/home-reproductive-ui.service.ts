@@ -19,6 +19,8 @@ export interface HomePageJourneyState {
   needsPregnancyInput?: boolean;
   lastMenstrualPeriodIso?: string | null;
   dashboardTips?: string[];
+  /** Dashboard `insight` for pregnant users (trimester + week); optional on older servers. */
+  pregnancyDashboardInsight?: string | null;
   periodStartDate: Date | null;
   /** Call {@link updateCycleDay} on the component when true. */
   cycleDayDirty: boolean;
@@ -61,6 +63,8 @@ export class HomeReproductiveUiService {
           isPregnant: true,
           isPostpartum: false,
           needsPregnancyInput: true,
+          dashboardTips: [],
+          pregnancyDashboardInsight: null,
           periodStartDate: null,
           cycleDayDirty: false,
         };
@@ -86,6 +90,9 @@ export class HomeReproductiveUiService {
         needsPregnancyInput: false,
         lastMenstrualPeriodIso: lmpIso ?? dashboard.lastMenstrualPeriod ?? null,
         dashboardTips: dashboard.tips?.length ? dashboard.tips : [],
+        pregnancyDashboardInsight: dashboard.insight?.trim()
+          ? dashboard.insight.trim()
+          : null,
         periodStartDate: null,
         cycleDayDirty: false,
       };

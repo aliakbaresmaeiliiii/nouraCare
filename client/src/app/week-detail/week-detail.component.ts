@@ -1,11 +1,15 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
+import { IonContent } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { OnboardingService } from '../shared/services/onboarding.service';
 import { UserInfoService } from '../shared/services/user-info.service';
 import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
 import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
+
+const PREGNANCY_WEEK_MIN = 1;
+const PREGNANCY_WEEK_MAX = 40;
 
 interface WeekData {
   week: number;
@@ -44,9 +48,11 @@ interface WeekData {
   templateUrl: './week-detail.component.html',
   styleUrls: ['./week-detail.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS]
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class WeekDetailComponent implements OnInit {
+  @ViewChild('weekScroll') private weekIonContent?: IonContent;
+
   private navCtrl = inject(NavController);
   private route = inject(ActivatedRoute);
   private toastController = inject(ToastController);
@@ -64,7 +70,7 @@ export class WeekDetailComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const fromQuery = parseInt(params['week'], 10);
       this.pregnancyWeek = Number.isFinite(fromQuery)
-        ? Math.min(40, Math.max(1, fromQuery))
+        ? this.clampWeek(fromQuery)
         : 4;
       this.loadWeekData();
     });
@@ -78,7 +84,7 @@ export class WeekDetailComponent implements OnInit {
   }
 
   previousWeek() {
-    if (this.pregnancyWeek > 1) {
+    if (this.pregnancyWeek > PREGNANCY_WEEK_MIN) {
       this.pregnancyWeek--;
       this.loadWeekData();
       this.scrollToTop();
@@ -86,7 +92,7 @@ export class WeekDetailComponent implements OnInit {
   }
 
   nextWeek() {
-    if (this.pregnancyWeek < 40) {
+    if (this.pregnancyWeek < PREGNANCY_WEEK_MAX) {
       this.pregnancyWeek++;
       this.loadWeekData();
       this.scrollToTop();
@@ -94,10 +100,14 @@ export class WeekDetailComponent implements OnInit {
   }
 
   scrollToTop() {
-    const content = document.querySelector('ion-content');
-    if (content) {
-      content.scrollToTop(300);
-    }
+    void this.weekIonContent?.scrollToTop(300);
+  }
+
+  private clampWeek(week: number): number {
+    return Math.min(
+      PREGNANCY_WEEK_MAX,
+      Math.max(PREGNANCY_WEEK_MIN, Math.round(week)),
+    );
   }
 
   setActiveTab(tab: any) {
@@ -160,7 +170,7 @@ export class WeekDetailComponent implements OnInit {
         if (weekFromApi == null) {
           return;
         }
-        this.pregnancyWeek = Math.min(40, Math.max(1, weekFromApi + 1));
+        this.pregnancyWeek = this.clampWeek(weekFromApi + 1);
         this.loadWeekData();
       },
     });

@@ -120,7 +120,7 @@
         @for (day of periodDayNumbers; track $index) {
         <g class="outer-number-marker">
           <text [attr.x]="getOuterNumberX($index, cycleLength)" [attr.y]="getOuterNumberY($index, cycleLength)"
-            text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="600" fill="white"
+            text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="700"
             class="outer-number period-day-number">
             {{ day }}
           </text>
@@ -131,7 +131,7 @@
         <g class="outer-number-marker">
           <text [attr.x]="getOuterNumberX(cycleLength - 1, cycleLength)"
             [attr.y]="getOuterNumberY(cycleLength - 1, cycleLength)" text-anchor="middle" alignment-baseline="middle"
-            font-size="12" font-weight="600" fill="#10b981" class="outer-number last-day-number">
+            font-size="12" font-weight="700" fill="#065f46" class="outer-number last-day-number">
             {{ cycleLength }}
           </text>
         </g>
@@ -224,12 +224,12 @@
           <circle r="160" fill="white" stroke="#e2e8f0" stroke-width="2"></circle>
 
           <!-- Current date -->
-          <text class="center-current-date" text-anchor="middle" font-size="18" y="-100" fill="#94a3b8">
+          <text class="center-current-date" text-anchor="middle" font-size="18" y="-100" fill="#0f172a">
             {{ todayDate | date: 'MMM d, yyyy' }}
           </text>
 
           <!-- Cycle Day Display -->
-          <text class="cycle-day-title" text-anchor="middle" font-size="14" font-weight="600" y="-40" fill="#64748b">
+          <text class="cycle-day-title" text-anchor="middle" font-size="14" font-weight="700" y="-40" fill="#1e293b">
             Today is day {{ todayCycleDay }} of your cycle
           </text>
 
@@ -239,7 +239,7 @@
             <!-- <text text-anchor="start" alignment-baseline="middle" font-size="12" font-weight="600" [attr.fill]="getFertilityStatus().color" x="-35" y="-10">
               {{ getFertilityStatus().status }}
             </text> -->
-            <text text-anchor="start" alignment-baseline="middle" font-size="16" fill="#64748b" x="-100" y="5">
+            <text text-anchor="middle" alignment-baseline="middle" font-size="15" font-weight="600" fill="#1e293b" x="0" y="5">
               {{ getFertilityStatus().description }}
             </text>
           </g>

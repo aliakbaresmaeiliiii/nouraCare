@@ -441,18 +441,49 @@
   }
 }
 
-ion-fab {
-  ion-fab-button {
+// Match home tab FAB: explicit inset + size so it stays fixed and clears the tab bar area
+.quick-fab {
+  right: calc(env(safe-area-inset-right, 0px) + 8px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+
+  .main-fab {
     --background: var(--ion-color-primary);
+    --background-activated: var(--ion-color-primary-shade);
+    --background-hover: var(--ion-color-primary-tint);
     --color: var(--ion-color-primary-contrast);
     --border-radius: 50%;
-    box-shadow: 0 8px 24px rgba(var(--brand-primary-rgb), 0.35);
-    transition: transform var(--app-duration-fast, 180ms) var(--app-ease-standard, ease),
-      box-shadow var(--app-duration-fast, 180ms) var(--app-ease-standard, ease);
+    width: 54px;
+    height: 54px;
+    box-shadow:
+      0 10px 22px rgba(var(--ion-color-primary-rgb), 0.24),
+      0 2px 6px rgba(15, 23, 42, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
-      transform: scale(1.05);
-      box-shadow: 0 12px 28px rgba(var(--brand-primary-rgb), 0.4);
+      transform: translateY(-1px) scale(1.03);
+      box-shadow:
+        0 14px 28px rgba(var(--ion-color-primary-rgb), 0.3),
+        0 4px 10px rgba(15, 23, 42, 0.14);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    ion-icon {
+      font-size: 22px;
+      font-weight: 700;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quick-fab .main-fab {
+    transition: none;
+
+    &:hover,
+    &:active {
+      transform: none;
     }
   }
 }

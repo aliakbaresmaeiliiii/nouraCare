@@ -3,23 +3,21 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <!-- <ion-title>Week {{ weekData?.week ?? 0 }}</ion-title> -->
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="showToast('Week ' + pregnancyWeek + ' Information')">
-        <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    <ion-title class="week-detail-toolbar-title">Week {{ pregnancyWeek }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 @if (weekData) {
-<ion-content class="week-detail-content" [fullscreen]="true">
+<ion-content #weekScroll class="week-detail-content" [fullscreen]="true">
   <div class="week-detail-inner">
     <section class="hero-card" aria-label="Week summary">
       <div class="hero-top">
         <span class="week-pill">Week {{ weekData.week }}</span>
         <h1 class="week-title">{{ weekData.title }}</h1>
         <p class="week-subtitle">of pregnancy</p>
+        <p class="hero-lede">
+          Pick a topic below for this stage. For symptoms or care decisions, follow your provider.
+        </p>
       </div>
 
       <div class="baby-summary">
@@ -40,52 +38,60 @@
         </div>
       </div>
 
-      <div class="week-stepper">
-        <button
-          type="button"
-          class="stepper-btn"
-          (click)="previousWeek()"
-          [disabled]="pregnancyWeek <= 4"
-          aria-label="Previous week"
-        >
-          <ion-icon name="chevron-back" aria-hidden="true"></ion-icon>
-        </button>
-        <span class="stepper-label">{{ pregnancyWeek }} / 40</span>
-        <button
-          type="button"
-          class="stepper-btn"
-          (click)="nextWeek()"
-          [disabled]="pregnancyWeek >= 40"
-          aria-label="Next week"
-        >
-          <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
-        </button>
-      </div>
-
-      <div class="week-save-panel">
-        <div class="week-range-row">
-          <span class="range-label">Choose week</span>
-          <span class="range-value">Week {{ pregnancyWeek }}</span>
+      <div class="week-controls" aria-label="Choose pregnancy week">
+        <div class="week-controls-nav">
+          <button
+            type="button"
+            class="stepper-btn"
+            (click)="previousWeek()"
+            [disabled]="pregnancyWeek <= 1"
+            aria-label="Previous week"
+          >
+            <ion-icon name="chevron-back" aria-hidden="true"></ion-icon>
+          </button>
+          <div class="week-controls-summary">
+            <span class="week-controls-eyebrow">Viewing</span>
+            <span class="week-controls-week" aria-live="polite">Week {{ pregnancyWeek }}</span>
+            <span class="week-controls-of">of 40</span>
+          </div>
+          <button
+            type="button"
+            class="stepper-btn"
+            (click)="nextWeek()"
+            [disabled]="pregnancyWeek >= 40"
+            aria-label="Next week"
+          >
+            <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+          </button>
         </div>
+        <p class="week-controls-hint">Arrows move one week. Drag the slider to jump.</p>
         <ion-range
-          min="4"
-          max="40"
+          [min]="1"
+          [max]="40"
           step="1"
           snaps="true"
+          [pin]="true"
           [value]="pregnancyWeek"
+          aria-label="Jump to pregnancy week"
           (ionChange)="onWeekRangeChange($event)"
         ></ion-range>
-        <ion-button
-          expand="block"
-          class="save-week-button"
-          (click)="saveWeek()"
-          [disabled]="isSavingWeek"
-        >
-          {{ isSavingWeek ? 'Saving...' : 'Save This Week' }}
-        </ion-button>
+        <div class="week-controls-save">
+          <p class="week-save-explainer">
+            <strong>Save week</strong> updates Home so your timeline, size, and tips match what you chose (not a medical record).
+          </p>
+          <ion-button
+            expand="block"
+            class="save-week-button"
+            (click)="saveWeek()"
+            [disabled]="isSavingWeek"
+          >
+            {{ isSavingWeek ? 'Saving…' : 'Save as my week on Home' }}
+          </ion-button>
+        </div>
       </div>
     </section>
 
+    <p class="tab-segment-intro">Topics for week {{ pregnancyWeek }}</p>
     <div class="tab-navigation">
       <ion-segment
         [(ngModel)]="activeTab"
@@ -95,15 +101,15 @@
       >
         <ion-segment-button value="development" layout="icon-top">
           <ion-icon name="leaf-outline"></ion-icon>
-          <ion-label>Develop</ion-label>
+          <ion-label>Overview</ion-label>
         </ion-segment-button>
         <ion-segment-button value="nutrition" layout="icon-top">
           <ion-icon name="nutrition-outline"></ion-icon>
-          <ion-label>Food</ion-label>
+          <ion-label>Eating</ion-label>
         </ion-segment-button>
         <ion-segment-button value="activities" layout="icon-top">
           <ion-icon name="fitness-outline"></ion-icon>
-          <ion-label>Move</ion-label>
+          <ion-label>Activity</ion-label>
         </ion-segment-button>
         <ion-segment-button value="intimacy" layout="icon-top">
           <ion-icon name="heart-outline"></ion-icon>
@@ -111,7 +117,7 @@
         </ion-segment-button>
         <ion-segment-button value="medical" layout="icon-top">
           <ion-icon name="medical-outline"></ion-icon>
-          <ion-label>Medical</ion-label>
+          <ion-label>Checkups</ion-label>
         </ion-segment-button>
       </ion-segment>
     </div>
