@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { OnboardingDataDto, CompleteOnboardingDto } from './dto/onboarding.dto';
 import { InitializeOnboardingDto } from './dto/initialize-onboarding.dto';
@@ -150,9 +150,8 @@ export class OnboardingService {
 
       console.log('Saving onboarding data (debug mode)', data);
 
-      if (status === 'tracking' && !lmp) {
-        throw new Error('Last period start (LMP) is required for period tracking');
-      }
+      // Allow partial progress (e.g. user chose "tracking" before the LMP step).
+      // LMP is collected before finish; validate at completion if needed.
 
       this.temporaryData.set(sessionId, {
         sessionId,
@@ -215,6 +214,20 @@ export class OnboardingService {
 
     if (existingUser) {
       throw new Error('User already exists with this email');
+    }
+
+    const lmpForComplete =
+      normalizeIsoDateOnlyInput(session.data.lmp_date) ??
+      normalizeIsoDateOnlyInput(session.data.last_period);
+    const completeStatus = String(session.data.pregnancy_status ?? '').toLowerCase();
+    const needsLmpToFinish =
+      completeStatus === 'tracking' ||
+      completeStatus === 'trying' ||
+      completeStatus === 'pregnant';
+    if (needsLmpToFinish && !lmpForComplete) {
+      throw new BadRequestException(
+        'Last period start (LMP) is required to finish onboarding. Please enter the first day of your last period.',
+      );
     }
 
     // Create user directly

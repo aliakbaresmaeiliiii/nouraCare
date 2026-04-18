@@ -259,6 +259,11 @@
         class="pregnancy-connect-wrapper"
         #pregnancyConnectWrapper
       >
+        <div class="pregnancy-calendar-today-strip" aria-label="Today on your calendar">
+          <span class="pregnancy-calendar-today-strip__label">Today</span>
+          <span class="pregnancy-calendar-today-strip__date">{{ getPregnancyTodayHeaderDate() }}</span>
+        </div>
+
         <div
           #pregnancyCalendarScroll
           class="pregnancy-calendar-swiper"
@@ -293,55 +298,98 @@
         <div class="pregnancy-hero-wrap">
           @if (!needsPregnancyInput) {
             <div class="pregnancy-hero-summary" aria-live="polite">
-              <div class="pregnancy-hero-summary__row">
-                <div class="pregnancy-hero-summary__copy">
-                  <p class="pregnancy-hero-summary__headline">
-                    <span class="pregnancy-hero-summary__num">{{ getPregnancyDisplayWeek() }}</span>
-                    <span class="pregnancy-hero-summary__unit">{{ getPregnancyWeekAlongUnit() }}</span>
-                  </p>
-                  <p class="pregnancy-hero-summary__sub">
-                    Day {{ getPregnancyDayInWeekHuman() }} of 7 this week
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  class="pregnancy-hero-info pregnancy-hero-info--summary"
-                  (click)="openCurrentPregnancyWeekDetail()"
-                  aria-label="Week details"
-                >
-                  <ion-icon name="information-circle-outline"></ion-icon>
-                </button>
-              </div>
-              <div
-                class="pregnancy-hero-progress-track"
+              <button
+                type="button"
+                class="pregnancy-hero-summary-badge"
+                (click)="openCurrentPregnancyWeekDetail()"
+                [attr.aria-label]="'Week ' + getPregnancyDisplayWeek() + ', ' + getPregnancyWeekAlongUnit() + '. Open week details'"
+              >
+                <span class="pregnancy-hero-summary-badge__num">{{ getPregnancyDisplayWeek() }}</span>
+                <span class="pregnancy-hero-summary-badge__suffix">{{ getPregnancyWeekBadgeSuffix() }}</span>
+              </button>
+            </div>
+          }
+
+          <div
+            class="pregnancy-hero-disk-shell"
+            [class.pregnancy-hero-disk-shell--no-ring]="needsPregnancyInput"
+          >
+            @if (!needsPregnancyInput) {
+              <svg
+                class="pregnancy-hero-progress-ring"
+                viewBox="0 0 100 100"
                 role="progressbar"
                 [attr.aria-valuenow]="getPregnancyProgressBarPercent()"
                 aria-valuemin="0"
                 aria-valuemax="100"
-                [attr.aria-label]="'Pregnancy progress, about ' + getPregnancyProgressBarPercent() + ' percent'"
+                [attr.aria-label]="'Pregnancy journey progress, about ' + getPregnancyProgressBarPercent() + ' percent complete'"
               >
-                <div
-                  class="pregnancy-hero-progress-track__fill"
-                  [style.width.%]="getPregnancyProgressBarPercent()"
-                ></div>
-              </div>
-            </div>
-          }
+                <defs>
+                  <linearGradient
+                    [attr.id]="pregnancyHeroRingGradId"
+                    x1="0%"
+                    y1="100%"
+                    x2="100%"
+                    y2="0%"
+                  >
+                    <stop offset="0%" stop-color="#f4a582" />
+                    <stop offset="55%" stop-color="#ed8f6f" />
+                    <stop offset="100%" stop-color="#e0785c" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  class="pregnancy-hero-progress-ring__track"
+                  cx="50"
+                  cy="50"
+                  r="46"
+                  fill="none"
+                />
+                <circle
+                  class="pregnancy-hero-progress-ring__fill"
+                  cx="50"
+                  cy="50"
+                  r="46"
+                  fill="none"
+                  [attr.stroke]="'url(#' + pregnancyHeroRingGradId + ')'"
+                  stroke-width="3.4"
+                  stroke-linecap="round"
+                  transform="rotate(-90 50 50)"
+                  [attr.stroke-dasharray]="getPregnancyProgressRingDasharray()"
+                  [attr.stroke-dashoffset]="getPregnancyProgressRingDashoffset()"
+                />
+              </svg>
+            }
 
-          <div class="pregnancy-hero-disk pregnancy-hero-disk--illustration">
-            <div class="pregnancy-hero-visual pregnancy-hero-visual--illustration" aria-hidden="true">
-              <div class="pregnancy-hero-fetus">
-                <span class="pregnancy-hero-fetus-emoji">{{ getPregnancyBabyEmoji() }}</span>
+            <div class="pregnancy-hero-disk pregnancy-hero-disk--illustration">
+              <div class="pregnancy-hero-visual pregnancy-hero-visual--illustration" aria-hidden="true">
+                <div class="pregnancy-hero-fetus">
+                  @let heroIll = getPregnancyHeroIllustrationUrl();
+                  @if (heroIll) {
+                    <div class="pregnancy-hero-fetus-circle">
+                      <img
+                        class="pregnancy-hero-fetus-img"
+                        [src]="heroIll"
+                        [attr.alt]="getPregnancyHeroIllustrationAlt()"
+                        loading="lazy"
+                        decoding="async"
+                        width="200"
+                        height="200"
+                      />
+                    </div>
+                  } @else {
+                    <span class="pregnancy-hero-fetus-emoji">{{ getPregnancyBabyEmoji() }}</span>
+                  }
+                </div>
               </div>
-            </div>
 
-            <button
-              type="button"
-              class="pregnancy-hero-details-btn"
-              (click)="openCurrentPregnancyWeekDetail()"
-            >
-              Details
-            </button>
+              <button
+                type="button"
+                class="pregnancy-hero-details-btn"
+                (click)="openCurrentPregnancyWeekDetail()"
+              >
+                Details
+              </button>
+            </div>
           </div>
         </div>
 
