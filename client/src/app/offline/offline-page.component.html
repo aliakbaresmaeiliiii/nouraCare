@@ -1,0 +1,53 @@
+<ion-content class="offline-page" fullscreen="true">
+  <div class="offline-wrap">
+    <div class="offline-visual" aria-hidden="true">
+      <div class="offline-icon-ring">
+        <ion-icon name="cloud-offline-outline" class="offline-main-icon"></ion-icon>
+      </div>
+    </div>
+
+    <div class="offline-copy">
+      <h1 class="offline-title">{{ 'offline.title' | translate }}</h1>
+      <p class="offline-subtitle">{{ 'offline.subtitle' | translate }}</p>
+    </div>
+
+    <div class="offline-tips" role="list">
+      <p class="offline-tips-heading">{{ 'offline.tipsTitle' | translate }}</p>
+      <ul class="offline-tip-list">
+        <li class="offline-tip">
+          <span class="offline-tip-icon" aria-hidden="true">
+            <ion-icon name="wifi-outline"></ion-icon>
+          </span>
+          <span>{{ 'offline.tip1' | translate }}</span>
+        </li>
+        <li class="offline-tip">
+          <span class="offline-tip-icon" aria-hidden="true">
+            <ion-icon name="cellular-outline"></ion-icon>
+          </span>
+          <span>{{ 'offline.tip2' | translate }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="offline-actions">
+      <ion-button
+        expand="block"
+        class="offline-retry"
+        [disabled]="retrying"
+        (click)="tryAgain()"
+      >
+        <ion-icon name="refresh-outline" slot="start" class="offline-retry-icon"></ion-icon>
+        {{ 'offline.retry' | translate }}
+      </ion-button>
+    </div>
+  </div>
+
+  <ion-toast
+    [isOpen]="toastOpen"
+    [message]="toastMessage | translate"
+    [duration]="2800"
+    position="bottom"
+    cssClass="offline-toast"
+    (didDismiss)="onToastDismiss()"
+  ></ion-toast>
+</ion-content>

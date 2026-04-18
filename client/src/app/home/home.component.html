@@ -291,69 +291,58 @@
         </div>
 
         <div class="pregnancy-hero-wrap">
-        <div class="pregnancy-hero-disk">
-          <div class="pregnancy-hero-week-row">
-            <p class="pregnancy-hero-gestational">
-              <span class="pregnancy-hero-gestational-part">
-                <span class="pregnancy-hero-gestational-label">Week</span>
-                <span class="pregnancy-hero-gestational-value">{{ getPregnancyDisplayWeek() }}</span>
-              </span>
-              <span class="pregnancy-hero-gestational-dot" aria-hidden="true"></span>
-              <span class="pregnancy-hero-gestational-part">
-                <span class="pregnancy-hero-gestational-label">Day</span>
-                <span class="pregnancy-hero-gestational-value">{{ getPregnancyDayDisplay() }}</span>
-              </span>
-            </p>
+          @if (!needsPregnancyInput) {
+            <div class="pregnancy-hero-summary" aria-live="polite">
+              <div class="pregnancy-hero-summary__row">
+                <div class="pregnancy-hero-summary__copy">
+                  <p class="pregnancy-hero-summary__headline">
+                    <span class="pregnancy-hero-summary__num">{{ getPregnancyDisplayWeek() }}</span>
+                    <span class="pregnancy-hero-summary__unit">{{ getPregnancyWeekAlongUnit() }}</span>
+                  </p>
+                  <p class="pregnancy-hero-summary__sub">
+                    Day {{ getPregnancyDayInWeekHuman() }} of 7 this week
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="pregnancy-hero-info pregnancy-hero-info--summary"
+                  (click)="openCurrentPregnancyWeekDetail()"
+                  aria-label="Week details"
+                >
+                  <ion-icon name="information-circle-outline"></ion-icon>
+                </button>
+              </div>
+              <div
+                class="pregnancy-hero-progress-track"
+                role="progressbar"
+                [attr.aria-valuenow]="getPregnancyProgressBarPercent()"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                [attr.aria-label]="'Pregnancy progress, about ' + getPregnancyProgressBarPercent() + ' percent'"
+              >
+                <div
+                  class="pregnancy-hero-progress-track__fill"
+                  [style.width.%]="getPregnancyProgressBarPercent()"
+                ></div>
+              </div>
+            </div>
+          }
+
+          <div class="pregnancy-hero-disk pregnancy-hero-disk--illustration">
+            <div class="pregnancy-hero-visual pregnancy-hero-visual--illustration" aria-hidden="true">
+              <div class="pregnancy-hero-fetus">
+                <span class="pregnancy-hero-fetus-emoji">{{ getPregnancyBabyEmoji() }}</span>
+              </div>
+            </div>
+
             <button
               type="button"
-              class="pregnancy-hero-info"
+              class="pregnancy-hero-details-btn"
               (click)="openCurrentPregnancyWeekDetail()"
-              aria-label="Week details"
             >
-              <ion-icon name="information-circle-outline"></ion-icon>
+              Details
             </button>
           </div>
-
-          <div class="pregnancy-hero-visual" aria-hidden="true">
-            @if (!needsPregnancyInput) {
-              <svg class="pregnancy-progress-svg" viewBox="0 0 120 120">
-                <circle
-                  class="pregnancy-progress-bg"
-                  cx="60"
-                  cy="60"
-                  r="52"
-                  fill="none"
-                  stroke="rgba(255,255,255,0.35)"
-                  stroke-width="8"
-                />
-                <circle
-                  class="pregnancy-progress-fill"
-                  cx="60"
-                  cy="60"
-                  r="52"
-                  fill="none"
-                  stroke="#ffffff"
-                  stroke-width="8"
-                  stroke-linecap="round"
-                  transform="rotate(-90 60 60)"
-                  [attr.stroke-dasharray]="getProgressCircumference()"
-                  [attr.stroke-dashoffset]="getProgressOffset()"
-                />
-              </svg>
-            }
-            <div class="pregnancy-hero-fetus">
-              <span class="pregnancy-hero-fetus-emoji">{{ getPregnancyBabyEmoji() }}</span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            class="pregnancy-hero-details-btn"
-            (click)="openCurrentPregnancyWeekDetail()"
-          >
-            Details
-          </button>
-        </div>
         </div>
 
         @if (pregnancyConnector) {

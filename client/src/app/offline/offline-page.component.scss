@@ -1,0 +1,183 @@
+.offline-page {
+  /* Single calm surface — no competing gradients */
+  --background: var(--flo-bg, #fffdf7);
+}
+
+.offline-wrap {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: max(24px, env(safe-area-inset-top))
+    max(24px, env(safe-area-inset-right))
+    max(32px, env(safe-area-inset-bottom))
+    max(24px, env(safe-area-inset-left));
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.offline-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+/* Large circle; icon scales to nearly fill it */
+.offline-icon-ring {
+  --offline-ring: min(288px, 76vw);
+  width: var(--offline-ring);
+  height: var(--offline-ring);
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: #f4f0fe;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 10px 32px rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.offline-main-icon {
+  /* Ionic sizes the SVG from font-size — scale to fill most of the ring */
+  font-size: calc(var(--offline-ring) * 0.6);
+  color: #6d28d9;
+}
+
+html.ion-palette-dark .offline-page {
+  --background: #14101c;
+}
+
+html.ion-palette-dark .offline-icon-ring {
+  background: #231d32;
+  border-color: rgba(167, 139, 250, 0.28);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+html.ion-palette-dark .offline-main-icon {
+  color: #c4b5fd;
+}
+
+.offline-copy {
+  margin-top: 16px;
+}
+
+.offline-title {
+  margin: 0 0 10px;
+  font-size: clamp(1.45rem, 4.5vw, 1.75rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--brand-text, #1f2937);
+}
+
+.offline-subtitle {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--brand-text-secondary, #6b7280);
+}
+
+.offline-tips {
+  width: 100%;
+  margin-top: 28px;
+  text-align: start;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+}
+
+.offline-tips-heading {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-text-secondary, #6b7280);
+}
+
+.offline-tip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.offline-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.94rem;
+  line-height: 1.45;
+  color: var(--brand-text, #374151);
+}
+
+.offline-tip-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124, 58, 237, 0.08);
+  color: #6d28d9;
+
+  ion-icon {
+    font-size: 20px;
+  }
+}
+
+.offline-actions {
+  width: 100%;
+  margin-top: 28px;
+}
+
+.offline-retry {
+  --border-radius: 14px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  --background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  --box-shadow: 0 10px 28px rgba(124, 58, 237, 0.35);
+}
+
+.offline-retry-icon {
+  font-size: 1.15rem;
+}
+
+html.ion-palette-dark .offline-title {
+  color: #f3f4f6;
+}
+
+html.ion-palette-dark .offline-subtitle {
+  color: #c4b5fd;
+}
+
+html.ion-palette-dark .offline-tips {
+  background: rgba(30, 27, 40, 0.88);
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+html.ion-palette-dark .offline-tips-heading {
+  color: #a78bfa;
+}
+
+html.ion-palette-dark .offline-tip {
+  color: #e5e7eb;
+}
+
+html.ion-palette-dark .offline-tip-icon {
+  background: rgba(167, 139, 250, 0.15);
+  color: #c4b5fd;
+}
