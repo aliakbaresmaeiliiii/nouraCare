@@ -96,71 +96,86 @@
       </div>
     </section>
   }
-  <!-- Cycle overview card layout (matches compact reference UI) -->
   @if (!isPregnant && !isPostpartum && isHomeCycleTrackingLayout() && !showStartTrackingOnboarding()) {
     <div class="cycle-compact-section">
-      <div class="cycle-hello-card">
-        <div class="cycle-hello-copy">
-          <h2 class="cycle-hello-title">Hello, {{ getCycleWelcomeName() }}</h2>
-          <p class="cycle-hello-subtitle">How are you feeling today?</p>
+      <div class="cycle-hero-sky">
+        <div class="cycle-ring-shell cycle-ring-shell--hero">
+          <app-circle-period-chart
+            [cycleLength]="currentCycleLength"
+            [periodLength]="periodLength"
+          />
         </div>
-        <button type="button" class="cycle-hello-fav" aria-label="Favorites">
-          <ion-icon name="heart-outline"></ion-icon>
-        </button>
       </div>
 
-      <div class="cycle-ring-shell">
-        <app-circle-period-chart
-          [cycleLength]="currentCycleLength"
-          [periodLength]="periodLength"
-        />
-      </div>
+      <div class="pregnancy-daily-insights">
+        <h2 class="pregnancy-daily-insights-title">{{ getCycleInsightsHeading() }}</h2>
+        @let cdsStoryTopics = getCycleDailyInsightStripTopics();
+        <div class="pds-strip" role="list" aria-label="Daily insight stories">
+          <div class="pds-card pds-card--summary" role="listitem">
+            <div class="pds-summary-stack" aria-hidden="true">
+              <span class="pds-summary-orb pds-summary-orb--a">
+                <ion-icon name="heart-dislike-outline"></ion-icon>
+              </span>
+              <span class="pds-summary-orb pds-summary-orb--b">
+                <ion-icon name="happy-outline"></ion-icon>
+              </span>
+              <span class="pds-summary-orb pds-summary-orb--c">+{{ cdsStoryTopics.length }}</span>
+            </div>
+            <button
+              type="button"
+              class="pds-summary-story-btn"
+              (click)="openDailyInsightStory(getCycleDailyInsightSummaryTopic())"
+              aria-label="Open daily insights summary"
+            ></button>
+            <button
+              type="button"
+              class="pds-summary-plus"
+              (click)="openSymptomsTracking()"
+              aria-label="Track symptoms"
+            >
+              <ion-icon name="add" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
 
-      <div class="cycle-compact-card">
-        <div class="cycle-compact-header">
-          <h3 class="cycle-compact-title">Current Cycle</h3>
-          <span class="cycle-day-pill">Day {{ getCycleDisplayDay() }}</span>
+          @for (topic of cdsStoryTopics; track topic.id) {
+            <button
+              type="button"
+              class="pds-card"
+              [class.pds-card--topic]="!topic.personalized"
+              [class.pds-card--personalized]="topic.personalized"
+              role="listitem"
+              (click)="openDailyInsightStory(topic)"
+            >
+              @if (!topic.personalized) {
+                <span class="pds-topic-label" [style.color]="topic.accentHex">{{ topic.categoryLabel }}</span>
+                <span class="pds-topic-icon-ring" [style.--pds-accent]="topic.accentHex">
+                  <ion-icon [name]="topic.ionIcon"></ion-icon>
+                </span>
+                <span class="pds-topic-inner" [style.--pds-accent]="topic.accentHex">
+                  <span class="pds-topic-teaser">{{ topic.teaser }}</span>
+                </span>
+              } @else {
+                <p class="pds-personal-copy">
+                  <strong>{{ getCycleWelcomeName() }}</strong>, we’re looking for gentle patterns in how you feel —
+                  not to judge, just to support.
+                </p>
+                <div class="pds-personal-foot" aria-hidden="true">
+                  <span class="pds-dot"></span>
+                  <span class="pds-dot"></span>
+                  <span class="pds-dot"></span>
+                  <ion-icon class="pds-personal-help" name="help-circle-outline"></ion-icon>
+                </div>
+              }
+            </button>
+          }
         </div>
 
-        <div class="cycle-progress-row">
-          <div class="cycle-progress-track">
-            <div
-              class="cycle-progress-fill"
-              [style.width.%]="getCycleProgressPercent()"
-            ></div>
-          </div>
-          <span class="cycle-progress-label">{{ getCycleDisplayDay() }}/{{ currentCycleLength }}</span>
-        </div>
-
-        <div class="cycle-metrics-grid">
-          <div class="cycle-metric-card">
-            <div class="cycle-metric-icon cycle-metric-icon--mint">
-              <ion-icon name="calendar-outline"></ion-icon>
-            </div>
-            <p class="cycle-metric-label">Next Period</p>
-            <p class="cycle-metric-value">{{ getNextPeriodInDays() }} days</p>
-          </div>
-
-          <div class="cycle-metric-card">
-            <div class="cycle-metric-icon cycle-metric-icon--pink">
-              <ion-icon name="pulse-outline"></ion-icon>
-            </div>
-            <p class="cycle-metric-label">Fertile Window</p>
-            <p class="cycle-metric-value">{{ getFertileWindowDays() }} days</p>
-          </div>
-
-          <div class="cycle-metric-card">
-            <div class="cycle-metric-icon cycle-metric-icon--amber">
-              <ion-icon name="heart-outline"></ion-icon>
-            </div>
-            <p class="cycle-metric-label">Ovulation</p>
-            <p class="cycle-metric-value">{{ getOvulationSummary() }}</p>
-          </div>
-        </div>
-
-        <div class="cycle-track-row">
-          <button type="button" class="cycle-track-btn" (click)="openCycleCalendar()">
-            Track
+        <div class="pds-quick-links" aria-label="More cycle tools">
+          <button type="button" class="pds-chip" (click)="openCycleCalendar()">
+            Cycle calendar
+          </button>
+          <button type="button" class="pds-chip pds-chip--accent" (click)="openCycleInsightsFromHome()">
+            Insights
           </button>
         </div>
       </div>
@@ -191,10 +206,7 @@
         class="pregnancy-connect-wrapper"
         #pregnancyConnectWrapper
       >
-        <div class="pregnancy-calendar-today-strip" aria-label="Today on your calendar">
-          <span class="pregnancy-calendar-today-strip__label">Today</span>
-          <span class="pregnancy-calendar-today-strip__date">{{ getPregnancyTodayHeaderDate() }}</span>
-        </div>
+       
 
         <div
           #pregnancyCalendarScroll
@@ -401,12 +413,7 @@
         <h2 class="pregnancy-daily-insights-title">{{ getPregnancyInsightsHeading() }}</h2>
         @let pdsStoryTopics = getPregnancyDailyInsightStripTopics();
         <div class="pds-strip" role="list" aria-label="Daily insight stories">
-          <button
-            type="button"
-            class="pds-card pds-card--summary"
-            role="listitem"
-            (click)="openPregnancyDailyInsightStory(getPregnancyDailyInsightSummaryTopic())"
-          >
+          <div class="pds-card pds-card--summary" role="listitem">
             <div class="pds-summary-stack" aria-hidden="true">
               <span class="pds-summary-orb pds-summary-orb--a">
                 <ion-icon name="heart-dislike-outline"></ion-icon>
@@ -416,10 +423,21 @@
               </span>
               <span class="pds-summary-orb pds-summary-orb--c">+{{ pdsStoryTopics.length }}</span>
             </div>
-            <span class="pds-summary-plus" aria-hidden="true">
-              <ion-icon name="add"></ion-icon>
-            </span>
-          </button>
+            <button
+              type="button"
+              class="pds-summary-story-btn"
+              (click)="openDailyInsightStory(getPregnancyDailyInsightSummaryTopic())"
+              aria-label="Open daily insights summary"
+            ></button>
+            <button
+              type="button"
+              class="pds-summary-plus"
+              (click)="openSymptomsTracking()"
+              aria-label="Track symptoms"
+            >
+              <ion-icon name="add" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
 
           @for (topic of pdsStoryTopics; track topic.id) {
             <button
@@ -428,7 +446,7 @@
               [class.pds-card--topic]="!topic.personalized"
               [class.pds-card--personalized]="topic.personalized"
               role="listitem"
-              (click)="openPregnancyDailyInsightStory(topic)"
+              (click)="openDailyInsightStory(topic)"
             >
               @if (!topic.personalized) {
                 <span class="pds-topic-label" [style.color]="topic.accentHex">{{ topic.categoryLabel }}</span>

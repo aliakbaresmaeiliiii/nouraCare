@@ -306,6 +306,40 @@ ion-datetime-button {
   border: 1px solid var(--onboarding-card-border);
 }
 
+.date-picker-cycle-legend {
+  margin: 0.85rem 0 0;
+  padding: 0 0.15rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--brand-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.date-picker-cycle-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.date-picker-cycle-legend__swatch {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.date-picker-cycle-legend__swatch--period {
+  background: rgba(253, 164, 175, 0.45);
+  border: 2px dashed rgba(190, 24, 93, 0.55);
+}
+
+.date-picker-cycle-legend__swatch--ovu {
+  background: rgba(5, 150, 105, 0.88);
+  border: 2px solid rgba(4, 100, 75, 1);
+}
+
 .navigation-container {
   position: fixed;
   bottom: env(safe-area-inset-bottom);

@@ -16,32 +16,6 @@
   z-index: 2;
 }
 
-.pregnancy-calendar-today-strip {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.5rem;
-  margin: 0 0 0.45rem;
-  padding: 0 var(--app-side-padding, 1rem);
-  box-sizing: border-box;
-}
-
-.pregnancy-calendar-today-strip__label {
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #c57656;
-}
-
-.pregnancy-calendar-today-strip__date {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #4a3228;
-  letter-spacing: -0.02em;
-}
-
 .pregnancy-date-hero-connector {
   position: absolute;
   inset: 0;
@@ -884,6 +858,27 @@
   padding-bottom: 0.85rem;
 }
 
+/* Upper area opens the insight story; plus is a separate control below */
+.pds-summary-story-btn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 3.75rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 1;
+  border-radius: 18px 18px 0 0;
+
+  &:active {
+    opacity: 0.92;
+  }
+}
+
 .pds-summary-stack {
   position: absolute;
   left: 50%;
@@ -941,19 +936,32 @@
 }
 
 .pds-summary-plus {
+  position: relative;
+  z-index: 2;
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  appearance: none;
   background: linear-gradient(145deg, #f472b6, #ec4899);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 6px 18px rgba(236, 72, 153, 0.45);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 
   ion-icon {
     font-size: 1.65rem;
     color: #fff;
     font-weight: 700;
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 }
 
@@ -1181,14 +1189,6 @@
     background: var(--ion-card-background);
     color: var(--ion-color-primary-tint);
     box-shadow: var(--app-shadow-soft);
-  }
-
-  .pregnancy-calendar-today-strip__label {
-    color: var(--ion-color-primary-tint);
-  }
-
-  .pregnancy-calendar-today-strip__date {
-    color: var(--ion-text-color);
   }
 
   .pregnancy-hero-details-btn {

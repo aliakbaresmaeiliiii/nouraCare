@@ -22,7 +22,22 @@
   @if (mode === 'lmp') {
     <ion-item lines="none">
       <ion-label position="stacked">First day of last period</ion-label>
-      <ion-datetime presentation="date" [(ngModel)]="lmpIso" [max]="todayStr" />
+      <ion-datetime
+        presentation="date"
+        [(ngModel)]="lmpIso"
+        [max]="todayStr"
+        [highlightedDates]="lmpDatetimeHighlights"
+      />
+      <p class="lmp-calendar-legend">
+        <span class="lmp-calendar-legend__row"
+          ><span class="lmp-calendar-legend__swatch lmp-calendar-legend__swatch--period"></span> Bleeding days
+          (estimate)</span
+        >
+        <span class="lmp-calendar-legend__row"
+          ><span class="lmp-calendar-legend__swatch lmp-calendar-legend__swatch--ovu"></span> Estimated ovulation
+          (Ov)</span
+        >
+      </p>
     </ion-item>
   }
 
@@ -37,7 +52,11 @@
   @if (mode === 'due') {
     <ion-item lines="none">
       <ion-label position="stacked">Estimated due date</ion-label>
-      <ion-datetime presentation="date" [(ngModel)]="dueIso" />
+      <ion-datetime
+        presentation="date"
+        [(ngModel)]="dueIso"
+        [highlightedDates]="datetimeHighlightedToday"
+      />
     </ion-item>
     <ion-note class="hint">LMP is calculated as your due date minus 280 days.</ion-note>
   }

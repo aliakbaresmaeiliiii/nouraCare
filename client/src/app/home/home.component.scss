@@ -273,7 +273,74 @@
 
 // Compact cycle overview (reference-like first screen)
 .cycle-compact-section {
-  padding: 0 var(--app-side-padding) 1rem;
+  --cycle-hero-pink: #f9a8d4;
+  --cycle-hero-pink-deep: #db2777;
+
+  position: relative;
+  z-index: 0;
+  margin: 0 calc(-1 * var(--app-side-padding));
+  padding: 0 var(--app-side-padding) 2.25rem;
+  background: transparent;
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Cycle hero: soft pink tint + wide bottom ellipse for a smooth curve into page bg
+.cycle-hero-sky {
+  --cycle-hero-curve-fill: var(--ion-background-color, var(--brand-bg));
+  --cycle-hero-curve-shadow: 0 -12px 42px rgba(236, 72, 153, 0.12),
+    0 -4px 20px rgba(var(--brand-text-rgb), 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 0.5rem 0 clamp(1.6rem, 5vw, 2.35rem);
+  max-width: none;
+  background: var(--ion-background-color, var(--brand-bg));
+  background: color-mix(
+    in srgb,
+    var(--cycle-hero-pink) 17%,
+    var(--ion-background-color, var(--brand-bg)) 83%
+  );
+
+  &::before {
+    display: none;
+  }
+
+  /* Shallow ellipse: top arc forms a soft “scoop” from hero tint → page background */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: clamp(-7.25rem, -19vw, -5.25rem);
+    z-index: 0;
+    width: min(185%, 76rem);
+    height: clamp(9.25rem, 24vw, 12.75rem);
+    transform: translateX(-50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background: var(--cycle-hero-curve-fill);
+    box-shadow: var(--cycle-hero-curve-shadow);
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.cycle-ring-shell--hero {
+  max-width: 26.5rem;
+  margin: 0 auto 0.35rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0.35rem 0.5rem 0.5rem;
 }
 
 .cycle-hello-card {
@@ -315,13 +382,13 @@
 }
 
 .cycle-ring-shell {
-  background: #ffffff;
-  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
-  border-radius: 22px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   padding: 0.35rem 0.5rem 0.85rem;
   margin-bottom: 0.8rem;
-  box-shadow: 0 4px 20px rgba(var(--brand-text-rgb), 0.07);
-  overflow: hidden;
+  box-shadow: none;
+  overflow: visible;
 
   ::ng-deep .cycle-chart-container {
     position: relative;
@@ -360,139 +427,6 @@
     display: block;
     margin: 0 auto;
   }
-}
-
-.cycle-compact-card {
-  background: #ffffff;
-  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
-  border-radius: 20px;
-  padding: 1rem 1.05rem 1.1rem;
-  box-shadow: 0 2px 12px rgba(var(--brand-text-rgb), 0.06);
-}
-
-.cycle-compact-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.cycle-compact-title {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: #1f2937;
-}
-
-.cycle-day-pill {
-  background: rgba(var(--brand-secondary-rgb), 0.18);
-  color: #0f766e;
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.cycle-progress-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 0.65rem;
-  margin-bottom: 0.9rem;
-}
-
-.cycle-progress-track {
-  height: 8px;
-  border-radius: 999px;
-  background: #eceff3;
-  overflow: hidden;
-}
-
-.cycle-progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #8b5cf6 0%, #14b8a6 100%);
-}
-
-.cycle-progress-label {
-  font-size: 0.88rem;
-  color: #6b7280;
-  font-weight: 600;
-}
-
-.cycle-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.55rem;
-}
-
-.cycle-track-row {
-  margin-top: 0.85rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid rgba(15, 23, 42, 0.06);
-}
-
-.cycle-track-btn {
-  width: 100%;
-  border: none;
-  border-radius: 14px;
-  padding: 0.65rem 1rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #8b5cf6 0%, #14b8a6 100%);
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
-
-  &:active {
-    opacity: 0.92;
-    transform: scale(0.99);
-  }
-}
-
-.cycle-metric-card {
-  background: #f7f8fb;
-  border-radius: 14px;
-  padding: 0.7rem 0.45rem;
-  text-align: center;
-}
-
-.cycle-metric-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.4rem;
-}
-
-.cycle-metric-icon--mint {
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.15);
-}
-
-.cycle-metric-icon--pink {
-  color: #ec4899;
-  background: rgba(236, 72, 153, 0.15);
-}
-
-.cycle-metric-icon--amber {
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.16);
-}
-
-.cycle-metric-label {
-  margin: 0;
-  font-size: 0.78rem;
-  color: #6b7280;
-}
-
-.cycle-metric-value {
-  margin: 0.2rem 0 0;
-  font-size: 1rem;
-  color: #1f2937;
-  font-weight: 700;
 }
 
 .quick-actions-section,
@@ -1019,29 +953,76 @@
     }
   }
 
-  .cycle-hello-card,
-  .cycle-ring-shell,
-  .cycle-compact-card {
+  .cycle-compact-section {
+    --cycle-hero-pink: #f472b6;
+    --cycle-hero-pink-deep: #fbcfe8;
+  }
+
+  .cycle-hero-sky {
+    --cycle-hero-curve-fill: var(--ion-background-color);
+    --cycle-hero-curve-shadow: 0 -14px 48px rgba(0, 0, 0, 0.32),
+      0 -6px 28px rgba(236, 72, 153, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    background: var(--ion-background-color);
+    background: color-mix(
+      in srgb,
+      var(--cycle-hero-pink) 22%,
+      var(--ion-background-color) 78%
+    );
+
+    &::before {
+      display: none;
+    }
+  }
+
+  // .cycle-hero-card {
+  //   background: transparent;
+  //   border-color: rgba(255, 255, 255, 0.08);
+  //   box-shadow: none;
+  // }
+
+  // .cycle-hero-card__hint {
+  //   color: var(--ion-color-medium);
+  // }
+
+  // .cycle-hero-card__divider {
+  //   background: linear-gradient(
+  //     90deg,
+  //     transparent 0%,
+  //     rgba(var(--ion-color-primary-rgb), 0.35) 35%,
+  //     rgba(var(--ion-color-secondary-rgb), 0.3) 65%,
+  //     transparent 100%
+  //   );
+  // }
+
+  // .cycle-hero-card .cycle-ring-shell {
+  //   ::ng-deep .cycle-chart-container::before {
+  //     opacity: 0.22;
+  //     background:
+  //       radial-gradient(circle at 30% 20%, rgba(var(--ion-color-primary-rgb), 0.12) 0%, transparent 55%),
+  //       radial-gradient(circle at 70% 80%, rgba(var(--ion-color-secondary-rgb), 0.08) 0%, transparent 55%);
+  //   }
+  // }
+
+  .cycle-hello-card {
     background: var(--ion-card-background);
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: var(--app-shadow-card);
   }
 
-  .cycle-hello-title,
-  .cycle-compact-title,
-  .cycle-metric-value {
+  .cycle-ring-shell {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .cycle-hello-title {
     color: var(--ion-text-color);
   }
 
-  .cycle-hello-subtitle,
-  .cycle-progress-label,
-  .cycle-metric-label {
+  .cycle-hello-subtitle {
     color: var(--ion-color-medium);
-  }
-
-  .cycle-metric-card {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .cycle-ring-shell {

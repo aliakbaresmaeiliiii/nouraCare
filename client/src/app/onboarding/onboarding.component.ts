@@ -26,6 +26,10 @@ import { ReproductiveStatusService } from '../shared/services/reproductive-statu
 import { FirstWeekPlanService } from '../shared/services/first-week-plan.service';
 import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
 import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
+import {
+  buildCycleLmpDatetimeHighlights,
+  ionDatetimeTodayHighlight,
+} from '../shared/utils/ion-datetime-today-highlight.util';
 
 interface OnboardingStep {
   id: string;
@@ -49,6 +53,18 @@ interface OnboardingStep {
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class OnboardingComponent implements OnInit {
+  /** Marks the current local calendar day in `ion-datetime` (last period step). */
+  readonly datetimeHighlightedToday = ionDatetimeTodayHighlight();
+
+  /** Last-period calendar: period span (dashed) + estimated ovulation day (green) + today. */
+  get lastPeriodDatetimeHighlights() {
+    return buildCycleLmpDatetimeHighlights(
+      this.answers['last_period'],
+      Number(this.answers['cycle_length']) || this.cycleSettings.cycleLength() || 28,
+      Number(this.answers['period_length']) || this.cycleSettings.periodLength() || 5,
+    );
+  }
+
   private router = inject(Router);
   private alertController = inject(AlertController);
   private cycleSettings = inject(CycleSettingsService);

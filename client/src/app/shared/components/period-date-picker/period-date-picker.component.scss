@@ -164,6 +164,11 @@
   color: #374151;
 }
 
+/* Today always stands out (including when it falls in the period range). */
+.pdp-cell--today .pdp-day-num {
+  font-weight: 800;
+}
+
 .pdp-cell--other .pdp-day-num {
   color: #cbd5e1;
 }
@@ -192,4 +197,5 @@
 .pdp-cell--today.pdp-cell--period .pdp-day-num,
 .pdp-cell--today.pdp-cell--start .pdp-day-num {
   color: inherit;
+  font-weight: 800;
 }

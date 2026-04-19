@@ -17,6 +17,13 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import type { InitializeReproductiveStateDto } from '../../services/onboarding.service';
+import { CycleSettingsService } from '../../services/cycle-settings.service';
+import {
+  buildCycleLmpDatetimeHighlights,
+  ionDatetimeTodayHighlight,
+  localCalendarIsoDate,
+} from '../../utils/ion-datetime-today-highlight.util';
+import { normalizeLmpInput } from '../../utils/pregnancy-lmp.util';
 
 export type PregnancySetupInputMode = 'lmp' | 'week' | 'due';
 
@@ -44,8 +51,18 @@ export type PregnancySetupInputMode = 'lmp' | 'week' | 'due';
 })
 export class PregnancySetupSheetComponent {
   private modalCtrl = inject(ModalController);
+  private cycleSettings = inject(CycleSettingsService);
 
-  readonly todayStr = new Date().toISOString().split('T')[0];
+  readonly todayStr = localCalendarIsoDate();
+  readonly datetimeHighlightedToday = ionDatetimeTodayHighlight();
+
+  get lmpDatetimeHighlights() {
+    return buildCycleLmpDatetimeHighlights(
+      normalizeLmpInput(this.lmpIso),
+      this.cycleSettings.cycleLength() || 28,
+      this.cycleSettings.periodLength() || 5,
+    );
+  }
 
   mode: PregnancySetupInputMode = 'lmp';
   lmpIso = '';
@@ -59,8 +76,7 @@ export class PregnancySetupSheetComponent {
 
   submit() {
     this.validationMessage = '';
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = localCalendarIsoDate();
 
     if (this.mode === 'lmp') {
       const raw = (this.lmpIso || '').trim();

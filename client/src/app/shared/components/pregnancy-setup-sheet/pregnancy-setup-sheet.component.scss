@@ -25,3 +25,41 @@
 .save {
   margin-top: 12px;
 }
+
+ion-datetime {
+  width: 100%;
+  max-width: 100%;
+}
+
+.lmp-calendar-legend {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ion-color-medium-shade, #64748b);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lmp-calendar-legend__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lmp-calendar-legend__swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.lmp-calendar-legend__swatch--period {
+  background: rgba(253, 164, 175, 0.45);
+  border: 2px dashed rgba(190, 24, 93, 0.55);
+}
+
+.lmp-calendar-legend__swatch--ovu {
+  background: rgba(5, 150, 105, 0.88);
+  border: 2px solid rgba(4, 100, 75, 1);
+}

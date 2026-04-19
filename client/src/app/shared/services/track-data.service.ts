@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 export interface TrackDayData {
@@ -160,6 +160,25 @@ export class TrackDataService {
 
   getTrackDay(userId: number, date: string): Observable<any[]> {
     return this.httpClient.get<any[]>(`${environment.apiEndPoint}track-day/${userId}/${date}`);
+  }
+
+  /** Symptom / mood logs for a user, newest first (optional calendar range). */
+  getTrackDaysForUser(
+    userId: number,
+    startDate?: string,
+    endDate?: string,
+  ): Observable<any[]> {
+    let params = new HttpParams();
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
+    return this.httpClient.get<any[]>(
+      `${environment.apiEndPoint}track-day/${userId}/track-days`,
+      { params },
+    );
   }
 
   createSymptoms(userId: any, symptomsData: any): Observable<any> {

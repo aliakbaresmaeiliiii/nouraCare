@@ -100,10 +100,24 @@
                   presentation="date"
                   [value]="answers[currentStepData.id]"
                   [max]="getMaxDate()"
+                  [highlightedDates]="lastPeriodDatetimeHighlights"
                   (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
                 ></ion-datetime>
               </ng-template>
             </ion-modal>
+
+            @if (currentStepData.id === 'last_period') {
+              <p class="date-picker-cycle-legend">
+                <span class="date-picker-cycle-legend__item">
+                  <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--period"></span>
+                  Pink dashed — estimated bleeding days
+                </span>
+                <span class="date-picker-cycle-legend__item">
+                  <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--ovu"></span>
+                  Solid green — estimated ovulation day (Ov)
+                </span>
+              </p>
+            }
 
             @if (
               currentStepData.id === 'last_period' &&

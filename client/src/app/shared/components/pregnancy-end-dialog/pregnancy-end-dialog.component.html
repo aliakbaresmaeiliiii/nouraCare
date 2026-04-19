@@ -20,11 +20,12 @@
       <ion-datetime-button datetime="pregnancyEndDate"></ion-datetime-button>
       <ion-modal [keepContentsMounted]="true">
         <ng-template>
-          <ion-datetime 
+          <ion-datetime
             id="pregnancyEndDate"
             presentation="date"
             [(ngModel)]="pregnancyEndDate"
             [max]="getTodayDate()"
+            [highlightedDates]="datetimeHighlightedToday"
           ></ion-datetime>
         </ng-template>
       </ion-modal>

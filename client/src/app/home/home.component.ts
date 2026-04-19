@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom, forkJoin, of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, finalize, tap } from 'rxjs/operators';
 import {
   AlertController,
   ModalController,
@@ -85,8 +85,6 @@ import {
   informationCircleOutline,
 } from 'ionicons/icons';
 import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
-import { PeriodDatePickerPageComponent } from '../period-date-picker-page/period-date-picker-page.component';
-import { PeriodDateRange } from '../shared/components/period-date-picker/period-date-picker.component';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
 import {
   FertilityResults,
@@ -102,7 +100,6 @@ import {
   BabySizeData,
 } from '../shared/services/baby-development.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
-import { PeriodHistoryService } from '../shared/services/period-history.service';
 import { MessageService } from '../shared/services/message.service';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { UserInfoService } from '../shared/services/user-info.service';
@@ -136,6 +133,7 @@ import {
 import { HOME_POSTPARTUM_WEEK_SAMPLES } from './data/home-postpartum-sample.data';
 import { DailyInsightsStoryModalComponent } from '../shared/components/daily-insights-story-modal/daily-insights-story-modal.component';
 import type { DailyInsightTopic } from '../shared/models/daily-insight-topic.model';
+import { getAllSymptoms } from '../shared/constants/symptoms-config';
 
 @Component({
   selector: 'app-home',
@@ -158,7 +156,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private trackDataService = inject(TrackDataService);
-  private periodHistory = inject(PeriodHistoryService);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
   @ViewChild('pregnancyCalendarScroll', { read: ElementRef })
   pregnancyCalendarScroll?: ElementRef<HTMLElement>;
@@ -193,6 +190,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   private readonly pregnancyCalWeeksPast = 10;
   private readonly pregnancyCalWeeksFuture = 10;
+
   /** Matches cycle settings / week-detail usable range. */
   /** 1-based gestational week; calendar taps limited to typical clinical follow-up window. */
   private readonly pregnancyCalendarMinWeek = 4;
@@ -631,10 +629,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.showMoreSections = false;
 
     this.syncDashboardFromServerAndRefreshChart();
+    this.loadRecentSymptomsDays();
+    this.loadTodaySymptoms();
     if (this.isPregnant) {
       this.clearPregnancyCalendarSelectionIfInvalid();
     }
     this.scheduleScrollPregnancyCalendarToAnchor();
+    this.periodChart?.scheduleWeekScrollToAnchor();
     setTimeout(() => this.schedulePregnancyConnectorUpdate(), 120);
   }
 
@@ -803,6 +804,14 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       this.recomputePregnancyStatsFromLmpIfAvailable();
       this.clearPregnancyCalendarSelectionIfInvalid();
       this.scheduleScrollPregnancyCalendarToAnchor();
+    }
+    if (
+      !this.isPregnant &&
+      !this.isPostpartum &&
+      this.isHomeCycleTrackingLayout() &&
+      !this.showStartTrackingOnboarding()
+    ) {
+      this.periodChart?.scheduleWeekScrollToAnchor();
     }
     this.schedulePregnancyConnectorUpdate();
   }
@@ -1742,9 +1751,204 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     return this.recentSymptomsDays;
   }
 
-  loadRecentSymptomsDays() {
-    // Skip loading recent days - only show today's data
+  loadRecentSymptomsDays(): void {
     this.recentSymptomsDays = [];
+    const userId = this.homeData.getCurrentUserId();
+    if (!this.authService.getAccessToken() || userId <= 0) {
+      this.cdr.markForCheck();
+      return;
+    }
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 120);
+    const startDate = start.toISOString().split('T')[0];
+    const endDate = end.toISOString().split('T')[0];
+    this.trackDataService
+      .getTrackDaysForUser(userId, startDate, endDate)
+      .pipe(
+        catchError(() => of([])),
+        finalize(() => this.cdr.markForCheck()),
+      )
+      .subscribe((rows) => {
+        this.recentSymptomsDays = Array.isArray(rows) ? rows : [];
+      });
+  }
+
+  /** Calendar day key from API / Prisma date field. */
+  private isoDateFromTrackRow(value: unknown): string {
+    const d = new Date(String(value));
+    if (Number.isNaN(d.getTime())) {
+      return '';
+    }
+    return d.toISOString().split('T')[0];
+  }
+
+  private symptomMetaById(): Map<string, { name: string; icon: string }> {
+    const m = new Map<string, { name: string; icon: string }>();
+    for (const s of getAllSymptoms()) {
+      m.set(s.id, { name: s.name, icon: s.icon });
+    }
+    return m;
+  }
+
+  /**
+   * Human-readable mood / energy / symptom lines from one track-day row (API shape).
+   */
+  private describeSymptomLogRow(row: any): {
+    moodText: string;
+    energyText: string;
+    symptomNames: string[];
+    primaryIonIcon: string;
+  } {
+    const byId = this.symptomMetaById();
+    let moodText = '';
+    const rawMood = row?.mood;
+    if (typeof rawMood === 'string' && rawMood) {
+      moodText = byId.get(rawMood)?.name ?? rawMood.replace(/_/g, ' ');
+    } else if (rawMood && typeof rawMood === 'object') {
+      const id = String(rawMood['id'] ?? '');
+      moodText =
+        byId.get(id)?.name ??
+        String(rawMood['name'] ?? rawMood['label'] ?? id).trim();
+    }
+    let energyText = '';
+    const rawEnergy = row?.energy;
+    if (typeof rawEnergy === 'string' && rawEnergy) {
+      energyText = rawEnergy.replace(/_/g, ' ');
+    } else if (rawEnergy && typeof rawEnergy === 'object') {
+      energyText = String(
+        rawEnergy['name'] ?? rawEnergy['label'] ?? rawEnergy['id'] ?? '',
+      ).trim();
+    }
+    const symptomNames: string[] = [];
+    let primaryIonIcon = 'analytics-outline';
+    let firstIconSet = false;
+    const rawSymptoms = row?.symptoms;
+    const list = Array.isArray(rawSymptoms) ? rawSymptoms : [];
+    for (const s of list) {
+      const id =
+        typeof s === 'string'
+          ? s
+          : String(s?.id ?? '').trim();
+      if (!id) {
+        continue;
+      }
+      const meta = byId.get(id);
+      const label =
+        (meta?.name ??
+          (typeof s === 'object' && s
+            ? String(s['name'] ?? '').trim()
+            : '')) ||
+        id.replace(/_/g, ' ');
+      symptomNames.push(label);
+      const iconFromRow =
+        typeof s === 'object' && s ? String(s['icon'] ?? '').trim() : '';
+      const icon = iconFromRow || meta?.icon;
+      if (icon && !firstIconSet) {
+        primaryIonIcon = icon;
+        firstIconSet = true;
+      }
+    }
+    return { moodText, energyText, symptomNames, primaryIonIcon };
+  }
+
+  private truncateInsightTeaser(text: string, max = 40): string {
+    const t = text.trim();
+    if (t.length <= max) {
+      return t;
+    }
+    return `${t.slice(0, Math.max(0, max - 1))}…`;
+  }
+
+  /**
+   * First strip card: last symptom log from API (names/icons resolved from stored ids).
+   */
+  private buildSymptomLogInsightTopic(scope: 'cycle' | 'pregnancy'): DailyInsightTopic {
+    const last = this.recentSymptomsDays[0];
+    if (!last) {
+      return {
+        id: `${scope}-symptom-log`,
+        categoryLabel: 'Your log',
+        teaser: this.truncateInsightTeaser('No saved logs yet — tap +'),
+        accentHex: '#94a3b8',
+        ionIcon: 'analytics-outline',
+        slides: [
+          {
+            title: 'Your symptom history',
+            body: 'When you save a day on Track Symptoms, it is stored on your account and summarized here.',
+          },
+          {
+            title: 'Why it helps',
+            body: 'Even brief notes make patterns easier to spot over time — for you and, if you choose, your care team.',
+          },
+        ],
+      };
+    }
+    const dateKey = this.isoDateFromTrackRow(last.date);
+    const noonIso = dateKey ? `${dateKey}T12:00:00` : '';
+    const calLabel = noonIso ? this.formatDate(noonIso) : '';
+    const dayLabel = noonIso ? this.getDayName(noonIso) : '';
+    const { moodText, energyText, symptomNames, primaryIonIcon } =
+      this.describeSymptomLogRow(last);
+    const bits: string[] = [];
+    if (moodText) {
+      bits.push(moodText);
+    }
+    bits.push(...symptomNames.slice(0, 3));
+    const teaserCore =
+      calLabel && bits.length
+        ? `${calLabel} · ${bits.join(' · ')}`
+        : calLabel || 'Last log';
+    const teaser = this.truncateInsightTeaser(teaserCore);
+
+    const detailLines: string[] = [];
+    if (dayLabel) {
+      detailLines.push(`Calendar day: ${calLabel} (${dayLabel}).`);
+    }
+    if (moodText) {
+      detailLines.push(`Mood noted: ${moodText}.`);
+    }
+    if (energyText) {
+      detailLines.push(`Energy: ${energyText}.`);
+    }
+    if (symptomNames.length) {
+      detailLines.push(`Symptoms: ${symptomNames.join(', ')}.`);
+    } else {
+      detailLines.push('No individual symptoms were tagged for that day.');
+    }
+    const notes = String(last.notes ?? '').trim();
+    if (notes) {
+      detailLines.push(`Notes: ${notes}`);
+    }
+
+    const recentLines = this.recentSymptomsDays.slice(0, 6).map((row) => {
+      const dk = this.isoDateFromTrackRow(row.date);
+      const label = dk ? this.formatDate(`${dk}T12:00:00`) : '';
+      const { moodText: m, symptomNames: sn } = this.describeSymptomLogRow(row);
+      const parts = [m, ...sn.slice(0, 2)].filter(Boolean);
+      return `• ${label}${parts.length ? ` — ${parts.join(', ')}` : ''}`;
+    });
+
+    return {
+      id: `${scope}-symptom-log`,
+      categoryLabel: 'Your log',
+      teaser,
+      accentHex: '#64748b',
+      ionIcon: primaryIonIcon,
+      slides: [
+        {
+          title: 'Last time you logged',
+          body: detailLines.join(' '),
+        },
+        {
+          title: 'Recent history',
+          body:
+            recentLines.length > 1
+              ? `From your account (newest first):\n${recentLines.join('\n')}`
+              : 'Keep logging on more days — a short list here will build into a clearer picture.',
+        },
+      ],
+    };
   }
 
   getDayName(dateString: string): string {
@@ -2931,63 +3135,9 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     );
   }
 
-  // Open period date picker modal
-  async openPeriodDatePicker() {
-    const modal = await this.modalController.create({
-      component: PeriodDatePickerPageComponent,
-      componentProps: {},
-      breakpoints: [0, 1],
-      initialBreakpoint: 1,
-      backdropDismiss: false,
-    });
-
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-    if (data) {
-      this.onPeriodDateSelected(data);
-    }
-  }
-
-  // Handle period date selection from the date picker modal
-  onPeriodDateSelected(periodRange: PeriodDateRange) {
-    this.showToast('Period logged successfully!', 'success');
-
-    // Update user status to "Trying to Conceive" to show the period chart
-    this.userStatus = 'Trying to Conceive';
-    this.isPregnant = false;
-    this.isPostpartum = false;
-
-    // Set the period start date and update cycle day
-    this.periodStartDate = periodRange.startDate;
-    this.updateCycleDay();
-
-    // Save to persistent storage
-    this.cycleSettings.setUserStatus('Trying to Conceive');
-    this.cycleSettings.setPregnancyStatus(false);
-    this.cycleSettings.setPostpartumStatus(false);
-    const periodDayIso = periodRange.startDate.toISOString().split('T')[0];
-    this.cycleSettings.setLastPeriodStart(periodDayIso);
-    this.periodHistory.addEntry(periodDayIso);
-    this.currentCycleLength = this.cycleSettings.cycleLength();
-    this.periodLength = this.cycleSettings.periodLength();
-
-    if (this.authService.getAccessToken()) {
-      this.userInfoService
-        .patchMeOnboarding({
-          pregnancyStatus: 'PLANNING_PREGNANCY',
-          lastPeriodDate: periodDayIso,
-          cycleLength: this.cycleSettings.cycleLength(),
-          periodLength: this.cycleSettings.periodLength(),
-        })
-        .subscribe({
-          next: () => this.runPeriodChartRefresh(),
-          error: () => this.runPeriodChartRefresh(),
-        });
-    } else {
-      this.runPeriodChartRefresh();
-    }
-    this.cdr.markForCheck();
+  /** Log / change last period on the dedicated cycle calendar (not the home date picker). */
+  openPeriodDatePicker(): void {
+    void this.router.navigate(['/cycle-calendar']);
   }
 
   showPregnancyDetails() {
@@ -3868,6 +4018,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
         : 'Short rests and side-lying sleep when you can help your body do the quiet repair work of pregnancy.';
 
     const topics: DailyInsightTopic[] = [
+      this.buildSymptomLogInsightTopic('pregnancy'),
       {
         id: 'hydration',
         categoryLabel: 'Hydration',
@@ -3959,6 +4110,20 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
         ? `${strip.length} short reads for today`
         : 'Your snapshot';
 
+    const last = this.recentSymptomsDays[0];
+    let snapshotBody = `Day ${daysAlong} along · week ${w} · ${phase}`;
+    if (last) {
+      const dk = this.isoDateFromTrackRow(last.date);
+      const { moodText, symptomNames } = this.describeSymptomLogRow(last);
+      const when = dk ? this.formatDate(`${dk}T12:00:00`) : 'recently';
+      const tail = [moodText, ...symptomNames.slice(0, 3)]
+        .filter(Boolean)
+        .join(', ');
+      snapshotBody += tail
+        ? ` Last symptom log (${when}): ${tail}.`
+        : ` Last symptom log: ${when}.`;
+    }
+
     return {
       id: 'today-summary',
       categoryLabel: 'Today',
@@ -3968,7 +4133,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       slides: [
         {
           title: 'Your snapshot',
-          body: `Day ${daysAlong} along · week ${w} · ${phase}`,
+          body: snapshotBody,
         },
         {
           title: 'How this works',
@@ -3978,7 +4143,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     };
   }
 
-  async openPregnancyDailyInsightStory(topic: DailyInsightTopic): Promise<void> {
+  async openDailyInsightStory(topic: DailyInsightTopic): Promise<void> {
     try {
       const modal = await this.modalController.create({
         component: DailyInsightsStoryModalComponent,
@@ -3990,6 +4155,158 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     } catch {
       await this.showToast('Could not open insights. Try again.', 'danger');
     }
+  }
+
+  /** Insights tab — same destination as pregnancy “Watch-outs”. */
+  openCycleInsightsFromHome(): void {
+    this.router.navigate(['/tabs/insights']);
+  }
+
+  getCycleInsightsHeading(): string {
+    return 'My daily insights · Today';
+  }
+
+  /** Cycle home: same horizontal story strip as pregnancy “My daily insights”. */
+  getCycleDailyInsightStripTopics(): DailyInsightTopic[] {
+    const name = this.getCycleWelcomeName();
+    const day = this.getCycleDisplayDay();
+    const len = Math.max(1, this.currentCycleLength || 28);
+    const plen = Math.max(1, this.periodLength || 5);
+    const nextPeriodDays = this.getNextPeriodInDays();
+    const status = this.getCycleDayStatus();
+    const describe = this.getCycleDayDescription();
+    const ovulationDay = Math.max(1, len - 14);
+    const daysToOvu = ovulationDay - day;
+
+    const hydrationBody =
+      'Regular hydration can ease bloating and headaches that sometimes cluster around your period or luteal phase. If plain water is dull, try citrus slices or electrolyte drinks your clinician okays.';
+
+    const restBody =
+      'Your hormones shift across the month — extra rest on heavy-flow or low-energy days is data your body is sending, not laziness.';
+
+    const fertileTeaser =
+      daysToOvu === 0
+        ? 'Ovulation window · high today'
+        : daysToOvu > 0
+          ? `Fertile window · ~${daysToOvu}d to peak`
+          : `Fertile window · peak was ${Math.abs(daysToOvu)}d ago`;
+
+    return [
+      this.buildSymptomLogInsightTopic('cycle'),
+      {
+        id: 'cycle-hydration',
+        categoryLabel: 'Hydration',
+        teaser: 'Small sips, steadier days',
+        accentHex: '#0284c7',
+        ionIcon: 'water-outline',
+        slides: [
+          { title: 'Fluids meet your cycle', body: hydrationBody },
+          {
+            title: 'Try this today',
+            body: 'Pair each meal with a glass of water — easy to remember and gentle on your stomach.',
+          },
+        ],
+      },
+      {
+        id: 'cycle-rest',
+        categoryLabel: 'Rest',
+        teaser: 'Honor low-energy days',
+        accentHex: '#9333ea',
+        ionIcon: 'moon-outline',
+        slides: [
+          { title: 'Rest supports rhythm', body: restBody },
+          {
+            title: 'Wind-down cue',
+            body: 'Ten minutes off screens before bed can make sleep feel deeper, especially mid-luteal.',
+          },
+        ],
+      },
+      {
+        id: 'cycle-body',
+        categoryLabel: 'Your cycle',
+        teaser: `Day ${day} · ${len}-day rhythm`,
+        accentHex: '#0d9488',
+        ionIcon: 'pulse-outline',
+        slides: [
+          {
+            title: `Day ${day} of ${len}`,
+            body: `${status}: ${describe}`,
+          },
+          {
+            title: 'What the ring is hinting',
+            body: `You’re about ${nextPeriodDays} day${nextPeriodDays === 1 ? '' : 's'} from your next expected period start. Ovulation is often near day ${ovulationDay} of a ${len}-day template — your logged dates tune this over time.`,
+          },
+          {
+            title: 'Keep logging',
+            body: 'Tap Track or open the cycle calendar when flow starts or shifts — patterns get clearer with a few cycles.',
+          },
+        ],
+      },
+      {
+        id: 'cycle-for-you',
+        categoryLabel: 'For you',
+        teaser: `${name}, patterns over pressure`,
+        accentHex: '#db2777',
+        ionIcon: 'heart-outline',
+        personalized: true,
+        slides: [
+          {
+            title: `${name}, today’s read`,
+            body: `Day ${day} of ${len}, with about ${plen} day${plen === 1 ? '' : 's'} commonly marked as period. ${describe}`,
+          },
+          {
+            title: 'Symptoms are signals',
+            body: 'When something feels new month to month, jot it — gentle tracking beats chasing perfection.',
+          },
+          {
+            title: 'You’re not behind',
+            body: 'Every cycle has noisy charts and calm ones. Opening the app already counts as self-care.',
+          },
+        ],
+      },
+    ];
+  }
+
+  getCycleDailyInsightSummaryTopic(): DailyInsightTopic {
+    const day = this.getCycleDisplayDay();
+    const len = Math.max(1, this.currentCycleLength || 28);
+    const strip = this.getCycleDailyInsightStripTopics();
+    const teaser =
+      strip.length > 0
+        ? `${strip.length} short reads for today`
+        : 'Your snapshot';
+
+    const last = this.recentSymptomsDays[0];
+    let snapshotBody = `Cycle day ${day} of ${len} · ${this.getCycleDayStatus().toLowerCase()}`;
+    if (last) {
+      const dk = this.isoDateFromTrackRow(last.date);
+      const { moodText, symptomNames } = this.describeSymptomLogRow(last);
+      const when = dk ? this.formatDate(`${dk}T12:00:00`) : 'recently';
+      const tail = [moodText, ...symptomNames.slice(0, 3)]
+        .filter(Boolean)
+        .join(', ');
+      snapshotBody += tail
+        ? ` Last symptom log (${when}): ${tail}.`
+        : ` Last symptom log: ${when}.`;
+    }
+
+    return {
+      id: 'cycle-today-summary',
+      categoryLabel: 'Today',
+      teaser,
+      accentHex: '#ec4899',
+      ionIcon: 'happy-outline',
+      slides: [
+        {
+          title: 'Your snapshot',
+          body: snapshotBody,
+        },
+        {
+          title: 'How this works',
+          body: 'Each card advances on its own after a few seconds. Tap right to skip ahead, left to go back, or close anytime.',
+        },
+      ],
+    };
   }
 
   getPregnancyInsightsHeading(): string {

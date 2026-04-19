@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
+import { ionDatetimeTodayHighlight } from '../../utils/ion-datetime-today-highlight.util';
 
 @Component({
   selector: 'app-pregnancy-end-dialog',
@@ -11,7 +12,9 @@ import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 })
 export class PregnancyEndDialogComponent {
   private modalCtrl = inject(ModalController);
-  
+
+  readonly datetimeHighlightedToday = ionDatetimeTodayHighlight();
+
   pregnancyEndDate: string = '';
   notes: string = '';
 
