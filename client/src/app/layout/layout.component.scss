@@ -73,7 +73,7 @@ ion-header.modern-header {
   .header-right {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 6px;
     flex-shrink: 0;
 
     .header-action {
@@ -98,26 +98,71 @@ ion-header.modern-header {
         font-size: 24px;
       }
 
-      .notification-badge {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        min-width: 18px;
-        min-height: 18px;
-        padding: 0 5px;
-        line-height: 1;
-        background: var(--brand-accent);
-        color: var(--brand-text);
-        border-radius: 999px;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid var(--brand-surface);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-        pointer-events: none;
+      &.header-action--notifications {
+        --padding-start: 4px;
+        --padding-end: 4px;
+
+        &::part(native) {
+          overflow: visible;
+        }
+
+        .notification-bell {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          background: rgba(var(--brand-surface-rgb), 0.52);
+          border: 1px solid rgba(var(--brand-text-rgb), 0.08);
+          box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.7),
+            0 1px 2px rgba(var(--brand-text-rgb), 0.06);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          transition:
+            background var(--app-duration-fast) var(--app-ease-standard),
+            border-color var(--app-duration-fast) var(--app-ease-standard),
+            transform var(--app-duration-fast) var(--app-ease-standard),
+            box-shadow var(--app-duration-fast) var(--app-ease-standard);
+        }
+
+        ion-icon {
+          font-size: 22px;
+          opacity: 0.9;
+        }
+
+        .notification-bell__badge {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          min-width: 18px;
+          height: 18px;
+          padding: 0 5px;
+          line-height: 1;
+          background: var(--ion-color-danger);
+          color: var(--ion-color-danger-contrast);
+          border-radius: 999px;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid rgba(var(--brand-surface-rgb), 0.95);
+          box-shadow: 0 2px 6px rgba(var(--ion-color-danger-rgb), 0.45);
+          pointer-events: none;
+        }
+
+        &:hover .notification-bell {
+          background: rgba(var(--brand-surface-rgb), 0.72);
+          border-color: rgba(var(--brand-text-rgb), 0.12);
+        }
+
+        &:active .notification-bell {
+          transform: scale(0.96);
+        }
       }
 
       .profile-avatar {

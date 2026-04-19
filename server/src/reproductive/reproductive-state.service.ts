@@ -21,16 +21,18 @@ export class ReproductiveStateService {
   ) {}
 
   async initializeForUser(userId: number, dto: InitializeReproductiveStateDto) {
-    return this.prisma.$transaction(async (tx) => {
+    // Commit writes first: `getDashboardData` uses the root Prisma client and must not run
+    // while `tx` still holds locks from `upsertCycleData(tx, …)` (would hang / 500).
+    await this.prisma.$transaction(async (tx) => {
       await this.ensureUserExists(tx, userId);
       await this.setState(tx, userId, dto.state);
       await this.syncDomainForState(tx, userId, dto.state, dto);
-      return this.buildDashboard(tx, userId);
     });
+    return this.buildDashboard(this.prisma, userId);
   }
 
   async updateState(userId: number, dto: UpdateReproductiveStateDto) {
-    return this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       await this.ensureUserExists(tx, userId);
       const current = await tx.reproductive_state.findUnique({ where: { userId } });
       const nextState = dto.state;
@@ -52,8 +54,8 @@ export class ReproductiveStateService {
       }
 
       await this.syncDomainForState(tx, userId, nextState, dto);
-      return this.buildDashboard(tx, userId);
     });
+    return this.buildDashboard(this.prisma, userId);
   }
 
   async getDashboard(userId: number) {

@@ -8,25 +8,35 @@ export class PlanningService {
     payload: { tryingSince?: string; notes?: string },
   ) {
     const now = new Date();
-    await tx.pregnancy_planning.upsert({
+    const existing = await tx.pregnancy_planning.findFirst({
       where: { userId },
-      create: {
+      orderBy: { createdAt: 'desc' },
+      select: { id: true },
+    });
+    if (existing) {
+      await tx.pregnancy_planning.update({
+        where: { id: existing.id },
+        data: {
+          ...(payload.tryingSince !== undefined && {
+            lastPeriodDate: payload.tryingSince ? new Date(payload.tryingSince) : null,
+          }),
+          ...(payload.notes !== undefined && {
+            notes: payload.notes,
+            lifestyleGoals: payload.notes,
+          }),
+          updatedAt: now,
+        },
+      });
+      return;
+    }
+    await tx.pregnancy_planning.create({
+      data: {
         userId,
         lastPeriodDate: payload.tryingSince ? new Date(payload.tryingSince) : now,
         cycleLength: 28,
         averagePeriodDuration: 5,
         lifestyleGoals: payload.notes ?? null,
         notes: payload.notes ?? null,
-        updatedAt: now,
-      },
-      update: {
-        ...(payload.tryingSince !== undefined && {
-          lastPeriodDate: payload.tryingSince ? new Date(payload.tryingSince) : null,
-        }),
-        ...(payload.notes !== undefined && {
-          notes: payload.notes,
-          lifestyleGoals: payload.notes,
-        }),
         updatedAt: now,
       },
     });

@@ -119,7 +119,6 @@ import {
 } from './services/home-reproductive-ui.service';
 import { HomeJourneyBridgeService } from './services/home-journey-bridge.service';
 import { HomeDataService } from './services/home-data.service';
-import { GrowthService } from '../shared/services/growth.service';
 import {
   getBabyDevelopmentFactForWeek,
   getBabyFunFactForWeek,
@@ -135,7 +134,6 @@ import {
   pregnancyWeekIllustrationUrl,
 } from '../shared/pregnancy-week-illustration';
 import { HOME_POSTPARTUM_WEEK_SAMPLES } from './data/home-postpartum-sample.data';
-import { FirstWeekPlanService } from '../shared/services/first-week-plan.service';
 import { DailyInsightsStoryModalComponent } from '../shared/components/daily-insights-story-modal/daily-insights-story-modal.component';
 import type { DailyInsightTopic } from '../shared/models/daily-insight-topic.model';
 
@@ -157,8 +155,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private homeData = inject(HomeDataService);
-  private firstWeekPlan = inject(FirstWeekPlanService);
-  private growthService = inject(GrowthService);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private trackDataService = inject(TrackDataService);
@@ -267,14 +263,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   temperature: number = 36.8;
   mood: string = 'Happy';
   showMoreSections: boolean = false;
-
-  /** Daily check-in + growth points (server-backed). */
-  growthStrip: {
-    visible: boolean;
-    streak: number;
-    points: number;
-    checkedInToday: boolean;
-  } = { visible: false, streak: 0, points: 0, checkedInToday: false };
 
   // Appointments
   upcomingAppointments: any[] = [
@@ -392,7 +380,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     } else {
       this.hydrateFromLocalOnboardingForAuthenticatedFallback();
     }
-    this.firstWeekPlan.ensurePlanStarted();
     this.loadTodaySymptoms();
     this.loadRecentSymptomsDays();
     this.initializeHealthTip();
@@ -649,92 +636,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     }
     this.scheduleScrollPregnancyCalendarToAnchor();
     setTimeout(() => this.schedulePregnancyConnectorUpdate(), 120);
-    this.firstWeekPlan.ensurePlanStarted();
-    this.runFirstWeekEntryHooks();
-    this.refreshGrowthStrip();
-  }
-
-  private refreshGrowthStrip(): void {
-    if (!this.authService.getAccessToken()) {
-      this.growthStrip = {
-        visible: false,
-        streak: 0,
-        points: 0,
-        checkedInToday: false,
-      };
-      return;
-    }
-    this.growthService
-      .getSummary()
-      .pipe(catchError(() => of(null)))
-      .subscribe((d) => {
-        if (!d) {
-          return;
-        }
-        this.growthStrip = {
-          visible: true,
-          streak: d.checkInStreak,
-          points: d.growthPoints,
-          checkedInToday: d.checkedInToday,
-        };
-        this.cdr.markForCheck();
-      });
-  }
-
-  async onGrowthCheckIn(): Promise<void> {
-    try {
-      const res = await firstValueFrom(this.growthService.checkIn());
-      this.growthStrip = {
-        ...this.growthStrip,
-        visible: true,
-        streak: res.checkInStreak,
-        points: res.growthPoints,
-        checkedInToday: true,
-      };
-      const toast = await this.toastController.create({
-        message: res.alreadyCheckedIn
-          ? 'You already checked in today.'
-          : 'Check-in saved — build your streak!',
-        duration: 2200,
-        color: res.alreadyCheckedIn ? 'medium' : 'success',
-      });
-      await toast.present();
-    } catch {
-      const t = await this.toastController.create({
-        message: 'Check-in could not be saved. Try again.',
-        duration: 2200,
-        color: 'danger',
-      });
-      await t.present();
-    }
-    this.cdr.markForCheck();
-  }
-
-  async shareCycleInsight(): Promise<void> {
-    try {
-      const payload = await firstValueFrom(this.growthService.getShareSummary());
-      const text = this.growthService.composeShareText(payload);
-      if (navigator.share) {
-        await navigator.share({ title: payload.title, text });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(text);
-        const toast = await this.toastController.create({
-          message: 'Summary copied — paste anywhere to share.',
-          duration: 2200,
-        });
-        await toast.present();
-      }
-    } catch (e: unknown) {
-      if ((e as { name?: string })?.name === 'AbortError') {
-        return;
-      }
-      const t = await this.toastController.create({
-        message: 'Could not load a share summary.',
-        duration: 2000,
-        color: 'danger',
-      });
-      await t.present();
-    }
   }
 
   async onTabPullRefresh(event: Event): Promise<void> {
@@ -787,7 +688,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       // network errors: still refresh chart from local state
     } finally {
       this.runPeriodChartRefresh();
-      this.refreshGrowthStrip();
       this.cdr.markForCheck();
     }
   }
@@ -1041,21 +941,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     return true;
   }
 
-  /** First-week retention strip (days 1–7 after onboarding). */
-  showFirstWeekRetentionCard(): boolean {
-    if (this.isPregnant || this.isPostpartum) {
-      return false;
-    }
-    if (this.cycleSettings.isPregnant() || this.cycleSettings.isPostpartum()) {
-      return false;
-    }
-    return this.firstWeekPlan.isInFirstWeek();
-  }
-
-  getFirstWeekPlan() {
-    return this.firstWeekPlan.getPlanForToday();
-  }
-
   getPreCycleEmptyCopy(): { title: string; body: string; features: string[] } {
     let intent: string | null = null;
     try {
@@ -1078,110 +963,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       body: 'Your cycle ring and day-by-day view stay empty until you add one date. It takes a few seconds.',
       features: ['Cycle ring', 'Daily context', 'Symptom trends'],
     };
-  }
-
-  hasQuickMoodLoggedToday(): boolean {
-    const m = this.todaySymptoms?.mood;
-    return typeof m === 'string' && m.trim().length > 0;
-  }
-
-  async logQuickMood(bucket: 'great' | 'okay' | 'low'): Promise<void> {
-    const moodMap = { great: 'good', okay: 'okay', low: 'poor' } as const;
-    const mood = moodMap[bucket];
-    const today = new Date().toISOString().split('T')[0];
-    const uid = this.homeData.getCurrentUserId();
-    const existing = this.trackDataService.getTodayTrackData();
-    const prevSymptoms = existing?.symptoms;
-    const symptoms = Array.isArray(prevSymptoms) ? prevSymptoms : [];
-    this.trackDataService.saveTrackData({
-      userId: uid > 0 ? uid : 0,
-      date: today,
-      mood,
-      energy: existing?.energy && existing.energy.length > 0 ? existing.energy : 'medium',
-      symptoms,
-      notes: existing?.notes ?? '',
-      id: existing?.id,
-      createdAt: existing?.createdAt,
-      updatedAt: new Date().toISOString(),
-    });
-    this.todaySymptoms = {
-      userId: uid,
-      date: today,
-      mood,
-      energy: existing?.energy && existing.energy.length > 0 ? existing.energy : 'medium',
-      symptoms: symptoms as SymptomsDto['symptoms'],
-      notes: existing?.notes ?? '',
-    };
-    const msg =
-      bucket === 'great'
-        ? 'Saved — glad today feels lighter.'
-        : bucket === 'okay'
-          ? 'Thanks — noted for today.'
-          : 'Got it — be gentle with yourself today.';
-    await this.showToast(msg, 'success');
-    this.cdr.markForCheck();
-  }
-
-  onFirstWeekOpenTrackerDay5(): void {
-    const plan = this.firstWeekPlan.getPlanForToday();
-    if (plan?.day !== 5) {
-      return;
-    }
-    this.openSymptomsTracking();
-  }
-
-  async onCheckFirstWeekInsight(): Promise<void> {
-    const plan = this.firstWeekPlan.getPlanForToday();
-    if (!plan) {
-      return;
-    }
-    if (this.isPregnant) {
-      await this.showToast('Opening this week’s details for you.', 'success');
-      this.openCurrentPregnancyWeekDetail();
-      return;
-    }
-    await this.showToast('Here’s more context below — scroll unlocked.', 'success');
-    this.showMoreSections = true;
-    this.cdr.markForCheck();
-    setTimeout(() => {
-      document.getElementById('home-today-insights')?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    }, 200);
-  }
-
-  private readonly firstWeekNotifPromptKey = 'first_week_browser_notif_prompted';
-
-  private runFirstWeekEntryHooks(): void {
-    if (!this.firstWeekPlan.isInFirstWeek()) {
-      return;
-    }
-    const nudge = this.firstWeekPlan.consumeDailyNudgeIfDue();
-    if (nudge.toastFallback) {
-      void this.showToast(nudge.toastFallback, 'success');
-    }
-    void this.maybePromptBrowserNotificationForFirstWeek();
-  }
-
-  private async maybePromptBrowserNotificationForFirstWeek(): Promise<void> {
-    if (typeof Notification === 'undefined') {
-      return;
-    }
-    if (this.firstWeekPlan.getPlanDayNumber() !== 1) {
-      return;
-    }
-    if (localStorage.getItem(this.firstWeekNotifPromptKey) === 'true') {
-      return;
-    }
-    if (!this.firstWeekPlan.notificationsOptIn()) {
-      return;
-    }
-    if (Notification.permission !== 'default') {
-      return;
-    }
-    localStorage.setItem(this.firstWeekNotifPromptKey, 'true');
-    await Notification.requestPermission();
   }
 
   /**

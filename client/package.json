@@ -22,13 +22,13 @@
 
     "proxy": "ng serve --proxy-config proxy.conf.json",
 
-    "build": "ng build",
+    "build": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build",
 
-    "build:en": "ng build --configuration=en",
+    "build:en": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build --configuration=en",
 
-    "build:zh": "ng build --configuration=zh",
+    "build:zh": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build --configuration=zh",
 
-    "build:ms": "ng build --configuration=ms",
+    "build:ms": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build --configuration=ms",
 
     "serve:en": "ng serve --configuration=en",
 
@@ -36,7 +36,7 @@
 
     "serve:ms": "ng serve --configuration=ms",
 
-    "watch": "ng build --watch --configuration development",
+    "watch": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build --watch --configuration development",
 
     "test": "ng test",
 

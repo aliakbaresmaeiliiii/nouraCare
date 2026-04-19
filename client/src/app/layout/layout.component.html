@@ -18,10 +18,12 @@
           (click)="openNotifications()"
           [attr.aria-label]="notificationsAriaLabel"
         >
-          <ion-icon name="notifications-outline" aria-hidden="true"></ion-icon>
-          @if (unreadCount > 0) {
-            <span class="notification-badge" aria-hidden="true">{{ unreadBadgeText }}</span>
-          }
+          <span class="notification-bell" aria-hidden="true">
+            <ion-icon name="notifications-outline"></ion-icon>
+            @if (unreadCount > 0) {
+              <span class="notification-bell__badge">{{ unreadBadgeText }}</span>
+            }
+          </span>
         </ion-button>
 
         <app-header-language-switcher></app-header-language-switcher>
