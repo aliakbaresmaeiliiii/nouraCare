@@ -404,7 +404,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     `;
     document.head.appendChild(style);
 
-    alert.innerHTML = `✅ Profile link copied to clipboard!`;
+    alert.textContent = '✅ Profile link copied to clipboard!';
     document.body.appendChild(alert);
 
     setTimeout(() => {
@@ -440,7 +440,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     `;
     document.head.appendChild(style);
 
-    alert.innerHTML = `❌ Failed to share profile. Please try again.`;
+    alert.textContent = '❌ Failed to share profile. Please try again.';
     document.body.appendChild(alert);
 
     setTimeout(() => {
@@ -476,7 +476,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     `;
     document.head.appendChild(style);
 
-    alert.innerHTML = `📱 Share feature works best on mobile devices. Link copied to clipboard!`;
+    alert.textContent =
+      '📱 Share feature works best on mobile devices. Link copied to clipboard!';
     document.body.appendChild(alert);
 
     // Also copy to clipboard

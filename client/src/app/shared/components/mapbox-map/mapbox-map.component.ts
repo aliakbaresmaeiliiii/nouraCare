@@ -133,7 +133,7 @@ export class MapboxMapComponent implements OnInit, OnChanges {
     `;
 
     const icon = document.createElement('div');
-    icon.innerHTML = '📍';
+    icon.textContent = '📍';
     icon.style.cssText = `
       font-size: 48px;
       margin-bottom: 16px;
@@ -460,13 +460,14 @@ If you don't see location options, try:
     `;
 
     const instructionsElement = document.createElement('div');
-    instructionsElement.innerHTML = instructions.replace(/\n/g, '<br>');
+    instructionsElement.textContent = instructions;
     instructionsElement.style.cssText = `
       margin: 0 0 24px 0;
       color: #666;
       line-height: 1.6;
       font-size: 14px;
       text-align: left;
+      white-space: pre-line;
     `;
 
     const closeButton = document.createElement('button');
@@ -524,7 +525,8 @@ If you don't see location options, try:
     document.head.appendChild(style);
 
     const message = document.createElement('div');
-    message.innerHTML = '✅ Location access granted! Getting your current location...';
+    message.textContent =
+      '✅ Location access granted! Getting your current location...';
     message.style.cssText = `
       font-size: 14px;
       font-weight: 500;
@@ -1009,7 +1011,7 @@ If you don't see location options, try:
       margin: 10px;
     `;
 
-    locationButton.innerHTML = '📍';
+    locationButton.textContent = '📍';
     locationButton.title = 'Request Location Access';
 
     locationButton.addEventListener('click', () => {

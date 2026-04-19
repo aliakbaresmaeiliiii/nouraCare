@@ -556,7 +556,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     document.head.appendChild(style);
 
     const messageElement = document.createElement('div');
-    messageElement.innerHTML = `✅ ${message}`;
+    messageElement.textContent = `✅ ${message}`;
     messageElement.style.cssText = `
       font-size: 14px;
       font-weight: 500;
@@ -599,7 +599,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     document.head.appendChild(style);
 
     const messageElement = document.createElement('div');
-    messageElement.innerHTML = `❌ ${message}`;
+    messageElement.textContent = `❌ ${message}`;
     messageElement.style.cssText = `
       font-size: 14px;
       font-weight: 500;

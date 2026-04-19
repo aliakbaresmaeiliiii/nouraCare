@@ -524,7 +524,7 @@ ion-content {
   
   ion-button {
     --background: var(--app-gradient-header);
-    --color: white;
+    --color: var(--text-dark);
     --border-radius: 16px;
     --padding-top: 18px;
     --padding-bottom: 18px;
@@ -542,7 +542,7 @@ ion-content {
     
     &[disabled] {
       --background: #e2e8f0;
-      --color: #a0aec0;
+      --color: var(--text-dark);
       --box-shadow: none;
     }
   }

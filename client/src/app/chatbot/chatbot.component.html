@@ -36,7 +36,7 @@
             }
 
             <div class="message-content">
-              <div class="message-text" [innerHTML]="formatMessageText(message.text)"></div>
+              <div class="message-text">{{ message.text }}</div>
 
               @if (message.quickReplies && message.quickReplies.length > 0) {
                 <div class="quick-replies">

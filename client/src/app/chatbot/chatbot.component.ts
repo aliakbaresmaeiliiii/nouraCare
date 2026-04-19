@@ -342,10 +342,6 @@ export class ChatbotComponent implements OnInit {
     await alert.present();
   }
 
-  formatMessageText(text: string): string {
-    return text.replace(/\n/g, '<br>');
-  }
-
   formatTime(timestamp: Date): string {
     const now = new Date();
     const diffInMinutes = Math.floor(
