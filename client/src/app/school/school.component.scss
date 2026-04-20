@@ -261,7 +261,7 @@ ion-range {
   }
 
   &.fun {
-    color: var(--ion-color-warning, #ffc409);
+    color: var(--ion-color-warning, #ffd700);
   }
 
   &.progress {
@@ -284,7 +284,7 @@ ion-range {
 }
 
 .read-card--accent {
-  border-left: 4px solid var(--ion-color-warning, #ffc409);
+  border-left: 4px solid var(--ion-color-warning, #ffd700);
 }
 
 .progress-card .read-card-head {

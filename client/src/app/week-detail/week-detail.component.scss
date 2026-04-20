@@ -342,8 +342,8 @@ ion-segment-button ion-label {
 }
 
 .section-card--soft-warn {
-  background: rgba(var(--ion-color-warning-rgb, 255, 196, 9), 0.08);
-  border-color: rgba(var(--ion-color-warning-rgb, 255, 196, 9), 0.2);
+  background: rgba(var(--ion-color-warning-rgb, 255, 215, 0), 0.08);
+  border-color: rgba(var(--ion-color-warning-rgb, 255, 215, 0), 0.2);
 }
 
 .section-card--accent {
@@ -381,11 +381,11 @@ ion-segment-button ion-label {
 }
 
 .section-icon-wrap--warn {
-  background: rgba(var(--ion-color-warning-rgb, 255, 196, 9), 0.2);
+  background: rgba(var(--ion-color-warning-rgb, 255, 215, 0), 0.2);
 }
 
 .section-icon-wrap--warn ion-icon {
-  color: var(--ion-color-warning-shade, #c79100);
+  color: var(--ion-color-warning-shade, #e6c200);
 }
 
 .section-icon-wrap--on-accent {
@@ -456,7 +456,7 @@ ion-segment-button ion-label {
 }
 
 .detail-row--warn::before {
-  background: var(--ion-color-warning-shade, #c79100);
+  background: var(--ion-color-warning-shade, #e6c200);
   opacity: 0.85;
 }
 
@@ -494,13 +494,13 @@ ion-segment-button ion-label {
 }
 
 .status-banner--caution {
-  background: rgba(var(--ion-color-warning-rgb, 255, 196, 9), 0.14);
-  color: var(--ion-color-warning-shade, #8a6500);
-  border: 1px solid rgba(var(--ion-color-warning-rgb, 255, 196, 9), 0.3);
+  background: rgba(var(--ion-color-warning-rgb, 255, 215, 0), 0.14);
+  color: var(--ion-color-warning-shade, #b39700);
+  border: 1px solid rgba(var(--ion-color-warning-rgb, 255, 215, 0), 0.3);
 }
 
 .status-banner--caution ion-icon {
-  color: var(--ion-color-warning, #ffc409);
+  color: var(--ion-color-warning, #ffd700);
 }
 
 // —— Tips footer ——

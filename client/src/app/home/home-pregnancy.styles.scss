@@ -231,7 +231,13 @@
   cursor: pointer;
   font: inherit;
   color: #4a261c;
-  background: linear-gradient(155deg, #fffdfb 0%, #ffe8dc 38%, #f8c4b0 72%, #e59882 100%);
+  background: linear-gradient(
+    155deg,
+    #fffdfb 0%,
+    #ffe8dc 38%,
+    #f8c4b0 72%,
+    #e59882 100%
+  );
   box-shadow:
     0 5px 16px rgba(180, 90, 65, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.75);
@@ -614,11 +620,10 @@
 .pregnancy-daily-insights {
   position: relative;
   z-index: 2;
-  margin-top: 1.35rem;
 }
 
 .pregnancy-daily-insights-title {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.75rem 10px;
   font-size: 1.02rem;
   font-weight: 800;
   color: #141414;
@@ -1119,7 +1124,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, rgba(167, 139, 250, 0.35), rgba(96, 165, 250, 0.28));
+  background: linear-gradient(
+    160deg,
+    rgba(167, 139, 250, 0.35),
+    rgba(96, 165, 250, 0.28)
+  );
   border: 1px solid rgba(255, 255, 255, 0.65);
 }
 
@@ -1319,7 +1328,11 @@
   }
 
   .pregnancy-post-due-card__icon {
-    background: linear-gradient(160deg, rgba(99, 102, 241, 0.35), rgba(56, 189, 248, 0.2));
+    background: linear-gradient(
+      160deg,
+      rgba(99, 102, 241, 0.35),
+      rgba(56, 189, 248, 0.2)
+    );
     border-color: rgba(255, 255, 255, 0.12);
   }
 }

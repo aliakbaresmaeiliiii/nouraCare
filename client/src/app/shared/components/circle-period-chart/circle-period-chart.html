@@ -1,4 +1,16 @@
-<div class="cycle-chart-container">
+<div
+  class="cycle-chart-container"
+  [class.cycle-chart-container--phase-period]="cycleDiskPhase === 'period'"
+  [class.cycle-chart-container--phase-fertile]="cycleDiskPhase === 'fertile'"
+  [class.cycle-chart-container--phase-ovulation]="cycleDiskPhase === 'ovulation'"
+>
+  <div class="cycle-chart-drift" aria-hidden="true">
+    <div class="cycle-chart-drift-box">
+      <div class="cycle-chart-drift-wave"></div>
+      <div class="cycle-chart-drift-wave cycle-chart-drift-wave--two"></div>
+      <div class="cycle-chart-drift-wave cycle-chart-drift-wave--three"></div>
+    </div>
+  </div>
   @if (showWeekStrip) {
     <div class="cycle-chart-week-hero pregnancy-connect-wrapper cycle-calendar-connect">
       <div
@@ -195,7 +207,7 @@
         @for (day of periodDayNumbers; track $index) {
         <g class="outer-number-marker">
           <text [attr.x]="getOuterNumberX($index, cycleLength)" [attr.y]="getOuterNumberY($index, cycleLength)"
-            text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="700"
+            text-anchor="middle" alignment-baseline="middle" font-size="20" font-weight="700"
             class="outer-number period-day-number">
             {{ day }}
           </text>
@@ -240,9 +252,10 @@
         <!-- Ovulation Mark - Dynamic -->
         @if (isOvulationDay && !isInPeriod) {
         <g class="phase-mark ovulation-mark">
-          <circle r="12" fill="#f59e0b" opacity="0.9" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
+          <circle r="12" fill="rgba(var(--brand-accent-rgb), 0.26)" stroke="var(--brand-accent)" stroke-width="1.5"
+            opacity="0.96" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
-          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
+          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="800" fill="var(--brand-text)"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)" [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)">
             O
           </text>
@@ -252,12 +265,12 @@
         <!-- PMS Mark - Dynamic -->
         @if (isInPMS && !isInPeriod) {
         <g class="phase-mark pms-mark">
-          <circle r="12" fill="#8b5cf6" opacity="0.9" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
+          <circle r="11" fill="#7c3aed" opacity="0.92" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
-          <text text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="700" fill="white"
+          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="800" fill="white"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)">
-            PMS
+            P
           </text>
         </g>
         }
@@ -333,13 +346,14 @@
             <text
               text-anchor="middle"
               alignment-baseline="middle"
-              font-size="14"
-              font-weight="600"
+              font-size="15"
+              font-weight="700"
+              letter-spacing="0.2"
               x="0"
               [attr.y]="startDate && weekStripSelectionOvulationInsight ? 10 : 2"
               [attr.fill]="getFertilityStatus().color"
             >
-              {{ getFertilityStatus().description }}
+              {{ getFertilityStatus().status }}
             </text>
           </g>
 
@@ -393,18 +407,17 @@
           pointer-events="none"
         >
           <circle
-            r="15"
-            fill="url(#todayRingShine)"
-            stroke="var(--brand-surface)"
-            stroke-width="1.5"
-            filter="url(#glow3d)"
+            r="19"
+            fill="rgba(var(--brand-primary-rgb), 0.18)"
+            stroke="var(--brand-primary)"
+            stroke-width="2"
             [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"
           />
           <text
             text-anchor="middle"
             alignment-baseline="middle"
-            font-size="13"
+            font-size="15"
             font-weight="800"
             fill="var(--brand-text)"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"

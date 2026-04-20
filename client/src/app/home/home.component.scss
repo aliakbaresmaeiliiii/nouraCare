@@ -279,68 +279,97 @@
   position: relative;
   z-index: 0;
   margin: 0 calc(-1 * var(--app-side-padding));
-  padding: 0 var(--app-side-padding) 2.25rem;
+  /* No horizontal padding: week strip is full-bleed; insights block adds its own inset */
+  padding: 0 0 2.25rem;
   background: transparent;
 
   > * {
     position: relative;
     z-index: 1;
   }
-}
 
-// Cycle hero: soft pink tint + wide bottom ellipse for a smooth curve into page bg
-.cycle-hero-sky {
-  --cycle-hero-curve-fill: var(--ion-background-color, var(--brand-bg));
-  --cycle-hero-curve-shadow: 0 -12px 42px rgba(236, 72, 153, 0.12),
-    0 -4px 20px rgba(var(--brand-text-rgb), 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
-
-  position: relative;
-  z-index: 0;
-  overflow: hidden;
-  isolation: isolate;
-  padding: 0.5rem 0 clamp(1.6rem, 5vw, 2.35rem);
-  max-width: none;
-  background: var(--ion-background-color, var(--brand-bg));
-  background: color-mix(
-    in srgb,
-    var(--cycle-hero-pink) 17%,
-    var(--ion-background-color, var(--brand-bg)) 83%
-  );
-
-  &::before {
-    display: none;
-  }
-
-  /* Shallow ellipse: top arc forms a soft “scoop” from hero tint → page background */
-  &::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: clamp(-7.25rem, -19vw, -5.25rem);
-    z-index: 0;
-    width: min(185%, 76rem);
-    height: clamp(9.25rem, 24vw, 12.75rem);
-    transform: translateX(-50%);
-    border-radius: 50%;
-    pointer-events: none;
-    background: var(--cycle-hero-curve-fill);
-    box-shadow: var(--cycle-hero-curve-shadow);
-  }
-
-  > * {
-    position: relative;
-    z-index: 1;
+  > .pregnancy-daily-insights {
+    padding-left: var(--app-side-padding);
+    padding-right: var(--app-side-padding);
   }
 }
+
+// Cycle hero: diagonal “sea” wash (deep indigo → brand primary/teal → light) + soft waves
+// .cycle-hero-sky {
+//   --cycle-hero-curve-fill: var(--ion-background-color, var(--brand-bg));
+//   --cycle-hero-curve-shadow:
+//     0 -18px 56px rgba(var(--brand-primary-dark-rgb), 0.2),
+//     0 -8px 32px rgba(var(--brand-secondary-rgb), 0.12),
+//     inset 0 1px 0 rgba(255, 255, 255, 0.42);
+
+//   position: relative;
+//   z-index: 0;
+//   overflow: hidden;
+//   isolation: isolate;
+//   padding: 0.5rem 0 clamp(1.6rem, 5vw, 2.35rem);
+//   max-width: none;
+//   background-color: var(--ion-background-color, var(--brand-bg));
+//   /* Bottom-left → top-right: slate / indigo depths → primary → sky & teal foam → page */
+
+//   /* Rolling swell from bottom-left (reads as a soft wave over the diagonal sea) */
+//   &::before {
+//     content: "";
+//     position: absolute;
+//     left: -35%;
+//     width: 170%;
+//     height: min(58%, 11.5rem);
+//     bottom: -12%;
+//     z-index: 0;
+//     pointer-events: none;
+//     border-radius: 48% 52% 45% 55% / 58% 58% 42% 42%;
+//     transform: rotate(-5deg);
+//     background: linear-gradient(
+//       to top right,
+//       rgba(30, 58, 138, 0.5) 0%,
+//       rgba(79, 70, 229, 0.28) 38%,
+//       rgba(56, 189, 248, 0.18) 68%,
+//       rgba(255, 255, 255, 0.06) 100%
+//     );
+//     opacity: 0.92;
+//   }
+
+//   /* Wide shallow ellipse: smooth handoff from hero into page background */
+//   &::after {
+//     content: "";
+//     position: absolute;
+//     left: 50%;
+//     bottom: clamp(-7.25rem, -19vw, -5.25rem);
+//     z-index: 0;
+//     width: min(185%, 76rem);
+//     height: clamp(9.25rem, 24vw, 12.75rem);
+//     transform: translateX(-50%);
+//     border-radius: 50%;
+//     pointer-events: none;
+//     background: var(--cycle-hero-curve-fill);
+//     box-shadow: var(--cycle-hero-curve-shadow);
+//   }
+
+//   > .cycle-ring-shell {
+//     position: relative;
+//     z-index: 1;
+//   }
+// }
 
 .cycle-ring-shell--hero {
-  max-width: 26.5rem;
-  margin: 0 auto 0.35rem;
+  /* Full width for week strip; ring stays capped via ::ng-deep .chart-wrapper */
+  max-width: none;
+  width: 100%;
+  margin: 0 0 0.35rem;
   background: transparent;
   border: none;
   box-shadow: none;
-  padding: 0.35rem 0.5rem 0.5rem;
+  padding: 0.35rem 0 0.5rem;
+
+  ::ng-deep .chart-wrapper {
+    max-width: 26.5rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .cycle-hello-card {
@@ -412,7 +441,7 @@
   }
 
   ::ng-deep .chart-wrapper {
-    margin-top: -0.25rem;
+    margin-top: -1.25rem;
     height: auto;
     // Let the ring use ~2/3 of typical viewport (was ~1/3 via 350px wrapper + 340px cap)
     min-height: min(88vw, min(62vh, 560px));
@@ -576,7 +605,6 @@
           color: #64748b;
         }
       }
-
     }
   }
 }
@@ -690,7 +718,7 @@
 
           .tool-badge {
             background: #fef3c7;
-            color: #d97706;
+            color: #e6c200;
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
             font-size: 0.8rem;
@@ -960,19 +988,45 @@
 
   .cycle-hero-sky {
     --cycle-hero-curve-fill: var(--ion-background-color);
-    --cycle-hero-curve-shadow: 0 -14px 48px rgba(0, 0, 0, 0.32),
-      0 -6px 28px rgba(236, 72, 153, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    --cycle-hero-curve-shadow:
+      0 -16px 52px rgba(0, 0, 0, 0.45), 0 -6px 28px rgba(99, 102, 241, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
-    background: var(--ion-background-color);
-    background: color-mix(
-      in srgb,
-      var(--cycle-hero-pink) 22%,
-      var(--ion-background-color) 78%
-    );
+    background-color: var(--ion-background-color);
+    // background-image:
+    //   radial-gradient(
+    //     115% 68% at 0% 100%,
+    //     rgba(2, 6, 23, 0.85) 0%,
+    //     rgba(30, 27, 75, 0.55) 32%,
+    //     transparent 62%
+    //   ),
+    //   radial-gradient(
+    //     80% 50% at 100% 0%,
+    //     rgba(148, 163, 184, 0.18) 0%,
+    //     rgba(79, 70, 229, 0.12) 28%,
+    //     transparent 52%
+    //   ),
+    //   linear-gradient(
+    //     to top right,
+    //     #020617 0%,
+    //     #0f172a 12%,
+    //     #1e1b4b 28%,
+    //     #312e81 42%,
+    //     #4338ca 56%,
+    //     #0e7490 72%,
+    //     color-mix(in srgb, var(--ion-background-color) 88%, #5eead4 12%) 92%,
+    //     var(--ion-background-color) 100%
+    //   );
 
     &::before {
-      display: none;
+      background: linear-gradient(
+        to top right,
+        rgba(15, 23, 42, 0.65) 0%,
+        rgba(67, 56, 202, 0.35) 42%,
+        rgba(45, 212, 191, 0.12) 78%,
+        transparent 100%
+      );
+      opacity: 0.88;
     }
   }
 
@@ -1129,12 +1183,12 @@
       .tool-content .tool-description {
         color: var(--ion-color-medium);
       }
-      .tool-button[fill='outline'] {
+      .tool-button[fill="outline"] {
         --border-color: rgba(var(--ion-color-primary-rgb), 0.55);
         --color: var(--ion-color-primary-tint);
         --background: transparent;
       }
-      .tool-button[fill='solid'] {
+      .tool-button[fill="solid"] {
         --background: var(--ion-color-primary);
         --color: var(--ion-color-primary-contrast);
       }
@@ -1199,7 +1253,7 @@
         color: var(--ion-color-medium);
       }
     }
-    .expert-actions ion-button[fill='solid'] {
+    .expert-actions ion-button[fill="solid"] {
       --background: var(--ion-color-primary);
       --color: var(--ion-color-primary-contrast);
     }
@@ -1252,7 +1306,9 @@
       0 10px 26px rgba(var(--ion-color-primary-rgb), 0.32),
       0 2px 8px rgba(15, 23, 42, 0.12),
       inset 0 1px 0 rgba(255, 255, 255, 0.22);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
 
     &:hover {
       transform: translateY(-2px);
@@ -1302,7 +1358,7 @@
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-70px);
   }
 }
 

@@ -168,7 +168,7 @@ export class BlockedUsersComponent implements OnInit {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #f44336;
+      background: #c21e56;
       color: white;
       padding: 16px 20px;
       border-radius: 8px;

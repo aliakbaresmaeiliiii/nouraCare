@@ -247,7 +247,7 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
     const colors = {
       article: '#3b82f6',
       doctor: '#10b981',
-      tool: '#f59e0b',
+      tool: '#ffd700',
       tip: '#8b5cf6'
     };
     return colors[type] || '#6b7280';

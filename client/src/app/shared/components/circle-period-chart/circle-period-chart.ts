@@ -17,10 +17,11 @@ import { CycleSettingsService } from '../../services/cycle-settings.service';
 import { UserInfoService } from '../../services/user-info.service';
 import type { UserInfo } from '../../interfaces/user-info-api.interface';
 import { AuthService } from '../../../auth/services/auth';
+import { TranslationService } from '../../services/translation.service';
 
 export interface Segment {
   label: string;
-  days: number; 
+  days: number;
   color: string;
 }
 
@@ -40,6 +41,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   private cycleSettings = inject(CycleSettingsService);
   private userInfoService = inject(UserInfoService);
   private authService = inject(AuthService);
+  private translationService = inject(TranslationService);
   private cdr = inject(ChangeDetectorRef);
   // Configuration inputs
   @Input() cycleLength: number = 28; // total cycle length in days
@@ -85,13 +87,13 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   /** Main headline under the calendar date (e.g. “Period day 4” or “Day 11 of your cycle”). */
   getCenterCycleHeading(): string {
     if (!this.startDate) {
-      return 'Log your period to begin';
+      return this.t('cycleChart.heading.logPeriodToBegin');
     }
     const d = this.viewCycleDay;
     if (d >= 1 && d <= this.periodLength) {
-      return `Period day ${d}`;
+      return this.t('cycleChart.heading.periodDay', { day: d });
     }
-    return `Day ${d} of your cycle`;
+    return this.t('cycleChart.heading.dayOfCycle', { day: d });
   }
 
   // Period status (driven by **view** day so taps update the ring + center)
@@ -131,7 +133,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   get isInPMS(): boolean {
-    return this.viewCycleDay >= this.pmsStart && this.viewCycleDay <= this.pmsEnd;
+    return (
+      this.viewCycleDay >= this.pmsStart && this.viewCycleDay <= this.pmsEnd
+    );
   }
 
   /** Drives outer ring disk tint (period vs fertile vs peak ovulation). */
@@ -378,8 +382,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   /**
    * Debug method to check current state
    */
-  public debugState() {
-  }
+  public debugState() {}
 
   /**
    * Force complete reinitialization of the chart
@@ -387,7 +390,6 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   public forceReinitialize() {
     this.ngOnInit();
   }
-
 
   dashArray(len: number): string {
     // len is in "days" relative to cycleLength
@@ -449,7 +451,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
     // period label at middle of period arc, slightly outside ring
     const periodMidAngle =
-      (((0 + this.periodLength / 2) / this.cycleLength) * 2 * Math.PI) -
+      ((0 + this.periodLength / 2) / this.cycleLength) * 2 * Math.PI -
       Math.PI / 2;
     const periodLabelRadius = this.radius + 30;
     this.periodLabelX = periodLabelRadius * Math.cos(periodMidAngle);
@@ -496,9 +498,10 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     const actualPeriodLength =
       Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
-    this.periodLength = isFinite(actualPeriodLength) && actualPeriodLength > 0
-      ? actualPeriodLength
-      : this.periodLength;
+    this.periodLength =
+      isFinite(actualPeriodLength) && actualPeriodLength > 0
+        ? actualPeriodLength
+        : this.periodLength;
 
     this.recomputeEverything();
     this.closePeriodSheet();
@@ -565,8 +568,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   /** Wheel modal title: which period boundary is being edited. */
   get pickerModalTitle(): string {
     return this.pickerType === 'start'
-      ? 'First day of last period'
-      : 'Last day of this period';
+      ? this.t('cycleChart.picker.firstDayLastPeriod')
+      : this.t('cycleChart.picker.lastDayThisPeriod');
   }
 
   savePeriod() {
@@ -606,7 +609,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   get ovulationLabel(): string {
     if (!this.startDate) return '-';
-    const d = new Date(this.addDaysToIso(this.startDate, this.ovulationDay - 1));
+    const d = new Date(
+      this.addDaysToIso(this.startDate, this.ovulationDay - 1),
+    );
     return this.formatDateShort(d);
   }
 
@@ -619,45 +624,64 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   getCycleStatusText(): string {
     const cd = this.viewCycleDay;
-    if (cd <= 0) return 'Start tracking';
-    if (cd <= this.periodLength) return 'Period Phase';
-    if (cd <= this.ovulationDay - 5) return 'Follicular Phase';
-    if (cd <= this.ovulationDay + 1) return 'Fertile Window';
-    if (cd <= this.cycleLength - this.pmsLength) return 'Luteal Phase';
-    return 'PMS Phase';
+    if (cd <= 0) return this.t('cycleChart.status.startTracking');
+    if (cd <= this.periodLength) return this.t('cycleChart.status.periodPhase');
+    if (cd <= this.ovulationDay - 5) return this.t('cycleChart.status.follicularPhase');
+    if (cd <= this.ovulationDay + 1) return this.t('cycleChart.status.fertileWindow');
+    if (cd <= this.cycleLength - this.pmsLength) return this.t('cycleChart.status.lutealPhase');
+    return this.t('cycleChart.status.pmsPhase');
   }
 
   getCyclePhaseText(): string {
     const cd = this.viewCycleDay;
-    if (cd <= 0) return 'Log your period to begin';
-    if (cd <= this.periodLength) return `Day ${cd} of period`;
-    if (cd <= this.ovulationDay - 5) return 'Preparing for ovulation';
-    if (cd <= this.ovulationDay + 1) return 'High fertility chance';
-    if (cd <= this.cycleLength - this.pmsLength) return 'Post-ovulation phase';
-    return 'Pre-menstrual phase';
+    if (cd <= 0) return this.t('cycleChart.phase.logPeriodToBegin');
+    if (cd <= this.periodLength) return this.t('cycleChart.phase.dayOfPeriod', { day: cd });
+    if (cd <= this.ovulationDay - 5) return this.t('cycleChart.phase.preparingOvulation');
+    if (cd <= this.ovulationDay + 1) return this.t('cycleChart.phase.highFertilityChance');
+    if (cd <= this.cycleLength - this.pmsLength) return this.t('cycleChart.phase.postOvulation');
+    return this.t('cycleChart.phase.preMenstrual');
   }
 
   getNextMilestoneText(): string {
     const cd = this.viewCycleDay;
-    if (cd <= 0) return 'Log your period';
+    if (cd <= 0) return this.t('cycleChart.milestone.logPeriod');
     if (cd <= this.periodLength) {
       const daysLeft = this.periodLength - cd;
-      return daysLeft > 0 ? `${daysLeft} days of bleeding left` : 'Last day of period';
+      return daysLeft > 0
+        ? this.t('cycleChart.milestone.daysBleedingLeft', {
+            days: daysLeft,
+            dayWord: this.dayWord(daysLeft),
+          })
+        : this.t('cycleChart.milestone.lastDayPeriod');
     }
     if (cd < this.ovulationDay - 5) {
       const daysToFertile = this.ovulationDay - 5 - cd;
-      return `${daysToFertile} days to fertile window`;
+      return this.t('cycleChart.milestone.daysToFertileWindow', {
+        days: daysToFertile,
+        dayWord: this.dayWord(daysToFertile),
+      });
     }
     if (cd <= this.ovulationDay + 1) {
       const daysToOvulation = this.ovulationDay - cd;
-      return daysToOvulation > 0 ? `${daysToOvulation} days to ovulation` : 'Ovulation day';
+      return daysToOvulation > 0
+        ? this.t('cycleChart.milestone.daysToOvulation', {
+            days: daysToOvulation,
+            dayWord: this.dayWord(daysToOvulation),
+          })
+        : this.t('cycleChart.milestone.ovulationDay');
     }
     if (cd < this.cycleLength - this.pmsLength) {
       const daysToPMS = this.cycleLength - this.pmsLength - cd;
-      return `${daysToPMS} days to PMS`;
+      return this.t('cycleChart.milestone.daysToPms', {
+        days: daysToPMS,
+        dayWord: this.dayWord(daysToPMS),
+      });
     }
     const daysToNextPeriod = this.cycleLength - cd;
-    return `${daysToNextPeriod} days to next period`;
+    return this.t('cycleChart.milestone.daysToNextPeriod', {
+      days: daysToNextPeriod,
+      dayWord: this.dayWord(daysToNextPeriod),
+    });
   }
 
   /**
@@ -675,8 +699,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     const d = this.viewCycleDay;
     if (!this.startDate || d <= 0) {
       return {
-        status: 'Get started',
-        description: 'Log your last period to see day‑by‑day estimates.',
+        status: this.t('cycleChart.fertility.getStarted'),
+        description: this.t('cycleChart.fertility.logLastPeriodEstimate'),
         color: '#64748b',
         icon: '📅',
         tone: 'slate',
@@ -684,8 +708,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
     if (d <= this.periodLength) {
       return {
-        status: 'Period',
-        description: 'Very low chance of pregnancy during menstruation.',
+        status: this.t('cycleChart.fertility.period'),
+        description: this.t('cycleChart.fertility.veryLowDuringMenstruation'),
         color: '#9b4a63',
         icon: '🩸',
         tone: 'rose',
@@ -693,8 +717,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
     if (d <= this.periodLength + 3) {
       return {
-        status: 'Early cycle',
-        description: 'Very low chance — hormones are resetting after bleeding.',
+        status: this.t('cycleChart.fertility.earlyCycle'),
+        description: this.t('cycleChart.fertility.veryLowHormonesResetting'),
         color: '#f97316',
         icon: '📅',
         tone: 'amber',
@@ -702,8 +726,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
     if (d < this.fertileWindowStart) {
       return {
-        status: 'Follicular phase',
-        description: 'Lower chance of pregnancy; follicle is developing.',
+        status: this.t('cycleChart.fertility.follicularPhase'),
+        description: this.t('cycleChart.fertility.lowerChanceFollicleDeveloping'),
         color: '#ca8a04',
         icon: '🌱',
         tone: 'amber',
@@ -711,8 +735,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
     if (d < this.ovulationDay - 1) {
       return {
-        status: 'Fertile window',
-        description: 'Chance rising — sperm can survive until ovulation.',
+        status: this.t('cycleChart.fertility.fertileWindow'),
+        description: this.t('cycleChart.fertility.chanceRising'),
         color: '#0f766e',
         icon: '💚',
         tone: 'mint',
@@ -721,10 +745,12 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     if (d <= this.ovulationDay + 1) {
       const peak = d === this.ovulationDay;
       return {
-        status: peak ? 'Ovulation' : 'Peak fertile days',
+        status: peak
+          ? this.t('cycleChart.fertility.ovulation')
+          : this.t('cycleChart.fertility.peakFertileDays'),
         description: peak
-          ? 'Highest chance of pregnancy this cycle (estimated ovulation).'
-          : 'High chance of pregnancy — in the fertile window.',
+          ? this.t('cycleChart.fertility.highestChanceThisCycle')
+          : this.t('cycleChart.fertility.highChanceInWindow'),
         color: '#0d9488',
         icon: '💚',
         tone: 'emerald',
@@ -732,8 +758,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
     if (d <= this.ovulationDay + 4) {
       return {
-        status: 'Just after ovulation',
-        description: 'Lower chance than peak days; egg lasts ~12–24 hours.',
+        status: this.t('cycleChart.fertility.justAfterOvulation'),
+        description: this.t('cycleChart.fertility.lowerThanPeakEggHours'),
         color: '#8b5cf6',
         icon: '🌙',
         tone: 'violet',
@@ -741,16 +767,16 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
     if (d <= this.cycleLength - this.pmsLength) {
       return {
-        status: 'Luteal phase',
-        description: 'Lower chance of pregnancy until next cycle.',
+        status: this.t('cycleChart.fertility.lutealPhase'),
+        description: this.t('cycleChart.fertility.lowerChanceUntilNextCycle'),
         color: '#7c3aed',
         icon: '🌙',
         tone: 'violet',
       };
     }
     return {
-      status: 'Pre‑menstrual',
-      description: 'Very low chance of pregnancy before your next period.',
+      status: this.t('cycleChart.fertility.preMenstrual'),
+      description: this.t('cycleChart.fertility.veryLowBeforeNextPeriod'),
       color: '#db2777',
       icon: '🌊',
       tone: 'pink',
@@ -781,23 +807,32 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
     if (cd < this.ovulationDay) {
       const n = this.ovulationDay - cd;
-      return `Ovulation in ${n} day${n !== 1 ? 's' : ''}`;
+      return this.t('cycleChart.detail.ovulationIn', {
+        days: n,
+        dayWord: this.dayWord(n),
+      });
     }
     if (cd === this.ovulationDay) {
-      return 'Ovulation day — highest chance this cycle';
+      return this.t('cycleChart.detail.ovulationDayHighestChance');
     }
     if (cd <= this.ovulationDay + 7) {
       const past = cd - this.ovulationDay;
-      return `${past} day${past !== 1 ? 's' : ''} after ovulation`;
+      return this.t('cycleChart.detail.daysAfterOvulation', {
+        days: past,
+        dayWord: this.dayWord(past),
+      });
     }
     const daysUntilPeriod = this.cycleLength - cd + 1;
-    return `Next period in about ${daysUntilPeriod} day${daysUntilPeriod !== 1 ? 's' : ''}`;
+    return this.t('cycleChart.detail.nextPeriodAbout', {
+      days: daysUntilPeriod,
+      dayWord: this.dayWord(daysUntilPeriod),
+    });
   }
 
   // Progress loader calculation
   getProgressOffset(): number {
     if (this.todayCycleDay <= 0) return 753.98; // Full circle (no progress)
-    
+
     const progress = this.todayCycleDay / this.cycleLength;
     const circumference = 2 * Math.PI * 120; // 2πr where r=120
     return circumference * (1 - progress);
@@ -813,7 +848,10 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   onPeriodLengthChange(ev: any) {
     const value = Number(ev?.detail?.value ?? ev);
     this.periodLength = Math.max(1, Math.min(10, Math.floor(value || 5)));
-    this.periodDayNumbers = Array.from({ length: this.periodLength }, (_, i) => i + 1);
+    this.periodDayNumbers = Array.from(
+      { length: this.periodLength },
+      (_, i) => i + 1,
+    );
     if (this.startDate) {
       this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
       this.calculatePeriodDays();
@@ -886,9 +924,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
           isToday,
           isoKey,
         };
-        let label = isToday ? 'TODAY' : letter[i];
+        let label = isToday ? this.t('cycleChart.week.today') : letter[i];
         if (!isToday && this.isWeekDayLastPeriodDay(dayRow)) {
-          label = 'LAST';
+          label = this.t('cycleChart.week.last');
         }
         days.push({
           label,
@@ -920,7 +958,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       return false;
     }
     const start = new Date(
-      this.startDate.includes('T') ? this.startDate : `${this.startDate}T12:00:00`,
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
     );
     start.setHours(0, 0, 0, 0);
     const end = new Date(start);
@@ -939,7 +979,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       return false;
     }
     const start = new Date(
-      this.startDate.includes('T') ? this.startDate : `${this.startDate}T12:00:00`,
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
     );
     start.setHours(0, 0, 0, 0);
     const last = new Date(start);
@@ -1016,7 +1058,10 @@ export class CirclePeriodChart implements OnInit, OnChanges {
    * Extra ring on the predicted ovulation cell when it is exactly 6 calendar days away
    * (matches “Ovulation in 6 days” in the today strip).
    */
-  isWeekStripOvulationSixDaySpotlight(d: { fullDate: Date; isToday?: boolean }): boolean {
+  isWeekStripOvulationSixDaySpotlight(d: {
+    fullDate: Date;
+    isToday?: boolean;
+  }): boolean {
     if (!this.startDate) {
       return false;
     }
@@ -1026,7 +1071,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     if (!this.isWeekDayPredictedOvulation(d)) {
       return false;
     }
-    const nextOv = this.nextOvulationCalendarOnOrAfter(this.localMidnight(new Date()));
+    const nextOv = this.nextOvulationCalendarOnOrAfter(
+      this.localMidnight(new Date()),
+    );
     if (!nextOv) {
       return false;
     }
@@ -1050,17 +1097,54 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       return '';
     }
     if (days === 0) {
-      return 'Predicted ovulation day';
+      return this.t('cycleChart.insight.predictedOvulationDay');
     }
     if (days === 1) {
-      return 'Ovulation tomorrow';
+      return this.t('cycleChart.insight.ovulationTomorrow');
     }
-    return `Ovulation in ${days} days`;
+    return this.t('cycleChart.insight.ovulationInDays', { days });
+  }
+
+  getViewContextText(): string {
+    return this.viewingCalendarToday()
+      ? this.t('cycleChart.view.todayOnCycle')
+      : this.t('cycleChart.view.previewTapAnotherDay');
+  }
+
+  getPeriodLengthSummaryText(): string {
+    return this.t('cycleChart.sheet.lengthThisPeriod', {
+      days: this.periodDays,
+      dayWord: this.dayWord(this.periodDays),
+    });
+  }
+
+  getWheelPickerHint(): string {
+    return this.t('cycleChart.picker.spinThenDone');
+  }
+
+  private dayWord(count: number): string {
+    return count === 1
+      ? this.t('cycleChart.common.day')
+      : this.t('cycleChart.common.days');
+  }
+
+  private t(key: string, params?: Record<string, string | number>): string {
+    const template = this.translationService.translate(key);
+    if (!params) {
+      return template;
+    }
+    return Object.entries(params).reduce(
+      (acc, [paramKey, value]) =>
+        acc.replace(new RegExp(`\\{\\{\\s*${paramKey}\\s*\\}\\}`, 'g'), String(value)),
+      template,
+    );
   }
 
   private getSelectedStripCalendarDate(): Date {
     if (this.weekCalendarSelectedIsoKey) {
-      const parsed = this.parseWeekCalendarIsoKey(this.weekCalendarSelectedIsoKey);
+      const parsed = this.parseWeekCalendarIsoKey(
+        this.weekCalendarSelectedIsoKey,
+      );
       if (parsed) {
         return parsed;
       }
@@ -1095,7 +1179,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       return null;
     }
     const d = new Date(
-      this.startDate.includes('T') ? this.startDate : `${this.startDate}T12:00:00`,
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
     );
     d.setHours(0, 0, 0, 0);
     return d;
@@ -1146,7 +1232,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       return null;
     }
     const start = new Date(
-      this.startDate.includes('T') ? this.startDate : `${this.startDate}T12:00:00`,
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
     );
     start.setHours(0, 0, 0, 0);
     const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -1154,7 +1242,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     const diffDays = Math.floor(
       (t.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
     );
-    const mod = ((diffDays % this.cycleLength) + this.cycleLength) % this.cycleLength;
+    const mod =
+      ((diffDays % this.cycleLength) + this.cycleLength) % this.cycleLength;
     return mod + 1;
   }
 
@@ -1195,7 +1284,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   private weekUtcDayIndex(d: Date): number {
-    return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+    return Math.floor(
+      Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000,
+    );
   }
 
   private diffWeeksBetweenMondays(fromMonday: Date, toMonday: Date): number {
@@ -1255,34 +1346,42 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     if (this.startDate) {
       const start = new Date(this.startDate);
       const diffDays = Math.floor(
-        (this.todayDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+        (this.todayDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
       );
-      const mod = ((diffDays % this.cycleLength) + this.cycleLength) % this.cycleLength;
+      const mod =
+        ((diffDays % this.cycleLength) + this.cycleLength) % this.cycleLength;
       this.todayCycleDay = mod + 1; // Convert to 1-based day numbering
     } else {
       // fallback: keep current day index within cycle length (not ideal but avoids NaN)
       const todayNum = new Date().getDate();
-      this.todayCycleDay = ((todayNum - 1) % this.cycleLength + this.cycleLength) % this.cycleLength + 1;
+      this.todayCycleDay =
+        ((((todayNum - 1) % this.cycleLength) + this.cycleLength) %
+          this.cycleLength) +
+        1;
     }
 
     // rebuild segments
     this.segments = [];
     // Period segment starts at day 0 (cycle start) for periodLength days
-    this.addSegmentWithWrap(0, this.periodLength, '#b5637a');
+    this.addSegmentWithWrap(0, this.periodLength, '#C21E56');
 
     // Fertile window: ovulationDay - 5 to ovulationDay + 1 (6 days)
     const fertileStart = this.ovulationDay - 5;
-    this.addSegmentWithWrap(fertileStart, this.fertileWindowLength, '#3cbfb5');
+    this.addSegmentWithWrap(fertileStart, this.fertileWindowLength, '#063935');
 
     // Ovulation marker: very short segment at ovulationDay
-    this.addSegmentWithWrap(this.ovulationDay, 0.6, '#f59e0b');
+    this.addSegmentWithWrap(this.ovulationDay, 0.6, '#ffd700');
 
     // PMS: last pmsLength days before next period
-    this.addSegmentWithWrap(this.cycleLength - this.pmsLength, this.pmsLength, '#8b5cf6');
+    this.addSegmentWithWrap(
+      this.cycleLength - this.pmsLength,
+      this.pmsLength,
+      '#EE82EE',
+    );
 
     // positions for today & ovulation
     this.updatePositions();
-    
+
     // Force change detection to update the view
     this.cdr.detectChanges();
   }
