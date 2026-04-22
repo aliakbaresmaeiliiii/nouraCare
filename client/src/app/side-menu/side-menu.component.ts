@@ -1,8 +1,10 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
+import { ActionSheetController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   logoInstagram,
+  mailOutline,
   moonOutline,
   paperPlaneOutline,
   phonePortraitOutline,
@@ -19,6 +21,7 @@ import {
   ThemePreference,
   ThemeService,
 } from '../shared/services/theme.service';
+import { TranslationService } from '../shared/services/translation.service';
 
 interface MenuItem {
   icon: string;
@@ -44,6 +47,8 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   private authService = inject(AuthService);
   private userSession = inject(UserSessionService);
   private themeService = inject(ThemeService);
+  private readonly actionSheetCtrl = inject(ActionSheetController);
+  private readonly translation = inject(TranslationService);
   private themeSub?: Subscription;
 
   /** Bound to the appearance segment (light / dark / system). */
@@ -77,6 +82,7 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     { icon: 'refresh-outline', label: 'menu.checkUpdates' },
     { icon: 'person-add-outline', label: 'menu.inviteFriends' },
     { icon: 'notifications-outline', label: 'menu.notifications' },
+    { icon: 'mail-outline', label: 'menu.contactUs' },
     { icon: 'information-circle-outline', label: 'menu.aboutNouracare' },
     { icon: 'log-out-outline', label: 'menu.logOut' },
   ];
@@ -84,6 +90,7 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   constructor() {
     addIcons({
       logoInstagram,
+      mailOutline,
       paperPlaneOutline,
       sunnyOutline,
       moonOutline,
@@ -154,7 +161,57 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
       await this.router.navigate(['/invite-friends']);
     } else if (item.label === 'menu.notifications') {
       await this.router.navigate(['/notifications']);
+    } else if (item.label === 'menu.contactUs') {
+      await this.presentContactUs();
     }
+  }
+
+  private tr(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  /** Quick paths to support — action sheet follows app light/dark theme. */
+  async presentContactUs(): Promise<void> {
+    const subject = encodeURIComponent('NouraCare — Support');
+    const body = encodeURIComponent('Hi NouraCare team,\n\n');
+    const mailto = `mailto:support@nouracare.app?subject=${subject}&body=${body}`;
+
+    const sheet = await this.actionSheetCtrl.create({
+      header: this.tr('menu.contactUs'),
+      subHeader: this.tr('menu.contactUsHint'),
+      buttons: [
+        {
+          text: this.tr('menu.contactUsEmail'),
+          icon: 'mail-outline',
+          handler: () => {
+            window.open(mailto, '_blank', 'noopener,noreferrer');
+          },
+        },
+        {
+          text: this.tr('menu.contactUsTelegram'),
+          icon: 'paper-plane-outline',
+          handler: () => {
+            window.open('https://t.me/nouracare', '_blank', 'noopener,noreferrer');
+          },
+        },
+        {
+          text: this.tr('menu.contactUsInstagram'),
+          icon: 'logo-instagram',
+          handler: () => {
+            window.open('https://instagram.com/nouracare', '_blank', 'noopener,noreferrer');
+          },
+        },
+        {
+          text: this.tr('menu.contactUsAbout'),
+          icon: 'information-circle-outline',
+          handler: () => {
+            void this.router.navigate(['/tabs/about']);
+          },
+        },
+        { text: this.tr('common.cancel'), role: 'cancel' },
+      ],
+    });
+    await sheet.present();
   }
 
   async navigateToProfile() {

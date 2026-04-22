@@ -2163,11 +2163,6 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.showMoreSections = !this.showMoreSections;
   }
 
-  /** Opens the assistant chat immediately (no intermediate menu). */
-  openAssistantChat(): void {
-    this.router.navigate(['/chatbot']);
-  }
-
   // Health Tools Methods
   async openFertilityCalculator() {
     try {

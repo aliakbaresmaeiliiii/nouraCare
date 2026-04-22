@@ -39,6 +39,25 @@
     pointer-events: none;
     background: transparent;
 
+    /* Fade out the drifting background at the bottom to avoid hard cutoff */
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: clamp(4.5rem, 15vw, 8.5rem);
+      pointer-events: none;
+      z-index: 2;
+      background: linear-gradient(
+        180deg,
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0) 0%,
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0.2) 55%,
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0.45) 82%,
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0.72) 100%
+      );
+    }
+
     .cycle-chart-drift-box {
       position: absolute;
       left: 0;
@@ -204,18 +223,15 @@
   &::before {
     content: "";
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: clamp(3.5rem, 10vw, 6.5rem);
+    inset: 0;
     z-index: 1;
     pointer-events: none;
     background: linear-gradient(
       180deg,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0) 0%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.06) 54%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.14) 78%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.24) 100%
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.1) 0%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.04) 38%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.1) 72%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.22) 100%
     );
   }
 }
@@ -313,14 +329,23 @@
 
   /* Dark mode: extend + soften bottom blend to remove visible seam */
   .cycle-chart-container::before {
-    height: clamp(4.5rem, 12vw, 8rem);
+    background: linear-gradient(
+      180deg,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.14) 0%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.08) 40%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.18) 72%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.34) 92%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.44) 100%
+    );
+  }
+
+  .cycle-chart-container > .cycle-chart-drift::after {
     background: linear-gradient(
       180deg,
       rgba(var(--cycle-bottom-curve-fill-rgb), 0) 0%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.12) 46%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.26) 74%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.38) 92%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.46) 100%
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.24) 50%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.52) 80%,
+      rgba(var(--cycle-bottom-curve-fill-rgb), 0.82) 100%
     );
   }
 

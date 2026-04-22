@@ -413,6 +413,12 @@ ion-title {
   font-weight: var(--font-weight-semibold);
 }
 
+/* Keep header back button readable in both light/dark themes */
+ion-header ion-back-button,
+ion-toolbar ion-back-button {
+  --color: var(--app-icon-toolbar, var(--brand-text));
+}
+
 /* Accessible and consistent focus treatment */
 :where(button, a, ion-button, ion-item, ion-tab-button, ion-menu-button):focus-visible {
   outline: 2px solid rgba(var(--brand-primary-rgb), 0.45);
