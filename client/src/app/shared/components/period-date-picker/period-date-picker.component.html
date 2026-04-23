@@ -44,7 +44,7 @@
             [disabled]="!isCurrentMonth(day)"
             (click)="onDateSelect(day)"
           >
-            <span class="pdp-day-num">{{ day.getDate() }}</span>
+            <span class="pdp-day-num">{{ displayDayNum(day) }}</span>
           </button>
         </div>
       }

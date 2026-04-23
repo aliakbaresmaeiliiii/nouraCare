@@ -94,3 +94,27 @@ export function isCalendarDateNotAfterToday(iso: string, ref: Date = new Date())
   );
   return d.getTime() <= today.getTime();
 }
+
+/** UTC calendar "today" as `YYYY-MM-DD` from `ref` (avoids local timezone shifting the civil day). */
+export function utcTodayIsoDateOnly(ref: Date = new Date()): string {
+  const y = ref.getUTCFullYear();
+  const m = String(ref.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(ref.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Approximate LMP for a **1-based** gestational week `week` (same convention as `gestationalWeekFromLmp`):
+ * LMP day counts as week 1 day 1, so week W starts (W−1)×7 days after LMP.
+ * Returns LMP = today − (W−1)×7 calendar days (UTC).
+ */
+export function lmpIsoFromGestationalWeek1Based(
+  week: number,
+  ref: Date = new Date(),
+): string | null {
+  const w = Math.floor(Number(week));
+  if (!Number.isFinite(w) || w < 1 || w > 42) return null;
+  const todayIso = utcTodayIsoDateOnly(ref);
+  const offsetDays = (w - 1) * 7;
+  return addCalendarDaysIso(todayIso, -offsetDays);
+}

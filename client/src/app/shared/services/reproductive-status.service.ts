@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { addCalendarDaysIso, isoDateOnly } from '../utils/pregnancy-lmp.util';
 
@@ -49,22 +50,50 @@ export interface PeriodLogData {
   averagePeriodDuration: number;
 }
 
+export interface PeriodLogResponseDto {
+  id: number;
+  userId: number;
+  lastPeriodDate: string;
+  mood?: string | null;
+  notes?: string | null;
+  averagePeriodDuration?: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ReproductiveStatusService {
   http = inject(HttpClient);
   private baseUrl = environment.apiEndPoint + 'profile';
+  private meBaseUrl = environment.apiEndPoint + 'me';
 
   updateReproductiveStatus(userId: number, data: ReproductiveStatusData): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/${userId}/update-pregnancy-planning`, data);
+    const payload: Record<string, unknown> = {};
+
+    if (data.pregnancyEndDate) {
+      payload['state'] = 'postpartum';
+      payload['notes'] = data.notes ?? undefined;
+    } else if (typeof data.isPregnant === 'boolean') {
+      payload['state'] = data.isPregnant ? 'pregnant' : 'cycle';
+    } else {
+      payload['state'] = 'cycle';
+    }
+
+    if (data.lastPeriodDate) payload['lastPeriodDate'] = data.lastPeriodDate;
+    if (typeof data.cycleLength === 'number') payload['cycleLength'] = data.cycleLength;
+    if (data.notes) payload['notes'] = data.notes;
+
+    return this.http
+      .patch<any>(`${this.meBaseUrl}/state`, payload)
+      .pipe(map((res) => this.mapDashboardToReproductiveStatus(res)));
   }
 
   getReproductiveStatus(id?: number): Observable<ReproductiveStatusData> {
-    const url = id 
-      ? `${this.baseUrl}/${id}/pregnancy-planning`
-      : `${this.baseUrl}/pregnancy-planning`;
-    return this.http.get<ReproductiveStatusData>(url);
+    return this.http
+      .get<any>(`${this.meBaseUrl}/dashboard`)
+      .pipe(map((res) => this.mapDashboardToReproductiveStatus(res)));
   }
 
   getCycleCalendar(): Observable<any> {
@@ -159,5 +188,37 @@ export class ReproductiveStatusService {
       `${environment.apiEndPoint}profile/${userId}/period-logs`,
       data
     );
+  }
+
+  getPeriodLogs(userId: number): Observable<PeriodLogResponseDto[]> {
+    return this.http.get<PeriodLogResponseDto[]>(
+      `${environment.apiEndPoint}profile/${userId}/period-logs`,
+    );
+  }
+
+  private mapDashboardToReproductiveStatus(source: any): ReproductiveStatusData {
+    if (!source || typeof source !== 'object') {
+      return {};
+    }
+
+    // Compatibility: if an old endpoint already returned the expected shape.
+    if ('lastPeriodDate' in source || 'averagePeriodDuration' in source) {
+      return source as ReproductiveStatusData;
+    }
+
+    const state = String(source.state ?? '').toLowerCase();
+    return {
+      isPregnant: state === 'pregnant',
+      pregnancyEndDate:
+        state === 'postpartum' ? (source.pregnancyEndDate ?? source.nextPeriod ?? null) : undefined,
+      lastPeriodDate:
+        source.lastMenstrualPeriod ??
+        source.lastPeriodDate ??
+        source.lastPeriodDateIso ??
+        null,
+      cycleLength: source.cycleLength ?? source.avgCycleLength ?? null,
+      averagePeriodDuration: source.avgPeriodLength ?? source.periodLength ?? null,
+      notes: source.notes ?? null,
+    };
   }
 }

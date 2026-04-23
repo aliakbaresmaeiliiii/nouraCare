@@ -35,7 +35,7 @@
 
     <main class="login-panel">
       <div class="auth-container">
-        <div class="tab-container" role="tablist" aria-label="Sign in or sign up">
+        <div class="tab-container" role="tablist" [attr.aria-label]="'auth.signInOrSignUp' | translate">
           <button
             type="button"
             role="tab"
@@ -45,7 +45,7 @@
             class="tab-button"
           >
             <ion-icon name="log-in-outline" aria-hidden="true"></ion-icon>
-            Sign in
+            {{ 'auth.signIn' | translate }}
           </button>
           <button
             type="button"
@@ -56,24 +56,24 @@
             class="tab-button"
           >
             <ion-icon name="person-add-outline" aria-hidden="true"></ion-icon>
-            Sign up
+            {{ 'auth.signUp' | translate }}
           </button>
         </div>
 
         @if (activeTab === 'login') {
           <div class="form-container">
             <div class="form-header">
-              <h2 class="form-title">Sign In</h2>
+              <h2 class="form-title">{{ 'auth.signIn' | translate }}</h2>
             </div>
 
             <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
               <div class="form-group">
-                <label class="form-label" for="login-email">Email</label>
+                <label class="form-label" for="login-email">{{ 'auth.email' | translate }}</label>
                 <input
                   id="login-email"
                   type="email"
                   formControlName="email"
-                  placeholder="you@example.com"
+                  [placeholder]="'auth.emailPlaceholder' | translate"
                   class="form-input"
                   autocomplete="email"
                   inputmode="email"
@@ -82,7 +82,7 @@
                 @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
                   <div class="error-message">
                     <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-                    Please enter a valid email
+                    {{ 'auth.validEmailError' | translate }}
                   </div>
                 }
               </div>
@@ -96,11 +96,11 @@
                 @if (isLoading) {
                   <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
                 }
-                {{ isLoading ? 'Signing in…' : 'Sign In' }}
+                {{ isLoading ? ('auth.signingIn' | translate) : ('auth.signIn' | translate) }}
               </ion-button>
 
               <div class="social-divider">
-                <span>Or continue with</span>
+                <span>{{ 'auth.orContinueWith' | translate }}</span>
               </div>
 
               <div class="social-buttons social-buttons--icons">
@@ -110,7 +110,7 @@
                   class="social-button google"
                   [disabled]="isLoading || isSocialLoading"
                   (click)="onSocialLogin('google')"
-                  aria-label="Continue with Google"
+                  [attr.aria-label]="'auth.continueWithGoogle' | translate"
                 >
                   <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
                 </ion-button>
@@ -121,7 +121,7 @@
                   class="social-button apple"
                   [disabled]="isLoading || isSocialLoading"
                   (click)="onSocialLogin('apple')"
-                  aria-label="Continue with Apple"
+                  [attr.aria-label]="'auth.continueWithApple' | translate"
                 >
                   <ion-icon name="logo-apple" aria-hidden="true"></ion-icon>
                 </ion-button>
@@ -129,7 +129,7 @@
               </div>
 
               <div class="form-footer">
-                <a href="#" class="forgot-link">Learn user licence agreement</a>
+                <a href="#" class="forgot-link">{{ 'auth.licenseAgreement' | translate }}</a>
               </div>
             </form>
           </div>
@@ -138,17 +138,17 @@
         @if (activeTab === 'register') {
           <div class="form-container">
             <div class="form-header">
-              <h2 class="form-title">Sign Up</h2>
+              <h2 class="form-title">{{ 'auth.signUp' | translate }}</h2>
             </div>
 
             <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
               <div class="form-group">
-                <label class="form-label" for="register-email">Email</label>
+                <label class="form-label" for="register-email">{{ 'auth.email' | translate }}</label>
                 <input
                   id="register-email"
                   type="email"
                   formControlName="email"
-                  placeholder="you@example.com"
+                  [placeholder]="'auth.emailPlaceholder' | translate"
                   class="form-input"
                   autocomplete="email"
                   inputmode="email"
@@ -157,18 +157,18 @@
                 @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
                   <div class="error-message">
                     <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-                    Please enter a valid email
+                    {{ 'auth.validEmailError' | translate }}
                   </div>
                 }
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="register-phone">Phone <span class="optional">(optional)</span></label>
+                <label class="form-label" for="register-phone">{{ 'auth.phone' | translate }} <span class="optional">({{ 'auth.optional' | translate }})</span></label>
                 <input
                   id="register-phone"
                   type="tel"
                   formControlName="phoneNumber"
-                  placeholder="Phone number"
+                  [placeholder]="'auth.phonePlaceholder' | translate"
                   class="form-input"
                   autocomplete="tel"
                   inputmode="tel"
@@ -184,11 +184,11 @@
                 @if (isLoading) {
                   <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
                 }
-                {{ isLoading ? 'Creating account…' : 'Sign Up' }}
+                {{ isLoading ? ('auth.creatingAccount' | translate) : ('auth.signUp' | translate) }}
               </ion-button>
 
               <div class="social-divider">
-                <span>Or sign up with</span>
+                <span>{{ 'auth.orSignUpWith' | translate }}</span>
               </div>
 
               <div class="social-buttons social-buttons--icons">
@@ -198,7 +198,7 @@
                   class="social-button google"
                   [disabled]="isLoading || isSocialLoading"
                   (click)="onSocialLogin('google')"
-                  aria-label="Continue with Google"
+                  [attr.aria-label]="'auth.continueWithGoogle' | translate"
                 >
                   <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
                 </ion-button>
@@ -209,16 +209,15 @@
                   class="social-button apple"
                   [disabled]="isLoading || isSocialLoading"
                   (click)="onSocialLogin('apple')"
-                  aria-label="Continue with Apple"
+                  [attr.aria-label]="'auth.continueWithApple' | translate"
                 >
                   <ion-icon name="logo-apple" aria-hidden="true"></ion-icon>
                 </ion-button>
 
-                <button type="button" class="social-button x" aria-label="X login placeholder">X</button>
               </div>
 
               <div class="form-footer">
-                <a href="#" class="forgot-link">Learn user licence agreement</a>
+                <a href="#" class="forgot-link">{{ 'auth.licenseAgreement' | translate }}</a>
               </div>
             </form>
           </div>

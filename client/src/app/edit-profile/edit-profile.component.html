@@ -1,15 +1,14 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="profile-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home" class="back-button"></ion-back-button>
+      <ion-back-button
+        defaultHref="/tabs/home"
+        icon="chevron-back-circle-outline"
+        text=""
+        class="back-button"
+      ></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">My Profile</ion-title>
-    <ion-buttons slot="end">
-      <ion-button type="submit" class="save-button" (click)="onSubmit()">
-        <ion-icon name="checkmark" slot="start"></ion-icon>
-        Save
-      </ion-button>
-    </ion-buttons>
+    <ion-title class="header-title">{{ 'common.settings' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content class="profile-content">
@@ -25,17 +24,17 @@
         <ion-toolbar class="instagram-crop-toolbar">
           <ion-buttons slot="start">
             <ion-button fill="clear" class="insta-crop-btn insta-crop-cancel" (click)="cancelCrop()">
-              Cancel
+              {{ 'common.cancel' | translate }}
             </ion-button>
           </ion-buttons>
-          <ion-title class="insta-crop-title">Edit profile picture</ion-title>
+          <ion-title class="insta-crop-title">{{ 'editProfile.editProfilePicture' | translate }}</ion-title>
           <ion-buttons slot="end">
             <ion-button
               fill="clear"
               class="insta-crop-btn insta-crop-done"
               (click)="confirmCrop()"
             >
-              Done
+              {{ 'editProfile.done' | translate }}
             </ion-button>
           </ion-buttons>
         </ion-toolbar>
@@ -66,7 +65,7 @@
               #cropPreviewCanvas
               class="insta-crop-canvas"
               role="img"
-              aria-label="Profile photo preview"
+              [attr.aria-label]="'editProfile.profilePhotoPreviewAria' | translate"
               (pointerdown)="onCropPointerDown($event)"
               (pointermove)="onCropPointerMove($event)"
               (pointerup)="onCropPointerUp($event)"
@@ -74,7 +73,7 @@
             ></canvas>
           </div>
           <p class="insta-crop-hint">
-            Drag to move. Pinch or use the slider to zoom.
+            {{ 'editProfile.cropHint' | translate }}
           </p>
           <div class="insta-zoom-bar">
             <ion-icon name="remove-outline" class="insta-zoom-icon"></ion-icon>
@@ -93,180 +92,23 @@
     </ng-template>
   </ion-modal>
 
-  <!-- Profile Picture Section -->
-  <div class="profile-picture-section">
+  <section class="settings-profile-hero">
     <div class="avatar-container">
       <ion-avatar class="profile-avatar">
-        <img [src]="profileImage" alt="Profile" class="avatar-image" />
+        <img [src]="profileImage" [attr.alt]="'editProfile.profileImageAlt' | translate" class="avatar-image" />
       </ion-avatar>
-      <label for="fileeInput" class="avatar-tap-target" aria-label="Change profile photo"></label>
-      <div class="avatar-overlay">
-        <span class="upload-button">
-          <ion-icon name="camera" class="camera-icon"></ion-icon>
-        </span>
-        <input
-          type="file"
-          id="fileeInput"
-          accept="image/*"
-          hidden
-          (change)="onFileSelected($event)"
-        />
-      </div>
+      <label
+        for="fileeInput"
+        class="avatar-tap-target"
+        [attr.aria-label]="'editProfile.changeProfilePhotoAria' | translate"
+      ></label>
+   
     </div>
-    <p class="avatar-hint">Change profile photo</p>
-  </div>
+    <p class="hero-email">{{ displayEmail || ('editProfile.emailPlaceholder' | translate) }}</p>
+    <ion-button fill="solid" class="view-profile-btn" [routerLink]="['/profile']">
+      {{ 'editProfile.viewProfile' | translate }}
+    </ion-button>
+  </section>
 
-  <!-- Reproductive Status Section -->
-  <div class="form-card">
-    <div class="card-header">
-      <ion-icon name="heart-circle" class="card-icon"></ion-icon>
-      <h2 class="card-title">Reproductive Status</h2>
-    </div>
 
-    <div class="reproductive-status-section">
-      <p class="status-description">
-        Keep your fertility and pregnancy information up to date.
-      </p>
-
-      @if (getCurrentStatus()) {
-        <div class="repro-current-summary" role="status">
-          <div
-            class="repro-current-summary__icon"
-            [style.--repro-accent]="getSelectedReproductiveOption()?.color"
-          >
-            <ion-icon
-              [name]="getSelectedReproductiveOption()?.icon || 'help-circle-outline'"
-              aria-hidden="true"
-            ></ion-icon>
-          </div>
-          <div class="repro-current-summary__text">
-            <span class="repro-current-summary__label">Your selection</span>
-            <span class="repro-current-summary__title">{{
-              getSelectedReproductiveStatusLabel()
-            }}</span>
-          </div>
-        </div>
-      }
-
-      <div class="reproductive-status-options">
-        <p class="repro-step-hint">
-          Choose the option that fits you, then tap
-          <strong>Continue</strong> to save. You can change this anytime.
-        </p>
-
-        <div class="repro-choice-list" role="radiogroup" aria-label="Reproductive status">
-          @for (option of reproductiveStatusOptions; track option.value) {
-            <button
-              type="button"
-              class="repro-choice"
-              [class.repro-choice--selected]="isStatusSelected(option.value)"
-              (click)="setStatus(option.value)"
-              [attr.aria-checked]="isStatusSelected(option.value)"
-              role="radio"
-              [style.--repro-accent]="option.color"
-            >
-              <span class="repro-choice__radio" aria-hidden="true"></span>
-              <span class="repro-choice__icon-wrap">
-                <ion-icon [name]="option.icon" aria-hidden="true"></ion-icon>
-              </span>
-              <span class="repro-choice__body">
-                <span class="repro-choice__title">{{ option.label }}</span>
-                <span class="repro-choice__subtitle">{{ option.subtitle }}</span>
-              </span>
-              @if (isStatusSelected(option.value)) {
-                <ion-icon
-                  name="checkmark-circle"
-                  class="repro-choice__check"
-                  aria-hidden="true"
-                ></ion-icon>
-              }
-            </button>
-          }
-        </div>
-
-        <div class="continue-button-container">
-          <ion-button
-            expand="block"
-            class="continue-button"
-            [disabled]="!getCurrentStatus()"
-            (click)="saveReproductiveStatus()"
-          >
-            <ion-icon name="arrow-forward" slot="end" aria-hidden="true"></ion-icon>
-            Continue
-          </ion-button>
-          @if (!getCurrentStatus()) {
-            <p class="repro-continue-hint">Select an option above to continue.</p>
-          }
-        </div>
-      </div>
-
-      <p class="optional-note">
-        You can update your status anytime as your health journey evolves.
-      </p>
-    </div>
-  </div>
-
-  <form [formGroup]="form" class="profile-form">
-    <!-- Personal Information Card -->
-    <div class="form-card">
-      <div class="card-header">
-        <ion-icon name="person" class="card-icon"></ion-icon>
-        <h2 class="card-title">Personal Information</h2>
-      </div>
-
-      <ion-item class="form-item">
-        <ion-label position="floating" class="form-label"
-          >Email Address</ion-label
-        >
-        <ion-input
-          type="fullName"
-          formControlName="fullName"
-          label-placement="floating"
-          fill="outline"
-          [clearInput]="true"
-          placeholder="Enter text to see clear button"
-          value="Default value"
-          placeholder="Enter your fullName"
-        ></ion-input>
-      </ion-item>
-
-      <ion-item class="form-item">
-        <ion-label position="floating" class="form-label"
-          >Email Address</ion-label
-        >
-        <ion-input
-          type="email"
-          formControlName="email"
-          label-placement="floating"
-          fill="outline"
-          [clearInput]="true"
-          placeholder="Enter text to see clear button"
-          value="Default value"
-          placeholder="Enter your email"
-        ></ion-input>
-      </ion-item>
-
-      <ion-item class="form-item">
-        <ion-label class="form-label">Birthday</ion-label>
-        <ion-datetime-button
-          datetime="birthdayPicker"
-          class="datetime-button"
-        ></ion-datetime-button>
-      </ion-item>
-    </div>
-
-    <!-- Birthday Picker Modal -->
-    <ion-modal [keepContentsMounted]="true">
-      <ng-template>
-        <ion-datetime
-          id="birthdayPicker"
-          [value]="form.get('dateOfBirth')?.value || null"
-          (ionChange)="onBirthdayChange($event)"
-          presentation="date"
-          show-default-buttons="true"
-          class="birthday-picker"
-        ></ion-datetime>
-      </ng-template>
-    </ion-modal>
-  </form>
 </ion-content>

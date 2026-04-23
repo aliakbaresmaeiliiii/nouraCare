@@ -166,6 +166,19 @@ h6 {
 /* -------------------------------------------------------------------------- */
 /* ion-button — single design: brand gradient solid, palette outline/clear    */
 /* -------------------------------------------------------------------------- */
+
+@keyframes app-button-gradient-wave {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 ion-button {
   font-family: var(--font-secondary);
   font-weight: var(--app-button-font-weight, 600);
@@ -175,6 +188,7 @@ ion-button {
   --padding-start: 16px;
   --padding-end: 16px;
   min-height: var(--app-button-min-height, 46px);
+  --ripple-color: var(--app-button-ripple, rgba(var(--brand-primary-rgb), 0.22));
   transition:
     transform var(--app-duration-fast) var(--app-ease-standard),
     box-shadow var(--app-duration-fast) var(--app-ease-standard),
@@ -185,15 +199,16 @@ ion-button {
   }
 
   &:not(.button-disabled):not([disabled]):active {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.99);
   }
 }
 
 /* Default + primary solid — pastel gradient always uses dark text for contrast */
 ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']) {
-  --background: var(--app-button-solid-bg, var(--app-gradient-header));
-  --background-hover: var(--ion-color-primary);
-  --background-activated: var(--ion-color-primary-shade);
+  --background: var(--app-button-solid-bg, var(--app-button-gradient-idle, var(--app-gradient-header)));
+  --background-hover: var(--app-button-gradient-hover, var(--ion-color-primary));
+  --background-focused: var(--app-button-gradient-hover, var(--ion-color-primary));
+  --background-activated: var(--app-button-gradient-pressed, var(--ion-color-primary-shade));
   --color: var(--brand-text);
   --box-shadow: var(--app-button-solid-shadow);
 }
@@ -206,7 +221,47 @@ ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.
 }
 
 ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):active {
+  --box-shadow: 0 3px 12px rgba(var(--brand-primary-rgb), 0.24), 0 1px 6px rgba(var(--brand-secondary-rgb), 0.18);
   --color: var(--ion-color-primary-contrast);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not([color='light']):not([color='dark']):not(.button-disabled):not([disabled])::part(native) {
+    background-size: 260% 260%;
+    background-position: 0% 50%;
+    animation: app-button-gradient-wave 14s ease-in-out infinite;
+    transition:
+      filter var(--app-duration-fast) var(--app-ease-standard),
+      transform var(--app-duration-fast) var(--app-ease-standard);
+  }
+
+  ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not([color='light']):not([color='dark']):not(.button-disabled):not([disabled]):active::part(native) {
+    animation-duration: 5s;
+    filter: brightness(0.97) saturate(1.08);
+  }
+
+  ion-fab-button:not(.button-disabled):not([disabled])::part(native) {
+    background-size: 260% 260%;
+    background-position: 0% 50%;
+    animation: app-button-gradient-wave 14s ease-in-out infinite;
+    transition:
+      filter var(--app-duration-fast) var(--app-ease-standard),
+      transform var(--app-duration-fast) var(--app-ease-standard);
+  }
+
+  ion-fab-button:not(.button-disabled):not([disabled]):active::part(native) {
+    animation-duration: 5s;
+    filter: brightness(0.97) saturate(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ion-button:not([fill='outline']):not([fill='clear']):not([fill='default'])::part(native),
+  ion-fab-button::part(native) {
+    animation: none !important;
+    background-size: auto !important;
+    background-position: center !important;
+  }
 }
 
 ion-button[color='secondary']:not([fill='outline']):not([fill='clear']) {
@@ -216,8 +271,18 @@ ion-button[color='secondary']:not([fill='outline']):not([fill='clear']) {
     var(--ion-color-secondary) 55%,
     var(--ion-color-secondary-shade) 100%
   );
-  --background-hover: var(--ion-color-secondary-shade);
-  --background-activated: var(--ion-color-secondary-shade);
+  --background-hover: linear-gradient(
+    135deg,
+    var(--ion-color-secondary) 0%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-focused: linear-gradient(
+    135deg,
+    var(--ion-color-secondary) 0%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-activated: linear-gradient(135deg, var(--ion-color-secondary-shade) 0%, #0d6d64 100%);
+  --ripple-color: rgba(var(--ion-color-secondary-rgb), 0.28);
   --color: var(--ion-color-secondary-contrast);
   --box-shadow: 0 4px 14px rgba(var(--ion-color-secondary-rgb), 0.28);
 }
@@ -228,43 +293,66 @@ ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']) {
     var(--ion-color-tertiary-tint) 0%,
     var(--ion-color-tertiary) 100%
   );
-  --background-hover: var(--ion-color-tertiary-shade);
-  --background-activated: var(--ion-color-tertiary-shade);
+  --background-hover: linear-gradient(
+    135deg,
+    var(--ion-color-tertiary) 0%,
+    var(--ion-color-tertiary-shade) 100%
+  );
+  --background-focused: linear-gradient(
+    135deg,
+    var(--ion-color-tertiary) 0%,
+    var(--ion-color-tertiary-shade) 100%
+  );
+  --background-activated: linear-gradient(135deg, var(--ion-color-tertiary-shade) 0%, #a16207 100%);
+  --ripple-color: rgba(var(--ion-color-tertiary-rgb), 0.28);
   --color: var(--ion-color-tertiary-contrast);
   --box-shadow: 0 4px 12px rgba(var(--ion-color-tertiary-rgb), 0.22);
 }
 
 ion-button[color='success']:not([fill='outline']):not([fill='clear']) {
-  --background: var(--ion-color-success);
-  --background-hover: var(--ion-color-success-shade);
-  --background-activated: var(--ion-color-success-shade);
+  --background: linear-gradient(135deg, var(--ion-color-success-tint) 0%, var(--ion-color-success) 100%);
+  --background-hover: linear-gradient(135deg, var(--ion-color-success) 0%, var(--ion-color-success-shade) 100%);
+  --background-focused: linear-gradient(135deg, var(--ion-color-success) 0%, var(--ion-color-success-shade) 100%);
+  --background-activated: linear-gradient(135deg, var(--ion-color-success-shade) 0%, #15803d 100%);
+  --ripple-color: rgba(var(--ion-color-success-rgb), 0.28);
   --color: var(--ion-color-success-contrast);
   --box-shadow: 0 4px 14px rgba(var(--ion-color-success-rgb), 0.28);
 }
 
 ion-button[color='warning']:not([fill='outline']):not([fill='clear']) {
-  --background: var(--ion-color-warning);
-  --background-hover: var(--ion-color-warning-shade);
+  --background: linear-gradient(135deg, var(--ion-color-warning-tint) 0%, var(--ion-color-warning) 100%);
+  --background-hover: linear-gradient(135deg, var(--ion-color-warning) 0%, var(--ion-color-warning-shade) 100%);
+  --background-focused: linear-gradient(135deg, var(--ion-color-warning) 0%, var(--ion-color-warning-shade) 100%);
+  --background-activated: linear-gradient(135deg, var(--ion-color-warning-shade) 0%, #a16207 100%);
+  --ripple-color: rgba(var(--ion-color-warning-rgb), 0.26);
   --color: var(--ion-color-warning-contrast);
   --box-shadow: 0 4px 12px rgba(var(--ion-color-warning-rgb), 0.22);
 }
 
 ion-button[color='danger']:not([fill='outline']):not([fill='clear']) {
-  --background: var(--ion-color-danger);
-  --background-hover: var(--ion-color-danger-shade);
-  --background-activated: var(--ion-color-danger-shade);
+  --background: linear-gradient(135deg, var(--ion-color-danger-tint) 0%, var(--ion-color-danger) 100%);
+  --background-hover: linear-gradient(135deg, var(--ion-color-danger) 0%, var(--ion-color-danger-shade) 100%);
+  --background-focused: linear-gradient(135deg, var(--ion-color-danger) 0%, var(--ion-color-danger-shade) 100%);
+  --background-activated: linear-gradient(135deg, var(--ion-color-danger-shade) 0%, #7f1d1d 100%);
+  --ripple-color: rgba(var(--ion-color-danger-rgb), 0.3);
   --color: var(--ion-color-danger-contrast);
   --box-shadow: 0 4px 14px rgba(var(--ion-color-danger-rgb), 0.28);
 }
 
 ion-button[color='light']:not([fill='outline']):not([fill='clear']) {
   --background: var(--brand-surface);
+  --background-hover: rgba(var(--brand-primary-rgb), 0.08);
+  --background-activated: rgba(var(--brand-primary-rgb), 0.12);
+  --ripple-color: rgba(var(--brand-primary-rgb), 0.12);
   --color: var(--brand-text);
   --box-shadow: var(--app-shadow-soft);
 }
 
 ion-button[color='dark']:not([fill='outline']):not([fill='clear']) {
   --background: var(--ion-color-dark);
+  --background-hover: linear-gradient(135deg, var(--ion-color-dark-tint) 0%, var(--ion-color-dark) 100%);
+  --background-activated: linear-gradient(135deg, var(--ion-color-dark) 0%, var(--ion-color-dark-shade) 100%);
+  --ripple-color: rgba(255, 255, 255, 0.12);
   --color: var(--ion-color-dark-contrast);
   --box-shadow: 0 4px 14px rgba(var(--ion-color-dark-rgb), 0.2);
 }
@@ -287,7 +375,10 @@ ion-button[fill='outline'] {
   --border-color: rgba(var(--brand-primary-rgb), 0.32);
   --color: var(--brand-primary-dark);
   --background: rgba(var(--brand-surface-rgb), 0.92);
+  --background-activated: rgba(var(--brand-primary-rgb), 0.14);
+  --background-focused: rgba(var(--brand-primary-rgb), 0.08);
   --box-shadow: 0 1px 0 rgba(var(--brand-secondary-rgb), 0.1);
+  --ripple-color: rgba(var(--brand-primary-rgb), 0.16);
 }
 
 ion-button[fill='outline']:not(.button-disabled):not([disabled]):hover {
@@ -297,8 +388,11 @@ ion-button[fill='outline']:not(.button-disabled):not([disabled]):hover {
 
 ion-button[fill='clear'] {
   --background: transparent;
+  --background-activated: rgba(var(--brand-primary-rgb), 0.12);
+  --background-focused: rgba(var(--brand-primary-rgb), 0.08);
   --color: var(--brand-primary-dark);
   --box-shadow: none;
+  --ripple-color: rgba(var(--brand-primary-rgb), 0.16);
 }
 
 ion-button[fill='clear']:not(.button-disabled):not([disabled]):hover {
@@ -320,6 +414,21 @@ ion-button[disabled] {
   --border-color: rgba(var(--brand-text-rgb), 0.12);
   opacity: 1;
   transform: none;
+}
+
+ion-fab-button {
+  --ripple-color: var(--app-button-ripple, rgba(var(--brand-primary-rgb), 0.26));
+  transition:
+    transform var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard);
+}
+
+ion-fab-button:not(.button-disabled):not([disabled]):hover {
+  transform: scale(1.05);
+}
+
+ion-fab-button:not(.button-disabled):not([disabled]):active {
+  transform: scale(0.96);
 }
 
 // Input typography
@@ -593,8 +702,32 @@ ion-toolbar ion-back-button {
 /* ThemeService toggles ion-palette-dark on html + ion-app; Ionic owns --ion-*. */
 /* -------------------------------------------------------------------------- */
 
+/*
+ * Text + toolbar icon tokens must live on `html` when Ionic’s stepped palette is on
+ * `html.ion-palette-dark.md` / `.ios` only: `ion-app` often lacks `.md`, so
+ * `var(--ion-text-color)` there stayed the light-theme value from `:root` and
+ * `--brand-text` in the shell header stayed black.
+ */
 html.ion-palette-dark {
   color-scheme: dark;
+  --brand-text: #f8fafc;
+  --brand-text-rgb: 248, 250, 252;
+  --brand-text-secondary: #94a3b8;
+  --brand-text-secondary-rgb: 148, 163, 184;
+  --app-icon-toolbar: #f8fafc;
+  --app-icon-default: #a8b0bd;
+  --app-icon-muted: #94a3b8;
+}
+
+html.ion-palette-dark.md,
+html.ion-palette-dark.ios {
+  --brand-text: var(--ion-text-color);
+  --brand-text-rgb: var(--ion-text-color-rgb);
+  --brand-text-secondary: var(--ion-text-color-step-650);
+  --brand-text-secondary-rgb: var(--ion-color-medium-rgb);
+  --app-icon-toolbar: var(--ion-text-color);
+  --app-icon-default: var(--ion-text-color-step-400);
+  --app-icon-muted: var(--ion-text-color-step-650);
 }
 
 html.ion-palette-dark body {
@@ -607,10 +740,6 @@ ion-app.ion-palette-dark {
   --brand-bg-rgb: var(--ion-background-color-rgb);
   --brand-surface: var(--ion-card-background);
   --brand-surface-rgb: var(--ion-background-color-rgb);
-  --brand-text: var(--ion-text-color);
-  --brand-text-rgb: var(--ion-text-color-rgb);
-  --brand-text-secondary: var(--ion-text-color-step-650);
-  --brand-text-secondary-rgb: var(--ion-color-medium-rgb);
 
   --brand-primary: var(--ion-color-primary);
   --brand-primary-rgb: var(--ion-color-primary-rgb);
@@ -678,6 +807,19 @@ ion-app.ion-palette-dark {
     var(--ion-color-primary-shade) 52%,
     var(--ion-color-secondary) 100%
   );
+  --app-button-gradient-hover: linear-gradient(
+    135deg,
+    var(--ion-color-primary-tint) 0%,
+    var(--ion-color-primary) 40%,
+    var(--ion-color-secondary) 100%
+  );
+  --app-button-gradient-pressed: linear-gradient(
+    135deg,
+    #312e81 0%,
+    var(--ion-color-primary-shade) 48%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --app-button-ripple: rgba(255, 255, 255, 0.2);
   --app-button-solid-color: var(--ion-color-primary-contrast);
   --app-button-solid-shadow: 0 4px 18px rgba(var(--ion-background-color-rgb), 0.45);
   --app-button-solid-shadow-hover: 0 8px 22px rgba(var(--ion-background-color-rgb), 0.55);
@@ -688,10 +830,7 @@ ion-app.ion-palette-dark {
   --app-shadow-header: 0 2px 16px rgba(var(--ion-background-color-rgb), 0.35);
   --app-shadow-soft: 0 2px 14px rgba(var(--ion-background-color-rgb), 0.25);
 
-  /* Icons: readable on dark surfaces + glow for “shine” where we accent */
-  --app-icon-default: var(--ion-text-color-step-400);
-  --app-icon-muted: var(--ion-text-color-step-650);
-  --app-icon-toolbar: var(--ion-text-color);
+  /* Toolbar / list icons: stepped colors come from `html`; keep accent on the app host. */
   --app-icon-accent: var(--ion-color-primary-tint);
   --app-icon-shine-filter: drop-shadow(0 0 10px rgba(var(--ion-color-primary-rgb), 0.55));
 }
@@ -1185,6 +1324,235 @@ ion-modal.instagram-crop-modal .insta-zoom-range {
 @keyframes app-brand-logo-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* =============================================================================
+ * Buttons — enforce palette + motion ABOVE component SCSS
+ * Angular emulated encapsulation adds attrs to selectors like `.page ion-button`,
+ * which beats unscoped `ion-button { --background: … }`. Ionic vars accept
+ * `!important`, so we re-apply fills from `ion-app` (single host, no attrs).
+ * ============================================================================= */
+
+ion-app ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]),
+ion-modal ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]),
+ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]),
+ion-app ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary'],
+ion-modal ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary'],
+ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary'] {
+  --background: var(--app-button-solid-bg) !important;
+  --background-hover: var(--app-button-gradient-hover) !important;
+  --background-focused: var(--app-button-gradient-hover) !important;
+  --background-activated: var(--app-button-gradient-pressed) !important;
+  --box-shadow: var(--app-button-solid-shadow) !important;
+  --color: var(--brand-text) !important;
+}
+
+ion-app ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):hover,
+ion-modal ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):hover,
+ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):hover,
+ion-app ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):focus-visible,
+ion-modal ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):focus-visible,
+ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):focus-visible,
+ion-app ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:hover,
+ion-modal ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:hover,
+ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:hover,
+ion-app ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:focus-visible,
+ion-modal ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:focus-visible,
+ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:focus-visible {
+  --box-shadow: var(--app-button-solid-shadow-hover) !important;
+  --color: var(--ion-color-primary-contrast) !important;
+}
+
+ion-app ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):active,
+ion-modal ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):active,
+ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button):not([color]):active,
+ion-app ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:active,
+ion-modal ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:active,
+ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button)[color='primary']:active {
+  --color: var(--ion-color-primary-contrast) !important;
+}
+
+ion-app ion-button[color='secondary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-modal ion-button[color='secondary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-popover ion-button[color='secondary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
+  --background: linear-gradient(
+    135deg,
+    var(--ion-color-secondary-tint) 0%,
+    var(--ion-color-secondary) 55%,
+    var(--ion-color-secondary-shade) 100%
+  ) !important;
+  --background-hover: linear-gradient(
+    135deg,
+    var(--ion-color-secondary) 0%,
+    var(--ion-color-secondary-shade) 100%
+  ) !important;
+  --background-focused: linear-gradient(
+    135deg,
+    var(--ion-color-secondary) 0%,
+    var(--ion-color-secondary-shade) 100%
+  ) !important;
+  --background-activated: linear-gradient(135deg, var(--ion-color-secondary-shade) 0%, #0d6d64 100%) !important;
+  --color: var(--ion-color-secondary-contrast) !important;
+}
+
+ion-app ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-modal ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-popover ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
+  --background: linear-gradient(
+    135deg,
+    var(--ion-color-tertiary-tint) 0%,
+    var(--ion-color-tertiary) 100%
+  ) !important;
+  --background-hover: linear-gradient(
+    135deg,
+    var(--ion-color-tertiary) 0%,
+    var(--ion-color-tertiary-shade) 100%
+  ) !important;
+  --background-focused: linear-gradient(
+    135deg,
+    var(--ion-color-tertiary) 0%,
+    var(--ion-color-tertiary-shade) 100%
+  ) !important;
+  --background-activated: linear-gradient(135deg, var(--ion-color-tertiary-shade) 0%, #a16207 100%) !important;
+  --color: var(--ion-color-tertiary-contrast) !important;
+}
+
+ion-app ion-button[color='success']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-modal ion-button[color='success']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-popover ion-button[color='success']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
+  --background: linear-gradient(135deg, var(--ion-color-success-tint) 0%, var(--ion-color-success) 100%) !important;
+  --background-hover: linear-gradient(135deg, var(--ion-color-success) 0%, var(--ion-color-success-shade) 100%) !important;
+  --background-focused: linear-gradient(135deg, var(--ion-color-success) 0%, var(--ion-color-success-shade) 100%) !important;
+  --background-activated: linear-gradient(135deg, var(--ion-color-success-shade) 0%, #15803d 100%) !important;
+  --color: var(--ion-color-success-contrast) !important;
+}
+
+ion-app ion-button[color='warning']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-modal ion-button[color='warning']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-popover ion-button[color='warning']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
+  --background: linear-gradient(135deg, var(--ion-color-warning-tint) 0%, var(--ion-color-warning) 100%) !important;
+  --background-hover: linear-gradient(135deg, var(--ion-color-warning) 0%, var(--ion-color-warning-shade) 100%) !important;
+  --background-focused: linear-gradient(135deg, var(--ion-color-warning) 0%, var(--ion-color-warning-shade) 100%) !important;
+  --background-activated: linear-gradient(135deg, var(--ion-color-warning-shade) 0%, #a16207 100%) !important;
+  --color: var(--ion-color-warning-contrast) !important;
+}
+
+ion-app ion-button[color='danger']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-modal ion-button[color='danger']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-popover ion-button[color='danger']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
+  --background: linear-gradient(135deg, var(--ion-color-danger-tint) 0%, var(--ion-color-danger) 100%) !important;
+  --background-hover: linear-gradient(135deg, var(--ion-color-danger) 0%, var(--ion-color-danger-shade) 100%) !important;
+  --background-focused: linear-gradient(135deg, var(--ion-color-danger) 0%, var(--ion-color-danger-shade) 100%) !important;
+  --background-activated: linear-gradient(135deg, var(--ion-color-danger-shade) 0%, #7f1d1d 100%) !important;
+  --color: var(--ion-color-danger-contrast) !important;
+}
+
+ion-app ion-button[color='light']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-modal ion-button[color='light']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-popover ion-button[color='light']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
+  --background: var(--brand-surface) !important;
+  --background-hover: rgba(var(--brand-primary-rgb), 0.08) !important;
+  --background-activated: rgba(var(--brand-primary-rgb), 0.12) !important;
+  --color: var(--brand-text) !important;
+}
+
+ion-app ion-button[color='dark']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-modal ion-button[color='dark']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
+ion-popover ion-button[color='dark']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
+  --background: var(--ion-color-dark) !important;
+  --background-hover: linear-gradient(135deg, var(--ion-color-dark-tint) 0%, var(--ion-color-dark) 100%) !important;
+  --background-activated: linear-gradient(135deg, var(--ion-color-dark) 0%, var(--ion-color-dark-shade) 100%) !important;
+  --color: var(--ion-color-dark-contrast) !important;
+}
+
+/* Auth / welcome native tab switches (not ion-button) */
+button.tab-button {
+  border: none;
+  cursor: pointer;
+  transition:
+    transform var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard),
+    background var(--app-duration-normal) var(--app-ease-standard),
+    color var(--app-duration-normal) var(--app-ease-standard);
+}
+
+button.tab-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+button.tab-button.active {
+  background-image: var(--app-button-gradient-idle) !important;
+  background-size: 220% 220% !important;
+  background-position: 0% 50%;
+  background-repeat: no-repeat !important;
+  color: var(--brand-text) !important;
+  box-shadow: var(--app-button-solid-shadow) !important;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button.tab-button.active {
+    animation: app-button-gradient-wave 12s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.tab-button.active {
+    animation: none !important;
+    background-size: auto !important;
+  }
+}
+
+/* Rare native submit (<button type="submit">) outside ion-button */
+ion-content button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):not(.pdp-nav-btn):not(.experience-card):not(.dis-close),
+ion-modal button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip) {
+  appearance: none;
+  border: none;
+  border-radius: var(--app-button-radius, var(--app-radius-md));
+  min-height: var(--app-button-min-height, 46px);
+  padding: 0.65rem 1.25rem;
+  font-weight: var(--app-button-font-weight, 600);
+  font-family: var(--font-secondary);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  color: var(--brand-text);
+  box-shadow: var(--app-button-solid-shadow);
+  background-image: var(--app-button-gradient-idle);
+  background-size: 220% 220%;
+  background-position: 0% 50%;
+  transition:
+    transform var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard),
+    filter var(--app-duration-fast) var(--app-ease-standard);
+}
+
+ion-content button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):not(.pdp-nav-btn):not(.experience-card):hover,
+ion-modal button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):hover {
+  color: var(--ion-color-primary-contrast);
+  background-image: var(--app-button-gradient-hover);
+  box-shadow: var(--app-button-solid-shadow-hover);
+  transform: translateY(-1px);
+}
+
+ion-content button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):not(.pdp-nav-btn):not(.experience-card):active,
+ion-modal button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):active {
+  color: var(--ion-color-primary-contrast);
+  background-image: var(--app-button-gradient-pressed);
+  transform: translateY(0) scale(0.99);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ion-content button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):not(.pdp-nav-btn):not(.experience-card),
+  ion-modal button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip) {
+    animation: app-button-gradient-wave 14s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ion-content button[type='submit']:not(.tab-button):not(.pds-chip):not(.pdp-nav-btn):not(.experience-card),
+  ion-modal button[type='submit']:not(.tab-button):not(.pds-chip) {
+    animation: none !important;
+    background-size: auto !important;
   }
 }
 

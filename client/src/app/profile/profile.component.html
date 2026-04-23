@@ -16,6 +16,13 @@
   <!-- Hero Section with Profile Picture and Basic Info -->
   <div class="hero-section">
     <div class="profile-avatar-container">
+      <input
+        id="profileAvatarInput"
+        type="file"
+        accept="image/*"
+        class="avatar-file-input"
+        (change)="onAvatarFileSelected($event)"
+      />
       @if (avatarSkeletonActive && !avatarImgLoaded) {
         <div class="avatar-skeleton" aria-hidden="true"></div>
       }
@@ -31,9 +38,15 @@
           (error)="onAvatarImgError()"
         />
       </ion-avatar>
-      <div class="avatar-badge">
-        <ion-icon name="camera" class="camera-icon"></ion-icon>
-      </div>
+      <button
+        type="button"
+        class="avatar-edit-btn"
+        [disabled]="isUploadingAvatar"
+        (click)="openAvatarPicker()"
+        aria-label="Change profile picture"
+      >
+        <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
+      </button>
     </div>
 
     <div class="profile-info">
@@ -86,119 +99,97 @@
       <ion-icon name="create-outline" slot="start"></ion-icon>
       Edit Profile
     </ion-button>
-    
-    @if (reproductiveStatus.pregnancyEndDate) {
-      <ion-button
-        expand="block"
-        type="button"
-        class="pregnancy-planning-btn"
-        (click)="goToPregnancyPlanning()"
-      >
-        <ion-icon name="moon-outline" slot="start"></ion-icon>
-        Postpartum
-      </ion-button>
-    } @else if (reproductiveStatus.isPregnant) {
-      <ion-button
-        expand="block"
-        type="button"
-        class="pregnancy-planning-btn"
-        (click)="goToPregnancyPlanning()"
-      >
-        <ion-icon name="heart-outline" slot="start"></ion-icon>
-        Pregnancy Progress
-      </ion-button>
-    } @else {
-      <ion-button
-        expand="block"
-        type="button"
-        class="pregnancy-planning-btn"
-        (click)="goToPregnancyPlanning()"
-      >
-        <ion-icon name="heart-outline" slot="start"></ion-icon>
-        Pregnancy Planning
-      </ion-button>
-    }
   </div>
 
-  <!-- Pregnancy Planning Summary -->
-  @if (reproductiveStatus.lastPeriodDate) {
-  <div class="pregnancy-summary-section">
-    @if (reproductiveStatus.pregnancyEndDate) {
-      <h3 class="section-title">Postpartum</h3>
-    } @else if (reproductiveStatus.isPregnant) {
-      <h3 class="section-title">Pregnancy Progress</h3>
-    } @else {
-      <h3 class="section-title">Pregnancy Planning</h3>
-    }
-    
-    <div class="pregnancy-summary-card">
-      <div class="summary-header">
-        <div class="summary-icon">
-          <ion-icon name="calendar-outline"></ion-icon>
-        </div>
-        <div class="summary-content">
-          @if (reproductiveStatus.isPregnant) {
-            <h4 class="summary-title">Pregnancy Timeline</h4>
-          } @else if (reproductiveStatus.pregnancyEndDate) {
-            <h4 class="summary-title">Postpartum Timeline</h4>
-          } @else {
-            <h4 class="summary-title">Cycle Tracking</h4>
-          }
-          <p class="summary-subtitle">Last Period: {{ formatDate(reproductiveStatus.lastPeriodDate) }}</p>
-        </div>
-      </div>
-      
-      <div class="summary-stats">
-        <div class="summary-stat">
-          <span class="stat-number">{{ reproductiveStatus.cycleLength || 28 }}</span>
-          <span class="stat-label">Cycle Days</span>
-        </div>
-        <div class="summary-stat">
-          @if (reproductiveStatus.pregnancyEndDate) {
-            <span class="stat-number">-</span>
-            <span class="stat-label">Postpartum</span>
-          } @else if (reproductiveStatus.isPregnant) {
-            <span class="stat-number">{{ getPregnancyWeek() }}</span>
-            <span class="stat-label">Weeks Pregnant</span>
-          } @else {
-            <span class="stat-number">-</span>
-            <span class="stat-label">Trying to Conceive</span>
-          }
-        </div>
-      </div>
-      
-      <div class="summary-actions">
-        <ion-button
-          fill="clear"
-          size="small"
-          class="summary-action-btn"
-          (click)="goToPregnancyPlanning()"
-        >
-          <ion-icon name="heart-outline" slot="start"></ion-icon>
-          @if (reproductiveStatus.pregnancyEndDate) {
-            Postpartum Resources
-          } @else if (reproductiveStatus.isPregnant) {
-            View Pregnancy Details
-          } @else {
-            View Planning Details
-          }
-        </ion-button>
+  <!-- Reproductive Status Section -->
+  <section class="experience-section">
+    <h2 class="experience-title">{{ 'editProfile.experienceTitle' | translate }}</h2>
+    <div class="experience-grid" role="radiogroup" [attr.aria-label]="'editProfile.reproductiveStatusAria' | translate">
+      <button
+        type="button"
+        class="experience-card experience-card--track-cycle"
+        [class.experience-card--selected]="isStatusSelected('NOT_PREGNANT')"
+        (click)="setStatus('NOT_PREGNANT')"
+        role="radio"
+        [attr.aria-checked]="isStatusSelected('NOT_PREGNANT')"
+      >
+        <span class="experience-icon-wrap">
+          <img
+            src="assets/images/profile/trackCyclePeriod.jpg"
+            alt=""
+            class="experience-icon-image"
+            aria-hidden="true"
+          />
+        </span>
+        <span class="experience-label">{{ 'editProfile.trackCycle' | translate }}</span>
+      </button>
 
-        @if (reproductiveStatus.isPregnant && reproductiveStatus.pregnancyEndDate == null) {
-          <ion-button
-            fill="outline"
-            size="small"
-            class="summary-action-btn"
-            (click)="openPregnancyEndDialog()"
-          >
-            <ion-icon name="stop-circle-outline" slot="start"></ion-icon>
-            End Pregnancy
-          </ion-button>
-        }
-      </div>
+      <button
+        type="button"
+        class="experience-card experience-card--track-planning"
+        [class.experience-card--selected]="isStatusSelected('PLANNING_PREGNANCY')"
+        (click)="setStatus('PLANNING_PREGNANCY')"
+        role="radio"
+        [attr.aria-checked]="isStatusSelected('PLANNING_PREGNANCY')"
+      >
+        <span class="experience-icon-wrap">
+          <img
+            src="assets/images/profile/getPregnent.jpg"
+            alt=""
+            class="experience-icon-image"
+            aria-hidden="true"
+          />
+        </span>
+        <span class="experience-label">{{ 'editProfile.getPregnant' | translate }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="experience-card experience-card--track-pregnancy"
+        [class.experience-card--selected]="isStatusSelected('PREGNANT')"
+        (click)="openTrackPregnancyIntro()"
+        role="radio"
+        [attr.aria-checked]="isStatusSelected('PREGNANT')"
+      >
+        <span class="experience-icon-wrap">
+          <img
+            src="assets/images/profile/trackPregnency.jpg"
+            alt=""
+            class="experience-icon-image"
+            aria-hidden="true"
+          />
+        </span>
+        <span class="experience-label">{{ 'editProfile.trackPregnancy' | translate }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="experience-card experience-card--track-peri experience-card--disabled"
+        disabled
+      >
+        <span class="experience-icon-wrap">
+          <img
+            src="assets/images/profile/perimenopause.jpg"
+            alt=""
+            class="experience-icon-image"
+            aria-hidden="true"
+          />
+        </span>
+        <span class="experience-label">{{ 'editProfile.trackPerimenopause' | translate }}</span>
+      </button>
     </div>
-  </div>
-  }
+    <div class="continue-button-container">
+      <ion-button
+        expand="block"
+        class="continue-button"
+        [disabled]="!getCurrentStatus()"
+        (click)="onSubmit('continue')"
+      >
+        <ion-icon name="arrow-forward-circle-outline" slot="end" aria-hidden="true"></ion-icon>
+        {{ 'editProfile.continue' | translate }}
+      </ion-button>
+    </div>
+  </section>
 
   <!-- Profile Fields Cards -->
   <div class="profile-fields">

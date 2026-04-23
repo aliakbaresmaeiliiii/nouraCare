@@ -1,0 +1,78 @@
+.tpi4-content {
+  --background: #1c1c1e;
+}
+
+.tpi4-root {
+  min-height: 100%;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 24px;
+  background: #1c1c1e;
+  color: #fff;
+}
+
+.tpi4-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tpi4-progress {
+  position: relative;
+  flex: 1;
+  height: 3px;
+}
+
+.tpi4-progress-track,
+.tpi4-progress-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+}
+
+.tpi4-progress-track {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.tpi4-progress-fill {
+  width: 48%;
+  background: #f4f4f4;
+}
+
+.tpi4-skip {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.7rem;
+  font-weight: 600;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.tpi4-main {
+  padding-top: 56px;
+}
+
+.tpi4-title {
+  margin: 0 0 28px;
+  text-align: center;
+  font-size: clamp(1.9rem, 6.4vw, 2.3rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.tpi4-options {
+  display: grid;
+  gap: 12px;
+}
+
+.tpi4-option {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 18px 18px;
+  text-align: left;
+  background: #3a3a3d;
+  color: #fff;
+  font-size: 1.06rem;
+  font-weight: 600;
+}

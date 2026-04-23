@@ -121,6 +121,11 @@
   color: #6b7280;
 }
 
+:host-context([dir='rtl']) .pdp-dow {
+  font-size: 0.62rem;
+  line-height: 1.15;
+}
+
 .pdp-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

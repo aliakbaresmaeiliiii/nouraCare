@@ -1,0 +1,26 @@
+<ion-content class="tpi5-content" [fullscreen]="true" scrollY="false">
+  <div class="tpi5-root">
+    <header class="tpi5-top">
+      <ion-button type="button" fill="clear" class="tpi5-back" (click)="onBack()" aria-label="Back">
+        <ion-icon name="chevron-back" slot="icon-only" aria-hidden="true"></ion-icon>
+      </ion-button>
+
+      <div class="tpi5-progress" aria-hidden="true">
+        <span class="tpi5-progress-track"></span>
+        <span class="tpi5-progress-fill"></span>
+      </div>
+
+      <button type="button" class="tpi5-skip" (click)="onSkip()">Skip</button>
+    </header>
+
+    <main class="tpi5-main">
+      <h1 class="tpi5-title">What's your diet like?</h1>
+
+      <div class="tpi5-options">
+        @for (option of options; track option) {
+          <button type="button" class="tpi5-option" (click)="onSelect()">{{ option }}</button>
+        }
+      </div>
+    </main>
+  </div>
+</ion-content>

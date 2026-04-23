@@ -13,6 +13,8 @@ export class CycleSettingsService {
   isPostpartum = signal<boolean>(false);
   pregnancyWeek = signal<number>(0);
   pregnancyProgress = signal<number>(0);
+  /** Optional focused cycle day (YYYY-MM-DD) selected by user in cycle strip. */
+  selectedCycleViewDate = signal<string | null>(null);
 
   constructor() {
     this.loadFromStorage();
@@ -58,6 +60,10 @@ export class CycleSettingsService {
     const p = Number.isFinite(progress) ? progress : 0;
     this.pregnancyProgress.set(Math.max(0, Math.min(100, Math.round(p))));
     this.saveToStorage();
+  }
+
+  setSelectedCycleViewDate(dateIso: string | null) {
+    this.selectedCycleViewDate.set(dateIso ?? null);
   }
 
   private loadFromStorage() {

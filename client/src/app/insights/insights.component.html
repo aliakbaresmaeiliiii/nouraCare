@@ -1,8 +1,8 @@
 <ion-content class="tab-page-content" [fullscreen]="false">
   <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
     <ion-refresher-content
-      pullingText="Pull to refresh"
-      refreshingText="Refreshing…"
+      [pullingText]="'common.pullToRefresh' | translate"
+      [refreshingText]="'common.refreshing' | translate"
     ></ion-refresher-content>
   </ion-refresher>
 <div class="insights-content">
@@ -20,8 +20,8 @@
         <ion-icon name="lock-open" class="unlock-icon-main"></ion-icon>
       </div>
       <div class="unlock-text">
-        <h2>Premium Unlocked!</h2>
-        <p>Access to 1000+ expert articles</p>
+        <h2>{{ 'insights.unlockTitle' | translate }}</h2>
+        <p>{{ 'insights.unlockSubtitle' | translate }}</p>
       </div>
       <div class="unlock-success">
         <ion-icon name="checkmark-circle" class="success-check"></ion-icon>
@@ -38,7 +38,13 @@
         <ion-icon [name]="isPremiumUnlocked ? 'lock-open' : 'lock-closed'"></ion-icon>
       </div>
       <div class="banner-text">
-        <p>{{ isPremiumUnlocked ? 'Premium Active - All articles unlocked!' : premiumBanner.title }}</p>
+        <p>
+          {{
+            isPremiumUnlocked
+              ? ('insights.premiumActiveAll' | translate)
+              : premiumBanner.title
+          }}
+        </p>
       </div>
       <div class="banner-toggle">
         <ion-toggle [checked]="isPremiumUnlocked" (ionChange)="togglePremium()"></ion-toggle>
@@ -55,11 +61,11 @@
         <ion-icon name="diamond"></ion-icon>
       </div>
       <div class="success-text">
-        <h3>Premium Active</h3>
-        <p>Enjoy unlimited access to expert content</p>
+        <h3>{{ 'insights.premiumActiveTitle' | translate }}</h3>
+        <p>{{ 'insights.premiumActiveDesc' | translate }}</p>
       </div>
       <div class="success-badge">
-        <span>PRO</span>
+        <span>{{ 'insights.proBadge' | translate }}</span>
       </div>
     </div>
   </div>
@@ -69,7 +75,7 @@
   <div class="search-section">
     <div class="search-container">
       <ion-searchbar
-        placeholder="Search articles"
+        [placeholder]="'insights.searchPlaceholder' | translate"
         class="insights-search"
         [debounce]="200"
         (ionInput)="onSearchInput($event)"
@@ -89,7 +95,7 @@
 
   @if (hasActiveSearch() && !hasAnySearchResults()) {
   <div class="search-empty">
-    <p>No articles match your search.</p>
+    <p>{{ 'insights.searchEmpty' | translate }}</p>
   </div>
   }
 
@@ -97,7 +103,7 @@
   @if (!hasActiveSearch() || filteredArticles().nutritionNeedToKnow.length > 0) {
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">Nutrition need to know</h2>
+      <h2 class="section-title">{{ 'insights.sectionNutrition' | translate }}</h2>
     </div>
 
     <div class="articles-scroll">
@@ -107,7 +113,11 @@
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
          [attr.data-article-id]="article.id">
         <div class="card-image">
-          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <img
+            [src]="article.image"
+            [alt]="article.titleKey | translate"
+            (error)="handleImageError($event, article.category)"
+          >
           <!-- Premium Lock Overlay -->
           @if (article.isPremium && !isPremiumUnlocked) {
           <div class="premium-lock">
@@ -127,11 +137,11 @@
           </div>
         </div>
         <div class="card-content">
-          <h3 class="card-title">{{ article.title }}</h3>
+          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
           @if (article.isPremium) {
           <div class="premium-indicator">
             <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
             </span>
           </div>
           }
@@ -146,7 +156,7 @@
   @if (!hasActiveSearch() || filteredArticles().allAboutYourBaby.length > 0) {
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">All about your baby</h2>
+      <h2 class="section-title">{{ 'insights.sectionBaby' | translate }}</h2>
     </div>
 
     <div class="articles-scroll">
@@ -156,7 +166,11 @@
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
          [attr.data-article-id]="article.id">
         <div class="card-image">
-          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <img
+            [src]="article.image"
+            [alt]="article.titleKey | translate"
+            (error)="handleImageError($event, article.category)"
+          >
           <!-- Premium Lock Overlay -->
           @if (article.isPremium && !isPremiumUnlocked) {
           <div class="premium-lock">
@@ -176,11 +190,11 @@
           </div>
         </div>
         <div class="card-content">
-          <h3 class="card-title">{{ article.title }}</h3>
+          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
           @if (article.isPremium) {
           <div class="premium-indicator">
             <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
             </span>
           </div>
           }
@@ -195,7 +209,7 @@
   @if (!hasActiveSearch() || filteredArticles().pregnancyPopular.length > 0) {
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">Most popular in Pregnancy</h2>
+      <h2 class="section-title">{{ 'insights.sectionPregnancyPopular' | translate }}</h2>
     </div>
 
     <div class="articles-scroll">
@@ -205,7 +219,11 @@
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
          [attr.data-article-id]="article.id">
         <div class="card-image">
-          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <img
+            [src]="article.image"
+            [alt]="article.titleKey | translate"
+            (error)="handleImageError($event, article.category)"
+          >
           <!-- Premium Lock Overlay -->
           @if (article.isPremium && !isPremiumUnlocked) {
           <div class="premium-lock">
@@ -225,11 +243,11 @@
           </div>
         </div>
         <div class="card-content">
-          <h3 class="card-title">{{ article.title }}</h3>
+          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
           @if (article.isPremium) {
           <div class="premium-indicator">
             <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
             </span>
           </div>
           }
@@ -244,7 +262,7 @@
   @if (!hasActiveSearch() || filteredArticles().pregnancySexPleasure.length > 0) {
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">Pregnancy sex and pleasure</h2>
+      <h2 class="section-title">{{ 'insights.sectionSexPleasure' | translate }}</h2>
     </div>
 
     <div class="articles-scroll">
@@ -254,7 +272,11 @@
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
          [attr.data-article-id]="article.id">
         <div class="card-image">
-          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <img
+            [src]="article.image"
+            [alt]="article.titleKey | translate"
+            (error)="handleImageError($event, article.category)"
+          >
           <!-- Premium Lock Overlay -->
           @if (article.isPremium && !isPremiumUnlocked) {
           <div class="premium-lock">
@@ -274,11 +296,11 @@
           </div>
         </div>
         <div class="card-content">
-          <h3 class="card-title">{{ article.title }}</h3>
+          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
           @if (article.isPremium) {
           <div class="premium-indicator">
             <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
             </span>
           </div>
           }
@@ -293,7 +315,7 @@
   @if (!hasActiveSearch() || filteredArticles().pregnancyBodySigns.length > 0) {
   <div class="section">
     <div class="section-header">
-      <h2 class="section-title">Pregnancy body signs explained</h2>
+      <h2 class="section-title">{{ 'insights.sectionBodySigns' | translate }}</h2>
     </div>
 
     <div class="articles-scroll">
@@ -303,7 +325,11 @@
          [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
          [attr.data-article-id]="article.id">
         <div class="card-image">
-          <img [src]="article.image" [alt]="article.title" (error)="handleImageError($event, article.category)">
+          <img
+            [src]="article.image"
+            [alt]="article.titleKey | translate"
+            (error)="handleImageError($event, article.category)"
+          >
           <!-- Premium Lock Overlay -->
           @if (article.isPremium && !isPremiumUnlocked) {
           <div class="premium-lock">
@@ -323,11 +349,11 @@
           </div>
         </div>
         <div class="card-content">
-          <h3 class="card-title">{{ article.title }}</h3>
+          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
           @if (article.isPremium) {
           <div class="premium-indicator">
             <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? 'PRO' : 'PREMIUM' }}
+              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
             </span>
           </div>
           }

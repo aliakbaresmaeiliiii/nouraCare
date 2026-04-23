@@ -16,9 +16,7 @@ import {
   refresh,
   checkmark,
   camera,
-  person,
   heart,
-  calendar,
   close,
   sparkles,
   people,
@@ -26,12 +24,15 @@ import {
   heartDislike,
   removeOutline,
   addOutline,
-  pulseOutline,
-  arrowForward,
   helpCircleOutline,
+  moonOutline,
+  flower,
+  calendarNumberOutline,
+  chevronBackCircleOutline,
+  arrowForwardCircleOutline,
 } from 'ionicons/icons';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { User } from '../shared/services/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserInfoService } from '../shared/services/user-info.service';
@@ -42,7 +43,7 @@ import {
   OnboardingService,
   ReproductiveState,
 } from '../shared/services/onboarding.service';
-import { ModalController } from '@ionic/angular/standalone';
+import { AlertController, ModalController } from '@ionic/angular/standalone';
 import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -50,6 +51,8 @@ import { HomeDataService } from '../home/services/home-data.service';
 import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
 import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
 import { UserSessionService } from '../shared/services/user-session.service';
+import { TranslationService } from '../shared/services/translation.service';
+
 @Component({
   selector: 'app-edit-profile',
   templateUrl: './edit-profile.component.html',
@@ -58,6 +61,12 @@ import { UserSessionService } from '../shared/services/user-session.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class EditProfileComponent implements OnInit {
+  private readonly translation = inject(TranslationService);
+
+  private loc(key: string): string {
+    return this.translation.translate(key);
+  }
+
   userService = inject(User);
   userInfoService = inject(UserInfoService);
   route = inject(ActivatedRoute);
@@ -65,6 +74,14 @@ export class EditProfileComponent implements OnInit {
   private router = inject(Router);
   private imageUrlService = inject(ImageUrlService);
   profileImage: string | null = null;
+  /** Email under avatar (from API; personal-info form removed). */
+  displayEmail = '';
+  /** Fields still sent on save so the API is not cleared by empty form values. */
+  private profileContactSnapshot = {
+    fullName: '',
+    email: '',
+    dateOfBirth: '',
+  };
   selectedProfile: File | null = null;
   showCropper = false;
   /** Object URL for the image being cropped */
@@ -86,6 +103,7 @@ export class EditProfileComponent implements OnInit {
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private modalController = inject(ModalController);
+  private alertController = inject(AlertController);
 
   @ViewChild('cropPreviewCanvas')
   cropPreviewCanvas!: ElementRef<HTMLCanvasElement>;
@@ -103,14 +121,14 @@ export class EditProfileComponent implements OnInit {
     {
       label: 'Planning Pregnancy',
       value: 'PLANNING_PREGNANCY',
-      icon: 'sparkles',
+      icon: 'flower',
       description: 'Actively trying to conceive',
       color: '#8b5cf6'
     },
     {
       label: 'Pregnant',
       value: 'PREGNANT',
-      icon: 'heart',
+      icon: 'heart-circle',
       description: 'Currently expecting a baby',
       color: '#ec4899'
     },
@@ -135,27 +153,28 @@ export class EditProfileComponent implements OnInit {
       label: "I'm pregnant",
       value: 'PREGNANT',
       subtitle: 'Track weeks, symptoms, and appointments in one place.',
-      icon: 'heart',
+      icon: 'heart-circle',
       color: '#ec4899',
     },
     {
       label: "I'm planning to get pregnant",
       value: 'PLANNING_PREGNANCY',
       subtitle: 'Log cycles and get planning tips when you are ready.',
-      icon: 'sparkles',
+      icon: 'flower',
       color: '#8b5cf6',
     },
     {
       label: "I'm not pregnant",
       value: 'NOT_PREGNANT',
       subtitle: 'Period tracking and general wellness without pregnancy mode.',
-      icon: 'pulse-outline',
+      icon: 'moon-outline',
       color: '#0ea5e9',
     },
   ];
 
   isEditingReproductiveStatus = false;
   currentReproductiveStatus: string | null = null;
+  private pregnancyContinueConfirmed = false;
 
   constructor(private fb: FormBuilder) {
     addIcons({
@@ -165,9 +184,7 @@ export class EditProfileComponent implements OnInit {
       refresh,
       checkmark,
       camera,
-      person,
       heart,
-      calendar,
       close,
       sparkles,
       people,
@@ -175,18 +192,18 @@ export class EditProfileComponent implements OnInit {
       heartDislike,
       removeOutline,
       addOutline,
-      pulseOutline,
-      arrowForward,
       helpCircleOutline,
+      moonOutline,
+      flower,
+      calendarNumberOutline,
+      chevronBackCircleOutline,
+      arrowForwardCircleOutline,
     });
   }
 
   form: FormGroup = this.fb.group({
     profileImage: [''],
     status: [null],
-    fullName: [''],
-    dateOfBirth: [''],
-    email: [''],
   });
 
   private loadUserDataFromAPI() {
@@ -234,6 +251,7 @@ export class EditProfileComponent implements OnInit {
           onboarding?.state,
         );
         this.currentReproductiveStatus = repro;
+        this.applyPregnancyIntroQueryAfterLoad();
       },
       error: (error) => {
         console.error('Failed to load user data:', error);
@@ -241,11 +259,29 @@ export class EditProfileComponent implements OnInit {
     });
   }
 
+  /** After intro screen, user returns with ?pregnancyIntro=1 to select Track pregnancy. */
+  private applyPregnancyIntroQueryAfterLoad(): void {
+    if (this.route.snapshot.queryParamMap.get('pregnancyIntro') !== '1') {
+      return;
+    }
+    void this.setStatus('PREGNANT');
+    void this.router.navigate(['/edit-profile'], { replaceUrl: true });
+    this.cdr.markForCheck();
+  }
+
+  openTrackPregnancyIntro(): void {
+    void this.router.navigate(['/track-pregnancy-intro']);
+  }
+
   private patchFormWithUserData(userData: any) {
-    const patch: any = {
+    this.profileContactSnapshot = {
       fullName: userData?.fullName ?? '',
       email: userData?.email ?? '',
       dateOfBirth: this.toDateOnly(userData?.dateOfBirth ?? ''),
+    };
+    this.displayEmail = this.profileContactSnapshot.email;
+
+    const patch: any = {
       profileImage: userData?.profileImage ?? '',
       status: userData?.status ?? null,
     };
@@ -581,8 +617,27 @@ export class EditProfileComponent implements OnInit {
   }
 
   /**
-   * Only http(s) or server paths belong in the API/DB — never blob: or data: URLs.
+   * Partial PUT body: omit empty optional fields so Nest validation (@IsEmail, @IsDate) does not fail
+   * and forkJoin does not block PATCH /me/state.
    */
+  private buildProfileUpdatePayload(formValues: {
+    profileImage?: string | null;
+  }): Record<string, string> {
+    const payload: Record<string, string> = {};
+    const fullName = (this.profileContactSnapshot.fullName ?? '').trim();
+    const email = (this.profileContactSnapshot.email ?? '').trim();
+    const dob = (this.toDateOnly(this.profileContactSnapshot.dateOfBirth) ?? '').trim();
+    if (fullName) payload['fullName'] = fullName;
+    if (email) payload['email'] = email;
+    if (dob) payload['dateOfBirth'] = dob;
+    const persistedImage = this.sanitizeProfileImageForApi(formValues.profileImage);
+    if (persistedImage !== undefined) {
+      payload['profileImage'] = persistedImage;
+    }
+    return payload;
+  }
+
+  /** Only http(s) or server paths belong in the API/DB — never blob: or data: URLs. */
   private sanitizeProfileImageForApi(
     raw: string | null | undefined,
   ): string | undefined {
@@ -612,16 +667,7 @@ export class EditProfileComponent implements OnInit {
     return d.toISOString().slice(0, 10);
   }
 
-  handleChange(event: Event): void {
-    const target = event.target as HTMLInputElement;
-  }
-
-  onBirthdayChange(event: any) {
-    const date = event.detail?.value;
-    this.form.patchValue({ dateOfBirth: this.toDateOnly(date) });
-  }
-
-  async onSubmit() {
+  async onSubmit(source: 'save' | 'continue' = 'save') {
     const formValues = this.form.value;
     const currentUserInfo = this.userInfoService.getCurrentUserInfo();
     const id =
@@ -635,31 +681,19 @@ export class EditProfileComponent implements OnInit {
       return;
     }
 
-    this.showLoadingAlert('Saving profile...');
-
-    try {
-      this.userSession.mergeIntoStoredUser({
-        fullName: formValues.fullName,
-        email: formValues.email,
-        dateOfBirth: formValues.dateOfBirth,
-      });
-    } catch {
-      /* ignore */
-    }
-
-    const payload: any = {
-      fullName: formValues.fullName,
-      email: formValues.email,
-      dateOfBirth: this.toDateOnly(formValues.dateOfBirth),
-    };
-    const persistedImage = this.sanitizeProfileImageForApi(formValues.profileImage);
-    if (persistedImage !== undefined) {
-      payload.profileImage = persistedImage;
-    }
-
     const selectedStatus =
       this.currentReproductiveStatus ?? this.form.get('status')?.value ?? null;
     const reproductiveState = this.mapUiReproductiveToApiPregnancyStatus(selectedStatus);
+    if (
+      source === 'save' &&
+      reproductiveState === 'pregnant' &&
+      !this.pregnancyContinueConfirmed
+    ) {
+      this.showErrorAlert(
+        'Please tap Continue and confirm the first day of last period first.',
+      );
+      return;
+    }
     let reproductivePayload: InitializeReproductiveStateDto | null = null;
     if (reproductiveState === 'pregnant') {
       const modal = await this.modalController.create({
@@ -671,20 +705,53 @@ export class EditProfileComponent implements OnInit {
         return;
       }
       reproductivePayload = data;
+      this.pregnancyContinueConfirmed = true;
     } else if (reproductiveState) {
       reproductivePayload = { state: reproductiveState };
+      this.pregnancyContinueConfirmed = true;
     }
     const reproductiveReq = reproductivePayload
       ? this.onboardingService.updateReproductiveState(reproductivePayload)
       : of(null);
+    const shouldGoHomeAfterSave =
+      reproductiveState === 'pregnant' && reproductivePayload !== null;
+
+    this.showLoadingAlert('Saving profile...');
+
+    try {
+      this.userSession.mergeIntoStoredUser({
+        fullName: this.profileContactSnapshot.fullName,
+        email: this.profileContactSnapshot.email,
+        dateOfBirth: this.profileContactSnapshot.dateOfBirth,
+      });
+    } catch {
+      /* ignore */
+    }
+
+    const payload = this.buildProfileUpdatePayload(formValues);
+    const profileReq =
+      Object.keys(payload).length > 0
+        ? this.userService.updateUserInfo(String(id), payload as any)
+        : of(null);
 
     forkJoin({
-      profile: this.userService.updateUserInfo(String(id), payload),
+      profile: profileReq,
       reproductive: reproductiveReq,
     }).subscribe({
-      next: () => {
+      next: (result: { profile: unknown; reproductive: DashboardResponse | null }) => {
+        const dashboard = result.reproductive;
+        if (dashboard && typeof dashboard === 'object' && 'state' in dashboard) {
+          this.pushHomeJourneyFromDashboard(dashboard as DashboardResponse);
+        }
         this.updateUserInfoService(formValues);
         this.showSuccessAlert('Profile updated successfully!');
+        if (shouldGoHomeAfterSave) {
+          this.router.navigate(['/tabs/home'], { replaceUrl: true });
+          return;
+        }
+        if (selectedStatus === 'PLANNING_PREGNANCY' && reproductivePayload) {
+          this.router.navigate(['/pregnancy-planning']);
+        }
       },
       error: (error: any) => {
         console.error('Error updating profile:', error);
@@ -728,10 +795,43 @@ export class EditProfileComponent implements OnInit {
  
 
   /** Select only — user confirms with Continue (no immediate navigation). */
-  setStatus(statusValue: string | null): void {
+  async setStatus(statusValue: string | null): Promise<void> {
+    if (
+      statusValue === 'NOT_PREGNANT' &&
+      (this.currentReproductiveStatus ?? this.form.get('status')?.value) !== 'NOT_PREGNANT'
+    ) {
+      const alert = await this.alertController.create({
+        cssClass: 'liquid-glass-dialog',
+        header: this.loc('editProfile.alert.switchCycleHeader'),
+        message: this.loc('editProfile.alert.switchCycleMessage'),
+        buttons: [
+          {
+            text: this.loc('editProfile.alert.notNow'),
+            role: 'cancel',
+          },
+          {
+            text: this.loc('editProfile.alert.yesSwitch'),
+            role: 'confirm',
+          },
+        ],
+      });
+      await alert.present();
+      const { role } = await alert.onDidDismiss();
+      if (role !== 'confirm') {
+        return;
+      }
+    }
+
     this.form.patchValue({ status: statusValue });
     this.currentReproductiveStatus = statusValue;
+    this.pregnancyContinueConfirmed = statusValue !== 'PREGNANT';
     this.cdr.markForCheck();
+  }
+
+  isSaveDisabled(): boolean {
+    const selected =
+      this.currentReproductiveStatus ?? (this.form.get('status')?.value as string | null);
+    return selected === 'PREGNANT' && !this.pregnancyContinueConfirmed;
   }
 
   getSelectedReproductiveOption():
@@ -799,12 +899,18 @@ export class EditProfileComponent implements OnInit {
   }
 
   getCurrentStatus(): string | null {
-    return this.form.get('status')?.value;
+    return (
+      (this.currentReproductiveStatus ??
+        (this.form.get('status')?.value as string | null)) ||
+      null
+    );
   }
 
   isStatusSelected(statusValue: string): boolean {
-    const currentStatus = this.form.get('status')?.value;
-    if (currentStatus === null) {
+    const currentStatus =
+      this.currentReproductiveStatus ??
+      (this.form.get('status')?.value as string | null);
+    if (currentStatus === null || currentStatus === undefined) {
       return false;
     }
     return currentStatus === statusValue;
@@ -813,17 +919,18 @@ export class EditProfileComponent implements OnInit {
 
   resetForm(): void {
     this.form.reset();
+    this.profileContactSnapshot = { fullName: '', email: '', dateOfBirth: '' };
+    this.displayEmail = '';
   }
 
   initializeFormWithDefaults(): void {
     console.log('Initializing form with defaults...');
     this.form.patchValue({
       status: null,
-      fullName: '',
-      email: '',
-      dateOfBirth: '',
       profileImage: '',
     });
+    this.profileContactSnapshot = { fullName: '', email: '', dateOfBirth: '' };
+    this.displayEmail = '';
     console.log('Form after initialization:', this.form.value);
   }
 

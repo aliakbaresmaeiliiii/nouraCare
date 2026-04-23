@@ -142,6 +142,12 @@
   text-transform: capitalize;
 }
 
+:host-context([dir='rtl']) .cc-dow {
+  text-transform: none;
+  font-size: 0.62rem;
+  line-height: 1.15;
+}
+
 .cc-grid {
   display: flex;
   flex-direction: column;

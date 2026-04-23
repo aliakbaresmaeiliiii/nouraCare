@@ -17,7 +17,7 @@
         #cycleChartWeekScroll
         class="pregnancy-calendar-swiper"
         role="region"
-        aria-label="Week calendar, scroll sideways"
+        [attr.aria-label]="'cycleChart.a11y.weekCalendarScroll' | translate"
       >
         @for (week of getWeekCalendarWeeks(); track week.weekKey) {
           <div class="pregnancy-calendar-week">
@@ -59,7 +59,7 @@
     <svg
       viewBox="50 50 500 500"
       class="cycle-chart"
-      aria-label="Period Cycle Chart"
+      [attr.aria-label]="'cycleChart.a11y.periodCycleChart' | translate"
       [class.cycle-chart--disk-period]="cycleDiskPhase === 'period'"
       [class.cycle-chart--disk-fertile]="cycleDiskPhase === 'fertile'"
       [class.cycle-chart--disk-ovulation]="cycleDiskPhase === 'ovulation'"
@@ -301,28 +301,22 @@
           ></circle>
 
           <!-- Calendar date in focus (today, or the day you tapped in the strip) -->
-          <text class="center-current-date" text-anchor="middle" font-size="18" y="-108" fill="var(--brand-text)">
-            {{ getStripViewDate() | date: 'EEE, MMM d, yyyy' }}
+          <text class="center-current-date" text-anchor="middle" y="-112" fill="var(--brand-text)">
+            {{ formatStripCenterDate() }}
           </text>
 
-          <text
-            class="center-view-context"
-            text-anchor="middle"
-            font-size="11"
-            font-weight="600"
-            y="-88"
-            fill="var(--brand-text-secondary)"
-          >
-            {{ viewingCalendarToday() ? 'Today on your cycle' : 'Preview · tap another day or tap Today to return' }}
-          </text>
+          <!-- Wrapped hint (shorter copy + HTML line-break where needed) -->
+          <foreignObject x="-152" y="-98" width="304" height="46" class="cycle-center-context-fo">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="cycle-center-context-inner">
+              {{ getViewContextText() }}
+            </div>
+          </foreignObject>
 
           @if (startDate && weekStripSelectionOvulationInsight) {
             <text
               class="center-ovulation-insight"
               text-anchor="middle"
-              font-size="12"
-              font-weight="700"
-              y="-70"
+              y="-52"
               fill="#0d9488"
             >
               {{ weekStripSelectionOvulationInsight }}
@@ -333,9 +327,7 @@
           <text
             class="cycle-day-title"
             text-anchor="middle"
-            font-size="15"
-            font-weight="800"
-            [attr.y]="startDate && weekStripSelectionOvulationInsight ? -48 : -52"
+            [attr.y]="startDate && weekStripSelectionOvulationInsight ? -32 : -48"
             fill="var(--brand-text)"
           >
             {{ getCenterCycleHeading() }}
@@ -346,11 +338,9 @@
             <text
               text-anchor="middle"
               alignment-baseline="middle"
-              font-size="15"
-              font-weight="700"
-              letter-spacing="0.2"
+              class="fertility-status__label"
               x="0"
-              [attr.y]="startDate && weekStripSelectionOvulationInsight ? 10 : 2"
+              [attr.y]="startDate && weekStripSelectionOvulationInsight ? 18 : 4"
               [attr.fill]="getFertilityStatus().color"
             >
               {{ getFertilityStatus().status }}
@@ -361,9 +351,7 @@
           <text
             class="milestone-text"
             text-anchor="middle"
-            font-size="12"
-            font-weight="500"
-            [attr.y]="startDate && weekStripSelectionOvulationInsight ? 56 : 48"
+            [attr.y]="startDate && weekStripSelectionOvulationInsight ? 62 : 52"
             fill="var(--brand-secondary)"
           >
             {{ getDetailedMilestone() }}

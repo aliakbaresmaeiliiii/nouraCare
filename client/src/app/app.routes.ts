@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/guards/auth.guard';
 import { initialRouteGuard } from './guards/initial-route.guard';
+import { welcomeRequiresProfileOrSessionGuard } from './guards/welcome-onboarding-data.guard';
 import { LayoutComponent } from './layout/layout.component';
 import { ReactWrapperComponent } from './react-wrapper/react-wrapper.component';
 
@@ -26,6 +27,7 @@ export const routes: Routes = [
     path: 'welcome',
     loadComponent: () =>
       import('./welcome/welcome.component').then((m) => m.WelcomeComponent),
+    canActivate: [welcomeRequiresProfileOrSessionGuard],
   },
 
   {
@@ -56,6 +58,62 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./edit-profile/edit-profile.component').then(
         (m) => m.EditProfileComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro',
+    loadComponent: () =>
+      import('./track-pregnancy-intro/track-pregnancy-intro.component').then(
+        (m) => m.TrackPregnancyIntroComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step2',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step2/track-pregnancy-intro-step2.component').then(
+        (m) => m.TrackPregnancyIntroStep2Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step3',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step3/track-pregnancy-intro-step3.component').then(
+        (m) => m.TrackPregnancyIntroStep3Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step4',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step4/track-pregnancy-intro-step4.component').then(
+        (m) => m.TrackPregnancyIntroStep4Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step5',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step5/track-pregnancy-intro-step5.component').then(
+        (m) => m.TrackPregnancyIntroStep5Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step6',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step6/track-pregnancy-intro-step6.component').then(
+        (m) => m.TrackPregnancyIntroStep6Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step7',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step7/track-pregnancy-intro-step7.component').then(
+        (m) => m.TrackPregnancyIntroStep7Component,
       ),
     canActivate: [authGuard],
   },

@@ -1,0 +1,74 @@
+.tpi7-content {
+  --background: #1c1c1e;
+}
+
+.tpi7-root {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: calc(20px + env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom));
+  background: #1c1c1e;
+  color: #fff;
+}
+
+.tpi7-main {
+  flex: 1;
+}
+
+.tpi7-title {
+  margin: 34px 0 28px;
+  text-align: center;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  line-height: 1.16;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.tpi7-list {
+  display: grid;
+  gap: 14px;
+}
+
+.tpi7-item {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.tpi7-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #333438;
+  display: grid;
+  place-items: center;
+  font-size: 1.7rem;
+}
+
+.tpi7-text {
+  font-size: 1.08rem;
+  line-height: 1.32;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.tpi7-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 14px;
+}
+
+.tpi7-next {
+  --background: #ff5a79;
+  --background-activated: #e84e6b;
+  --background-focused: #e84e6b;
+  --color: #fff;
+  --border-radius: 999px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  --padding-start: 56px;
+  --padding-end: 56px;
+  width: min(250px, 78vw);
+  font-weight: 700;
+}

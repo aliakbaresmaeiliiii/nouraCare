@@ -1,13 +1,16 @@
-import { Component, OnInit, inject, OnDestroy, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, OnDestroy, signal, computed, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FavoritesService } from '../shared/services/favorites.service';
 import { Subject, takeUntil } from 'rxjs';
+import { TranslatePipe } from '../shared/pipes/translate.pipe';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 
 interface ArticleCard {
   id: string;
-  title: string;
+  titleKey: string;
   image: string;
   category: string;
   isPremium?: boolean;
@@ -19,11 +22,14 @@ interface ArticleCard {
   templateUrl: './insights.component.html',
   styleUrls: ['./insights.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule],
+  imports: [IonicModule, CommonModule, TranslatePipe],
   host: { class: 'ion-page' },
 })
 export class InsightsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private readonly translation = inject(TranslationService);
+  private readonly languageService = inject(LanguageService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // Premium state
   isPremiumUnlocked = false;
@@ -34,8 +40,8 @@ export class InsightsComponent implements OnInit, OnDestroy {
 
   // Premium banner
   premiumBanner = {
-    title: 'Unlock 1000+ expert articles and resources with Flo Premium',
-    isVisible: true
+    title: '',
+    isVisible: true,
   };
 
   searchQuery = signal('');
@@ -44,7 +50,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
   pregnancyPopular: ArticleCard[] = [
     {
       id: '1',
-      title: 'Your changing body: Up to 42 weeks',
+      titleKey: 'insights.article.1',
       image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=300&fit=crop',
       category: 'pregnancy',
       isPremium: false,
@@ -52,7 +58,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '2',
-      title: 'Pregnancy discharge decoded',
+      titleKey: 'insights.article.2',
       image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=300&fit=crop',
       category: 'pregnancy',
       isPremium: true,
@@ -60,7 +66,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '3',
-      title: 'How to prepare for labor',
+      titleKey: 'insights.article.3',
       image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop',
       category: 'pregnancy',
       isPremium: true,
@@ -71,7 +77,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
   pregnancySexPleasure: ArticleCard[] = [
     {
       id: '4',
-      title: '9 life-changing masturbation tips',
+      titleKey: 'insights.article.4',
       image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop',
       category: 'intimacy',
       isPremium: true,
@@ -79,7 +85,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '5',
-      title: '8 bump-friendly sex positions',
+      titleKey: 'insights.article.5',
       image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop',
       category: 'intimacy',
       isPremium: true,
@@ -87,7 +93,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '6',
-      title: 'Pregnancy intimacy guide',
+      titleKey: 'insights.article.6',
       image: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400&h=300&fit=crop',
       category: 'intimacy',
       isPremium: false,
@@ -98,7 +104,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
   pregnancyBodySigns: ArticleCard[] = [
     {
       id: '7',
-      title: 'Early pregnancy symptoms',
+      titleKey: 'insights.article.7',
       image: 'https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=400&h=300&fit=crop',
       category: 'symptoms',
       isPremium: false,
@@ -106,7 +112,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '8',
-      title: 'Understanding pregnancy cramps',
+      titleKey: 'insights.article.8',
       image: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=400&h=300&fit=crop',
       category: 'symptoms',
       isPremium: true,
@@ -114,7 +120,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '9',
-      title: 'Pregnancy skin changes',
+      titleKey: 'insights.article.9',
       image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop',
       category: 'symptoms',
       isPremium: true,
@@ -126,7 +132,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
   nutritionNeedToKnow: ArticleCard[] = [
     {
       id: '10',
-      title: 'How to eat safely while pregnant',
+      titleKey: 'insights.article.10',
       image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop',
       category: 'nutrition',
       isPremium: false,
@@ -134,7 +140,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '11',
-      title: 'How much coffee is too much?',
+      titleKey: 'insights.article.11',
       image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop',
       category: 'nutrition',
       isPremium: true,
@@ -142,7 +148,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '12',
-      title: 'Prenatal vitamins guide',
+      titleKey: 'insights.article.12',
       image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop',
       category: 'nutrition',
       isPremium: true,
@@ -154,7 +160,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
   allAboutYourBaby: ArticleCard[] = [
     {
       id: '13',
-      title: 'Baby\'s support system',
+      titleKey: 'insights.article.13',
       image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=400&h=300&fit=crop',
       category: 'baby',
       isPremium: false,
@@ -162,7 +168,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '14',
-      title: 'How often should your baby move?',
+      titleKey: 'insights.article.14',
       image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=300&fit=crop',
       category: 'baby',
       isPremium: true,
@@ -170,7 +176,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     },
     {
       id: '15',
-      title: 'Getting ready for your little one',
+      titleKey: 'insights.article.15',
       image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop',
       category: 'baby',
       isPremium: true,
@@ -184,11 +190,10 @@ export class InsightsComponent implements OnInit, OnDestroy {
       if (!q) {
         return articles;
       }
-      return articles.filter(
-        (a) =>
-          a.title.toLowerCase().includes(q) ||
-          a.category.toLowerCase().includes(q)
-      );
+      return articles.filter((a) => {
+        const title = this.translation.getTranslation(a.titleKey).toLowerCase();
+        return title.includes(q) || a.category.toLowerCase().includes(q);
+      });
     };
     return {
       nutritionNeedToKnow: match(this.nutritionNeedToKnow),
@@ -218,6 +223,14 @@ export class InsightsComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
 
   ngOnInit() {
+    this.premiumBanner.title = this.translation.translate('insights.premiumBannerDefault');
+    this.languageService.currentLanguage$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.premiumBanner.title = this.translation.translate('insights.premiumBannerDefault');
+        this.cdr.markForCheck();
+      });
+
     // Check for query parameters to highlight specific articles
     this.activatedRoute.queryParams
       .pipe(takeUntil(this.destroy$))
@@ -335,7 +348,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
     const favoriteItem = {
       id: article.id,
       type: 'article' as const,
-      title: article.title,
+      title: this.translation.getTranslation(article.titleKey),
       description: `${article.category} article`,
       image: article.image,
       category: article.category,
@@ -346,7 +359,9 @@ export class InsightsComponent implements OnInit, OnDestroy {
     this.favoritesService.toggleFavorite(favoriteItem);
     
     const isNowFavorite = await this.checkIfFavorite(article.id);
-    const message = isNowFavorite ? 'Added to favorites' : 'Removed from favorites';
+    const message = isNowFavorite
+      ? this.translation.translate('insights.favoriteAdded')
+      : this.translation.translate('insights.favoriteRemoved');
     
     this.showToast(message);
   }

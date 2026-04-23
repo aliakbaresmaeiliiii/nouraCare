@@ -214,6 +214,7 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     await sheet.present();
   }
 
+  /** Opens profile view; use the pencil control for `/edit-profile` (including photo). */
   async navigateToProfile() {
     await this.router.navigate(['/profile']);
   }

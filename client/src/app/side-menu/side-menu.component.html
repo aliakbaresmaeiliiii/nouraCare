@@ -19,7 +19,12 @@
               <span class="progress-text">{{ profileCompletion }}% {{ 'menu.completed' | translate }}</span>
             </div>
           </div>
-          <ion-button fill="clear" class="edit-profile-btn" [routerLink]="['/edit-profile']">
+          <ion-button
+            fill="clear"
+            class="edit-profile-btn"
+            [routerLink]="['/edit-profile']"
+            (click)="$event.stopPropagation()"
+          >
             <ion-icon name="create-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </div>

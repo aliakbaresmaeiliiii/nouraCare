@@ -20,7 +20,9 @@ import {
   gestationalWeekFromLmp,
   isoDateOnly,
   isCalendarDateNotAfterToday,
+  lmpIsoFromGestationalWeek1Based,
   normalizeLmpInput,
+  utcTodayIsoDateOnly,
 } from '../shared/utils/pregnancy-lmp.util';
 import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
 import { FirstWeekPlanService } from '../shared/services/first-week-plan.service';
@@ -31,13 +33,21 @@ import {
   ionDatetimeTodayHighlight,
 } from '../shared/utils/ion-datetime-today-highlight.util';
 
+type JourneyCardTone = 'mint' | 'lavender' | 'cream';
+
 interface OnboardingStep {
   id: string;
   title: string;
   subtitle: string;
   question: string;
   type: 'radio' | 'date' | 'number' | 'select' | 'notify' | 'result';
-  options?: { label: string; value: any; icon?: string }[];
+  options?: {
+    label: string;
+    value: any;
+    icon?: string;
+    imageSrc?: string;
+    cardTone?: JourneyCardTone;
+  }[];
   placeholder?: string;
   min?: number;
   max?: number;
@@ -82,9 +92,11 @@ export class OnboardingComponent implements OnInit {
   isSaving = false;
   isFinishing = false;
 
-  /** Five steps: welcome → intent → last period → optional notifications → personalized summary. */
-  steps: OnboardingStep[] = [
-    {
+  /**
+   * Step catalog; the active path is `stepOrder()` (welcome → goal → context → notifications → result).
+   */
+  private readonly stepById: Record<string, OnboardingStep> = {
+    welcome: {
       id: 'welcome',
       title: 'Welcome to NouraCare',
       subtitle: 'Health support that fits your life',
@@ -94,20 +106,36 @@ export class OnboardingComponent implements OnInit {
       options: [{ label: 'Continue', value: 'start', icon: '✨' }],
       required: true,
     },
-    {
+    pregnancy_status: {
       id: 'pregnancy_status',
-      title: 'What would you like help with?',
-      subtitle: 'You can change this later',
-      question: 'We will ask for one date on the next screen so estimates feel right for you.',
+      title: 'Which stage are you in?',
+      subtitle: 'You can update this anytime in your profile.',
+      question:
+        'Pick the path that fits you best. The next screen depends on your choice—week-by-week if you are pregnant, last period if you are trying to conceive, or your baby’s birth date if you are postpartum.',
       type: 'radio',
       options: [
-        { label: 'Track my cycle', value: 'tracking', icon: '📅' },
-        { label: 'Trying to conceive', value: 'trying', icon: '💕' },
-        { label: "I'm pregnant", value: 'pregnant', icon: '🤰' },
+        {
+          label: 'Trying to conceive',
+          value: 'trying',
+          imageSrc: 'assets/images/onboarding/becomePregnent.jpg',
+          cardTone: 'mint',
+        },
+        {
+          label: "I'm pregnant",
+          value: 'pregnant',
+          imageSrc: 'assets/images/onboarding/Pregnent.jpg',
+          cardTone: 'lavender',
+        },
+        {
+          label: 'I have a child',
+          value: 'postpartum',
+          imageSrc: 'assets/images/onboarding/IHavaeKid.jpg',
+          cardTone: 'cream',
+        },
       ],
       required: true,
     },
-    {
+    last_period: {
       id: 'last_period',
       title: 'When did your last period start?',
       subtitle: 'First day of bleeding',
@@ -116,7 +144,29 @@ export class OnboardingComponent implements OnInit {
       placeholder: 'Select date',
       required: true,
     },
-    {
+    pregnancy_week: {
+      id: 'pregnancy_week',
+      title: 'How many weeks pregnant are you?',
+      subtitle: 'Gestational week (1-based, as your clinician or ultrasound often uses)',
+      question:
+        'Enter a whole number from 4 to 40. We estimate your due date from this; your care team may use slightly different dating.',
+      type: 'number',
+      placeholder: 'e.g. 12',
+      min: 4,
+      max: 40,
+      required: true,
+    },
+    baby_birth_date: {
+      id: 'baby_birth_date',
+      title: 'When was your baby born?',
+      subtitle: 'Approximate is fine',
+      question:
+        'We use this for postpartum-friendly timing in the app—not as a medical record. Skip fine details if you prefer.',
+      type: 'date',
+      placeholder: 'Select date',
+      required: true,
+    },
+    notifications: {
       id: 'notifications',
       title: 'Stay on track',
       subtitle: 'Optional',
@@ -124,7 +174,7 @@ export class OnboardingComponent implements OnInit {
       type: 'notify',
       required: false,
     },
-    {
+    personalized_result: {
       id: 'personalized_result',
       title: 'You are all set',
       subtitle: 'Estimates only—not medical advice',
@@ -132,7 +182,23 @@ export class OnboardingComponent implements OnInit {
       type: 'result',
       required: false,
     },
-  ];
+  };
+
+  /** Ordered ids for the current journey (after goal is known, index ≥2 is stable until goal changes). */
+  stepOrder(): string[] {
+    const status = this.answers['pregnancy_status'];
+    let contextual = 'last_period';
+    if (status === 'pregnant') {
+      contextual = 'pregnancy_week';
+    } else if (status === 'postpartum') {
+      contextual = 'baby_birth_date';
+    }
+    return ['welcome', 'pregnancy_status', contextual, 'notifications', 'personalized_result'];
+  }
+
+  get totalSteps(): number {
+    return this.stepOrder().length;
+  }
 
   ngOnInit() {
     this.answers = {
@@ -148,7 +214,8 @@ export class OnboardingComponent implements OnInit {
   }
 
   get currentStepData(): OnboardingStep {
-    return this.steps[this.currentStep];
+    const id = this.stepOrder()[this.currentStep] ?? 'welcome';
+    return this.stepById[id] ?? this.stepById['welcome'];
   }
 
   get isPersonalizedResultStep(): boolean {
@@ -156,25 +223,21 @@ export class OnboardingComponent implements OnInit {
   }
 
   getStepTitle(): string {
-    const s = this.currentStepData;
-    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
-      return 'First day of your last period (LMP)';
-    }
-    return s.title;
+    return this.currentStepData.title;
   }
 
   getStepSubtitle(): string {
     const s = this.currentStepData;
-    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
-      return 'We use this date to estimate how far along you are.';
+    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'trying') {
+      return 'Used for fertile days and next-period estimates';
     }
     return s.subtitle;
   }
 
   getStepQuestion(): string {
     const s = this.currentStepData;
-    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'pregnant') {
-      return 'Choose the first day of bleeding from your most recent period (not a future date).';
+    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'trying') {
+      return 'If you are not sure, your best estimate is enough—you can adjust your calendar anytime.';
     }
     return s.question;
   }
@@ -185,21 +248,21 @@ export class OnboardingComponent implements OnInit {
     if (!iso) {
       return '';
     }
-    if (this.answers['pregnancy_status'] === 'pregnant') {
-      if (!isCalendarDateNotAfterToday(iso)) {
-        return 'That date cannot be in the future.';
-      }
-      const week = gestationalWeekFromLmp(iso);
-      if (week < 4) {
-        return 'From this date, pregnancy would be under 4 weeks. Double-check the first day of your last period or confirm with your clinician.';
-      }
-      if (week > 40) {
-        return 'From this date, pregnancy would be over 40 weeks. Double-check your LMP.';
-      }
-      return '';
-    }
     if (!isCalendarDateNotAfterToday(iso)) {
       return 'The start date of your last menstrual period cannot be in the future.';
+    }
+    return '';
+  }
+
+  getBabyBirthValidationMessage(): string {
+    const iso = normalizeLmpInput(this.answers['baby_birth_date']);
+    if (!iso) return '';
+    if (!isCalendarDateNotAfterToday(iso)) {
+      return 'Birth date cannot be in the future.';
+    }
+    const min = this.getBabyBirthMinIso();
+    if (iso < min) {
+      return 'Please pick a date within the last couple of years, or adjust later in your profile.';
     }
     return '';
   }
@@ -215,15 +278,38 @@ export class OnboardingComponent implements OnInit {
     });
   }
 
+  /** Whole weeks since `birthIso` (date-only) through today (UTC civil days). */
+  private weeksSinceBirthApprox(birthIso: string): number {
+    const b = isoDateOnly(birthIso);
+    const t = utcTodayIsoDateOnly();
+    if (!b) return 0;
+    const [y1, m1, d1] = b.split('-').map((x) => Number(x));
+    const [y2, m2, d2] = t.split('-').map((x) => Number(x));
+    const u1 = Date.UTC(y1, m1 - 1, d1);
+    const u2 = Date.UTC(y2, m2 - 1, d2);
+    const days = Math.floor((u2 - u1) / 86400000);
+    return Math.max(0, Math.floor(days / 7));
+  }
+
+  getBabyBirthMinIso(): string {
+    return addCalendarDaysIso(utcTodayIsoDateOnly(), -800);
+  }
+
+  getBabyBirthMaxIso(): string {
+    return utcTodayIsoDateOnly();
+  }
+
   getResultHeadline(): string {
     const status = this.answers['pregnancy_status'];
     if (status === 'pregnant') {
-      const lmp = this.getEffectiveLmpIsoForStorage();
-      const w = lmp ? gestationalWeekFromLmp(lmp) : 0;
+      const w = Number(this.answers['pregnancy_week']) || 0;
       return w > 0 ? `About week ${w}` : 'Pregnancy';
     }
     if (status === 'trying') {
       return 'Fertility snapshot';
+    }
+    if (status === 'postpartum') {
+      return 'Postpartum';
     }
     return 'Cycle snapshot';
   }
@@ -231,7 +317,10 @@ export class OnboardingComponent implements OnInit {
   getResultSubcopy(): string {
     const status = this.answers['pregnancy_status'];
     if (status === 'pregnant') {
-      return 'Based on your last period. Your clinician may use a different dating method.';
+      return 'Estimated from the week you entered. Your clinician may use ultrasound-based dating.';
+    }
+    if (status === 'postpartum') {
+      return 'We will focus on recovery-friendly tips. Add cycle details later when it feels right.';
     }
     return 'Based on a typical 28-day cycle. You can fine-tune length later in the app.';
   }
@@ -240,13 +329,24 @@ export class OnboardingComponent implements OnInit {
     const lmp = this.getEffectiveLmpIsoForStorage();
     const cl = Number(this.answers['cycle_length']) || 28;
     const status = this.answers['pregnancy_status'];
+    if (status === 'postpartum') {
+      const birth = normalizeLmpInput(this.answers['baby_birth_date']);
+      if (!birth) {
+        return [];
+      }
+      const weeks = this.weeksSinceBirthApprox(birth);
+      return [
+        { label: "Baby's birth date", value: this.formatMediumDate(birth) },
+        { label: 'Time since birth (approx.)', value: `${weeks} wk` },
+      ];
+    }
     if (!lmp) {
       return [];
     }
     if (status === 'pregnant') {
       const edd = addCalendarDaysIso(lmp, 280);
       return [
-        { label: 'Last period started', value: this.formatMediumDate(lmp) },
+        { label: 'Estimated last period (for dating)', value: this.formatMediumDate(lmp) },
         {
           label: 'Rough due date',
           value: this.formatMediumDate(edd),
@@ -272,16 +372,18 @@ export class OnboardingComponent implements OnInit {
   }
 
   get progressPercentage(): number {
-    return ((this.currentStep + 1) / this.steps.length) * 100;
+    return ((this.currentStep + 1) / this.totalSteps) * 100;
   }
 
   /** Short label for the progress line so steps feel purposeful, not bureaucratic. */
   getStepProgressLabel(stepIndex: number = this.currentStep): string {
-    const id = this.steps[stepIndex]?.id;
+    const id = this.stepOrder()[stepIndex];
     const labels: Record<string, string> = {
       welcome: 'Quick intro',
       pregnancy_status: 'Your goal',
-      last_period: 'Important date',
+      last_period: 'Cycle date',
+      pregnancy_week: 'Pregnancy week',
+      baby_birth_date: 'Birth date',
       notifications: 'Reminders',
       personalized_result: 'Your snapshot',
     };
@@ -298,10 +400,19 @@ export class OnboardingComponent implements OnInit {
     const step = this.currentStepData;
     if (!step.required) return true;
 
-    // For last period date, check if it's valid (not in future)
     if (step.id === 'last_period' && this.answers[step.id]) {
       const lmp = normalizeLmpInput(this.answers[step.id]);
       return !!lmp && this.isValidLastPeriodDate(lmp);
+    }
+
+    if (step.id === 'baby_birth_date' && this.answers[step.id]) {
+      const iso = normalizeLmpInput(this.answers[step.id]);
+      return !!iso && this.isValidBabyBirthDate(iso);
+    }
+
+    if (step.id === 'pregnancy_week') {
+      const n = Number(this.answers['pregnancy_week']);
+      return Number.isInteger(n) && n >= (step.min ?? 4) && n <= (step.max ?? 40);
     }
 
     return (
@@ -312,6 +423,42 @@ export class OnboardingComponent implements OnInit {
   }
 
   selectOption(stepId: string, value: any) {
+    if (stepId === 'pregnancy_status') {
+      const prev = this.answers['pregnancy_status'];
+      if (prev !== value) {
+        delete this.answers['last_period'];
+        delete this.answers['pregnancy_week'];
+        delete this.answers['baby_birth_date'];
+      }
+      this.answers[stepId] = value;
+      return;
+    }
+
+    if (stepId === 'pregnancy_week') {
+      if (value === '' || value == null) {
+        delete this.answers['pregnancy_week'];
+        delete this.answers['last_period'];
+        return;
+      }
+      const n = Math.floor(Number(value));
+      const max = this.stepById['pregnancy_week'].max ?? 40;
+      const min = this.stepById['pregnancy_week'].min ?? 4;
+      if (!Number.isFinite(n) || n < min || n > max) {
+        delete this.answers['pregnancy_week'];
+        delete this.answers['last_period'];
+        return;
+      }
+      this.answers['pregnancy_week'] = n;
+      const lmp = lmpIsoFromGestationalWeek1Based(n);
+      if (!lmp || !this.isValidLastPeriodDate(lmp)) {
+        delete this.answers['last_period'];
+        return;
+      }
+      this.answers['last_period'] = lmp;
+      this.syncPregnancyWeekFromLmp();
+      return;
+    }
+
     if (stepId === 'last_period') {
       if (value == null || value === '') {
         delete this.answers[stepId];
@@ -327,9 +474,24 @@ export class OnboardingComponent implements OnInit {
         return;
       }
       this.answers[stepId] = normalized;
-      if (this.answers['pregnancy_status'] === 'pregnant') {
-        this.syncPregnancyWeekFromLmp();
+      return;
+    }
+
+    if (stepId === 'baby_birth_date') {
+      if (value == null || value === '') {
+        delete this.answers[stepId];
+        return;
       }
+      const normalized = normalizeLmpInput(value);
+      if (!normalized) {
+        delete this.answers[stepId];
+        return;
+      }
+      if (!this.isValidBabyBirthDate(normalized)) {
+        this.showBabyBirthValidationError();
+        return;
+      }
+      this.answers[stepId] = normalized;
       return;
     }
 
@@ -355,6 +517,18 @@ export class OnboardingComponent implements OnInit {
     return isCalendarDateNotAfterToday(iso);
   }
 
+  /** Postpartum baby birth: on or before today, and not unreasonably far in the past. */
+  isValidBabyBirthDate(isoDate: string): boolean {
+    const iso = normalizeLmpInput(isoDate);
+    if (!iso) {
+      return false;
+    }
+    if (!isCalendarDateNotAfterToday(iso)) {
+      return false;
+    }
+    return iso >= this.getBabyBirthMinIso();
+  }
+
   private syncPregnancyWeekFromLmp(): void {
     if (this.answers['pregnancy_status'] !== 'pregnant') {
       return;
@@ -367,23 +541,36 @@ export class OnboardingComponent implements OnInit {
     this.answers['pregnancy_week'] = gestationalWeekFromLmp(lmp);
   }
 
-  /** Canonical LMP (first day of last period), `YYYY-MM-DD`, or null. */
+  /** Canonical LMP (first day of last period), `YYYY-MM-DD`, or null. Postpartum skips LMP. */
   private getEffectiveLmpIsoForStorage(): string | null {
+    if (this.answers['pregnancy_status'] === 'postpartum') {
+      return null;
+    }
     return normalizeLmpInput(this.answers['last_period']);
   }
 
   private async showDateValidationError() {
     const msg =
-      this.answers['pregnancy_status'] === 'pregnant'
-        ? this.getLastPeriodValidationMessage() ||
-          'Please choose a valid first day of your last period (about 4–40 weeks along).'
-        : 'The start date of your last menstrual period cannot be in the future. Please select a valid date.';
+      this.getLastPeriodValidationMessage() ||
+      'The start date of your last menstrual period cannot be in the future. Please select a valid date.';
     const alert = await this.alertController.create({
       header: 'Invalid Date',
       message: msg,
       buttons: ['OK'],
     });
 
+    await alert.present();
+  }
+
+  private async showBabyBirthValidationError() {
+    const msg =
+      this.getBabyBirthValidationMessage() ||
+      'Please choose your baby’s birth date (not in the future).';
+    const alert = await this.alertController.create({
+      header: 'Invalid date',
+      message: msg,
+      buttons: ['OK'],
+    });
     await alert.present();
   }
 
@@ -394,7 +581,7 @@ export class OnboardingComponent implements OnInit {
     if (this.currentStepData.id === 'notifications') {
       this.answers['notifications'] = this.answers['notifications'] ?? 'no';
     }
-    if (this.currentStep < this.steps.length - 1) {
+    if (this.currentStep < this.totalSteps - 1) {
       this.currentStep++;
       this.saveOnboardingProgress();
     } else {
@@ -412,7 +599,7 @@ export class OnboardingComponent implements OnInit {
     if (this.currentStepData.id === 'notifications') {
       this.answers['notifications'] = 'no';
     }
-    if (this.currentStep < this.steps.length - 1) {
+    if (this.currentStep < this.totalSteps - 1) {
       this.currentStep++;
       this.saveOnboardingProgress();
     } else {
@@ -447,10 +634,7 @@ export class OnboardingComponent implements OnInit {
             health_goals: healthGoals,
             notifications: response.data.notifications || 'no',
           };
-          if (
-            this.answers['pregnancy_status'] === 'pregnant' &&
-            this.answers['last_period']
-          ) {
+          if (this.answers['pregnancy_status'] === 'pregnant' && this.answers['last_period']) {
             this.syncPregnancyWeekFromLmp();
           }
         }
@@ -556,10 +740,10 @@ export class OnboardingComponent implements OnInit {
     const lmp = this.getEffectiveLmpIsoForStorage();
     return {
       state: mappedState,
-      lastPeriodDate: lmp || undefined,
+      lastPeriodDate: mappedState === 'postpartum' ? undefined : lmp || undefined,
       cycleLength: this.answers['cycle_length'] || undefined,
       tryingSince: mappedState === 'planning' ? lmp || undefined : undefined,
-      // Pregnant: LMP only — server derives weeks; do not send currentWeek (avoids conflicting inputs).
+      // Pregnant: LMP derived from entered week — server derives metrics; do not send currentWeek.
       pregnancyStartDate: mappedState === 'pregnant' ? lmp || undefined : undefined,
     };
   }
@@ -625,6 +809,7 @@ export class OnboardingComponent implements OnInit {
 
     const lmpOut = this.getEffectiveLmpIsoForStorage();
     const pregnantOut = String(this.answers['pregnancy_status'] ?? '').toLowerCase() === 'pregnant';
+    const babyBirth = normalizeLmpInput(this.answers['baby_birth_date']);
     const onboardingData = {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
       lmp_date: lmpOut,
@@ -633,6 +818,7 @@ export class OnboardingComponent implements OnInit {
       period_length: this.answers['period_length'] || 5,
       pregnancy_week:
         pregnantOut && lmpOut ? gestationalWeekFromLmp(lmpOut) : this.answers['pregnancy_week'] || undefined,
+      baby_birth_date: babyBirth ?? undefined,
       health_goals: JSON.stringify(this.answers['health_goals'] || []),
       notifications: this.answers['notifications'] || 'no',
     };

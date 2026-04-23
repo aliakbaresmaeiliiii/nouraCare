@@ -8,11 +8,26 @@ import {
   SimpleChanges,
   signal,
   computed,
+  inject,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, chevronForwardOutline } from 'ionicons/icons';
+import { LanguageService } from '../../services/language.service';
+import {
+  addDays,
+  addMonths,
+  jalaliDayOfMonth,
+  jalaliYearMonthKey,
+  saturdayFirstWeekPadding,
+  startOfMonth,
+} from '../../utils/jalali-iranian-calendar.util';
+import {
+  formatMonthYearTitle,
+  getCalendarWeekdayLabels,
+} from '../../utils/locale-date-format.util';
 
 export interface PeriodDateRange {
   startDate: Date;
@@ -33,6 +48,11 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
     addIcons({ chevronBackOutline, chevronForwardOutline });
   }
 
+  private languageService = inject(LanguageService);
+  private appLang = toSignal(this.languageService.currentLanguage$, {
+    initialValue: this.languageService.getCurrentLanguage(),
+  });
+
   @Input() periodLength: number = 5;
   @Input() locale: string = 'en-US';
   /** Pre-select first day of last period (YYYY-MM-DD) */
@@ -43,17 +63,36 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
   selectedStartDate = signal<Date | null>(null);
   currentMonth = signal(new Date());
 
-  calendarDays = computed(() => this.generateCalendarDays());
-  monthYearTitle = computed(() =>
-    this.currentMonth().toLocaleDateString(this.locale, {
+  calendarDays = computed(() => {
+    this.appLang();
+    return this.generateCalendarDays();
+  });
+  monthYearTitle = computed(() => {
+    this.appLang();
+    const cm = this.currentMonth();
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      return formatMonthYearTitle(startOfMonth(cm), 'fa');
+    }
+    return cm.toLocaleDateString(this.locale, {
       month: 'long',
       year: 'numeric',
-    }),
-  );
-  weekDays = computed(() => this.getWeekDays());
+    });
+  });
+  weekDays = computed(() => {
+    this.appLang();
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      return getCalendarWeekdayLabels('fa');
+    }
+    return this.getWeekDaysGregorian();
+  });
 
   ngOnInit() {
-    this.currentMonth.set(new Date());
+    const now = new Date();
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      this.currentMonth.set(startOfMonth(now));
+    } else {
+      this.currentMonth.set(new Date(now.getFullYear(), now.getMonth(), 1));
+    }
     this.applyInitialFromInput();
   }
 
@@ -74,7 +113,11 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
     if (!y || !m || !d) return;
     const start = new Date(y, m - 1, d);
     this.selectedStartDate.set(start);
-    this.currentMonth.set(new Date(y, m - 1, 1));
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      this.currentMonth.set(startOfMonth(start));
+    } else {
+      this.currentMonth.set(new Date(y, m - 1, 1));
+    }
     this.emitIfSelection();
   }
 
@@ -95,6 +138,17 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
   }
 
   generateCalendarDays(): Date[] {
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      const first = startOfMonth(this.currentMonth());
+      const pad = saturdayFirstWeekPadding(first);
+      const gridStart = addDays(first, -pad);
+      const days: Date[] = [];
+      for (let i = 0; i < 42; i++) {
+        days.push(addDays(gridStart, i));
+      }
+      return days;
+    }
+
     const year = this.currentMonth().getFullYear();
     const month = this.currentMonth().getMonth();
 
@@ -111,7 +165,7 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
     return days;
   }
 
-  getWeekDays(): string[] {
+  private getWeekDaysGregorian(): string[] {
     const weekDays: string[] = [];
     for (let i = 0; i < 7; i++) {
       const date = new Date(2024, 0, i + 1);
@@ -122,13 +176,29 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
     return weekDays;
   }
 
+  displayDayNum(date: Date): number {
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      return jalaliDayOfMonth(date);
+    }
+    return date.getDate();
+  }
+
   isToday(date: Date): boolean {
     const today = new Date();
     return date.toDateString() === today.toDateString();
   }
 
   isCurrentMonth(date: Date): boolean {
-    return date.getMonth() === this.currentMonth().getMonth();
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      return (
+        jalaliYearMonthKey(date) ===
+        jalaliYearMonthKey(startOfMonth(this.currentMonth()))
+      );
+    }
+    return (
+      date.getMonth() === this.currentMonth().getMonth() &&
+      date.getFullYear() === this.currentMonth().getFullYear()
+    );
   }
 
   isSelectedStartDate(date: Date): boolean {
@@ -191,14 +261,24 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
   }
 
   previousMonth() {
-    const newMonth = new Date(this.currentMonth());
-    newMonth.setMonth(newMonth.getMonth() - 1);
-    this.currentMonth.set(newMonth);
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      const first = startOfMonth(this.currentMonth());
+      this.currentMonth.set(addMonths(first, -1));
+    } else {
+      const newMonth = new Date(this.currentMonth());
+      newMonth.setMonth(newMonth.getMonth() - 1);
+      this.currentMonth.set(newMonth);
+    }
   }
 
   nextMonth() {
-    const newMonth = new Date(this.currentMonth());
-    newMonth.setMonth(newMonth.getMonth() + 1);
-    this.currentMonth.set(newMonth);
+    if (this.languageService.getCurrentLanguage() === 'fa') {
+      const first = startOfMonth(this.currentMonth());
+      this.currentMonth.set(addMonths(first, 1));
+    } else {
+      const newMonth = new Date(this.currentMonth());
+      newMonth.setMonth(newMonth.getMonth() + 1);
+      this.currentMonth.set(newMonth);
+    }
   }
 }

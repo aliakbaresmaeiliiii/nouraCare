@@ -1,8 +1,8 @@
 <ion-content class="tab-page-content" [fullscreen]="false">
   <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
     <ion-refresher-content
-      pullingText="Pull to refresh"
-      refreshingText="Refreshing…"
+      [pullingText]="'common.pullToRefresh' | translate"
+      [refreshingText]="'common.refreshing' | translate"
     ></ion-refresher-content>
   </ion-refresher>
 <div class="home-content" [class.home-content--pregnancy-today]="isPregnant">
@@ -91,7 +91,7 @@
           (click)="openPeriodDatePicker()"
         >
           <ion-icon name="play-circle-outline" slot="start"></ion-icon>
-          Start tracking
+          {{ 'home.startTracking' | translate }}
         </ion-button>
       </div>
     </section>
@@ -156,8 +156,8 @@
                 </span>
               } @else {
                 <p class="pds-personal-copy">
-                  <strong>{{ getCycleWelcomeName() }}</strong>, we’re looking for gentle patterns in how you feel —
-                  not to judge, just to support.
+                  <strong>{{ getCycleWelcomeName() }}</strong
+                  >{{ 'home.personalizedCycleTeaser' | translate }}
                 </p>
                 <div class="pds-personal-foot" aria-hidden="true">
                   <span class="pds-dot"></span>
@@ -172,10 +172,10 @@
 
         <div class="pds-quick-links" aria-label="More cycle tools">
           <button type="button" class="pds-chip" (click)="openCycleCalendar()">
-            Cycle calendar
+            {{ 'home.cycleCalendarChip' | translate }}
           </button>
           <button type="button" class="pds-chip pds-chip--accent" (click)="openCycleInsightsFromHome()">
-            Insights
+            {{ 'home.insightsChip' | translate }}
           </button>
         </div>
       </div>
@@ -193,12 +193,13 @@
 
       @if (needsPregnancyInput) {
         <div class="pregnancy-input-banner ion-padding-horizontal">
-          <p class="pregnancy-input-banner-lead">Almost there — one short step unlocks your week-by-week view.</p>
+          <p class="pregnancy-input-banner-lead">{{ 'home.pregnancyInputLead' | translate }}</p>
           <p>
-            Add your last period start, how many full weeks you are along, or your due date. We store only
-            LMP and never guess.
+            {{ 'home.pregnancyInputBody' | translate }}
           </p>
-          <ion-button size="small" (click)="presentPregnancySetupModal()">Add dates</ion-button>
+          <ion-button size="small" (click)="presentPregnancySetupModal()">{{
+            'home.addDates' | translate
+          }}</ion-button>
         </div>
       }
 
@@ -212,7 +213,7 @@
           #pregnancyCalendarScroll
           class="pregnancy-calendar-swiper"
           role="region"
-          aria-label="Week calendar, swipe sideways"
+          [attr.aria-label]="'home.weekCalendarAria' | translate"
           (scroll)="onPregnancyCalendarScrollForConnector()"
         >
           @for (week of getPregnancyCalendarWeeks(); track week.weekKey) {
@@ -253,7 +254,7 @@
                 aria-valuemin="0"
                 aria-valuemax="100"
                 [attr.aria-valuetext]="getPregnancyProgressRingAriaValuetext()"
-                aria-label="Pregnancy journey along the ring"
+                [attr.aria-label]="'home.pregnancyRingAria' | translate"
               >
                 <defs>
                   <linearGradient
@@ -349,7 +350,7 @@
                 class="pregnancy-hero-details-btn"
                 (click)="openCurrentPregnancyWeekDetail()"
               >
-                Details
+                {{ 'home.details' | translate }}
               </button>
             </div>
           </div>
@@ -389,20 +390,18 @@
       </div>
 
       @if (!needsPregnancyInput && isPregnancyPostDueWindow()) {
-        <section class="pregnancy-post-due-card" aria-label="After your due date">
+        <section class="pregnancy-post-due-card" [attr.aria-label]="'home.pregnancyPostDueAria' | translate">
           <div class="pregnancy-post-due-card__inner">
             <div class="pregnancy-post-due-card__icon" aria-hidden="true">
               <span class="pregnancy-post-due-card__emoji">✨</span>
             </div>
             <div class="pregnancy-post-due-card__copy">
-              <h3 class="pregnancy-post-due-card__title">Past your due date — you’re doing great</h3>
+              <h3 class="pregnancy-post-due-card__title">{{ 'home.postDueTitle' | translate }}</h3>
               <p class="pregnancy-post-due-card__body">
-                Many babies arrive a little before or after week&nbsp;40. It’s normal to feel a mix of excitement
-                and tiredness. Keep noticing baby’s movements, rest when you can, and stay in touch with your
-                care team if anything worries you.
+                {{ 'home.postDueBody' | translate }}
               </p>
               <p class="pregnancy-post-due-card__hint">
-                You’re in week {{ getPregnancyDisplayWeek() }} — help is only a message away.
+                {{ getPostDueHintText() }}
               </p>
             </div>
           </div>
@@ -458,8 +457,8 @@
                 </span>
               } @else {
                 <p class="pds-personal-copy">
-                  <strong>{{ getCycleWelcomeName() }}</strong>, we’re looking for gentle patterns in how you feel —
-                  not to judge, just to support.
+                  <strong>{{ getCycleWelcomeName() }}</strong
+                  >{{ 'home.personalizedCycleTeaser' | translate }}
                 </p>
                 <div class="pds-personal-foot" aria-hidden="true">
                   <span class="pds-dot"></span>
@@ -474,10 +473,10 @@
 
         <div class="pds-quick-links" aria-label="More pregnancy tools">
           <button type="button" class="pds-chip" (click)="openCurrentPregnancyWeekDetail()">
-            Week {{ getPregnancyDisplayWeek() }} detail
+            {{ getWeekDetailChipLabel() }}
           </button>
           <button type="button" class="pds-chip pds-chip--accent" (click)="openPregnancyWatchouts()">
-            Watch-outs
+            {{ 'home.watchOuts' | translate }}
           </button>
         </div>
 
@@ -485,7 +484,7 @@
           @let tipsBlock = getPregnancyTipsForDetailBlock();
           @if (tipsBlock.length > 0) {
             <div class="pregnancy-tips-block ion-padding-horizontal">
-              <h3 class="pregnancy-tips-title">Tips for you</h3>
+              <h3 class="pregnancy-tips-title">{{ 'home.tipsForYou' | translate }}</h3>
               <ul class="pregnancy-tips-list">
                 @for (tip of tipsBlock; track $index) {
                   <li>{{ tip }}</li>
@@ -502,8 +501,8 @@
   <!-- Quick actions, See more / Show less, and expandable cycle sections (hidden during pregnancy) -->
   <div class="quick-actions-section">
     <div class="section-header">
-      <h2 class="section-title">Quick Actions</h2>
-      <p class="section-subtitle">What would you like to do today?</p>
+      <h2 class="section-title">{{ 'home.quickActions' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.whatToDoToday' | translate }}</p>
     </div>
 
     <div class="actions-grid">
@@ -542,8 +541,8 @@
           <div class="action-icon">
             <ion-icon name="medical-outline"></ion-icon>
           </div>
-          <h3 class="action-title">Log Symptoms</h3>
-          <p class="action-description">Track how you're feeling today</p>
+          <h3 class="action-title">{{ 'home.actionSymptoms' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionSymptomsDesc' | translate }}</p>
         </div>
         <div class="action-arrow">
           <ion-icon name="chevron-forward"></ion-icon>
@@ -558,8 +557,8 @@
           <div class="action-icon">
             <ion-icon name="calculator-outline"></ion-icon>
           </div>
-          <h3 class="action-title">Fertility Check</h3>
-          <p class="action-description">Calculate your fertile window</p>
+          <h3 class="action-title">{{ 'home.actionFertilityTitle' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionFertilityDesc' | translate }}</p>
         </div>
         <div class="action-arrow">
           <ion-icon name="chevron-forward"></ion-icon>
@@ -574,8 +573,8 @@
           <div class="action-icon">
             <ion-icon name="calendar-outline"></ion-icon>
           </div>
-          <h3 class="action-title">Book Appointment</h3>
-          <p class="action-description">Schedule with specialists</p>
+          <h3 class="action-title">{{ 'home.actionAppointment' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionAppointmentShortDesc' | translate }}</p>
         </div>
         <div class="action-arrow">
           <ion-icon name="chevron-forward"></ion-icon>
@@ -590,8 +589,8 @@
           <div class="action-icon">
             <ion-icon name="people-outline"></ion-icon>
           </div>
-          <h3 class="action-title">Community</h3>
-          <p class="action-description">Connect with others</p>
+          <h3 class="action-title">{{ 'home.actionCommunityShort' | translate }}</h3>
+          <p class="action-description">{{ 'home.actionCommunityShortDesc' | translate }}</p>
         </div>
         <div class="action-arrow">
           <ion-icon name="chevron-forward"></ion-icon>
@@ -610,7 +609,7 @@
         [name]="showMoreSections ? 'chevron-up-outline' : 'chevron-down-outline'"
         slot="start"
       ></ion-icon>
-      {{ showMoreSections ? 'Show less' : 'See more' }}
+      {{ showMoreSections ? ('home.showLess' | translate) : ('home.seeMore' | translate) }}
     </ion-button>
   </div>
 
@@ -618,8 +617,8 @@
   <!-- Health Tools Section -->
   <div class="tools-section">
     <div class="section-header">
-      <h2 class="section-title">Health Tools</h2>
-      <p class="section-subtitle">Essential tools for your journey</p>
+      <h2 class="section-title">{{ 'home.healthTools' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.essentialTools' | translate }}</p>
     </div>
 
     <div class="tools-carousel">
@@ -629,11 +628,11 @@
             <div class="tool-icon">
               <ion-icon name="calculator-outline"></ion-icon>
             </div>
-            <div class="tool-badge">Popular</div>
+            <div class="tool-badge">{{ 'home.toolPopularBadge' | translate }}</div>
           </div>
           <div class="tool-content">
-            <h3 class="tool-title">Fertility Calculator</h3>
-            <p class="tool-description">Predict your most fertile days</p>
+            <h3 class="tool-title">{{ 'home.toolFertility' | translate }}</h3>
+            <p class="tool-description">{{ 'home.toolFertilityDesc' | translate }}</p>
           </div>
           <ion-button
             fill="solid"
@@ -641,7 +640,7 @@
             class="tool-button"
             (click)="openFertilityCalculator()"
           >
-            Try Now
+            {{ 'home.tryNow' | translate }}
           </ion-button>
         </div>
 
@@ -652,8 +651,8 @@
             </div>
           </div>
           <div class="tool-content">
-            <h3 class="tool-title">Nutrition Tracker</h3>
-            <p class="tool-description">Monitor your daily intake</p>
+            <h3 class="tool-title">{{ 'home.toolNutrition' | translate }}</h3>
+            <p class="tool-description">{{ 'home.toolNutritionDesc' | translate }}</p>
           </div>
           <ion-button
             fill="outline"
@@ -661,7 +660,7 @@
             class="tool-button"
             (click)="openNutritionTracker()"
           >
-            Start
+            {{ 'home.start' | translate }}
           </ion-button>
         </div>
 
@@ -672,8 +671,8 @@
             </div>
           </div>
           <div class="tool-content">
-            <h3 class="tool-title">Exercise Planner</h3>
-            <p class="tool-description">Safe workouts for you</p>
+            <h3 class="tool-title">{{ 'home.toolExercise' | translate }}</h3>
+            <p class="tool-description">{{ 'home.toolExerciseDesc' | translate }}</p>
           </div>
           <ion-button
             fill="outline"
@@ -681,7 +680,7 @@
             class="tool-button"
             (click)="openExercisePlanner()"
           >
-            Plan
+            {{ 'home.plan' | translate }}
           </ion-button>
         </div>
 
@@ -692,8 +691,8 @@
             </div>
           </div>
           <div class="tool-content">
-            <h3 class="tool-title">Med Reminders</h3>
-            <p class="tool-description">Never miss a dose</p>
+            <h3 class="tool-title">{{ 'home.toolMedication' | translate }}</h3>
+            <p class="tool-description">{{ 'home.toolMedicationDesc' | translate }}</p>
           </div>
           <ion-button
             fill="outline"
@@ -701,7 +700,7 @@
             class="tool-button"
             (click)="openMedicationReminder()"
           >
-            Setup
+            {{ 'home.setup' | translate }}
           </ion-button>
         </div>
       </div>
@@ -711,8 +710,8 @@
   <!-- Daily Insights Section -->
   <div id="home-today-insights" class="insights-section">
     <div class="section-header">
-      <h2 class="section-title">Today's Insights</h2>
-      <p class="section-subtitle">Personalized tips just for you</p>
+      <h2 class="section-title">{{ 'home.todaysInsightsSectionTitle' | translate }}</h2>
+      <p class="section-subtitle">{{ 'home.todaysInsightsSectionSubtitle' | translate }}</p>
     </div>
 
     <div class="insights-carousel">
@@ -723,14 +722,13 @@
           </div>
         </div>
         <div class="insight-content">
-          <h3 class="insight-title">Did You Know?</h3>
+          <h3 class="insight-title">{{ 'home.didYouKnow' | translate }}</h3>
           <p class="insight-text">
-            Staying hydrated can help reduce period cramps and improve your
-            overall cycle health.
+            {{ 'home.didYouKnowBody' | translate }}
           </p>
           <div class="insight-action">
             <ion-button fill="clear" size="small">
-              Learn More
+              {{ 'home.learnMore' | translate }}
               <ion-icon name="chevron-forward" slot="end"></ion-icon>
             </ion-button>
           </div>
@@ -754,24 +752,23 @@
           }
         </div>
         <div class="expert-info">
-          <h3 class="expert-name">Dr. Sarah Johnson</h3>
-          <p class="expert-title">Reproductive Health Specialist</p>
+          <h3 class="expert-name">{{ 'home.expertName' | translate }}</h3>
+          <p class="expert-title">{{ 'home.expertTitle' | translate }}</p>
           <div class="expert-rating">
             <div class="stars">
               @for (star of [1, 2, 3, 4, 5]; track star) {
                 <ion-icon name="star"></ion-icon>
               }
             </div>
-            <span>4.9 • 500+ consultations</span>
+            <span>{{ 'home.expertRatingLine' | translate }}</span>
           </div>
         </div>
       </div>
 
       <div class="expert-tip">
-        <h4 class="tip-title">Today's Expert Tip</h4>
+        <h4 class="tip-title">{{ 'home.expertTipTitle' | translate }}</h4>
         <p class="tip-content">
-          "Regular exercise can help regulate your menstrual cycle and reduce
-          PMS symptoms. Even 20 minutes of walking daily makes a difference!"
+          {{ 'home.expertTipBody' | translate }}
         </p>
       </div>
 
@@ -781,10 +778,10 @@
           size="small"
           (click)="bookExpertConsultation()"
         >
-          Book Consultation
+          {{ 'home.bookConsultation' | translate }}
         </ion-button>
         <ion-button fill="clear" size="small" (click)="viewExpertProfile()">
-          View Profile
+          {{ 'home.viewProfile' | translate }}
         </ion-button>
       </div>
     </div>

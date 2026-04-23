@@ -30,13 +30,14 @@
 
         <ion-button fill="clear" class="header-action" (click)="openProfile()">
           <div class="profile-avatar">
-            <img
-              src="assets/images/user-avatar.png"
-              alt="Profile"
-              onerror="this.style.display = 'none'"
-            />
-            @if (!hasUserAvatar) {
-            <ion-icon name="person-circle-outline"></ion-icon>
+            @if (hasUserAvatar && headerAvatarSrc) {
+              <img
+                [src]="headerAvatarSrc"
+                [attr.alt]="'layout.profileAlt' | translate"
+                (error)="onHeaderAvatarError()"
+              />
+            } @else {
+              <ion-icon name="person-circle-outline"></ion-icon>
             }
           </div>
         </ion-button>

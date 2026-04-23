@@ -1,4 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { addIcons } from 'ionicons';
 import {
   addCircleOutline,
@@ -21,6 +27,24 @@ import { Router } from '@angular/router';
 import { HomeDataService } from '../home/services/home-data.service';
 import { PeriodDatePickerPageComponent } from '../period-date-picker-page/period-date-picker-page.component';
 import { PeriodDateRange } from '../shared/components/period-date-picker/period-date-picker.component';
+import { firstValueFrom } from 'rxjs';
+import { LanguageService } from '../shared/services/language.service';
+import {
+  formatHistoryDayDate,
+  formatMonthYearTitle,
+  formatRecordedAtDate,
+  getCalendarWeekdayLabels,
+  isPersianAppLanguage,
+} from '../shared/utils/locale-date-format.util';
+import {
+  addDays,
+  addMonths,
+  getDaysInMonth,
+  jalaliDayOfMonth,
+  jalaliYearMonthKey,
+  saturdayFirstWeekPadding,
+  startOfMonth,
+} from '../shared/utils/jalali-iranian-calendar.util';
 
 export type CycleDayKind =
   | 'empty'
@@ -61,16 +85,23 @@ export class CycleCalendarComponent implements OnInit {
   private modalController = inject(ModalController);
   private router = inject(Router);
   homeService = inject(HomeDataService);
+  private languageService = inject(LanguageService);
+  private destroyRef = inject(DestroyRef);
 
   reproductiveStatus: ReproductiveStatusData = {};
   viewDate = new Date();
   monthTitle = '';
   calendarWeeks: CalendarCell[][] = [];
-  weekdayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  weekdayLabels = getCalendarWeekdayLabels(
+    this.languageService.getCurrentLanguage(),
+  );
   hasCycleData = false;
   historyEntries: PeriodHistoryEntry[] = [];
 
   ngOnInit() {
+    this.languageService.currentLanguage$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.refreshCalendar());
     this.refreshCalendar();
     this.refreshHistory();
     const userId = this.homeService.getCurrentUserId();
@@ -118,54 +149,71 @@ export class CycleCalendarComponent implements OnInit {
 
   private applyPeriodRange(periodRange: PeriodDateRange) {
     const iso = periodRange.startDate.toISOString().split('T')[0];
+    const userId = this.homeService.getCurrentUserId();
+    if (userId > 0) {
+      void firstValueFrom(
+        this.reproductiveStatusService.createPeriodLog(userId, {
+          lastPeriodDate: iso,
+          mood: '',
+          notes: '',
+          averagePeriodDuration: this.cycleSettings.periodLength(),
+        }),
+      ).catch((error) => {
+        console.error('Failed to persist period log:', error);
+      });
+    }
     this.cycleSettings.setUserStatus('Trying to Conceive');
     this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
     this.cycleSettings.setLastPeriodStart(iso);
+    this.cycleSettings.setSelectedCycleViewDate(null);
     this.periodHistory.addEntry(iso);
     this.refreshHistory();
     this.refreshCalendar();
     this.loadReproductiveStatus(this.homeService.getCurrentUserId());
+    void this.router.navigate(['/tabs/home']);
   }
 
   formatHistoryDay(iso: string): string {
     const [y, m, d] = iso.split('T')[0].split('-').map((n) => parseInt(n, 10));
     const date = new Date(y, m - 1, d);
-    return date.toLocaleDateString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    return formatHistoryDayDate(date, this.languageService.getCurrentLanguage());
   }
 
   formatRecordedAt(iso: string): string {
-    return new Date(iso).toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
+    const date = new Date(iso);
+    return formatRecordedAtDate(date, this.languageService.getCurrentLanguage());
   }
 
   goToProfile() {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/edit-profile']);
   }
 
   prevMonth() {
-    this.viewDate = new Date(
-      this.viewDate.getFullYear(),
-      this.viewDate.getMonth() - 1,
-      1,
-    );
+    if (isPersianAppLanguage(this.languageService.getCurrentLanguage())) {
+      const first = startOfMonth(this.viewDate);
+      this.viewDate = addMonths(first, -1);
+    } else {
+      this.viewDate = new Date(
+        this.viewDate.getFullYear(),
+        this.viewDate.getMonth() - 1,
+        1,
+      );
+    }
     this.refreshCalendar();
   }
 
   nextMonth() {
-    this.viewDate = new Date(
-      this.viewDate.getFullYear(),
-      this.viewDate.getMonth() + 1,
-      1,
-    );
+    if (isPersianAppLanguage(this.languageService.getCurrentLanguage())) {
+      const first = startOfMonth(this.viewDate);
+      this.viewDate = addMonths(first, 1);
+    } else {
+      this.viewDate = new Date(
+        this.viewDate.getFullYear(),
+        this.viewDate.getMonth() + 1,
+        1,
+      );
+    }
     this.refreshCalendar();
   }
 
@@ -242,20 +290,54 @@ export class CycleCalendarComponent implements OnInit {
       this.cycleSettings.periodLength();
     this.hasCycleData = !!lp && cycleLen >= 21;
 
-    this.monthTitle = this.viewDate.toLocaleDateString('en-US', {
-      month: 'long',
-      year: 'numeric',
-    });
+    const lang = this.languageService.getCurrentLanguage();
+    this.weekdayLabels = getCalendarWeekdayLabels(lang);
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (isPersianAppLanguage(lang)) {
+      const jFirst = startOfMonth(this.viewDate);
+      this.monthTitle = formatMonthYearTitle(jFirst, lang);
+      const dim = getDaysInMonth(jFirst);
+      const startPad = saturdayFirstWeekPadding(jFirst);
+      const ym = jalaliYearMonthKey(jFirst);
+      const cells: CalendarCell[] = [];
+      for (let i = 0; i < startPad; i++) {
+        cells.push({
+          date: null,
+          dayNum: null,
+          kind: 'empty',
+          key: `pad-${ym}-${i}`,
+        });
+      }
+      for (let d = 1; d <= dim; d++) {
+        const date = addDays(jFirst, d - 1);
+        const kind = this.classifyDay(
+          date,
+          lp,
+          cycleLen,
+          periodLen,
+          today,
+        );
+        cells.push({
+          date,
+          dayNum: jalaliDayOfMonth(date),
+          kind,
+          key: `day-${jalaliYearMonthKey(date)}-${jalaliDayOfMonth(date)}`,
+        });
+      }
+      this.finalizeCalendarWeeks(cells, ym);
+      return;
+    }
+
+    this.monthTitle = formatMonthYearTitle(this.viewDate, lang);
     const year = this.viewDate.getFullYear();
     const month = this.viewDate.getMonth();
     const first = new Date(year, month, 1);
     const last = new Date(year, month + 1, 0);
     const startPad = first.getDay();
     const daysInMonth = last.getDate();
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
     const cells: CalendarCell[] = [];
     for (let i = 0; i < startPad; i++) {
@@ -279,6 +361,10 @@ export class CycleCalendarComponent implements OnInit {
       cells.push({ date, dayNum: d, kind, key: `day-${year}-${month}-${d}` });
     }
 
+    this.finalizeCalendarWeeks(cells, `${year}-${month}`);
+  }
+
+  private finalizeCalendarWeeks(cells: CalendarCell[], keyPrefix: string) {
     const weeks: CalendarCell[][] = [];
     for (let i = 0; i < cells.length; i += 7) {
       weeks.push(cells.slice(i, i + 7));
@@ -294,7 +380,7 @@ export class CycleCalendarComponent implements OnInit {
         date: null,
         dayNum: null,
         kind: 'empty',
-        key: `tail-${year}-${month}-${tail++}`,
+        key: `tail-${keyPrefix}-${tail++}`,
       });
     }
     this.calendarWeeks = weeks;

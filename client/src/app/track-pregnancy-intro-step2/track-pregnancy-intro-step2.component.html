@@ -1,0 +1,39 @@
+<ion-content class="tpi2-content" [fullscreen]="true" scrollY="false">
+  <div class="tpi2-root">
+    <header class="tpi2-top">
+      <ion-button
+        type="button"
+        fill="clear"
+        class="tpi2-back"
+        (click)="goBack()"
+        aria-label="Back"
+      >
+        <ion-icon name="chevron-back" slot="icon-only" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </header>
+
+    <main class="tpi2-main">
+      <div class="tpi2-figure" aria-hidden="true">
+        <div class="tpi2-figure-ring">
+          <img class="tpi2-hero-img" [src]="heroImageSrc" alt="" />
+        </div>
+      </div>
+
+      <h1 class="tpi2-title">
+        Looks like you are
+        <span class="tpi2-title-accent">6 days</span>
+        pregnant
+      </h1>
+      <p class="tpi2-body">
+        Flo uses gestational age - the number of completed weeks that have gone by since the first
+        day of your last period.
+      </p>
+    </main>
+
+    <footer class="tpi2-footer">
+      <ion-button class="tpi2-activate" shape="round" (click)="continueNext()">
+        Next
+      </ion-button>
+    </footer>
+  </div>
+</ion-content>

@@ -17,6 +17,9 @@ import {
 } from '../shared/components/period-date-picker/period-date-picker.component';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import { PeriodHistoryService } from '../shared/services/period-history.service';
+import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
+import { HomeDataService } from '../home/services/home-data.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-period-date-picker-page',
@@ -42,6 +45,8 @@ export class PeriodDatePickerPageComponent implements OnInit {
   private location = inject(Location);
   private cycleSettings = inject(CycleSettingsService);
   private periodHistory = inject(PeriodHistoryService);
+  private reproductiveStatusService = inject(ReproductiveStatusService);
+  private homeData = inject(HomeDataService);
 
   ngOnInit() {
     this.periodLength = this.cycleSettings.periodLength();
@@ -63,12 +68,28 @@ export class PeriodDatePickerPageComponent implements OnInit {
     }
 
     const iso = this.selectedRange.startDate.toISOString().split('T')[0];
+    const userId = this.homeData.getCurrentUserId();
+    if (userId > 0) {
+      try {
+        await firstValueFrom(
+          this.reproductiveStatusService.createPeriodLog(userId, {
+            lastPeriodDate: iso,
+            mood: '',
+            notes: '',
+            averagePeriodDuration: this.periodLength,
+          }),
+        );
+      } catch (error) {
+        console.error('Failed to persist period log:', error);
+      }
+    }
     this.cycleSettings.setLastPeriodStart(iso);
+    this.cycleSettings.setSelectedCycleViewDate(null);
     this.cycleSettings.setUserStatus('Trying to Conceive');
     this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
     this.periodHistory.addEntry(iso);
-    await this.router.navigate(['/cycle-calendar']);
+    await this.router.navigate(['/tabs/home']);
   }
 
   async cancel() {

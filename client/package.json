@@ -110,6 +110,8 @@
 
     "angular-auth-oidc-client": "^21.0.1",
 
+    "date-fns-jalali": "^4.1.0-0",
+
     "ionicons": "^8.0.13",
 
     "mapbox-gl": "^3.19.1",

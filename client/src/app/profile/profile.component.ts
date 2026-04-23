@@ -21,6 +21,10 @@ import { ModalController } from '@ionic/angular/standalone';
 import { Share } from '@capacitor/share';
 import { HomeDataService } from '../home/services/home-data.service';
 import { UserSessionService } from '../shared/services/user-session.service';
+import {
+  OnboardingService,
+  ReproductiveState,
+} from '../shared/services/onboarding.service';
 
 // Extend Window interface to include Capacitor
 declare global {
@@ -40,6 +44,7 @@ declare global {
   host: { class: 'ion-page' },
 })
 export class ProfileComponent implements OnInit, ViewWillEnter {
+  currentReproductiveStatus: string | null = null;
   // Use the service's computed signal for percent
   get percent(): number {
     const completion = this.profileCompletionService.profileCompletion();
@@ -94,6 +99,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   private imageUrlService = inject(ImageUrlService);
   public profileCompletionService = inject(ProfileCompletionService);
   private reproductiveStatusService = inject(ReproductiveStatusService);
+  private onboardingService = inject(OnboardingService);
   private modalCtrl = inject(ModalController);
   private cdr = inject(ChangeDetectorRef);
   userId = 0;
@@ -106,11 +112,84 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   avatarImgLoaded = true;
   avatarSkeletonActive = false;
   private lastAvatarImageSrc = this.avatarImageSrc;
+  isUploadingAvatar = false;
 
   onAvatarImgLoad(): void {
     this.avatarImgLoaded = true;
     this.avatarSkeletonActive = false;
     this.cdr.markForCheck();
+  }
+
+  openAvatarPicker(): void {
+    if (this.isUploadingAvatar) return;
+    const input = document.getElementById('profileAvatarInput') as HTMLInputElement | null;
+    input?.click();
+  }
+
+  onAvatarFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      input.value = '';
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image file size should be less than 5MB.');
+      input.value = '';
+      return;
+    }
+
+    const id =
+      this.userInfoStore?.user?.id ??
+      this.userInfoStore?.data?.id ??
+      this.userSession.getCurrentUserId();
+    if (!id) {
+      alert('User not found. Please sign in again.');
+      input.value = '';
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    this.isUploadingAvatar = true;
+    this.avatarImgLoaded = false;
+    this.avatarSkeletonActive = true;
+    this.avatarImageSrc = previewUrl;
+    this.cdr.markForCheck();
+
+    this.userService.uploadProfileImage(String(id), file).subscribe({
+      next: (res: any) => {
+        URL.revokeObjectURL(previewUrl);
+        const serverUrl = this.imageUrlService.getImageUrl(res.url);
+        this.avatarImageSrc = serverUrl;
+        this.profileImage = serverUrl;
+        this.lastAvatarImageSrc = serverUrl;
+        this.avatarImgLoaded = true;
+        this.avatarSkeletonActive = false;
+        this.isUploadingAvatar = false;
+        try {
+          this.userSession.mergeIntoStoredUser({ profileImage: res.url });
+        } catch {
+          // Non-blocking: server succeeded even if local merge fails.
+        }
+        input.value = '';
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Error uploading profile image from profile page:', err);
+        URL.revokeObjectURL(previewUrl);
+        this.avatarImageSrc = this.lastAvatarImageSrc || this.imageUrlService.getImageUrl(null);
+        this.avatarImgLoaded = true;
+        this.avatarSkeletonActive = false;
+        this.isUploadingAvatar = false;
+        input.value = '';
+        alert('Failed to upload image. Please try again.');
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   // Reproductive status data
@@ -144,6 +223,68 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   editProfile() {
     // Logic to edit profile
     this.router.navigate(['/edit-profile']);
+  }
+
+  setStatus(statusValue: string | null): void {
+    this.currentReproductiveStatus = statusValue;
+    this.cdr.markForCheck();
+  }
+
+  isStatusSelected(statusValue: string): boolean {
+    return this.currentReproductiveStatus === statusValue;
+  }
+
+  getCurrentStatus(): string | null {
+    return this.currentReproductiveStatus;
+  }
+
+  openTrackPregnancyIntro(): void {
+    this.currentReproductiveStatus = 'PREGNANT';
+    this.router.navigate(['/track-pregnancy-intro']);
+  }
+
+  onSubmit(_source: 'continue' | 'save' = 'continue'): void {
+    const selected = this.getCurrentStatus();
+    if (!selected) return;
+    if (selected === 'PREGNANT') {
+      this.openTrackPregnancyIntro();
+      return;
+    }
+
+    const state = this.mapUiReproductiveToApiPregnancyStatus(selected);
+    if (!state) return;
+    this.onboardingService.updateReproductiveState({ state }).subscribe({
+      next: () => {
+        this.showToast('Reproductive status updated successfully!');
+        this.profileCompletionService.refreshFromAPI().subscribe({
+          next: () => this.syncCurrentStatusFromProfileData(),
+        });
+        if (selected === 'NOT_PREGNANT') {
+          this.goToCycleCalendar();
+          return;
+        }
+        if (selected === 'PLANNING_PREGNANCY') {
+          this.goToPregnancyPlanning();
+        }
+      },
+      error: () => this.showToast('Failed to update reproductive status.'),
+    });
+  }
+
+  private mapUiReproductiveToApiPregnancyStatus(
+    ui: string | null | undefined,
+  ): ReproductiveState | null {
+    if (!ui) return null;
+    if (ui === 'NOT_PREGNANT') return 'cycle';
+    if (ui === 'PLANNING_PREGNANCY') return 'planning';
+    if (ui === 'PREGNANT') return 'pregnant';
+    return null;
+  }
+
+  private syncCurrentStatusFromProfileData(): void {
+    const status = this.profileCompletionService.currentUserData?.status;
+    this.currentReproductiveStatus =
+      typeof status === 'string' && status.trim() ? status : null;
   }
 
   // // Reproductive status methods
@@ -551,6 +692,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
         if (merged) {
           this.applyProfileFromMerged(merged);
         }
+        this.syncCurrentStatusFromProfileData();
       },
     });
   }
@@ -574,6 +716,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.lastAvatarImageSrc = quick;
       this.avatarImgLoaded = true;
       this.avatarSkeletonActive = false;
+      this.syncCurrentStatusFromProfileData();
     } catch (error) {
       console.error(
         'ProfileComponent - Error loading from localStorage:',

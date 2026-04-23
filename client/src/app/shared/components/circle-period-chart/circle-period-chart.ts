@@ -18,6 +18,13 @@ import { UserInfoService } from '../../services/user-info.service';
 import type { UserInfo } from '../../interfaces/user-info-api.interface';
 import { AuthService } from '../../../auth/services/auth';
 import { TranslationService } from '../../services/translation.service';
+import { LanguageService } from '../../services/language.service';
+import {
+  formatCyclePhaseShortDate,
+  formatCycleStripCenterDate,
+  weekStripDayOfMonth,
+  weekStripWeekdayShort,
+} from '../../utils/locale-date-format.util';
 
 export interface Segment {
   label: string;
@@ -42,6 +49,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   private userInfoService = inject(UserInfoService);
   private authService = inject(AuthService);
   private translationService = inject(TranslationService);
+  private languageService = inject(LanguageService);
   private cdr = inject(ChangeDetectorRef);
   // Configuration inputs
   @Input() cycleLength: number = 28; // total cycle length in days
@@ -82,6 +90,14 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   getStripViewDate(): Date {
     return this.getSelectedStripCalendarDate();
+  }
+
+  /** Gregorian or Jalali string for the focused day above the ring. */
+  formatStripCenterDate(): string {
+    return formatCycleStripCenterDate(
+      this.getStripViewDate(),
+      this.languageService.getCurrentLanguage(),
+    );
   }
 
   /** Main headline under the calendar date (e.g. “Period day 4” or “Day 11 of your cycle”). */
@@ -588,10 +604,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   private formatDateShort(d: Date): string {
-    return d.toLocaleDateString(undefined, {
-      day: '2-digit',
-      month: 'short',
-    });
+    return formatCyclePhaseShortDate(d, this.languageService.getCurrentLanguage());
   }
 
   get periodStartLabel(): string {
@@ -885,7 +898,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }[] {
     const today = new Date();
     const anchorMonday = this.getWeekMonday(today);
-    const letter = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const lang = this.languageService.getCurrentLanguage();
     const weeks: {
       weekKey: string;
       days: {
@@ -924,13 +937,15 @@ export class CirclePeriodChart implements OnInit, OnChanges {
           isToday,
           isoKey,
         };
-        let label = isToday ? this.t('cycleChart.week.today') : letter[i];
+        let label = isToday
+          ? this.t('cycleChart.week.today')
+          : weekStripWeekdayShort(d, lang);
         if (!isToday && this.isWeekDayLastPeriodDay(dayRow)) {
           label = this.t('cycleChart.week.last');
         }
         days.push({
           label,
-          dateNum: d.getDate(),
+          dateNum: weekStripDayOfMonth(d, lang),
           isToday,
           isoKey,
           fullDate: d,
@@ -1250,20 +1265,24 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   onWeekDayPick(d: { isToday: boolean; isoKey: string; fullDate: Date }): void {
     if (d.isToday) {
       this.weekCalendarSelectedIsoKey = null;
+      this.cycleSettings.setSelectedCycleViewDate(null);
       this.cdr.markForCheck();
       return;
     }
     this.weekCalendarSelectedIsoKey = d.isoKey;
+    this.cycleSettings.setSelectedCycleViewDate(d.isoKey);
     this.cdr.markForCheck();
   }
 
   private syncWeekCalendarSelectionFromStartDate(): void {
     if (!this.startDate) {
       this.weekCalendarSelectedIsoKey = null;
+      this.cycleSettings.setSelectedCycleViewDate(null);
       return;
     }
     // Keep highlight on **today** by default; user taps any date to preview that cycle day.
     this.weekCalendarSelectedIsoKey = null;
+    this.cycleSettings.setSelectedCycleViewDate(null);
   }
 
   /** Parent can call after external refresh (replaces home `scheduleScrollCycleCalendarToAnchor`). */

@@ -1,0 +1,84 @@
+.tpi5-content {
+  --background: #1c1c1e;
+}
+
+.tpi5-root {
+  min-height: 100%;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 24px;
+  background: #1c1c1e;
+  color: #fff;
+}
+
+.tpi5-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tpi5-back {
+  --color: #fff;
+  margin: 0;
+  font-size: 28px;
+}
+
+.tpi5-progress {
+  position: relative;
+  flex: 1;
+  height: 3px;
+}
+
+.tpi5-progress-track,
+.tpi5-progress-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+}
+
+.tpi5-progress-track {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.tpi5-progress-fill {
+  width: 64%;
+  background: #f4f4f4;
+}
+
+.tpi5-skip {
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.7rem;
+  font-weight: 600;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.tpi5-main {
+  padding-top: 56px;
+}
+
+.tpi5-title {
+  margin: 0 0 28px;
+  text-align: center;
+  font-size: clamp(1.9rem, 6.4vw, 2.3rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.tpi5-options {
+  display: grid;
+  gap: 12px;
+}
+
+.tpi5-option {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 18px 18px;
+  text-align: left;
+  background: #3a3a3d;
+  color: #fff;
+  font-size: 1.06rem;
+  font-weight: 600;
+}

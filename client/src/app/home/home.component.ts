@@ -8,10 +8,11 @@ import {
   inject,
   NgZone,
   OnInit,
+  OnDestroy,
   ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { firstValueFrom, forkJoin, of } from 'rxjs';
+import { firstValueFrom, forkJoin, of, Subscription } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import {
   AlertController,
@@ -134,6 +135,9 @@ import { HOME_POSTPARTUM_WEEK_SAMPLES } from './data/home-postpartum-sample.data
 import { DailyInsightsStoryModalComponent } from '../shared/components/daily-insights-story-modal/daily-insights-story-modal.component';
 import type { DailyInsightTopic } from '../shared/models/daily-insight-topic.model';
 import { getAllSymptoms } from '../shared/constants/symptoms-config';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
+import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
 
 @Component({
   selector: 'app-home',
@@ -144,7 +148,7 @@ import { getAllSymptoms } from '../shared/constants/symptoms-config';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })
-export class HomeComponent implements OnInit, ViewWillEnter {
+export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
@@ -153,8 +157,32 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private homeData = inject(HomeDataService);
+  private reproductiveStatusService = inject(ReproductiveStatusService);
   private cdr = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
+  private readonly translation = inject(TranslationService);
+  private readonly languageService = inject(LanguageService);
+  private langChangeSub?: Subscription;
+
+  /** i18n with optional {{var}} replacement */
+  private tr(key: string, vars?: Record<string, string | number>): string {
+    let s = this.translation.translate(key);
+    if (vars) {
+      for (const [k, v] of Object.entries(vars)) {
+        s = s.split(`{{${k}}}`).join(String(v));
+      }
+    }
+    return s;
+  }
+
+  private dateLocaleTag(): string {
+    const lang = this.languageService.getCurrentLanguage();
+    if (lang === 'fa') return 'fa-IR';
+    if (lang === 'zh') return 'zh-CN';
+    if (lang === 'ms') return 'ms-MY';
+    return 'en-US';
+  }
+
   private trackDataService = inject(TrackDataService);
   @ViewChild(CirclePeriodChart) periodChart!: CirclePeriodChart;
   @ViewChild('pregnancyCalendarScroll', { read: ElementRef })
@@ -368,6 +396,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       this.cdr.markForCheck();
       this.ngZone.run(() => this.runPeriodChartRefresh());
     });
+
+    effect(() => {
+      // Reflect selected day from cycle strip in Home's cycle labels/cards.
+      this.cycleSettings.selectedCycleViewDate();
+      this.updateCycleDay();
+      this.cdr.markForCheck();
+    });
   }
 
   ngOnInit() {
@@ -384,11 +419,19 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     // Embedded home tab may not always fire Ionic view enter before first paint.
     this.syncDashboardFromServerAndRefreshChart();
 
+    this.langChangeSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.markForCheck();
+    });
+
     // Listen for symptoms updates
     // window.addEventListener('symptomsUpdated', () => {
     //   this.loadTodaySymptoms();
     //   this.loadRecentSymptomsDays();
     // });
+  }
+
+  ngOnDestroy(): void {
+    this.langChangeSub?.unsubscribe();
   }
 
   /**
@@ -688,6 +731,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     } catch {
       // network errors: still refresh chart from local state
     } finally {
+      await this.syncLatestPeriodLogFromApi();
       this.runPeriodChartRefresh();
       this.cdr.markForCheck();
     }
@@ -701,6 +745,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       this.runPeriodChartRefresh();
       return;
     }
+    void this.syncLatestPeriodLogFromApi();
     if (this.homeJourneyBridge.takeSkipNextRemoteDashboardFetch()) {
       const leftover = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
       if (leftover) {
@@ -726,6 +771,28 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       },
       error: () => this.runPeriodChartRefresh(),
     });
+  }
+
+  private async syncLatestPeriodLogFromApi(): Promise<void> {
+    const userId = this.homeData.getCurrentUserId();
+    if (userId <= 0) return;
+
+    try {
+      const logs = await firstValueFrom(
+        this.reproductiveStatusService.getPeriodLogs(userId),
+      );
+      const latest = Array.isArray(logs) && logs.length > 0 ? logs[0] : null;
+      const latestIso = normalizeLmpInput(latest?.lastPeriodDate ?? null);
+      if (!latestIso) return;
+
+      this.cycleSettings.setLastPeriodStart(latestIso);
+      this.periodStartDate = new Date(`${latestIso}T12:00:00`);
+      this.updateCycleDay();
+      this.runPeriodChartRefresh();
+      this.cdr.markForCheck();
+    } catch {
+      // Non-blocking: dashboard/local state still keeps Home usable.
+    }
   }
 
   private loadDashboardState() {
@@ -962,15 +1029,23 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     }
     if (intent === 'trying') {
       return {
-        title: 'Add your last period to go further',
-        body: 'Trying takes patience. One date unlocks fertile-window hints and a calmer daily home — under a minute.',
-        features: ['Fertile days', 'Symptom patterns', 'Gentle reminders'],
+        title: this.tr('home.preCycle.titleTrying'),
+        body: this.tr('home.preCycle.bodyTrying'),
+        features: [
+          this.tr('home.preCycle.tf1'),
+          this.tr('home.preCycle.tf2'),
+          this.tr('home.preCycle.tf3'),
+        ],
       };
     }
     return {
-      title: 'Start with your last period',
-      body: 'Your cycle ring and day-by-day view stay empty until you add one date. It takes a few seconds.',
-      features: ['Cycle ring', 'Daily context', 'Symptom trends'],
+      title: this.tr('home.preCycle.titleDefault'),
+      body: this.tr('home.preCycle.bodyDefault'),
+      features: [
+        this.tr('home.preCycle.f1'),
+        this.tr('home.preCycle.f2'),
+        this.tr('home.preCycle.f3'),
+      ],
     };
   }
 
@@ -1058,11 +1133,11 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // User Status Management
   async updateUserStatus() {
     const alert = await this.alertController.create({
-      header: 'Update Your Status',
-      message: 'Select your current status:',
+      header: this.tr('home.alert.updateStatusHeader'),
+      message: this.tr('home.alert.updateStatusMessage'),
       buttons: [
         {
-          text: 'Trying to Conceive',
+          text: this.tr('home.dialog.statusTTC'),
           handler: () => {
             this.userStatus = 'Trying to Conceive';
             this.isPregnant = false;
@@ -1070,11 +1145,11 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             this.cycleSettings.setUserStatus('Trying to Conceive');
             this.cycleSettings.setPregnancyStatus(false);
             this.cycleSettings.setPostpartumStatus(false);
-            this.showToast('Status updated to: Trying to Conceive');
+            this.showToast(this.tr('home.dialog.statusUpdatedTTC'));
           },
         },
         {
-          text: 'Pregnant',
+          text: this.tr('home.dialog.statusPregnant'),
           handler: async () => {
             this.userStatus = 'Pregnant';
             this.isPregnant = true;
@@ -1085,13 +1160,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
             // Ask for pregnancy week
             const weekAlert = await this.alertController.create({
-              header: '🎉 Congratulations!',
-              message: 'What week of pregnancy are you in?',
+              header: this.tr('home.alert.congratsPregnantHeader'),
+              message: this.tr('home.alert.congratsPregnantMessage'),
               inputs: [
                 {
                   name: 'week',
                   type: 'number',
-                  placeholder: 'Enter week (4-40)',
+                  placeholder: this.tr('home.dialog.weekPlaceholderPregnancy'),
                   min: 4,
                   max: 40,
                   value: 12,
@@ -1099,22 +1174,25 @@ export class HomeComponent implements OnInit, ViewWillEnter {
               ],
               buttons: [
                 {
-                  text: 'Cancel',
+                  text: this.tr('home.common.cancel'),
                   role: 'cancel',
                 },
                 {
-                  text: 'Set Week',
+                  text: this.tr('home.dialog.setWeek'),
                   handler: (data) => {
                     const week = parseInt(data.week);
                     if (week >= 4 && week <= 40) {
                       this.updatePregnancyWeek(week);
                       const babyData = this.getCurrentBabySize();
                       this.showToast(
-                        `🎉 Week ${week}: Your baby is the size of a ${babyData.size.split(' ')[0]}!`,
+                        this.tr('home.dialog.weekBabyToast', {
+                          week,
+                          size: babyData.size.split(' ')[0],
+                        }),
                       );
                     } else {
                       this.showToast(
-                        'Please enter a valid week (4-40)',
+                        this.tr('home.dialog.invalidWeekPregnancy'),
                         'warning',
                       );
                     }
@@ -1126,7 +1204,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           },
         },
         {
-          text: 'Postpartum',
+          text: this.tr('home.dialog.statusPostpartum'),
           handler: async () => {
             this.userStatus = 'Postpartum';
             this.isPregnant = false;
@@ -1137,13 +1215,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
             // Ask for postpartum week
             const weekAlert = await this.alertController.create({
-              header: '👶 Welcome to Postpartum!',
-              message: 'How many weeks postpartum are you?',
+              header: this.tr('home.alert.postpartumWelcomeHeader'),
+              message: this.tr('home.alert.postpartumWelcomeMessage'),
               inputs: [
                 {
                   name: 'week',
                   type: 'number',
-                  placeholder: 'Enter week (1-12)',
+                  placeholder: this.tr('home.dialog.weekPlaceholderPostpartum'),
                   min: 1,
                   max: 12,
                   value: 1,
@@ -1151,22 +1229,25 @@ export class HomeComponent implements OnInit, ViewWillEnter {
               ],
               buttons: [
                 {
-                  text: 'Cancel',
+                  text: this.tr('home.common.cancel'),
                   role: 'cancel',
                 },
                 {
-                  text: 'Set Week',
+                  text: this.tr('home.dialog.setWeek'),
                   handler: (data) => {
                     const week = parseInt(data.week);
                     if (week >= 1 && week <= 12) {
                       this.updatePostpartumWeek(week);
                       const postpartumData = this.getCurrentPostpartumData();
                       this.showToast(
-                        `👶 Week ${week}: ${postpartumData.recovery} - You're doing amazing!`,
+                        this.tr('home.dialog.postpartumWeekToast', {
+                          week,
+                          recovery: postpartumData.recovery,
+                        }),
                       );
                     } else {
                       this.showToast(
-                        'Please enter a valid week (1-12)',
+                        this.tr('home.dialog.invalidWeekPostpartum'),
                         'warning',
                       );
                     }
@@ -1178,7 +1259,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           },
         },
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
         },
       ],
@@ -1192,7 +1273,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     this.router.navigate(['/week-detail'], {
       queryParams: { week: w },
     });
-    this.showToast('Opening week ' + w + ' details...');
+    this.showToast(this.tr('home.dialog.openingWeekDetails', { week: w }));
   }
 
   private readonly defaultBabySize: BabySizeData = {
@@ -1345,18 +1426,21 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Appointment Management
   async rescheduleAppointment(appointment: any) {
     const alert = await this.alertController.create({
-      header: 'Reschedule Appointment',
-      message: `Reschedule ${appointment.title} with ${appointment.doctor}?`,
+      header: this.tr('home.alert.rescheduleHeader'),
+      message: this.tr('home.alert.rescheduleMessage', {
+        title: appointment.title,
+        doctor: appointment.doctor,
+      }),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
         },
         {
-          text: 'Reschedule',
+          text: this.tr('home.dialog.reschedule'),
           handler: () => {
             this.router.navigate(['/tabs/consultation']);
-            this.showToast('Opening appointment booking...');
+            this.showToast(this.tr('home.dialog.openingAppointmentBooking'));
           },
         },
       ],
@@ -1366,20 +1450,20 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   async cancelAppointment(appointment: any) {
     const alert = await this.alertController.create({
-      header: 'Cancel Appointment',
-      message: `Are you sure you want to cancel ${appointment.title}?`,
+      header: this.tr('home.alert.cancelHeader'),
+      message: this.tr('home.alert.cancelMessage', { title: appointment.title }),
       buttons: [
         {
-          text: 'No',
+          text: this.tr('home.dialog.no'),
           role: 'cancel',
         },
         {
-          text: 'Yes, Cancel',
+          text: this.tr('home.dialog.yesCancel'),
           handler: () => {
             this.upcomingAppointments = this.upcomingAppointments.filter(
               (apt) => apt !== appointment,
             );
-            this.showToast('Appointment cancelled');
+            this.showToast(this.tr('home.dialog.appointmentCancelled'));
           },
         },
       ],
@@ -1389,39 +1473,39 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
   bookNewAppointment() {
     this.router.navigate(['/tabs/consultation']);
-    this.showToast('Opening appointment booking...');
+    this.showToast(this.tr('home.dialog.openingAppointmentBooking'));
   }
 
   // Open daily tracking modal
   async openDailyTracking() {
     const alert = await this.alertController.create({
-      header: '📊 Track Today',
-      message: 'What would you like to track today?',
+      header: this.tr('home.alert.trackTodayHeader'),
+      message: this.tr('home.alert.trackTodayMessage'),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
         },
         {
-          text: '📝 Symptoms & Mood',
+          text: this.tr('home.dialog.trackSymptomsMood'),
           handler: () => {
             this.openSymptomsTracking();
           },
         },
         {
-          text: '💊 Medications',
+          text: this.tr('home.dialog.trackMedications'),
           handler: () => {
             this.openMedicationReminder();
           },
         },
         {
-          text: '🥗 Nutrition',
+          text: this.tr('home.dialog.trackNutrition'),
           handler: () => {
             this.openNutritionTracker();
           },
         },
         {
-          text: '🏃‍♀️ Exercise',
+          text: this.tr('home.dialog.trackExercise'),
           handler: () => {
             this.openExercisePlanner();
           },
@@ -1435,36 +1519,36 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Open calendar view
   async openCalendarView() {
     const alert = await this.alertController.create({
-      header: '📅 Calendar View',
-      message: "Choose what you'd like to view in your calendar:",
+      header: this.tr('home.alert.calendarViewHeader'),
+      message: this.tr('home.alert.calendarViewMessage'),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
         },
         {
-          text: '📊 Cycle Tracking',
+          text: this.tr('home.dialog.calendarCycleTracking'),
           handler: () => {
             this.router.navigate(['/tools']);
-            this.showToast('Opening cycle tracking calendar...', 'success');
+            this.showToast(this.tr('home.dialog.openingCycleCalendar'), 'success');
           },
         },
         {
-          text: '📝 Symptoms Log',
+          text: this.tr('home.dialog.calendarSymptomsLog'),
           handler: () => {
             this.router.navigate(['/tools']);
-            this.showToast('Opening symptoms calendar...', 'success');
+            this.showToast(this.tr('home.dialog.openingSymptomsCalendar'), 'success');
           },
         },
         {
-          text: '💊 Medication Schedule',
+          text: this.tr('home.dialog.calendarMedication'),
           handler: () => {
             this.router.navigate(['/tools']);
-            this.showToast('Opening medication calendar...', 'success');
+            this.showToast(this.tr('home.dialog.openingMedicationCalendar'), 'success');
           },
         },
         {
-          text: '📅 Appointments',
+          text: this.tr('home.dialog.calendarAppointments'),
           handler: () => {
             this.openAppointmentBooking();
           },
@@ -1506,17 +1590,16 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Handle "I became pregnant" action
   async handlePregnancyUpdate() {
     const alert = await this.alertController.create({
-      header: '🎉 Congratulations!',
-      message:
-        "This is wonderful news! Let's update your status and guide you through the next steps.",
+      header: this.tr('home.alert.congratsPregnantHeader'),
+      message: this.tr('home.alert.handlePregnantCongratsBody'),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
           cssClass: 'secondary',
         },
         {
-          text: 'Update Status',
+          text: this.tr('home.dialog.updateStatus'),
           handler: async () => {
             console.log('🔍 User clicked Update Status');
             await this.updatePregnancyStatus();
@@ -1531,17 +1614,16 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Handle "I'm not pregnant anymore" action
   async handleNotPregnantUpdate() {
     const alert = await this.alertController.create({
-      header: 'Update Status',
-      message:
-        'Are you sure you want to change your status back to "Trying to Conceive"?',
+      header: this.tr('home.alert.updateStatusShortHeader'),
+      message: this.tr('home.alert.confirmNotPregnantMessage'),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
           cssClass: 'secondary',
         },
         {
-          text: 'Update Status',
+          text: this.tr('home.dialog.updateStatus'),
           handler: async () => {
             await this.updateNotPregnantStatus();
           },
@@ -1583,12 +1665,11 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       this.refreshDisplay();
 
       const successAlert = await this.alertController.create({
-        header: '✅ Status Updated!',
-        message:
-          'Your status has been updated back to "Trying to Conceive". You can now track your cycle again.',
+        header: this.tr('home.alert.statusUpdatedHeader'),
+        message: this.tr('home.alert.statusUpdatedTryingBody'),
         buttons: [
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -1597,13 +1678,10 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       await successAlert.present();
 
       // Show success toast
-      this.showToast(
-        'Status updated successfully! You can now track your cycle.',
-        'success',
-      );
+      this.showToast(this.tr('home.dialog.statusUpdatedSuccess'), 'success');
     } catch (error) {
       console.error('Error updating status:', error);
-      this.showToast('Error updating status. Please try again.', 'danger');
+      this.showToast(this.tr('home.dialog.statusUpdateError'), 'danger');
     }
   }
 
@@ -1625,13 +1703,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     try {
       await firstValueFrom(this.onboardingService.updateReproductiveState(data));
       await this.runPullToRefresh();
-      await this.showToast('Pregnancy dates saved.', 'success');
+      await this.showToast(this.tr('home.dialog.pregnancyDatesSaved'), 'success');
     } catch (err: any) {
       const msg =
         err?.error?.message ??
         (Array.isArray(err?.error?.message) ? err.error.message[0] : null);
       await this.showToast(
-        typeof msg === 'string' ? msg : 'Could not save. Check your dates and try again.',
+        typeof msg === 'string' ? msg : this.tr('home.dialog.saveDatesFailed'),
         'danger',
       );
     }
@@ -1868,18 +1946,18 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     if (!last) {
       return {
         id: `${scope}-symptom-log`,
-        categoryLabel: 'Your log',
-        teaser: this.truncateInsightTeaser('No saved logs yet — tap +'),
+        categoryLabel: this.tr('home.symptomLog.category'),
+        teaser: this.truncateInsightTeaser(this.tr('home.symptomLog.emptyTeaser')),
         accentHex: '#94a3b8',
         ionIcon: 'analytics-outline',
         slides: [
           {
-            title: 'Your symptom history',
-            body: 'When you save a day on Track Symptoms, it is stored on your account and summarized here.',
+            title: this.tr('home.symptomLog.slideEmpty1Title'),
+            body: this.tr('home.symptomLog.slideEmpty1Body'),
           },
           {
-            title: 'Why it helps',
-            body: 'Even brief notes make patterns easier to spot over time — for you and, if you choose, your care team.',
+            title: this.tr('home.symptomLog.slideEmpty2Title'),
+            body: this.tr('home.symptomLog.slideEmpty2Body'),
           },
         ],
       };
@@ -1898,27 +1976,31 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     const teaserCore =
       calLabel && bits.length
         ? `${calLabel} · ${bits.join(' · ')}`
-        : calLabel || 'Last log';
+        : calLabel || this.tr('home.symptomLog.lastLog');
     const teaser = this.truncateInsightTeaser(teaserCore);
 
     const detailLines: string[] = [];
     if (dayLabel) {
-      detailLines.push(`Calendar day: ${calLabel} (${dayLabel}).`);
+      detailLines.push(
+        this.tr('home.symptomLog.lineCalendar', { date: calLabel, weekday: dayLabel }),
+      );
     }
     if (moodText) {
-      detailLines.push(`Mood noted: ${moodText}.`);
+      detailLines.push(this.tr('home.symptomLog.lineMood', { mood: moodText }));
     }
     if (energyText) {
-      detailLines.push(`Energy: ${energyText}.`);
+      detailLines.push(this.tr('home.symptomLog.lineEnergy', { energy: energyText }));
     }
     if (symptomNames.length) {
-      detailLines.push(`Symptoms: ${symptomNames.join(', ')}.`);
+      detailLines.push(
+        this.tr('home.symptomLog.lineSymptoms', { list: symptomNames.join(', ') }),
+      );
     } else {
-      detailLines.push('No individual symptoms were tagged for that day.');
+      detailLines.push(this.tr('home.symptomLog.lineNoSymptoms'));
     }
     const notes = String(last.notes ?? '').trim();
     if (notes) {
-      detailLines.push(`Notes: ${notes}`);
+      detailLines.push(this.tr('home.symptomLog.lineNotes', { notes }));
     }
 
     const recentLines = this.recentSymptomsDays.slice(0, 6).map((row) => {
@@ -1931,21 +2013,23 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
     return {
       id: `${scope}-symptom-log`,
-      categoryLabel: 'Your log',
+      categoryLabel: this.tr('home.symptomLog.category'),
       teaser,
       accentHex: '#64748b',
       ionIcon: primaryIonIcon,
       slides: [
         {
-          title: 'Last time you logged',
+          title: this.tr('home.symptomLog.slideLogged1Title'),
           body: detailLines.join(' '),
         },
         {
-          title: 'Recent history',
+          title: this.tr('home.symptomLog.slideLogged2Title'),
           body:
             recentLines.length > 1
-              ? `From your account (newest first):\n${recentLines.join('\n')}`
-              : 'Keep logging on more days — a short list here will build into a clearer picture.',
+              ? this.tr('home.symptomLog.slideLogged2BodyMulti', {
+                  lines: recentLines.join('\n'),
+                })
+              : this.tr('home.symptomLog.slideLogged2BodySingle'),
         },
       ],
     };
@@ -1958,17 +2042,17 @@ export class HomeComponent implements OnInit, ViewWillEnter {
     yesterday.setDate(today.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
+      return this.tr('home.day.today');
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
+      return this.tr('home.day.yesterday');
     } else {
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
+      return date.toLocaleDateString(this.dateLocaleTag(), { weekday: 'short' });
     }
   }
 
   formatDate(dateString: string): string {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(this.dateLocaleTag(), {
       month: 'short',
       day: 'numeric',
     });
@@ -1990,41 +2074,38 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       };
 
       await this.showToast(
-        `${moodEmoji[mood]} Symptoms tracked successfully!`,
+        `${moodEmoji[mood]} ${this.tr('home.symptomsTracked')}`,
         'success',
       );
     } catch (error) {
-      await this.showToast(
-        'Failed to track symptoms. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.symptomsTrackFailed'), 'danger');
     }
   }
 
   // Open appointment booking
   async openAppointmentBooking() {
     const alert = await this.alertController.create({
-      header: '📅 Book Appointment',
-      message: 'Choose the type of consultation you need:',
+      header: this.tr('home.alert.bookAppointmentHeader'),
+      message: this.tr('home.alert.bookAppointmentMessage'),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
         },
         {
-          text: 'Prenatal Care',
+          text: this.tr('home.dialog.bookingPrenatal'),
           handler: () => {
             this.bookAppointment('prenatal');
           },
         },
         {
-          text: 'Nutrition Consultation',
+          text: this.tr('home.dialog.bookingNutrition'),
           handler: () => {
             this.bookAppointment('nutrition');
           },
         },
         {
-          text: 'Mental Health Support',
+          text: this.tr('home.dialog.bookingMental'),
           handler: () => {
             this.bookAppointment('mental_health');
           },
@@ -2038,48 +2119,50 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Book appointment
   async bookAppointment(type: string) {
     try {
-      const typeNames: Record<string, string> = {
-        prenatal: 'Prenatal Care',
-        nutrition: 'Nutrition Consultation',
-        mental_health: 'Mental Health Support',
+      const typeKeys: Record<string, string> = {
+        prenatal: 'home.dialog.bookingPrenatal',
+        nutrition: 'home.dialog.bookingNutrition',
+        mental_health: 'home.dialog.bookingMental',
       };
+      const typeLabel = this.tr(typeKeys[type] ?? 'home.dialog.bookingPrenatal');
 
-      await this.showToast(`Opening ${typeNames[type]} booking...`, 'success');
+      await this.showToast(
+        this.tr('home.dialog.openingBookingToast', { type: typeLabel }),
+        'success',
+      );
 
       const successAlert = await this.alertController.create({
-        header: '✅ Appointment Booking',
-        message: `You're being redirected to book your ${typeNames[type]} appointment.`,
-        buttons: ['OK'],
+        header: this.tr('home.dialog.appointmentBookingSuccessHeader'),
+        message: this.tr('home.dialog.appointmentBookingSuccessMessage', {
+          type: typeLabel,
+        }),
+        buttons: [{ text: this.tr('home.common.ok'), role: 'cancel' }],
       });
 
       await successAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open appointment booking. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.bookingFailed'), 'danger');
     }
   }
 
   // Navigate to community
   async navigateToCommunity() {
     try {
-      await this.showToast('Joining community...', 'success');
+      await this.showToast(this.tr('home.dialog.joiningCommunity'), 'success');
 
       const communityAlert = await this.alertController.create({
-        header: '👥 Join Our Community',
-        message:
-          'Connect with other women on similar journeys. Share experiences, ask questions, and find support.',
+        header: this.tr('home.dialog.communityHeader'),
+        message: this.tr('home.dialog.communityMessage'),
         buttons: [
           {
-            text: 'Learn More',
+            text: this.tr('home.dialog.learnMore'),
             handler: () => {
               // Navigate to community page
               this.router.navigate(['/tabs/social']);
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -2087,31 +2170,28 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       await communityAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to join community. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.communityFailed'), 'danger');
     }
   }
 
   // Daily Tips Actions
   async viewCounselorSchedule() {
     try {
-      await this.showToast('Opening counselor schedule...', 'success');
+      await this.showToast(this.tr('home.dialog.openingCounselorSchedule'), 'success');
 
       const scheduleAlert = await this.alertController.create({
-        header: '👩‍⚕️ Counselor Schedule',
-        message: 'View available appointment slots with our expert counselors.',
+        header: this.tr('home.dialog.scheduleHeader'),
+        message: this.tr('home.dialog.scheduleMessage'),
         buttons: [
           {
-            text: 'View Schedule',
+            text: this.tr('home.dialog.viewSchedule'),
             handler: () => {
               // Navigate to schedule page
               // this.router.navigate(['/counselor-schedule']);
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -2119,32 +2199,28 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       await scheduleAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open schedule. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.scheduleFailed'), 'danger');
     }
   }
 
   // Expert Actions
   async bookExpertConsultation() {
     try {
-      await this.showToast('Opening expert consultation booking...', 'success');
+      await this.showToast(this.tr('home.dialog.openingExpertBooking'), 'success');
 
       const consultationAlert = await this.alertController.create({
-        header: '👨‍⚕️ Expert Consultation',
-        message:
-          'Book a consultation with our specialized experts in prenatal care, nutrition, and mental health.',
+        header: this.tr('home.dialog.expertHeader'),
+        message: this.tr('home.dialog.expertMessage'),
         buttons: [
           {
-            text: 'Book Now',
+            text: this.tr('home.dialog.bookNow'),
             handler: () => {
               // Navigate to booking page
               this.router.navigate(['/tabs/consultation']);
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -2152,10 +2228,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       await consultationAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open consultation booking. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.expertBookingFailed'), 'danger');
     }
   }
 
@@ -2167,17 +2240,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   async openFertilityCalculator() {
     try {
       const calculatorAlert = await this.alertController.create({
-        header: '🧮 Fertility Calculator',
-        message:
-          'Calculate your most fertile days based on your cycle length and last period date.',
+        header: this.tr('home.alert.fertilityCalcHeader'),
+        message: this.tr('home.dialog.fertilityCalcBody'),
         buttons: [
           {
-            text: 'Open Calculator',
+            text: this.tr('home.dialog.openCalculator'),
             handler: async () => {
-              await this.showToast(
-                'Opening fertility calculator...',
-                'success',
-              );
+              await this.showToast(this.tr('home.dialog.openingFertilityCalc'), 'success');
               // Navigate to tools page and trigger fertility calculator
               this.router.navigate(['/tools'], {
                 queryParams: { openTool: 'fertility' },
@@ -2185,7 +2254,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             handler: async () => {
               // Show inline fertility calculator
               await this.showInlineFertilityCalculator();
@@ -2196,10 +2265,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       await calculatorAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open fertility calculator. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.fertilityCalcFailed'), 'danger');
     }
   }
 
@@ -2215,24 +2281,20 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         await this.showRegularFertilityCalculator();
       }
     } catch (error) {
-      await this.showToast(
-        'Failed to open calculator. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.calcFailed'), 'danger');
     }
   }
 
   // Regular fertility calculator for non-pregnant users
   async showRegularFertilityCalculator() {
     const alert = await this.alertController.create({
-      header: '🧮 Fertility Calculator',
-      message:
-        'Calculate your most fertile days based on your cycle length and last period date.',
+      header: this.tr('home.alert.fertilityCalcHeader'),
+      message: this.tr('home.dialog.fertilityCalcBody'),
       inputs: [
         {
           name: 'cycleLength',
           type: 'number',
-          placeholder: 'Cycle length (days)',
+          placeholder: this.tr('home.dialog.cycleLengthPlaceholder'),
           min: 21,
           max: 35,
           value: 28,
@@ -2240,16 +2302,16 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         {
           name: 'lastPeriod',
           type: 'date',
-          placeholder: 'Last period start date',
+          placeholder: this.tr('home.dialog.lastPeriodStartPlaceholder'),
         },
       ],
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
         },
         {
-          text: 'Calculate',
+          text: this.tr('home.dialog.calculate'),
           handler: async (data) => {
             if (data.cycleLength && data.lastPeriod) {
               await this.calculateFertileDays(
@@ -2257,7 +2319,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
                 data.lastPeriod,
               );
             } else {
-              await this.showToast('Please fill in all fields', 'warning');
+              await this.showToast(this.tr('home.dialog.fillAllFields'), 'warning');
             }
           },
         },
@@ -2270,28 +2332,27 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   // Pregnancy week calculator for pregnant users
   async showPregnancyWeekCalculator() {
     const alert = await this.alertController.create({
-      header: '🤰 Pregnancy Week Calculator',
-      message:
-        'Calculate your current pregnancy week based on your last menstrual period (LMP) date.',
+      header: this.tr('home.alert.pregnancyWeekCalcHeader'),
+      message: this.tr('home.dialog.pregnancyWeekCalcBody'),
       inputs: [
         {
           name: 'lastPeriod',
           type: 'date',
-          placeholder: 'Last menstrual period date',
+          placeholder: this.tr('home.dialog.lastMenstrualPeriodPlaceholder'),
         },
       ],
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('home.common.cancel'),
           role: 'cancel',
         },
         {
-          text: 'Calculate Week',
+          text: this.tr('home.dialog.calculateWeek'),
           handler: async (data) => {
             if (data.lastPeriod) {
               await this.calculatePregnancyWeek(data.lastPeriod);
             } else {
-              await this.showToast('Please enter your LMP date', 'warning');
+              await this.showToast(this.tr('home.dialog.enterLmp'), 'warning');
             }
           },
         },
@@ -2324,7 +2385,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       // Format dates
       const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', {
+        return date.toLocaleDateString(this.dateLocaleTag(), {
           month: 'short',
           day: 'numeric',
           year: 'numeric',
@@ -2380,10 +2441,10 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         }
       }
 
-      await this.showToast('Fertile days calculated successfully!', 'success');
+      await this.showToast(this.tr('home.dialog.fertileDaysCalculated'), 'success');
     } catch (error) {
       console.error('Error calculating fertile days:', error);
-      await this.showToast('Failed to calculate fertile days', 'danger');
+      await this.showToast(this.tr('home.dialog.fertileDaysCalcFailed'), 'danger');
     }
   }
 
@@ -2409,10 +2470,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       // Validate pregnancy week
       if (pregnancyWeek < 4 || pregnancyWeek > 42) {
-        await this.showToast(
-          'Invalid date. Please enter a valid LMP date (4-42 weeks ago).',
-          'warning',
-        );
+        await this.showToast(this.tr('home.dialog.invalidLmpWeeks'), 'warning');
         return;
       }
 
@@ -2430,7 +2488,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       const progressPercentage = Math.round((pregnancyWeek / 40) * 100);
 
       const formatDate = (date: Date) => {
-        return date.toLocaleDateString('en-US', {
+        return date.toLocaleDateString(this.dateLocaleTag(), {
           month: 'long',
           day: 'numeric',
           year: 'numeric',
@@ -2470,22 +2528,19 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         switch (data.action) {
           case 'updateProfile':
             this.cycleSettings.setPregnancyWeek(pregnancyWeek);
-            await this.showToast(
-              'Pregnancy week updated in your profile!',
-              'success',
-            );
+            await this.showToast(this.tr('home.dialog.pregnancyWeekUpdatedProfile'), 'success');
             break;
           case 'trackSymptoms':
             await this.openSymptomsTracking();
             break;
           case 'setAppointment':
-            await this.showToast('Appointment booking coming soon!', 'warning');
+            await this.showToast(this.tr('home.dialog.appointmentComingSoon'), 'warning');
             break;
         }
       }
     } catch (error) {
       console.error('Error calculating pregnancy week:', error);
-      await this.showToast('Failed to calculate pregnancy week', 'danger');
+      await this.showToast(this.tr('home.dialog.pregnancyWeekCalcFailed'), 'danger');
     }
   }
 
@@ -2493,43 +2548,42 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private async setFertilityReminder(results: FertilityResults) {
     try {
       const reminderAlert = await this.alertController.create({
-        header: '🔔 Set Fertility Reminder',
-        message:
-          "Choose when you'd like to be reminded about your fertile window:",
+        header: this.tr('home.dialog.reminderPromptHeader'),
+        message: this.tr('home.dialog.reminderPromptMessage'),
         inputs: [
           {
             name: 'reminderType',
             type: 'radio',
-            label: '1 day before fertile window',
+            label: this.tr('home.dialog.reminderRadio1'),
             value: '1day',
             checked: true,
           },
           {
             name: 'reminderType',
             type: 'radio',
-            label: '2 days before fertile window',
+            label: this.tr('home.dialog.reminderRadio2'),
             value: '2days',
           },
           {
             name: 'reminderType',
             type: 'radio',
-            label: 'On ovulation day',
+            label: this.tr('home.dialog.reminderRadioOvulation'),
             value: 'ovulation',
           },
           {
             name: 'reminderType',
             type: 'radio',
-            label: 'Daily during fertile window',
+            label: this.tr('home.dialog.reminderRadioDaily'),
             value: 'daily',
           },
         ],
         buttons: [
           {
-            text: 'Cancel',
+            text: this.tr('home.common.cancel'),
             role: 'cancel',
           },
           {
-            text: 'Set Reminder',
+            text: this.tr('home.dialog.setReminder'),
             handler: async (data) => {
               if (data) {
                 await this.scheduleFertilityReminder(results, data);
@@ -2542,7 +2596,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       await reminderAlert.present();
     } catch (error) {
       console.error('Error setting fertility reminder:', error);
-      await this.showToast('Failed to set reminder', 'danger');
+      await this.showToast(this.tr('home.dialog.reminderSetFailed'), 'danger');
     }
   }
 
@@ -2563,23 +2617,23 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         case '1day':
           reminderDate = new Date(fertileStartDate);
           reminderDate.setDate(reminderDate.getDate() - 1);
-          reminderMessage = `🌟 Your fertile window starts tomorrow! Get ready for your most fertile days.`;
+          reminderMessage = this.tr('home.dialog.reminderMsg1day');
           break;
         case '2days':
           reminderDate = new Date(fertileStartDate);
           reminderDate.setDate(reminderDate.getDate() - 2);
-          reminderMessage = `🌟 Your fertile window starts in 2 days! Time to prepare.`;
+          reminderMessage = this.tr('home.dialog.reminderMsg2days');
           break;
         case 'ovulation':
           reminderDate = ovulationDate;
-          reminderMessage = `🥚 Today is your ovulation day! Peak fertility time.`;
+          reminderMessage = this.tr('home.dialog.reminderMsgOvulation');
           break;
         case 'daily':
-          reminderMessage = `🌟 You're in your fertile window! Today is a high fertility day.`;
+          reminderMessage = this.tr('home.dialog.reminderMsgDaily');
           break;
         default:
           reminderDate = new Date(fertileStartDate);
-          reminderMessage = `🌟 Your fertile window is starting!`;
+          reminderMessage = this.tr('home.dialog.reminderMsgDefault');
       }
 
       // Store reminder in localStorage (in a real app, you'd use proper notification scheduling)
@@ -2594,7 +2648,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
           reminders.push({
             id: `fertility_daily_${index}_${Date.now()}`,
             date: dayDate.toISOString().split('T')[0],
-            message: `🌟 Day ${index + 1} of your fertile window! High fertility day.`,
+            message: this.tr('home.dialog.reminderDailyIndexed', { day: index + 1 }),
             type: 'fertility',
             isActive: true,
             createdAt: new Date().toISOString(),
@@ -2615,30 +2669,27 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       // Show success message
       const successAlert = await this.alertController.create({
-        header: '✅ Reminder Set!',
-        message: `Your fertility reminder has been scheduled. You'll be notified at the right time to maximize your chances of conception.`,
+        header: this.tr('home.alert.reminderSetHeader'),
+        message: this.tr('home.dialog.reminderSetSuccessBody'),
         buttons: [
           {
-            text: 'View All Reminders',
+            text: this.tr('home.dialog.viewAllReminders'),
             handler: () => {
               this.showAllReminders();
             },
           },
           {
-            text: 'Done',
+            text: this.tr('home.dialog.done'),
             role: 'cancel',
           },
         ],
       });
 
       await successAlert.present();
-      await this.showToast(
-        'Fertility reminder set successfully! 🔔',
-        'success',
-      );
+      await this.showToast(this.tr('home.dialog.reminderToastSuccess'), 'success');
     } catch (error) {
       console.error('Error scheduling reminder:', error);
-      await this.showToast('Failed to schedule reminder', 'danger');
+      await this.showToast(this.tr('home.dialog.reminderScheduleFailed'), 'danger');
     }
   }
 
@@ -2651,13 +2702,13 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       const activeReminders = reminders.filter((r: any) => r.isActive);
 
       if (activeReminders.length === 0) {
-        await this.showToast('No active reminders found', 'warning');
+        await this.showToast(this.tr('home.dialog.noActiveReminders'), 'warning');
         return;
       }
 
       const remindersList = activeReminders
         .map((reminder: any) => {
-          const date = new Date(reminder.date).toLocaleDateString('en-US', {
+          const date = new Date(reminder.date).toLocaleDateString(this.dateLocaleTag(), {
             month: 'short',
             day: 'numeric',
             year: 'numeric',
@@ -2667,17 +2718,17 @@ export class HomeComponent implements OnInit, ViewWillEnter {
         .join('\n');
 
       const remindersAlert = await this.alertController.create({
-        header: '🔔 Your Fertility Reminders',
-        message: `Active reminders:\n\n${remindersList}`,
+        header: this.tr('home.alert.remindersListHeader'),
+        message: this.tr('home.dialog.activeRemindersIntro', { list: remindersList }),
         buttons: [
           {
-            text: 'Clear All',
+            text: this.tr('home.dialog.clearAll'),
             handler: () => {
               this.clearAllReminders();
             },
           },
           {
-            text: 'Done',
+            text: this.tr('home.dialog.done'),
             role: 'cancel',
           },
         ],
@@ -2686,7 +2737,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       await remindersAlert.present();
     } catch (error) {
       console.error('Error showing reminders:', error);
-      await this.showToast('Failed to load reminders', 'danger');
+      await this.showToast(this.tr('home.dialog.loadRemindersFailed'), 'danger');
     }
   }
 
@@ -2694,18 +2745,18 @@ export class HomeComponent implements OnInit, ViewWillEnter {
   private async clearAllReminders() {
     try {
       const confirmAlert = await this.alertController.create({
-        header: 'Clear All Reminders',
-        message: 'Are you sure you want to clear all fertility reminders?',
+        header: this.tr('home.alert.clearRemindersHeader'),
+        message: this.tr('home.alert.clearRemindersMessage'),
         buttons: [
           {
-            text: 'Cancel',
+            text: this.tr('home.common.cancel'),
             role: 'cancel',
           },
           {
-            text: 'Clear All',
+            text: this.tr('home.dialog.clearAll'),
             handler: () => {
               localStorage.removeItem('fertilityReminders');
-              this.showToast('All reminders cleared', 'success');
+              this.showToast(this.tr('home.dialog.allRemindersCleared'), 'success');
             },
           },
         ],
@@ -2714,7 +2765,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
       await confirmAlert.present();
     } catch (error) {
       console.error('Error clearing reminders:', error);
-      await this.showToast('Failed to clear reminders', 'danger');
+      await this.showToast(this.tr('home.dialog.clearRemindersFailed'), 'danger');
     }
   }
 
@@ -2726,10 +2777,7 @@ export class HomeComponent implements OnInit, ViewWillEnter {
 
       // Only allow sharing on mobile devices
       if (!isMobile) {
-        await this.showToast(
-          'Sharing is only available on mobile devices',
-          'warning',
-        );
+        await this.showToast(this.tr('home.dialog.shareMobileOnly'), 'warning');
         return;
       }
 
@@ -2761,7 +2809,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
             title: 'My Fertility Calendar',
             text: shareText,
           });
-          await this.showToast('Results shared successfully!', 'success');
+          await this.showToast(this.tr('home.dialog.resultsShared'), 'success');
         } catch (shareError) {
           console.log('Native share failed, using fallback:', shareError);
           await this.fallbackShare(shareText, isMobile);
@@ -2771,7 +2819,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       }
     } catch (error) {
       console.error('Error sharing results:', error);
-      await this.showToast('Failed to share results', 'danger');
+      await this.showToast(this.tr('home.dialog.shareFailed'), 'danger');
     }
   }
 
@@ -2781,29 +2829,29 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       if (isMobile) {
         // Mobile fallback: Show options for different sharing methods
         const shareAlert = await this.alertController.create({
-          header: '📤 Share Results',
-          message: "Choose how you'd like to share your fertility results:",
+          header: this.tr('home.alert.shareResultsHeader'),
+          message: this.tr('home.dialog.shareChooseMethod'),
           buttons: [
             {
-              text: '📋 Copy to Clipboard',
+              text: this.tr('home.dialog.copyClipboard'),
               handler: async () => {
                 await this.copyToClipboard(shareText);
               },
             },
             {
-              text: '📱 SMS/WhatsApp',
+              text: this.tr('home.dialog.smsWhatsapp'),
               handler: () => {
                 this.shareViaSMS(shareText);
               },
             },
             {
-              text: '📧 Email',
+              text: this.tr('home.dialog.email'),
               handler: () => {
                 this.shareViaEmail(shareText);
               },
             },
             {
-              text: 'Cancel',
+              text: this.tr('home.common.cancel'),
               role: 'cancel',
             },
           ],
@@ -2815,7 +2863,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       }
     } catch (error) {
       console.error('Fallback share failed:', error);
-      await this.showToast('Unable to share. Please try again.', 'danger');
+      await this.showToast(this.tr('home.dialog.shareUnable'), 'danger');
     }
   }
 
@@ -2824,7 +2872,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     try {
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
-        await this.showToast('Results copied to clipboard!', 'success');
+        await this.showToast(this.tr('home.dialog.copySuccess'), 'success');
       } else {
         // Fallback for older browsers or insecure contexts
         const textArea = document.createElement('textarea');
@@ -2838,17 +2886,14 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
         try {
           document.execCommand('copy');
-          await this.showToast('Results copied to clipboard!', 'success');
+          await this.showToast(this.tr('home.dialog.copySuccess'), 'success');
         } catch (err) {
-          await this.showToast(
-            'Please manually copy the text from the alert',
-            'warning',
-          );
+          await this.showToast(this.tr('home.dialog.copyManual'), 'warning');
           // Show the text in an alert for manual copying
           const textAlert = await this.alertController.create({
-            header: '📋 Copy This Text',
+            header: this.tr('home.alert.copyTextHeader'),
             message: `<div style="font-family: monospace; font-size: 12px; text-align: left; white-space: pre-line; max-height: 300px; overflow-y: auto;">${text}</div>`,
-            buttons: ['OK'],
+            buttons: [{ text: this.tr('home.common.ok'), role: 'cancel' }],
           });
           await textAlert.present();
         }
@@ -2857,7 +2902,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       }
     } catch (error) {
       console.error('Copy to clipboard failed:', error);
-      await this.showToast('Copy failed. Please try another method.', 'danger');
+      await this.showToast(this.tr('home.dialog.copyFailed'), 'danger');
     }
   }
 
@@ -2875,17 +2920,17 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       // Fallback to SMS after a short delay if WhatsApp doesn't work
       setTimeout(() => {
         const fallbackAlert = this.alertController.create({
-          header: '📱 Alternative Sharing',
-          message: "If WhatsApp didn't open, you can try SMS instead.",
+          header: this.tr('home.alert.altShareHeader'),
+          message: this.tr('home.dialog.altShareMessage'),
           buttons: [
             {
-              text: 'Open SMS',
+              text: this.tr('home.dialog.openSms'),
               handler: () => {
                 window.open(smsUrl, '_blank');
               },
             },
             {
-              text: 'Cancel',
+              text: this.tr('home.common.cancel'),
               role: 'cancel',
             },
           ],
@@ -2894,42 +2939,41 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       }, 2000);
     } catch (error) {
       console.error('SMS share failed:', error);
-      this.showToast('Unable to open messaging app', 'danger');
+      this.showToast(this.tr('home.dialog.unableOpenMessaging'), 'danger');
     }
   }
 
   // Share via Email
   private shareViaEmail(text: string) {
     try {
-      const subject = encodeURIComponent('My Fertility Calendar Results');
+      const subject = encodeURIComponent(this.tr('home.dialog.emailSubjectFertility'));
       const body = encodeURIComponent(text);
       const emailUrl = `mailto:?subject=${subject}&body=${body}`;
 
       window.open(emailUrl, '_blank');
-      this.showToast('Opening email app...', 'success');
+      this.showToast(this.tr('home.dialog.openingEmailApp'), 'success');
     } catch (error) {
       console.error('Email share failed:', error);
-      this.showToast('Unable to open email app', 'danger');
+      this.showToast(this.tr('home.dialog.unableOpenEmail'), 'danger');
     }
   }
 
   async openNutritionTracker() {
     try {
-      await this.showToast('Opening nutrition tracker...', 'success');
+      await this.showToast(this.tr('home.dialog.openingNutrition'), 'success');
 
       const nutritionAlert = await this.alertController.create({
-        header: '🥗 Nutrition Tracker',
-        message:
-          'Track your daily nutrition intake, including vitamins, minerals, and food groups essential for pregnancy.',
+        header: this.tr('home.alert.nutritionHeader'),
+        message: this.tr('home.dialog.nutritionBody'),
         buttons: [
           {
-            text: 'Start Tracking',
+            text: this.tr('home.dialog.startTracking'),
             handler: () => {
               this.router.navigate(['/tabs/insights']);
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -2937,30 +2981,26 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
       await nutritionAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open nutrition tracker. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.nutritionOpenFailed'), 'danger');
     }
   }
 
   async openExercisePlanner() {
     try {
-      await this.showToast('Opening exercise planner...', 'success');
+      await this.showToast(this.tr('home.dialog.openingExercise'), 'success');
 
       const exerciseAlert = await this.alertController.create({
-        header: '🏃‍♀️ Exercise Planner',
-        message:
-          'Get personalized exercise recommendations safe for each trimester of pregnancy.',
+        header: this.tr('home.alert.exerciseHeader'),
+        message: this.tr('home.dialog.exerciseBody'),
         buttons: [
           {
-            text: 'View Exercises',
+            text: this.tr('home.dialog.viewExercises'),
             handler: () => {
               this.router.navigate(['/tabs/insights']);
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -2968,30 +3008,26 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
       await exerciseAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open exercise planner. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.exerciseOpenFailed'), 'danger');
     }
   }
 
   async openMedicationReminder() {
     try {
-      await this.showToast('Opening medication reminder...', 'success');
+      await this.showToast(this.tr('home.dialog.openingMedication'), 'success');
 
       const medicationAlert = await this.alertController.create({
-        header: '💊 Medication Reminder',
-        message:
-          'Set reminders for your prenatal vitamins and medications to ensure you never miss a dose.',
+        header: this.tr('home.alert.medicationHeader'),
+        message: this.tr('home.dialog.medicationBody'),
         buttons: [
           {
-            text: 'Set Reminders',
+            text: this.tr('home.dialog.setRemindersBtn'),
             handler: () => {
               this.router.navigate(['/tabs/insights']);
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -2999,31 +3035,27 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
       await medicationAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open medication reminder. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.medicationOpenFailed'), 'danger');
     }
   }
 
   // Postpartum-specific methods
   async openFeedingTracker() {
     try {
-      await this.showToast('Opening feeding tracker...', 'success');
+      await this.showToast(this.tr('home.dialog.openingFeeding'), 'success');
 
       const feedingAlert = await this.alertController.create({
-        header: '🍼 Feeding Tracker',
-        message:
-          "Track your baby's feeding schedule, duration, and patterns to ensure proper nutrition.",
+        header: this.tr('home.alert.feedingHeader'),
+        message: this.tr('home.dialog.feedingBody'),
         buttons: [
           {
-            text: 'Start Tracking',
+            text: this.tr('home.dialog.startTracking'),
             handler: () => {
               this.router.navigate(['/tools']);
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -3031,30 +3063,26 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
       await feedingAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open feeding tracker. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.feedingOpenFailed'), 'danger');
     }
   }
 
   async openSleepTracker() {
     try {
-      await this.showToast('Opening sleep tracker...', 'success');
+      await this.showToast(this.tr('home.dialog.openingSleep'), 'success');
 
       const sleepAlert = await this.alertController.create({
-        header: '😴 Sleep Tracker',
-        message:
-          "Monitor your baby's sleep patterns, duration, and quality to establish healthy sleep habits.",
+        header: this.tr('home.alert.sleepHeader'),
+        message: this.tr('home.dialog.sleepBody'),
         buttons: [
           {
-            text: 'Start Tracking',
+            text: this.tr('home.dialog.startTracking'),
             handler: () => {
               this.router.navigate(['/tools']);
             },
           },
           {
-            text: 'Continue',
+            text: this.tr('home.common.continue'),
             role: 'cancel',
           },
         ],
@@ -3062,10 +3090,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
       await sleepAlert.present();
     } catch (error) {
-      await this.showToast(
-        'Failed to open sleep tracker. Please try again.',
-        'danger',
-      );
+      await this.showToast(this.tr('home.dialog.sleepOpenFailed'), 'danger');
     }
   }
 
@@ -3377,28 +3402,27 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const safeDay = this.getCycleDisplayDay();
     const ovulationDay = Math.max(1, safeLen - 14);
     const diff = ovulationDay - safeDay;
-    if (diff === 0) return 'Today';
-    if (diff > 0) return `In ${diff} days`;
-    return `${Math.abs(diff)} days ago`;
+    if (diff === 0) return this.tr('home.ovulation.today');
+    if (diff > 0) return this.tr('home.ovulation.inDays', { days: diff });
+    return this.tr('home.ovulation.daysAgo', { days: Math.abs(diff) });
   }
 
   getCycleDayStatus(): string {
-    if (this.currentCycleDay <= 0) return 'Not tracking';
-    if (this.currentCycleDay <= this.periodLength) return 'Period Day';
-    if (this.currentCycleDay <= 14) return 'Follicular Phase';
-    if (this.currentCycleDay <= 28) return 'Luteal Phase';
-    return 'Next Cycle';
+    if (this.currentCycleDay <= 0) return this.tr('home.cycleStatus.notTracking');
+    if (this.currentCycleDay <= this.periodLength)
+      return this.tr('home.cycleStatus.periodDay');
+    if (this.currentCycleDay <= 14) return this.tr('home.cycleStatus.follicular');
+    if (this.currentCycleDay <= 28) return this.tr('home.cycleStatus.luteal');
+    return this.tr('home.cycleStatus.nextCycle');
   }
 
   getCycleDayDescription(): string {
-    if (this.currentCycleDay <= 0) return 'Start tracking your cycle';
+    if (this.currentCycleDay <= 0) return this.tr('home.cycleDesc.notTracking');
     if (this.currentCycleDay <= this.periodLength)
-      return `Day ${this.currentCycleDay} of your period`;
-    if (this.currentCycleDay <= 14)
-      return 'Your body is preparing for ovulation';
-    if (this.currentCycleDay <= 28)
-      return 'Your body is preparing for the next period';
-    return 'Time to start tracking your next cycle';
+      return this.tr('home.cycleDesc.period', { day: this.currentCycleDay });
+    if (this.currentCycleDay <= 14) return this.tr('home.cycleDesc.follicular');
+    if (this.currentCycleDay <= 28) return this.tr('home.cycleDesc.luteal');
+    return this.tr('home.cycleDesc.next');
   }
 
   updateCycleDay() {
@@ -3407,12 +3431,19 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       return;
     }
 
-    const today = new Date();
+    const selectedIso = this.cycleSettings.selectedCycleViewDate();
+    const today = selectedIso
+      ? new Date(`${selectedIso}T12:00:00`)
+      : new Date();
     const startDate = new Date(this.periodStartDate);
-    const diffTime = Math.abs(today.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    this.currentCycleDay = diffDays + 1; // +1 because day 1 is the start date
+    startDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor(
+      (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    const safeLen = Math.max(1, this.currentCycleLength || 28);
+    const mod = ((diffDays % safeLen) + safeLen) % safeLen;
+    this.currentCycleDay = mod + 1; // 1-based cycle day for selected/today date
   }
 
   // Detect if user is on mobile device
@@ -3444,22 +3475,25 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   // Enhanced User Experience Methods
   getGreetingMessage(): string {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning! ☀️';
-    if (hour < 17) return 'Good Afternoon! 🌤️';
-    return 'Good Evening! 🌙';
+    if (hour < 12) return this.tr('home.greeting.morning');
+    if (hour < 17) return this.tr('home.greeting.afternoon');
+    return this.tr('home.greeting.evening');
   }
 
   getPersonalizedMessage(): string {
     if (this.isPregnant) {
-      return `You're in week ${this.getPregnancyDisplayWeek()}, day ${this.getPregnancyDayDisplay()}. How are you feeling today?`;
+      return this.tr('home.personalized.pregnant', {
+        week: this.getPregnancyDisplayWeek(),
+        day: this.getPregnancyDayDisplay(),
+      });
     }
     if (this.isHomeCycleTrackingLayout()) {
-      return `Day ${this.currentCycleDay} of your cycle. Let's track your journey together.`;
+      return this.tr('home.personalized.cycle', { day: this.currentCycleDay });
     }
     if (this.isPostpartum) {
-      return 'Welcome to your postpartum journey. Take care of yourself.';
+      return this.tr('home.personalized.postpartum');
     }
-    return "Ready to start your health journey? Let's begin tracking!";
+    return this.tr('home.personalized.default');
   }
 
   getStatusIcon(): string {
@@ -3980,9 +4014,9 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
   getTrimesterInsightLabel(): string {
     const clinical = Math.max(1, this.getPregnancyDisplayWeek());
-    if (clinical <= 13) return 'First trimester';
-    if (clinical <= 27) return 'Second trimester';
-    return 'Third trimester';
+    if (clinical <= 13) return this.tr('home.trimester.first');
+    if (clinical <= 27) return this.tr('home.trimester.second');
+    return this.tr('home.trimester.third');
   }
 
   openPregnancyWatchouts(): void {
@@ -4005,89 +4039,93 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const hydrationBody =
       tipA && /\b(hydrat|water|fluid|drink)\b/i.test(tipA)
         ? tipA
-        : 'Sipping water regularly supports circulation, energy, and amniotic fluid balance. If plain water is hard, try fruit infusions or herbal teas your clinician approves.';
+        : this.tr('home.pregInsight.hydrationDefault');
 
     const restBody =
       tipB && /\b(rest|sleep|tired|fatigue)\b/i.test(tipB)
         ? tipB
-        : 'Short rests and side-lying sleep when you can help your body do the quiet repair work of pregnancy.';
+        : this.tr('home.pregInsight.restDefault');
 
     const topics: DailyInsightTopic[] = [
       this.buildSymptomLogInsightTopic('pregnancy'),
       {
         id: 'hydration',
-        categoryLabel: 'Hydration',
-        teaser: 'Small sips, steady energy',
+        categoryLabel: this.tr('home.strip.categoryHydration'),
+        teaser: this.tr('home.pregStrip.hydrationTeaser'),
         accentHex: '#0284c7',
         ionIcon: 'water-outline',
         slides: [
           {
-            title: 'Water is doing more than you think',
+            title: this.tr('home.pregInsight.hydrationTitle'),
             body: hydrationBody,
           },
           {
-            title: 'Try this today',
-            body: 'Keep a bottle nearby and take a few sips after each bathroom trip — tiny habits add up.',
+            title: this.tr('home.strip.tryThisToday'),
+            body: this.tr('home.pregInsight.hydrationTryBody'),
           },
         ],
       },
       {
         id: 'rest',
-        categoryLabel: 'Rest',
-        teaser: 'Gentle recovery beats pushing through',
+        categoryLabel: this.tr('home.strip.categoryRest'),
+        teaser: this.tr('home.pregStrip.restTeaser'),
         accentHex: '#9333ea',
         ionIcon: 'moon-outline',
         slides: [
           {
-            title: 'Rest counts as care',
+            title: this.tr('home.strip.restCountsTitle'),
             body: restBody,
           },
           {
-            title: 'Wind-down cue',
-            body: 'Five minutes of slow breathing or soft music before bed can make sleep come a little easier.',
+            title: this.tr('home.pregInsight.restWindTitle'),
+            body: this.tr('home.pregInsight.restWindBody'),
           },
         ],
       },
       {
         id: 'baby',
-        categoryLabel: 'Your baby',
-        teaser: `Week ${w} · ${this.babySize}`,
+        categoryLabel: this.tr('home.strip.categoryBaby'),
+        teaser: this.tr('home.pregStrip.babyTeaser', { week: w, size: this.babySize }),
         accentHex: '#0d9488',
         ionIcon: 'medical',
         slides: [
           {
-            title: `Week ${w} in motion`,
+            title: this.tr('home.pregInsight.babySlide1Title', { week: w }),
             body: devFact,
           },
           {
-            title: 'A little perspective',
+            title: this.tr('home.pregInsight.babySlide2Title'),
             body: funFact,
           },
           {
-            title: 'Want the full week guide?',
-            body: 'From your home screen you can open the week detail page anytime for milestones and reminders.',
+            title: this.tr('home.pregInsight.babySlide3Title'),
+            body: this.tr('home.pregInsight.babySlide3Body'),
           },
         ],
       },
       {
         id: 'for-you',
-        categoryLabel: 'For you',
-        teaser: `${name}, we’re watching patterns with you`,
+        categoryLabel: this.tr('home.strip.categoryForYou'),
+        teaser: this.tr('home.pregStrip.forYouTeaser', { name }),
         accentHex: '#db2777',
         ionIcon: 'heart-outline',
         personalized: true,
         slides: [
           {
-            title: `${name}, today’s read on you`,
-            body: `You’re about day ${daysAlong} along, in the ${trimester.toLowerCase()}. ${phase}`,
+            title: this.tr('home.pregInsight.forYouSlide1Title', { name }),
+            body: this.tr('home.pregInsight.forYouSlide1Body', {
+              days: daysAlong,
+              trimester: trimester.toLowerCase(),
+              phase,
+            }),
           },
           {
-            title: 'Symptoms are signals, not a scorecard',
-            body: 'When something feels new or intense, note it — steady patterns help you and your care team decide what matters.',
+            title: this.tr('home.pregInsight.forYouSlide2Title'),
+            body: this.tr('home.pregInsight.forYouSlide2Body'),
           },
           {
-            title: 'You’re not behind',
-            body: 'Every pregnancy has noisy days and calm days. Showing up to read this already counts as good care.',
+            title: this.tr('home.pregInsight.forYouSlide3Title'),
+            body: this.tr('home.pregInsight.forYouSlide3Body'),
           },
         ],
       },
@@ -4102,37 +4140,41 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const strip = this.getPregnancyDailyInsightStripTopics();
     const teaser =
       strip.length > 0
-        ? `${strip.length} short reads for today`
-        : 'Your snapshot';
+        ? this.tr('home.pregSummary.teaserMulti', { count: strip.length })
+        : this.tr('home.pregSummary.teaserEmpty');
 
     const last = this.recentSymptomsDays[0];
-    let snapshotBody = `Day ${daysAlong} along · week ${w} · ${phase}`;
+    let snapshotBody = this.tr('home.pregSummary.bodyBase', {
+      days: daysAlong,
+      week: w,
+      phase,
+    });
     if (last) {
       const dk = this.isoDateFromTrackRow(last.date);
       const { moodText, symptomNames } = this.describeSymptomLogRow(last);
-      const when = dk ? this.formatDate(`${dk}T12:00:00`) : 'recently';
+      const when = dk ? this.formatDate(`${dk}T12:00:00`) : this.tr('home.common.recently');
       const tail = [moodText, ...symptomNames.slice(0, 3)]
         .filter(Boolean)
         .join(', ');
       snapshotBody += tail
-        ? ` Last symptom log (${when}): ${tail}.`
-        : ` Last symptom log: ${when}.`;
+        ? this.tr('home.pregSummary.symptomTail', { when, tail })
+        : this.tr('home.pregSummary.symptomBare', { when });
     }
 
     return {
       id: 'today-summary',
-      categoryLabel: 'Today',
+      categoryLabel: this.tr('home.pregSummary.categoryToday'),
       teaser,
       accentHex: '#ec4899',
       ionIcon: 'happy-outline',
       slides: [
         {
-          title: 'Your snapshot',
+          title: this.tr('home.pregSummary.slide1Title'),
           body: snapshotBody,
         },
         {
-          title: 'How this works',
-          body: 'Each card moves forward on its own after a few seconds. Tap the right side to skip ahead, left to go back, or close anytime — it runs through to the end if you stay with it.',
+          title: this.tr('home.pregSummary.slide2Title'),
+          body: this.tr('home.pregSummary.slide2Body'),
         },
       ],
     };
@@ -4148,7 +4190,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       });
       await modal.present();
     } catch {
-      await this.showToast('Could not open insights. Try again.', 'danger');
+      await this.showToast(this.tr('home.openInsightStoryError'), 'danger');
     }
   }
 
@@ -4158,7 +4200,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   }
 
   getCycleInsightsHeading(): string {
-    return 'My daily insights · Today';
+    return this.tr('home.dailyInsights.headingToday');
   }
 
   /** Cycle home: same horizontal story strip as pregnancy “My daily insights”. */
@@ -4171,91 +4213,95 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const status = this.getCycleDayStatus();
     const describe = this.getCycleDayDescription();
     const ovulationDay = Math.max(1, len - 14);
-    const daysToOvu = ovulationDay - day;
 
-    const hydrationBody =
-      'Regular hydration can ease bloating and headaches that sometimes cluster around your period or luteal phase. If plain water is dull, try citrus slices or electrolyte drinks your clinician okays.';
+    const hydrationBody = this.tr('home.cycleStrip.hydrationBody');
 
-    const restBody =
-      'Your hormones shift across the month — extra rest on heavy-flow or low-energy days is data your body is sending, not laziness.';
-
-    const fertileTeaser =
-      daysToOvu === 0
-        ? 'Ovulation window · high today'
-        : daysToOvu > 0
-          ? `Fertile window · ~${daysToOvu}d to peak`
-          : `Fertile window · peak was ${Math.abs(daysToOvu)}d ago`;
+    const restBody = this.tr('home.cycleStrip.restBody');
 
     return [
       this.buildSymptomLogInsightTopic('cycle'),
       {
         id: 'cycle-hydration',
-        categoryLabel: 'Hydration',
-        teaser: 'Small sips, steadier days',
+        categoryLabel: this.tr('home.strip.categoryHydration'),
+        teaser: this.tr('home.cycleStrip.hydrationTeaser'),
         accentHex: '#0284c7',
         ionIcon: 'water-outline',
         slides: [
-          { title: 'Fluids meet your cycle', body: hydrationBody },
           {
-            title: 'Try this today',
-            body: 'Pair each meal with a glass of water — easy to remember and gentle on your stomach.',
+            title: this.tr('home.cycleStrip.hydrationSlide1Title'),
+            body: hydrationBody,
+          },
+          {
+            title: this.tr('home.strip.tryThisToday'),
+            body: this.tr('home.cycleStrip.hydrationSlide2Body'),
           },
         ],
       },
       {
         id: 'cycle-rest',
-        categoryLabel: 'Rest',
-        teaser: 'Honor low-energy days',
+        categoryLabel: this.tr('home.strip.categoryRest'),
+        teaser: this.tr('home.cycleStrip.restTeaser'),
         accentHex: '#9333ea',
         ionIcon: 'moon-outline',
         slides: [
-          { title: 'Rest supports rhythm', body: restBody },
+          { title: this.tr('home.cycleStrip.restSlide1Title'), body: restBody },
           {
-            title: 'Wind-down cue',
-            body: 'Ten minutes off screens before bed can make sleep feel deeper, especially mid-luteal.',
+            title: this.tr('home.pregInsight.restWindTitle'),
+            body: this.tr('home.cycleStrip.restSlide2Body'),
           },
         ],
       },
       {
         id: 'cycle-body',
-        categoryLabel: 'Your cycle',
-        teaser: `Day ${day} · ${len}-day rhythm`,
+        categoryLabel: this.tr('home.cycleStrip.categoryYourCycle'),
+        teaser: this.tr('home.cycleStrip.bodyTeaser', { day, len }),
         accentHex: '#0d9488',
         ionIcon: 'pulse-outline',
         slides: [
           {
-            title: `Day ${day} of ${len}`,
+            title: this.tr('home.cycleStrip.bodySlide1Title', { day, len }),
             body: `${status}: ${describe}`,
           },
           {
-            title: 'What the ring is hinting',
-            body: `You’re about ${nextPeriodDays} day${nextPeriodDays === 1 ? '' : 's'} from your next expected period start. Ovulation is often near day ${ovulationDay} of a ${len}-day template — your logged dates tune this over time.`,
+            title: this.tr('home.cycleStrip.bodySlide2Title'),
+            body: this.tr('home.cycleStrip.bodySlide2Body', {
+              next: nextPeriodDays,
+              plural: nextPeriodDays === 1 ? '' : 's',
+              ovu: ovulationDay,
+              len,
+            }),
           },
           {
-            title: 'Keep logging',
-            body: 'Tap Track or open the cycle calendar when flow starts or shifts — patterns get clearer with a few cycles.',
+            title: this.tr('home.cycleStrip.bodySlide3Title'),
+            body: this.tr('home.cycleStrip.bodySlide3Body'),
           },
         ],
       },
       {
         id: 'cycle-for-you',
-        categoryLabel: 'For you',
-        teaser: `${name}, patterns over pressure`,
+        categoryLabel: this.tr('home.strip.categoryForYou'),
+        teaser: this.tr('home.cycleStrip.forYouTeaser', { name }),
         accentHex: '#db2777',
         ionIcon: 'heart-outline',
         personalized: true,
         slides: [
           {
-            title: `${name}, today’s read`,
-            body: `Day ${day} of ${len}, with about ${plen} day${plen === 1 ? '' : 's'} commonly marked as period. ${describe}`,
+            title: this.tr('home.cycleStrip.forYouSlide1Title', { name }),
+            body: this.tr('home.cycleStrip.forYouSlide1Body', {
+              day,
+              len,
+              plen,
+              p: plen === 1 ? '' : 's',
+              describe,
+            }),
           },
           {
-            title: 'Symptoms are signals',
-            body: 'When something feels new month to month, jot it — gentle tracking beats chasing perfection.',
+            title: this.tr('home.cycleStrip.forYouSlide2Title'),
+            body: this.tr('home.cycleStrip.forYouSlide2Body'),
           },
           {
-            title: 'You’re not behind',
-            body: 'Every cycle has noisy charts and calm ones. Opening the app already counts as self-care.',
+            title: this.tr('home.cycleStrip.forYouSlide3Title'),
+            body: this.tr('home.cycleStrip.forYouSlide3Body'),
           },
         ],
       },
@@ -4268,47 +4314,59 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const strip = this.getCycleDailyInsightStripTopics();
     const teaser =
       strip.length > 0
-        ? `${strip.length} short reads for today`
-        : 'Your snapshot';
+        ? this.tr('home.cycleSummary.teaserMulti', { count: strip.length })
+        : this.tr('home.cycleSummary.teaserEmpty');
 
     const last = this.recentSymptomsDays[0];
-    let snapshotBody = `Cycle day ${day} of ${len} · ${this.getCycleDayStatus().toLowerCase()}`;
+    let snapshotBody = this.tr('home.cycleSummary.bodyBase', {
+      day,
+      len,
+      status: this.getCycleDayStatus(),
+    });
     if (last) {
       const dk = this.isoDateFromTrackRow(last.date);
       const { moodText, symptomNames } = this.describeSymptomLogRow(last);
-      const when = dk ? this.formatDate(`${dk}T12:00:00`) : 'recently';
+      const when = dk ? this.formatDate(`${dk}T12:00:00`) : this.tr('home.common.recently');
       const tail = [moodText, ...symptomNames.slice(0, 3)]
         .filter(Boolean)
         .join(', ');
       snapshotBody += tail
-        ? ` Last symptom log (${when}): ${tail}.`
-        : ` Last symptom log: ${when}.`;
+        ? this.tr('home.pregSummary.symptomTail', { when, tail })
+        : this.tr('home.pregSummary.symptomBare', { when });
     }
 
     return {
       id: 'cycle-today-summary',
-      categoryLabel: 'Today',
+      categoryLabel: this.tr('home.cycleSummary.categoryToday'),
       teaser,
       accentHex: '#ec4899',
       ionIcon: 'happy-outline',
       slides: [
         {
-          title: 'Your snapshot',
+          title: this.tr('home.cycleSummary.slide1Title'),
           body: snapshotBody,
         },
         {
-          title: 'How this works',
-          body: 'Each card advances on its own after a few seconds. Tap right to skip ahead, left to go back, or close anytime.',
+          title: this.tr('home.cycleSummary.slide2Title'),
+          body: this.tr('home.cycleSummary.slide2Body'),
         },
       ],
     };
   }
 
+  getPostDueHintText(): string {
+    return this.tr('home.postDueHint', { week: this.getPregnancyDisplayWeek() });
+  }
+
+  getWeekDetailChipLabel(): string {
+    return this.tr('home.weekDetailChip', { week: this.getPregnancyDisplayWeek() });
+  }
+
   getPregnancyInsightsHeading(): string {
     if (!this.pregnancyCalendarViewDate) {
-      return 'My daily insights · Today';
+      return this.tr('home.dailyInsights.headingToday');
     }
-    return `My daily insights · ${this.pregnancyCalendarViewDate.toLocaleDateString(undefined, {
+    return `${this.tr('home.dailyInsights.headingPrefix')}${this.pregnancyCalendarViewDate.toLocaleDateString(this.dateLocaleTag(), {
       weekday: 'short',
       month: 'short',
       day: 'numeric',

@@ -1,15 +1,23 @@
 <ion-content class="onboarding-content" [scrollY]="currentStepData.id !== 'welcome'">
-  <div class="progress-container" [class.progress-welcome]="currentStepData.id === 'welcome'">
-    <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="currentStep + 1" [attr.aria-valuemin]="1" [attr.aria-valuemax]="steps.length" [attr.aria-label]="getStepProgressLabel()">
+  <div
+    class="progress-container"
+    [class.progress-welcome]="currentStepData.id === 'welcome'"
+    [class.progress-hidden]="currentStepData.id === 'pregnancy_status'"
+  >
+    <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="currentStep + 1" [attr.aria-valuemin]="1" [attr.aria-valuemax]="totalSteps" [attr.aria-label]="getStepProgressLabel()">
       <div class="progress-fill" [style.width.%]="progressPercentage"></div>
     </div>
     <div class="progress-text">
       <span class="progress-label">{{ getStepProgressLabel() }}</span>
-      <span class="progress-fraction" aria-hidden="true">{{ currentStep + 1 }} / {{ steps.length }}</span>
+      <span class="progress-fraction" aria-hidden="true">{{ currentStep + 1 }} / {{ totalSteps }}</span>
     </div>
   </div>
 
-  <div class="step-container" [class.step-welcome]="currentStepData.id === 'welcome'">
+  <div
+    class="step-container"
+    [class.step-welcome]="currentStepData.id === 'welcome'"
+    [class.step-journey]="currentStepData.id === 'pregnancy_status'"
+  >
     @if (currentStepData.id === 'welcome') {
       <div class="welcome-hero">
         <div class="welcome-brand-wrap">
@@ -37,7 +45,7 @@
         <p class="welcome-footnote">Takes about a minute · Private on this device until you sign in</p>
       </div>
     } @else if (!isPersonalizedResultStep) {
-      <div class="step-header">
+      <div class="step-header" [class.step-header--journey]="currentStepData.id === 'pregnancy_status'">
         <h1 class="step-title">{{ getStepTitle() }}</h1>
         <p class="step-subtitle">{{ getStepSubtitle() }}</p>
       </div>
@@ -46,11 +54,38 @@
     @if (currentStepData.id !== 'welcome') {
     <div class="step-content">
       <div class="question-container">
-        @if (!isPersonalizedResultStep && currentStepData.id !== 'welcome') {
+        @if (!isPersonalizedResultStep && currentStepData.id !== 'welcome' && currentStepData.id !== 'pregnancy_status') {
           <h2 class="question-text">{{ getStepQuestion() }}</h2>
         }
 
-        @if (currentStepData.type === 'radio' && currentStepData.id !== 'welcome') {
+        @if (currentStepData.type === 'radio' && currentStepData.id === 'pregnancy_status') {
+          <p class="journey-intro">{{ getStepQuestion() }}</p>
+          <div class="journey-cards" role="radiogroup" [attr.aria-label]="getStepTitle()">
+            @for (option of currentStepData.options; track option.value) {
+              <button
+                type="button"
+                class="journey-card"
+                [class.journey-card--mint]="option.cardTone === 'mint'"
+                [class.journey-card--lavender]="option.cardTone === 'lavender'"
+                [class.journey-card--cream]="option.cardTone === 'cream'"
+                [class.journey-card--selected]="answers[currentStepData.id] === option.value"
+                (click)="selectOption(currentStepData.id, option.value)"
+                [attr.aria-checked]="answers[currentStepData.id] === option.value"
+                role="radio"
+              >
+                <span class="journey-card__label">{{ option.label }}</span>
+                @if (option.imageSrc) {
+                  <span class="journey-card__badge">
+                    <img [src]="option.imageSrc" alt="" width="56" height="56" class="journey-card__img" decoding="async" />
+                  </span>
+                }
+              </button>
+            }
+          </div>
+          <p class="journey-footnote">Your choice only shapes what we show first—not a diagnosis.</p>
+        }
+
+        @if (currentStepData.type === 'radio' && currentStepData.id !== 'welcome' && currentStepData.id !== 'pregnancy_status') {
           <div class="options-container">
             @for (option of currentStepData.options; track option.value) {
               <button
@@ -70,9 +105,6 @@
               </button>
             }
           </div>
-          @if (currentStepData.id === 'pregnancy_status') {
-            <p class="step-reassurance">Your choice only shapes what we show first—not a diagnosis.</p>
-          }
         }
 
         @if (currentStepData.type === 'notify') {
@@ -92,21 +124,20 @@
         @if (currentStepData.type === 'date') {
           <div class="input-container">
             <p class="date-picker-hint">Tap below to open the calendar.</p>
-            <ion-datetime-button datetime="date-picker"></ion-datetime-button>
-            <ion-modal [keepContentsMounted]="true">
-              <ng-template>
-                <ion-datetime
-                  id="date-picker"
-                  presentation="date"
-                  [value]="answers[currentStepData.id]"
-                  [max]="getMaxDate()"
-                  [highlightedDates]="lastPeriodDatetimeHighlights"
-                  (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
-                ></ion-datetime>
-              </ng-template>
-            </ion-modal>
-
             @if (currentStepData.id === 'last_period') {
+              <ion-datetime-button datetime="onboarding-last-period"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="onboarding-last-period"
+                    presentation="date"
+                    [value]="answers[currentStepData.id]"
+                    [max]="getMaxDate()"
+                    [highlightedDates]="lastPeriodDatetimeHighlights"
+                    (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
               <p class="date-picker-cycle-legend">
                 <span class="date-picker-cycle-legend__item">
                   <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--period"></span>
@@ -117,6 +148,20 @@
                   Solid green — estimated ovulation day (Ov)
                 </span>
               </p>
+            } @else if (currentStepData.id === 'baby_birth_date') {
+              <ion-datetime-button datetime="onboarding-baby-birth"></ion-datetime-button>
+              <ion-modal [keepContentsMounted]="true">
+                <ng-template>
+                  <ion-datetime
+                    id="onboarding-baby-birth"
+                    presentation="date"
+                    [value]="answers[currentStepData.id]"
+                    [min]="getBabyBirthMinIso()"
+                    [max]="getBabyBirthMaxIso()"
+                    (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
+                  ></ion-datetime>
+                </ng-template>
+              </ion-modal>
             }
 
             @if (
@@ -128,6 +173,20 @@
                 <ion-icon name="warning-outline"></ion-icon>
                 {{
                   getLastPeriodValidationMessage() ||
+                    'Please adjust the date so it is valid.'
+                }}
+              </div>
+            }
+
+            @if (
+              currentStepData.id === 'baby_birth_date' &&
+              answers[currentStepData.id] &&
+              !isValidBabyBirthDate(answers[currentStepData.id])
+            ) {
+              <div class="validation-error">
+                <ion-icon name="warning-outline"></ion-icon>
+                {{
+                  getBabyBirthValidationMessage() ||
                     'Please adjust the date so it is valid.'
                 }}
               </div>
@@ -199,14 +258,14 @@
           </ion-button>
 
           <div class="nav-right">
-            @if (!currentStepData.required && currentStep < steps.length - 1) {
+            @if (!currentStepData.required && currentStep < totalSteps - 1) {
               <ion-button fill="clear" (click)="skipStep()" [disabled]="isFinishing">
                 Skip for now
               </ion-button>
             }
 
             <ion-button
-              class="nav-primary"
+              class="nav-primary onboarding-next-primary"
               [disabled]="!canProceed || isFinishing"
               (click)="nextStep()"
             >
@@ -219,8 +278,12 @@
                   Create account
                 }
               } @else {
-                Continue
-                @if (currentStep < steps.length - 1) {
+                @if (currentStepData.id === 'pregnancy_status') {
+                  Next
+                } @else {
+                  Continue
+                }
+                @if (currentStep < totalSteps - 1) {
                   <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
                 }
               }

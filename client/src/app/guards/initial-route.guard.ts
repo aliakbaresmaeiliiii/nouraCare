@@ -1,9 +1,9 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { shouldOpenOnboardingFirst } from './onboarding-local-storage.util';
 
 export const initialRouteGuard: CanActivateFn = () => {
   const router = inject(Router);
-  const hasStoredData = localStorage.length > 0;
-
-  return router.createUrlTree([hasStoredData ? '/welcome' : '/onboarding']);
+  const path = shouldOpenOnboardingFirst() ? '/onboarding' : '/welcome';
+  return router.createUrlTree([path]);
 };
