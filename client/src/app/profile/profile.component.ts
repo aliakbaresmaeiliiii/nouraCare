@@ -45,6 +45,9 @@ declare global {
 })
 export class ProfileComponent implements OnInit, ViewWillEnter {
   currentReproductiveStatus: string | null = null;
+  get isExperienceLoading(): boolean {
+    return this.profileCompletionService.loading;
+  }
   // Use the service's computed signal for percent
   get percent(): number {
     const completion = this.profileCompletionService.profileCompletion();

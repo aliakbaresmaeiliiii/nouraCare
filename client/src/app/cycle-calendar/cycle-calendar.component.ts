@@ -148,7 +148,7 @@ export class CycleCalendarComponent implements OnInit {
   }
 
   private applyPeriodRange(periodRange: PeriodDateRange) {
-    const iso = periodRange.startDate.toISOString().split('T')[0];
+    const iso = this.toLocalIsoDate(periodRange.startDate);
     const userId = this.homeService.getCurrentUserId();
     if (userId > 0) {
       void firstValueFrom(
@@ -172,6 +172,13 @@ export class CycleCalendarComponent implements OnInit {
     this.refreshCalendar();
     this.loadReproductiveStatus(this.homeService.getCurrentUserId());
     void this.router.navigate(['/tabs/home']);
+  }
+
+  private toLocalIsoDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   formatHistoryDay(iso: string): string {

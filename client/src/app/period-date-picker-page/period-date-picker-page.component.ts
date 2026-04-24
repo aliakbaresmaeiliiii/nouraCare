@@ -52,10 +52,44 @@ export class PeriodDatePickerPageComponent implements OnInit {
     this.periodLength = this.cycleSettings.periodLength();
     this.initialStartIso =
       this.initialStartIso ?? this.cycleSettings.lastPeriodStartDate();
+    this.selectedRange = this.buildInitialRange(this.initialStartIso);
   }
 
   onRangeSelected(range: PeriodDateRange) {
     this.selectedRange = range;
+  }
+
+  private buildInitialRange(startIso: string | null): PeriodDateRange | null {
+    if (!startIso) return null;
+    const part = startIso.split('T')[0];
+    const [y, m, d] = part.split('-').map((n) => parseInt(n, 10));
+    if (!y || !m || !d) return null;
+
+    const startDate = new Date(y, m - 1, d);
+    const periodDates: Date[] = [];
+    for (let i = 0; i < this.periodLength; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      periodDates.push(date);
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const normalizedStart = new Date(y, m - 1, d);
+
+    return {
+      startDate,
+      periodDates,
+      isPastDate: normalizedStart < today,
+      isToday: normalizedStart.toDateString() === today.toDateString(),
+    };
+  }
+
+  private toLocalIsoDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   async savePeriod() {
@@ -67,7 +101,7 @@ export class PeriodDatePickerPageComponent implements OnInit {
       return;
     }
 
-    const iso = this.selectedRange.startDate.toISOString().split('T')[0];
+    const iso = this.toLocalIsoDate(this.selectedRange.startDate);
     const userId = this.homeData.getCurrentUserId();
     if (userId > 0) {
       try {

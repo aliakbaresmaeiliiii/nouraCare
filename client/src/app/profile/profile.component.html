@@ -104,6 +104,19 @@
   <!-- Reproductive Status Section -->
   <section class="experience-section">
     <h2 class="experience-title">{{ 'editProfile.experienceTitle' | translate }}</h2>
+    @if (isExperienceLoading) {
+    <div class="experience-grid experience-grid--skeleton" aria-hidden="true">
+      @for (_ of [1, 2, 3, 4]; track $index) {
+      <div class="experience-card experience-card--skeleton">
+        <span class="experience-icon-wrap experience-icon-wrap--skeleton"></span>
+        <span class="experience-label experience-label--skeleton"></span>
+      </div>
+      }
+    </div>
+    <div class="continue-button-container continue-button-container--skeleton" aria-hidden="true">
+      <div class="continue-button-skeleton"></div>
+    </div>
+    } @else {
     <div class="experience-grid" role="radiogroup" [attr.aria-label]="'editProfile.reproductiveStatusAria' | translate">
       <button
         type="button"
@@ -189,6 +202,7 @@
         {{ 'editProfile.continue' | translate }}
       </ion-button>
     </div>
+    }
   </section>
 
   <!-- Profile Fields Cards -->

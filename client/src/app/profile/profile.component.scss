@@ -341,6 +341,61 @@
   gap: 8px;
 }
 
+.experience-grid--skeleton {
+  pointer-events: none;
+}
+
+.experience-card--skeleton {
+  min-height: 160px;
+}
+
+.experience-icon-wrap--skeleton {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.experience-label--skeleton {
+  width: 75%;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.experience-card--skeleton,
+.experience-icon-wrap--skeleton,
+.experience-label--skeleton,
+.continue-button-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.experience-card--skeleton::after,
+.experience-icon-wrap--skeleton::after,
+.experience-label--skeleton::after,
+.continue-button-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%);
+  animation: experience-skeleton-shimmer 1.2s ease-in-out infinite;
+}
+
+.continue-button-container--skeleton {
+  margin-top: 14px;
+}
+
+.continue-button-skeleton {
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
 .experience-card--selected {
   border-color: rgba(var(--flo-primary-rgb), 0.55);
   box-shadow: 0 8px 20px rgba(var(--flo-primary-rgb), 0.2);
@@ -389,6 +444,15 @@
   --padding-top: 14px;
   --padding-bottom: 14px;
   font-weight: 700;
+}
+
+@keyframes experience-skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 // Pregnancy Planning Summary - Modern Design
@@ -965,6 +1029,12 @@
   .experience-card {
     background: rgba(255, 255, 255, 0.03);
     border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .experience-icon-wrap--skeleton,
+  .experience-label--skeleton,
+  .continue-button-skeleton {
+    background: rgba(255, 255, 255, 0.12);
   }
 
   .experience-icon-wrap {
