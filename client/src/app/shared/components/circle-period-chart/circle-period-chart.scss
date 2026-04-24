@@ -237,6 +237,7 @@
 }
 
 .cycle-chart-container.cycle-chart-container--phase-period {
+  background: #780000;
   --cycle-drift-wave-1: radial-gradient(
     circle at 42% 38%,
     rgba(232, 180, 200, 0.52) 0%,
@@ -281,6 +282,10 @@
     rgba(20, 184, 166, 0.14) 62%,
     transparent 74%
   );
+}
+
+.cycle-chart-container.cycle-chart-container--phase-ovulation {
+  background: #5BB6D1;
 }
 
 @keyframes cycle-chart-drift {

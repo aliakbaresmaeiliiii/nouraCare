@@ -417,6 +417,30 @@
     </svg>
   </div>
 
+  <div class="cycle-chart-track-wrap">
+    <button
+      type="button"
+      class="cycle-chart-track-btn"
+      (click)="goToLogPeriod()"
+      aria-label="Edit logged period dates"
+    >
+      <span class="cycle-chart-track-btn__icon" aria-hidden="true">
+        <ion-icon name="calendar-outline"></ion-icon>
+      </span>
+      <span class="cycle-chart-track-btn__copy">
+        <span class="cycle-chart-track-btn__title">Edit Log Period</span>
+        <span class="cycle-chart-track-btn__hint"
+          >Update your last period date quickly</span
+        >
+      </span>
+      <ion-icon
+        name="chevron-forward-outline"
+        class="cycle-chart-track-btn__chev"
+        aria-hidden="true"
+      ></ion-icon>
+    </button>
+  </div>
+
   <!-- Legend: matches ring colors; day numbers are cycle-day positions (1 = first day of period) -->
   <!-- <div class="cycle-legend" role="region" aria-label="Cycle phase guide">
     <p class="cycle-legend__intro">How to read your cycle on the ring</p>

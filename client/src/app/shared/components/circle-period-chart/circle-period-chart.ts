@@ -593,6 +593,10 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     void this.router.navigate(['/cycle-calendar']);
   }
 
+  goToLogPeriod(): void {
+    void this.router.navigate(['/period-date-picker']);
+  }
+
   // --- helpers & recompute ---
   private addDaysToIso(isoDate: string, daysToAdd: number): string {
     const d = new Date(isoDate);
