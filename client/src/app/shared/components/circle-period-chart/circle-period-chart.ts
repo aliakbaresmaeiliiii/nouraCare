@@ -19,6 +19,10 @@ import type { UserInfo } from '../../interfaces/user-info-api.interface';
 import { AuthService } from '../../../auth/services/auth';
 import { TranslationService } from '../../services/translation.service';
 import { LanguageService } from '../../services/language.service';
+import { ReproductiveStatusService } from '../../services/reproductive-status.service';
+import { PeriodHistoryService } from '../../services/period-history.service';
+import { HomeDataService } from '../../../home/services/home-data.service';
+import { firstValueFrom } from 'rxjs';
 import {
   formatCyclePhaseShortDate,
   formatCycleStripCenterDate,
@@ -50,6 +54,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   private authService = inject(AuthService);
   private translationService = inject(TranslationService);
   private languageService = inject(LanguageService);
+  private reproductiveStatusService = inject(ReproductiveStatusService);
+  private periodHistory = inject(PeriodHistoryService);
+  private homeData = inject(HomeDataService);
   private cdr = inject(ChangeDetectorRef);
   // Configuration inputs
   @Input() cycleLength: number = 28; // total cycle length in days
@@ -1147,6 +1154,13 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       : this.t('cycleChart.common.days');
   }
 
+  private toLocalIsoDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   private t(key: string, params?: Record<string, string | number>): string {
     const template = this.translationService.translate(key);
     if (!params) {
@@ -1266,7 +1280,29 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     return mod + 1;
   }
 
-  onWeekDayPick(d: { isToday: boolean; isoKey: string; fullDate: Date }): void {
+  async onWeekDayPick(d: { isToday: boolean; isoKey: string; fullDate: Date }): Promise<void> {
+    const iso = this.toLocalIsoDate(d.fullDate);
+    if (this.startDate !== iso) {
+      const userId = this.homeData.getCurrentUserId();
+      if (userId > 0) {
+        try {
+          await firstValueFrom(
+            this.reproductiveStatusService.createPeriodLog(userId, {
+              lastPeriodDate: iso,
+              mood: '',
+              notes: '',
+              averagePeriodDuration: this.periodLength,
+            }),
+          );
+        } catch (error) {
+          console.error('Failed to persist period log from week strip:', error);
+        }
+      }
+
+      this.cycleSettings.setLastPeriodStart(iso);
+      this.periodHistory.addEntry(iso);
+    }
+
     if (d.isToday) {
       this.weekCalendarSelectedIsoKey = null;
       this.cycleSettings.setSelectedCycleViewDate(null);

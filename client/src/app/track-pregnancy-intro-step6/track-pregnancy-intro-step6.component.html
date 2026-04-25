@@ -11,7 +11,13 @@
           [attr.stroke-dashoffset]="dashOffset"
         ></circle>
       </svg>
-      <div class="tpi6-value">{{ progress }} <span>%</span></div>
+      <div class="tpi6-value">
+        <div class="tpi6-percent">{{ progress }} <span>%</span></div>
+        <div class="tpi6-pregnancy-week">{{ pregnancyWeekLabel }}</div>
+        @if (periodElapsedLabel) {
+          <div class="tpi6-period-time">{{ periodElapsedLabel }}</div>
+        }
+      </div>
 
       @if (showFirstPregnancyDialog) {
         <div class="tpi6-dialog" role="dialog" aria-modal="true" aria-label="Pregnancy question">
