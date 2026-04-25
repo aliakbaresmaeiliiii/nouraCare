@@ -306,11 +306,11 @@
           </text>
 
           <!-- Wrapped hint (shorter copy + HTML line-break where needed) -->
-          <foreignObject x="-152" y="-98" width="304" height="46" class="cycle-center-context-fo">
+          <!-- <foreignObject x="-152" y="-98" width="304" height="46" class="cycle-center-context-fo">
             <div xmlns="http://www.w3.org/1999/xhtml" class="cycle-center-context-inner">
               {{ getViewContextText() }}
             </div>
-          </foreignObject>
+          </foreignObject> -->
 
           @if (startDate && weekStripSelectionOvulationInsight) {
             <text
@@ -421,14 +421,17 @@
     <button
       type="button"
       class="cycle-chart-track-btn"
+      [class.cycle-chart-track-btn--period]="isInPeriod"
       (click)="goToLogPeriod()"
-      aria-label="Edit logged period dates"
+      [attr.aria-label]="isInPeriod ? 'Edit logged period dates' : 'Log period'"
     >
       <span class="cycle-chart-track-btn__icon" aria-hidden="true">
         <ion-icon name="calendar-outline"></ion-icon>
       </span>
       <span class="cycle-chart-track-btn__copy">
-        <span class="cycle-chart-track-btn__title">Edit Log Period</span>
+        <span class="cycle-chart-track-btn__title">{{
+          isInPeriod ? 'Edit Log Period' : 'Log Period'
+        }}</span>
         <span class="cycle-chart-track-btn__hint"
           >Update your last period date quickly</span
         >
@@ -440,60 +443,6 @@
       ></ion-icon>
     </button>
   </div>
-
-  <!-- Legend: matches ring colors; day numbers are cycle-day positions (1 = first day of period) -->
-  <!-- <div class="cycle-legend" role="region" aria-label="Cycle phase guide">
-    <p class="cycle-legend__intro">How to read your cycle on the ring</p>
-    <ul class="cycle-legend__list">
-      <li class="legend-item">
-        <div class="legend-swatch" aria-hidden="true">
-          <span class="legend-dot period-dot"></span>
-        </div>
-        <div class="legend-item__content">
-          <span class="legend-item__title">Period</span>
-          <span class="legend-item__hint">Menstrual bleeding</span>
-          <span class="legend-item__range">Cycle days 1–{{ periodLength }} · {{ periodLength }} days</span>
-        </div>
-      </li>
-      <li class="legend-item">
-        <div class="legend-swatch" aria-hidden="true">
-          <span class="legend-dot fertility-dot"></span>
-        </div>
-        <div class="legend-item__content">
-          <span class="legend-item__title">Fertile window</span>
-          <span class="legend-item__hint">Higher chance of pregnancy if you have sex on these days</span>
-          <span class="legend-item__range">Days {{ fertileWindowStart }}–{{ fertileWindowEnd }} ·
-            {{ fertileWindowEnd - fertileWindowStart + 1 }} days</span>
-        </div>
-      </li>
-      @if (ovulationDay > 0) {
-        <li class="legend-item">
-          <div class="legend-swatch legend-swatch--ovulation" aria-hidden="true">
-            <svg class="legend-ovulation-heart" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M12 21s-5.05-4.35-8.28-7.57C1.43 11.14 1.43 7.07 4.1 4.4a5.66 5.66 0 0 1 8 0L12 4.7l-.1-.1a5.66 5.66 0 0 1 8 0c2.67 2.67 2.67 6.74 0 9.41C17.05 16.65 12 21 12 21z"
-                fill="currentColor" />
-            </svg>
-          </div>
-          <div class="legend-item__content">
-            <span class="legend-item__title">Ovulation</span>
-            <span class="legend-item__hint">Estimated peak fertility (middle of the fertile window)</span>
-            <span class="legend-item__range">Around cycle day {{ ovulationDay }}</span>
-          </div>
-        </li>
-      }
-      <li class="legend-item">
-        <div class="legend-swatch" aria-hidden="true">
-          <span class="legend-dot pms-dot"></span>
-        </div>
-        <div class="legend-item__content">
-          <span class="legend-item__title">PMS</span>
-          <span class="legend-item__hint">Late cycle before your next period</span>
-          <span class="legend-item__range">Days {{ pmsStart }}–{{ pmsEnd }} · {{ pmsEnd - pmsStart + 1 }} days</span>
-        </div>
-      </li>
-    </ul>
-  </div> -->
 </div>
 
 

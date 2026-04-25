@@ -19,10 +19,6 @@ import type { UserInfo } from '../../interfaces/user-info-api.interface';
 import { AuthService } from '../../../auth/services/auth';
 import { TranslationService } from '../../services/translation.service';
 import { LanguageService } from '../../services/language.service';
-import { ReproductiveStatusService } from '../../services/reproductive-status.service';
-import { PeriodHistoryService } from '../../services/period-history.service';
-import { HomeDataService } from '../../../home/services/home-data.service';
-import { firstValueFrom } from 'rxjs';
 import {
   formatCyclePhaseShortDate,
   formatCycleStripCenterDate,
@@ -54,9 +50,6 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   private authService = inject(AuthService);
   private translationService = inject(TranslationService);
   private languageService = inject(LanguageService);
-  private reproductiveStatusService = inject(ReproductiveStatusService);
-  private periodHistory = inject(PeriodHistoryService);
-  private homeData = inject(HomeDataService);
   private cdr = inject(ChangeDetectorRef);
   // Configuration inputs
   @Input() cycleLength: number = 28; // total cycle length in days
@@ -126,8 +119,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   // Cycle phase calculations based on standard cycle science
   get fertileWindowStart(): number {
-    // Fertile window typically starts 5 days before ovulation
-    return Math.max(1, this.ovulationDay - 5);
+    // Flo-like UX: fertile phase starts 3 days after bleeding ends.
+    return Math.min(this.cycleLength, Math.max(1, this.periodLength + 3));
   }
 
   get fertileWindowEnd(): number {
@@ -710,8 +703,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
 
   /**
    * Calendar‑method fertility copy for the **focused** day.
-   * Ovulation is estimated as cycle day `periodLength + 2` (two days after bleeding ends);
-   * fertile window = ovulation−5 … ovulation+1 (six‑day window + day after O).
+   * Fertile phase starts at `periodLength + 3` (3 days after bleeding ends),
+   * with ovulation kept near the cycle baseline (`cycleLength - 14`) but not too early.
    */
   getFertilityStatus(): {
     status: string;
@@ -808,9 +801,14 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   getDaysUntilFertileWindow() {
-    const nextCycleStart = this.cycleLength - this.todayCycleDay + 1;
-    const nextFertileStart = nextCycleStart + this.periodLength + 3;
-    return nextFertileStart;
+    const cd = this.viewCycleDay;
+    if (cd < this.fertileWindowStart) {
+      return this.fertileWindowStart - cd;
+    }
+    if (cd >= this.fertileWindowStart && cd <= this.fertileWindowEnd) {
+      return 0;
+    }
+    return this.cycleLength - cd + this.fertileWindowStart;
   }
 
   getDaysUntilOvulation(): number {
@@ -1281,27 +1279,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   async onWeekDayPick(d: { isToday: boolean; isoKey: string; fullDate: Date }): Promise<void> {
-    const iso = this.toLocalIsoDate(d.fullDate);
-    if (this.startDate !== iso) {
-      const userId = this.homeData.getCurrentUserId();
-      if (userId > 0) {
-        try {
-          await firstValueFrom(
-            this.reproductiveStatusService.createPeriodLog(userId, {
-              lastPeriodDate: iso,
-              mood: '',
-              notes: '',
-              averagePeriodDuration: this.periodLength,
-            }),
-          );
-        } catch (error) {
-          console.error('Failed to persist period log from week strip:', error);
-        }
-      }
-
-      this.cycleSettings.setLastPeriodStart(iso);
-      this.periodHistory.addEntry(iso);
-    }
+    // Week strip tap is now selection-only; period logging is handled elsewhere.
 
     if (d.isToday) {
       this.weekCalendarSelectedIsoKey = null;
@@ -1391,11 +1369,14 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   private recomputeEverything() {
     this.todayDate = new Date();
 
-    // Predicted ovulation cycle day: two calendar days after last bleeding day
-    // (last bleed = cycle day `periodLength` → ovulation at `periodLength + 2`).
+    // Predicted ovulation cycle day.
+    // Keep the medical baseline (`cycleLength - 14`), but never place ovulation
+    // too early for the Flo-like fertile start (period end + 3 days).
+    const baselineOvulationDay = this.cycleLength - 14;
+    const minOvulationFromPeriodTiming = this.fertileWindowStart + 4;
     this.ovulationDay = Math.min(
       this.cycleLength,
-      Math.max(1, this.periodLength + 2),
+      Math.max(1, baselineOvulationDay, minOvulationFromPeriodTiming),
     );
 
     // refresh ring day labels

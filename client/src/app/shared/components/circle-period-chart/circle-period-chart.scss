@@ -587,6 +587,18 @@
   opacity: 0.88;
 }
 
+.cycle-chart-track-btn.cycle-chart-track-btn--period {
+  background: #ffffff;
+  color: #c21e56;
+  border-color: rgba(194, 30, 86, 0.32);
+
+  .cycle-chart-track-btn__title,
+  .cycle-chart-track-btn__hint,
+  .cycle-chart-track-btn__chev {
+    color: #c21e56;
+  }
+}
+
 // SVG disk / track / center — soft brand tint on edges (reads friendlier than flat gray)
 .chart-bg-disk {
   stroke: rgba(var(--brand-primary-rgb), 0.14);
@@ -807,7 +819,7 @@
   
   .center-current-date {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: clamp(16px, 4.4vw, 20px);
+    font-size: clamp(18px, 4.8vw, 22px);
     font-weight: 650;
     letter-spacing: 0.02em;
     paint-order: stroke fill;
@@ -844,7 +856,7 @@
 
   .center-ovulation-insight {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: clamp(12px, 3.2vw, 13.5px);
+    font-size: clamp(13px, 3.3vw, 15px);
     font-weight: 700;
     letter-spacing: 0.02em;
     paint-order: stroke fill;
@@ -855,7 +867,7 @@
   // Fertility Status Styling
   .cycle-day-title {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: clamp(14px, 3.8vw, 17px);
+    font-size: clamp(16px, 4.1vw, 20px);
     font-weight: 800;
     letter-spacing: 0.02em;
     paint-order: stroke fill;
@@ -870,7 +882,7 @@
 
     .fertility-status__label {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: clamp(14px, 3.7vw, 16.5px);
+      font-size: clamp(16px, 4.1vw, 19px);
       font-weight: 700;
       letter-spacing: 0.03em;
     }
@@ -878,7 +890,7 @@
 
   .milestone-text {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: clamp(11.5px, 3.1vw, 13px);
+    font-size: clamp(12px, 3.2vw, 14px);
     font-weight: 500;
     letter-spacing: 0.02em;
     line-height: 1.35;
