@@ -1,7 +1,5 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { addIcons } from 'ionicons';
-import { chevronBack } from 'ionicons/icons';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
@@ -16,15 +14,8 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 export class TrackPregnancyIntroStep3Component {
   private router = inject(Router);
 
-  readonly heroImageSrc = 'assets/images/onboarding/step2.jpg';
-
-  constructor() {
-    addIcons({ chevronBack });
-  }
-
-  goBack(): void {
-    void this.router.navigate(['/track-pregnancy-intro-step2']);
-  }
+  readonly heroImageSrc =
+    'assets/images/onboarding/track-pregnancy-intro-step3-result.png';
 
   continueNext(): void {
     void this.router.navigate(['/track-pregnancy-intro-step4']);

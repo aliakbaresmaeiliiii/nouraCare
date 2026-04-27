@@ -7,126 +7,60 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 42px;
-  padding: calc(16px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));
+  justify-content: flex-start;
+  padding: calc(26px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));
   background: #1c1c1e;
   color: #fff;
 }
 
-.tpi6-ring-wrap {
-  position: relative;
-  width: min(68vw, 300px);
-  height: min(68vw, 300px);
-}
-
-.tpi6-ring {
+.tpi6-loader-wrap {
+  margin-top: 64px;
+  margin-bottom: 34px;
   width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.tpi6-track,
-.tpi6-fill {
-  fill: none;
-  stroke-width: 20;
-}
-
-.tpi6-track {
-  stroke: #4a4a4c;
-}
-
-.tpi6-fill {
-  stroke: #ff5a79;
-  stroke-linecap: round;
-  stroke-dasharray: 753.98;
-  transition: stroke-dashoffset 80ms linear;
-}
-
-.tpi6-value {
-  position: absolute;
-  inset: 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 6px;
-  text-align: center;
-  padding: 0 22px;
+}
+
+.tpi6-loader {
+  --progress: 29%;
+  width: min(78vw, 320px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(#ff5a79 var(--progress), #51535a 0);
+}
+
+.tpi6-loader::before {
+  content: '';
+  position: absolute;
+  inset: 24px;
+  border-radius: 50%;
+  background: #1c1c1e;
 }
 
 .tpi6-percent {
-  font-size: clamp(2.2rem, 10vw, 3rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.tpi6-percent span {
-  font-size: 0.58em;
-  font-weight: 700;
-}
-
-.tpi6-pregnancy-week {
-  font-size: clamp(0.9rem, 3.8vw, 1.05rem);
-  font-weight: 700;
-  line-height: 1.2;
-  color: #ffe9ee;
-}
-
-.tpi6-period-time {
-  font-size: clamp(0.78rem, 3.2vw, 0.92rem);
+  position: relative;
+  z-index: 1;
+  font-size: clamp(2.2rem, 8vw, 3.4rem);
   font-weight: 500;
-  line-height: 1.2;
-  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: -0.01em;
+}
+
+.tpi6-percent small {
+  font-size: 0.58em;
+  font-weight: 500;
+  color: #d4d4d6;
+  margin-inline-start: 2px;
 }
 
 .tpi6-title {
   margin: 0;
   text-align: center;
-  font-size: clamp(2rem, 8.2vw, 2.7rem);
-  line-height: 1.18;
+  font-size: clamp(1.8rem, 7vw, 2.35rem);
+  line-height: 1.22;
   font-weight: 800;
   letter-spacing: -0.02em;
-  max-width: 20rem;
-}
-
-.tpi6-dialog {
-  position: absolute;
-  left: 50%;
-  bottom: -4px;
-  transform: translateX(-50%);
-  width: min(92vw, 320px);
-  background: #ceced0;
-  border: 1px solid #a8a8ab;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.38);
-  color: #fff;
-}
-
-.tpi6-dialog-title {
-  padding: 14px 16px 12px;
-  text-align: center;
-  font-size: 1.05rem;
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid #b4b4b7;
-}
-
-.tpi6-dialog-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.tpi6-dialog-btn {
-  border: 0;
-  background: #d6d6d8;
-  color: #f8f8f8;
-  font-size: 1.05rem;
-  font-weight: 600;
-  padding: 12px 8px;
-}
-
-.tpi6-dialog-btn + .tpi6-dialog-btn {
-  border-left: 1px solid #b4b4b7;
+  max-width: 26rem;
 }

@@ -1,20 +1,26 @@
 <ion-content class="tpi7-content" [fullscreen]="true" scrollY="false">
   <div class="tpi7-root">
     <main class="tpi7-main">
-      <h1 class="tpi7-title">Your personal pregnancy program</h1>
+      <div class="tpi7-figure" aria-hidden="true">
+        <div class="tpi7-figure-frame">
+          <img class="tpi7-hero-img" [src]="heroImageSrc" alt="" />
+        </div>
+      </div>
 
-      <div class="tpi7-list" role="list">
-        @for (benefit of benefits; track benefit.text) {
-          <div class="tpi7-item" role="listitem">
-            <span class="tpi7-icon-wrap" aria-hidden="true">{{ benefit.icon }}</span>
-            <span class="tpi7-text">{{ benefit.text }}</span>
+      <h1 class="tpi7-title">Get expert guidance from bump to birth with Premium+</h1>
+
+      <div class="tpi7-features">
+        @for (item of featureItems; track item) {
+          <div class="tpi7-feature">
+            <span class="tpi7-feature-icon" aria-hidden="true"></span>
+            <span class="tpi7-feature-text">{{ item }}</span>
           </div>
         }
       </div>
     </main>
 
     <footer class="tpi7-footer">
-      <ion-button class="tpi7-next" shape="round" (click)="continueNext()">Next</ion-button>
+      <ion-button class="tpi7-cta" shape="round" (click)="continueNext()">Continue</ion-button>
     </footer>
   </div>
 </ion-content>

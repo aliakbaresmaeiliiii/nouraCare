@@ -1,39 +1,16 @@
 <ion-content class="tpi6-content" [fullscreen]="true" scrollY="false">
   <div class="tpi6-root">
-    <div class="tpi6-ring-wrap" aria-hidden="true">
-      <svg class="tpi6-ring" viewBox="0 0 280 280" role="img">
-        <circle class="tpi6-track" cx="140" cy="140" r="120"></circle>
-        <circle
-          class="tpi6-fill"
-          cx="140"
-          cy="140"
-          r="120"
-          [attr.stroke-dashoffset]="dashOffset"
-        ></circle>
-      </svg>
-      <div class="tpi6-value">
-        <div class="tpi6-percent">{{ progress }} <span>%</span></div>
-        <div class="tpi6-pregnancy-week">{{ pregnancyWeekLabel }}</div>
-        @if (periodElapsedLabel) {
-          <div class="tpi6-period-time">{{ periodElapsedLabel }}</div>
-        }
+    <div class="tpi6-loader-wrap" aria-hidden="true">
+      <div
+        class="tpi6-loader"
+        [style.--progress]="progress + '%'"
+        role="img"
+        aria-label="Personalization progress"
+      >
+        <span class="tpi6-percent">{{ progress }}<small>%</small></span>
       </div>
-
-      @if (showFirstPregnancyDialog) {
-        <div class="tpi6-dialog" role="dialog" aria-modal="true" aria-label="Pregnancy question">
-          <div class="tpi6-dialog-title">Is this your first pregnancy?</div>
-          <div class="tpi6-dialog-actions">
-            <button type="button" class="tpi6-dialog-btn" (click)="onFirstPregnancyAnswer(false)">
-              No
-            </button>
-            <button type="button" class="tpi6-dialog-btn" (click)="onFirstPregnancyAnswer(true)">
-              Yes
-            </button>
-          </div>
-        </div>
-      }
     </div>
 
-    <h1 class="tpi6-title">Creating your personal program...</h1>
+    <h1 class="tpi6-title">Personalizing your experience ...</h1>
   </div>
 </ion-content>

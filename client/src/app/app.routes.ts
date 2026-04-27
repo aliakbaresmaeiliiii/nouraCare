@@ -118,6 +118,54 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'track-pregnancy-intro-step8',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step8/track-pregnancy-intro-step8.component').then(
+        (m) => m.TrackPregnancyIntroStep8Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step9',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step9/track-pregnancy-intro-step9.component').then(
+        (m) => m.TrackPregnancyIntroStep9Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step10',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step10/track-pregnancy-intro-step10.component').then(
+        (m) => m.TrackPregnancyIntroStep10Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step11',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step11/track-pregnancy-intro-step11.component').then(
+        (m) => m.TrackPregnancyIntroStep11Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step12',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step12/track-pregnancy-intro-step12.component').then(
+        (m) => m.TrackPregnancyIntroStep12Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'track-pregnancy-intro-step13',
+    loadComponent: () =>
+      import('./track-pregnancy-intro-step13/track-pregnancy-intro-step13.component').then(
+        (m) => m.TrackPregnancyIntroStep13Component,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'blocked-users',
     loadComponent: () =>
       import('./blocked-users/blocked-users.component').then(

@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { User } from '../shared/services/user';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
@@ -17,7 +17,7 @@ import {
   ReproductiveStatusData,
 } from '../shared/services/reproductive-status.service';
 import { PregnancyEndDialogComponent } from '../shared/components/pregnancy-end-dialog/pregnancy-end-dialog.component';
-import { ModalController } from '@ionic/angular/standalone';
+import { AlertController, ModalController } from '@ionic/angular/standalone';
 import { Share } from '@capacitor/share';
 import { HomeDataService } from '../home/services/home-data.service';
 import { UserSessionService } from '../shared/services/user-session.service';
@@ -90,6 +90,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   selectedTab = 'first';
   // swiperEl = viewChild('swiperContainer');
   router = inject(Router);
+  private route = inject(ActivatedRoute);
   userInfoStore: any = {};
   fullName: string = '';
   email: string = '';
@@ -104,6 +105,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   private reproductiveStatusService = inject(ReproductiveStatusService);
   private onboardingService = inject(OnboardingService);
   private modalCtrl = inject(ModalController);
+  private alertController = inject(AlertController);
   private cdr = inject(ChangeDetectorRef);
   userId = 0;
 
@@ -241,16 +243,62 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     return this.currentReproductiveStatus;
   }
 
-  openTrackPregnancyIntro(): void {
-    this.currentReproductiveStatus = 'PREGNANT';
-    this.router.navigate(['/track-pregnancy-intro']);
+  async openGetPregnantIntro(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Get pregnant',
+      message:
+        'You are going to switch to pregnancy tracking mode. Do you want to continue?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+        },
+        {
+          text: 'Yes',
+          role: 'confirm',
+        },
+      ],
+    });
+    await alert.present();
+    const { role } = await alert.onDidDismiss();
+    if (role !== 'confirm') {
+      return;
+    }
+
+    this.currentReproductiveStatus = 'PLANNING_PREGNANCY';
+    await this.router.navigate(['/track-pregnancy-intro']);
   }
 
-  onSubmit(_source: 'continue' | 'save' = 'continue'): void {
+  async openTrackPregnancyIntro(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Track pregnancy',
+      message: 'Are you sure you want to continue to pregnancy tracking?',
+      buttons: [
+        {
+          text: 'No',
+          role: 'cancel',
+        },
+        {
+          text: 'Yes',
+          role: 'confirm',
+        },
+      ],
+    });
+    await alert.present();
+    const { role } = await alert.onDidDismiss();
+    if (role !== 'confirm') {
+      return;
+    }
+
+    this.currentReproductiveStatus = 'PREGNANT';
+    await this.router.navigate(['/track-pregnancy-intro']);
+  }
+
+  async onSubmit(_source: 'continue' | 'save' = 'continue'): Promise<void> {
     const selected = this.getCurrentStatus();
     if (!selected) return;
-    if (selected === 'PREGNANT') {
-      this.openTrackPregnancyIntro();
+    if (selected === 'PLANNING_PREGNANCY') {
+      await this.openGetPregnantIntro();
       return;
     }
 
@@ -696,6 +744,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
           this.applyProfileFromMerged(merged);
         }
         this.syncCurrentStatusFromProfileData();
+        this.applyStatusFromQuery();
       },
     });
   }
@@ -720,11 +769,20 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.avatarImgLoaded = true;
       this.avatarSkeletonActive = false;
       this.syncCurrentStatusFromProfileData();
+      this.applyStatusFromQuery();
     } catch (error) {
       console.error(
         'ProfileComponent - Error loading from localStorage:',
         error,
       );
+    }
+  }
+
+  private applyStatusFromQuery(): void {
+    const selectedFromQuery = this.route.snapshot.queryParamMap.get('selectStatus');
+    if (selectedFromQuery === 'PREGNANT') {
+      this.currentReproductiveStatus = 'PREGNANT';
+      this.cdr.markForCheck();
     }
   }
 }

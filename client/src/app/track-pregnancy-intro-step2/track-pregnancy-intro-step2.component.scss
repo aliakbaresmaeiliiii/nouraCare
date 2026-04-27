@@ -15,16 +15,37 @@
 
 .tpi2-top {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
+  gap: 12px;
   min-height: 44px;
 }
 
-.tpi2-back {
-  --color: #fff;
-  margin: 0;
-  margin-inline-start: -8px;
-  font-size: 28px;
+.tpi2-progress {
+  flex: 1;
+  max-width: 220px;
+  height: 8px;
+  border-radius: 999px;
+  background: #3a3b40;
+  overflow: hidden;
+}
+
+.tpi2-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #ff5a79;
+  transition: width 180ms ease-out;
+}
+
+.tpi2-skip {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: #8e8e93;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .tpi2-main {
@@ -32,69 +53,41 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  padding: 8px 8px 24px;
-}
-
-.tpi2-figure {
-  margin: 12px 0 28px;
-}
-
-.tpi2-figure-ring {
-  width: min(72vw, 280px);
-  height: min(72vw, 280px);
-  border-radius: 50%;
-  overflow: hidden;
-  margin: 0 auto;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
-}
-
-.tpi2-hero-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  padding: 56px 2px 24px;
 }
 
 .tpi2-title {
-  margin: 0 0 14px;
-  font-size: clamp(1.9rem, 6.8vw, 2.35rem);
+  margin: 0 0 26px;
+  text-align: center;
+  font-size: clamp(2rem, 8vw, 2.35rem);
   font-weight: 800;
-  line-height: 1.18;
+  line-height: 1.2;
   letter-spacing: -0.02em;
-  max-width: 20rem;
+  max-width: 18rem;
 }
 
-.tpi2-title-accent {
-  display: block;
-  color: #ff5a79;
-}
-
-.tpi2-body {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: #a1a1a1;
-  max-width: 22rem;
-}
-
-.tpi2-footer {
+.tpi2-options {
+  width: min(95vw, 440px);
   display: flex;
-  justify-content: center;
-  padding-top: 8px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.tpi2-activate {
-  --background: #ff5a79;
-  --background-activated: #e84e6b;
-  --background-focused: #e84e6b;
-  --color: #fff;
-  --border-radius: 999px;
-  --padding-top: 14px;
-  --padding-bottom: 14px;
-  --padding-start: 36px;
-  --padding-end: 36px;
-  width: min(360px, 94vw);
-  font-weight: 700;
-  letter-spacing: 0.01em;
+.tpi2-option {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  background: #333438;
+  color: #f5f5f7;
+  text-align: left;
+  padding: 18px 16px;
+  font-size: 1.03rem;
+  line-height: 1.35;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tpi2-option:active {
+  transform: scale(0.99);
+  background: #3a3b40;
 }

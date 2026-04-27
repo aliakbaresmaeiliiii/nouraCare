@@ -1,17 +1,5 @@
 <ion-content class="tpi3-content" [fullscreen]="true" scrollY="false">
   <div class="tpi3-root">
-    <header class="tpi3-top">
-      <ion-button
-        type="button"
-        fill="clear"
-        class="tpi3-back"
-        (click)="goBack()"
-        aria-label="Back"
-      >
-        <ion-icon name="chevron-back" slot="icon-only" aria-hidden="true"></ion-icon>
-      </ion-button>
-    </header>
-
     <main class="tpi3-main">
       <div class="tpi3-figure" aria-hidden="true">
         <div class="tpi3-figure-ring">
@@ -19,15 +7,20 @@
         </div>
       </div>
 
-      <h1 class="tpi3-title">Let's create your custom program</h1>
+      <h1 class="tpi3-title">
+        Based on your cycle data, you are
+        <span class="tpi3-title-accent">1 week 3 days</span>
+        pregnant
+      </h1>
       <p class="tpi3-body">
-        Tell us more about yourself to get the best experience. It takes less than a minute.
+        We use the number of completed weeks since the first day of your last period to calculate
+        pregnancy.
       </p>
     </main>
 
     <footer class="tpi3-footer">
       <ion-button class="tpi3-cta" shape="round" (click)="continueNext()">
-        Personalize Flo for me
+        Continue
       </ion-button>
     </footer>
   </div>

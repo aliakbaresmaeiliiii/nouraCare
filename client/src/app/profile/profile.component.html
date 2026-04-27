@@ -122,7 +122,7 @@
         type="button"
         class="experience-card experience-card--track-cycle"
         [class.experience-card--selected]="isStatusSelected('NOT_PREGNANT')"
-        (click)="setStatus('NOT_PREGNANT')"
+        (click)="goToCycleCalendar()"
         role="radio"
         [attr.aria-checked]="isStatusSelected('NOT_PREGNANT')"
       >
@@ -141,7 +141,7 @@
         type="button"
         class="experience-card experience-card--track-planning"
         [class.experience-card--selected]="isStatusSelected('PLANNING_PREGNANCY')"
-        (click)="setStatus('PLANNING_PREGNANCY')"
+        (click)="openGetPregnantIntro()"
         role="radio"
         [attr.aria-checked]="isStatusSelected('PLANNING_PREGNANCY')"
       >
@@ -190,17 +190,6 @@
         </span>
         <span class="experience-label">{{ 'editProfile.trackPerimenopause' | translate }}</span>
       </button>
-    </div>
-    <div class="continue-button-container">
-      <ion-button
-        expand="block"
-        class="continue-button"
-        [disabled]="!getCurrentStatus()"
-        (click)="onSubmit('continue')"
-      >
-        <ion-icon name="arrow-forward-circle-outline" slot="end" aria-hidden="true"></ion-icon>
-        {{ 'editProfile.continue' | translate }}
-      </ion-button>
     </div>
     }
   </section>

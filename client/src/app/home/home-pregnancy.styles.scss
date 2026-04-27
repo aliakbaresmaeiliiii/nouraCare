@@ -1079,21 +1079,46 @@
   border: 1px solid rgba(13, 148, 136, 0.35);
   background: rgba(255, 255, 255, 0.92);
   color: #0f766e;
-  font-size: 0.72rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.2rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 0.35rem 0.65rem;
+  padding: 0.45rem 0.75rem;
   border-radius: 999px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+
+  ion-icon {
+    font-size: 0.96rem;
+  }
 
   &:active {
     transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: rgba(13, 148, 136, 0.75);
+    box-shadow:
+      0 0 0 3px rgba(13, 148, 136, 0.16),
+      0 6px 14px rgba(15, 118, 110, 0.14);
   }
 }
 
 .pds-chip--accent {
   border-color: rgba(249, 115, 22, 0.45);
   color: #c2410c;
+}
+
+.pds-chip--calendar {
+  border-color: rgba(20, 184, 166, 0.5);
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.95), rgba(229, 248, 255, 0.95));
 }
 
 /* Post–40 weeks (full-term+) — calm reassurance card */
@@ -1189,15 +1214,53 @@
     opacity: 0.22;
   }
 
+  /* Week calendar strip: crisp type on a dark glass bar */
+  .pregnancy-calendar-swiper {
+    padding-top: 0.25rem;
+    padding-bottom: 0.6rem;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .pregnancy-calendar-label {
+    color: rgba(255, 255, 255, 0.76);
+  }
+
+  .pregnancy-calendar-date {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
   .pregnancy-calendar-col--today .pregnancy-calendar-label,
   .pregnancy-calendar-col--selected:not(:disabled) .pregnancy-calendar-label {
-    color: var(--ion-text-color);
+    color: #ffffff;
+    font-weight: 800;
   }
 
   .pregnancy-calendar-col--selected:not(:disabled) .pregnancy-calendar-date {
-    background: var(--ion-card-background);
-    color: var(--ion-color-primary-tint);
-    box-shadow: var(--app-shadow-soft);
+    background: #ffffff;
+    color: #121212;
+    box-shadow:
+      0 2px 16px rgba(0, 0, 0, 0.45),
+      0 0 0 1px rgba(255, 255, 255, 0.22);
+  }
+
+  .pregnancy-calendar-col--today:not(.pregnancy-calendar-col--selected):not(:disabled)
+    .pregnancy-calendar-date {
+    width: 2.05rem;
+    height: 2.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-sizing: border-box;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    color: #ffffff;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   }
 
   .pregnancy-hero-details-btn {

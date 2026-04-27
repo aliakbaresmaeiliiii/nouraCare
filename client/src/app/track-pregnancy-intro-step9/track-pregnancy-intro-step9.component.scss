@@ -1,21 +1,23 @@
-.tpi4-content {
+.tpi9-content {
   --background: #1c1c1e;
 }
 
-.tpi4-root {
+.tpi9-root {
   min-height: 100%;
+  display: flex;
+  flex-direction: column;
   padding: calc(14px + env(safe-area-inset-top)) 16px 24px;
   background: #1c1c1e;
   color: #fff;
 }
 
-.tpi4-top {
+.tpi9-top {
   display: flex;
   justify-content: flex-end;
   align-items: center;
 }
 
-.tpi4-skip {
+.tpi9-skip {
   border: 0;
   background: transparent;
   color: rgba(255, 255, 255, 0.55);
@@ -25,26 +27,27 @@
   padding: 0;
 }
 
-.tpi4-main {
+.tpi9-main {
+  flex: 1;
   padding-top: 72px;
 }
 
-.tpi4-title {
+.tpi9-title {
   margin: 0 auto 30px;
   text-align: center;
-  font-size: clamp(1.95rem, 6.6vw, 2.3rem);
+  font-size: clamp(2rem, 6.8vw, 2.35rem);
   line-height: 1.2;
-  letter-spacing: -0.02em;
   font-weight: 800;
-  max-width: 21rem;
+  letter-spacing: -0.02em;
+  max-width: 22rem;
 }
 
-.tpi4-options {
+.tpi9-options {
   display: grid;
   gap: 14px;
 }
 
-.tpi4-option {
+.tpi9-option {
   width: 100%;
   border: 0;
   border-radius: 12px;
@@ -53,6 +56,6 @@
   background: #3a3a3c;
   color: #fff;
   font-size: 1.12rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.35;
 }

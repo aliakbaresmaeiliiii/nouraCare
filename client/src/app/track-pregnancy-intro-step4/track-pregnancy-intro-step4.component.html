@@ -1,15 +1,11 @@
 <ion-content class="tpi4-content" [fullscreen]="true" scrollY="false">
   <div class="tpi4-root">
     <header class="tpi4-top">
-      <div class="tpi4-progress" aria-hidden="true">
-        <span class="tpi4-progress-track"></span>
-        <span class="tpi4-progress-fill"></span>
-      </div>
       <button type="button" class="tpi4-skip" (click)="onSkip()">Skip</button>
     </header>
 
     <main class="tpi4-main">
-      <h1 class="tpi4-title">How often do you feel stressed?</h1>
+      <h1 class="tpi4-title">Have you seen a doctor about your pregnancy?</h1>
 
       <div class="tpi4-options">
         @for (option of options; track option) {

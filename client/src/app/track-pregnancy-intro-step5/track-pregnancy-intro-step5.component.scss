@@ -4,81 +4,81 @@
 
 .tpi5-root {
   min-height: 100%;
-  padding: calc(14px + env(safe-area-inset-top)) 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: calc(10px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
   background: #1c1c1e;
   color: #fff;
 }
 
-.tpi5-top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.tpi5-back {
-  --color: #fff;
-  margin: 0;
-  font-size: 28px;
-}
-
-.tpi5-progress {
-  position: relative;
-  flex: 1;
-  height: 3px;
-}
-
-.tpi5-progress-track,
-.tpi5-progress-fill {
-  position: absolute;
-  inset: 0;
-  border-radius: 999px;
-}
-
-.tpi5-progress-track {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-.tpi5-progress-fill {
-  width: 64%;
-  background: #f4f4f4;
-}
-
-.tpi5-skip {
-  border: 0;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 1.7rem;
-  font-weight: 600;
-  text-decoration: underline;
-  padding: 0;
-}
-
 .tpi5-main {
-  padding-top: 56px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2px 8px 24px;
+}
+
+.tpi5-figure {
+  margin: 0 0 28px;
+  width: 100%;
+}
+
+.tpi5-figure-ring {
+  width: min(96vw, 430px);
+  height: min(64vw, 410px);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 0 auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.tpi5-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .tpi5-title {
-  margin: 0 0 28px;
+  margin: 0 0 14px;
   text-align: center;
-  font-size: clamp(1.9rem, 6.4vw, 2.3rem);
-  line-height: 1.2;
+  font-size: clamp(2rem, 7.2vw, 2.35rem);
+  line-height: 1.15;
   letter-spacing: -0.02em;
   font-weight: 800;
+  max-width: 21rem;
 }
 
-.tpi5-options {
-  display: grid;
-  gap: 12px;
-}
-
-.tpi5-option {
-  width: 100%;
-  border: 0;
-  border-radius: 10px;
-  padding: 18px 18px;
-  text-align: left;
-  background: #3a3a3d;
-  color: #fff;
-  font-size: 1.06rem;
+.tpi5-body {
+  margin: 0;
+  max-width: 21rem;
+  color: #a1a1a1;
+  font-size: 1.02rem;
+  line-height: 1.45;
   font-weight: 600;
+}
+
+.tpi5-footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.tpi5-cta {
+  --background: #ff5a79;
+  --background-activated: #e84e6b;
+  --background-focused: #e84e6b;
+  --color: #fff;
+  --border-radius: 999px;
+  --padding-top: 14px;
+  --padding-bottom: 14px;
+  --padding-start: 36px;
+  --padding-end: 36px;
+  width: min(360px, 94vw);
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }

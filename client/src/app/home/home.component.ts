@@ -288,7 +288,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   cycleDay: number = 14;
   temperature: number = 36.8;
   mood: string = 'Happy';
-  showMoreSections: boolean = false;
 
   // Appointments
   upcomingAppointments: any[] = [
@@ -668,9 +667,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
    * This ensures the chart is refreshed when returning from other pages
    */
   ionViewWillEnter() {
-    // Default to compact mode each time user opens Home.
-    this.showMoreSections = false;
-
     this.syncDashboardFromServerAndRefreshChart();
     this.loadRecentSymptomsDays();
     this.loadTodaySymptoms();
@@ -2230,10 +2226,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     } catch (error) {
       await this.showToast(this.tr('home.dialog.expertBookingFailed'), 'danger');
     }
-  }
-
-  toggleMoreSections() {
-    this.showMoreSections = !this.showMoreSections;
   }
 
   // Health Tools Methods

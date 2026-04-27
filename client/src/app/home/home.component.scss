@@ -7,7 +7,7 @@
   display: block;
   box-sizing: border-box;
   // Room for fixed FAB only (tab bar sits outside ion-content; no extra safe-area stack here).
-  padding-bottom: var(--app-tab-fab-clearance, 72px);
+  // padding-bottom: var(--app-tab-fab-clearance, 72px);
   padding-left: 0;
   padding-right: 0;
   --background: linear-gradient(
@@ -42,22 +42,6 @@
 .section-header .section-subtitle {
   font-size: 0.86rem;
   opacity: 0.88;
-}
-
-.secondary-toggle-section {
-  padding: 0 var(--app-side-padding) 0.75rem;
-  display: flex;
-  justify-content: center;
-
-  .toggle-more-btn {
-    --border-radius: 999px;
-    --border-color: rgba(var(--flo-primary-rgb), 0.35);
-    --color: #4856c5;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
 }
 
 // Welcome Hero Section
@@ -275,85 +259,61 @@
 .cycle-compact-section {
   --cycle-hero-pink: #f9a8d4;
   --cycle-hero-pink-deep: #db2777;
+  /* Hero + insights share one page tone; gradient uses this so the ring fades out smoothly */
+  --cycle-hero-fade-stop: var(--ion-background-color, #fffdfb);
 
   position: relative;
   z-index: 0;
   margin: 0 calc(-1 * var(--app-side-padding));
   /* No horizontal padding: week strip is full-bleed; insights block adds its own inset */
   padding: 0 0 2.25rem;
-  background: transparent;
+  background: var(--cycle-hero-fade-stop);
 
   > * {
     position: relative;
     z-index: 1;
   }
 
+  /* Soft handoff: chart area → same background as the rest of the home (no hard “card” cut) */
+  .cycle-hero-sky {
+    position: relative;
+    isolation: isolate;
+    overflow: visible;
+    padding-bottom: clamp(1.8rem, 6vw, 2.7rem);
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -1px;
+      width: calc(100% + 4.5rem);
+      height: clamp(2.6rem, 8vw, 3.8rem);
+      transform: translateX(-50%);
+      border-radius: 0 0 50% 50%;
+      pointer-events: none;
+      z-index: 2;
+      background: var(--cycle-hero-fade-stop);
+      box-shadow: 0 -12px 28px rgba(0, 0, 0, 0.04);
+    }
+
+    > .cycle-ring-shell {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
   > .pregnancy-daily-insights {
-    padding-left: var(--app-side-padding);
-    padding-right: var(--app-side-padding);
+    margin-top: clamp(-0.55rem, -1.6vw, -0.2rem);
+    padding: clamp(1rem, 2.8vw, 1.35rem) var(--app-side-padding) 0.35rem;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    position: relative;
+    z-index: 3;
   }
 }
 
-// Cycle hero: diagonal “sea” wash (deep indigo → brand primary/teal → light) + soft waves
-// .cycle-hero-sky {
-//   --cycle-hero-curve-fill: var(--ion-background-color, var(--brand-bg));
-//   --cycle-hero-curve-shadow:
-//     0 -18px 56px rgba(var(--brand-primary-dark-rgb), 0.2),
-//     0 -8px 32px rgba(var(--brand-secondary-rgb), 0.12),
-//     inset 0 1px 0 rgba(255, 255, 255, 0.42);
-
-//   position: relative;
-//   z-index: 0;
-//   overflow: hidden;
-//   isolation: isolate;
-//   padding: 0.5rem 0 clamp(1.6rem, 5vw, 2.35rem);
-//   max-width: none;
-//   background-color: var(--ion-background-color, var(--brand-bg));
-//   /* Bottom-left → top-right: slate / indigo depths → primary → sky & teal foam → page */
-
-//   /* Rolling swell from bottom-left (reads as a soft wave over the diagonal sea) */
-//   &::before {
-//     content: "";
-//     position: absolute;
-//     left: -35%;
-//     width: 170%;
-//     height: min(58%, 11.5rem);
-//     bottom: -12%;
-//     z-index: 0;
-//     pointer-events: none;
-//     border-radius: 48% 52% 45% 55% / 58% 58% 42% 42%;
-//     transform: rotate(-5deg);
-//     background: linear-gradient(
-//       to top right,
-//       rgba(30, 58, 138, 0.5) 0%,
-//       rgba(79, 70, 229, 0.28) 38%,
-//       rgba(56, 189, 248, 0.18) 68%,
-//       rgba(255, 255, 255, 0.06) 100%
-//     );
-//     opacity: 0.92;
-//   }
-
-//   /* Wide shallow ellipse: smooth handoff from hero into page background */
-//   &::after {
-//     content: "";
-//     position: absolute;
-//     left: 50%;
-//     bottom: clamp(-7.25rem, -19vw, -5.25rem);
-//     z-index: 0;
-//     width: min(185%, 76rem);
-//     height: clamp(9.25rem, 24vw, 12.75rem);
-//     transform: translateX(-50%);
-//     border-radius: 50%;
-//     pointer-events: none;
-//     background: var(--cycle-hero-curve-fill);
-//     box-shadow: var(--cycle-hero-curve-shadow);
-//   }
-
-//   > .cycle-ring-shell {
-//     position: relative;
-//     z-index: 1;
-//   }
-// }
 
 .cycle-ring-shell--hero {
   /* Full width for week strip; ring stays capped via ::ng-deep .chart-wrapper */
@@ -950,10 +910,6 @@
     --hero-text-secondary: var(--ion-color-medium);
   }
 
-  .secondary-toggle-section .toggle-more-btn {
-    --color: var(--ion-color-primary-tint);
-  }
-
   .onboarding-section .onboarding-card.onboarding-card--planning {
     background: var(--ion-card-background);
     border-color: rgba(255, 255, 255, 0.1);
@@ -984,80 +940,8 @@
   .cycle-compact-section {
     --cycle-hero-pink: #f472b6;
     --cycle-hero-pink-deep: #fbcfe8;
+    --cycle-hero-fade-stop: var(--ion-background-color);
   }
-
-  .cycle-hero-sky {
-    --cycle-hero-curve-fill: var(--ion-background-color);
-    --cycle-hero-curve-shadow:
-      0 -16px 52px rgba(0, 0, 0, 0.45), 0 -6px 28px rgba(99, 102, 241, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.06);
-
-    background-color: var(--ion-background-color);
-    // background-image:
-    //   radial-gradient(
-    //     115% 68% at 0% 100%,
-    //     rgba(2, 6, 23, 0.85) 0%,
-    //     rgba(30, 27, 75, 0.55) 32%,
-    //     transparent 62%
-    //   ),
-    //   radial-gradient(
-    //     80% 50% at 100% 0%,
-    //     rgba(148, 163, 184, 0.18) 0%,
-    //     rgba(79, 70, 229, 0.12) 28%,
-    //     transparent 52%
-    //   ),
-    //   linear-gradient(
-    //     to top right,
-    //     #020617 0%,
-    //     #0f172a 12%,
-    //     #1e1b4b 28%,
-    //     #312e81 42%,
-    //     #4338ca 56%,
-    //     #0e7490 72%,
-    //     color-mix(in srgb, var(--ion-background-color) 88%, #5eead4 12%) 92%,
-    //     var(--ion-background-color) 100%
-    //   );
-
-    &::before {
-      background: linear-gradient(
-        to top right,
-        rgba(15, 23, 42, 0.65) 0%,
-        rgba(67, 56, 202, 0.35) 42%,
-        rgba(45, 212, 191, 0.12) 78%,
-        transparent 100%
-      );
-      opacity: 0.88;
-    }
-  }
-
-  // .cycle-hero-card {
-  //   background: transparent;
-  //   border-color: rgba(255, 255, 255, 0.08);
-  //   box-shadow: none;
-  // }
-
-  // .cycle-hero-card__hint {
-  //   color: var(--ion-color-medium);
-  // }
-
-  // .cycle-hero-card__divider {
-  //   background: linear-gradient(
-  //     90deg,
-  //     transparent 0%,
-  //     rgba(var(--ion-color-primary-rgb), 0.35) 35%,
-  //     rgba(var(--ion-color-secondary-rgb), 0.3) 65%,
-  //     transparent 100%
-  //   );
-  // }
-
-  // .cycle-hero-card .cycle-ring-shell {
-  //   ::ng-deep .cycle-chart-container::before {
-  //     opacity: 0.22;
-  //     background:
-  //       radial-gradient(circle at 30% 20%, rgba(var(--ion-color-primary-rgb), 0.12) 0%, transparent 55%),
-  //       radial-gradient(circle at 70% 80%, rgba(var(--ion-color-secondary-rgb), 0.08) 0%, transparent 55%);
-  //   }
-  // }
 
   .cycle-hello-card {
     background: var(--ion-card-background);
@@ -1260,6 +1144,74 @@
   }
 }
 
+// End-of-home feature promo (swiper)
+.home-feature-slider {
+  margin-top: 1.5rem;
+  padding: 0 1rem 2.25rem;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+
+  &__head {
+    margin-bottom: 0.75rem;
+    text-align: center;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ion-text-color);
+  }
+
+  &__swiper {
+    width: 100%;
+    --swiper-pagination-bottom: 6px;
+    --swiper-pagination-color: var(--ion-color-primary);
+    --swiper-pagination-bullet-inactive-color: var(--ion-color-medium);
+    --swiper-pagination-bullet-inactive-opacity: 0.35;
+    --swiper-pagination-bullet-size: 7px;
+    --swiper-pagination-bullet-horizontal-gap: 5px;
+    padding-bottom: 1.75rem;
+  }
+
+  &__card {
+    margin: 0 auto;
+    max-width: 100%;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--ion-card-background, var(--ion-item-background));
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(var(--ion-color-medium-rgb, 152, 154, 162), 0.2);
+  }
+
+  &__media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: var(--ion-color-light);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  &__text {
+    margin: 0;
+    padding: 1rem 1.1rem 1.15rem;
+    font-size: 0.98rem;
+    font-weight: 500;
+    line-height: 1.45;
+    text-align: center;
+    color: var(--ion-text-color);
+  }
+}
+
 // Animations
 @keyframes float {
   0%,
@@ -1306,7 +1258,8 @@
   .quick-actions-section,
   .tools-section,
   .insights-section,
-  .expert-section {
+  .expert-section,
+  .home-feature-slider {
     padding-left: 1rem;
     padding-right: 1rem;
   }

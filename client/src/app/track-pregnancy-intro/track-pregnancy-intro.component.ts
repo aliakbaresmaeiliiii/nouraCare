@@ -16,7 +16,8 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 export class TrackPregnancyIntroComponent {
   private router = inject(Router);
 
-  readonly heroImageSrc = 'assets/images/onboarding/Pregnent.jpg';
+  readonly heroImageSrc =
+    'assets/images/onboarding/track-pregnancy-intro-confirm.png';
 
   constructor() {
     addIcons({ close });

@@ -1,7 +1,5 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { addIcons } from 'ionicons';
-import { chevronBack } from 'ionicons/icons';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
@@ -13,20 +11,49 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })
-export class TrackPregnancyIntroStep2Component {
+export class TrackPregnancyIntroStep2Component implements OnInit, OnDestroy {
   private router = inject(Router);
+  progress = 0;
+  private progressTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly targetProgress = Math.round((2 / 13) * 100);
+  readonly options = [
+    "Excited for what's to come! 😀",
+    'A bit unsure or unprepared 😕',
+    'Worried or stressed 😪',
+    'Happy, nervous, and excited - all at the same time! 🥹',
+  ];
 
-  readonly heroImageSrc = 'assets/images/onboarding/step2.jpg';
-
-  constructor() {
-    addIcons({ chevronBack });
+  ngOnInit(): void {
+    this.startProgressAnimation();
   }
 
-  goBack(): void {
-    void this.router.navigate(['/track-pregnancy-intro']);
+  ngOnDestroy(): void {
+    if (this.progressTimer) {
+      clearInterval(this.progressTimer);
+      this.progressTimer = null;
+    }
   }
 
-  continueNext(): void {
+  onSkip(): void {
+    void this.router.navigate(['/edit-profile'], {
+      queryParams: { pregnancyIntro: '1' },
+    });
+  }
+
+  onSelect(): void {
     void this.router.navigate(['/track-pregnancy-intro-step3']);
+  }
+
+  private startProgressAnimation(): void {
+    this.progressTimer = setInterval(() => {
+      if (this.progress >= this.targetProgress) {
+        if (this.progressTimer) {
+          clearInterval(this.progressTimer);
+          this.progressTimer = null;
+        }
+        return;
+      }
+      this.progress += 1;
+    }, 18);
   }
 }

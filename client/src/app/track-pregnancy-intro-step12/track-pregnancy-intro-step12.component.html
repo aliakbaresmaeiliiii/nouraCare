@@ -1,0 +1,19 @@
+<ion-content class="tpi12-content" [fullscreen]="true" scrollY="false">
+  <div class="tpi12-root">
+    <div class="tpi12-ring-wrap" aria-hidden="true">
+      <svg class="tpi12-ring" viewBox="0 0 280 280" role="img">
+        <circle class="tpi12-track" cx="140" cy="140" r="120"></circle>
+        <circle
+          class="tpi12-fill"
+          cx="140"
+          cy="140"
+          r="120"
+          [attr.stroke-dashoffset]="dashOffset"
+        ></circle>
+      </svg>
+      <div class="tpi12-value">{{ progress }}<span>%</span></div>
+    </div>
+
+    <h1 class="tpi12-title">Personalizing your experience ...</h1>
+  </div>
+</ion-content>

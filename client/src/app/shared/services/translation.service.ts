@@ -348,6 +348,11 @@ export class TranslationService {
       'home.didYouKnowBody':
         'Staying hydrated can help reduce period cramps and improve your overall cycle health.',
       'home.learnMore': 'Learn more',
+      'home.featureSliderAria': 'What you can do with NouraCare',
+      'home.featureSliderTitle': 'Made for your journey',
+      'home.featureSliderChanging': 'Get changing day-by-day insights',
+      'home.featureSliderAccess': 'Access expert-backed content',
+      'home.featureSliderTrack': 'Track your cycle like a pro',
       'home.expertRatingLine': '4.9 · 500+ consultations',
       'home.expertTipTitle': "Today's expert tip",
       'home.expertTipBody':
@@ -1586,6 +1591,11 @@ export class TranslationService {
       'home.didYouKnowBody':
         'نوشیدن آب کافی می‌تواند به کاهش گرفتگی قاعدگی و سلامت کلی چرخه کمک کند.',
       'home.learnMore': 'بیشتر بدانید',
+      'home.featureSliderAria': 'امکانات نوراکر برای شما',
+      'home.featureSliderTitle': 'ساخته‌شده برای مسیر شما',
+      'home.featureSliderChanging': 'بینش‌های روزبه‌روز در حال تغییر',
+      'home.featureSliderAccess': 'دسترسی به محتوای پشتیبان‌شده توسط متخصصان',
+      'home.featureSliderTrack': 'چرخهٔ قاعدگی را حرفه‌ای پیگیری کنید',
       'home.expertRatingLine': '۴٫۹ · بیش از ۵۰۰ مشاوره',
       'home.expertTipTitle': 'نکتهٔ امروز از متخصص',
       'home.expertTipBody':
