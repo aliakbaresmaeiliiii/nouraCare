@@ -2,12 +2,20 @@
   <div class="tpi12-root">
     <div class="tpi12-ring-wrap" aria-hidden="true">
       <svg class="tpi12-ring" viewBox="0 0 280 280" role="img">
+        <defs>
+          <linearGradient id="tpi12RingProgressGrad" x1="15%" y1="85%" x2="85%" y2="15%">
+            <stop offset="0%" style="stop-color: var(--ion-color-primary)" />
+            <stop offset="52%" style="stop-color: var(--ion-color-primary-tint)" />
+            <stop offset="100%" style="stop-color: var(--ion-color-secondary)" />
+          </linearGradient>
+        </defs>
         <circle class="tpi12-track" cx="140" cy="140" r="120"></circle>
         <circle
           class="tpi12-fill"
           cx="140"
           cy="140"
           r="120"
+          stroke="url(#tpi12RingProgressGrad)"
           [attr.stroke-dashoffset]="dashOffset"
         ></circle>
       </svg>

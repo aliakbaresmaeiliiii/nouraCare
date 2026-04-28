@@ -1,6 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 
 @Component({
   selector: 'app-track-pregnancy-intro-step13',
@@ -13,12 +14,16 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 })
 export class TrackPregnancyIntroStep13Component {
   private router = inject(Router);
+  private cycleSettings = inject(CycleSettingsService);
+  readonly progressValue = 1;
   readonly heroImageSrc =
     'assets/images/onboarding/track-pregnancy-intro-step13-premium.png';
 
   continueNext(): void {
-    void this.router.navigate(['/edit-profile'], {
-      queryParams: { pregnancyIntro: '1' },
+    this.cycleSettings.applyTryingToConceiveHomeMode();
+    this.cycleSettings.pinSelectedViewToNextPredictedOvulation();
+    void this.router.navigate(['/tabs/home'], {
+      replaceUrl: true,
     });
   }
 }

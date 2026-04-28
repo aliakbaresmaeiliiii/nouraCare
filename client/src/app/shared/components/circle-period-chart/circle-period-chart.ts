@@ -19,6 +19,8 @@ import type { UserInfo } from '../../interfaces/user-info-api.interface';
 import { AuthService } from '../../../auth/services/auth';
 import { TranslationService } from '../../services/translation.service';
 import { LanguageService } from '../../services/language.service';
+import { UserSessionService } from '../../services/user-session.service';
+import { PeriodCycleStateService } from '../../services/period-cycle-state.service';
 import {
   formatCyclePhaseShortDate,
   formatCycleStripCenterDate,
@@ -50,6 +52,8 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   private authService = inject(AuthService);
   private translationService = inject(TranslationService);
   private languageService = inject(LanguageService);
+  private userSession = inject(UserSessionService);
+  private periodCycleState = inject(PeriodCycleStateService);
   private cdr = inject(ChangeDetectorRef);
   // Configuration inputs
   @Input() cycleLength: number = 28; // total cycle length in days
@@ -185,44 +189,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
   }
 
-  // Reactive effects - must be field initializers for injection context
-  private watchUserInfo = effect(() => {
-    const userInfo = this.userInfoService.onboardingJourney();
-    if (userInfo) {
-      this.cycleLength = userInfo.cycleLength || 28;
-      this.periodLength = userInfo.periodLength || 5;
-      this.startDate = this.toPeriodIso(userInfo.lastPeriodDate);
-      if (this.startDate) {
-        this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
-      }
-      this.recomputeEverything();
-      this.syncWeekCalendarSelectionFromStartDate();
-      queueMicrotask(() => this.scheduleWeekScrollToAnchor());
-    }
-  });
 
-  private watchCycleLength = effect(() => {
-    const v = this.cycleSettings.cycleLength();
-    this.onCycleLengthChange(v as number);
-  });
 
-  private watchPeriodLength = effect(() => {
-    const v = this.cycleSettings.periodLength();
-    this.onPeriodLengthChange(v as number);
-  });
 
-  private watchLastPeriodStart = effect(() => {
-    const v = this.cycleSettings.lastPeriodStartDate();
-    this.startDate = (v as string) || null;
-    if (this.startDate) {
-      this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
-    } else {
-      this.endDate = null;
-    }
-    this.recomputeEverything();
-    this.syncWeekCalendarSelectionFromStartDate();
-    queueMicrotask(() => this.scheduleWeekScrollToAnchor());
-  });
 
   // Today
   todayDate: Date = new Date();
@@ -318,13 +287,18 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     this.recomputeEverything();
     this.syncWeekCalendarSelectionFromStartDate();
     this.scheduleWeekScrollToAnchor();
+    void this.periodCycleState.ensureLatestPeriodFromApi(
+      this.userSession.getCurrentUserId(),
+    );
     this.refreshOnboardingFromServer();
   }
 
   private applyUserInfoToChart(userInfo: UserInfo): void {
     this.cycleLength = userInfo.cycleLength || 28;
     this.periodLength = userInfo.periodLength || 5;
-    this.startDate = this.toPeriodIso(userInfo.lastPeriodDate);
+    this.startDate = this.resolvePreferredStartDate(
+      this.toPeriodIso(userInfo.lastPeriodDate),
+    );
     if (this.startDate) {
       this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
     } else {
@@ -332,22 +306,34 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     }
   }
 
-  /** Prefer in-memory journey row, else persisted cycle settings (same source home hydrates before network). */
+  /**
+   * Prefer shared cycle state first because period picker and calendar write there immediately.
+   * Journey payload can be stale for a short time after new period logs are created.
+   */
   private applyLocalCycleState(): void {
-    const journey = this.userInfoService.onboardingJourney();
-    if (journey) {
-      this.applyUserInfoToChart(journey);
-      return;
-    }
     this.cycleLength = this.cycleSettings.cycleLength();
     this.periodLength = this.cycleSettings.periodLength();
-    const lp = this.cycleSettings.lastPeriodStartDate();
-    this.startDate = (lp as string) || null;
+    this.startDate = this.cycleSettings.lastPeriodStartDate();
+
+    const journey = this.userInfoService.onboardingJourney();
+    if (journey) {
+      this.cycleLength = journey.cycleLength || this.cycleLength;
+      this.periodLength = journey.periodLength || this.periodLength;
+      this.startDate = this.resolvePreferredStartDate(
+        this.toPeriodIso(journey.lastPeriodDate),
+      );
+    }
+
     if (this.startDate) {
       this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
     } else {
       this.endDate = null;
     }
+  }
+
+  private resolvePreferredStartDate(journeyStartIso: string | null): string | null {
+    const cycleStateIso = this.cycleSettings.lastPeriodStartDate();
+    return cycleStateIso || journeyStartIso || null;
   }
 
   private toPeriodIso(raw: string | Date | null | undefined): string | null {
@@ -392,6 +378,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     this.recomputeEverything();
     this.syncWeekCalendarSelectionFromStartDate();
     queueMicrotask(() => this.scheduleWeekScrollToAnchor());
+    void this.periodCycleState.ensureLatestPeriodFromApi(
+      this.userSession.getCurrentUserId(),
+    );
     this.refreshOnboardingFromServer();
   }
 
@@ -1285,11 +1274,13 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       this.weekCalendarSelectedIsoKey = null;
       this.cycleSettings.setSelectedCycleViewDate(null);
       this.cdr.markForCheck();
+      this.scheduleWeekScrollToAnchor(true);
       return;
     }
     this.weekCalendarSelectedIsoKey = d.isoKey;
     this.cycleSettings.setSelectedCycleViewDate(d.isoKey);
     this.cdr.markForCheck();
+    this.scheduleWeekScrollToAnchor(true);
   }
 
   private syncWeekCalendarSelectionFromStartDate(): void {
@@ -1298,17 +1289,26 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       this.cycleSettings.setSelectedCycleViewDate(null);
       return;
     }
-    // Keep highlight on **today** by default; user taps any date to preview that cycle day.
+    const pinned = this.cycleSettings.selectedCycleViewDate();
+    if (pinned) {
+      this.weekCalendarSelectedIsoKey = pinned;
+      return;
+    }
     this.weekCalendarSelectedIsoKey = null;
-    this.cycleSettings.setSelectedCycleViewDate(null);
   }
 
-  /** Parent can call after external refresh (replaces home `scheduleScrollCycleCalendarToAnchor`). */
-  scheduleWeekScrollToAnchor(): void {
+  /**
+   * Scroll the horizontal week strip so the viewport shows the calendar week that contains
+   * the **highlighted** strip day ({@link getSelectedStripCalendarDate}: explicit pick, pinned
+   * date from storage, or today).
+   *
+   * @param smooth when `true`, animate (e.g. after user taps a day); default instant for init/sync.
+   */
+  scheduleWeekScrollToAnchor(smooth = false): void {
     if (!this.showWeekStrip) {
       return;
     }
-    setTimeout(() => this.scrollWeekToAnchor(), 0);
+    setTimeout(() => this.scrollWeekToAnchor(smooth), 0);
   }
 
   private getWeekMonday(d: Date): Date {
@@ -1332,19 +1332,12 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     );
   }
 
-  private scrollWeekToAnchor(): void {
+  private scrollWeekToAnchor(smooth = false): void {
     const host = this.cycleChartWeekScroll?.nativeElement;
     if (!host || host.clientWidth < 1) {
       return;
     }
-    const ref =
-      this.startDate != null
-        ? new Date(
-            this.startDate.includes('T')
-              ? this.startDate
-              : `${this.startDate}T12:00:00`,
-          )
-        : new Date();
+    const ref = this.getSelectedStripCalendarDate();
     const anchorMonday = this.getWeekMonday(new Date());
     const refMonday = this.getWeekMonday(ref);
     const diffWeeks = this.diffWeeksBetweenMondays(anchorMonday, refMonday);
@@ -1356,14 +1349,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       ),
     );
     const weekEl = host.children[idx] as HTMLElement | undefined;
-    if (weekEl) {
-      const prevBehavior = host.style.scrollBehavior;
-      host.style.scrollBehavior = 'auto';
-      host.scrollLeft = weekEl.offsetLeft;
-      host.style.scrollBehavior = prevBehavior;
-    } else {
-      host.scrollLeft = idx * host.clientWidth;
-    }
+    const leftTarget = weekEl ? weekEl.offsetLeft : idx * host.clientWidth;
+    const behavior: ScrollBehavior = smooth ? 'smooth' : 'auto';
+    host.scrollTo({ left: leftTarget, top: 0, behavior });
   }
 
   private recomputeEverything() {

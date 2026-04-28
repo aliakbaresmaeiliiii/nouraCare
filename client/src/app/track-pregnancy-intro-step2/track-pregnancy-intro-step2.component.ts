@@ -1,7 +1,8 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
+/** Q1 of 4 — leads into compact TTC intro (see step4 → step8 → step10 → step12). */
 @Component({
   selector: 'app-track-pregnancy-intro-step2',
   standalone: true,
@@ -11,11 +12,10 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })
-export class TrackPregnancyIntroStep2Component implements OnInit, OnDestroy {
+export class TrackPregnancyIntroStep2Component {
   private router = inject(Router);
-  progress = 0;
-  private progressTimer: ReturnType<typeof setInterval> | null = null;
-  private readonly targetProgress = Math.round((2 / 13) * 100);
+  /** Step 1 of 4 questions (linear bar before final calculating screen). */
+  readonly progressValue = 1 / 4;
   readonly options = [
     "Excited for what's to come! 😀",
     'A bit unsure or unprepared 😕',
@@ -23,37 +23,11 @@ export class TrackPregnancyIntroStep2Component implements OnInit, OnDestroy {
     'Happy, nervous, and excited - all at the same time! 🥹',
   ];
 
-  ngOnInit(): void {
-    this.startProgressAnimation();
-  }
-
-  ngOnDestroy(): void {
-    if (this.progressTimer) {
-      clearInterval(this.progressTimer);
-      this.progressTimer = null;
-    }
-  }
-
   onSkip(): void {
-    void this.router.navigate(['/edit-profile'], {
-      queryParams: { pregnancyIntro: '1' },
-    });
+    void this.router.navigate(['/track-pregnancy-intro-step4']);
   }
 
   onSelect(): void {
-    void this.router.navigate(['/track-pregnancy-intro-step3']);
-  }
-
-  private startProgressAnimation(): void {
-    this.progressTimer = setInterval(() => {
-      if (this.progress >= this.targetProgress) {
-        if (this.progressTimer) {
-          clearInterval(this.progressTimer);
-          this.progressTimer = null;
-        }
-        return;
-      }
-      this.progress += 1;
-    }, 18);
+    void this.router.navigate(['/track-pregnancy-intro-step4']);
   }
 }

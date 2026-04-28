@@ -13,6 +13,7 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 })
 export class TrackPregnancyIntroStep9Component {
   private router = inject(Router);
+  readonly progressValue = 9 / 13;
 
   readonly options = [
     'Yes, they have',

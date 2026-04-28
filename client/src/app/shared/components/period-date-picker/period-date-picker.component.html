@@ -10,18 +10,43 @@
   </nav>
 
   <div class="pdp-legend" role="list">
-    <span class="pdp-legend-pill pdp-legend-pill--start" role="listitem">
+    <button
+      type="button"
+      class="pdp-legend-pill pdp-legend-pill--start"
+      [class.pdp-legend-pill--active]="isLegendActive('start')"
+      role="listitem"
+      (click)="focusLegend('start')"
+      aria-label="Highlight first day"
+    >
       <span class="pdp-legend-dot pdp-legend-dot--start"></span>
       First day
-    </span>
-    <span class="pdp-legend-pill pdp-legend-pill--period" role="listitem">
+    </button>
+    <button
+      type="button"
+      class="pdp-legend-pill pdp-legend-pill--period"
+      [class.pdp-legend-pill--active]="isLegendActive('period')"
+      role="listitem"
+      (click)="focusLegend('period')"
+      aria-label="Highlight period days"
+    >
       <span class="pdp-legend-dot pdp-legend-dot--period"></span>
       Period
+    </button>
+    <span class="pdp-legend-pill pdp-legend-pill--cycle" role="listitem">
+      <span class="pdp-legend-dot pdp-legend-dot--cycle"></span>
+      Cycle
     </span>
-    <span class="pdp-legend-pill pdp-legend-pill--today" role="listitem">
+    <button
+      type="button"
+      class="pdp-legend-pill pdp-legend-pill--today"
+      [class.pdp-legend-pill--active]="isLegendActive('today')"
+      role="listitem"
+      (click)="focusLegend('today')"
+      aria-label="Highlight today"
+    >
       <span class="pdp-legend-dot pdp-legend-dot--today"></span>
       Today
-    </span>
+    </button>
   </div>
 
   <div class="pdp-calendar-card">
@@ -40,7 +65,11 @@
             [class.pdp-cell--other]="!isCurrentMonth(day)"
             [class.pdp-cell--today]="isToday(day)"
             [class.pdp-cell--start]="isSelectedStartDate(day)"
+            [class.pdp-cell--cycle]="isInCycleRange(day) && !isInPeriodRange(day) && !isSelectedStartDate(day)"
             [class.pdp-cell--period]="isInPeriodRange(day) && !isSelectedStartDate(day)"
+            [class.pdp-cell--focus-start]="isLegendActive('start') && isSelectedStartDate(day)"
+            [class.pdp-cell--focus-period]="isLegendActive('period') && isInPeriodRange(day)"
+            [class.pdp-cell--focus-today]="isLegendActive('today') && isToday(day)"
             [disabled]="!isCurrentMonth(day)"
             (click)="onDateSelect(day)"
           >

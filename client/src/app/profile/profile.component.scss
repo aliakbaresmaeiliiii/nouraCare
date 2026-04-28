@@ -288,21 +288,6 @@
   flex-direction: column;
   gap: 12px;
   
-  .edit-profile-btn {
-    --border-radius: 14px;
-    --padding-top: 18px;
-    --padding-bottom: 18px;
-    --background: white;
-    --color: var(--ion-color-primary);
-    font-weight: 700;
-    font-size: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    
-    ion-icon {
-      color: var(--ion-color-primary);
-    }
-  }
-
 }
 
 // Flo Experience section (from edit-profile)
@@ -1019,16 +1004,6 @@
       var(--ion-color-primary-tint) 0%,
       var(--ion-color-secondary) 100%
     );
-  }
-
-  .action-buttons .edit-profile-btn {
-    --background: var(--ion-card-background);
-    --color: var(--ion-color-primary-tint);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-
-    ion-icon {
-      color: var(--ion-color-primary-tint);
-    }
   }
 
   .activity-section .tabs-container .custom-segment {

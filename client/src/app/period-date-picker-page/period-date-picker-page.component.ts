@@ -16,10 +16,8 @@ import {
   PeriodDateRange,
 } from '../shared/components/period-date-picker/period-date-picker.component';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
-import { PeriodHistoryService } from '../shared/services/period-history.service';
-import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
 import { HomeDataService } from '../home/services/home-data.service';
-import { firstValueFrom } from 'rxjs';
+import { PeriodCycleStateService } from '../shared/services/period-cycle-state.service';
 
 @Component({
   selector: 'app-period-date-picker-page',
@@ -38,18 +36,19 @@ export class PeriodDatePickerPageComponent implements OnInit {
   @Input() initialStartIso: string | null = null;
 
   periodLength = 5;
+  cycleLength = 28;
   selectedRange: PeriodDateRange | null = null;
 
   private modalController = inject(ModalController);
   private router = inject(Router);
   private location = inject(Location);
   private cycleSettings = inject(CycleSettingsService);
-  private periodHistory = inject(PeriodHistoryService);
-  private reproductiveStatusService = inject(ReproductiveStatusService);
+  private periodCycleState = inject(PeriodCycleStateService);
   private homeData = inject(HomeDataService);
 
   ngOnInit() {
     this.periodLength = this.cycleSettings.periodLength();
+    this.cycleLength = this.cycleSettings.cycleLength();
     this.initialStartIso =
       this.initialStartIso ?? this.cycleSettings.lastPeriodStartDate();
     this.selectedRange = this.buildInitialRange(this.initialStartIso);
@@ -103,26 +102,15 @@ export class PeriodDatePickerPageComponent implements OnInit {
 
     const iso = this.toLocalIsoDate(this.selectedRange.startDate);
     const userId = this.homeData.getCurrentUserId();
-    if (userId > 0) {
-      try {
-        await firstValueFrom(
-          this.reproductiveStatusService.createPeriodLog(userId, {
-            lastPeriodDate: iso,
-            mood: '',
-            notes: '',
-            averagePeriodDuration: this.periodLength,
-          }),
-        );
-      } catch (error) {
-        console.error('Failed to persist period log:', error);
-      }
-    }
-    this.cycleSettings.setLastPeriodStart(iso);
-    this.cycleSettings.setSelectedCycleViewDate(null);
+    await this.periodCycleState.savePeriodStart(userId, {
+      lastPeriodDateIso: iso,
+      averagePeriodDuration: this.periodLength,
+      mood: '',
+      notes: '',
+    });
     this.cycleSettings.setUserStatus('Trying to Conceive');
     this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
-    this.periodHistory.addEntry(iso);
     await this.router.navigate(['/tabs/home']);
   }
 

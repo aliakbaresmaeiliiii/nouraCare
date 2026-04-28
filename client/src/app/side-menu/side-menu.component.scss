@@ -135,20 +135,6 @@
   font-weight: 500;
 }
 
-.edit-profile-btn {
-  --color: var(--brand-text);
-  --background: rgba(var(--brand-text-rgb), 0.08);
-  --border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  margin: 0;
-  flex-shrink: 0;
-  
-  &:hover {
-    --background: rgba(var(--brand-text-rgb), 0.12);
-  }
-}
-
 // Menu Content
 .menu-content {
   --background: transparent;
@@ -580,8 +566,7 @@
 
 // Focus States
 .menu-item:focus-visible,
-.social-btn:focus-visible,
-.edit-profile-btn:focus-visible {
+.social-btn:focus-visible {
   outline: 2px solid rgba(var(--brand-primary-rgb), 0.55);
   outline-offset: 2px;
 }

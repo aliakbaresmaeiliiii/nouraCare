@@ -13,6 +13,8 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 })
 export class TrackPregnancyIntroStep10Component {
   private router = inject(Router);
+  /** Step 4 of 4 — then calculating progress → home */
+  readonly progressValue = 4 / 4;
 
   readonly options = [
     "Yes - I've already made positive changes in my diet to get ready for conception",
@@ -21,10 +23,10 @@ export class TrackPregnancyIntroStep10Component {
   ];
 
   onSkip(): void {
-    void this.router.navigate(['/track-pregnancy-intro-step11']);
+    void this.router.navigate(['/track-pregnancy-intro-step12']);
   }
 
   onSelect(): void {
-    void this.router.navigate(['/track-pregnancy-intro-step11']);
+    void this.router.navigate(['/track-pregnancy-intro-step12']);
   }
 }

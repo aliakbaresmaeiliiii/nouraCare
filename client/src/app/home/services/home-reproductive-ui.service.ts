@@ -183,11 +183,15 @@ export class HomeReproductiveUiService {
       }
       return;
     }
-    if (!this.cycleSettings.lastPeriodStartDate()) {
+    const cycleIso = this.cycleSettings.lastPeriodStartDate();
+    if (!cycleIso) {
       this.cycleSettings.setLastPeriodStart(iso);
     }
-    if (!state.periodStartDate) {
-      state.periodStartDate = new Date(`${iso}T12:00:00`);
+
+    // Critical precedence: period logs (cycle settings) must win over stale onboarding journey.
+    const preferredIso = this.cycleSettings.lastPeriodStartDate() || iso;
+    if (!state.periodStartDate && preferredIso) {
+      state.periodStartDate = new Date(`${preferredIso}T12:00:00`);
       state.cycleDayDirty = true;
     }
   }

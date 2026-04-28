@@ -1,7 +1,8 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
+/** Legacy route — compact flow goes step10 → step12. */
 @Component({
   selector: 'app-track-pregnancy-intro-step11',
   standalone: true,
@@ -11,10 +12,16 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })
-export class TrackPregnancyIntroStep11Component {
+export class TrackPregnancyIntroStep11Component implements OnInit {
   private router = inject(Router);
+  ngOnInit(): void {
+    void this.router.navigate(['/track-pregnancy-intro-step12'], {
+      replaceUrl: true,
+    });
+  }
+
   selectedOption: string | null = null;
-  private navigateTimer: ReturnType<typeof setTimeout> | null = null;
+  readonly progressValue = 11 / 13;
 
   readonly options = [
     'Is there a best sex position for getting pregnant?',
@@ -31,11 +38,6 @@ export class TrackPregnancyIntroStep11Component {
 
   onSelect(option: string): void {
     this.selectedOption = option;
-    if (this.navigateTimer) {
-      clearTimeout(this.navigateTimer);
-    }
-    this.navigateTimer = setTimeout(() => {
-      void this.router.navigate(['/track-pregnancy-intro-step12']);
-    }, 160);
+    void this.router.navigate(['/track-pregnancy-intro-step12']);
   }
 }

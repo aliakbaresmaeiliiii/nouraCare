@@ -33,14 +33,16 @@
 }
 
 .tpi12-track {
-  stroke: #55565b;
+  /* Muted brand track — matches primary at low opacity on dark wizard chrome */
+  stroke: rgba(var(--ion-color-primary-rgb), 0.22);
 }
 
 .tpi12-fill {
-  stroke: #ff5a79;
+  /* Gradient stroke applied in template (matches app indigo → teal palette) */
   stroke-linecap: round;
   stroke-dasharray: 753.98;
   transition: stroke-dashoffset 80ms linear;
+  filter: drop-shadow(0 0 10px rgba(var(--ion-color-primary-rgb), 0.35));
 }
 
 .tpi12-value {

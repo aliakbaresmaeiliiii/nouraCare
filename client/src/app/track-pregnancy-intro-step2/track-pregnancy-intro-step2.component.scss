@@ -21,20 +21,10 @@
   min-height: 44px;
 }
 
-.tpi2-progress {
+/* Bar colors / gradient: global.scss `ion-content[class^='tpi'] ion-progress-bar` */
+.tpi2-top ion-progress-bar {
   flex: 1;
   max-width: 220px;
-  height: 8px;
-  border-radius: 999px;
-  background: #3a3b40;
-  overflow: hidden;
-}
-
-.tpi2-progress-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: #ff5a79;
-  transition: width 180ms ease-out;
 }
 
 .tpi2-skip {

@@ -54,6 +54,7 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
   });
 
   @Input() periodLength: number = 5;
+  @Input() cycleLength: number = 28;
   @Input() locale: string = 'en-US';
   /** Pre-select first day of last period (YYYY-MM-DD) */
   @Input() initialStartIso: string | null = null;
@@ -62,6 +63,7 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
   currentDate = signal(new Date());
   selectedStartDate = signal<Date | null>(null);
   currentMonth = signal(new Date());
+  activeLegend = signal<'start' | 'period' | 'today' | null>(null);
 
   calendarDays = computed(() => {
     this.appLang();
@@ -231,6 +233,29 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
     return t >= a && t <= b;
   }
 
+  isInCycleRange(date: Date): boolean {
+    const selectedDate = this.selectedStartDate();
+    if (!selectedDate) return false;
+
+    const safeCycleLength = Math.max(21, Math.min(60, this.cycleLength || 28));
+    const startDate = new Date(selectedDate);
+    const cycleEndDate = new Date(startDate);
+    cycleEndDate.setDate(startDate.getDate() + safeCycleLength - 1);
+
+    const t = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const a = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      startDate.getDate(),
+    );
+    const b = new Date(
+      cycleEndDate.getFullYear(),
+      cycleEndDate.getMonth(),
+      cycleEndDate.getDate(),
+    );
+    return t >= a && t <= b;
+  }
+
   isPastDate(date: Date): boolean {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -257,7 +282,24 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
     if (!this.isCurrentMonth(date)) return;
     const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     this.selectedStartDate.set(d);
+    this.activeLegend.set('start');
     this.emitRange(d);
+  }
+
+  focusLegend(type: 'start' | 'period' | 'today') {
+    this.activeLegend.set(type);
+    if (type === 'today') {
+      const today = new Date();
+      if (this.languageService.getCurrentLanguage() === 'fa') {
+        this.currentMonth.set(startOfMonth(today));
+      } else {
+        this.currentMonth.set(new Date(today.getFullYear(), today.getMonth(), 1));
+      }
+    }
+  }
+
+  isLegendActive(type: 'start' | 'period' | 'today'): boolean {
+    return this.activeLegend() === type;
   }
 
   previousMonth() {

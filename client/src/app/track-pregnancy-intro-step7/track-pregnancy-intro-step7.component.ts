@@ -14,6 +14,7 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 export class TrackPregnancyIntroStep7Component implements OnInit, OnDestroy {
   private router = inject(Router);
   private redirectTimer: ReturnType<typeof setTimeout> | null = null;
+  readonly progressValue = 7 / 13;
 
   readonly featureItems = [
     'Get daily insights tailored to your pregnancy from medical experts.',
@@ -24,7 +25,7 @@ export class TrackPregnancyIntroStep7Component implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.redirectTimer = setTimeout(() => {
-      this.goToProfile();
+      this.goToNextStep();
     }, 2000);
   }
 
@@ -35,12 +36,11 @@ export class TrackPregnancyIntroStep7Component implements OnInit, OnDestroy {
   }
 
   continueNext(): void {
-    this.goToProfile();
+    this.goToNextStep();
   }
 
-  private goToProfile(): void {
-    void this.router.navigate(['/profile'], {
-      queryParams: { selectStatus: 'PREGNANT', pregnancyTracked: '1' },
+  private goToNextStep(): void {
+    void this.router.navigate(['/track-pregnancy-intro-step8'], {
       replaceUrl: true,
     });
   }

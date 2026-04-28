@@ -1,16 +1,7 @@
 <ion-content class="tpi2-content" [fullscreen]="true" scrollY="false">
   <div class="tpi2-root">
     <header class="tpi2-top">
-      <div
-        class="tpi2-progress"
-        role="progressbar"
-        aria-label="Pregnancy onboarding progress"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        [attr.aria-valuenow]="progress"
-      >
-        <div class="tpi2-progress-fill" [style.width.%]="progress"></div>
-      </div>
+      <ion-progress-bar [value]="progressValue"></ion-progress-bar>
       <button type="button" class="tpi2-skip" (click)="onSkip()">Skip</button>
     </header>
 

@@ -9,6 +9,7 @@ import {
 import { environment } from '../../../environments/environment';
 import { UserSessionService } from './user-session.service';
 import { AuthService } from '../../auth/services/auth';
+import { normalizeLmpInput } from '../utils/pregnancy-lmp.util';
 
 export interface OnboardingData {
   pregnancy_status: string;
@@ -240,5 +241,25 @@ export class UserInfoService {
     const cycle = `${info.cycleLength}-day cycle`;
     const period = `${info.periodLength}-day period`;
     return `${status} • ${cycle} • ${period}`;
+  }
+
+  /**
+   * Local-first override used after period logging so stale onboarding payload
+   * never wins over freshly saved cycle data in active screens.
+   */
+  applyLocalPeriodOverride(lastPeriodDateIso: string): void {
+    const canonical = normalizeLmpInput(lastPeriodDateIso);
+    if (!canonical) {
+      return;
+    }
+    this.onboardingJourney.update((current) => {
+      if (!current) {
+        return current;
+      }
+      return {
+        ...current,
+        lastPeriodDate: `${canonical}T12:00:00.000Z`,
+      };
+    });
   }
 }

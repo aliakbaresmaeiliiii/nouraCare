@@ -1,7 +1,8 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
+/** Legacy loader — compact flow uses step12 → home instead. */
 @Component({
   selector: 'app-track-pregnancy-intro-step6',
   standalone: true,
@@ -11,38 +12,14 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })
-export class TrackPregnancyIntroStep6Component implements OnInit, OnDestroy {
+export class TrackPregnancyIntroStep6Component implements OnInit {
   private router = inject(Router);
-  progress = 0;
-  private progressTimer: ReturnType<typeof setInterval> | null = null;
-  private navigateTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
-    this.startProgressAnimation();
+    void this.router.navigate(['/track-pregnancy-intro-step12'], {
+      replaceUrl: true,
+    });
   }
 
-  ngOnDestroy(): void {
-    if (this.progressTimer) {
-      clearInterval(this.progressTimer);
-    }
-    if (this.navigateTimer) {
-      clearTimeout(this.navigateTimer);
-    }
-  }
-
-  private startProgressAnimation(): void {
-    this.progressTimer = setInterval(() => {
-      if (this.progress >= 100) {
-        if (this.progressTimer) {
-          clearInterval(this.progressTimer);
-        }
-        this.navigateTimer = setTimeout(() => {
-          void this.router.navigate(['/track-pregnancy-intro-step7']);
-        }, 120);
-        return;
-      }
-      this.progress += 1;
-    }, 25);
-  }
-
+  progress = 0;
 }

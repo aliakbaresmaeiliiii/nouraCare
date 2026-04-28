@@ -96,8 +96,8 @@
       class="edit-profile-btn"
       (click)="editProfile()"
     >
-      <ion-icon name="create-outline" slot="start"></ion-icon>
-      Edit Profile
+      <ion-icon name="create-outline" slot="start" aria-hidden="true"></ion-icon>
+      {{ 'profile.editProfile' | translate }}
     </ion-button>
   </div>
 

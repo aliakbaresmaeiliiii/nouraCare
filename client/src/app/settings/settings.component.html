@@ -40,8 +40,13 @@
         <span class="status-text">{{ accountStatusLabel }}</span>
       </div>
     </div>
-    <ion-button fill="clear" class="edit-profile-btn" [routerLink]="['/edit-profile']">
-      <ion-icon name="create"></ion-icon>
+    <ion-button
+      fill="clear"
+      class="edit-profile-btn"
+      [routerLink]="['/edit-profile']"
+      [attr.aria-label]="'profile.editProfile' | translate"
+    >
+      <ion-icon name="create" aria-hidden="true"></ion-icon>
     </ion-button>
   </div>
 

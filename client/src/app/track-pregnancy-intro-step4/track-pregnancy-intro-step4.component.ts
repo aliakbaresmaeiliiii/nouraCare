@@ -13,6 +13,8 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 })
 export class TrackPregnancyIntroStep4Component {
   private router = inject(Router);
+  /** Step 2 of 4 */
+  readonly progressValue = 2 / 4;
 
   readonly options = [
     'Yes',
@@ -21,12 +23,10 @@ export class TrackPregnancyIntroStep4Component {
   ];
 
   onSkip(): void {
-    void this.router.navigate(['/edit-profile'], {
-      queryParams: { pregnancyIntro: '1' },
-    });
+    void this.router.navigate(['/track-pregnancy-intro-step8']);
   }
 
   onSelect(): void {
-    void this.router.navigate(['/track-pregnancy-intro-step5']);
+    void this.router.navigate(['/track-pregnancy-intro-step8']);
   }
 }

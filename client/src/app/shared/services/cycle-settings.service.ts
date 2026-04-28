@@ -64,6 +64,50 @@ export class CycleSettingsService {
 
   setSelectedCycleViewDate(dateIso: string | null) {
     this.selectedCycleViewDate.set(dateIso ?? null);
+    this.saveToStorage();
+  }
+
+  /**
+   * Focuses the home cycle SVG week strip on the next predicted ovulation calendar day
+   * (approx. cycleDay = cycleLength − 14 from last period start; advances by full cycles until ≥ today).
+   * Key format matches the week strip: `${year}-${monthIndex0to11}-${day}`.
+   */
+  pinSelectedViewToNextPredictedOvulation(): void {
+    const startIso = this.lastPeriodStartDate();
+    if (!startIso) {
+      this.setSelectedCycleViewDate(null);
+      return;
+    }
+
+    const safeCycleLength = Math.max(21, this.cycleLength() || 28);
+    const ovulationCycleDay = Math.max(1, safeCycleLength - 14);
+    const start = new Date(`${startIso}T12:00:00`);
+    if (Number.isNaN(start.getTime())) {
+      this.setSelectedCycleViewDate(null);
+      return;
+    }
+
+    const ovulationDate = new Date(start);
+    ovulationDate.setDate(start.getDate() + ovulationCycleDay - 1);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    ovulationDate.setHours(0, 0, 0, 0);
+    while (ovulationDate.getTime() < today.getTime()) {
+      ovulationDate.setDate(ovulationDate.getDate() + safeCycleLength);
+    }
+
+    const y = ovulationDate.getFullYear();
+    const mi = ovulationDate.getMonth();
+    const day = ovulationDate.getDate();
+    this.setSelectedCycleViewDate(`${y}-${mi}-${day}`);
+  }
+
+  /** Apply Trying-to-conceive home mode (does not overwrite period data). */
+  applyTryingToConceiveHomeMode(): void {
+    this.setUserStatus('Trying to Conceive');
+    this.setPregnancyStatus(false);
+    this.setPostpartumStatus(false);
   }
 
   private loadFromStorage() {
@@ -83,6 +127,12 @@ export class CycleSettingsService {
       if (typeof data.isPostpartum === 'boolean') this.isPostpartum.set(data.isPostpartum);
       if (typeof data.pregnancyWeek === 'number') this.pregnancyWeek.set(data.pregnancyWeek);
       if (typeof data.pregnancyProgress === 'number') this.pregnancyProgress.set(data.pregnancyProgress);
+      if (
+        typeof data.selectedCycleViewDateStored === 'string' ||
+        data.selectedCycleViewDateStored === null
+      ) {
+        this.selectedCycleViewDate.set(data.selectedCycleViewDateStored ?? null);
+      }
     } catch {}
   }
 
@@ -97,6 +147,7 @@ export class CycleSettingsService {
         isPostpartum: this.isPostpartum(),
         pregnancyWeek: this.pregnancyWeek(),
         pregnancyProgress: this.pregnancyProgress(),
+        selectedCycleViewDateStored: this.selectedCycleViewDate(),
       };
       localStorage.setItem(this.storageKey, JSON.stringify(data));
     } catch {}

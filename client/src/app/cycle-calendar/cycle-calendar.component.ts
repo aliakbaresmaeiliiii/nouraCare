@@ -27,8 +27,8 @@ import { Router } from '@angular/router';
 import { HomeDataService } from '../home/services/home-data.service';
 import { PeriodDatePickerPageComponent } from '../period-date-picker-page/period-date-picker-page.component';
 import { PeriodDateRange } from '../shared/components/period-date-picker/period-date-picker.component';
-import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../shared/services/language.service';
+import { PeriodCycleStateService } from '../shared/services/period-cycle-state.service';
 import {
   formatHistoryDayDate,
   formatMonthYearTitle,
@@ -86,6 +86,7 @@ export class CycleCalendarComponent implements OnInit {
   private router = inject(Router);
   homeService = inject(HomeDataService);
   private languageService = inject(LanguageService);
+  private periodCycleState = inject(PeriodCycleStateService);
   private destroyRef = inject(DestroyRef);
 
   reproductiveStatus: ReproductiveStatusData = {};
@@ -105,6 +106,7 @@ export class CycleCalendarComponent implements OnInit {
     this.refreshCalendar();
     this.refreshHistory();
     const userId = this.homeService.getCurrentUserId();
+    void this.periodCycleState.ensureLatestPeriodFromApi(userId);
     this.loadReproductiveStatus(userId);
   }
 
@@ -150,24 +152,15 @@ export class CycleCalendarComponent implements OnInit {
   private applyPeriodRange(periodRange: PeriodDateRange) {
     const iso = this.toLocalIsoDate(periodRange.startDate);
     const userId = this.homeService.getCurrentUserId();
-    if (userId > 0) {
-      void firstValueFrom(
-        this.reproductiveStatusService.createPeriodLog(userId, {
-          lastPeriodDate: iso,
-          mood: '',
-          notes: '',
-          averagePeriodDuration: this.cycleSettings.periodLength(),
-        }),
-      ).catch((error) => {
-        console.error('Failed to persist period log:', error);
-      });
-    }
+    void this.periodCycleState.savePeriodStart(userId, {
+      lastPeriodDateIso: iso,
+      averagePeriodDuration: this.cycleSettings.periodLength(),
+      mood: '',
+      notes: '',
+    });
     this.cycleSettings.setUserStatus('Trying to Conceive');
     this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
-    this.cycleSettings.setLastPeriodStart(iso);
-    this.cycleSettings.setSelectedCycleViewDate(null);
-    this.periodHistory.addEntry(iso);
     this.refreshHistory();
     this.refreshCalendar();
     this.loadReproductiveStatus(this.homeService.getCurrentUserId());
