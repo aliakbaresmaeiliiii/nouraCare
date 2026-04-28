@@ -1738,29 +1738,3 @@ ion-item:focus-visible {
   padding-top: 8px;
 }
 
-.save-profile-btn {
-  margin-top: 20px;
-  --background: var(--app-button-solid-bg);
-  --background-hover: var(--app-button-gradient-hover);
-  --background-focused: var(--app-button-gradient-hover);
-  --background-activated: var(--app-button-gradient-pressed);
-  --color: var(--app-button-solid-color);
-  --border-radius: 999px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
-  --box-shadow: var(--app-button-solid-shadow);
-  --ripple-color: var(--app-button-ripple);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.save-profile-btn[disabled] {
-  opacity: 0.55;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .save-profile-btn::part(native) {
-    background-size: 260% 260%;
-    animation: app-button-gradient-wave 14s ease-in-out infinite;
-  }
-}

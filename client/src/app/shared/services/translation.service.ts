@@ -13,6 +13,7 @@ export class TranslationService {
       'common.settings': 'Settings',
       'common.save': 'Save',
       'common.cancel': 'Cancel',
+      'common.skip': 'Skip',
       'common.edit': 'Edit',
       'common.delete': 'Delete',
       'common.language': 'Language',
@@ -64,6 +65,33 @@ export class TranslationService {
       'trackPregnancyIntro.body':
         "Follow week-by-week physical and emotional changes you will experience and explore your baby's growth and development.",
       'trackPregnancyIntro.next': 'Next',
+      'tpi.step2.title': 'How are you feeling?',
+      'tpi.step2.option.feeling_excited': "Excited for what's to come! 😀",
+      'tpi.step2.option.feeling_unsure': 'A bit unsure or unprepared 😕',
+      'tpi.step2.option.feeling_stressed': 'Worried or stressed 😪',
+      'tpi.step2.option.feeling_mixed':
+        'Happy, nervous, and excited - all at the same time! 🥹',
+      'tpi.step4.title': 'Have you seen a doctor about your pregnancy?',
+      'tpi.step4.option.yes': 'Yes',
+      'tpi.step4.option.no': 'No',
+      'tpi.step4.option.waiting_appointment': "I'm waiting for an appointment",
+      'tpi.step8.title': 'Have you had a prepregnancy checkup?',
+      'tpi.step8.body':
+        "This is when a health care professional makes sure you're healthy and ready for pregnancy.",
+      'tpi.step8.option.yes': 'Yes',
+      'tpi.step8.option.not_yet': 'Not yet',
+      'tpi.step8.option.waiting_appointment': "I'm waiting for an appointment",
+      'tpi.step8.option.not_necessary': "I didn't think it was necessary",
+      'tpi.step10.title': 'Do you feel you have a healthy diet?',
+      'tpi.step10.body':
+        'What you eat is an important factor in being healthy and ready for pregnancy.',
+      'tpi.step10.option.diet_yes':
+        "Yes - I've already made positive changes in my diet to get ready for conception",
+      'tpi.step10.option.diet_not_really':
+        'Not really - I could be eating better',
+      'tpi.step10.option.diet_need_learn':
+        "I'm not sure - I'd like to learn what I could change about my diet",
+      'tpi.step12.title': 'Personalizing your experience ...',
       'editProfile.trackPerimenopause': 'Track perimenopause',
       'editProfile.continue': 'Continue',
       'editProfile.personalInformation': 'Personal Information',

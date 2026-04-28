@@ -9,6 +9,8 @@ import {
 import { Router } from '@angular/router';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import { OnboardingService } from '../shared/services/onboarding.service';
+import { GetPregnantIntroStateService } from '../shared/services/get-pregnant-intro-state.service';
 
 /**
  * Final “calculating” screen: fills 0–100%, then opens Home with ovulation day focused on the cycle SVG.
@@ -25,6 +27,8 @@ import { CycleSettingsService } from '../shared/services/cycle-settings.service'
 export class TrackPregnancyIntroStep12Component implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly cycleSettings = inject(CycleSettingsService);
+  private readonly onboardingService = inject(OnboardingService);
+  private readonly introState = inject(GetPregnantIntroStateService);
   private readonly cdr = inject(ChangeDetectorRef);
   /** Browser timer handles (avoids NodeJS `Timeout` vs `number` mismatches). */
   private timer: number | null = null;
@@ -96,6 +100,22 @@ export class TrackPregnancyIntroStep12Component implements OnInit, OnDestroy {
       return;
     }
     this.didNavigateHome = true;
+    const snapshot = this.introState.markCompleted();
+    this.onboardingService
+      .updateReproductiveState({
+        state: 'planning',
+        tryingSince: this.cycleSettings.lastPeriodStartDate() ?? undefined,
+        notes: JSON.stringify({
+          source: 'get-pregnant-intro',
+          completedAt: snapshot.completedAt,
+          answers: snapshot.answers,
+        }),
+      })
+      .subscribe({
+        error: () => {
+          // Non-blocking: local mode still applies even if remote sync fails.
+        },
+      });
     this.cycleSettings.applyTryingToConceiveHomeMode();
     this.cycleSettings.pinSelectedViewToNextPredictedOvulation();
     await this.router.navigate(['/tabs/home'], { replaceUrl: true });

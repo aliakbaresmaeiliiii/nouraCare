@@ -143,20 +143,6 @@
   margin-top: 14px;
 }
 
-.save-btn,
-.create-plan-btn,
-.next-step-btn {
-  --background: var(--app-gradient-header);
-  --border-radius: 12px;
-  --box-shadow: none;
-  font-weight: 700;
-  min-height: 46px;
-}
-
-.create-plan-btn {
-  margin-top: 6px;
-}
-
 .confirmation-message {
   margin-top: 10px;
   padding: 10px 12px;

@@ -1,6 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { GetPregnantIntroStateService } from '../shared/services/get-pregnant-intro-state.service';
 
 @Component({
   selector: 'app-track-pregnancy-intro-step10',
@@ -13,20 +14,19 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 })
 export class TrackPregnancyIntroStep10Component {
   private router = inject(Router);
+  private introState = inject(GetPregnantIntroStateService);
   /** Step 4 of 4 — then calculating progress → home */
   readonly progressValue = 4 / 4;
 
-  readonly options = [
-    "Yes - I've already made positive changes in my diet to get ready for conception",
-    'Not really - I could be eating better',
-    "I'm not sure - I'd like to learn what I could change about my diet",
-  ];
+  readonly options = ['diet_yes', 'diet_not_really', 'diet_need_learn'];
 
   onSkip(): void {
+    this.introState.setAnswer('step10_healthy_diet', 'skipped');
     void this.router.navigate(['/track-pregnancy-intro-step12']);
   }
 
-  onSelect(): void {
+  onSelect(optionId: string): void {
+    this.introState.setAnswer('step10_healthy_diet', optionId);
     void this.router.navigate(['/track-pregnancy-intro-step12']);
   }
 }

@@ -33,15 +33,13 @@
         <h1 class="welcome-title">{{ getStepTitle() }}</h1>
         <p class="welcome-lead">{{ getStepSubtitle() }}</p>
         <p class="welcome-body">{{ getStepQuestion() }}</p>
-        <ion-button
-          class="welcome-primary"
-          expand="block"
+        <app-button
           size="large"
-          (click)="startFromWelcome()"
           [disabled]="isFinishing"
+          (buttonClick)="startFromWelcome()"
         >
           Get started
-        </ion-button>
+        </app-button>
         <p class="welcome-footnote">Takes about a minute · Private on this device until you sign in</p>
       </div>
     } @else if (!isPersonalizedResultStep) {
@@ -264,10 +262,10 @@
               </ion-button>
             }
 
-            <ion-button
-              class="nav-primary onboarding-next-primary"
+            <app-button
+              color="secondary"
               [disabled]="!canProceed || isFinishing"
-              (click)="nextStep()"
+              (buttonClick)="nextStep()"
             >
               @if (isFinishing) {
                 Saving…
@@ -287,7 +285,7 @@
                   <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
                 }
               }
-            </ion-button>
+            </app-button>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { GetPregnantIntroStateService } from '../shared/services/get-pregnant-intro-state.service';
 
 /** Q1 of 4 — leads into compact TTC intro (see step4 → step8 → step10 → step12). */
 @Component({
@@ -14,20 +15,23 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 })
 export class TrackPregnancyIntroStep2Component {
   private router = inject(Router);
+  private introState = inject(GetPregnantIntroStateService);
   /** Step 1 of 4 questions (linear bar before final calculating screen). */
   readonly progressValue = 1 / 4;
   readonly options = [
-    "Excited for what's to come! 😀",
-    'A bit unsure or unprepared 😕',
-    'Worried or stressed 😪',
-    'Happy, nervous, and excited - all at the same time! 🥹',
+    'feeling_excited',
+    'feeling_unsure',
+    'feeling_stressed',
+    'feeling_mixed',
   ];
 
   onSkip(): void {
+    this.introState.setAnswer('step2_feeling', 'skipped');
     void this.router.navigate(['/track-pregnancy-intro-step4']);
   }
 
-  onSelect(): void {
+  onSelect(optionId: string): void {
+    this.introState.setAnswer('step2_feeling', optionId);
     void this.router.navigate(['/track-pregnancy-intro-step4']);
   }
 }

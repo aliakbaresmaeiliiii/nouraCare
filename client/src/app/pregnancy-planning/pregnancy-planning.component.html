@@ -114,10 +114,10 @@
          <!-- TODO -->
          <!-- [disabled]="!isCycleFormValid()" -->
         <div class="save-section">
-          <ion-button expand="block" class="save-btn" (click)="saveCycleData()" >
+          <app-button (buttonClick)="saveCycleData()">
             <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
             Save Cycle Information
-          </ion-button>
+          </app-button>
         </div>
 
         <!-- Confirmation Message -->
@@ -164,30 +164,23 @@
           ></ion-input>
         </ion-item>
 
-        <ion-button
-          expand="block"
-          class="create-plan-btn"
-          (click)="updatePregnancyPlan()"
-          [disabled]="cycleForm.get('lastPeriodDate')?.invalid"
+        <app-button
+          (buttonClick)="updatePregnancyPlan()"
+          [disabled]="cycleForm.get('lastPeriodDate')?.invalid ?? false"
         >
           <ion-icon name="heart-outline" slot="start"></ion-icon>
           Create Pregnancy Plan
-        </ion-button>
+        </app-button>
       </ion-card-content>
     </ion-card>
   </div>
 
   <!-- Next Step Button -->
   <div class="next-step-section">
-    <ion-button
-      expand="block"
-      color="primary"
-      class="next-step-btn"
-      (click)="goToNextStep()"
-    >
+    <app-button (buttonClick)="goToNextStep()">
       <ion-icon name="arrow-forward" slot="end"></ion-icon>
       Next Step
-    </ion-button>
+    </app-button>
     <p class="next-step-note">
       Continue to track your pregnancy journey and get personalized insights
     </p>

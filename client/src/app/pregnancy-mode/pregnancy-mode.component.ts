@@ -3,12 +3,13 @@ import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
+  OnInit,
   ViewChild,
   inject,
 } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular/standalone';
+import { AlertController, ToastController } from '@ionic/angular/standalone';
 import { firstValueFrom } from 'rxjs';
 import { OnboardingService } from '../shared/services/onboarding.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
@@ -23,9 +24,10 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })
-export class PregnancyModeComponent implements AfterViewInit {
+export class PregnancyModeComponent implements AfterViewInit, OnInit {
   private location = inject(Location);
   private alertController = inject(AlertController);
+  private toastController = inject(ToastController);
   private router = inject(Router);
   private onboardingService = inject(OnboardingService);
   private cycleSettings = inject(CycleSettingsService);
@@ -36,6 +38,7 @@ export class PregnancyModeComponent implements AfterViewInit {
   gestationalDay = 1;
   dueDateIso = '2027-01-23';
   multipleBabies = 'NO';
+  isSaving = false;
   todayIso = new Date().toISOString();
   maxDueDateIso = new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString();
 
@@ -131,14 +134,79 @@ export class PregnancyModeComponent implements AfterViewInit {
     }, 0);
   }
 
-  save(): void {
-    if (!this.hasChanges) return;
-    this.initialState = {
-      gestationalWeek: this.gestationalWeek,
-      gestationalDay: this.gestationalDay,
-      dueDateIso: this.dueDateIso,
-      multipleBabies: this.multipleBabies,
-    };
+  async ngOnInit(): Promise<void> {
+    try {
+      const dashboard = await firstValueFrom(this.onboardingService.getDashboard());
+      const week = Number(dashboard?.week ?? 0);
+      const day = Number(dashboard?.day ?? 0);
+      if (week > 0) {
+        this.gestationalWeek = Math.max(1, Math.min(42, week));
+      }
+      this.gestationalDay = Math.max(1, Math.min(7, day + 1));
+      const lmpIso = dashboard?.lastMenstrualPeriod;
+      if (lmpIso) {
+        const lmp = new Date(`${lmpIso}T00:00:00Z`);
+        if (!Number.isNaN(lmp.getTime())) {
+          const due = new Date(lmp.getTime() + 280 * 86400000);
+          this.dueDateIso = due.toISOString();
+        }
+      }
+      this.initialState = {
+        gestationalWeek: this.gestationalWeek,
+        gestationalDay: this.gestationalDay,
+        dueDateIso: this.dueDateIso,
+        multipleBabies: this.multipleBabies,
+      };
+      setTimeout(() => {
+        this.scrollWheelToSelection('week', false);
+        this.scrollWheelToSelection('day', false);
+      }, 0);
+    } catch {
+      // Non-blocking fallback to defaults.
+    }
+  }
+
+  async save(): Promise<void> {
+    if (!this.hasChanges || this.isSaving) return;
+    this.isSaving = true;
+    try {
+      // Backend accepts only one pregnancy timeline input. Prefer due-date when changed,
+      // otherwise send exact LMP derived from selected week/day.
+      const payload =
+        this.dueDateIso !== this.initialState.dueDateIso
+          ? { state: 'pregnant' as const, pregnancyDueDate: this.toDateOnly(this.dueDateIso) }
+          : { state: 'pregnant' as const, pregnancyStartDate: this.deriveLmpFromGestationalAge() };
+
+      const dashboard = await firstValueFrom(this.onboardingService.updateReproductiveState(payload));
+      this.cycleSettings.setUserStatus('Pregnant');
+      this.cycleSettings.setPregnancyStatus(true);
+      this.cycleSettings.setPostpartumStatus(false);
+      this.cycleSettings.setSelectedCycleViewDate(null);
+      this.cycleSettings.setLastPeriodStart(dashboard.lastMenstrualPeriod ?? null);
+      this.cycleSettings.setPregnancyWeek(Number(dashboard.week ?? this.gestationalWeek));
+      this.cycleSettings.setPregnancyProgress(
+        Math.round(Math.max(0, Math.min(1, Number(dashboard.progress ?? 0))) * 100),
+      );
+
+      this.initialState = {
+        gestationalWeek: this.gestationalWeek,
+        gestationalDay: this.gestationalDay,
+        dueDateIso: this.dueDateIso,
+        multipleBabies: this.multipleBabies,
+      };
+      await this.presentToast('Pregnancy timeline saved.', 'success');
+      await this.router.navigate(['/tabs/home']);
+    } catch (error: any) {
+      const message =
+        typeof error?.error?.message === 'string'
+          ? error.error.message
+          : Array.isArray(error?.error?.message) && typeof error.error.message[0] === 'string'
+            ? error.error.message[0]
+            : 'Failed to save pregnancy timeline. Please try again.';
+      await this.presentToast(message, 'danger');
+    } finally {
+      this.isSaving = false;
+    }
   }
 
   onGestationalWeekChange(event: any): void {
@@ -231,5 +299,32 @@ export class PregnancyModeComponent implements AfterViewInit {
         },
       },
     ];
+  }
+
+  private toDateOnly(value: string): string {
+    return value.includes('T') ? value.split('T')[0] : value.slice(0, 10);
+  }
+
+  private deriveLmpFromGestationalAge(): string {
+    const today = new Date();
+    const todayUtc = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+    const weeks = Math.max(1, Math.min(42, Math.floor(this.gestationalWeek || 1)));
+    const days = Math.max(1, Math.min(7, Math.floor(this.gestationalDay || 1)));
+    const daysSinceLmp = (weeks - 1) * 7 + (days - 1);
+    const lmpUtc = new Date(todayUtc.getTime() - daysSinceLmp * 86400000);
+    return lmpUtc.toISOString().slice(0, 10);
+  }
+
+  private async presentToast(
+    message: string,
+    color: 'success' | 'danger',
+  ): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      color,
+      duration: 1800,
+      position: 'top',
+    });
+    await toast.present();
   }
 }

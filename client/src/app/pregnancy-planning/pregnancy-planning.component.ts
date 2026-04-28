@@ -51,6 +51,7 @@ import {
   chevronDown,
 } from 'ionicons/icons';
 import { HomeDataService } from '../home/services/home-data.service';
+import { AppButtonComponent } from '../shared/components/app-button/app-button.component';
 
 interface CycleFormData {
   lastPeriodDate: string;
@@ -81,9 +82,9 @@ interface CycleFormData {
     IonItem,
     IonLabel,
     IonInput,
-    IonButton,
     IonIcon,
     IonNote,
+    AppButtonComponent,
   ],
 })
 export class PregnancyPlanningComponent implements OnInit {

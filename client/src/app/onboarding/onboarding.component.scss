@@ -255,16 +255,6 @@
   width: 100%;
 }
 
-.onboarding-next-primary {
-  --background: var(--ion-color-secondary);
-  --background-hover: var(--ion-color-secondary-shade);
-  --background-activated: var(--ion-color-secondary-shade);
-  --color: var(--ion-color-secondary-contrast);
-  --box-shadow: 0 4px 16px rgba(var(--brand-secondary-rgb), 0.32);
-  --border-radius: 12px;
-  font-weight: 600;
-}
-
 .welcome-hero {
   width: 100%;
   max-width: 420px;
@@ -313,10 +303,7 @@
   font-weight: 500;
 }
 
-.welcome-primary {
-  --border-radius: 14px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+.welcome-hero app-button {
   margin: 0 0 1rem;
 }
 
@@ -540,9 +527,10 @@ ion-datetime-button {
   min-width: 0;
 }
 
-.nav-primary {
+.nav-right app-button {
   flex-shrink: 0;
   min-width: 7.5rem;
+  width: auto;
 }
 
 ion-button {

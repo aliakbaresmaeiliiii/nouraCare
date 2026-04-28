@@ -89,8 +89,7 @@
   </div>
 
   <!-- Action Buttons -->
-  <div class="action-buttons">
-    <ion-button
+    <!-- <ion-button
       expand="block"
       type="button"
       class="edit-profile-btn"
@@ -98,8 +97,19 @@
     >
       <ion-icon name="create-outline" slot="start" aria-hidden="true"></ion-icon>
       {{ 'profile.editProfile' | translate }}
-    </ion-button>
-  </div>
+      <ion-icon name="chevron-forward-outline" slot="end" aria-hidden="true"></ion-icon>
+    </ion-button> -->
+
+
+    <app-button
+    type="submit"
+    (buttonClick)="editProfile()"
+  >
+      {{ 'profile.editProfile' | translate }}
+  </app-button>
+
+
+
 
   <!-- Reproductive Status Section -->
   <section class="experience-section">
@@ -336,14 +346,13 @@
         <p class="empty-description">
           Start asking questions to get help from the community
         </p>
-        <ion-button
+        <app-button
           fill="outline"
-          class="empty-action-btn"
-          (click)="someFunction()"
+          (buttonClick)="someFunction()"
         >
           <ion-icon name="add" slot="start"></ion-icon>
           Ask Your First Question
-        </ion-button>
+        </app-button>
       </div>
       } @case ('second') {
       <div class="empty-state">
@@ -354,10 +363,10 @@
         <p class="empty-description">
           Share your knowledge by answering questions
         </p>
-        <ion-button fill="outline" class="empty-action-btn">
+        <app-button fill="outline">
           <ion-icon name="arrow-forward" slot="start"></ion-icon>
           Go to Q&A Section
-        </ion-button>
+        </app-button>
       </div>
       } @case ('third') {
       <div class="empty-state">
@@ -368,10 +377,10 @@
         <p class="empty-description">
           Help others by sharing your buying experiences
         </p>
-        <ion-button fill="outline" class="empty-action-btn">
+        <app-button fill="outline">
           <ion-icon name="add" slot="start"></ion-icon>
           Share Your Experience
-        </ion-button>
+        </app-button>
       </div>
       } @default {
       <div class="empty-state">

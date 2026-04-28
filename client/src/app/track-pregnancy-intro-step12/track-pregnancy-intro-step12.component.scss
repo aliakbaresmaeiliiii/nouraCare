@@ -1,5 +1,5 @@
 .tpi12-content {
-  --background: #1c1c1e;
+  --background: var(--ion-background-color);
 }
 
 .tpi12-root {
@@ -10,8 +10,16 @@
   justify-content: flex-start;
   gap: 0;
   padding: calc(88px + env(safe-area-inset-top)) 24px 24px;
-  background: #1c1c1e;
-  color: #fff;
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+}
+
+.tpi-logo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  margin: 0 auto 16px;
+  display: block;
 }
 
 .tpi12-ring-wrap {

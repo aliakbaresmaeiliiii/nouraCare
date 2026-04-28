@@ -87,17 +87,13 @@
                 }
               </div>
 
-              <ion-button
+              <app-button
                 type="submit"
-                class="submit-button"
-                [disabled]="loginForm.invalid || isLoading"
-                expand="block"
+                [disabled]="loginForm.invalid"
+                [loading]="isLoading"
               >
-                @if (isLoading) {
-                  <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
-                }
                 {{ isLoading ? ('auth.signingIn' | translate) : ('auth.signIn' | translate) }}
-              </ion-button>
+              </app-button>
 
               <div class="social-divider">
                 <span>{{ 'auth.orContinueWith' | translate }}</span>
@@ -175,17 +171,13 @@
                 />
               </div>
 
-              <ion-button
+              <app-button
                 type="submit"
-                class="submit-button register"
-                [disabled]="registerForm.invalid || isLoading"
-                expand="block"
+                [disabled]="registerForm.invalid"
+                [loading]="isLoading"
               >
-                @if (isLoading) {
-                  <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
-                }
                 {{ isLoading ? ('auth.creatingAccount' | translate) : ('auth.signUp' | translate) }}
-              </ion-button>
+              </app-button>
 
               <div class="social-divider">
                 <span>{{ 'auth.orSignUpWith' | translate }}</span>

@@ -12,6 +12,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { User } from '../shared/services/user';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
+import { UserInfoService } from '../shared/services/user-info.service';
+import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import {
   ReproductiveStatusService,
   ReproductiveStatusData,
@@ -103,6 +105,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   private imageUrlService = inject(ImageUrlService);
   public profileCompletionService = inject(ProfileCompletionService);
   private reproductiveStatusService = inject(ReproductiveStatusService);
+  private userInfoService = inject(UserInfoService);
+  private cycleSettings = inject(CycleSettingsService);
   private onboardingService = inject(OnboardingService);
   private modalCtrl = inject(ModalController);
   private alertController = inject(AlertController);
@@ -266,6 +270,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     }
 
     this.currentReproductiveStatus = 'PLANNING_PREGNANCY';
+    this.cycleSettings.setGetPregnantProfileCardPending(true);
     await this.router.navigate(['/track-pregnancy-intro']);
   }
 
@@ -298,6 +303,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     if (this.isStatusSelected('NOT_PREGNANT')) {
       return;
     }
+    this.cycleSettings.clearGetPregnantProfileCardPending();
     this.goToCycleCalendar();
   }
 
@@ -354,9 +360,103 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   }
 
   private syncCurrentStatusFromProfileData(): void {
-    const status = this.profileCompletionService.currentUserData?.status;
-    this.currentReproductiveStatus =
-      typeof status === 'string' && status.trim() ? status : null;
+    const merged = this.profileCompletionService.currentUserData?.status;
+    const fromApi = this.normalizeExperienceCardFromApi(String(merged ?? '').trim());
+    const journeyRow = this.userInfoService.onboardingJourney();
+    const journeyPs = journeyRow?.pregnancyStatus;
+    const fromJourney =
+      typeof journeyPs === 'string' || typeof journeyPs === 'number'
+        ? this.normalizeExperienceCardFromApi(String(journeyPs).trim())
+        : null;
+
+    let next: string | null = null;
+
+    if (fromApi === 'PREGNANT') {
+      next = 'PREGNANT';
+      this.cycleSettings.clearGetPregnantProfileCardPending();
+    } else if (fromApi === 'POSTPARTUM') {
+      next = 'POSTPARTUM';
+      this.cycleSettings.clearGetPregnantProfileCardPending();
+    } else if (fromApi === 'PLANNING_PREGNANCY') {
+      next = 'PLANNING_PREGNANCY';
+      this.cycleSettings.clearGetPregnantProfileCardPending();
+    } else if (fromApi === 'NOT_PREGNANT') {
+      next = this.cycleSettings.getPregnantProfileCardPending()
+        ? 'PLANNING_PREGNANCY'
+        : 'NOT_PREGNANT';
+    } else if (
+      fromJourney === 'PREGNANT' ||
+      fromJourney === 'PLANNING_PREGNANCY' ||
+      fromJourney === 'NOT_PREGNANT' ||
+      fromJourney === 'POSTPARTUM'
+    ) {
+      if (
+        fromJourney === 'NOT_PREGNANT' &&
+        this.cycleSettings.getPregnantProfileCardPending()
+      ) {
+        // Keep Profile "Get pregnant" highlighted while journey status is still stale.
+        next = 'PLANNING_PREGNANCY';
+      } else {
+        next = fromJourney;
+      }
+      if (fromJourney === 'PLANNING_PREGNANCY') {
+        this.cycleSettings.clearGetPregnantProfileCardPending();
+      }
+    } else if (this.cycleSettings.getPregnantProfileCardPending()) {
+      next = 'PLANNING_PREGNANCY';
+    }
+
+    if (next == null) {
+      next = 'NOT_PREGNANT';
+    }
+
+    this.currentReproductiveStatus = next;
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Normalize API/dashboard/journey pregnancy labels to Profile experience-card keys.
+   */
+  private normalizeExperienceCardFromApi(raw: string): string | null {
+    if (!raw) return null;
+
+    const u = raw.trim().replace(/\s+/g, '_').toUpperCase();
+    if (
+      u === 'PREGNANT' ||
+      u === 'PREGNANCY' ||
+      u === 'EXPECTING'
+    ) {
+      return 'PREGNANT';
+    }
+    if (
+      u === 'PLANNING_PREGNANCY' ||
+      u === 'TRYING_TO_CONCEIVE' ||
+      u === 'TRYING_TO_CONCEPTION' ||
+      u === 'PLANNING'
+    ) {
+      return 'PLANNING_PREGNANCY';
+    }
+    if (u === 'POSTPARTUM' || u === 'HAS_CHILD') {
+      return 'POSTPARTUM';
+    }
+
+    const compactNoUs = raw.replace(/[\s_-]/g, '').toUpperCase();
+    if (compactNoUs.includes('TRYING') || compactNoUs.includes('CONCEIVE')) {
+      return 'PLANNING_PREGNANCY';
+    }
+    if (
+      u === 'NOT_PREGNANT' ||
+      u === 'NOT_PLANNING' ||
+      u === 'NOTPLANNING' ||
+      u === 'NOT_PREGNANCY_PLANNING' ||
+      compactNoUs === 'CYCLE' ||
+      compactNoUs === 'TRACKING' ||
+      compactNoUs.includes('TRACKCYCLE')
+    ) {
+      return 'NOT_PREGNANT';
+    }
+
+    return null;
   }
 
   // // Reproductive status methods

@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { CategorySelectionModalComponent, PostCategory } from '../category-selection-modal/category-selection-modal.component';
 import { PostDetailModalComponent } from '../post-detail-modal/post-detail-modal.component';
+import { AppButtonComponent } from '../app-button/app-button.component';
 
 @Component({
   selector: 'app-create-post-modal',
   templateUrl: './create-post-modal.component.html',
   styleUrls: ['./create-post-modal.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, AppButtonComponent]
 })
 export class CreatePostModalComponent implements OnInit {
 

@@ -24,9 +24,9 @@
     </main>
 
     <footer class="tpi-footer">
-      <ion-button class="tpi-next" shape="round" (click)="continueNext()">
+      <app-button (buttonClick)="continueNext()">
         {{ 'trackPregnancyIntro.next' | translate }}
-      </ion-button>
+      </app-button>
     </footer>
   </div>
 </ion-content>

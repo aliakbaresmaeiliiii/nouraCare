@@ -107,8 +107,13 @@
 
 <ion-footer class="pm-footer ion-no-border">
   <div class="pm-footer-inner">
-    <ion-button expand="block" class="pm-save-btn" [disabled]="!hasChanges" (click)="save()"
-      >Save</ion-button
+    <app-button
+      class="pm-save-btn"
+      [disabled]="!hasChanges"
+      [loading]="isSaving"
+      (buttonClick)="save()"
     >
+      Save
+    </app-button>
   </div>
 </ion-footer>

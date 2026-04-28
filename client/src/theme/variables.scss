@@ -52,13 +52,11 @@
   --app-button-font-weight: 600;
   /* Flowing indigo → sky → teal; animates via background-position on ::part(native) */
   --app-button-gradient-idle: linear-gradient(
-    125deg,
-    #eef2ff 0%,
-    #e0e7ff 12%,
-    #c7d2fe 30%,
-    #bfdbfe 50%,
-    #a5f3fc 70%,
-    #ccfbf1 100%
+    135deg,
+    #818cf8 0%,
+    #6366f1 30%,
+    #4f46e5 62%,
+    #14b8a6 100%
   );
   --app-button-gradient-hover: linear-gradient(
     125deg,
@@ -76,11 +74,11 @@
   --app-button-ripple: rgba(var(--brand-primary-rgb), 0.26);
   --app-button-solid-bg: var(--app-button-gradient-idle);
   /* Always pair this light gradient with dark text (light + dark mode) */
-  --app-button-solid-color: var(--brand-text);
-  --app-button-solid-shadow: 0 4px 14px rgba(var(--brand-primary-rgb), 0.22),
-    0 2px 8px rgba(var(--brand-secondary-rgb), 0.14);
-  --app-button-solid-shadow-hover: 0 6px 18px rgba(var(--brand-primary-rgb), 0.28),
-    0 2px 8px rgba(var(--brand-secondary-rgb), 0.18);
+  --app-button-solid-color: #ffffff;
+  --app-button-solid-shadow: 0 10px 24px rgba(var(--brand-primary-rgb), 0.24),
+    0 4px 14px rgba(var(--brand-secondary-rgb), 0.16);
+  --app-button-solid-shadow-hover: 0 14px 30px rgba(var(--brand-primary-rgb), 0.3),
+    0 6px 18px rgba(var(--brand-secondary-rgb), 0.2);
   --app-button-outline-hover-bg: rgba(var(--brand-primary-rgb), 0.08);
 
   /* Radius and shadows */

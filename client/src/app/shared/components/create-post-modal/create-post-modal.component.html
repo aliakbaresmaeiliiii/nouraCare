@@ -73,14 +73,14 @@
     }
 
     <!-- Post Button -->
-    <ion-button [disabled]="!canPost() || isSubmitting" class="post-btn" (click)="submitPost()">
-      @if (isSubmitting) {
-      <ion-spinner name="crescent"></ion-spinner>
-      }
-      @else {
-      <span>Post</span>
-      }
-    </ion-button>
+    <app-button
+      class="post-btn"
+      [disabled]="!canPost()"
+      [loading]="isSubmitting"
+      (buttonClick)="submitPost()"
+    >
+      Post
+    </app-button>
 
   </div>
 

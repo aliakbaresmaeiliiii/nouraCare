@@ -71,6 +71,7 @@ import { HeaderLanguageSwitcherComponent } from './components/header-language-sw
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
 import { MapboxMapComponent } from './components/mapbox-map/mapbox-map.component';
 import { LogoLoadingComponent } from './components/logo-loading/logo-loading.component';
+import { AppButtonComponent } from './components/app-button/app-button.component';
 /**
  * Drop-in replacement for the old `SharedModule`.
  * Use this in `standalone` component `imports` arrays.
@@ -151,5 +152,6 @@ export const SHARED_STANDALONE_IMPORTS = [
   CircleProgressBarComponent,
   MapboxMapComponent,
   LogoLoadingComponent,
+  AppButtonComponent,
 ] as const;
 

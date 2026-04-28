@@ -319,20 +319,15 @@
         </div>
 
         <div class="action-buttons">
-          <ion-button
+          <app-button
             type="submit"
-            expand="block"
-            color="primary"
             size="large"
-            [disabled]="isSubmitting || postForm.invalid"
             class="submit-button"
+            [disabled]="postForm.invalid"
+            [loading]="isSubmitting"
           >
-            @if (isSubmitting) {
-            <ion-spinner name="crescent"></ion-spinner>
-            } @else {
-            <span>Create Post</span>
-            }
-          </ion-button>
+            Create Post
+          </app-button>
 
           <ion-button
             expand="block"

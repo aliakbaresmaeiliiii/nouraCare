@@ -1,0 +1,125 @@
+:host {
+  display: block;
+}
+
+.app-button {
+  --border-radius: var(--app-button-radius, 999px);
+  --padding-top: 0.92rem;
+  --padding-bottom: 0.92rem;
+  --padding-start: 1.1rem;
+  --padding-end: 1.1rem;
+  --border-width: 1px;
+  width: 100%;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  text-transform: none;
+  backdrop-filter: saturate(130%) blur(6px);
+  transition:
+    transform 0.22s ease,
+    filter 0.22s ease;
+}
+
+.app-button:not([fill='outline']):not([fill='clear']) {
+  --background: linear-gradient(
+    135deg,
+    #7c86ff 0%,
+    var(--ion-color-primary) 34%,
+    var(--ion-color-primary-shade) 72%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-hover: linear-gradient(
+    135deg,
+    #6b76ff 0%,
+    var(--ion-color-primary-shade) 48%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-focused: linear-gradient(
+    135deg,
+    #6b76ff 0%,
+    var(--ion-color-primary-shade) 48%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-activated: linear-gradient(
+    135deg,
+    #2c2aa8 0%,
+    #3430a1 42%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --color: #ffffff;
+  --border-color: rgba(255, 255, 255, 0.32);
+  --box-shadow:
+    0 13px 30px rgba(var(--brand-primary-rgb), 0.3),
+    0 4px 16px rgba(var(--brand-secondary-rgb), 0.2);
+  --ripple-color: rgba(255, 255, 255, 0.28);
+}
+
+.app-button[color='secondary']:not([fill='outline']):not([fill='clear']) {
+  --background: linear-gradient(
+    135deg,
+    var(--ion-color-secondary-tint) 0%,
+    var(--ion-color-secondary) 55%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-hover: linear-gradient(
+    135deg,
+    var(--ion-color-secondary) 0%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-focused: linear-gradient(
+    135deg,
+    var(--ion-color-secondary) 0%,
+    var(--ion-color-secondary-shade) 100%
+  );
+  --background-activated: linear-gradient(135deg, var(--ion-color-secondary-shade) 0%, #0d6d64 100%);
+  --color: #ffffff;
+  --box-shadow: 0 10px 24px rgba(var(--ion-color-secondary-rgb), 0.24);
+}
+
+.app-button[fill='outline'] {
+  --background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.74) 0%,
+    rgba(255, 255, 255, 0.58) 100%
+  );
+  --background-hover: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.86) 0%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+  --background-focused: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.86) 0%,
+    rgba(255, 255, 255, 0.7) 100%
+  );
+  --background-activated: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.76) 100%
+  );
+  --color: var(--ion-color-primary);
+  --border-color: rgba(var(--brand-primary-rgb), 0.44);
+  --box-shadow: 0 8px 18px rgba(var(--brand-primary-rgb), 0.14);
+}
+
+.app-button[fill='clear'] {
+  --color: var(--ion-color-primary);
+}
+
+.app-button:hover:not([disabled]) {
+  transform: translateY(-1px);
+  filter: saturate(1.08);
+}
+
+.app-button:active:not([disabled]) {
+  transform: translateY(0);
+  filter: saturate(1);
+}
+
+.app-button:focus-visible {
+  outline: 2px solid rgba(var(--brand-primary-rgb), 0.55);
+  outline-offset: 2px;
+}
+
+.app-button ion-spinner {
+  --color: currentColor;
+}

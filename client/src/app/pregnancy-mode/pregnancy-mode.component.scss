@@ -100,18 +100,6 @@
   background: #050608;
 }
 
-.pm-save-btn {
-  --background: #31d3df;
-  --color: #ffffff;
-  --border-radius: 10px;
-  font-weight: 700;
-  height: 48px;
-}
-
-.pm-save-btn[disabled] {
-  opacity: 0.45;
-}
-
 .pm-inline-datetime {
   --background: #0f1217;
   --wheel-highlight-background: rgba(255, 255, 255, 0.09);

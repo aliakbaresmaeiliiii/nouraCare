@@ -168,18 +168,17 @@
         }
       </div>
 
-      <ion-button
-        expand="block"
+      <app-button
         type="submit"
-        class="save-profile-btn"
-        [disabled]="isSavingPersonal || !!form.get('email')?.invalid"
+        [loading]="isSavingPersonal"
+        [disabled]="!!form.get('email')?.invalid"
       >
         @if (isSavingPersonal) {
           {{ 'editProfile.saving' | translate }}
         } @else {
           {{ 'editProfile.saveChanges' | translate }}
         }
-      </ion-button>
+      </app-button>
     </section>
   </form>
 </ion-content>

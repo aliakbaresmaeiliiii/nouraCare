@@ -24,6 +24,7 @@ import {
   localCalendarIsoDate,
 } from '../../utils/ion-datetime-today-highlight.util';
 import { normalizeLmpInput } from '../../utils/pregnancy-lmp.util';
+import { AppButtonComponent } from '../app-button/app-button.component';
 
 export type PregnancySetupInputMode = 'lmp' | 'week' | 'due';
 
@@ -45,6 +46,7 @@ export type PregnancySetupInputMode = 'lmp' | 'week' | 'due';
     IonDatetime,
     IonInput,
     IonNote,
+    AppButtonComponent,
   ],
   templateUrl: './pregnancy-setup-sheet.component.html',
   styleUrls: ['./pregnancy-setup-sheet.component.scss'],

@@ -292,9 +292,8 @@
   font-size: 1rem;
 }
 
-/* Primary actions use global ion-button styling (variables.scss tokens) */
-.submit-button,
-.submit-button.register {
+/* Shared app-button spacing inside login form */
+.auth-form app-button {
   margin-top: 0.25rem;
 }
 

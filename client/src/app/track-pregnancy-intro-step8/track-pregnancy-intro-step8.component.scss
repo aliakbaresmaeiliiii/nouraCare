@@ -1,5 +1,5 @@
 .tpi8-content {
-  --background: #1c1c1e;
+  --background: var(--ion-background-color);
 }
 
 .tpi8-root {
@@ -7,8 +7,16 @@
   display: flex;
   flex-direction: column;
   padding: calc(14px + env(safe-area-inset-top)) 16px 24px;
-  background: #1c1c1e;
-  color: #fff;
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
+}
+
+.tpi-logo {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+  margin: 0 auto 12px;
+  display: block;
 }
 
 .tpi8-top {
@@ -20,7 +28,7 @@
 .tpi8-skip {
   border: 0;
   background: transparent;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--ion-color-medium);
   font-size: 1.15rem;
   font-weight: 600;
   text-decoration: underline;
@@ -47,7 +55,7 @@
   text-align: center;
   font-size: 1rem;
   line-height: 1.4;
-  color: #a1a1a1;
+  color: var(--ion-color-medium);
   max-width: 23rem;
 }
 
@@ -62,9 +70,10 @@
   border-radius: 12px;
   padding: 20px 20px;
   text-align: left;
-  background: #3a3a3c;
-  color: #fff;
+  background: var(--ion-color-light);
+  color: var(--ion-color-dark);
   font-size: 1.12rem;
   font-weight: 700;
   line-height: 1.35;
 }
+

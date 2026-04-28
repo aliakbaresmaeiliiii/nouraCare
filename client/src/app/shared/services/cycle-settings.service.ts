@@ -16,8 +16,26 @@ export class CycleSettingsService {
   /** Optional focused cycle day (YYYY-MM-DD) selected by user in cycle strip. */
   selectedCycleViewDate = signal<string | null>(null);
 
+  /**
+   * Profile “Get pregnant” (PLANNING) card should stay highlighted after the intro flow completes
+   * while GET dashboard/state may still say `cycle` until the backend syncs — cleared once server/Journey
+   * reports planning, or when the user explicitly chooses Track cycle from Profile.
+   */
+  getPregnantProfileCardPending = signal(false);
+
   constructor() {
     this.loadFromStorage();
+  }
+
+  /** Mark Get-pregnant as the active Profile experience intent (persisted). */
+  setGetPregnantProfileCardPending(value: boolean): void {
+    this.getPregnantProfileCardPending.set(value);
+    this.saveToStorage();
+  }
+
+  clearGetPregnantProfileCardPending(): void {
+    this.getPregnantProfileCardPending.set(false);
+    this.saveToStorage();
   }
 
   setCycleLength(value: number) {
@@ -108,6 +126,7 @@ export class CycleSettingsService {
     this.setUserStatus('Trying to Conceive');
     this.setPregnancyStatus(false);
     this.setPostpartumStatus(false);
+    this.setGetPregnantProfileCardPending(true);
   }
 
   private loadFromStorage() {
@@ -133,6 +152,9 @@ export class CycleSettingsService {
       ) {
         this.selectedCycleViewDate.set(data.selectedCycleViewDateStored ?? null);
       }
+      if (typeof data.getPregnantProfileCardPending === 'boolean') {
+        this.getPregnantProfileCardPending.set(data.getPregnantProfileCardPending);
+      }
     } catch {}
   }
 
@@ -148,6 +170,7 @@ export class CycleSettingsService {
         pregnancyWeek: this.pregnancyWeek(),
         pregnancyProgress: this.pregnancyProgress(),
         selectedCycleViewDateStored: this.selectedCycleViewDate(),
+        getPregnantProfileCardPending: this.getPregnantProfileCardPending(),
       };
       localStorage.setItem(this.storageKey, JSON.stringify(data));
     } catch {}
