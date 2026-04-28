@@ -122,9 +122,10 @@
         type="button"
         class="experience-card experience-card--track-cycle"
         [class.experience-card--selected]="isStatusSelected('NOT_PREGNANT')"
-        (click)="goToCycleCalendar()"
+        (click)="onTrackCycleCardClick()"
         role="radio"
         [attr.aria-checked]="isStatusSelected('NOT_PREGNANT')"
+        [attr.aria-disabled]="isStatusSelected('NOT_PREGNANT')"
       >
         <span class="experience-icon-wrap">
           <img
@@ -141,9 +142,10 @@
         type="button"
         class="experience-card experience-card--track-planning"
         [class.experience-card--selected]="isStatusSelected('PLANNING_PREGNANCY')"
-        (click)="openGetPregnantIntro()"
+        (click)="onTrackPlanningCardClick()"
         role="radio"
         [attr.aria-checked]="isStatusSelected('PLANNING_PREGNANCY')"
+        [attr.aria-disabled]="isStatusSelected('PLANNING_PREGNANCY')"
       >
         <span class="experience-icon-wrap">
           <img
@@ -160,9 +162,10 @@
         type="button"
         class="experience-card experience-card--track-pregnancy"
         [class.experience-card--selected]="isStatusSelected('PREGNANT')"
-        (click)="openTrackPregnancyIntro()"
+        (click)="onTrackPregnancyCardClick()"
         role="radio"
         [attr.aria-checked]="isStatusSelected('PREGNANT')"
+        [attr.aria-disabled]="isStatusSelected('PREGNANT')"
       >
         <span class="experience-icon-wrap">
           <img

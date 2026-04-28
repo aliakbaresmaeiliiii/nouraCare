@@ -2,13 +2,13 @@
   <ion-toolbar class="profile-header">
     <ion-buttons slot="start">
       <ion-back-button
-        defaultHref="/tabs/home"
+        defaultHref="/profile"
         icon="chevron-back-circle-outline"
         text=""
         class="back-button"
       ></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">{{ 'common.settings' | translate }}</ion-title>
+    <ion-title class="header-title">{{ 'editProfile.pageTitle' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content class="profile-content">
@@ -94,6 +94,13 @@
 
   <section class="settings-profile-hero">
     <div class="avatar-container">
+      <input
+        id="fileeInput"
+        type="file"
+        accept="image/*"
+        class="visually-hidden"
+        (change)="onFileSelected($event)"
+      />
       <ion-avatar class="profile-avatar">
         <img [src]="profileImage" [attr.alt]="'editProfile.profileImageAlt' | translate" class="avatar-image" />
       </ion-avatar>
@@ -102,13 +109,77 @@
         class="avatar-tap-target"
         [attr.aria-label]="'editProfile.changeProfilePhotoAria' | translate"
       ></label>
-   
     </div>
-    <p class="hero-email">{{ displayEmail || ('editProfile.emailPlaceholder' | translate) }}</p>
-    <ion-button fill="solid" class="view-profile-btn" [routerLink]="['/profile']">
-      {{ 'editProfile.viewProfile' | translate }}
-    </ion-button>
+    <p class="hero-display-name">
+      {{ (form.get('fullName')?.value || '').trim() || ('editProfile.fullNamePlaceholder' | translate) }}
+    </p>
+    <p class="hero-email">{{ (form.get('email')?.value || '').trim() || displayEmail || ('editProfile.emailPlaceholder' | translate) }}</p>
+    <p class="hero-photo-hint">{{ 'editProfile.tapPhotoHint' | translate }}</p>
   </section>
 
+  <form [formGroup]="form" class="personal-info-form" (ngSubmit)="savePersonalDetails()">
+    <section class="personal-info-section" aria-labelledby="personal-info-title">
+      <h2 id="personal-info-title" class="personal-info-heading">
+        {{ 'editProfile.personalInformation' | translate }}
+      </h2>
+      <p class="personal-info-sub">{{ 'editProfile.saveHint' | translate }}</p>
 
+      <div class="personal-info-card" id="edit-focus-fullName">
+        <label class="field-label" for="inp-full-name">{{ 'editProfile.fullNameLabel' | translate }}</label>
+        <ion-item lines="none" class="field-item">
+          <ion-input
+            id="inp-full-name"
+            formControlName="fullName"
+            [placeholder]="'editProfile.fullNamePlaceholder' | translate"
+            autocomplete="name"
+            inputmode="text"
+          ></ion-input>
+        </ion-item>
+      </div>
+
+      <div class="personal-info-card" id="edit-focus-email">
+        <label class="field-label" for="inp-email">{{ 'editProfile.emailLabel' | translate }}</label>
+        <ion-item lines="none" class="field-item">
+          <ion-input
+            id="inp-email"
+            formControlName="email"
+            type="email"
+            [placeholder]="'editProfile.emailPlaceholder' | translate"
+            autocomplete="email"
+            inputmode="email"
+          ></ion-input>
+        </ion-item>
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <p class="field-error" role="alert">{{ 'editProfile.invalidEmail' | translate }}</p>
+        }
+      </div>
+
+      <div
+        class="personal-info-card personal-info-card--dob"
+        id="edit-focus-dateOfBirth"
+        [class.personal-info-card--dob-missing]="!hasDateOfBirth"
+      >
+        <label class="field-label" for="inp-dob">{{ 'editProfile.birthday' | translate }}</label>
+        <ion-item lines="none" class="field-item field-item--date">
+          <ion-input id="inp-dob" formControlName="dateOfBirth" type="date"></ion-input>
+        </ion-item>
+        @if (!hasDateOfBirth) {
+          <p class="dob-missing-hint" role="status">{{ 'editProfile.dobMissingHint' | translate }}</p>
+        }
+      </div>
+
+      <ion-button
+        expand="block"
+        type="submit"
+        class="save-profile-btn"
+        [disabled]="isSavingPersonal || !!form.get('email')?.invalid"
+      >
+        @if (isSavingPersonal) {
+          {{ 'editProfile.saving' | translate }}
+        } @else {
+          {{ 'editProfile.saveChanges' | translate }}
+        }
+      </ion-button>
+    </section>
+  </form>
 </ion-content>

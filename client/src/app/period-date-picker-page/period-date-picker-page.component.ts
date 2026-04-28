@@ -6,7 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { addIcons } from 'ionicons';
-import { closeOutline } from 'ionicons/icons';
+import { checkmarkCircle, closeOutline } from 'ionicons/icons';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular/standalone';
@@ -31,7 +31,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class PeriodDatePickerPageComponent implements OnInit {
   constructor() {
-    addIcons({ closeOutline });
+    addIcons({ checkmarkCircle, closeOutline });
   }
 
   /** Set when opened as a modal (e.g. from home) */

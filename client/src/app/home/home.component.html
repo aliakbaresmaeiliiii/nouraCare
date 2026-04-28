@@ -109,6 +109,23 @@
 
       <div class="pregnancy-daily-insights">
         <h2 class="pregnancy-daily-insights-title">{{ getCycleInsightsHeading() }}</h2>
+        <div class="pds-quick-links pds-quick-links--before-strip" aria-label="More cycle tools">
+          <button
+            type="button"
+            class="pds-cycle-calendar-btn"
+            (click)="openCycleCalendar()"
+            [attr.aria-label]="'home.cycleCalendarChip' | translate"
+          >
+            <strong class="pds-cycle-calendar-btn__label">{{ 'home.cycleCalendarChip' | translate }}</strong>
+            <div class="pds-cycle-calendar-btn__container-stars" aria-hidden="true">
+              <div class="pds-cycle-calendar-btn__stars"></div>
+            </div>
+            <div class="pds-cycle-calendar-btn__glow" aria-hidden="true">
+              <div class="pds-cycle-calendar-btn__circle"></div>
+              <div class="pds-cycle-calendar-btn__circle"></div>
+            </div>
+          </button>
+        </div>
         @let cdsStoryTopics = getCycleDailyInsightStripTopics();
         <div class="pds-strip" role="list" aria-label="Daily insight stories">
           <div class="pds-card pds-card--summary" role="listitem">
@@ -168,18 +185,6 @@
               }
             </button>
           }
-        </div>
-
-        <div class="pds-quick-links" aria-label="More cycle tools">
-          <button
-            type="button"
-            class="pds-chip pds-chip--calendar"
-            (click)="openCycleCalendar()"
-            [attr.aria-label]="'home.cycleCalendarChip' | translate"
-          >
-            <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
-            <span>{{ 'home.cycleCalendarChip' | translate }}</span>
-          </button>
         </div>
       </div>
     </div>

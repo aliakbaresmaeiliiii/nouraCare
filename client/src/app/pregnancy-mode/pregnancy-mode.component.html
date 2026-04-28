@@ -1,0 +1,114 @@
+<ion-header class="ion-no-border pm-header">
+  <ion-toolbar class="pm-toolbar">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" class="pm-close-btn" (click)="close()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="pm-title">Pregnancy Mode</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="pm-content">
+  <ion-accordion-group class="pm-list" value="gestational-age">
+    <ion-accordion value="gestational-age" class="pm-accordion">
+      <div class="pm-row" slot="header">
+        <span class="pm-label">Gestational age</span>
+        <span class="pm-value">{{ gestationalAge }}</span>
+      </div>
+      <div class="pm-accordion-content pm-accordion-content--gestational" slot="content">
+        <div class="pm-custom-picker">
+          <div class="pm-custom-picker-highlight" aria-hidden="true"></div>
+
+          <div class="pm-custom-picker-col pm-custom-picker-col--label" aria-hidden="true">
+            <span class="pm-custom-picker-label">Weeks</span>
+          </div>
+
+          <div
+            #weekScroller
+            class="pm-custom-picker-col pm-custom-picker-col--value"
+            (scroll)="onWeekScroll($event)"
+          >
+            @for (week of weekWheelItems; track $index) {
+              <button
+                type="button"
+                class="pm-custom-picker-item"
+                [class.pm-custom-picker-item--selected]="week === gestationalWeek"
+                [disabled]="week === null"
+                (click)="week !== null && selectWeek(week)"
+              >
+                {{ week ?? '' }}
+              </button>
+            }
+          </div>
+
+          <div class="pm-custom-picker-col pm-custom-picker-col--label" aria-hidden="true">
+            <span class="pm-custom-picker-label">day</span>
+          </div>
+
+          <div
+            #dayScroller
+            class="pm-custom-picker-col pm-custom-picker-col--value"
+            (scroll)="onDayScroll($event)"
+          >
+            @for (day of dayWheelItems; track $index) {
+              <button
+                type="button"
+                class="pm-custom-picker-item"
+                [class.pm-custom-picker-item--selected]="day === gestationalDay"
+                [disabled]="day === null"
+                (click)="day !== null && selectDay(day)"
+              >
+                {{ day ?? '' }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </ion-accordion>
+
+    <ion-accordion value="due-date" class="pm-accordion">
+      <div class="pm-row" slot="header">
+        <span class="pm-label">Due date</span>
+        <span class="pm-value">{{ dueDate }}</span>
+      </div>
+      <div class="pm-accordion-content" slot="content">
+        <ion-datetime
+          class="pm-inline-datetime"
+          presentation="date"
+          [preferWheel]="true"
+          [showDefaultButtons]="false"
+          [min]="todayIso"
+          [max]="maxDueDateIso"
+          [(ngModel)]="dueDateIso"
+        ></ion-datetime>
+      </div>
+    </ion-accordion>
+
+    <ion-accordion value="multiple-babies" class="pm-accordion">
+      <div class="pm-row" slot="header">
+        <span class="pm-label">Are you having more than one baby?</span>
+        <span class="pm-value">{{ multipleBabies }}</span>
+      </div>
+      <div class="pm-accordion-content" slot="content">
+        <ion-picker
+          class="pm-inline-picker-babies"
+          [columns]="multipleBabiesPickerColumns"
+          [buttons]="multipleBabiesPickerButtons"
+        ></ion-picker>
+      </div>
+    </ion-accordion>
+  </ion-accordion-group>
+
+  <button type="button" class="pm-remove-btn" (click)="openDeletePregnancyDialog()">
+    Remove pregnancy information
+  </button>
+</ion-content>
+
+<ion-footer class="pm-footer ion-no-border">
+  <div class="pm-footer-inner">
+    <ion-button expand="block" class="pm-save-btn" [disabled]="!hasChanges" (click)="save()"
+      >Save</ion-button
+    >
+  </div>
+</ion-footer>

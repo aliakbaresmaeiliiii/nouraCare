@@ -1,14 +1,10 @@
 <ion-content class="tpi6-content" [fullscreen]="true" scrollY="false">
   <div class="tpi6-root">
-    <div class="tpi6-loader-wrap" aria-hidden="true">
-      <div
-        class="tpi6-loader"
-        [style.--progress]="progress + '%'"
-        role="img"
-        aria-label="Personalization progress"
-      >
-        <span class="tpi6-percent">{{ progress }}<small>%</small></span>
+    <div class="tpi6-loader-wrap">
+      <div class="loader" role="progressbar" [attr.aria-valuenow]="progress" aria-valuemin="0" aria-valuemax="100">
+        <div class="waves"></div>
       </div>
+      <p class="tpi6-percent">{{ progress }}%</p>
     </div>
 
     <h1 class="tpi6-title">Personalizing your experience ...</h1>

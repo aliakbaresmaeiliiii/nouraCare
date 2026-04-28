@@ -32,7 +32,7 @@ import {
   arrowForwardCircleOutline,
 } from 'ionicons/icons';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { User } from '../shared/services/user';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserInfoService } from '../shared/services/user-info.service';
@@ -52,6 +52,7 @@ import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.s
 import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
 import { UserSessionService } from '../shared/services/user-session.service';
 import { TranslationService } from '../shared/services/translation.service';
+import { ProfileCompletionService } from '../shared/services/profile-completion.service';
 
 @Component({
   selector: 'app-edit-profile',
@@ -59,6 +60,7 @@ import { TranslationService } from '../shared/services/translation.service';
   styleUrls: ['./edit-profile.component.scss'],
   imports: [...SHARED_STANDALONE_IMPORTS],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  host: { class: 'ion-page' },
 })
 export class EditProfileComponent implements OnInit {
   private readonly translation = inject(TranslationService);
@@ -104,6 +106,10 @@ export class EditProfileComponent implements OnInit {
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private modalController = inject(ModalController);
   private alertController = inject(AlertController);
+  private profileCompletionService = inject(ProfileCompletionService);
+
+  /** True while PUT /user/:id/edit is in flight from the personal details form. */
+  isSavingPersonal = false;
 
   @ViewChild('cropPreviewCanvas')
   cropPreviewCanvas!: ElementRef<HTMLCanvasElement>;
@@ -204,6 +210,9 @@ export class EditProfileComponent implements OnInit {
   form: FormGroup = this.fb.group({
     profileImage: [''],
     status: [null],
+    fullName: [''],
+    email: ['', Validators.email],
+    dateOfBirth: [''],
   });
 
   private loadUserDataFromAPI() {
@@ -236,11 +245,21 @@ export class EditProfileComponent implements OnInit {
     }).subscribe({
       next: (data) => {
         const onboarding = data.onboardingData as any;
+        const u = this.extractUserPayload(data.userData);
+        const dobRaw = u['dateOfBirth'] ?? u['birthday'];
+        const dateOfBirthStr =
+          dobRaw == null || dobRaw === ''
+            ? ''
+            : typeof dobRaw === 'string'
+              ? dobRaw
+              : new Date(dobRaw as string | number | Date).toISOString();
         const mergedData = {
-          fullName: data.userData.data?.fullName || '',
-          email: data.userData.data?.email || '',
-          dateOfBirth: data.userData.data?.dateOfBirth || '',
-          profileImage: data.userData.data?.profileImage || '',
+          fullName: String(u['fullName'] ?? u['name'] ?? '').trim(),
+          email: String(u['email'] ?? '').trim(),
+          dateOfBirth: dateOfBirthStr,
+          profileImage: String(
+            u['profileImage'] ?? u['profile_img'] ?? '',
+          ).trim(),
           status: this.normalizeReproductiveStatusForForm(
             onboarding?.state,
           ),
@@ -252,6 +271,7 @@ export class EditProfileComponent implements OnInit {
         );
         this.currentReproductiveStatus = repro;
         this.applyPregnancyIntroQueryAfterLoad();
+        this.scheduleFocusFromQuery();
       },
       error: (error) => {
         console.error('Failed to load user data:', error);
@@ -269,6 +289,96 @@ export class EditProfileComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  /** Scroll/focus field when opening from profile (?focus=name|email|dateOfBirth). */
+  private scheduleFocusFromQuery(): void {
+    const raw = (
+      this.route.snapshot.queryParamMap.get('focus') ?? ''
+    )
+      .trim()
+      .toLowerCase();
+    const map: Record<string, 'fullName' | 'email' | 'dateOfBirth'> = {
+      name: 'fullName',
+      fullname: 'fullName',
+      email: 'email',
+      dateofbirth: 'dateOfBirth',
+      birthday: 'dateOfBirth',
+      dob: 'dateOfBirth',
+    };
+    const field = map[raw];
+    if (!field) {
+      return;
+    }
+    setTimeout(() => {
+      const el = document.getElementById(`edit-focus-${field}`);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const ionInput = el?.querySelector('ion-input');
+      void (ionInput as { setFocus?: () => Promise<void> } | undefined)?.setFocus?.();
+    }, 500);
+  }
+
+  /** Saves name, email, and birthday without reproductive-status flows. */
+  savePersonalDetails(): void {
+    this.form.markAllAsTouched();
+    if (this.form.get('email')?.invalid) {
+      this.showErrorAlert(this.loc('editProfile.invalidEmail'));
+      return;
+    }
+
+    const currentUserInfo = this.userInfoService.getCurrentUserInfo();
+    const id =
+      currentUserInfo?.data?.id ??
+      currentUserInfo?.user?.id ??
+      currentUserInfo?.userId ??
+      this.userSession.getCurrentUserId();
+    if (!id) {
+      this.showErrorAlert(this.loc('editProfile.saveFailed'));
+      return;
+    }
+
+    const payload = this.buildProfileUpdatePayload(this.form.value);
+    if (Object.keys(payload).length === 0) {
+      this.showErrorAlert(this.loc('editProfile.nothingToSave'));
+      return;
+    }
+
+    this.isSavingPersonal = true;
+    this.cdr.markForCheck();
+
+    this.userService.updateUserInfo(String(id), payload as any).subscribe({
+      next: () => {
+        this.profileContactSnapshot = {
+          fullName: String(this.form.get('fullName')?.value ?? '').trim(),
+          email: String(this.form.get('email')?.value ?? '').trim(),
+          dateOfBirth: this.toDateOnly(this.form.get('dateOfBirth')?.value ?? ''),
+        };
+        this.displayEmail = this.profileContactSnapshot.email;
+        try {
+          this.userSession.mergeIntoStoredUser({
+            fullName: this.profileContactSnapshot.fullName,
+            email: this.profileContactSnapshot.email,
+            dateOfBirth: this.profileContactSnapshot.dateOfBirth,
+          });
+        } catch {
+          /* ignore */
+        }
+        this.profileCompletionService.refreshFromAPI().subscribe({
+          error: () => {
+            /* non-blocking */
+          },
+        });
+        this.isSavingPersonal = false;
+        this.showSuccessAlert(this.loc('editProfile.saved'));
+        this.cdr.markForCheck();
+      },
+      error: (err: unknown) => {
+        console.error('savePersonalDetails', err);
+        this.isSavingPersonal = false;
+        this.showErrorAlert(this.loc('editProfile.saveFailed'));
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
   openTrackPregnancyIntro(): void {
     void this.router.navigate(['/track-pregnancy-intro']);
   }
@@ -284,13 +394,19 @@ export class EditProfileComponent implements OnInit {
     const patch: any = {
       profileImage: userData?.profileImage ?? '',
       status: userData?.status ?? null,
+      fullName: userData?.fullName ?? '',
+      email: userData?.email ?? '',
+      dateOfBirth: this.toDateOnly(userData?.dateOfBirth ?? ''),
     };
 
     this.form.patchValue(patch);
     // Avoid NG0100: HTTP/subscribe can set profileImage after dev-mode's extra CD pass.
     const nextSrc = this.imageUrlService.getImageUrl(userData?.profileImage);
+    const dobForInput = this.toDateOnly(userData?.dateOfBirth ?? '');
     queueMicrotask(() => {
       this.profileImage = nextSrc;
+      // `ion-input` type="date" reliably shows value when set after layout (same tick as patch can miss).
+      this.form.get('dateOfBirth')?.setValue(dobForInput, { emitEvent: true });
       this.cdr.detectChanges();
     });
 
@@ -622,11 +738,14 @@ export class EditProfileComponent implements OnInit {
    */
   private buildProfileUpdatePayload(formValues: {
     profileImage?: string | null;
+    fullName?: unknown;
+    email?: unknown;
+    dateOfBirth?: unknown;
   }): Record<string, string> {
     const payload: Record<string, string> = {};
-    const fullName = (this.profileContactSnapshot.fullName ?? '').trim();
-    const email = (this.profileContactSnapshot.email ?? '').trim();
-    const dob = (this.toDateOnly(this.profileContactSnapshot.dateOfBirth) ?? '').trim();
+    const fullName = String(formValues.fullName ?? '').trim();
+    const email = String(formValues.email ?? '').trim();
+    const dob = this.toDateOnly(formValues.dateOfBirth ?? '').trim();
     if (fullName) payload['fullName'] = fullName;
     if (email) payload['email'] = email;
     if (dob) payload['dateOfBirth'] = dob;
@@ -663,7 +782,7 @@ export class EditProfileComponent implements OnInit {
     const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
     if (m?.[1]) return m[1];
     const d = new Date(s);
-    if (Number.isNaN(d.getTime())) return s;
+    if (Number.isNaN(d.getTime())) return '';
     return d.toISOString().slice(0, 10);
   }
 
@@ -720,15 +839,20 @@ export class EditProfileComponent implements OnInit {
 
     try {
       this.userSession.mergeIntoStoredUser({
-        fullName: this.profileContactSnapshot.fullName,
-        email: this.profileContactSnapshot.email,
-        dateOfBirth: this.profileContactSnapshot.dateOfBirth,
+        fullName: String(this.form.get('fullName')?.value ?? '').trim(),
+        email: String(this.form.get('email')?.value ?? '').trim(),
+        dateOfBirth: this.toDateOnly(this.form.get('dateOfBirth')?.value ?? ''),
       });
     } catch {
       /* ignore */
     }
 
-    const payload = this.buildProfileUpdatePayload(formValues);
+    const payload = this.buildProfileUpdatePayload({
+      ...formValues,
+      fullName: this.form.get('fullName')?.value,
+      email: this.form.get('email')?.value,
+      dateOfBirth: this.form.get('dateOfBirth')?.value,
+    });
     const profileReq =
       Object.keys(payload).length > 0
         ? this.userService.updateUserInfo(String(id), payload as any)
@@ -928,6 +1052,9 @@ export class EditProfileComponent implements OnInit {
     this.form.patchValue({
       status: null,
       profileImage: '',
+      fullName: '',
+      email: '',
+      dateOfBirth: '',
     });
     this.profileContactSnapshot = { fullName: '', email: '', dateOfBirth: '' };
     this.displayEmail = '';
@@ -943,7 +1070,58 @@ export class EditProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.userId = this.homeService.getCurrentUserId();
+    this.prefillContactFromSession();
     this.loadUserDataFromAPI();
+  }
+
+  /** True when birthday is set (YYYY-MM-DD) — used to highlight “complete profile” when missing. */
+  get hasDateOfBirth(): boolean {
+    return !!this.toDateOnly(this.form.get('dateOfBirth')?.value ?? '').trim();
+  }
+
+  /** Normalizes GET /user/:id API wrapper (`data` vs flat) like ProfileCompletionService. */
+  private extractUserPayload(res: unknown): Record<string, unknown> {
+    if (!res || typeof res !== 'object') return {};
+    const o = res as Record<string, unknown>;
+    if (o['data'] != null && typeof o['data'] === 'object' && !Array.isArray(o['data'])) {
+      return o['data'] as Record<string, unknown>;
+    }
+    if (o['id'] != null || o['email'] != null || o['fullName'] != null) {
+      return o;
+    }
+    return {};
+  }
+
+  /** Show name/email/DOB from local session until GET /user returns. */
+  private prefillContactFromSession(): void {
+    try {
+      const store = this.userSession.getUserInfoStoreOrEmpty();
+      const u = (store?.user ?? {}) as Record<string, unknown>;
+      const patch: Record<string, string> = {};
+      const name = u['fullName'] ?? u['name'];
+      if (name != null && String(name).trim()) {
+        patch['fullName'] = String(name).trim();
+      }
+      if (u['email'] != null && String(u['email']).trim()) {
+        patch['email'] = String(u['email']).trim();
+      }
+      const dobRaw = u['dateOfBirth'] ?? u['birthday'];
+      if (dobRaw != null && String(dobRaw).trim()) {
+        patch['dateOfBirth'] = this.toDateOnly(dobRaw);
+      }
+      if (Object.keys(patch).length > 0) {
+        this.form.patchValue(patch);
+        this.profileContactSnapshot = {
+          fullName: String(this.form.get('fullName')?.value ?? '').trim(),
+          email: String(this.form.get('email')?.value ?? '').trim(),
+          dateOfBirth: this.toDateOnly(this.form.get('dateOfBirth')?.value ?? ''),
+        };
+        this.displayEmail = this.profileContactSnapshot.email;
+        this.cdr.markForCheck();
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   // Reproductive Status Methods

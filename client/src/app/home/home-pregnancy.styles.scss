@@ -826,6 +826,7 @@
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  margin-left: 1rem;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -1075,6 +1076,13 @@
   margin-top: 0.55rem;
 }
 
+/* Cycle calendar: under section title so it’s visible before the horizontal card strip */
+.pds-quick-links--before-strip {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  margin-inline: 10px;
+}
+
 .pds-chip {
   border: 1px solid rgba(13, 148, 136, 0.35);
   background: rgba(255, 255, 255, 0.92);
@@ -1116,9 +1124,190 @@
   color: #c2410c;
 }
 
-.pds-chip--calendar {
-  border-color: rgba(20, 184, 166, 0.5);
-  background: linear-gradient(135deg, rgba(236, 253, 245, 0.95), rgba(229, 248, 255, 0.95));
+/* Cycle calendar — Uiverse-style CTA (StealthWorm), scoped for home */
+.pds-cycle-calendar-btn {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 13rem;
+  width: auto;
+  max-width: 100%;
+  padding: 0 0.75rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  height: 3rem;
+  background-size: 300% 300%;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(1rem);
+  border-radius: 5rem;
+  transition: 0.5s;
+  animation: pds-cycle-calendar-gradient 5s ease infinite;
+  border: double 4px transparent;
+  background-image:
+    linear-gradient(#212121, #212121),
+    linear-gradient(137.48deg, #ffdb3b 10%, #fe53bb 45%, #8f51ea 67%, #0044ff 87%);
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+
+  &__container-stars {
+    position: absolute;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    transition: 0.5s;
+    backdrop-filter: blur(1rem);
+    border-radius: 5rem;
+  }
+
+  &__label {
+    z-index: 2;
+    font-family: "Avalors Personal Use", system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #ffffff;
+    text-shadow: 0 0 4px white;
+    max-width: 11rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__glow {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    width: min(12rem, 92%);
+    pointer-events: none;
+  }
+
+  &__circle {
+    width: 100%;
+    height: 30px;
+    filter: blur(2rem);
+    animation: pds-cycle-calendar-pulse 4s infinite;
+    z-index: -1;
+  }
+
+  &__circle:nth-of-type(1) {
+    background: rgba(254, 83, 186, 0.636);
+  }
+
+  &__circle:nth-of-type(2) {
+    background: rgba(142, 81, 234, 0.704);
+  }
+
+  &__stars {
+    position: relative;
+    background: transparent;
+    width: 200rem;
+    height: 200rem;
+  }
+
+  &__stars::after {
+    content: "";
+    position: absolute;
+    top: -10rem;
+    left: -100rem;
+    width: 100%;
+    height: 100%;
+    animation: pds-cycle-calendar-star-rotate 90s linear infinite;
+    background-image: radial-gradient(#ffffff 1px, transparent 1%);
+    background-size: 50px 50px;
+  }
+
+  &__stars::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 170%;
+    height: 500%;
+    animation: pds-cycle-calendar-star 60s linear infinite;
+    background-image: radial-gradient(#ffffff 1px, transparent 1%);
+    background-size: 50px 50px;
+    opacity: 0.5;
+  }
+
+  &:hover &__container-stars {
+    z-index: 1;
+    background-color: #212121;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    border: double 4px #fe53bb;
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    animation: none;
+  }
+
+  &:active &__circle {
+    background: #fe53bb;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fe53bb;
+    outline-offset: 3px;
+  }
+}
+
+@keyframes pds-cycle-calendar-star {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-135rem);
+  }
+}
+
+@keyframes pds-cycle-calendar-star-rotate {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0);
+  }
+}
+
+@keyframes pds-cycle-calendar-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes pds-cycle-calendar-pulse {
+  0% {
+    transform: scale(0.75);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+  }
+
+  100% {
+    transform: scale(0.75);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 
 /* Post–40 weeks (full-term+) — calm reassurance card */

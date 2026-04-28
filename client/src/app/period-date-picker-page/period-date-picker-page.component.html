@@ -6,17 +6,6 @@
       </ion-button>
     </ion-buttons>
     <ion-title class="pdp-page-title">Last period</ion-title>
-    <ion-buttons slot="end">
-      <ion-button
-        fill="solid"
-        class="pdp-save-btn"
-        [disabled]="!selectedRange"
-        (click)="savePeriod()"
-        aria-label="Save"
-      >
-        Save
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -48,5 +37,26 @@
         </p>
       </div>
     }
+
+    <div class="pdp-footer-cta">
+      <ion-button
+        expand="block"
+        fill="solid"
+        class="pdp-save-btn pdp-save-btn--bottom"
+        [disabled]="!selectedRange"
+        (click)="savePeriod()"
+        aria-label="Save period dates"
+      >
+        <ion-icon name="checkmark-circle" slot="start" aria-hidden="true"></ion-icon>
+        @if (selectedRange) {
+          Save period
+        } @else {
+          Select a start date
+        }
+      </ion-button>
+      @if (!selectedRange) {
+        <p class="pdp-save-hint">Pick the first day of your last period to continue.</p>
+      }
+    </div>
   </div>
 </ion-content>

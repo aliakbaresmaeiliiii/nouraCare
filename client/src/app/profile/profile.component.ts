@@ -294,6 +294,27 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     await this.router.navigate(['/track-pregnancy-intro']);
   }
 
+  onTrackCycleCardClick(): void {
+    if (this.isStatusSelected('NOT_PREGNANT')) {
+      return;
+    }
+    this.goToCycleCalendar();
+  }
+
+  onTrackPlanningCardClick(): void {
+    if (this.isStatusSelected('PLANNING_PREGNANCY')) {
+      return;
+    }
+    void this.openGetPregnantIntro();
+  }
+
+  onTrackPregnancyCardClick(): void {
+    if (this.isStatusSelected('PREGNANT')) {
+      return;
+    }
+    void this.openTrackPregnancyIntro();
+  }
+
   async onSubmit(_source: 'continue' | 'save' = 'continue'): Promise<void> {
     const selected = this.getCurrentStatus();
     if (!selected) return;
@@ -444,7 +465,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   }
 
   goToCycleCalendar() {
-    this.router.navigate(['/cycle-calendar']);
+    this.router.navigate(['/pregnancy-mode']);
   }
 
   getTodayDate(): string {

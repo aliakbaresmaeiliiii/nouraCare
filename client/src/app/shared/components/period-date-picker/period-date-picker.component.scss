@@ -204,3 +204,74 @@
   color: inherit;
   font-weight: 800;
 }
+
+/* ThemeService: html.ion-palette-dark (see global.scss, cycle-calendar) */
+:host-context(html.ion-palette-dark) {
+  .pdp-month-bar,
+  .pdp-calendar-card {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+  }
+
+  .pdp-month-title {
+    color: #f9fafb;
+  }
+
+  .pdp-nav-btn {
+    color: #e5e7eb;
+  }
+
+  .pdp-legend-pill {
+    color: #e5e7eb;
+  }
+
+  .pdp-legend-pill--start {
+    background: rgba(236, 72, 153, 0.22);
+  }
+
+  .pdp-legend-pill--period {
+    background: rgba(236, 72, 153, 0.18);
+  }
+
+  .pdp-legend-pill--today {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .pdp-dow {
+    color: #9ca3af;
+  }
+
+  .pdp-day-num {
+    color: #e5e7eb;
+  }
+
+  .pdp-cell--other .pdp-day-num {
+    color: #64748b;
+  }
+
+  .pdp-cell--today:not(.pdp-cell--start):not(.pdp-cell--period) {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .pdp-cell--period {
+    background: rgba(236, 72, 153, 0.26);
+  }
+
+  .pdp-cell--start {
+    background: linear-gradient(
+      135deg,
+      rgba(244, 114, 182, 0.55) 0%,
+      rgba(236, 72, 153, 0.45) 100%
+    );
+    box-shadow: 0 2px 12px rgba(236, 72, 153, 0.35);
+
+    .pdp-day-num {
+      color: #fdf2f8;
+    }
+  }
+
+  .pdp-cell--period:not(.pdp-cell--start) .pdp-day-num {
+    color: #fbcfe8;
+  }
+}

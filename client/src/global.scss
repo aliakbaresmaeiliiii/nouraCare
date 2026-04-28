@@ -1011,6 +1011,30 @@ ion-action-sheet {
   --color: var(--brand-text);
 }
 
+/* Pregnancy mode pickers: small centered dialog */
+ion-modal.pm-center-dialog {
+  --width: min(360px, 92vw);
+  --height: auto;
+  --max-height: 74vh;
+  --border-radius: 16px;
+  --backdrop-opacity: 0.42;
+  --box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+}
+
+ion-modal.pm-center-dialog::part(content) {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+ion-modal.pm-center-dialog ion-content {
+  --background: #0f1217;
+}
+
+ion-modal.pm-center-dialog ion-picker,
+ion-modal.pm-center-dialog ion-datetime {
+  width: 100%;
+}
+
 /* iPhone-like liquid glass dialog style for action popups */
 ion-alert.liquid-glass-dialog {
   --backdrop-opacity: 0.3;

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { LanguageService } from './language.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TranslationService {
   private translations: { [key: string]: { [key: string]: string } } = {
@@ -51,16 +51,18 @@ export class TranslationService {
       'editProfile.changeProfilePhotoAria': 'Change profile photo',
       'editProfile.profileImageAlt': 'Profile',
       'editProfile.viewProfile': 'View profile',
-      'editProfile.languageHint': 'Applies across the app. Tap the flag to choose your language.',
+      'editProfile.languageHint':
+        'Applies across the app. Tap the flag to choose your language.',
       'editProfile.experienceTitle': 'Your Flo experience',
       'editProfile.reproductiveStatusAria': 'Reproductive status',
       'editProfile.trackCycle': 'Just track cycle',
       'editProfile.getPregnant': 'Get pregnant',
       'editProfile.trackPregnancy': 'Track pregnancy',
       'trackPregnancyIntro.closeAria': 'Close',
-      'trackPregnancyIntro.title': 'Welcome to your journey to becoming a parent!',
+      'trackPregnancyIntro.title':
+        'Welcome to your journey to becoming a parent!',
       'trackPregnancyIntro.body':
-        'Follow week-by-week physical and emotional changes you will experience and explore your baby\'s growth and development.',
+        "Follow week-by-week physical and emotional changes you will experience and explore your baby's growth and development.",
       'trackPregnancyIntro.next': 'Next',
       'editProfile.trackPerimenopause': 'Track perimenopause',
       'editProfile.continue': 'Continue',
@@ -70,6 +72,17 @@ export class TranslationService {
       'editProfile.emailLabel': 'Email',
       'editProfile.emailPlaceholder': 'Enter your email',
       'editProfile.birthday': 'Birthday',
+      'editProfile.pageTitle': 'Edit profile',
+      'editProfile.saveChanges': 'Save changes',
+      'editProfile.saving': 'Saving…',
+      'editProfile.saveHint': 'Update your details below, then save. They stay on your account only.',
+      'editProfile.tapPhotoHint': 'Tap your photo above to change it.',
+      'editProfile.invalidEmail': 'Enter a valid email address.',
+      'editProfile.nothingToSave': 'Add or change a field before saving.',
+      'editProfile.saved': 'Profile saved.',
+      'editProfile.saveFailed': 'Could not save. Check your connection and try again.',
+      'editProfile.dobMissingHint':
+        'Add your birthday to complete your profile and get more accurate insights.',
       'editProfile.alert.switchCycleHeader': 'Switch to Cycle Tracking?',
       'editProfile.alert.switchCycleMessage':
         'Your health insights and cycle-tracking tools will be updated to match Cycle Tracking mode. Do you want to continue?',
@@ -95,7 +108,7 @@ export class TranslationService {
       'welcome.termsOfService': 'Terms of Service',
       'welcome.and': 'and',
       'welcome.privacyPolicy': 'Privacy Policy',
-      'welcome.feature1': 'We are with you on your child\'s growth journey',
+      'welcome.feature1': "We are with you on your child's growth journey",
       'welcome.feature2': 'Up-to-date information on proper nutrition',
       'welcome.feature3': 'Learn necessary care from expert consultants',
       'welcome.expertSupport': 'Expert Support',
@@ -132,20 +145,23 @@ export class TranslationService {
       'home.quickActions': 'Quick Actions',
       'home.whatToDoToday': 'What would you like to do today?',
       'home.actionPregnant': 'I became pregnant',
-      'home.actionPregnantDesc': 'Update your status and get personalized guidance',
-      'home.actionNotPregnant': 'I\'m not pregnant anymore',
-      'home.actionNotPregnantDesc': 'Change your status back to trying to conceive',
+      'home.actionPregnantDesc':
+        'Update your status and get personalized guidance',
+      'home.actionNotPregnant': "I'm not pregnant anymore",
+      'home.actionNotPregnantDesc':
+        'Change your status back to trying to conceive',
       'home.actionSymptoms': 'Track Symptoms',
       'home.actionSymptomsDesc': 'Log your daily symptoms and mood',
       'home.actionAppointment': 'Book Appointment',
       'home.actionAppointmentDesc': 'Schedule a consultation with specialists',
       'home.actionCommunity': 'Join Community',
-      'home.actionCommunityDesc': 'Connect with other women on similar journeys',
+      'home.actionCommunityDesc':
+        'Connect with other women on similar journeys',
       'home.actionFeeding': 'Track Feeding',
       'home.actionFeedingDesc': 'Log feeding times and patterns',
       'home.actionSleep': 'Sleep Tracker',
-      'home.actionSleepDesc': 'Monitor baby\'s sleep schedule',
-      'home.todaysWisdom': 'Today\'s Wisdom',
+      'home.actionSleepDesc': "Monitor baby's sleep schedule",
+      'home.todaysWisdom': "Today's Wisdom",
       'home.expertAdvice': 'Expert advice from our counselors',
       'home.tipTitle': '5 Tips for Better Mental Preparation Before Pregnancy',
       'home.tipAuthor': 'Dr. Sarah Johnson, Mental Health Specialist',
@@ -155,7 +171,7 @@ export class TranslationService {
       'home.tip2Desc': 'Build emotional support with your partner and family',
       'home.tip3Title': '3. Positive Mindset',
       'home.tip3Desc': 'Focus on self-confidence and readiness for motherhood',
-      'home.viewSchedule': 'View Counselor\'s Weekly Schedule',
+      'home.viewSchedule': "View Counselor's Weekly Schedule",
       'home.healthTools': 'Health Tools',
       'home.essentialTools': 'Essential tools for your journey',
       'home.toolFertility': 'Fertility Calculator',
@@ -174,7 +190,8 @@ export class TranslationService {
       'home.expertCredential1': 'PhD Nutrition',
       'home.expertCredential2': '15+ Years Experience',
       'home.nutritionTip': 'Nutrition Tip of the Day',
-      'home.nutritionTipText': 'Focus on folate-rich foods like leafy greens, legumes, and fortified cereals. These are essential for healthy fetal development and can help prevent neural tube defects.',
+      'home.nutritionTipText':
+        'Focus on folate-rich foods like leafy greens, legumes, and fortified cereals. These are essential for healthy fetal development and can help prevent neural tube defects.',
       'home.bookConsultation': 'Book Consultation',
       'home.upcomingAppointments': 'Upcoming Appointments',
       'home.stayOnTrack': 'Stay on track with your health',
@@ -205,7 +222,8 @@ export class TranslationService {
       'menu.themeDark': 'Dark',
       'menu.themeSystem': 'System',
       'menu.contactUs': 'Contact us',
-      'menu.contactUsHint': 'Pick one — we usually reply within one business day.',
+      'menu.contactUsHint':
+        'Pick one — we usually reply within one business day.',
       'menu.contactUsEmail': 'Email support',
       'menu.contactUsTelegram': 'Message on Telegram',
       'menu.contactUsInstagram': 'DM on Instagram',
@@ -230,37 +248,54 @@ export class TranslationService {
       'cycleChart.phase.postOvulation': 'Post-ovulation phase',
       'cycleChart.phase.preMenstrual': 'Pre-menstrual phase',
       'cycleChart.milestone.logPeriod': 'Log your period',
-      'cycleChart.milestone.daysBleedingLeft': '{{days}} {{dayWord}} of bleeding left',
+      'cycleChart.milestone.daysBleedingLeft':
+        '{{days}} {{dayWord}} of bleeding left',
       'cycleChart.milestone.lastDayPeriod': 'Last day of period',
-      'cycleChart.milestone.daysToFertileWindow': '{{days}} {{dayWord}} to fertile window',
-      'cycleChart.milestone.daysToOvulation': '{{days}} {{dayWord}} to ovulation',
+      'cycleChart.milestone.daysToFertileWindow':
+        '{{days}} {{dayWord}} to fertile window',
+      'cycleChart.milestone.daysToOvulation':
+        '{{days}} {{dayWord}} to ovulation',
       'cycleChart.milestone.ovulationDay': 'Ovulation day',
       'cycleChart.milestone.daysToPms': '{{days}} {{dayWord}} to PMS',
-      'cycleChart.milestone.daysToNextPeriod': '{{days}} {{dayWord}} to next period',
+      'cycleChart.milestone.daysToNextPeriod':
+        '{{days}} {{dayWord}} to next period',
       'cycleChart.fertility.getStarted': 'Get started',
-      'cycleChart.fertility.logLastPeriodEstimate': 'Log your last period to see day-by-day estimates.',
+      'cycleChart.fertility.logLastPeriodEstimate':
+        'Log your last period to see day-by-day estimates.',
       'cycleChart.fertility.period': 'Period',
-      'cycleChart.fertility.veryLowDuringMenstruation': 'Very low chance of pregnancy during menstruation.',
+      'cycleChart.fertility.veryLowDuringMenstruation':
+        'Very low chance of pregnancy during menstruation.',
       'cycleChart.fertility.earlyCycle': 'Early cycle',
-      'cycleChart.fertility.veryLowHormonesResetting': 'Very low chance — hormones are resetting after bleeding.',
+      'cycleChart.fertility.veryLowHormonesResetting':
+        'Very low chance — hormones are resetting after bleeding.',
       'cycleChart.fertility.follicularPhase': 'Follicular phase',
-      'cycleChart.fertility.lowerChanceFollicleDeveloping': 'Lower chance of pregnancy; follicle is developing.',
+      'cycleChart.fertility.lowerChanceFollicleDeveloping':
+        'Lower chance of pregnancy; follicle is developing.',
       'cycleChart.fertility.fertileWindow': 'Fertile window',
-      'cycleChart.fertility.chanceRising': 'Chance rising — sperm can survive until ovulation.',
+      'cycleChart.fertility.chanceRising':
+        'Chance rising — sperm can survive until ovulation.',
       'cycleChart.fertility.ovulation': 'Ovulation',
       'cycleChart.fertility.peakFertileDays': 'Peak fertile days',
-      'cycleChart.fertility.highestChanceThisCycle': 'Highest chance of pregnancy this cycle (estimated ovulation).',
-      'cycleChart.fertility.highChanceInWindow': 'High chance of pregnancy — in the fertile window.',
+      'cycleChart.fertility.highestChanceThisCycle':
+        'Highest chance of pregnancy this cycle (estimated ovulation).',
+      'cycleChart.fertility.highChanceInWindow':
+        'High chance of pregnancy — in the fertile window.',
       'cycleChart.fertility.justAfterOvulation': 'Just after ovulation',
-      'cycleChart.fertility.lowerThanPeakEggHours': 'Lower chance than peak days; egg lasts ~12-24 hours.',
+      'cycleChart.fertility.lowerThanPeakEggHours':
+        'Lower chance than peak days; egg lasts ~12-24 hours.',
       'cycleChart.fertility.lutealPhase': 'Luteal phase',
-      'cycleChart.fertility.lowerChanceUntilNextCycle': 'Lower chance of pregnancy until next cycle.',
+      'cycleChart.fertility.lowerChanceUntilNextCycle':
+        'Lower chance of pregnancy until next cycle.',
       'cycleChart.fertility.preMenstrual': 'Pre-menstrual',
-      'cycleChart.fertility.veryLowBeforeNextPeriod': 'Very low chance of pregnancy before your next period.',
+      'cycleChart.fertility.veryLowBeforeNextPeriod':
+        'Very low chance of pregnancy before your next period.',
       'cycleChart.detail.ovulationIn': 'Ovulation in {{days}} {{dayWord}}',
-      'cycleChart.detail.ovulationDayHighestChance': 'Ovulation day — highest chance this cycle',
-      'cycleChart.detail.daysAfterOvulation': '{{days}} {{dayWord}} after ovulation',
-      'cycleChart.detail.nextPeriodAbout': 'Next period in about {{days}} {{dayWord}}',
+      'cycleChart.detail.ovulationDayHighestChance':
+        'Ovulation day — highest chance this cycle',
+      'cycleChart.detail.daysAfterOvulation':
+        '{{days}} {{dayWord}} after ovulation',
+      'cycleChart.detail.nextPeriodAbout':
+        'Next period in about {{days}} {{dayWord}}',
       'cycleChart.week.today': 'TODAY',
       'cycleChart.week.last': 'LAST',
       'cycleChart.insight.predictedOvulationDay': 'Predicted ovulation day',
@@ -270,7 +305,8 @@ export class TranslationService {
       'cycleChart.view.previewTapAnotherDay':
         'Previewing another day\nTap Today to return',
       'cycleChart.sheet.close': 'Close',
-      'cycleChart.sheet.lead': 'First and last day of bleeding for this period. The ring\'s rose segment follows these dates.',
+      'cycleChart.sheet.lead':
+        "First and last day of bleeding for this period. The ring's rose segment follows these dates.",
       'cycleChart.sheet.lengthThisPeriod': 'Length this period',
       'cycleChart.picker.firstDayLastPeriod': 'First day of last period',
       'cycleChart.picker.lastDayThisPeriod': 'Last day of this period',
@@ -284,7 +320,8 @@ export class TranslationService {
       'insights.unlockTitle': 'Premium unlocked!',
       'insights.unlockSubtitle': 'Access to 1000+ expert articles',
       'insights.premiumActiveAll': 'Premium active — all articles unlocked!',
-      'insights.premiumBannerDefault': 'Unlock 1000+ expert articles and resources with Flo Premium',
+      'insights.premiumBannerDefault':
+        'Unlock 1000+ expert articles and resources with Flo Premium',
       'insights.premiumActiveTitle': 'Premium active',
       'insights.premiumActiveDesc': 'Enjoy unlimited access to expert content',
       'insights.proBadge': 'PRO',
@@ -316,14 +353,16 @@ export class TranslationService {
       'insights.article.15': 'Getting ready for your little one',
 
       'home.startTracking': 'Start tracking',
-      'home.pregnancyInputLead': 'Almost there — one short step unlocks your week-by-week view.',
+      'home.pregnancyInputLead':
+        'Almost there — one short step unlocks your week-by-week view.',
       'home.pregnancyInputBody':
         'Add your last period start, how many full weeks you are along, or your due date. We store only LMP and never guess.',
       'home.addDates': 'Add dates',
       'home.postDueTitle': 'Past your due date — you’re doing great',
       'home.postDueBody':
         'Many babies arrive a little before or after week 40. It’s normal to feel a mix of excitement and tiredness. Keep noticing baby’s movements, rest when you can, and stay in touch with your care team if anything worries you.',
-      'home.postDueHint': 'You’re in week {{week}} — help is only a message away.',
+      'home.postDueHint':
+        'You’re in week {{week}} — help is only a message away.',
       'home.details': 'Details',
       'home.weekCalendarAria': 'Week calendar, swipe sideways',
       'home.pregnancyRingAria': 'Pregnancy journey along the ring',
@@ -372,9 +411,12 @@ export class TranslationService {
       'home.greeting.evening': 'Good evening! 🌙',
       'home.personalized.pregnant':
         "You're in week {{week}}, day {{day}}. How are you feeling today?",
-      'home.personalized.cycle': "Day {{day}} of your cycle. Let's track your journey together.",
-      'home.personalized.postpartum': 'Welcome to your postpartum journey. Take care of yourself.',
-      'home.personalized.default': "Ready to start your health journey? Let's begin tracking!",
+      'home.personalized.cycle':
+        "Day {{day}} of your cycle. Let's track your journey together.",
+      'home.personalized.postpartum':
+        'Welcome to your postpartum journey. Take care of yourself.',
+      'home.personalized.default':
+        "Ready to start your health journey? Let's begin tracking!",
       'home.preCycle.titleDefault': 'Start with your last period',
       'home.preCycle.bodyDefault':
         'Your cycle ring and day-by-day view stay empty until you add one date. It takes a few seconds.',
@@ -424,14 +466,16 @@ export class TranslationService {
       'home.symptomLog.lastLog': 'Last log',
       'home.symptomLog.slideLogged1Title': 'Last time you logged',
       'home.symptomLog.slideLogged2Title': 'Recent history',
-      'home.symptomLog.slideLogged2BodyMulti': 'From your account (newest first):\n{{lines}}',
+      'home.symptomLog.slideLogged2BodyMulti':
+        'From your account (newest first):\n{{lines}}',
       'home.symptomLog.slideLogged2BodySingle':
         'Keep logging on more days — a short list here will build into a clearer picture.',
       'home.symptomLog.lineCalendar': 'Calendar day: {{date}} ({{weekday}}).',
       'home.symptomLog.lineMood': 'Mood noted: {{mood}}.',
       'home.symptomLog.lineEnergy': 'Energy: {{energy}}.',
       'home.symptomLog.lineSymptoms': 'Symptoms: {{list}}.',
-      'home.symptomLog.lineNoSymptoms': 'No individual symptoms were tagged for that day.',
+      'home.symptomLog.lineNoSymptoms':
+        'No individual symptoms were tagged for that day.',
       'home.symptomLog.lineNotes': 'Notes: {{notes}}',
 
       'home.pregInsight.hydrationDefault':
@@ -458,11 +502,13 @@ export class TranslationService {
       'home.pregInsight.babySlide3Body':
         'From your home screen you can open the week detail page anytime for milestones and reminders.',
       'home.strip.categoryForYou': 'For you',
-      'home.pregStrip.forYouTeaser': '{{name}}, we’re watching patterns with you',
+      'home.pregStrip.forYouTeaser':
+        '{{name}}, we’re watching patterns with you',
       'home.pregInsight.forYouSlide1Title': '{{name}}, today’s read on you',
       'home.pregInsight.forYouSlide1Body':
         'You’re about day {{days}} along, in the {{trimester}}. {{phase}}',
-      'home.pregInsight.forYouSlide2Title': 'Symptoms are signals, not a scorecard',
+      'home.pregInsight.forYouSlide2Title':
+        'Symptoms are signals, not a scorecard',
       'home.pregInsight.forYouSlide2Body':
         'When something feels new or intense, note it — steady patterns help you and your care team decide what matters.',
       'home.pregInsight.forYouSlide3Title': 'You’re not behind',
@@ -472,7 +518,8 @@ export class TranslationService {
       'home.pregSummary.categoryToday': 'Today',
       'home.pregSummary.teaserMulti': '{{count}} short reads for today',
       'home.pregSummary.teaserEmpty': 'Your snapshot',
-      'home.pregSummary.bodyBase': 'Day {{days}} along · week {{week}} · {{phase}}',
+      'home.pregSummary.bodyBase':
+        'Day {{days}} along · week {{week}} · {{phase}}',
       'home.pregSummary.symptomTail': ' Last symptom log ({{when}}): {{tail}}.',
       'home.pregSummary.symptomBare': ' Last symptom log: {{when}}.',
       'home.pregSummary.slide1Title': 'Your snapshot',
@@ -503,7 +550,8 @@ export class TranslationService {
         'Tap Track or open the cycle calendar when flow starts or shifts — patterns get clearer with a few cycles.',
       'home.cycleStrip.fertileTeaserPeak': 'Ovulation window · high today',
       'home.cycleStrip.fertileTeaserFuture': 'Fertile window · ~{{d}}d to peak',
-      'home.cycleStrip.fertileTeaserPast': 'Fertile window · peak was {{d}}d ago',
+      'home.cycleStrip.fertileTeaserPast':
+        'Fertile window · peak was {{d}}d ago',
       'home.cycleStrip.forYouTeaser': '{{name}}, patterns over pressure',
       'home.cycleStrip.forYouSlide1Title': '{{name}}, today’s read',
       'home.cycleStrip.forYouSlide1Body':
@@ -527,11 +575,14 @@ export class TranslationService {
       'home.alert.updateStatusHeader': 'Update your status',
       'home.alert.updateStatusMessage': 'Select your current status:',
       'home.alert.congratsPregnantHeader': '🎉 Congratulations!',
-      'home.alert.congratsPregnantMessage': 'What week of pregnancy are you in?',
+      'home.alert.congratsPregnantMessage':
+        'What week of pregnancy are you in?',
       'home.alert.postpartumWelcomeHeader': '👶 Welcome to postpartum!',
-      'home.alert.postpartumWelcomeMessage': 'How many weeks postpartum are you?',
+      'home.alert.postpartumWelcomeMessage':
+        'How many weeks postpartum are you?',
       'home.alert.bookAppointmentHeader': '📅 Book appointment',
-      'home.alert.bookAppointmentMessage': 'Choose the type of consultation you need:',
+      'home.alert.bookAppointmentMessage':
+        'Choose the type of consultation you need:',
       'home.alert.trackTodayHeader': '📊 Track today',
       'home.alert.trackTodayMessage': 'What would you like to track today?',
       'home.alert.calendarViewHeader': '📅 Calendar view',
@@ -541,7 +592,8 @@ export class TranslationService {
       'home.alert.rescheduleMessage': 'Reschedule {{title}} with {{doctor}}?',
       'home.alert.cancelHeader': 'Cancel appointment',
       'home.alert.cancelMessage': 'Are you sure you want to cancel {{title}}?',
-      'home.alert.calendarViewMessage': "Choose what you'd like to view in your calendar:",
+      'home.alert.calendarViewMessage':
+        "Choose what you'd like to view in your calendar:",
       'home.alert.handlePregnantCongratsBody':
         "This is wonderful news! Let's update your status and guide you through the next steps.",
       'home.alert.confirmNotPregnantMessage':
@@ -551,7 +603,8 @@ export class TranslationService {
       'home.alert.fertilityCalcHeader': '🧮 Fertility calculator',
       'home.alert.pregnancyWeekCalcHeader': '🤰 Pregnancy week calculator',
       'home.alert.clearRemindersHeader': 'Clear all reminders',
-      'home.alert.clearRemindersMessage': 'Are you sure you want to clear all fertility reminders?',
+      'home.alert.clearRemindersMessage':
+        'Are you sure you want to clear all fertility reminders?',
       'home.alert.reminderSetHeader': '✅ Reminder set!',
       'home.alert.remindersListHeader': '🔔 Your fertility reminders',
       'home.alert.shareResultsHeader': '📤 Share results',
@@ -574,10 +627,12 @@ export class TranslationService {
       'home.dialog.weekPlaceholderPostpartum': 'Enter week (1-12)',
       'home.dialog.setWeek': 'Set Week',
       'home.dialog.statusUpdatedTTC': 'Status updated to: Trying to Conceive',
-      'home.dialog.weekBabyToast': '🎉 Week {{week}}: Your baby is the size of a {{size}}!',
+      'home.dialog.weekBabyToast':
+        '🎉 Week {{week}}: Your baby is the size of a {{size}}!',
       'home.dialog.invalidWeekPregnancy': 'Please enter a valid week (4-40)',
       'home.dialog.invalidWeekPostpartum': 'Please enter a valid week (1-12)',
-      'home.dialog.postpartumWeekToast': "👶 Week {{week}}: {{recovery}} - You're doing amazing!",
+      'home.dialog.postpartumWeekToast':
+        "👶 Week {{week}}: {{recovery}} - You're doing amazing!",
       'home.dialog.reschedule': 'Reschedule',
       'home.dialog.no': 'No',
       'home.dialog.yesCancel': 'Yes, Cancel',
@@ -603,33 +658,41 @@ export class TranslationService {
       'home.dialog.bookingNutrition': 'Nutrition Consultation',
       'home.dialog.bookingMental': 'Mental Health Support',
       'home.dialog.openingBookingToast': 'Opening {{type}} booking...',
-      'home.dialog.bookingFailed': 'Failed to open appointment booking. Please try again.',
+      'home.dialog.bookingFailed':
+        'Failed to open appointment booking. Please try again.',
       'home.dialog.communityHeader': '👥 Join Our Community',
       'home.dialog.communityMessage':
         'Connect with other women on similar journeys. Share experiences, ask questions, and find support.',
       'home.dialog.learnMore': 'Learn More',
       'home.dialog.joiningCommunity': 'Joining community...',
-      'home.dialog.communityFailed': 'Failed to join community. Please try again.',
+      'home.dialog.communityFailed':
+        'Failed to join community. Please try again.',
       'home.dialog.scheduleHeader': '👩‍⚕️ Counselor Schedule',
-      'home.dialog.scheduleMessage': 'View available appointment slots with our expert counselors.',
+      'home.dialog.scheduleMessage':
+        'View available appointment slots with our expert counselors.',
       'home.dialog.viewSchedule': 'View Schedule',
       'home.dialog.openingCounselorSchedule': 'Opening counselor schedule...',
-      'home.dialog.scheduleFailed': 'Failed to open schedule. Please try again.',
+      'home.dialog.scheduleFailed':
+        'Failed to open schedule. Please try again.',
       'home.dialog.expertHeader': '👨‍⚕️ Expert Consultation',
       'home.dialog.expertMessage':
         'Book a consultation with our specialized experts in prenatal care, nutrition, and mental health.',
       'home.dialog.bookNow': 'Book Now',
-      'home.dialog.openingExpertBooking': 'Opening expert consultation booking...',
-      'home.dialog.expertBookingFailed': 'Failed to open consultation booking. Please try again.',
+      'home.dialog.openingExpertBooking':
+        'Opening expert consultation booking...',
+      'home.dialog.expertBookingFailed':
+        'Failed to open consultation booking. Please try again.',
       'home.dialog.fertilityCalcBody':
         'Calculate your most fertile days based on your cycle length and last period date.',
       'home.dialog.openCalculator': 'Open Calculator',
       'home.dialog.openingFertilityCalc': 'Opening fertility calculator...',
-      'home.dialog.fertilityCalcFailed': 'Failed to open fertility calculator. Please try again.',
+      'home.dialog.fertilityCalcFailed':
+        'Failed to open fertility calculator. Please try again.',
       'home.dialog.calcFailed': 'Failed to open calculator. Please try again.',
       'home.dialog.cycleLengthPlaceholder': 'Cycle length (days)',
       'home.dialog.lastPeriodStartPlaceholder': 'Last period start date',
-      'home.dialog.lastMenstrualPeriodPlaceholder': 'Last menstrual period date',
+      'home.dialog.lastMenstrualPeriodPlaceholder':
+        'Last menstrual period date',
       'home.dialog.calculate': 'Calculate',
       'home.dialog.calculateWeek': 'Calculate Week',
       'home.dialog.fillAllFields': 'Please fill in all fields',
@@ -648,7 +711,8 @@ export class TranslationService {
         "Your fertility reminder has been scheduled. You'll be notified at the right time to maximize your chances of conception.",
       'home.dialog.viewAllReminders': 'View All Reminders',
       'home.dialog.done': 'Done',
-      'home.dialog.reminderToastSuccess': 'Fertility reminder set successfully! 🔔',
+      'home.dialog.reminderToastSuccess':
+        'Fertility reminder set successfully! 🔔',
       'home.dialog.reminderScheduleFailed': 'Failed to schedule reminder',
       'home.dialog.reminderSetFailed': 'Failed to set reminder',
       'home.dialog.noActiveReminders': 'No active reminders found',
@@ -657,8 +721,10 @@ export class TranslationService {
       'home.dialog.allRemindersCleared': 'All reminders cleared',
       'home.dialog.clearRemindersFailed': 'Failed to clear reminders',
       'home.dialog.loadRemindersFailed': 'Failed to load reminders',
-      'home.dialog.shareMobileOnly': 'Sharing is only available on mobile devices',
-      'home.dialog.shareChooseMethod': "Choose how you'd like to share your fertility results:",
+      'home.dialog.shareMobileOnly':
+        'Sharing is only available on mobile devices',
+      'home.dialog.shareChooseMethod':
+        "Choose how you'd like to share your fertility results:",
       'home.dialog.copyClipboard': '📋 Copy to Clipboard',
       'home.dialog.smsWhatsapp': '📱 SMS/WhatsApp',
       'home.dialog.email': '📧 Email',
@@ -667,53 +733,70 @@ export class TranslationService {
       'home.dialog.copySuccess': 'Results copied to clipboard!',
       'home.dialog.copyManual': 'Please manually copy the text from the alert',
       'home.dialog.copyFailed': 'Copy failed. Please try another method.',
-      'home.dialog.altShareMessage': "If WhatsApp didn't open, you can try SMS instead.",
+      'home.dialog.altShareMessage':
+        "If WhatsApp didn't open, you can try SMS instead.",
       'home.dialog.openSms': 'Open SMS',
       'home.dialog.shareUnable': 'Unable to share. Please try again.',
       'home.dialog.openingNutrition': 'Opening nutrition tracker...',
       'home.dialog.nutritionBody':
         'Track your daily nutrition intake, including vitamins, minerals, and food groups essential for pregnancy.',
       'home.dialog.startTracking': 'Start Tracking',
-      'home.dialog.nutritionOpenFailed': 'Failed to open nutrition tracker. Please try again.',
+      'home.dialog.nutritionOpenFailed':
+        'Failed to open nutrition tracker. Please try again.',
       'home.dialog.openingExercise': 'Opening exercise planner...',
       'home.dialog.exerciseBody':
         'Get personalized exercise recommendations safe for each trimester of pregnancy.',
       'home.dialog.viewExercises': 'View Exercises',
-      'home.dialog.exerciseOpenFailed': 'Failed to open exercise planner. Please try again.',
+      'home.dialog.exerciseOpenFailed':
+        'Failed to open exercise planner. Please try again.',
       'home.dialog.openingMedication': 'Opening medication reminder...',
       'home.dialog.medicationBody':
         'Set reminders for your prenatal vitamins and medications to ensure you never miss a dose.',
       'home.dialog.setRemindersBtn': 'Set Reminders',
-      'home.dialog.medicationOpenFailed': 'Failed to open medication reminder. Please try again.',
+      'home.dialog.medicationOpenFailed':
+        'Failed to open medication reminder. Please try again.',
       'home.dialog.openingFeeding': 'Opening feeding tracker...',
       'home.dialog.feedingBody':
         "Track your baby's feeding schedule, duration, and patterns to ensure proper nutrition.",
-      'home.dialog.feedingOpenFailed': 'Failed to open feeding tracker. Please try again.',
+      'home.dialog.feedingOpenFailed':
+        'Failed to open feeding tracker. Please try again.',
       'home.dialog.openingSleep': 'Opening sleep tracker...',
       'home.dialog.sleepBody':
         "Monitor your baby's sleep patterns, duration, and quality to establish healthy sleep habits.",
-      'home.dialog.sleepOpenFailed': 'Failed to open sleep tracker. Please try again.',
+      'home.dialog.sleepOpenFailed':
+        'Failed to open sleep tracker. Please try again.',
       'home.dialog.reminderMsg1day':
         '🌟 Your fertile window starts tomorrow! Get ready for your most fertile days.',
-      'home.dialog.reminderMsg2days': '🌟 Your fertile window starts in 2 days! Time to prepare.',
-      'home.dialog.reminderMsgOvulation': '🥚 Today is your ovulation day! Peak fertility time.',
-      'home.dialog.reminderMsgDaily': "🌟 You're in your fertile window! Today is a high fertility day.",
+      'home.dialog.reminderMsg2days':
+        '🌟 Your fertile window starts in 2 days! Time to prepare.',
+      'home.dialog.reminderMsgOvulation':
+        '🥚 Today is your ovulation day! Peak fertility time.',
+      'home.dialog.reminderMsgDaily':
+        "🌟 You're in your fertile window! Today is a high fertility day.",
       'home.dialog.reminderMsgDefault': '🌟 Your fertile window is starting!',
-      'home.dialog.reminderDailyIndexed': '🌟 Day {{day}} of your fertile window! High fertility day.',
-      'home.dialog.statusUpdatedSuccess': 'Status updated successfully! You can now track your cycle.',
-      'home.dialog.statusUpdateError': 'Error updating status. Please try again.',
+      'home.dialog.reminderDailyIndexed':
+        '🌟 Day {{day}} of your fertile window! High fertility day.',
+      'home.dialog.statusUpdatedSuccess':
+        'Status updated successfully! You can now track your cycle.',
+      'home.dialog.statusUpdateError':
+        'Error updating status. Please try again.',
       'home.dialog.pregnancyDatesSaved': 'Pregnancy dates saved.',
-      'home.dialog.saveDatesFailed': 'Could not save. Check your dates and try again.',
+      'home.dialog.saveDatesFailed':
+        'Could not save. Check your dates and try again.',
       'home.dialog.unableOpenEmail': 'Unable to open email app',
       'home.dialog.openingEmailApp': 'Opening email app...',
       'home.dialog.emailSubjectFertility': 'My Fertility Calendar Results',
       'home.dialog.unableOpenMessaging': 'Unable to open messaging app',
-      'home.dialog.fertileDaysCalculated': 'Fertile days calculated successfully!',
+      'home.dialog.fertileDaysCalculated':
+        'Fertile days calculated successfully!',
       'home.dialog.fertileDaysCalcFailed': 'Failed to calculate fertile days',
-      'home.dialog.invalidLmpWeeks': 'Invalid date. Please enter a valid LMP date (4-42 weeks ago).',
-      'home.dialog.pregnancyWeekUpdatedProfile': 'Pregnancy week updated in your profile!',
+      'home.dialog.invalidLmpWeeks':
+        'Invalid date. Please enter a valid LMP date (4-42 weeks ago).',
+      'home.dialog.pregnancyWeekUpdatedProfile':
+        'Pregnancy week updated in your profile!',
       'home.dialog.appointmentComingSoon': 'Appointment booking coming soon!',
-      'home.dialog.pregnancyWeekCalcFailed': 'Failed to calculate pregnancy week',
+      'home.dialog.pregnancyWeekCalcFailed':
+        'Failed to calculate pregnancy week',
     },
     zh: {
       'common.welcome': '欢迎',
@@ -779,6 +862,16 @@ export class TranslationService {
       'editProfile.emailLabel': '邮箱',
       'editProfile.emailPlaceholder': '请输入邮箱',
       'editProfile.birthday': '生日',
+      'editProfile.pageTitle': '编辑资料',
+      'editProfile.saveChanges': '保存更改',
+      'editProfile.saving': '保存中…',
+      'editProfile.saveHint': '在下方更新信息后保存，仅保存在您的账户中。',
+      'editProfile.tapPhotoHint': '点击上方头像即可更换。',
+      'editProfile.invalidEmail': '请输入有效的邮箱地址。',
+      'editProfile.nothingToSave': '请先添加或修改内容再保存。',
+      'editProfile.saved': '已保存。',
+      'editProfile.saveFailed': '保存失败，请检查网络后重试。',
+      'editProfile.dobMissingHint': '请填写生日以完善资料，获得更贴合的洞察。',
       'welcome.title': '欢迎来到NouraCare',
       'welcome.subtitle': '您的孕期伴侣',
       'welcome.getStarted': '开始追踪',
@@ -878,7 +971,8 @@ export class TranslationService {
       'home.expertCredential1': '营养学博士',
       'home.expertCredential2': '15年以上经验',
       'home.nutritionTip': '每日营养小贴士',
-      'home.nutritionTipText': '专注于富含叶酸的食物，如绿叶蔬菜、豆类和强化谷物。这些对健康的胎儿发育至关重要，有助于预防神经管缺陷。',
+      'home.nutritionTipText':
+        '专注于富含叶酸的食物，如绿叶蔬菜、豆类和强化谷物。这些对健康的胎儿发育至关重要，有助于预防神经管缺陷。',
       'home.bookConsultation': '预约咨询',
       'home.upcomingAppointments': '即将到来的预约',
       'home.stayOnTrack': '保持您的健康跟踪',
@@ -934,51 +1028,65 @@ export class TranslationService {
       'cycleChart.phase.postOvulation': '排卵后阶段',
       'cycleChart.phase.preMenstrual': '经前阶段',
       'cycleChart.milestone.logPeriod': '记录月经',
-      'cycleChart.milestone.daysBleedingLeft': '还有 {{days}} {{dayWord}} 出血期',
+      'cycleChart.milestone.daysBleedingLeft':
+        '还有 {{days}} {{dayWord}} 出血期',
       'cycleChart.milestone.lastDayPeriod': '经期最后一天',
-      'cycleChart.milestone.daysToFertileWindow': '距易孕期还有 {{days}} {{dayWord}}',
+      'cycleChart.milestone.daysToFertileWindow':
+        '距易孕期还有 {{days}} {{dayWord}}',
       'cycleChart.milestone.daysToOvulation': '距排卵还有 {{days}} {{dayWord}}',
       'cycleChart.milestone.ovulationDay': '排卵日',
       'cycleChart.milestone.daysToPms': '距经前期还有 {{days}} {{dayWord}}',
-      'cycleChart.milestone.daysToNextPeriod': '距下次月经还有 {{days}} {{dayWord}}',
+      'cycleChart.milestone.daysToNextPeriod':
+        '距下次月经还有 {{days}} {{dayWord}}',
       'cycleChart.fertility.getStarted': '开始',
-      'cycleChart.fertility.logLastPeriodEstimate': '记录上次月经即可查看每日预测。',
+      'cycleChart.fertility.logLastPeriodEstimate':
+        '记录上次月经即可查看每日预测。',
       'cycleChart.fertility.period': '经期',
-      'cycleChart.fertility.veryLowDuringMenstruation': '月经期间怀孕概率很低。',
+      'cycleChart.fertility.veryLowDuringMenstruation':
+        '月经期间怀孕概率很低。',
       'cycleChart.fertility.earlyCycle': '周期早期',
-      'cycleChart.fertility.veryLowHormonesResetting': '概率很低——激素在出血后重置。',
+      'cycleChart.fertility.veryLowHormonesResetting':
+        '概率很低——激素在出血后重置。',
       'cycleChart.fertility.follicularPhase': '卵泡期',
-      'cycleChart.fertility.lowerChanceFollicleDeveloping': '怀孕概率较低；卵泡正在发育。',
+      'cycleChart.fertility.lowerChanceFollicleDeveloping':
+        '怀孕概率较低；卵泡正在发育。',
       'cycleChart.fertility.fertileWindow': '易孕期',
       'cycleChart.fertility.chanceRising': '概率上升——精子可存活至排卵。',
       'cycleChart.fertility.ovulation': '排卵',
       'cycleChart.fertility.peakFertileDays': '高峰易孕日',
-      'cycleChart.fertility.highestChanceThisCycle': '本周期怀孕概率最高（预测排卵）。',
+      'cycleChart.fertility.highestChanceThisCycle':
+        '本周期怀孕概率最高（预测排卵）。',
       'cycleChart.fertility.highChanceInWindow': '怀孕概率较高——处于易孕期。',
       'cycleChart.fertility.justAfterOvulation': '排卵刚结束',
-      'cycleChart.fertility.lowerThanPeakEggHours': '概率低于高峰日；卵子约存活 12-24 小时。',
+      'cycleChart.fertility.lowerThanPeakEggHours':
+        '概率低于高峰日；卵子约存活 12-24 小时。',
       'cycleChart.fertility.lutealPhase': '黄体期',
-      'cycleChart.fertility.lowerChanceUntilNextCycle': '到下个周期前怀孕概率较低。',
+      'cycleChart.fertility.lowerChanceUntilNextCycle':
+        '到下个周期前怀孕概率较低。',
       'cycleChart.fertility.preMenstrual': '经前期',
-      'cycleChart.fertility.veryLowBeforeNextPeriod': '下次月经前怀孕概率很低。',
+      'cycleChart.fertility.veryLowBeforeNextPeriod':
+        '下次月经前怀孕概率很低。',
       'cycleChart.detail.ovulationIn': '{{days}} {{dayWord}} 后排卵',
       'cycleChart.detail.ovulationDayHighestChance': '排卵日——本周期最高概率',
       'cycleChart.detail.daysAfterOvulation': '排卵后 {{days}} {{dayWord}}',
-      'cycleChart.detail.nextPeriodAbout': '下次月经约在 {{days}} {{dayWord}} 后',
+      'cycleChart.detail.nextPeriodAbout':
+        '下次月经约在 {{days}} {{dayWord}} 后',
       'cycleChart.week.today': '今天',
       'cycleChart.week.last': '末日',
       'cycleChart.insight.predictedOvulationDay': '预测排卵日',
       'cycleChart.insight.ovulationTomorrow': '明天排卵',
       'cycleChart.insight.ovulationInDays': '{{days}} 天后排卵',
       'cycleChart.view.todayOnCycle': '今天',
-      'cycleChart.view.previewTapAnotherDay': '正在预览其他日期\n点「今天」返回',
+      'cycleChart.view.previewTapAnotherDay':
+        '正在预览其他日期\n点「今天」返回',
       'cycleChart.sheet.close': '关闭',
-      'cycleChart.sheet.lead': '填写本次月经的开始和结束日期。环形图中的玫瑰色区段会据此更新。',
+      'cycleChart.sheet.lead':
+        '填写本次月经的开始和结束日期。环形图中的玫瑰色区段会据此更新。',
       'cycleChart.sheet.lengthThisPeriod': '本次经期长度',
       'cycleChart.picker.firstDayLastPeriod': '上次月经第一天',
       'cycleChart.picker.lastDayThisPeriod': '本次月经最后一天',
       'cycleChart.picker.done': '完成',
-      'cycleChart.picker.spinThenDone': '滚动选择，然后点击完成。'
+      'cycleChart.picker.spinThenDone': '滚动选择，然后点击完成。',
     },
     ms: {
       'common.welcome': 'Selamat Datang',
@@ -1001,7 +1109,7 @@ export class TranslationService {
       'auth.signIn': 'Log Masuk',
       'auth.signUp': 'Daftar',
       'auth.signInOrSignUp': 'Log masuk atau daftar',
-      'auth.email': 'E-mel',  
+      'auth.email': 'E-mel',
       'auth.emailPlaceholder': 'you@example.com',
       'auth.validEmailError': 'Sila masukkan e-mel yang sah',
       'auth.signingIn': 'Sedang log masuk...',
@@ -1021,19 +1129,22 @@ export class TranslationService {
       'profile.editPeriod': 'Edit Tempoh',
       'editProfile.editProfilePicture': 'Edit gambar profil',
       'editProfile.done': 'Selesai',
-      'editProfile.cropHint': 'Seret untuk bergerak. Cubit atau gunakan peluncur untuk zum.',
+      'editProfile.cropHint':
+        'Seret untuk bergerak. Cubit atau gunakan peluncur untuk zum.',
       'editProfile.profilePhotoPreviewAria': 'Pratonton foto profil',
       'editProfile.changeProfilePhotoAria': 'Tukar foto profil',
       'editProfile.profileImageAlt': 'Profil',
       'editProfile.viewProfile': 'Lihat profil',
-      'editProfile.languageHint': 'Digunakan di seluruh aplikasi. Ketik bendera untuk pilih bahasa.',
+      'editProfile.languageHint':
+        'Digunakan di seluruh aplikasi. Ketik bendera untuk pilih bahasa.',
       'editProfile.experienceTitle': 'Pengalaman Flo anda',
       'editProfile.reproductiveStatusAria': 'Status reproduktif',
       'editProfile.trackCycle': 'Jejak kitaran sahaja',
       'editProfile.getPregnant': 'Cuba hamil',
       'editProfile.trackPregnancy': 'Jejak kehamilan',
       'trackPregnancyIntro.closeAria': 'Tutup',
-      'trackPregnancyIntro.title': 'Selamat datang ke perjalanan anda menjadi ibu bapa!',
+      'trackPregnancyIntro.title':
+        'Selamat datang ke perjalanan anda menjadi ibu bapa!',
       'trackPregnancyIntro.body':
         'Ikuti perubahan fizikal dan emosi minggu demi minggu serta perkembangan pertumbuhan bayi anda.',
       'trackPregnancyIntro.next': 'Seterusnya',
@@ -1045,6 +1156,17 @@ export class TranslationService {
       'editProfile.emailLabel': 'E-mel',
       'editProfile.emailPlaceholder': 'Masukkan e-mel anda',
       'editProfile.birthday': 'Hari lahir',
+      'editProfile.pageTitle': 'Edit profil',
+      'editProfile.saveChanges': 'Simpan perubahan',
+      'editProfile.saving': 'Menyimpan…',
+      'editProfile.saveHint': 'Kemas kini butiran di bawah, kemudian simpan. Data kekal pada akaun anda sahaja.',
+      'editProfile.tapPhotoHint': 'Ketik foto di atas untuk menukarnya.',
+      'editProfile.invalidEmail': 'Masukkan alamat e-mel yang sah.',
+      'editProfile.nothingToSave': 'Tambah atau ubah medan sebelum menyimpan.',
+      'editProfile.saved': 'Profil disimpan.',
+      'editProfile.saveFailed': 'Tidak dapat menyimpan. Semak sambungan dan cuba lagi.',
+      'editProfile.dobMissingHint':
+        'Tambah tarikh lahir untuk melengkapkan profil dan dapatkan cerapan yang lebih tepat.',
       'welcome.title': 'Selamat Datang ke NouraCare',
       'welcome.subtitle': 'Rakan Kehamilan Anda',
       'welcome.getStarted': 'Mula Penjejakan',
@@ -1065,9 +1187,11 @@ export class TranslationService {
       'welcome.termsOfService': 'Terma Perkhidmatan',
       'welcome.and': 'dan',
       'welcome.privacyPolicy': 'Dasar Privasi',
-      'welcome.feature1': 'Kami bersama anda dalam perjalanan pertumbuhan anak anda',
+      'welcome.feature1':
+        'Kami bersama anda dalam perjalanan pertumbuhan anak anda',
       'welcome.feature2': 'Maklumat terkini mengenai pemakanan yang betul',
-      'welcome.feature3': 'Pelajari penjagaan yang diperlukan dari perunding pakar',
+      'welcome.feature3':
+        'Pelajari penjagaan yang diperlukan dari perunding pakar',
       'welcome.expertSupport': 'Sokongan Pakar',
       'welcome.guidanceCare': 'Bimbingan & Penjagaan 24/7',
       'welcome.expertFeature1': 'Perundingan perubatan profesional',
@@ -1102,29 +1226,34 @@ export class TranslationService {
       'home.quickActions': 'Tindakan Pantas',
       'home.whatToDoToday': 'Apa yang anda ingin lakukan hari ini?',
       'home.actionPregnant': 'Saya hamil',
-      'home.actionPregnantDesc': 'Kemas kini status anda dan dapatkan panduan peribadi',
+      'home.actionPregnantDesc':
+        'Kemas kini status anda dan dapatkan panduan peribadi',
       'home.actionNotPregnant': 'Saya tidak hamil lagi',
-      'home.actionNotPregnantDesc': 'Tukar status anda kembali kepada cuba hamil',
+      'home.actionNotPregnantDesc':
+        'Tukar status anda kembali kepada cuba hamil',
       'home.actionSymptoms': 'Jejak Simptom',
       'home.actionSymptomsDesc': 'Catat simptom harian dan mood anda',
       'home.actionAppointment': 'Tempah Temujanji',
       'home.actionAppointmentDesc': 'Jadualkan perundingan dengan pakar',
       'home.actionCommunity': 'Sertai Komuniti',
-      'home.actionCommunityDesc': 'Berhubung dengan wanita lain dalam perjalanan yang serupa',
+      'home.actionCommunityDesc':
+        'Berhubung dengan wanita lain dalam perjalanan yang serupa',
       'home.actionFeeding': 'Jejak Penyusuan',
       'home.actionFeedingDesc': 'Catat masa dan corak penyusuan',
       'home.actionSleep': 'Penjejak Tidur',
       'home.actionSleepDesc': 'Pantau jadual tidur bayi',
       'home.todaysWisdom': 'Kebijaksanaan Hari Ini',
       'home.expertAdvice': 'Nasihat pakar dari kaunselor kami',
-      'home.tipTitle': '5 Tips untuk Persediaan Mental yang Lebih Baik Sebelum Kehamilan',
+      'home.tipTitle':
+        '5 Tips untuk Persediaan Mental yang Lebih Baik Sebelum Kehamilan',
       'home.tipAuthor': 'Dr. Sarah Johnson, Pakar Kesihatan Mental',
       'home.tip1Title': '1. Uruskan Tekanan',
       'home.tip1Desc': 'Amalkan relaksasi dan kesedaran untuk kekal tenang',
       'home.tip2Title': '2. Kukuhkan Hubungan',
       'home.tip2Desc': 'Bina sokongan emosi dengan pasangan dan keluarga',
       'home.tip3Title': '3. Mindset Positif',
-      'home.tip3Desc': 'Fokus pada keyakinan diri dan kesediaan untuk menjadi ibu',
+      'home.tip3Desc':
+        'Fokus pada keyakinan diri dan kesediaan untuk menjadi ibu',
       'home.viewSchedule': 'Lihat Jadual Mingguan Kaunselor',
       'home.healthTools': 'Alat Kesihatan',
       'home.essentialTools': 'Alat penting untuk perjalanan anda',
@@ -1144,7 +1273,8 @@ export class TranslationService {
       'home.expertCredential1': 'PhD Pemakanan',
       'home.expertCredential2': '15+ Tahun Pengalaman',
       'home.nutritionTip': 'Tip Pemakanan Hari Ini',
-      'home.nutritionTipText': 'Fokus pada makanan kaya folat seperti sayuran hijau, kekacang, dan bijirin yang diperkaya. Ini penting untuk perkembangan janin yang sihat dan dapat membantu mencegah kecacatan tiub neural.',
+      'home.nutritionTipText':
+        'Fokus pada makanan kaya folat seperti sayuran hijau, kekacang, dan bijirin yang diperkaya. Ini penting untuk perkembangan janin yang sihat dan dapat membantu mencegah kecacatan tiub neural.',
       'home.bookConsultation': 'Tempah Perundingan',
       'home.upcomingAppointments': 'Temujanji Akan Datang',
       'home.stayOnTrack': 'Kekal di landasan dengan kesihatan anda',
@@ -1175,7 +1305,8 @@ export class TranslationService {
       'menu.themeDark': 'Gelap',
       'menu.themeSystem': 'Sistem',
       'menu.contactUs': 'Hubungi kami',
-      'menu.contactUsHint': 'Pilih satu — biasanya kami balas dalam satu hari bekerja.',
+      'menu.contactUsHint':
+        'Pilih satu — biasanya kami balas dalam satu hari bekerja.',
       'menu.contactUsEmail': 'E-mel sokongan',
       'menu.contactUsTelegram': 'Mesej di Telegram',
       'menu.contactUsInstagram': 'DM di Instagram',
@@ -1200,37 +1331,53 @@ export class TranslationService {
       'cycleChart.phase.postOvulation': 'Fasa selepas ovulasi',
       'cycleChart.phase.preMenstrual': 'Fasa pra-haid',
       'cycleChart.milestone.logPeriod': 'Log haid anda',
-      'cycleChart.milestone.daysBleedingLeft': '{{days}} {{dayWord}} pendarahan berbaki',
+      'cycleChart.milestone.daysBleedingLeft':
+        '{{days}} {{dayWord}} pendarahan berbaki',
       'cycleChart.milestone.lastDayPeriod': 'Hari terakhir haid',
-      'cycleChart.milestone.daysToFertileWindow': '{{days}} {{dayWord}} ke tingkap subur',
+      'cycleChart.milestone.daysToFertileWindow':
+        '{{days}} {{dayWord}} ke tingkap subur',
       'cycleChart.milestone.daysToOvulation': '{{days}} {{dayWord}} ke ovulasi',
       'cycleChart.milestone.ovulationDay': 'Hari ovulasi',
       'cycleChart.milestone.daysToPms': '{{days}} {{dayWord}} ke PMS',
-      'cycleChart.milestone.daysToNextPeriod': '{{days}} {{dayWord}} ke haid seterusnya',
+      'cycleChart.milestone.daysToNextPeriod':
+        '{{days}} {{dayWord}} ke haid seterusnya',
       'cycleChart.fertility.getStarted': 'Mulakan',
-      'cycleChart.fertility.logLastPeriodEstimate': 'Log haid terakhir anda untuk lihat anggaran hari demi hari.',
+      'cycleChart.fertility.logLastPeriodEstimate':
+        'Log haid terakhir anda untuk lihat anggaran hari demi hari.',
       'cycleChart.fertility.period': 'Haid',
-      'cycleChart.fertility.veryLowDuringMenstruation': 'Peluang hamil sangat rendah semasa haid.',
+      'cycleChart.fertility.veryLowDuringMenstruation':
+        'Peluang hamil sangat rendah semasa haid.',
       'cycleChart.fertility.earlyCycle': 'Awal kitaran',
-      'cycleChart.fertility.veryLowHormonesResetting': 'Peluang sangat rendah — hormon sedang menyesuaikan semula.',
+      'cycleChart.fertility.veryLowHormonesResetting':
+        'Peluang sangat rendah — hormon sedang menyesuaikan semula.',
       'cycleChart.fertility.follicularPhase': 'Fasa folikular',
-      'cycleChart.fertility.lowerChanceFollicleDeveloping': 'Peluang hamil lebih rendah; folikel sedang berkembang.',
+      'cycleChart.fertility.lowerChanceFollicleDeveloping':
+        'Peluang hamil lebih rendah; folikel sedang berkembang.',
       'cycleChart.fertility.fertileWindow': 'Tingkap subur',
-      'cycleChart.fertility.chanceRising': 'Peluang meningkat — sperma boleh hidup hingga ovulasi.',
+      'cycleChart.fertility.chanceRising':
+        'Peluang meningkat — sperma boleh hidup hingga ovulasi.',
       'cycleChart.fertility.ovulation': 'Ovulasi',
       'cycleChart.fertility.peakFertileDays': 'Hari subur puncak',
-      'cycleChart.fertility.highestChanceThisCycle': 'Peluang hamil tertinggi kitaran ini (anggaran ovulasi).',
-      'cycleChart.fertility.highChanceInWindow': 'Peluang hamil tinggi — dalam tingkap subur.',
+      'cycleChart.fertility.highestChanceThisCycle':
+        'Peluang hamil tertinggi kitaran ini (anggaran ovulasi).',
+      'cycleChart.fertility.highChanceInWindow':
+        'Peluang hamil tinggi — dalam tingkap subur.',
       'cycleChart.fertility.justAfterOvulation': 'Sejurus selepas ovulasi',
-      'cycleChart.fertility.lowerThanPeakEggHours': 'Peluang lebih rendah daripada hari puncak; ovum bertahan ~12-24 jam.',
+      'cycleChart.fertility.lowerThanPeakEggHours':
+        'Peluang lebih rendah daripada hari puncak; ovum bertahan ~12-24 jam.',
       'cycleChart.fertility.lutealPhase': 'Fasa luteal',
-      'cycleChart.fertility.lowerChanceUntilNextCycle': 'Peluang hamil lebih rendah hingga kitaran seterusnya.',
+      'cycleChart.fertility.lowerChanceUntilNextCycle':
+        'Peluang hamil lebih rendah hingga kitaran seterusnya.',
       'cycleChart.fertility.preMenstrual': 'Pra-haid',
-      'cycleChart.fertility.veryLowBeforeNextPeriod': 'Peluang hamil sangat rendah sebelum haid seterusnya.',
+      'cycleChart.fertility.veryLowBeforeNextPeriod':
+        'Peluang hamil sangat rendah sebelum haid seterusnya.',
       'cycleChart.detail.ovulationIn': 'Ovulasi dalam {{days}} {{dayWord}}',
-      'cycleChart.detail.ovulationDayHighestChance': 'Hari ovulasi — peluang tertinggi kitaran ini',
-      'cycleChart.detail.daysAfterOvulation': '{{days}} {{dayWord}} selepas ovulasi',
-      'cycleChart.detail.nextPeriodAbout': 'Haid seterusnya kira-kira dalam {{days}} {{dayWord}}',
+      'cycleChart.detail.ovulationDayHighestChance':
+        'Hari ovulasi — peluang tertinggi kitaran ini',
+      'cycleChart.detail.daysAfterOvulation':
+        '{{days}} {{dayWord}} selepas ovulasi',
+      'cycleChart.detail.nextPeriodAbout':
+        'Haid seterusnya kira-kira dalam {{days}} {{dayWord}}',
       'cycleChart.week.today': 'HARI INI',
       'cycleChart.week.last': 'AKHIR',
       'cycleChart.insight.predictedOvulationDay': 'Hari ovulasi ramalan',
@@ -1240,12 +1387,13 @@ export class TranslationService {
       'cycleChart.view.previewTapAnotherDay':
         'Mempratonton hari lain\nKetik Hari Ini untuk kembali',
       'cycleChart.sheet.close': 'Tutup',
-      'cycleChart.sheet.lead': 'Hari pertama dan terakhir pendarahan untuk haid ini. Segmen merah jambu pada cincin mengikuti tarikh ini.',
+      'cycleChart.sheet.lead':
+        'Hari pertama dan terakhir pendarahan untuk haid ini. Segmen merah jambu pada cincin mengikuti tarikh ini.',
       'cycleChart.sheet.lengthThisPeriod': 'Tempoh haid ini',
       'cycleChart.picker.firstDayLastPeriod': 'Hari pertama haid terakhir',
       'cycleChart.picker.lastDayThisPeriod': 'Hari terakhir haid ini',
       'cycleChart.picker.done': 'Selesai',
-      'cycleChart.picker.spinThenDone': 'Putar roda, kemudian ketik Selesai.'
+      'cycleChart.picker.spinThenDone': 'Putar roda, kemudian ketik Selesai.',
     },
     fa: {
       'common.welcome': 'خوش آمدید',
@@ -1287,12 +1435,14 @@ export class TranslationService {
       'profile.editPeriod': 'ویرایش دوره',
       'editProfile.editProfilePicture': 'ویرایش عکس پروفایل',
       'editProfile.done': 'تأیید',
-      'editProfile.cropHint': 'برای جابه‌جایی بکشید. با دو انگشت زوم کنید یا از لغزنده استفاده کنید.',
+      'editProfile.cropHint':
+        'برای جابه‌جایی بکشید. با دو انگشت زوم کنید یا از لغزنده استفاده کنید.',
       'editProfile.profilePhotoPreviewAria': 'پیش‌نمایش عکس پروفایل',
       'editProfile.changeProfilePhotoAria': 'تغییر عکس پروفایل',
       'editProfile.profileImageAlt': 'پروفایل',
       'editProfile.viewProfile': 'مشاهده پروفایل',
-      'editProfile.languageHint': 'در کل برنامه اعمال می‌شود. برای انتخاب زبان روی پرچم بزنید.',
+      'editProfile.languageHint':
+        'در کل برنامه اعمال می‌شود. برای انتخاب زبان روی پرچم بزنید.',
       'editProfile.experienceTitle': 'تجربه Flo شما',
       'editProfile.reproductiveStatusAria': 'وضعیت تولیدمثل',
       'editProfile.trackCycle': 'فقط ردیابی چرخه',
@@ -1311,6 +1461,17 @@ export class TranslationService {
       'editProfile.emailLabel': 'ایمیل',
       'editProfile.emailPlaceholder': 'ایمیل خود را وارد کنید',
       'editProfile.birthday': 'تاریخ تولد',
+      'editProfile.pageTitle': 'ویرایش پروفایل',
+      'editProfile.saveChanges': 'ذخیره تغییرات',
+      'editProfile.saving': 'در حال ذخیره…',
+      'editProfile.saveHint': 'اطلاعات را در پایین به‌روز کنید و ذخیره کنید؛ فقط در حساب شما نگه داشته می‌شود.',
+      'editProfile.tapPhotoHint': 'برای عوض کردن عکس، تصویر بالا را لمس کنید.',
+      'editProfile.invalidEmail': 'یک آدرس ایمیل معتبر وارد کنید.',
+      'editProfile.nothingToSave': 'قبل از ذخیره، فیلدی را اضافه یا تغییر دهید.',
+      'editProfile.saved': 'پروفایل ذخیره شد.',
+      'editProfile.saveFailed': 'ذخیره نشد. اتصال را بررسی کنید و دوباره تلاش کنید.',
+      'editProfile.dobMissingHint':
+        'تاریخ تولد را اضافه کنید تا پروفایل کامل شود و بینش‌ها دقیق‌تر باشند.',
       'editProfile.alert.switchCycleHeader': 'به ردیابی چرخه برویم؟',
       'editProfile.alert.switchCycleMessage':
         'بینش‌های سلامت و ابزارهای ردیابی چرخه با حالت «ردیابی چرخه» هماهنگ می‌شوند. می‌خواهید ادامه دهید؟',
@@ -1373,15 +1534,18 @@ export class TranslationService {
       'home.quickActions': 'اقدامات سریع',
       'home.whatToDoToday': 'امروز چه کاری می‌خواهید انجام دهید؟',
       'home.actionPregnant': 'باردار شدم',
-      'home.actionPregnantDesc': 'وضعیت خود را به‌روزرسانی کنید و راهنمایی شخصی دریافت کنید',
+      'home.actionPregnantDesc':
+        'وضعیت خود را به‌روزرسانی کنید و راهنمایی شخصی دریافت کنید',
       'home.actionNotPregnant': 'دیگر باردار نیستم',
-      'home.actionNotPregnantDesc': 'وضعیت خود را به تلاش برای بارداری برگردانید',
+      'home.actionNotPregnantDesc':
+        'وضعیت خود را به تلاش برای بارداری برگردانید',
       'home.actionSymptoms': 'پیگیری علائم',
       'home.actionSymptomsDesc': 'علائم و خلق‌وخوی روزانه خود را ثبت کنید',
       'home.actionAppointment': 'رزرو قرار ملاقات',
       'home.actionAppointmentDesc': 'مشاوره با متخصصان را برنامه‌ریزی کنید',
       'home.actionCommunity': 'پیوستن به جامعه',
-      'home.actionCommunityDesc': 'با زنان دیگر در سفرهای مشابه ارتباط برقرار کنید',
+      'home.actionCommunityDesc':
+        'با زنان دیگر در سفرهای مشابه ارتباط برقرار کنید',
       'home.actionFeeding': 'پیگیری تغذیه',
       'home.actionFeedingDesc': 'زمان‌ها و الگوهای تغذیه را ثبت کنید',
       'home.actionSleep': 'ردیاب خواب',
@@ -1415,7 +1579,8 @@ export class TranslationService {
       'home.expertCredential1': 'دکترای تغذیه',
       'home.expertCredential2': '۱۵+ سال تجربه',
       'home.nutritionTip': 'نکته تغذیه روز',
-      'home.nutritionTipText': 'روی غذاهای غنی از فولات مانند سبزیجات برگ‌دار، حبوبات و غلات غنی‌شده تمرکز کنید. اینها برای رشد سالم جنین ضروری هستند و می‌توانند به پیشگیری از نقص لوله عصبی کمک کنند.',
+      'home.nutritionTipText':
+        'روی غذاهای غنی از فولات مانند سبزیجات برگ‌دار، حبوبات و غلات غنی‌شده تمرکز کنید. اینها برای رشد سالم جنین ضروری هستند و می‌توانند به پیشگیری از نقص لوله عصبی کمک کنند.',
       'home.bookConsultation': 'رزرو مشاوره',
       'home.upcomingAppointments': 'قرارهای ملاقات آینده',
       'home.stayOnTrack': 'با سلامت خود در مسیر بمانید',
@@ -1438,7 +1603,8 @@ export class TranslationService {
       'menu.inviteFriends': 'دعوت دوستان',
       'menu.notifications': 'اعلان‌ها',
       'header.notifications.noUnread': 'اعلان‌ها — همه خوانده شده‌اند',
-      'header.notifications.withUnread': 'اعلان‌ها — {{count}} مورد خوانده‌نشده',
+      'header.notifications.withUnread':
+        'اعلان‌ها — {{count}} مورد خوانده‌نشده',
       'menu.aboutNouracare': 'درباره NouraCare',
       'menu.logOut': 'خروج',
       'menu.appearance': 'ظاهر',
@@ -1446,12 +1612,14 @@ export class TranslationService {
       'menu.themeDark': 'تاریک',
       'menu.themeSystem': 'هماهنگ با دستگاه',
       'menu.contactUs': 'تماس با ما',
-      'menu.contactUsHint': 'یک گزینه را انتخاب کنید — معمولاً ظرف یک روز کاری پاسخ می‌دهیم.',
+      'menu.contactUsHint':
+        'یک گزینه را انتخاب کنید — معمولاً ظرف یک روز کاری پاسخ می‌دهیم.',
       'menu.contactUsEmail': 'ایمیل پشتیبانی',
       'menu.contactUsTelegram': 'پیام در تلگرام',
       'menu.contactUsInstagram': 'پیام مستقیم در اینستاگرام',
       'menu.contactUsAbout': 'دربارهٔ برنامه',
-      'cycleChart.a11y.weekCalendarScroll': 'تقویم هفتگی، به صورت افقی اسکرول کنید',
+      'cycleChart.a11y.weekCalendarScroll':
+        'تقویم هفتگی، به صورت افقی اسکرول کنید',
       'cycleChart.a11y.periodCycleChart': 'نمودار چرخه قاعدگی',
       'cycleChart.common.day': 'روز',
       'cycleChart.common.days': 'روز',
@@ -1471,37 +1639,55 @@ export class TranslationService {
       'cycleChart.phase.postOvulation': 'فاز پس از تخمک‌گذاری',
       'cycleChart.phase.preMenstrual': 'فاز پیش از قاعدگی',
       'cycleChart.milestone.logPeriod': 'دوره خود را ثبت کنید',
-      'cycleChart.milestone.daysBleedingLeft': '{{days}} {{dayWord}} از خونریزی باقی مانده',
+      'cycleChart.milestone.daysBleedingLeft':
+        '{{days}} {{dayWord}} از خونریزی باقی مانده',
       'cycleChart.milestone.lastDayPeriod': 'آخرین روز پریود',
-      'cycleChart.milestone.daysToFertileWindow': '{{days}} {{dayWord}} تا بازه باروری',
-      'cycleChart.milestone.daysToOvulation': '{{days}} {{dayWord}} تا تخمک‌گذاری',
+      'cycleChart.milestone.daysToFertileWindow':
+        '{{days}} {{dayWord}} تا بازه باروری',
+      'cycleChart.milestone.daysToOvulation':
+        '{{days}} {{dayWord}} تا تخمک‌گذاری',
       'cycleChart.milestone.ovulationDay': 'روز تخمک‌گذاری',
       'cycleChart.milestone.daysToPms': '{{days}} {{dayWord}} تا PMS',
-      'cycleChart.milestone.daysToNextPeriod': '{{days}} {{dayWord}} تا پریود بعدی',
+      'cycleChart.milestone.daysToNextPeriod':
+        '{{days}} {{dayWord}} تا پریود بعدی',
       'cycleChart.fertility.getStarted': 'شروع کنید',
-      'cycleChart.fertility.logLastPeriodEstimate': 'آخرین پریود خود را ثبت کنید تا برآورد روز‌به‌روز را ببینید.',
+      'cycleChart.fertility.logLastPeriodEstimate':
+        'آخرین پریود خود را ثبت کنید تا برآورد روز‌به‌روز را ببینید.',
       'cycleChart.fertility.period': 'پریود',
-      'cycleChart.fertility.veryLowDuringMenstruation': 'احتمال بارداری در دوران قاعدگی بسیار کم است.',
+      'cycleChart.fertility.veryLowDuringMenstruation':
+        'احتمال بارداری در دوران قاعدگی بسیار کم است.',
       'cycleChart.fertility.earlyCycle': 'ابتدای چرخه',
-      'cycleChart.fertility.veryLowHormonesResetting': 'احتمال بسیار کم است — هورمون‌ها پس از خونریزی در حال تنظیم مجدد هستند.',
+      'cycleChart.fertility.veryLowHormonesResetting':
+        'احتمال بسیار کم است — هورمون‌ها پس از خونریزی در حال تنظیم مجدد هستند.',
       'cycleChart.fertility.follicularPhase': 'فاز فولیکولی',
-      'cycleChart.fertility.lowerChanceFollicleDeveloping': 'احتمال بارداری کمتر است؛ فولیکول در حال رشد است.',
+      'cycleChart.fertility.lowerChanceFollicleDeveloping':
+        'احتمال بارداری کمتر است؛ فولیکول در حال رشد است.',
       'cycleChart.fertility.fertileWindow': 'بازه باروری',
-      'cycleChart.fertility.chanceRising': 'احتمال در حال افزایش است — اسپرم تا زمان تخمک‌گذاری زنده می‌ماند.',
+      'cycleChart.fertility.chanceRising':
+        'احتمال در حال افزایش است — اسپرم تا زمان تخمک‌گذاری زنده می‌ماند.',
       'cycleChart.fertility.ovulation': 'تخمک‌گذاری',
       'cycleChart.fertility.peakFertileDays': 'روزهای اوج باروری',
-      'cycleChart.fertility.highestChanceThisCycle': 'بیشترین شانس بارداری در این چرخه (تخمک‌گذاری تخمینی).',
-      'cycleChart.fertility.highChanceInWindow': 'شانس بارداری بالا است — در بازه باروری هستید.',
+      'cycleChart.fertility.highestChanceThisCycle':
+        'بیشترین شانس بارداری در این چرخه (تخمک‌گذاری تخمینی).',
+      'cycleChart.fertility.highChanceInWindow':
+        'شانس بارداری بالا است — در بازه باروری هستید.',
       'cycleChart.fertility.justAfterOvulation': 'کمی بعد از تخمک‌گذاری',
-      'cycleChart.fertility.lowerThanPeakEggHours': 'احتمال کمتر از روزهای اوج است؛ تخمک حدود 12 تا 24 ساعت دوام دارد.',
+      'cycleChart.fertility.lowerThanPeakEggHours':
+        'احتمال کمتر از روزهای اوج است؛ تخمک حدود 12 تا 24 ساعت دوام دارد.',
       'cycleChart.fertility.lutealPhase': 'فاز لوتئال',
-      'cycleChart.fertility.lowerChanceUntilNextCycle': 'تا چرخه بعدی احتمال بارداری کمتر است.',
+      'cycleChart.fertility.lowerChanceUntilNextCycle':
+        'تا چرخه بعدی احتمال بارداری کمتر است.',
       'cycleChart.fertility.preMenstrual': 'پیش از قاعدگی',
-      'cycleChart.fertility.veryLowBeforeNextPeriod': 'پیش از پریود بعدی احتمال بارداری بسیار کم است.',
-      'cycleChart.detail.ovulationIn': 'تخمک‌گذاری در {{days}} {{dayWord}} دیگر',
-      'cycleChart.detail.ovulationDayHighestChance': 'روز تخمک‌گذاری — بالاترین شانس این چرخه',
-      'cycleChart.detail.daysAfterOvulation': '{{days}} {{dayWord}} بعد از تخمک‌گذاری',
-      'cycleChart.detail.nextPeriodAbout': 'پریود بعدی حدود {{days}} {{dayWord}} دیگر',
+      'cycleChart.fertility.veryLowBeforeNextPeriod':
+        'پیش از پریود بعدی احتمال بارداری بسیار کم است.',
+      'cycleChart.detail.ovulationIn':
+        'تخمک‌گذاری در {{days}} {{dayWord}} دیگر',
+      'cycleChart.detail.ovulationDayHighestChance':
+        'روز تخمک‌گذاری — بالاترین شانس این چرخه',
+      'cycleChart.detail.daysAfterOvulation':
+        '{{days}} {{dayWord}} بعد از تخمک‌گذاری',
+      'cycleChart.detail.nextPeriodAbout':
+        'پریود بعدی حدود {{days}} {{dayWord}} دیگر',
       'cycleChart.week.today': 'امروز',
       'cycleChart.week.last': 'آخر',
       'cycleChart.insight.predictedOvulationDay': 'روز تخمک‌گذاری پیش‌بینی‌شده',
@@ -1511,12 +1697,14 @@ export class TranslationService {
       'cycleChart.view.previewTapAnotherDay':
         'در حال دیدن روز دیگر\nبرای بازگشت «امروز» را بزنید',
       'cycleChart.sheet.close': 'بستن',
-      'cycleChart.sheet.lead': 'روز اول و آخر خونریزی این پریود را وارد کنید. بخش صورتی حلقه بر اساس این تاریخ‌ها تنظیم می‌شود.',
+      'cycleChart.sheet.lead':
+        'روز اول و آخر خونریزی این پریود را وارد کنید. بخش صورتی حلقه بر اساس این تاریخ‌ها تنظیم می‌شود.',
       'cycleChart.sheet.lengthThisPeriod': 'طول این پریود',
       'cycleChart.picker.firstDayLastPeriod': 'اولین روز آخرین پریود',
       'cycleChart.picker.lastDayThisPeriod': 'آخرین روز این پریود',
       'cycleChart.picker.done': 'تایید',
-      'cycleChart.picker.spinThenDone': 'چرخ‌ها را بچرخانید، سپس روی تایید بزنید.',
+      'cycleChart.picker.spinThenDone':
+        'چرخ‌ها را بچرخانید، سپس روی تایید بزنید.',
 
       'common.pullToRefresh': 'برای به‌روزرسانی به پایین بکشید',
       'common.refreshing': 'در حال تازه‌سازی…',
@@ -1606,18 +1794,23 @@ export class TranslationService {
       'home.actionCommunityShort': 'جامعه',
       'home.actionCommunityShortDesc': 'با دیگران ارتباط بگیرید',
       'home.actionAppointmentShortDesc': 'رزرو وقت با متخصصان',
-      'home.openInsightStoryError': 'باز کردن بینش‌ها ممکن نشد. دوباره تلاش کنید.',
+      'home.openInsightStoryError':
+        'باز کردن بینش‌ها ممکن نشد. دوباره تلاش کنید.',
       'home.symptomsTracked': 'علائم با موفقیت ثبت شد!',
-      'home.symptomsTrackFailed': 'ثبت علائم انجام نشد. لطفاً دوباره تلاش کنید.',
+      'home.symptomsTrackFailed':
+        'ثبت علائم انجام نشد. لطفاً دوباره تلاش کنید.',
 
       'home.greeting.morning': 'صبح بخیر! ☀️',
       'home.greeting.afternoon': 'ظهر بخیر! 🌤️',
       'home.greeting.evening': 'عصر بخیر! 🌙',
       'home.personalized.pregnant':
         'هفتهٔ {{week}}، روز {{day}} بارداری هستید. امروز حالتان چطور است؟',
-      'home.personalized.cycle': 'روز {{day}} از چرخهٔ شماست. بیایید با هم پیگیری کنیم.',
-      'home.personalized.postpartum': 'به دورهٔ پس از زایمان خوش آمدید. به خودتان برسید.',
-      'home.personalized.default': 'آماده‌اید سفر سلامتی را شروع کنید؟ بیایید پیگیری را آغاز کنیم!',
+      'home.personalized.cycle':
+        'روز {{day}} از چرخهٔ شماست. بیایید با هم پیگیری کنیم.',
+      'home.personalized.postpartum':
+        'به دورهٔ پس از زایمان خوش آمدید. به خودتان برسید.',
+      'home.personalized.default':
+        'آماده‌اید سفر سلامتی را شروع کنید؟ بیایید پیگیری را آغاز کنیم!',
       'home.preCycle.titleDefault': 'با آخرین قاعدگی شروع کنید',
       'home.preCycle.bodyDefault':
         'تا وقتی یک تاریخ اضافه نکنید، حلقهٔ چرخه و نمای روزانه خالی می‌ماند. چند ثانیه بیشتر طول نمی‌کشد.',
@@ -1667,14 +1860,16 @@ export class TranslationService {
       'home.symptomLog.lastLog': 'آخرین ثبت',
       'home.symptomLog.slideLogged1Title': 'آخرین باری که ثبت کردید',
       'home.symptomLog.slideLogged2Title': 'تاریخچهٔ اخیر',
-      'home.symptomLog.slideLogged2BodyMulti': 'از حساب شما (جدیدترین اول):\n{{lines}}',
+      'home.symptomLog.slideLogged2BodyMulti':
+        'از حساب شما (جدیدترین اول):\n{{lines}}',
       'home.symptomLog.slideLogged2BodySingle':
         'روزهای بیشتری را ثبت کنید — فهرست کوتاه اینجا تصویر روشن‌تری می‌سازد.',
       'home.symptomLog.lineCalendar': 'روز تقویم: {{date}} ({{weekday}}).',
       'home.symptomLog.lineMood': 'خلق ثبت‌شده: {{mood}}.',
       'home.symptomLog.lineEnergy': 'انرژی: {{energy}}.',
       'home.symptomLog.lineSymptoms': 'علائم: {{list}}.',
-      'home.symptomLog.lineNoSymptoms': 'برای آن روز علائم جداگانه‌ای ثبت نشده بود.',
+      'home.symptomLog.lineNoSymptoms':
+        'برای آن روز علائم جداگانه‌ای ثبت نشده بود.',
       'home.symptomLog.lineNotes': 'یادداشت: {{notes}}',
 
       'home.pregInsight.hydrationDefault':
@@ -1690,7 +1885,8 @@ export class TranslationService {
         'پنج دقیقه تنفس آرام یا موسیقی ملایم قبل از خواب می‌تواند به خواب راحت‌تر کمک کند.',
       'home.strip.categoryHydration': 'آبرسانی',
       'home.pregStrip.hydrationTeaser': 'جرعه‌های کوچک، انرژی پایدار',
-      'home.pregInsight.hydrationTitle': 'آب بیش از آن چه فکر می‌کنید انجام می‌دهد',
+      'home.pregInsight.hydrationTitle':
+        'آب بیش از آن چه فکر می‌کنید انجام می‌دهد',
       'home.strip.categoryRest': 'استراحت',
       'home.pregStrip.restTeaser': 'بهبود ملایم بهتر از فشار آوردن است',
       'home.strip.categoryBaby': 'نوزاد شما',
@@ -1701,7 +1897,8 @@ export class TranslationService {
       'home.pregInsight.babySlide3Body':
         'هر زمان از صفحهٔ اصلی می‌توانید جزئیات هفته را برای نقاط عطف و یادآورها باز کنید.',
       'home.strip.categoryForYou': 'برای شما',
-      'home.pregStrip.forYouTeaser': '{{name}}، ما همراه شما الگوها را می‌بینیم',
+      'home.pregStrip.forYouTeaser':
+        '{{name}}، ما همراه شما الگوها را می‌بینیم',
       'home.pregInsight.forYouSlide1Title': '{{name}}، مطلب امروز دربارهٔ شما',
       'home.pregInsight.forYouSlide1Body':
         'حدود روز {{days}} بارداری هستید، در {{trimester}}. {{phase}}',
@@ -1715,7 +1912,8 @@ export class TranslationService {
       'home.pregSummary.categoryToday': 'امروز',
       'home.pregSummary.teaserMulti': '{{count}} مطلب کوتاه برای امروز',
       'home.pregSummary.teaserEmpty': 'خلاصهٔ وضعیت شما',
-      'home.pregSummary.bodyBase': 'روز {{days}} بارداری · هفتهٔ {{week}} · {{phase}}',
+      'home.pregSummary.bodyBase':
+        'روز {{days}} بارداری · هفتهٔ {{week}} · {{phase}}',
       'home.pregSummary.symptomTail': ' آخرین ثبت علائم ({{when}}): {{tail}}.',
       'home.pregSummary.symptomBare': ' آخرین ثبت علائم: {{when}}.',
       'home.pregSummary.slide1Title': 'خلاصهٔ وضعیت شما',
@@ -1745,8 +1943,10 @@ export class TranslationService {
       'home.cycleStrip.bodySlide3Body':
         'وقت خونریزی یا تغییر را در «پیگیری» یا تقویم چرخه بزنید — با چند چرخه الگوها روشن‌تر می‌شوند.',
       'home.cycleStrip.fertileTeaserPeak': 'پنجرهٔ تخمک‌گذاری · امروز اوج',
-      'home.cycleStrip.fertileTeaserFuture': 'پنجرهٔ باروری · حدود {{d}} روز تا اوج',
-      'home.cycleStrip.fertileTeaserPast': 'پنجرهٔ باروری · اوج {{d}} روز پیش بود',
+      'home.cycleStrip.fertileTeaserFuture':
+        'پنجرهٔ باروری · حدود {{d}} روز تا اوج',
+      'home.cycleStrip.fertileTeaserPast':
+        'پنجرهٔ باروری · اوج {{d}} روز پیش بود',
       'home.cycleStrip.forYouTeaser': '{{name}}، الگو مهم‌تر از فشار است',
       'home.cycleStrip.forYouSlide1Title': '{{name}}، مطلب امروز',
       'home.cycleStrip.forYouSlide1Body':
@@ -1761,7 +1961,8 @@ export class TranslationService {
       'home.cycleSummary.categoryToday': 'امروز',
       'home.cycleSummary.teaserMulti': '{{count}} مطلب کوتاه برای امروز',
       'home.cycleSummary.teaserEmpty': 'خلاصهٔ وضعیت شما',
-      'home.cycleSummary.bodyBase': 'روز {{day}} از چرخهٔ {{len}} روزه · {{status}}',
+      'home.cycleSummary.bodyBase':
+        'روز {{day}} از چرخهٔ {{len}} روزه · {{status}}',
       'home.cycleSummary.slide1Title': 'خلاصهٔ وضعیت شما',
       'home.cycleSummary.slide2Title': 'چطور کار می‌کند؟',
       'home.cycleSummary.slide2Body':
@@ -1771,17 +1972,20 @@ export class TranslationService {
       'home.alert.updateStatusMessage': 'وضعیت فعلی خود را انتخاب کنید:',
       'home.alert.congratsPregnantHeader': '🎉 تبریک!',
       'home.alert.congratsPregnantMessage': 'هفتهٔ چندم بارداری هستید؟',
-      'home.alert.postpartumWelcomeHeader': '👶 خوش آمدید به دورهٔ پس از زایمان!',
+      'home.alert.postpartumWelcomeHeader':
+        '👶 خوش آمدید به دورهٔ پس از زایمان!',
       'home.alert.postpartumWelcomeMessage': 'چند هفته از زایمان می‌گذرد؟',
       'home.alert.bookAppointmentHeader': '📅 رزرو نوبت',
-      'home.alert.bookAppointmentMessage': 'نوع مشاورهٔ مورد نیاز را انتخاب کنید:',
+      'home.alert.bookAppointmentMessage':
+        'نوع مشاورهٔ مورد نیاز را انتخاب کنید:',
       'home.alert.trackTodayHeader': '📊 پیگیری امروز',
       'home.alert.trackTodayMessage': 'امروز چه چیزی را می‌خواهید ثبت کنید؟',
       'home.alert.calendarViewHeader': '📅 نمای تقویم',
       'home.alert.updateStatusShortHeader': 'به‌روزرسانی وضعیت',
       'home.alert.statusUpdatedHeader': '✅ وضعیت به‌روز شد!',
       'home.alert.rescheduleHeader': 'جابه‌جایی نوبت',
-      'home.alert.rescheduleMessage': 'نوبت «{{title}}» با {{doctor}} جابه‌جا شود؟',
+      'home.alert.rescheduleMessage':
+        'نوبت «{{title}}» با {{doctor}} جابه‌جا شود؟',
       'home.alert.cancelHeader': 'لغو نوبت',
       'home.alert.cancelMessage': 'مطمئنید می‌خواهید «{{title}}» را لغو کنید؟',
       'home.alert.calendarViewMessage': 'در تقویم چه چیزی را می‌خواهید ببینید؟',
@@ -1816,11 +2020,16 @@ export class TranslationService {
       'home.dialog.weekPlaceholderPregnancy': 'هفته را وارد کنید (۴ تا ۴۰)',
       'home.dialog.weekPlaceholderPostpartum': 'هفته را وارد کنید (۱ تا ۱۲)',
       'home.dialog.setWeek': 'ثبت هفته',
-      'home.dialog.statusUpdatedTTC': 'وضعیت به «در تلاش برای بارداری» به‌روز شد',
-      'home.dialog.weekBabyToast': '🎉 هفته {{week}}: اندازهٔ نوزاد شما مثل {{size}} است!',
-      'home.dialog.invalidWeekPregnancy': 'لطفاً یک هفتهٔ معتبر (۴ تا ۴۰) وارد کنید',
-      'home.dialog.invalidWeekPostpartum': 'لطفاً یک هفتهٔ معتبر (۱ تا ۱۲) وارد کنید',
-      'home.dialog.postpartumWeekToast': '👶 هفته {{week}}: {{recovery}} — عالی پیش می‌روید!',
+      'home.dialog.statusUpdatedTTC':
+        'وضعیت به «در تلاش برای بارداری» به‌روز شد',
+      'home.dialog.weekBabyToast':
+        '🎉 هفته {{week}}: اندازهٔ نوزاد شما مثل {{size}} است!',
+      'home.dialog.invalidWeekPregnancy':
+        'لطفاً یک هفتهٔ معتبر (۴ تا ۴۰) وارد کنید',
+      'home.dialog.invalidWeekPostpartum':
+        'لطفاً یک هفتهٔ معتبر (۱ تا ۱۲) وارد کنید',
+      'home.dialog.postpartumWeekToast':
+        '👶 هفته {{week}}: {{recovery}} — عالی پیش می‌روید!',
       'home.dialog.reschedule': 'جابه‌جایی نوبت',
       'home.dialog.no': 'خیر',
       'home.dialog.yesCancel': 'بله، لغو شود',
@@ -1835,40 +2044,53 @@ export class TranslationService {
       'home.dialog.calendarSymptomsLog': '📝 ثبت علائم',
       'home.dialog.calendarMedication': '💊 برنامهٔ دارو',
       'home.dialog.calendarAppointments': '📅 نوبت‌ها',
-      'home.dialog.openingWeekDetails': 'در حال باز کردن جزئیات هفته {{week}}...',
-      'home.dialog.openingCycleCalendar': 'در حال باز کردن تقویم ردیابی چرخه...',
+      'home.dialog.openingWeekDetails':
+        'در حال باز کردن جزئیات هفته {{week}}...',
+      'home.dialog.openingCycleCalendar':
+        'در حال باز کردن تقویم ردیابی چرخه...',
       'home.dialog.openingSymptomsCalendar': 'در حال باز کردن تقویم علائم...',
       'home.dialog.openingMedicationCalendar': 'در حال باز کردن تقویم دارو...',
       'home.dialog.appointmentBookingSuccessHeader': '✅ رزرو نوبت',
-      'home.dialog.appointmentBookingSuccessMessage': 'در حال هدایت برای رزرو نوبت {{type}} هستید.',
+      'home.dialog.appointmentBookingSuccessMessage':
+        'در حال هدایت برای رزرو نوبت {{type}} هستید.',
       'home.dialog.bookingPrenatal': 'مراقبت پیش از زایمان',
       'home.dialog.bookingNutrition': 'مشاورهٔ تغذیه',
       'home.dialog.bookingMental': 'حمایت سلامت روان',
       'home.dialog.openingBookingToast': 'در حال باز کردن رزرو {{type}}...',
-      'home.dialog.bookingFailed': 'باز کردن رزرو نوبت ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.bookingFailed':
+        'باز کردن رزرو نوبت ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.communityHeader': '👥 به جامعه ما بپیوندید',
       'home.dialog.communityMessage':
         'با زنانی در مسیر مشابه ارتباط بگیرید. تجربه بگذارید، بپرسید و حمایت بگیرید.',
       'home.dialog.learnMore': 'بیشتر بدانید',
       'home.dialog.joiningCommunity': 'در حال پیوستن به جامعه...',
-      'home.dialog.communityFailed': 'پیوستن به جامعه ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.communityFailed':
+        'پیوستن به جامعه ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.scheduleHeader': '👩‍⚕️ برنامهٔ مشاور',
-      'home.dialog.scheduleMessage': 'زمان‌های خالی نوبت با مشاوران ما را ببینید.',
+      'home.dialog.scheduleMessage':
+        'زمان‌های خالی نوبت با مشاوران ما را ببینید.',
       'home.dialog.viewSchedule': 'مشاهدهٔ برنامه',
-      'home.dialog.openingCounselorSchedule': 'در حال باز کردن برنامهٔ مشاور...',
-      'home.dialog.scheduleFailed': 'باز کردن برنامه ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.openingCounselorSchedule':
+        'در حال باز کردن برنامهٔ مشاور...',
+      'home.dialog.scheduleFailed':
+        'باز کردن برنامه ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.expertHeader': '👨‍⚕️ مشاورهٔ تخصصی',
       'home.dialog.expertMessage':
         'مشاوره با متخصصان ما در مراقبت پیش از زایمان، تغذیه و سلامت روان رزرو کنید.',
       'home.dialog.bookNow': 'رزرو کنید',
-      'home.dialog.openingExpertBooking': 'در حال باز کردن رزرو مشاورهٔ تخصصی...',
-      'home.dialog.expertBookingFailed': 'باز کردن رزرو مشاوره ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.openingExpertBooking':
+        'در حال باز کردن رزرو مشاورهٔ تخصصی...',
+      'home.dialog.expertBookingFailed':
+        'باز کردن رزرو مشاوره ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.fertilityCalcBody':
         'پربارترین روزها را بر اساس طول چرخه و تاریخ آخرین قاعدگی محاسبه کنید.',
       'home.dialog.openCalculator': 'باز کردن ماشین‌حساب',
-      'home.dialog.openingFertilityCalc': 'در حال باز کردن ماشین‌حساب باروری...',
-      'home.dialog.fertilityCalcFailed': 'باز کردن ماشین‌حساب باروری ناموفق بود. دوباره تلاش کنید.',
-      'home.dialog.calcFailed': 'باز کردن ماشین‌حساب ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.openingFertilityCalc':
+        'در حال باز کردن ماشین‌حساب باروری...',
+      'home.dialog.fertilityCalcFailed':
+        'باز کردن ماشین‌حساب باروری ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.calcFailed':
+        'باز کردن ماشین‌حساب ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.cycleLengthPlaceholder': 'طول چرخه (روز)',
       'home.dialog.lastPeriodStartPlaceholder': 'تاریخ شروع آخرین قاعدگی',
       'home.dialog.lastMenstrualPeriodPlaceholder': 'تاریخ آخرین قاعدگی (LMP)',
@@ -1879,7 +2101,8 @@ export class TranslationService {
       'home.dialog.pregnancyWeekCalcBody':
         'هفتهٔ فعلی بارداری را بر اساس تاریخ آخرین قاعدگی (LMP) محاسبه کنید.',
       'home.dialog.reminderPromptHeader': '🔔 یادآور باروری',
-      'home.dialog.reminderPromptMessage': 'چه زمانی برای پنجرهٔ باروری یادآوری می‌خواهید؟',
+      'home.dialog.reminderPromptMessage':
+        'چه زمانی برای پنجرهٔ باروری یادآوری می‌خواهید؟',
       'home.dialog.reminderRadio1': '۱ روز قبل از پنجرهٔ باروری',
       'home.dialog.reminderRadio2': '۲ روز قبل از پنجرهٔ باروری',
       'home.dialog.reminderRadioOvulation': 'روز تخمک‌گذاری',
@@ -1889,7 +2112,8 @@ export class TranslationService {
         'یادآور باروری شما زمان‌بندی شد. در زمان مناسب اطلاع داده می‌شوید.',
       'home.dialog.viewAllReminders': 'همهٔ یادآورها',
       'home.dialog.done': 'تمام',
-      'home.dialog.reminderToastSuccess': 'یادآور باروری با موفقیت تنظیم شد! 🔔',
+      'home.dialog.reminderToastSuccess':
+        'یادآور باروری با موفقیت تنظیم شد! 🔔',
       'home.dialog.reminderScheduleFailed': 'زمان‌بندی یادآور ناموفق بود',
       'home.dialog.reminderSetFailed': 'تنظیم یادآور ناموفق بود',
       'home.dialog.noActiveReminders': 'یادآور فعالی نیست',
@@ -1899,7 +2123,8 @@ export class TranslationService {
       'home.dialog.clearRemindersFailed': 'پاک کردن یادآورها ناموفق بود',
       'home.dialog.loadRemindersFailed': 'بارگذاری یادآورها ناموفق بود',
       'home.dialog.shareMobileOnly': 'اشتراک‌گذاری فقط روی موبایل در دسترس است',
-      'home.dialog.shareChooseMethod': 'نتیجهٔ باروری را چطور به اشتراک بگذارید؟',
+      'home.dialog.shareChooseMethod':
+        'نتیجهٔ باروری را چطور به اشتراک بگذارید؟',
       'home.dialog.copyClipboard': '📋 کپی در کلیپ‌بورد',
       'home.dialog.smsWhatsapp': '📱 پیامک / واتساپ',
       'home.dialog.email': '📧 ایمیل',
@@ -1908,49 +2133,66 @@ export class TranslationService {
       'home.dialog.copySuccess': 'نتیجه در کلیپ‌بورد کپی شد!',
       'home.dialog.copyManual': 'لطفاً متن را از پنجره به‌صورت دستی کپی کنید',
       'home.dialog.copyFailed': 'کپی ناموفق بود. روش دیگری امتحان کنید.',
-      'home.dialog.altShareMessage': 'اگر واتساپ باز نشد، می‌توانید پیامک را امتحان کنید.',
+      'home.dialog.altShareMessage':
+        'اگر واتساپ باز نشد، می‌توانید پیامک را امتحان کنید.',
       'home.dialog.openSms': 'باز کردن پیامک',
       'home.dialog.shareUnable': 'اشتراک‌گذاری ممکن نشد. دوباره تلاش کنید.',
       'home.dialog.openingNutrition': 'در حال باز کردن پیگیری تغذیه...',
       'home.dialog.nutritionBody':
         'مصرف روزانهٔ ویتامین‌ها، مواد معدنی و گروه‌های غذایی مهم در بارداری را ثبت کنید.',
       'home.dialog.startTracking': 'شروع پیگیری',
-      'home.dialog.nutritionOpenFailed': 'باز کردن پیگیری تغذیه ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.nutritionOpenFailed':
+        'باز کردن پیگیری تغذیه ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.openingExercise': 'در حال باز کردن برنامهٔ ورزش...',
-      'home.dialog.exerciseBody': 'توصیه‌های ورزشی امن برای هر سه‌ماههٔ بارداری.',
+      'home.dialog.exerciseBody':
+        'توصیه‌های ورزشی امن برای هر سه‌ماههٔ بارداری.',
       'home.dialog.viewExercises': 'مشاهدهٔ ورزش‌ها',
-      'home.dialog.exerciseOpenFailed': 'باز کردن برنامهٔ ورزش ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.exerciseOpenFailed':
+        'باز کردن برنامهٔ ورزش ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.openingMedication': 'در حال باز کردن یادآور دارو...',
       'home.dialog.medicationBody':
         'یادآور برای ویتامین‌های دوران بارداری و داروها تنظیم کنید تا دوز از قلم نیفتد.',
       'home.dialog.setRemindersBtn': 'تنظیم یادآورها',
-      'home.dialog.medicationOpenFailed': 'باز کردن یادآور دارو ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.medicationOpenFailed':
+        'باز کردن یادآور دارو ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.openingFeeding': 'در حال باز کردن پیگیری شیردهی...',
       'home.dialog.feedingBody':
         'زمان‌بندی، مدت و الگوی شیردهی نوزاد را برای تغذیهٔ بهتر ثبت کنید.',
-      'home.dialog.feedingOpenFailed': 'باز کردن پیگیری شیردهی ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.feedingOpenFailed':
+        'باز کردن پیگیری شیردهی ناموفق بود. دوباره تلاش کنید.',
       'home.dialog.openingSleep': 'در حال باز کردن پیگیری خواب...',
       'home.dialog.sleepBody':
         'الگو، مدت و کیفیت خواب نوزاد را برای عادات سالم‌تر ثبت کنید.',
-      'home.dialog.sleepOpenFailed': 'باز کردن پیگیری خواب ناموفق بود. دوباره تلاش کنید.',
-      'home.dialog.reminderMsg1day': '🌟 فردا پنجرهٔ باروری شروع می‌شود! آماده باشید.',
-      'home.dialog.reminderMsg2days': '🌟 تا ۲ روز دیگر پنجرهٔ باروری شروع می‌شود.',
-      'home.dialog.reminderMsgOvulation': '🥚 امروز روز تخمک‌گذاری است؛ اوج باروری.',
-      'home.dialog.reminderMsgDaily': '🌟 در پنجرهٔ باروری هستید؛ امروز باروری بالاست.',
+      'home.dialog.sleepOpenFailed':
+        'باز کردن پیگیری خواب ناموفق بود. دوباره تلاش کنید.',
+      'home.dialog.reminderMsg1day':
+        '🌟 فردا پنجرهٔ باروری شروع می‌شود! آماده باشید.',
+      'home.dialog.reminderMsg2days':
+        '🌟 تا ۲ روز دیگر پنجرهٔ باروری شروع می‌شود.',
+      'home.dialog.reminderMsgOvulation':
+        '🥚 امروز روز تخمک‌گذاری است؛ اوج باروری.',
+      'home.dialog.reminderMsgDaily':
+        '🌟 در پنجرهٔ باروری هستید؛ امروز باروری بالاست.',
       'home.dialog.reminderMsgDefault': '🌟 پنجرهٔ باروری در حال شروع است!',
-      'home.dialog.reminderDailyIndexed': '🌟 روز {{day}} از پنجرهٔ باروری؛ باروری بالا.',
-      'home.dialog.statusUpdatedSuccess': 'وضعیت با موفقیت به‌روز شد. اکنون می‌توانید چرخه را پیگیری کنید.',
-      'home.dialog.statusUpdateError': 'خطا در به‌روزرسانی وضعیت. دوباره تلاش کنید.',
+      'home.dialog.reminderDailyIndexed':
+        '🌟 روز {{day}} از پنجرهٔ باروری؛ باروری بالا.',
+      'home.dialog.statusUpdatedSuccess':
+        'وضعیت با موفقیت به‌روز شد. اکنون می‌توانید چرخه را پیگیری کنید.',
+      'home.dialog.statusUpdateError':
+        'خطا در به‌روزرسانی وضعیت. دوباره تلاش کنید.',
       'home.dialog.pregnancyDatesSaved': 'تاریخ‌های بارداری ذخیره شد.',
-      'home.dialog.saveDatesFailed': 'ذخیره نشد. تاریخ‌ها را بررسی و دوباره تلاش کنید.',
+      'home.dialog.saveDatesFailed':
+        'ذخیره نشد. تاریخ‌ها را بررسی و دوباره تلاش کنید.',
       'home.dialog.unableOpenEmail': 'باز کردن برنامهٔ ایمیل ممکن نشد',
       'home.dialog.openingEmailApp': 'در حال باز کردن برنامهٔ ایمیل...',
       'home.dialog.emailSubjectFertility': 'نتایج تقویم باروری من',
       'home.dialog.unableOpenMessaging': 'باز کردن برنامهٔ پیام‌رسان ممکن نشد',
       'home.dialog.fertileDaysCalculated': 'روزهای بارور با موفقیت محاسبه شد!',
       'home.dialog.fertileDaysCalcFailed': 'محاسبهٔ روزهای بارور ناموفق بود',
-      'home.dialog.invalidLmpWeeks': 'تاریخ نامعتبر است. یک LMP معتبر (۴ تا ۴۲ هفته پیش) وارد کنید.',
-      'home.dialog.pregnancyWeekUpdatedProfile': 'هفتهٔ بارداری در پروفایل به‌روز شد!',
+      'home.dialog.invalidLmpWeeks':
+        'تاریخ نامعتبر است. یک LMP معتبر (۴ تا ۴۲ هفته پیش) وارد کنید.',
+      'home.dialog.pregnancyWeekUpdatedProfile':
+        'هفتهٔ بارداری در پروفایل به‌روز شد!',
       'home.dialog.appointmentComingSoon': 'رزرو نوبت به‌زودی!',
       'home.dialog.pregnancyWeekCalcFailed': 'محاسبهٔ هفتهٔ بارداری ناموفق بود',
     },
@@ -1960,7 +2202,8 @@ export class TranslationService {
 
   translate(key: string): string {
     const currentLanguage = this.languageService.getCurrentLanguage();
-    const languageTranslations = this.translations[currentLanguage] || this.translations['en'];
+    const languageTranslations =
+      this.translations[currentLanguage] || this.translations['en'];
     const localized = languageTranslations[key];
     if (localized !== undefined && localized !== '') {
       return localized;
@@ -1971,7 +2214,8 @@ export class TranslationService {
 
   getTranslation(key: string, language?: string): string {
     const lang = language || this.languageService.getCurrentLanguage();
-    const languageTranslations = this.translations[lang] || this.translations['en'];
+    const languageTranslations =
+      this.translations[lang] || this.translations['en'];
     const localized = languageTranslations[key];
     if (localized !== undefined && localized !== '') {
       return localized;

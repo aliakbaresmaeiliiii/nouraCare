@@ -275,32 +275,7 @@
   }
 
   /* Soft handoff: chart area → same background as the rest of the home (no hard “card” cut) */
-  .cycle-hero-sky {
-    position: relative;
-    isolation: isolate;
-    overflow: visible;
-    padding-bottom: clamp(1.8rem, 6vw, 2.7rem);
-
-    &::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: -1px;
-      width: calc(100% + 4.5rem);
-      height: clamp(2.6rem, 8vw, 3.8rem);
-      transform: translateX(-50%);
-      border-radius: 0 0 50% 50%;
-      pointer-events: none;
-      z-index: 2;
-      background: var(--cycle-hero-fade-stop);
-      box-shadow: 0 -12px 28px rgba(0, 0, 0, 0.04);
-    }
-
-    > .cycle-ring-shell {
-      position: relative;
-      z-index: 1;
-    }
-  }
+ 
 
   > .pregnancy-daily-insights {
     margin-top: clamp(-0.55rem, -1.6vw, -0.2rem);

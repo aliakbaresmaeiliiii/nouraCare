@@ -305,6 +305,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'pregnancy-mode',
+    loadComponent: () =>
+      import('./pregnancy-mode/pregnancy-mode.component').then(
+        (m) => m.PregnancyModeComponent,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'pregnancy-planning',
     loadComponent: () =>
       import('./pregnancy-planning/pregnancy-planning.component').then(
