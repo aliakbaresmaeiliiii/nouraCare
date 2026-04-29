@@ -84,6 +84,7 @@ export class CreatePostComponent implements OnInit {
   selectedTags: string[] = [];
   characterCount = 0;
   maxContentLength = 5000;
+  isPreviewOpen = false;
 
   // Popular tags for suggestions
   popularTags = [
@@ -390,31 +391,21 @@ export class CreatePostComponent implements OnInit {
       );
       return;
     }
+    this.isPreviewOpen = true;
+  }
 
-    const alert = await this.alertController.create({
-      header: 'Post Preview',
-      message: `
-        <div style="text-align: left;">
-          <h3 style="margin: 0 0 10px 0; color: #3880ff;">${
-            formValue.title
-          }</h3>
-          <p style="margin: 0; color: #666; white-space: pre-wrap;">${
-            formValue.content
-          }</p>
-          ${
-            this.selectedTags.length > 0
-              ? `
-            <div style="margin-top: 10px;">
-              <strong>Tags:</strong> ${this.selectedTags.join(', ')}
-            </div>
-          `
-              : ''
-          }
-        </div>
-      `,
-      buttons: ['OK'],
-    });
-    await alert.present();
+  closePreview() {
+    this.isPreviewOpen = false;
+  }
+
+  getSelectedForumName(): string {
+    const selectedForumId = this.postForm.get('forumId')?.value;
+    if (!selectedForumId) {
+      return 'No forum selected';
+    }
+
+    const selected = this.categories().find((category) => category.id === selectedForumId);
+    return selected?.name ?? 'Selected forum';
   }
 
   // Modern tag functionality

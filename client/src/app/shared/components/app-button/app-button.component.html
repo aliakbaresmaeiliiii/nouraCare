@@ -1,12 +1,24 @@
 <ion-button
+  class="app-button"
+  [class.app-button--loading]="loading()"
+  shape="round"
   [type]="type()"
   [expand]="expand()"
+  [size]="size()"
   [disabled]="disabled() || loading()"
   [attr.aria-label]="ariaLabel()"
+  [attr.aria-busy]="loading() ? 'true' : null"
   (click)="onClick($event)"
 >
   @if (loading()) {
-    <ion-spinner name="crescent" slot="start" aria-hidden="true"></ion-spinner>
+    <ion-spinner
+      class="app-button__spinner"
+      name="crescent"
+      slot="start"
+      aria-hidden="true"
+    ></ion-spinner>
   }
-  <ng-content></ng-content>
+  <span class="app-button__label">
+    <ng-content></ng-content>
+  </span>
 </ion-button>

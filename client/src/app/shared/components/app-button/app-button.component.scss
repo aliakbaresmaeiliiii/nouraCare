@@ -1,22 +1,95 @@
-/* From Uiverse.io by ke1221 */
-ion-button {
-  color: var(--ion-color-dark-contrast);
+/* App button — pill shape, comfortable density, cohesive with global ion-button tokens */
+:host {
+  display: block;
   width: 100%;
-  margin: 0 20px 20px 20px;
-  font-size: 18px;
-  border-radius: 0.5em;
-  background: var(--brand-surface);
-  cursor: pointer;
-  border: 1px solid var(--brand-surface);
-  transition: all 0.3s;
-  box-shadow:
-    6px 6px 12px var(--brand-surface),
-    -6px -6px 12px var(--brand-surface);
 }
 
-ion-button:active {
-  color: var(--brand-text);
-  box-shadow:
-    inset 4px 4px 12px var(--brand-surface),
-    inset -4px -4px 12px var(--brand-surface);
+:host ion-button.app-button {
+  margin: 0;
+  font-weight: var(--app-button-font-weight, 600);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  --border-radius: 9999px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 1.25rem;
+  --padding-end: 1.25rem;
+  min-height: var(--app-button-min-height, 46px);
+  transition:
+    transform var(--app-duration-fast, 180ms) var(--app-ease-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--app-duration-fast, 180ms) var(--app-ease-standard, cubic-bezier(0.4, 0, 0.2, 1)),
+    opacity var(--app-duration-fast, 180ms) var(--app-ease-standard, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+:host ion-button.app-button[size='small'] {
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+  min-height: var(--app-button-min-height-sm, 40px);
+  letter-spacing: 0.035em;
+}
+
+:host ion-button.app-button[size='large'] {
+  --padding-start: 1.5rem;
+  --padding-end: 1.5rem;
+  min-height: 52px;
+}
+
+:host ion-button.app-button:not([fill='outline']):not([fill='clear'])::part(native) {
+  overflow: hidden;
+}
+
+/* Loading + native disabled avoids double-submit but global.scss grays slabs — restore brand visuals */
+:host ion-button.app-button.app-button--loading[disabled] {
+  cursor: wait;
+  opacity: 0.94 !important;
+  transform: none;
+}
+
+/* Default / primary solid */
+:host
+  ion-button.app-button.app-button--loading[disabled]:not([fill='outline']):not([fill='clear']):not([color]),
+:host ion-button.app-button.app-button--loading[disabled]:not([fill='outline']):not([fill='clear'])[color='primary'] {
+  --background: var(--app-button-solid-bg) !important;
+  --background-hover: var(--app-button-gradient-hover) !important;
+  --background-focused: var(--app-button-gradient-hover) !important;
+  --background-activated: var(--app-button-gradient-pressed) !important;
+  --color: var(--ion-color-primary-contrast) !important;
+  --box-shadow: var(--app-button-solid-shadow) !important;
+}
+
+:host ion-button.app-button.app-button--loading[disabled][color='secondary']:not([fill='outline']):not([fill='clear']) {
+  --background: linear-gradient(
+    135deg,
+    var(--ion-color-secondary-tint) 0%,
+    var(--ion-color-secondary) 55%,
+    var(--ion-color-secondary-shade) 100%
+  ) !important;
+  --color: var(--ion-color-secondary-contrast) !important;
+  --box-shadow: 0 4px 14px rgba(var(--ion-color-secondary-rgb), 0.28) !important;
+}
+
+:host ion-button.app-button.app-button--loading[disabled][fill='outline'] {
+  --background: rgba(var(--brand-surface-rgb), 0.92) !important;
+  --color: var(--brand-primary-dark) !important;
+  --border-color: rgba(var(--brand-primary-rgb), 0.32) !important;
+  --box-shadow: 0 1px 0 rgba(var(--brand-secondary-rgb), 0.1) !important;
+}
+
+:host ion-button.app-button.app-button--loading[disabled][fill='clear'] {
+  --background: transparent !important;
+  --color: var(--brand-primary-dark) !important;
+  --box-shadow: none !important;
+}
+
+:host ion-button.app-button ion-spinner.app-button__spinner {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+:host ion-button.app-button .app-button__label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  line-height: 1.2;
 }

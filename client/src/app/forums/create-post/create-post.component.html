@@ -363,3 +363,68 @@
     }
   </div>
 </ion-content>
+
+<ion-modal
+  [isOpen]="isPreviewOpen"
+  (didDismiss)="closePreview()"
+  class="post-preview-modal"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Post Preview</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" (click)="closePreview()">
+            <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="preview-content">
+      <div class="preview-shell">
+        <section class="preview-card">
+          <div class="preview-meta">
+            <ion-chip color="primary" outline="true">
+              <ion-icon name="folder-open-outline"></ion-icon>
+              <ion-label>{{ getSelectedForumName() }}</ion-label>
+            </ion-chip>
+            @if (selectedTags.length > 0) {
+            <span class="preview-tag-count">{{ selectedTags.length }} tags</span>
+            }
+          </div>
+
+          <h2 class="preview-title">{{ postForm.get("title")?.value }}</h2>
+          <p class="preview-body">{{ postForm.get("content")?.value }}</p>
+
+          @if (selectedTags.length > 0) {
+          <div class="preview-tags">
+            @for (tag of selectedTags; track tag) {
+            <ion-chip class="preview-tag" color="secondary" outline="true">
+              #{{ tag }}
+            </ion-chip>
+            }
+          </div>
+          }
+        </section>
+      </div>
+    </ion-content>
+
+    <ion-footer class="preview-footer">
+      <ion-toolbar>
+        <div class="preview-actions">
+          <ion-button fill="outline" color="medium" (click)="closePreview()">
+            Edit Post
+          </ion-button>
+          <app-button
+            (buttonClick)="closePreview()"
+            [disabled]="postForm.invalid"
+            size="default"
+          >
+            Looks Good
+          </app-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>

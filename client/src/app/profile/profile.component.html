@@ -88,14 +88,11 @@
         <div class="progress-fill" [style.width.%]="percent"></div>
       </div>
     </div>
-    <p class="progress-hint">Complete your profile to unlock more features</p>
+
+    <app-button type="submit" (buttonClick)="editProfile()">
+      {{ "profile.editProfile" | translate }}
+    </app-button>
   </div>
-
-
-
-  <app-button type="submit" (buttonClick)="editProfile()">
-    {{ "profile.editProfile" | translate }}
-  </app-button>
 
   <!-- Reproductive Status Section -->
   <section class="experience-section">
