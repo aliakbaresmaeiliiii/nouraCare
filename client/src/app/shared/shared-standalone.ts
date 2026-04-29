@@ -84,6 +84,7 @@ export const SHARED_STANDALONE_IMPORTS = [
   RouterLink,
   RouterOutlet,
   IonRouterOutlet,
+  AppButtonComponent,
 
   // Ionic standalone components (mirrors the old SharedModule exports)
   IonInput,

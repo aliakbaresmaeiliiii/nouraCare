@@ -1,7 +1,10 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="profile-header">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home" class="back-button"></ion-back-button>
+      <ion-back-button
+        defaultHref="/tabs/home"
+        class="back-button"
+      ></ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">My Profile</ion-title>
     <ion-buttons slot="end">
@@ -88,122 +91,126 @@
     <p class="progress-hint">Complete your profile to unlock more features</p>
   </div>
 
-  <!-- Action Buttons -->
-    <!-- <ion-button
-      expand="block"
-      type="button"
-      class="edit-profile-btn"
-      (click)="editProfile()"
-    >
-      <ion-icon name="create-outline" slot="start" aria-hidden="true"></ion-icon>
-      {{ 'profile.editProfile' | translate }}
-      <ion-icon name="chevron-forward-outline" slot="end" aria-hidden="true"></ion-icon>
-    </ion-button> -->
 
 
-    <app-button
-    type="submit"
-    (buttonClick)="editProfile()"
-  >
-      {{ 'profile.editProfile' | translate }}
+  <app-button type="submit" (buttonClick)="editProfile()">
+    {{ "profile.editProfile" | translate }}
   </app-button>
-
-
-
 
   <!-- Reproductive Status Section -->
   <section class="experience-section">
-    <h2 class="experience-title">{{ 'editProfile.experienceTitle' | translate }}</h2>
+    <h2 class="experience-title">
+      {{ "editProfile.experienceTitle" | translate }}
+    </h2>
     @if (isExperienceLoading) {
-    <div class="experience-grid experience-grid--skeleton" aria-hidden="true">
-      @for (_ of [1, 2, 3, 4]; track $index) {
-      <div class="experience-card experience-card--skeleton">
-        <span class="experience-icon-wrap experience-icon-wrap--skeleton"></span>
-        <span class="experience-label experience-label--skeleton"></span>
+      <div class="experience-grid experience-grid--skeleton" aria-hidden="true">
+        @for (_ of [1, 2, 3, 4]; track $index) {
+          <div class="experience-card experience-card--skeleton">
+            <span
+              class="experience-icon-wrap experience-icon-wrap--skeleton"
+            ></span>
+            <span class="experience-label experience-label--skeleton"></span>
+          </div>
+        }
       </div>
-      }
-    </div>
-    <div class="continue-button-container continue-button-container--skeleton" aria-hidden="true">
-      <div class="continue-button-skeleton"></div>
-    </div>
+      <div
+        class="continue-button-container continue-button-container--skeleton"
+        aria-hidden="true"
+      >
+        <div class="continue-button-skeleton"></div>
+      </div>
     } @else {
-    <div class="experience-grid" role="radiogroup" [attr.aria-label]="'editProfile.reproductiveStatusAria' | translate">
-      <button
-        type="button"
-        class="experience-card experience-card--track-cycle"
-        [class.experience-card--selected]="isStatusSelected('NOT_PREGNANT')"
-        (click)="onTrackCycleCardClick()"
-        role="radio"
-        [attr.aria-checked]="isStatusSelected('NOT_PREGNANT')"
-        [attr.aria-disabled]="isStatusSelected('NOT_PREGNANT')"
+      <div
+        class="experience-grid"
+        role="radiogroup"
+        [attr.aria-label]="'editProfile.reproductiveStatusAria' | translate"
       >
-        <span class="experience-icon-wrap">
-          <img
-            src="assets/images/profile/trackCyclePeriod.jpg"
-            alt=""
-            class="experience-icon-image"
-            aria-hidden="true"
-          />
-        </span>
-        <span class="experience-label">{{ 'editProfile.trackCycle' | translate }}</span>
-      </button>
+        <button
+          type="button"
+          class="experience-card experience-card--track-cycle"
+          [class.experience-card--selected]="isStatusSelected('NOT_PREGNANT')"
+          (click)="onTrackCycleCardClick()"
+          role="radio"
+          [attr.aria-checked]="isStatusSelected('NOT_PREGNANT')"
+          [attr.aria-disabled]="isStatusSelected('NOT_PREGNANT')"
+        >
+          <span class="experience-icon-wrap">
+            <img
+              src="assets/images/profile/trackCyclePeriod.jpg"
+              alt=""
+              class="experience-icon-image"
+              aria-hidden="true"
+            />
+          </span>
+          <span class="experience-label">{{
+            "editProfile.trackCycle" | translate
+          }}</span>
+        </button>
 
-      <button
-        type="button"
-        class="experience-card experience-card--track-planning"
-        [class.experience-card--selected]="isStatusSelected('PLANNING_PREGNANCY')"
-        (click)="onTrackPlanningCardClick()"
-        role="radio"
-        [attr.aria-checked]="isStatusSelected('PLANNING_PREGNANCY')"
-        [attr.aria-disabled]="isStatusSelected('PLANNING_PREGNANCY')"
-      >
-        <span class="experience-icon-wrap">
-          <img
-            src="assets/images/profile/getPregnent.jpg"
-            alt=""
-            class="experience-icon-image"
-            aria-hidden="true"
-          />
-        </span>
-        <span class="experience-label">{{ 'editProfile.getPregnant' | translate }}</span>
-      </button>
+        <button
+          type="button"
+          class="experience-card experience-card--track-planning"
+          [class.experience-card--selected]="
+            isStatusSelected('PLANNING_PREGNANCY')
+          "
+          (click)="onTrackPlanningCardClick()"
+          role="radio"
+          [attr.aria-checked]="isStatusSelected('PLANNING_PREGNANCY')"
+          [attr.aria-disabled]="isStatusSelected('PLANNING_PREGNANCY')"
+        >
+          <span class="experience-icon-wrap">
+            <img
+              src="assets/images/profile/getPregnent.jpg"
+              alt=""
+              class="experience-icon-image"
+              aria-hidden="true"
+            />
+          </span>
+          <span class="experience-label">{{
+            "editProfile.getPregnant" | translate
+          }}</span>
+        </button>
 
-      <button
-        type="button"
-        class="experience-card experience-card--track-pregnancy"
-        [class.experience-card--selected]="isStatusSelected('PREGNANT')"
-        (click)="onTrackPregnancyCardClick()"
-        role="radio"
-        [attr.aria-checked]="isStatusSelected('PREGNANT')"
-        [attr.aria-disabled]="isStatusSelected('PREGNANT')"
-      >
-        <span class="experience-icon-wrap">
-          <img
-            src="assets/images/profile/trackPregnency.jpg"
-            alt=""
-            class="experience-icon-image"
-            aria-hidden="true"
-          />
-        </span>
-        <span class="experience-label">{{ 'editProfile.trackPregnancy' | translate }}</span>
-      </button>
+        <button
+          type="button"
+          class="experience-card experience-card--track-pregnancy"
+          [class.experience-card--selected]="isStatusSelected('PREGNANT')"
+          (click)="onTrackPregnancyCardClick()"
+          role="radio"
+          [attr.aria-checked]="isStatusSelected('PREGNANT')"
+          [attr.aria-disabled]="isStatusSelected('PREGNANT')"
+        >
+          <span class="experience-icon-wrap">
+            <img
+              src="assets/images/profile/trackPregnency.jpg"
+              alt=""
+              class="experience-icon-image"
+              aria-hidden="true"
+            />
+          </span>
+          <span class="experience-label">{{
+            "editProfile.trackPregnancy" | translate
+          }}</span>
+        </button>
 
-      <button
-        type="button"
-        class="experience-card experience-card--track-peri experience-card--disabled"
-        disabled
-      >
-        <span class="experience-icon-wrap">
-          <img
-            src="assets/images/profile/perimenopause.jpg"
-            alt=""
-            class="experience-icon-image"
-            aria-hidden="true"
-          />
-        </span>
-        <span class="experience-label">{{ 'editProfile.trackPerimenopause' | translate }}</span>
-      </button>
-    </div>
+        <button
+          type="button"
+          class="experience-card experience-card--track-peri experience-card--disabled"
+          disabled
+        >
+          <span class="experience-icon-wrap">
+            <img
+              src="assets/images/profile/perimenopause.jpg"
+              alt=""
+              class="experience-icon-image"
+              aria-hidden="true"
+            />
+          </span>
+          <span class="experience-label">{{
+            "editProfile.trackPerimenopause" | translate
+          }}</span>
+        </button>
+      </div>
     }
   </section>
 
@@ -231,9 +238,9 @@
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
         </div>
         @if (isNameCompleted) {
-        <div class="completion-badge">
-          <ion-icon name="checkmark-circle"></ion-icon>
-        </div>
+          <div class="completion-badge">
+            <ion-icon name="checkmark-circle"></ion-icon>
+          </div>
         }
       </div>
 
@@ -256,9 +263,9 @@
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
         </div>
         @if (isEmailCompleted) {
-        <div class="completion-badge">
-          <ion-icon name="checkmark-circle"></ion-icon>
-        </div>
+          <div class="completion-badge">
+            <ion-icon name="checkmark-circle"></ion-icon>
+          </div>
         }
       </div>
 
@@ -276,8 +283,8 @@
           <p class="field-value">
             {{
               formatDateOnly(
-                currentUserData?.dateOfBirth || dateOfBirth || ''
-              ) || 'Add your date of birth'
+                currentUserData?.dateOfBirth || dateOfBirth || ""
+              ) || "Add your date of birth"
             }}
           </p>
         </div>
@@ -285,9 +292,9 @@
           <ion-icon name="chevron-forward" class="chevron-icon"></ion-icon>
         </div>
         @if (isDateOfBirthCompleted) {
-        <div class="completion-badge">
-          <ion-icon name="checkmark-circle"></ion-icon>
-        </div>
+          <div class="completion-badge">
+            <ion-icon name="checkmark-circle"></ion-icon>
+          </div>
         }
       </div>
 
@@ -337,60 +344,62 @@
 
     <!-- Tab Content -->
     <div class="tab-content">
-      @switch (selectedTab) { @case ('first') {
-      <div class="empty-state">
-        <div class="empty-icon">
-          <ion-icon name="help-circle-outline"></ion-icon>
-        </div>
-        <h3 class="empty-title">No Questions Yet</h3>
-        <p class="empty-description">
-          Start asking questions to get help from the community
-        </p>
-        <app-button
-          fill="outline"
-          (buttonClick)="someFunction()"
-        >
-          <ion-icon name="add" slot="start"></ion-icon>
-          Ask Your First Question
-        </app-button>
-      </div>
-      } @case ('second') {
-      <div class="empty-state">
-        <div class="empty-icon">
-          <ion-icon name="chatbubble-outline"></ion-icon>
-        </div>
-        <h3 class="empty-title">No Answers Yet</h3>
-        <p class="empty-description">
-          Share your knowledge by answering questions
-        </p>
-        <app-button fill="outline">
-          <ion-icon name="arrow-forward" slot="start"></ion-icon>
-          Go to Q&A Section
-        </app-button>
-      </div>
-      } @case ('third') {
-      <div class="empty-state">
-        <div class="empty-icon">
-          <ion-icon name="bag-outline"></ion-icon>
-        </div>
-        <h3 class="empty-title">No Experiences Shared</h3>
-        <p class="empty-description">
-          Help others by sharing your buying experiences
-        </p>
-        <app-button fill="outline">
-          <ion-icon name="add" slot="start"></ion-icon>
-          Share Your Experience
-        </app-button>
-      </div>
-      } @default {
-      <div class="empty-state">
-        <div class="empty-icon">
-          <ion-icon name="information-circle-outline"></ion-icon>
-        </div>
-        <h3 class="empty-title">Select a Tab</h3>
-        <p class="empty-description">Choose what you'd like to see</p>
-      </div>
-      } }
+      @switch (selectedTab) {
+        @case ("first") {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <ion-icon name="help-circle-outline"></ion-icon>
+            </div>
+            <h3 class="empty-title">No Questions Yet</h3>
+            <p class="empty-description">
+              Start asking questions to get help from the community
+            </p>
+            <app-button fill="outline" (buttonClick)="someFunction()">
+              <ion-icon name="add" slot="start"></ion-icon>
+              Ask Your First Question
+            </app-button>
+          </div>
+        }
+        @case ("second") {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <ion-icon name="chatbubble-outline"></ion-icon>
+            </div>
+            <h3 class="empty-title">No Answers Yet</h3>
+            <p class="empty-description">
+              Share your knowledge by answering questions
+            </p>
+            <app-button fill="outline">
+              <ion-icon name="arrow-forward" slot="start"></ion-icon>
+              Go to Q&A Section
+            </app-button>
+          </div>
+        }
+        @case ("third") {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <ion-icon name="bag-outline"></ion-icon>
+            </div>
+            <h3 class="empty-title">No Experiences Shared</h3>
+            <p class="empty-description">
+              Help others by sharing your buying experiences
+            </p>
+            <app-button fill="outline">
+              <ion-icon name="add" slot="start"></ion-icon>
+              Share Your Experience
+            </app-button>
+          </div>
+        }
+        @default {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </div>
+            <h3 class="empty-title">Select a Tab</h3>
+            <p class="empty-description">Choose what you'd like to see</p>
+          </div>
+        }
+      }
     </div>
   </div>
 </ion-content>
