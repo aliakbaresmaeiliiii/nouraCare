@@ -4,11 +4,6 @@
       <ion-back-button (click)="goBack()" class="back-btn"></ion-back-button>
     </ion-buttons>
     <ion-title class="header-title">Track Symptoms</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" class="history-btn" (click)="viewHistory()">
-        <ion-icon name="time-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -29,6 +24,14 @@
             <span>Data exists</span>
           </div>
         }
+        <button
+          type="button"
+          class="history-pill-btn"
+          (click)="viewHistory(); $event.stopPropagation()"
+        >
+          <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+          <span>Symptom history</span>
+        </button>
       </div>
       
       <ion-button fill="clear" class="nav-btn" (click)="nextDay()">

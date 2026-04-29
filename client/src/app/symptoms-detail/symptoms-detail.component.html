@@ -19,7 +19,18 @@
 
     <!-- Loading State -->
     @if (loading) {
-    <app-logo-loading message="Loading symptoms data…" />
+    <div class="loading-state" aria-label="Loading symptoms data" role="status">
+      <div class="dot-spinner">
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+      </div>
+    </div>
     }
 
     <!-- No Data State -->

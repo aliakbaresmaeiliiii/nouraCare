@@ -450,14 +450,11 @@
 
 :host-context(html.ion-palette-dark) {
   .login-page {
-    /* Indigo / slate wash aligned with brand primary */
-    --background: linear-gradient(
-      160deg,
-      #312e81 0%,
-      #1e293b 42%,
-      #0f172a 100%
-    );
+    --background: var(--app-dark-page-shell-bg);
+    background: var(--app-dark-page-shell-bg);
     --color: #f1f5f9;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .login-header {

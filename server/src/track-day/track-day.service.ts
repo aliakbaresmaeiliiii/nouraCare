@@ -7,6 +7,27 @@ import { CreateTrackDayDto, UpdateTrackDayDto } from './dto/track-day.dto';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { EngagementService } from '../health-engagement/engagement.service';
 
+/** Inclusive YYYY-MM-DD range in server local time (matches createTrackDay day anchoring). */
+function parseYmdRangeInclusive(startYmd: string, endYmd: string): { gte: Date; lte: Date } | null {
+  const start = /^(\d{4})-(\d{2})-(\d{2})$/.exec(startYmd.trim());
+  const end = /^(\d{4})-(\d{2})-(\d{2})$/.exec(endYmd.trim());
+  if (!start || !end) {
+    return null;
+  }
+  const sy = Number(start[1]);
+  const sm = Number(start[2]) - 1;
+  const sd = Number(start[3]);
+  const ey = Number(end[1]);
+  const em = Number(end[2]) - 1;
+  const ed = Number(end[3]);
+  const gte = new Date(sy, sm, sd, 0, 0, 0, 0);
+  const lte = new Date(ey, em, ed, 23, 59, 59, 999);
+  if (Number.isNaN(gte.getTime()) || Number.isNaN(lte.getTime())) {
+    return null;
+  }
+  return { gte, lte };
+}
+
 @Injectable()
 export class TrackDayService {
   constructor(
@@ -120,10 +141,13 @@ export class TrackDayService {
     const whereClause: any = { userId };
 
     if (startDate && endDate) {
-      whereClause.date = {
-        gte: new Date(startDate),
-        lte: new Date(endDate),
-      };
+      const range = parseYmdRangeInclusive(startDate, endDate);
+      if (range) {
+        whereClause.date = {
+          gte: range.gte,
+          lte: range.lte,
+        };
+      }
     }
 
     const trackDays = await this.prisma.trackday.findMany({

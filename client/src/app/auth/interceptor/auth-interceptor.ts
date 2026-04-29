@@ -39,15 +39,21 @@ export class AuthInterceptor implements HttpInterceptor {
       map((event: HttpEvent<any>) => {
         if (event instanceof HttpResponse) {
           const response = event.body;
-          if (this.isSuccessResponse(response)) {
-            return event.clone({
-              body: {
-                ...response,
-                success: true,
-                isSuccess: true,
-              },
-            });
+          if (!this.isSuccessResponse(response)) {
+            return event;
           }
+          // JSON arrays (`[]`) must stay arrays — `{ ...[] }` becomes `{ 0?, 1? }`
+          // and breaks `.map()`, so list endpoints stay unchanged.
+          if (Array.isArray(response)) {
+            return event;
+          }
+          return event.clone({
+            body: {
+              ...response,
+              success: true,
+              isSuccess: true,
+            },
+          });
         }
         return event;
       }),
@@ -98,11 +104,18 @@ export class AuthInterceptor implements HttpInterceptor {
    * Detects whether response is a success
    */
   private isSuccessResponse(response: any): boolean {
+    if (response == null) {
+      return false;
+    }
+    if (Array.isArray(response)) {
+      return true;
+    }
+    const msg = typeof response.message === 'string' ? response.message : '';
     return (
       response?.code === 200 ||
       response?.success === true ||
       response?.status === 'success' ||
-      (response && !response.error && !response.message?.toLowerCase().includes('error'))
+      (!response.error && !msg.toLowerCase().includes('error'))
     );
   }
 }

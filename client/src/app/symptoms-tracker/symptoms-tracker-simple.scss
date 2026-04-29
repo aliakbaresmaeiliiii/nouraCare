@@ -1,51 +1,103 @@
 // Beautiful Modern Symptoms Tracker Styles
+// Lighter header than global --app-gradient-header (esp. in ion-palette-dark where it maps to heavy slates)
+:host {
+  /* Richer than before: closer to --app-gradient-header (indigo/sky/teal), clearly non-white */
+  --symptoms-header-gradient: linear-gradient(
+    135deg,
+    #e2e9f7 0%,
+    #d4e2f5 44%,
+    #cee8df 100%
+  );
+
+  /* Darker muted “join” colour so feather + scroll never read as bright white */
+  --symptoms-surface-connect: #d2e2f7;
+}
+
 ion-content {
-  --background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  --background: linear-gradient(
+    180deg,
+    var(--symptoms-surface-connect, #d2e2f7) 0%,
+    #dde9f8 42%,
+    #e9f2fc 78%,
+    #f4f8fc 100%
+  );
 }
 
 .modern-header {
   ion-toolbar {
-    --background: var(--app-gradient-header);
-    --color: white;
+    --background: var(--symptoms-header-gradient);
+    --color: var(--brand-text);
     --border-width: 0;
   }
   
   .back-btn {
-    --color: white;
-    --color-hover: rgba(255,255,255,0.8);
+    --color: var(--brand-text);
+    --color-hover: rgba(var(--brand-text-secondary-rgb), 0.9);
   }
   
   .header-title {
     font-weight: 600;
     font-size: 18px;
-  }
-  
-  .history-btn {
-    --color: white;
-    --color-hover: rgba(255,255,255,0.8);
-    
-    ion-icon {
-      font-size: 20px;
-    }
+    color: var(--brand-text);
   }
 }
 
 .header-section {
-  background: var(--app-gradient-header);
-  color: white;
-  padding: 30px 20px;
+  /* Feather into ion-content (light: tinted indigo→sky→brand surface; dark: #020617) */
+  --header-feather-to: var(--symptoms-surface-connect);
+
+  background: var(--symptoms-header-gradient);
+  color: var(--brand-text);
+  /* Extra bottom space so UI stays above soft color blend into the curve */
+  padding: 28px 20px 76px;
   position: relative;
   overflow: hidden;
-  
+  margin-bottom: 0;
+  /* Wide ellipse = smooth “bezier” arc (large horizontal rx, softer vertical ry) */
+  border-bottom-left-radius: min(58vw, 560px) min(112px, 26vw);
+  border-bottom-right-radius: min(58vw, 560px) min(112px, 26vw);
+  box-shadow:
+    var(--app-shadow-soft, 0 2px 12px rgba(15, 23, 42, 0.06)),
+    0 22px 44px rgba(var(--brand-primary-rgb), 0.085),
+    0 12px 28px rgba(var(--brand-secondary-rgb), 0.05);
+
   &::before {
     content: '';
     position: absolute;
+    z-index: 0;
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    background: radial-gradient(
+      circle,
+      rgba(var(--brand-primary-rgb), 0.13) 0%,
+      rgba(var(--brand-secondary-rgb), 0.05) 38%,
+      transparent 74%
+    );
     animation: float 6s ease-in-out infinite;
+  }
+
+  /* Heavier pigment toward body — aligns with darker --symptoms-surface-connect */
+  &::after {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: min(152px, 34vw);
+    pointer-events: none;
+    border-bottom-left-radius: inherit;
+    border-bottom-right-radius: inherit;
+    background: linear-gradient(
+      180deg,
+      rgba(220, 231, 250, 0) 0%,
+      rgba(220, 231, 250, 0) 26%,
+      rgba(199, 214, 244, 0.55) 48%,
+      rgba(173, 201, 240, 0.52) 72%,
+      var(--header-feather-to) 100%
+    );
   }
   
   .date-navigation {
@@ -57,8 +109,8 @@ ion-content {
     margin-bottom: 20px;
     
     .nav-btn {
-      --color: white;
-      --color-hover: rgba(255,255,255,0.8);
+      --color: var(--brand-text);
+      --color-hover: rgba(var(--brand-text-secondary-rgb), 0.92);
       --padding-start: 8px;
       --padding-end: 8px;
       
@@ -80,14 +132,73 @@ ion-content {
         margin: 0;
         font-size: 28px;
         font-weight: 700;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        color: var(--brand-text);
+        text-shadow: none;
       }
       
       p {
         margin: 8px 0 0 0;
-        opacity: 0.9;
+        color: var(--brand-text-secondary);
         font-size: 16px;
         font-weight: 500;
+      }
+
+      .data-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--brand-text-secondary);
+
+        span {
+          letter-spacing: 0.02em;
+        }
+      }
+
+      .history-pill-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 14px;
+        padding: 8px 16px;
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        border-radius: 999px;
+        background: rgba(228, 236, 250, 0.92);
+        color: var(--brand-text);
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        appearance: none;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+
+        ion-icon {
+          font-size: 18px;
+          color: var(--brand-text-secondary);
+          opacity: 1;
+        }
+
+        &:hover,
+        &:focus-visible {
+          background: rgba(217, 230, 250, 0.98);
+          border-color: rgba(15, 23, 42, 0.16);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 18px rgba(15, 23, 42, 0.1);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+
+        &:focus-visible {
+          outline: 2px solid rgba(var(--brand-primary-rgb), 0.5);
+          outline-offset: 2px;
+        }
       }
     }
   }
@@ -100,7 +211,7 @@ ion-content {
     .progress-bar {
       width: 100%;
       height: 6px;
-      background: rgba(255,255,255,0.2);
+      background: rgba(15, 23, 42, 0.1);
       border-radius: 3px;
       overflow: hidden;
       margin-bottom: 8px;
@@ -116,8 +227,8 @@ ion-content {
     
     .progress-text {
       font-size: 14px;
-      opacity: 0.8;
       font-weight: 500;
+      color: var(--brand-text-secondary);
     }
   }
 }
@@ -611,8 +722,81 @@ ion-content {
 }
 
 :host-context(html.ion-palette-dark) {
+  /* Lift header above page chrome — lighter slate band (readable with light foreground) */
+  --symptoms-header-gradient: linear-gradient(
+    135deg,
+    #4a5568 0%,
+    #5c6577 45%,
+    #4b5a6d 100%
+  );
+  --symptoms-surface-connect: #020617;
+
   ion-content {
     --background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  }
+
+  .modern-header {
+    ion-toolbar {
+      --color: #f8fafc;
+    }
+
+    .back-btn {
+      --color: rgba(248, 250, 252, 0.96);
+      --color-hover: rgba(248, 250, 252, 0.75);
+    }
+
+    .header-title {
+      color: #f8fafc;
+    }
+  }
+
+  .header-section {
+    --header-feather-to: var(--symptoms-surface-connect);
+    color: #f8fafc;
+    box-shadow:
+      var(--app-shadow-soft, 0 2px 12px rgba(0, 0, 0, 0.2)),
+      0 26px 48px rgba(0, 0, 0, 0.35),
+      0 12px 28px rgba(var(--brand-primary-rgb), 0.07);
+
+    .date-navigation .nav-btn {
+      --color: rgba(248, 250, 252, 0.96);
+      --color-hover: rgba(248, 250, 252, 0.78);
+    }
+
+    .date-display .history-pill-btn {
+      border-color: rgba(226, 232, 240, 0.4);
+      background: rgba(255, 255, 255, 0.1);
+
+      &:hover,
+      &:focus-visible {
+        background: rgba(255, 255, 255, 0.18);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+      }
+
+      &:focus-visible {
+        outline-color: rgba(226, 232, 240, 0.85);
+      }
+    }
+
+    .progress-indicator .progress-bar {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .progress-indicator .progress-text {
+      color: rgba(226, 232, 240, 0.88);
+    }
+
+    &::after {
+      background: linear-gradient(
+        180deg,
+        rgba(2, 6, 23, 0) 0%,
+        rgba(2, 6, 23, 0) 34%,
+        rgba(55, 48, 95, 0.18) 52%,
+        rgba(38, 60, 80, 0.35) 72%,
+        rgba(15, 23, 42, 0.85) 90%,
+        var(--header-feather-to) 100%
+      );
+    }
   }
 
   .mood-section,

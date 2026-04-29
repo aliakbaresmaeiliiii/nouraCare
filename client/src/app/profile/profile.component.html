@@ -101,7 +101,7 @@
     </h2>
     @if (isExperienceLoading) {
       <div class="experience-grid experience-grid--skeleton" aria-hidden="true">
-        @for (_ of [1, 2, 3, 4]; track $index) {
+        @for (skeleton of [1, 2, 3, 4]; track skeleton) {
           <div class="experience-card experience-card--skeleton">
             <span
               class="experience-icon-wrap experience-icon-wrap--skeleton"

@@ -76,6 +76,21 @@ export class SymptomsTrackerComponent implements OnInit {
   allCategoriesExpanded = false;
   quickSymptoms = new Set<string>();
 
+  // Emotional valence validation (to prevent impossible combinations like "Happy" + "Sad" selected together)
+  private moodPositiveIds = new Set<string>(['happy', 'calm', 'energetic', 'frisky']);
+  private moodNegativeIds = new Set<string>([
+    'sad',
+    'depressed',
+    'irritated',
+    'anxious',
+    'low_energy',
+    'apathetic',
+    'self_critical',
+    'guilty',
+    'obsessive',
+    'confused',
+  ]);
+
   // Historical data (in real app, this would come from a service/database)
   dailySymptomsHistory: DailySymptoms[] = [];
 
@@ -109,8 +124,30 @@ export class SymptomsTrackerComponent implements OnInit {
     if (this.selectedItems.has(itemId)) {
       this.selectedItems.delete(itemId);
     } else {
+      const valence = this.getMoodValence(itemId);
+      if (valence) {
+        const oppositeSet =
+          valence === 'positive' ? this.moodNegativeIds : this.moodPositiveIds;
+        const hasOppositeAlready = Array.from(this.selectedItems).some((id) =>
+          oppositeSet.has(id),
+        );
+        if (hasOppositeAlready) {
+          void this.showToast(
+            'Please select either a positive or negative emotion (example: not both “Happy” and “Sad”).',
+            'warning',
+            { duration: 3000 },
+          );
+          return;
+        }
+      }
       this.selectedItems.add(itemId);
     }
+  }
+
+  private getMoodValence(itemId: string): 'positive' | 'negative' | null {
+    if (this.moodPositiveIds.has(itemId)) return 'positive';
+    if (this.moodNegativeIds.has(itemId)) return 'negative';
+    return null; // neutral / non-valenced mood options
   }
 
   convertSelectedItemsToSymptoms(): any[] {
@@ -465,6 +502,23 @@ export class SymptomsTrackerComponent implements OnInit {
         return;
       }
 
+      // Validate emotional valence selections (avoid "Happy" + "Sad", etc.)
+      const hasConflict = Array.from(this.selectedItems).some((id) => {
+        const valence = this.getMoodValence(id);
+        if (!valence) return false;
+        const oppositeSet =
+          valence === 'positive' ? this.moodNegativeIds : this.moodPositiveIds;
+        return Array.from(this.selectedItems).some((other) => oppositeSet.has(other));
+      });
+      if (hasConflict) {
+        void this.showToast(
+          'Invalid emotion selection. Please avoid mixing positive and negative emotions (example: “Happy” + “Sad”).',
+          'warning',
+          { duration: 3000 },
+        );
+        return;
+      }
+
       // Convert selected chips to symptoms array
       const selectedSymptoms = this.convertSelectedItemsToSymptoms();
 
@@ -741,10 +795,22 @@ export class SymptomsTrackerComponent implements OnInit {
 
   getUserId(): string {
     try {
+      debugger;
       const userInfo = localStorage.getItem('userInfo');
       if (userInfo) {
         const parsed = JSON.parse(userInfo);
-        return parsed.user?.id || parsed.id || 'anonymous';
+        const raw =
+          parsed?.user?.['id'] ??
+          parsed?.data?.['id'] ??
+          parsed?.id ??
+          parsed?.userId;
+
+        if (raw === undefined || raw === null || raw === '') {
+          return 'anonymous';
+        }
+
+        const n = typeof raw === 'string' ? parseInt(raw, 10) : Number(raw);
+        return Number.isFinite(n) && n > 0 ? String(n) : 'anonymous';
       }
     } catch (error) {
       console.error('Error getting user ID:', error);

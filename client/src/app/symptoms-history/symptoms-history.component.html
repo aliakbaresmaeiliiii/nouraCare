@@ -17,7 +17,18 @@
     
     <!-- Loading State -->
     @if (loading) {
-    <app-logo-loading message="Loading symptoms history…" />
+    <div class="loading-state" aria-label="Loading symptoms history" role="status">
+      <div class="dot-spinner">
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+        <div class="dot-spinner__dot"></div>
+      </div>
+    </div>
     }
 
     <!-- No Data State -->
@@ -44,7 +55,7 @@
       </div>
 
       <!-- History Items -->
-      @for (day of symptomsHistory; track day.date) {
+      @for (day of symptomsHistory; track day.id ?? day.date) {
       <div class="history-item" (click)="viewDayDetails(day.date)">
         <div class="item-header">
           <div class="date-info">
@@ -65,7 +76,7 @@
         
         @if (day.symptoms && day.symptoms.length > 0) {
         <div class="symptoms-preview">
-          @for (symptom of day.symptoms.slice(0, 3); track symptom.name) {
+          @for (symptom of day.symptoms.slice(0, 3); track symptom.id ?? symptom.name ?? $index) {
           <div class="symptom-tag">
             <ion-icon [name]="symptom.icon" class="symptom-icon"></ion-icon>
             <span class="symptom-name">{{ symptom.name }}</span>

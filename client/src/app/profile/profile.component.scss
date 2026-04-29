@@ -50,7 +50,7 @@
 .hero-section {
   position: relative;
   padding: 2rem 1.5rem 1.5rem;
-  background: var(--app-gradient-header);
+  // background: var(--app-gradient-header);
   border-radius: 0 0 32px 32px;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -877,17 +877,18 @@
 /* Dark palette: ThemeService sets html.ion-palette-dark (see global.scss). */
 :host-context(html.ion-palette-dark) {
   .profile-content {
-    --background: linear-gradient(
-      180deg,
-      var(--ion-background-color-step-50) 0%,
-      var(--ion-background-color) 45%,
-      var(--ion-background-color-step-100) 100%
-    );
-    background: var(--background);
+    --background: var(--app-dark-page-shell-bg);
+    background: var(--app-dark-page-shell-bg);
     color: var(--ion-text-color);
   }
 
   .profile-header {
+    --background: var(--app-dark-header-shell-bg);
+    --border-width: 0;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.05),
+      0 12px 40px rgba(0, 0, 0, 0.45);
+
     .header-title {
       color: #f8fafc;
       text-shadow:

@@ -801,6 +801,26 @@ ion-app.ion-palette-dark {
     var(--ion-background-color-step-100) 100%
   );
 
+  /* Navy + brand glow — profile, edit-profile, auth/sign-in login (reuse app-wide). */
+  --app-dark-page-shell-bg:
+    radial-gradient(120% 65% at 50% -8%, rgba(var(--flo-primary-rgb), 0.26) 0%, transparent 55%),
+    radial-gradient(95% 50% at 100% 0%, rgba(var(--flo-light-rgb), 0.12) 0%, transparent 48%),
+    radial-gradient(80% 45% at 0% 100%, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
+    linear-gradient(
+      165deg,
+      var(--navy-shell-950, #050a1a) 0%,
+      #0b0d18 26%,
+      #080c14 52%,
+      #061018 78%,
+      #04080c 100%
+    );
+  --app-dark-header-shell-bg: linear-gradient(
+    165deg,
+    #070a14 0%,
+    rgba(var(--navy-shell-900-rgb), 0.96) 40%,
+    #0b0e16 100%
+  );
+
   --app-button-solid-bg: linear-gradient(
     135deg,
     var(--ion-color-primary) 0%,

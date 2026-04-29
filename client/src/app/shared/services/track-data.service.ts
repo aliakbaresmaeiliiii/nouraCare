@@ -175,6 +175,9 @@ export class TrackDataService {
     if (endDate) {
       params = params.set('endDate', endDate);
     }
+    // Prevent conditional GET / 304 responses from leaving UI with no body.
+    // Backend should ignore unknown query params.
+    params = params.set('_cb', Date.now().toString());
     return this.httpClient.get<any[]>(
       `${environment.apiEndPoint}track-day/${userId}/track-days`,
       { params },

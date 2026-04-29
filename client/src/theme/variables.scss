@@ -22,6 +22,18 @@
   --brand-text-secondary: #334155;
   --brand-text-secondary-rgb: 51, 65, 85;
 
+  /* Navy shell — tonal lifts from #050A1A (mix toward #fff; same hue family as the base) */
+  --navy-shell-950: #050a1a;
+  --navy-shell-950-rgb: 5, 10, 26;
+  --navy-shell-900: #191e2c;
+  --navy-shell-900-rgb: 25, 30, 44;
+  --navy-shell-850: #232735;
+  --navy-shell-850-rgb: 35, 39, 53;
+  --navy-shell-800: #2b2f3c;
+  --navy-shell-800-rgb: 43, 47, 60;
+  --navy-shell-750: #3c404c;
+  --navy-shell-750-rgb: 60, 64, 76;
+
   /* Legacy alias compatibility */
   --flo-primary: var(--brand-primary);
   --flo-primary-rgb: var(--brand-primary-rgb);

@@ -841,8 +841,8 @@ ion-modal ion-toolbar {
 
 /* Dark palette: ThemeService sets html.ion-palette-dark (see global.scss). */
 :host-context(html.ion-palette-dark) {
-  .edit-profile-content,
-  .profile-content {
+  /* `.profile-content` dark shell lives in the settings block below (shared `--app-*` tokens). */
+  .edit-profile-content {
     --background: linear-gradient(
       180deg,
       var(--ion-background-color-step-50) 0%,
@@ -985,16 +985,18 @@ ion-item:focus-visible {
 /* Dark “settings” shell — only when `html.ion-palette-dark` (see light block below). */
 :host-context(html.ion-palette-dark) {
   .profile-content {
-    --background: #0b0b0f;
+    --background: var(--app-dark-page-shell-bg);
     --padding-top: 8px;
     --padding-bottom: 28px;
-    background: #0b0b0f;
+    background: var(--app-dark-page-shell-bg);
     color: #ffffff;
   }
 
   .profile-header {
-    --background: #0b0b0f;
-    box-shadow: none;
+    --background: var(--app-dark-header-shell-bg);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.05),
+      0 12px 40px rgba(0, 0, 0, 0.45);
     border-bottom: 0;
 
     .header-title {

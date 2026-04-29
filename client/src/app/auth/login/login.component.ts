@@ -299,6 +299,11 @@ export class LoginComponent {
           if (res?.data?.accessToken) {
             this.service.setUserInfoFromSocialResponse(res);
           }
+
+          // Persist user info for the rest of the app (e.g. symptoms pages)
+          if (res?.data) {
+            localStorage.setItem('userInfo', JSON.stringify(res.data));
+          }
           if (typeof sessionStorage !== 'undefined') {
             sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
           }
@@ -335,6 +340,11 @@ export class LoginComponent {
 
       if (res?.data?.accessToken) {
         this.service.setUserInfoFromSocialResponse(res);
+      }
+
+      // Persist user info for the rest of the app (e.g. symptoms pages)
+      if (res?.data) {
+        localStorage.setItem('userInfo', JSON.stringify(res.data));
       }
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
