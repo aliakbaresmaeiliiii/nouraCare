@@ -104,7 +104,6 @@ export class TrackDayService {
 
   async getTrackDay(userId: number, date: string) {
     
-    console.log('getTrackDay', { userId, date });
     const dayStart = new Date(date);
     dayStart.setHours(0, 0, 0, 0);
     const dayEnd = new Date(dayStart);
