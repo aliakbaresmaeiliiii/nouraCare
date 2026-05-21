@@ -1,41 +1,12 @@
 <div class="login-page">
   <div class="login-shell">
-    <!-- <header class="login-header">
-      <div class="login-header-bg" aria-hidden="true">
-        <img
-          class="login-hero-img"
-          src="assets/images/image1.png"
-          alt=""
-          width="1024"
-          height="1024"
-          decoding="async"
-        />
-      </div>
-      <div class="login-header-fade" aria-hidden="true"></div>
-      <div class="hero-section">
-        <div class="hero-content">
-          <div class="logo-container">
-            <div class="logo-mark" aria-hidden="true">
-              <img
-                class="brand-wordmark-svg"
-                src="assets/branding/nouracare-wordmark-light.svg"
-                width="420"
-                height="120"
-                alt=""
-              />
-            </div>
-            <h1 class="app-title sr-only">NouraCare</h1>
-            <p class="app-subtitle">
-              Faith, learning, and stories for young hearts
-            </p>
-          </div>
-        </div>
-      </div>
-    </header> -->
-
     <main class="login-panel">
       <div class="auth-container">
-        <div class="tab-container" role="tablist" [attr.aria-label]="'auth.signInOrSignUp' | translate">
+        <div
+          class="tab-container"
+          role="tablist"
+          [attr.aria-label]="'auth.signInOrSignUp' | translate"
+        >
           <button
             type="button"
             role="tab"
@@ -45,7 +16,7 @@
             class="tab-button"
           >
             <ion-icon name="log-in-outline" aria-hidden="true"></ion-icon>
-            {{ 'auth.signIn' | translate }}
+            {{ "auth.signIn" | translate }}
           </button>
           <button
             type="button"
@@ -56,163 +27,202 @@
             class="tab-button"
           >
             <ion-icon name="person-add-outline" aria-hidden="true"></ion-icon>
-            {{ 'auth.signUp' | translate }}
+            {{ "auth.signUp" | translate }}
           </button>
         </div>
 
         @if (activeTab === 'login') {
-          <div class="form-container">
-            <div class="form-header">
-              <h2 class="form-title">{{ 'auth.signIn' | translate }}</h2>
+        <div class="form-container">
+          <div class="form-header">
+            <h2 class="form-title">{{ "auth.signIn" | translate }}</h2>
+          </div>
+
+          <form
+            [formGroup]="loginForm"
+            (ngSubmit)="onLogin()"
+            class="auth-form"
+          >
+            <div class="form-group">
+              <label class="form-label" for="login-email">{{
+                "auth.email" | translate
+              }}</label>
+              <input
+                id="login-email"
+                type="email"
+                formControlName="email"
+                [placeholder]="'auth.emailPlaceholder' | translate"
+                class="form-input"
+                autocomplete="email"
+                inputmode="email"
+                [class.error]="
+                  loginForm.get('email')?.touched &&
+                  loginForm.get('email')?.invalid
+                "
+              />
+              @if (loginForm.get('email')?.touched &&
+              loginForm.get('email')?.invalid) {
+              <div class="error-message">
+                <ion-icon
+                  name="alert-circle-outline"
+                  aria-hidden="true"
+                ></ion-icon>
+                {{ "auth.validEmailError" | translate }}
+              </div>
+              }
             </div>
 
-            <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="auth-form">
-              <div class="form-group">
-                <label class="form-label" for="login-email">{{ 'auth.email' | translate }}</label>
-                <input
-                  id="login-email"
-                  type="email"
-                  formControlName="email"
-                  [placeholder]="'auth.emailPlaceholder' | translate"
-                  class="form-input"
-                  autocomplete="email"
-                  inputmode="email"
-                  [class.error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid"
-                />
-                @if (loginForm.get('email')?.touched && loginForm.get('email')?.invalid) {
-                  <div class="error-message">
-                    <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-                    {{ 'auth.validEmailError' | translate }}
-                  </div>
-                }
-              </div>
+            <app-button
+              type="submit"
+              [disabled]="loginForm.invalid"
+              [loading]="isLoading"
+            >
+              {{
+                isLoading
+                  ? ("auth.signingIn" | translate)
+                  : ("auth.signIn" | translate)
+              }}
+            </app-button>
 
-              <app-button
-                type="submit"
-                [disabled]="loginForm.invalid"
-                [loading]="isLoading"
-              >
-                {{ isLoading ? ('auth.signingIn' | translate) : ('auth.signIn' | translate) }}
-              </app-button>
-
-              <div class="social-divider">
-                <span>{{ 'auth.orContinueWith' | translate }}</span>
-              </div>
-
-              <div class="social-buttons social-buttons--icons">
-                <ion-button
-                  type="button"
-                  fill="clear"
-                  class="social-button google"
-                  [disabled]="isLoading || isSocialLoading"
-                  (click)="onSocialLogin('google')"
-                  [attr.aria-label]="'auth.continueWithGoogle' | translate"
-                >
-                  <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
-                </ion-button>
-
-                <ion-button
-                  type="button"
-                  fill="clear"
-                  class="social-button apple"
-                  [disabled]="isLoading || isSocialLoading"
-                  (click)="onSocialLogin('apple')"
-                  [attr.aria-label]="'auth.continueWithApple' | translate"
-                >
-                  <ion-icon name="logo-apple" aria-hidden="true"></ion-icon>
-                </ion-button>
-
-              </div>
-
-              <div class="form-footer">
-                <a href="#" class="forgot-link">{{ 'auth.licenseAgreement' | translate }}</a>
-              </div>
-            </form>
-          </div>
-        }
-
-        @if (activeTab === 'register') {
-          <div class="form-container">
-            <div class="form-header">
-              <h2 class="form-title">{{ 'auth.signUp' | translate }}</h2>
+            <div class="social-divider">
+              <span>{{ "auth.orContinueWith" | translate }}</span>
             </div>
 
-            <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="auth-form">
-              <div class="form-group">
-                <label class="form-label" for="register-email">{{ 'auth.email' | translate }}</label>
-                <input
-                  id="register-email"
-                  type="email"
-                  formControlName="email"
-                  [placeholder]="'auth.emailPlaceholder' | translate"
-                  class="form-input"
-                  autocomplete="email"
-                  inputmode="email"
-                  [class.error]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
-                />
-                @if (registerForm.get('email')?.touched && registerForm.get('email')?.invalid) {
-                  <div class="error-message">
-                    <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
-                    {{ 'auth.validEmailError' | translate }}
-                  </div>
-                }
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="register-phone">{{ 'auth.phone' | translate }} <span class="optional">({{ 'auth.optional' | translate }})</span></label>
-                <input
-                  id="register-phone"
-                  type="tel"
-                  formControlName="phoneNumber"
-                  [placeholder]="'auth.phonePlaceholder' | translate"
-                  class="form-input"
-                  autocomplete="tel"
-                  inputmode="tel"
-                />
-              </div>
-
-              <app-button
-                type="submit"
-                [disabled]="registerForm.invalid"
-                [loading]="isLoading"
+            <div class="social-buttons social-buttons--icons">
+              <ion-button
+                type="button"
+                fill="clear"
+                class="social-button google"
+                [disabled]="isLoading || isSocialLoading"
+                (click)="onSocialLogin('google')"
+                [attr.aria-label]="'auth.continueWithGoogle' | translate"
               >
-                {{ isLoading ? ('auth.creatingAccount' | translate) : ('auth.signUp' | translate) }}
-              </app-button>
+                <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
+              </ion-button>
 
-              <div class="social-divider">
-                <span>{{ 'auth.orSignUpWith' | translate }}</span>
-              </div>
+              <ion-button
+                type="button"
+                fill="clear"
+                class="social-button apple"
+                [disabled]="isLoading || isSocialLoading"
+                (click)="onSocialLogin('apple')"
+                [attr.aria-label]="'auth.continueWithApple' | translate"
+              >
+                <ion-icon name="logo-apple" aria-hidden="true"></ion-icon>
+              </ion-button>
+            </div>
 
-              <div class="social-buttons social-buttons--icons">
-                <ion-button
-                  type="button"
-                  fill="clear"
-                  class="social-button google"
-                  [disabled]="isLoading || isSocialLoading"
-                  (click)="onSocialLogin('google')"
-                  [attr.aria-label]="'auth.continueWithGoogle' | translate"
-                >
-                  <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
-                </ion-button>
-
-                <ion-button
-                  type="button"
-                  fill="clear"
-                  class="social-button apple"
-                  [disabled]="isLoading || isSocialLoading"
-                  (click)="onSocialLogin('apple')"
-                  [attr.aria-label]="'auth.continueWithApple' | translate"
-                >
-                  <ion-icon name="logo-apple" aria-hidden="true"></ion-icon>
-                </ion-button>
-
-              </div>
-
-              <div class="form-footer">
-                <a href="#" class="forgot-link">{{ 'auth.licenseAgreement' | translate }}</a>
-              </div>
-            </form>
+            <div class="form-footer">
+              <a href="#" class="forgot-link">{{
+                "auth.licenseAgreement" | translate
+              }}</a>
+            </div>
+          </form>
+        </div>
+        } @if (activeTab === 'register') {
+        <div class="form-container">
+          <div class="form-header">
+            <h2 class="form-title">{{ "auth.signUp" | translate }}</h2>
           </div>
+
+          <form
+            [formGroup]="registerForm"
+            (ngSubmit)="onRegister()"
+            class="auth-form"
+          >
+            <div class="form-group">
+              <label class="form-label" for="register-email">{{
+                "auth.email" | translate
+              }}</label>
+              <input
+                id="register-email"
+                type="email"
+                formControlName="email"
+                [placeholder]="'auth.emailPlaceholder' | translate"
+                class="form-input"
+                autocomplete="email"
+                inputmode="email"
+                [class.error]="
+                  registerForm.get('email')?.touched &&
+                  registerForm.get('email')?.invalid
+                "
+              />
+              @if (registerForm.get('email')?.touched &&
+              registerForm.get('email')?.invalid) {
+              <div class="error-message">
+                <ion-icon
+                  name="alert-circle-outline"
+                  aria-hidden="true"
+                ></ion-icon>
+                {{ "auth.validEmailError" | translate }}
+              </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="register-phone"
+                >{{ "auth.phone" | translate }}
+                <span class="optional"
+                  >({{ "auth.optional" | translate }})</span
+                ></label
+              >
+              <input
+                id="register-phone"
+                type="tel"
+                formControlName="phoneNumber"
+                [placeholder]="'auth.phonePlaceholder' | translate"
+                class="form-input"
+                autocomplete="tel"
+                inputmode="tel"
+              />
+            </div>
+
+            <app-button
+              type="submit"
+              [disabled]="registerForm.invalid"
+              [loading]="isLoading"
+            >
+              {{
+                isLoading
+                  ? ("auth.creatingAccount" | translate)
+                  : ("auth.signUp" | translate)
+              }}
+            </app-button>
+
+            <div class="social-divider">
+              <span>{{ "auth.orSignUpWith" | translate }}</span>
+            </div>
+
+            <div class="social-buttons social-buttons--icons">
+              <ion-button
+                type="button"
+                fill="clear"
+                class="social-button google"
+                [disabled]="isLoading || isSocialLoading"
+                (click)="onSocialLogin('google')"
+                [attr.aria-label]="'auth.continueWithGoogle' | translate"
+              >
+                <ion-icon name="logo-google" aria-hidden="true"></ion-icon>
+              </ion-button>
+
+              <ion-button
+                type="button"
+                fill="clear"
+                class="social-button apple"
+                [disabled]="isLoading || isSocialLoading"
+                (click)="onSocialLogin('apple')"
+                [attr.aria-label]="'auth.continueWithApple' | translate"
+              >
+                <ion-icon name="logo-apple" aria-hidden="true"></ion-icon>
+              </ion-button>
+            </div>
+
+            <div class="form-footer">
+              <a href="#" class="forgot-link">{{
+                "auth.licenseAgreement" | translate
+              }}</a>
+            </div>
+          </form>
+        </div>
         }
       </div>
     </main>

@@ -12,11 +12,10 @@ export const routes: Routes = [
   },
   {
     path: 'onboarding',
-    loadComponent: () => {
-      return import('./onboarding/onboarding.component').then((m) => {
+    loadComponent: () =>
+      import('./onboarding/onboarding.component').then((m) => {
         return m.OnboardingComponent;
-      });
-    },
+      }),
   },
   {
     path: 'test-onboarding',
@@ -42,7 +41,7 @@ export const routes: Routes = [
         path: 'verify-email',
         loadComponent: () =>
           import('./auth/verify-email/verify-email.component').then(
-            (m) => m.VerifyEmailComponent,
+            (m) => m.VerifyEmailComponent
           ),
       },
     ],
@@ -57,7 +56,7 @@ export const routes: Routes = [
     path: 'edit-profile',
     loadComponent: () =>
       import('./edit-profile/edit-profile.component').then(
-        (m) => m.EditProfileComponent,
+        (m) => m.EditProfileComponent
       ),
     canActivate: [authGuard],
   },
@@ -65,132 +64,132 @@ export const routes: Routes = [
     path: 'track-pregnancy-intro',
     loadComponent: () =>
       import('./track-pregnancy-intro/track-pregnancy-intro.component').then(
-        (m) => m.TrackPregnancyIntroComponent,
+        (m) => m.TrackPregnancyIntroComponent
       ),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step2',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step2/track-pregnancy-intro-step2.component').then(
-        (m) => m.TrackPregnancyIntroStep2Component,
-      ),
+      import(
+        './track-pregnancy-intro-step2/track-pregnancy-intro-step2.component'
+      ).then((m) => m.TrackPregnancyIntroStep2Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step3',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step3/track-pregnancy-intro-step3.component').then(
-        (m) => m.TrackPregnancyIntroStep3Component,
-      ),
+      import(
+        './track-pregnancy-intro-step3/track-pregnancy-intro-step3.component'
+      ).then((m) => m.TrackPregnancyIntroStep3Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step4',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step4/track-pregnancy-intro-step4.component').then(
-        (m) => m.TrackPregnancyIntroStep4Component,
-      ),
+      import(
+        './track-pregnancy-intro-step4/track-pregnancy-intro-step4.component'
+      ).then((m) => m.TrackPregnancyIntroStep4Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step5',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step5/track-pregnancy-intro-step5.component').then(
-        (m) => m.TrackPregnancyIntroStep5Component,
-      ),
+      import(
+        './track-pregnancy-intro-step5/track-pregnancy-intro-step5.component'
+      ).then((m) => m.TrackPregnancyIntroStep5Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step6',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step6/track-pregnancy-intro-step6.component').then(
-        (m) => m.TrackPregnancyIntroStep6Component,
-      ),
+      import(
+        './track-pregnancy-intro-step6/track-pregnancy-intro-step6.component'
+      ).then((m) => m.TrackPregnancyIntroStep6Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step7',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step7/track-pregnancy-intro-step7.component').then(
-        (m) => m.TrackPregnancyIntroStep7Component,
-      ),
+      import(
+        './track-pregnancy-intro-step7/track-pregnancy-intro-step7.component'
+      ).then((m) => m.TrackPregnancyIntroStep7Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step8',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step8/track-pregnancy-intro-step8.component').then(
-        (m) => m.TrackPregnancyIntroStep8Component,
-      ),
+      import(
+        './track-pregnancy-intro-step8/track-pregnancy-intro-step8.component'
+      ).then((m) => m.TrackPregnancyIntroStep8Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step9',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step9/track-pregnancy-intro-step9.component').then(
-        (m) => m.TrackPregnancyIntroStep9Component,
-      ),
+      import(
+        './track-pregnancy-intro-step9/track-pregnancy-intro-step9.component'
+      ).then((m) => m.TrackPregnancyIntroStep9Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step10',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step10/track-pregnancy-intro-step10.component').then(
-        (m) => m.TrackPregnancyIntroStep10Component,
-      ),
+      import(
+        './track-pregnancy-intro-step10/track-pregnancy-intro-step10.component'
+      ).then((m) => m.TrackPregnancyIntroStep10Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step11',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step11/track-pregnancy-intro-step11.component').then(
-        (m) => m.TrackPregnancyIntroStep11Component,
-      ),
+      import(
+        './track-pregnancy-intro-step11/track-pregnancy-intro-step11.component'
+      ).then((m) => m.TrackPregnancyIntroStep11Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step12',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step12/track-pregnancy-intro-step12.component').then(
-        (m) => m.TrackPregnancyIntroStep12Component,
-      ),
+      import(
+        './track-pregnancy-intro-step12/track-pregnancy-intro-step12.component'
+      ).then((m) => m.TrackPregnancyIntroStep12Component),
     canActivate: [authGuard],
   },
   {
     path: 'track-pregnancy-intro-step13',
     loadComponent: () =>
-      import('./track-pregnancy-intro-step13/track-pregnancy-intro-step13.component').then(
-        (m) => m.TrackPregnancyIntroStep13Component,
-      ),
+      import(
+        './track-pregnancy-intro-step13/track-pregnancy-intro-step13.component'
+      ).then((m) => m.TrackPregnancyIntroStep13Component),
     canActivate: [authGuard],
   },
   {
     path: 'blocked-users',
     loadComponent: () =>
       import('./blocked-users/blocked-users.component').then(
-        (m) => m.BlockedUsersComponent,
+        (m) => m.BlockedUsersComponent
       ),
   },
   {
     path: 'check-version',
     loadComponent: () =>
       import('./check-version/check-version.component').then(
-        (m) => m.CheckVersionComponent,
+        (m) => m.CheckVersionComponent
       ),
   },
   {
     path: 'saved-information',
     loadComponent: () =>
       import('./saved-information/saved-information.component').then(
-        (m) => m.SavedInformationComponent,
+        (m) => m.SavedInformationComponent
       ),
   },
   {
     path: 'my-friends',
     loadComponent: () =>
       import('./my-friends/my-friends.component').then(
-        (m) => m.MyFriendsComponent,
+        (m) => m.MyFriendsComponent
       ),
   },
   {
@@ -202,14 +201,14 @@ export const routes: Routes = [
     path: 'forums/topic/:id',
     loadComponent: () =>
       import('./forums/topic-detail/topic-detail.component').then(
-        (m) => m.TopicDetailComponent,
+        (m) => m.TopicDetailComponent
       ),
   },
   {
     path: 'forums/create-post',
     loadComponent: () =>
       import('./forums/create-post/create-post.component').then(
-        (m) => m.CreatePostComponent,
+        (m) => m.CreatePostComponent
       ),
   },
   {
@@ -221,14 +220,14 @@ export const routes: Routes = [
     path: 'invite-friends',
     loadComponent: () =>
       import('./invite-friends/invite-friends.component').then(
-        (m) => m.InviteFriendsComponent,
+        (m) => m.InviteFriendsComponent
       ),
   },
   {
     path: 'notifications',
     loadComponent: () =>
       import('./notifications/notifications.component').then(
-        (m) => m.NotificationsComponent,
+        (m) => m.NotificationsComponent
       ),
   },
   {
@@ -239,43 +238,43 @@ export const routes: Routes = [
   {
     path: 'period-date-picker',
     loadComponent: () =>
-      import('./period-date-picker-page/period-date-picker-page.component').then(
-        (m) => m.PeriodDatePickerPageComponent,
-      ),
+      import(
+        './period-date-picker-page/period-date-picker-page.component'
+      ).then((m) => m.PeriodDatePickerPageComponent),
   },
   {
     path: 'period-edit',
     loadComponent: () =>
       import('./edit-period/edit-period.component').then(
-        (m) => m.EditPeriodComponent,
+        (m) => m.EditPeriodComponent
       ),
   },
   {
     path: 'week-detail',
     loadComponent: () =>
       import('./week-detail/week-detail.component').then(
-        (m) => m.WeekDetailComponent,
+        (m) => m.WeekDetailComponent
       ),
   },
   {
     path: 'symptoms-tracker',
     loadComponent: () =>
       import('./symptoms-tracker/symptoms-tracker.component').then(
-        (m) => m.SymptomsTrackerComponent,
+        (m) => m.SymptomsTrackerComponent
       ),
   },
   {
     path: 'symptoms-detail',
     loadComponent: () =>
       import('./symptoms-detail/symptoms-detail.component').then(
-        (m) => m.SymptomsDetailComponent,
+        (m) => m.SymptomsDetailComponent
       ),
   },
   {
     path: 'symptoms-history',
     loadComponent: () =>
       import('./symptoms-history/symptoms-history.component').then(
-        (m) => m.SymptomsHistoryComponent,
+        (m) => m.SymptomsHistoryComponent
       ),
   },
   {
@@ -287,28 +286,28 @@ export const routes: Routes = [
     path: 'doctor/:id',
     loadComponent: () =>
       import('./doctor-profile/doctor-profile.component').then(
-        (m) => m.DoctorProfileComponent,
+        (m) => m.DoctorProfileComponent
       ),
   },
   {
     path: 'my-favorites',
     loadComponent: () =>
       import('./my-favorites/my-favorites.component').then(
-        (m) => m.MyFavoritesComponent,
+        (m) => m.MyFavoritesComponent
       ),
   },
   {
     path: 'cycle-calendar',
     loadComponent: () =>
       import('./cycle-calendar/cycle-calendar.component').then(
-        (m) => m.CycleCalendarComponent,
+        (m) => m.CycleCalendarComponent
       ),
   },
   {
     path: 'pregnancy-mode',
     loadComponent: () =>
       import('./pregnancy-mode/pregnancy-mode.component').then(
-        (m) => m.PregnancyModeComponent,
+        (m) => m.PregnancyModeComponent
       ),
     canActivate: [authGuard],
   },
@@ -316,23 +315,23 @@ export const routes: Routes = [
     path: 'pregnancy-planning',
     loadComponent: () =>
       import('./pregnancy-planning/pregnancy-planning.component').then(
-        (m) => m.PregnancyPlanningComponent,
+        (m) => m.PregnancyPlanningComponent
       ),
     canActivate: [authGuard],
   },
   {
     path: 'reproductive-status',
     loadComponent: () =>
-      import('./features/profile/reproductive-status/reproductive-status.component').then(
-        (m) => m.ReproductiveStatusComponent,
-      ),
+      import(
+        './features/profile/reproductive-status/reproductive-status.component'
+      ).then((m) => m.ReproductiveStatusComponent),
     canActivate: [authGuard],
   },
   {
     path: 'pregnancy-journey',
     loadComponent: () =>
       import('./pregnancy-planning/pregnancy-planning.component').then(
-        (m) => m.PregnancyPlanningComponent,
+        (m) => m.PregnancyPlanningComponent
       ),
     canActivate: [authGuard],
   },
@@ -340,7 +339,7 @@ export const routes: Routes = [
     path: 'postpartum',
     loadComponent: () =>
       import('./pregnancy-planning/pregnancy-planning.component').then(
-        (m) => m.PregnancyPlanningComponent,
+        (m) => m.PregnancyPlanningComponent
       ),
     canActivate: [authGuard],
   },
@@ -348,7 +347,7 @@ export const routes: Routes = [
     path: 'article/:id',
     loadComponent: () =>
       import('./article-detail/article-detail.component').then(
-        (m) => m.ArticleDetailComponent,
+        (m) => m.ArticleDetailComponent
       ),
   },
   {
@@ -367,21 +366,21 @@ export const routes: Routes = [
         path: 'insights',
         loadComponent: () =>
           import('./insights/insights.component').then(
-            (m) => m.InsightsComponent,
+            (m) => m.InsightsComponent
           ),
       },
       {
         path: 'secret-chats',
         loadComponent: () =>
           import('./secret-chats/secret-chats').then(
-            (m) => m.SecretChatsComponent,
+            (m) => m.SecretChatsComponent
           ),
       },
       {
         path: 'consultation',
         loadComponent: () =>
           import('./consultation/consultation.component').then(
-            (m) => m.ConsultationComponent,
+            (m) => m.ConsultationComponent
           ),
       },
       {

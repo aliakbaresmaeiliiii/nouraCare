@@ -96,6 +96,7 @@ export class TrackPregnancyIntroStep12Component implements OnInit, OnDestroy {
   }
 
   private async navigateToHomeAfterComplete(): Promise<void> {
+    debugger;
     if (this.didNavigateHome || this.progress < 100) {
       return;
     }

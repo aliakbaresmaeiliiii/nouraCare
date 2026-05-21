@@ -1198,44 +1198,5 @@
   }
 }
 
-// Responsive Design
-@media (max-width: 768px) {
-  .welcome-hero {
-    padding: 1.5rem 1rem 1rem;
 
-    .hero-content .greeting-section {
-      .greeting-avatar {
-        width: 50px;
-        height: 50px;
-      }
 
-      .greeting-text .greeting-title {
-        font-size: 1.5rem;
-      }
-    }
-  }
-
-  .actions-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .tools-section .tools-carousel .tools-scroll {
-    .tool-card {
-      min-width: 160px;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .welcome-hero,
-  .onboarding-section,
-  .quick-actions-section,
-  .tools-section,
-  .insights-section,
-  .expert-section,
-  .home-feature-slider {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-}

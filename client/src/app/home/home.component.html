@@ -5,9 +5,9 @@
       [refreshingText]="'common.refreshing' | translate"
     ></ion-refresher-content>
   </ion-refresher>
-<div class="home-content" [class.home-content--pregnancy-today]="isPregnant">
+<div class="home-content" [class.home-content--pregnancy-today]="isPregnant()">
   <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
-  @if (!isPregnant && !showStartTrackingOnboarding() && !isHomeCycleTrackingLayout()) {
+  @if (!isPregnant() && !showStartTrackingOnboarding() && !isHomeCycleTrackingLayout()) {
     <div class="welcome-hero ">
       <div class="hero-background">
         <div class="floating-bubble bubble-1"></div>
@@ -32,28 +32,6 @@
             <p class="greeting-subtitle">{{ getPersonalizedMessage() }}</p>
           </div>
         </div>
-
-        <!-- @if (
-          (userStatus && userStatus !== 'CYCLE') ||
-          isPostpartum
-        ) {
-          <div class="status-card">
-            <div class="status-content">
-              <div class="status-icon" [ngClass]="getStatusIconClass()">
-                <ion-icon [name]="getStatusIcon()"></ion-icon>
-              </div>
-              <div class="status-info">
-                <h3 class="status-title">{{ getStatusTitle() }}</h3>
-                <p class="status-description">{{ getStatusDescription() }}</p>
-              </div>
-              <div class="status-action">
-                <ion-button fill="clear" size="small" (click)="openStatusDetails()">
-                  <ion-icon name="chevron-forward"></ion-icon>
-                </ion-button>
-              </div>
-            </div>
-          </div>
-        } -->
       </div>
     </div>
   }
@@ -96,7 +74,7 @@
       </div>
     </section>
   }
-  @if (!isPregnant && !isPostpartum && isHomeCycleTrackingLayout() && !showStartTrackingOnboarding()) {
+  @if (!isPregnant() && !isPostpartum && isHomeCycleTrackingLayout() && !showStartTrackingOnboarding()) {
     <div class="cycle-compact-section">
       <div class="cycle-hero-sky">
         <div class="cycle-ring-shell cycle-ring-shell--hero">
@@ -191,7 +169,7 @@
   }
 
   <!-- Pregnancy “Today” layout (reference UI above Quick Actions) -->
-  @if (isPregnant) {
+  @if (isPregnant()) {
     <div class="pregnancy-today-shell">
       <div class="pregnancy-today-bg" aria-hidden="true">
         <div class="pregnancy-today-blob pregnancy-today-blob--1"></div>
@@ -505,7 +483,7 @@
     </div>
   }
 
-  @if (!isPregnant) {
+  @if (!isPregnant()) {
   <!-- Quick actions and cycle sections (hidden during pregnancy) -->
   <div class="quick-actions-section">
     <div class="section-header">

@@ -152,7 +152,7 @@
 
     "@angular-eslint/template-parser": "^21.2.1",
 
-    "@angular/cli": "^21.2.1",
+    "@angular/cli": "^21.2.10",
 
     "@angular/compiler-cli": "^21.2.1",
 

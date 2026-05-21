@@ -96,18 +96,23 @@ model forum_categories {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
+  forums      forums[]
 }
 
 model forum_comments {
-  id        String   @id
-  comment   String   @db.Text
-  postId    String
-  authorId  Int
-  parentId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  isDeleted Boolean  @default(false)
-  likeCount Int      @default(0)
+  id                   String           @id
+  comment              String           @db.Text
+  postId               String
+  authorId             Int
+  parentId             String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime
+  isDeleted            Boolean          @default(false)
+  likeCount            Int              @default(0)
+  user                 user             @relation(fields: [authorId], references: [id])
+  forum_comments       forum_comments?  @relation("forum_commentsToforum_comments", fields: [parentId], references: [id])
+  other_forum_comments forum_comments[] @relation("forum_commentsToforum_comments")
+  forum_posts          forum_posts      @relation(fields: [postId], references: [id])
 
   @@index([authorId], map: "forum_comments_authorId_fkey")
   @@index([parentId], map: "forum_comments_parentId_fkey")
@@ -126,14 +131,17 @@ model forum_comment_likes {
 }
 
 model forum_posts {
-  id        String   @id
-  content   String   @db.Text
-  threadId  String
-  authorId  Int
-  parentId  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  isDeleted Boolean  @default(false)
+  id             String           @id
+  content        String           @db.Text
+  threadId       String
+  authorId       Int
+  parentId       String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime
+  isDeleted      Boolean          @default(false)
+  forum_comments forum_comments[]
+  user           user             @relation(fields: [authorId], references: [id])
+  forum_threads  forum_threads    @relation(fields: [threadId], references: [id])
 
   @@index([authorId], map: "forum_posts_authorId_fkey")
   @@index([parentId], map: "forum_posts_parentId_fkey")
@@ -141,32 +149,38 @@ model forum_posts {
 }
 
 model forum_threads {
-  id        String   @id
-  title     String
-  content   String   @db.Text
-  forumId   String
-  authorId  Int
-  isPinned  Boolean  @default(false)
-  isLocked  Boolean  @default(false)
-  viewCount Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  likeCount Int      @default(0)
+  id          String        @id
+  title       String
+  content     String        @db.Text
+  forumId     String
+  authorId    Int
+  isPinned    Boolean       @default(false)
+  isLocked    Boolean       @default(false)
+  viewCount   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  likeCount   Int           @default(0)
+  forum_posts forum_posts[]
+  user        user          @relation(fields: [authorId], references: [id])
+  forums      forums        @relation(fields: [forumId], references: [id])
 
   @@index([authorId], map: "forum_threads_authorId_fkey")
   @@index([forumId], map: "forum_threads_forumId_fkey")
 }
 
 model forums {
-  id          String   @id
-  title       String
-  description String   @db.Text
-  categoryId  String
-  createdById Int
-  isPublic    Boolean  @default(true)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
+  id               String           @id
+  title            String
+  description      String           @db.Text
+  categoryId       String
+  createdById      Int
+  isPublic         Boolean          @default(true)
+  isActive         Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime
+  forum_threads    forum_threads[]
+  forum_categories forum_categories @relation(fields: [categoryId], references: [id])
+  user             user             @relation(fields: [createdById], references: [id])
 
   @@index([categoryId], map: "forums_categoryId_fkey")
   @@index([createdById], map: "forums_createdById_fkey")
@@ -284,34 +298,34 @@ model reproductive_state {
   updatedAt DateTime
   createdAt DateTime                 @default(now())
 
-  @@index([state], map: "reproductive_state_state_idx")
+  @@index([state])
 }
 
 model pregnancy {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @unique
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
   startDate   DateTime
   endDate     DateTime?
   currentWeek Int?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
   updatedAt   DateTime
 
   @@index([userId, endDate], map: "pregnancy_user_end_idx")
 }
 
 model cycle_data {
-  id                         Int      @id @default(autoincrement())
-  userId                     Int      @unique
+  id                         Int       @id @default(autoincrement())
+  userId                     Int       @unique
   lastPeriodDate             DateTime?
   cycleLength                Int?
-  /** Running cycle length estimate updated when actual vs predicted period is observed (days). */
-  adaptiveCycleLength        Float?
-  /** Last up to 5 prediction errors in days: actualPeriodStart − predictedPeriodStart (FIFO). */
-  predictionErrors           Json?
-  /** Last published next-period date (ISO YYYY-MM-DD) for error tracking. */
-  lastPredictedNextPeriodIso String?  @db.VarChar(12)
-  createdAt                  DateTime @default(now())
+  createdAt                  DateTime  @default(now())
   updatedAt                  DateTime
+  /// * Running cycle length estimate updated when actual vs predicted period is observed (days).
+  adaptiveCycleLength        Float?
+  /// * Last published next-period date (ISO YYYY-MM-DD) for error tracking.
+  lastPredictedNextPeriodIso String?   @db.VarChar(12)
+  /// * Last up to 5 prediction errors in days: actualPeriodStart − predictedPeriodStart (FIFO).
+  predictionErrors           Json?
 }
 
 model refresh_tokens {
@@ -351,73 +365,78 @@ model trackday {
   @@unique([userId, date])
 }
 
-/** One row per app-open event (used for 30d engagement opens count). */
+/// * One row per app-open event (used for 30d engagement opens count).
 model user_app_open {
   id        Int      @id @default(autoincrement())
   userId    Int
   createdAt DateTime @default(now())
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId, createdAt], map: "user_app_open_userId_createdAt_idx")
+  @@index([userId, createdAt])
 }
 
-/** Cached engagement + notification throttling per user. */
+/// * Cached engagement + notification throttling per user.
 model user_engagement {
-  userId                            Int       @id
-  lastOpenAt                        DateTime?
-  /** Preferred local delivery hour 0–23 (client-supplied; digest uses UTC hour as fallback). */
-  lastActiveHour                    Int?
-  engagementScore                   Float     @default(0)
-  engagementTier                    String    @default("LOW") @db.VarChar(8)
-  lastNotificationSentAt            DateTime?
-  /** UTC calendar day YYYY-MM-DD of last outbound notification (max 1/day). */
+  userId                          Int       @id
+  lastOpenAt                      DateTime?
+  /// * Preferred local delivery hour 0–23 (client-supplied; digest uses UTC hour as fallback).
+  lastActiveHour                  Int?
+  engagementScore                 Float     @default(0)
+  engagementTier                  String    @default("LOW") @db.VarChar(8)
+  lastNotificationSentAt          DateTime?
+  /// * UTC calendar day YYYY-MM-DD of last outbound notification (max 1/day).
   lastNotificationDayIso          String?   @db.VarChar(10)
   consecutiveIgnoredNotifications Int       @default(0)
-  /** Organic growth: referral rewards + daily check-in bonuses (not currency). */
-  growthPoints                      Int       @default(0)
-  /** Consecutive UTC calendar days with at least one check-in. */
-  checkInStreak                     Int       @default(0)
-  /** UTC YYYY-MM-DD of last successful daily check-in. */
-  lastCheckInDayIso                 String?   @db.VarChar(10)
-  createdAt                         DateTime  @default(now())
-  updatedAt                         DateTime  @updatedAt
-  user                              user      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// * Organic growth: referral rewards + daily check-in bonuses (not currency).
+  growthPoints                    Int       @default(0)
+  /// * Consecutive UTC calendar days with at least one check-in.
+  checkInStreak                   Int       @default(0)
+  /// * UTC YYYY-MM-DD of last successful daily check-in.
+  lastCheckInDayIso               String?   @db.VarChar(10)
+  createdAt                       DateTime  @default(now())
+  updatedAt                       DateTime  @updatedAt
+  user                            user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model health_notification_log {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  type      String   @db.VarChar(48)
-  message   String   @db.Text
-  sentAt    DateTime @default(now())
-  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id      Int      @id @default(autoincrement())
+  userId  Int
+  type    String   @db.VarChar(48)
+  message String   @db.Text
+  sentAt  DateTime @default(now())
+  user    user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, sentAt], map: "health_notification_log_user_sent_idx")
 }
 
 model user {
-  id                           Int         @id @default(autoincrement())
-  email                        String      @unique
-  phoneNumber                  String      @unique
+  id                           Int                       @id @default(autoincrement())
+  email                        String                    @unique
+  phoneNumber                  String                    @unique
   fullName                     String
-  role                         user_role   @default(USER)
-  status                       user_status @default(ACTIVE)
-  isVerified                   Boolean     @default(false)
-  createdAt                    DateTime    @default(now())
+  role                         user_role                 @default(USER)
+  status                       user_status               @default(ACTIVE)
+  isVerified                   Boolean                   @default(false)
+  createdAt                    DateTime                  @default(now())
   updatedAt                    DateTime
   emailVerificationCode        String?
   emailVerificationCodeExpires DateTime?
   dateOfBirth                  DateTime?
+  forum_comments               forum_comments[]
+  forum_posts                  forum_posts[]
+  forum_threads                forum_threads[]
+  forums                       forums[]
+  health_notification_log      health_notification_log[]
+  referral_received            referral?                 @relation("ReferralReferred")
+  referrals_sent               referral[]                @relation("ReferralReferrer")
+  referral_code                referral_code?
   user_app_open                user_app_open[]
   user_engagement              user_engagement?
-  health_notification_log      health_notification_log[]
+  user_profile                 user_profile?
   user_subscription            user_subscription?
-  referral_code                referral_code?
-  referrals_sent               referral[]  @relation("ReferralReferrer")
-  referral_received            referral?   @relation("ReferralReferred")
 }
 
-/** Stable invite code per user (for referral links). */
+/// * Stable invite code per user (for referral links).
 model referral_code {
   userId    Int      @id
   code      String   @unique @db.VarChar(12)
@@ -425,46 +444,35 @@ model referral_code {
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-/** One row when a new user successfully joins with a referrer's code (rewards both). */
+/// * One row when a new user successfully joins with a referrer's code (rewards both).
 model referral {
   id             Int      @id @default(autoincrement())
   referrerUserId Int
   referredUserId Int      @unique
   code           String   @db.VarChar(12)
   createdAt      DateTime @default(now())
-  referrer       user     @relation("ReferralReferrer", fields: [referrerUserId], references: [id], onDelete: Cascade)
   referred       user     @relation("ReferralReferred", fields: [referredUserId], references: [id], onDelete: Cascade)
+  referrer       user     @relation("ReferralReferrer", fields: [referrerUserId], references: [id], onDelete: Cascade)
 
   @@index([referrerUserId], map: "referral_referrer_user_idx")
 }
 
-/** Freemium / trial / subscription state (single row per user). */
+/// * Freemium / trial / subscription state (single row per user).
 model user_subscription {
-  userId                   Int                               @id
-  tier                     user_subscription_tier           @default(FREE)
-  /** First authenticated subscription API touch; drives “days of use” paywall. */
+  userId                   Int                                 @id
+  tier                     user_subscription_tier              @default(FREE)
+  /// * First authenticated subscription API touch; drives “days of use” paywall.
   firstOpenedAt            DateTime?
   trialStartedAt           DateTime?
   trialEndsAt              DateTime?
-  /** Active paid access until (mock billing sets this). */
+  /// * Active paid access until (mock billing sets this).
   premiumUntil             DateTime?
   billingInterval          user_subscription_billing_interval?
-  /** Random 3–5: suggest usage-based paywall after this many local usage days. */
-  usageDayPaywallThreshold Int                               @default(4)
-  createdAt                DateTime                          @default(now())
-  updatedAt                DateTime                          @updatedAt
-  user                     user                              @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-enum user_subscription_tier {
-  FREE
-  PREMIUM_TRIAL
-  PREMIUM
-}
-
-enum user_subscription_billing_interval {
-  MONTH
-  YEAR
+  /// * Random 3–5: suggest usage-based paywall after this many local usage days.
+  usageDayPaywallThreshold Int                                 @default(4)
+  createdAt                DateTime                            @default(now())
+  updatedAt                DateTime                            @updatedAt
+  user                     user                                @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model user_profile {
@@ -476,6 +484,18 @@ model user_profile {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime
   profileImage String?
+  user         user      @relation(fields: [userId], references: [id])
+}
+
+enum user_subscription_tier {
+  FREE
+  PREMIUM_TRIAL
+  PREMIUM
+}
+
+enum user_subscription_billing_interval {
+  MONTH
+  YEAR
 }
 
 enum chat_members_role {
