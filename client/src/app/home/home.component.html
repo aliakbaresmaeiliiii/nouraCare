@@ -9,75 +9,7 @@
     class="home-content"
     [class.home-content--pregnancy-today]="isPregnant()"
   >
-    <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
-    @if (!isPregnant() && !showStartTrackingOnboarding() &&
-    !isHomeCycleTrackingLayout()) {
-    <div class="welcome-hero">
-      <div class="hero-background">
-        <div class="floating-bubble bubble-1"></div>
-        <div class="floating-bubble bubble-2"></div>
-        <div class="floating-bubble bubble-3"></div>
-      </div>
 
-      <div class="hero-content">
-        <div class="greeting-section">
-          <div class="greeting-avatar">
-            <img
-              src="assets/images/avatarMen.png"
-              alt="User"
-              onerror="this.style.display='none'"
-            />
-            @if (hasUserAvatar) {
-            <ion-icon name="person-circle"></ion-icon>
-            }
-          </div>
-          <div class="greeting-text">
-            <h1 class="greeting-title">{{ getGreetingMessage() }}</h1>
-            <p class="greeting-subtitle">{{ getPersonalizedMessage() }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    }
-
-    <!-- Default State - Onboarding Section -->
-    @if (showStartTrackingOnboarding()) {
-    <section class="onboarding-section">
-      <div class="onboarding-card onboarding-card--planning">
-        <div class="planning-header-row">
-          <div class="planning-header-icon" aria-hidden="true">
-            <ion-icon name="calendar-number-outline"></ion-icon>
-          </div>
-          <div class="onboarding-content">
-            <h2 class="onboarding-title">{{ getPreCycleEmptyCopy().title }}</h2>
-            <p class="onboarding-description">
-              {{ getPreCycleEmptyCopy().body }}
-            </p>
-          </div>
-        </div>
-
-        <ul class="planning-feature-list" role="list">
-          @for (label of getPreCycleEmptyCopy().features; track label) {
-          <li class="planning-feature-item" role="listitem">
-            <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
-            <span>{{ label }}</span>
-          </li>
-          }
-        </ul>
-
-        <ion-button
-          expand="block"
-          fill="solid"
-          class="start-journey-btn"
-          (click)="openPeriodDatePicker()"
-        >
-          <ion-icon name="play-circle-outline" slot="start"></ion-icon>
-          {{ "home.startTracking" | translate }}
-        </ion-button>
-      </div>
-    </section>
-    } @if (!isPregnant() && !isPostpartum && isHomeCycleTrackingLayout() &&
-    !showStartTrackingOnboarding()) {
     <div class="cycle-compact-section">
       <div class="cycle-hero-sky">
         <div class="cycle-ring-shell cycle-ring-shell--hero">
@@ -194,11 +126,10 @@
         </div>
       </div>
     </div>
-    }
 
     <!-- Pregnancy “Today” layout (reference UI above Quick Actions) -->
     @if (isPregnant()) {
-    <div class="pregnancy-today-shell">
+    <!-- <div class="pregnancy-today-shell">
       <div class="pregnancy-today-bg" aria-hidden="true">
         <div class="pregnancy-today-blob pregnancy-today-blob--1"></div>
         <div class="pregnancy-today-blob pregnancy-today-blob--2"></div>
@@ -552,10 +483,9 @@
         </div>
         } }
       </div>
-    </div>
-    } @if (!isPregnant()) {
-    <!-- Quick actions and cycle sections (hidden during pregnancy) -->
-    <div class="quick-actions-section">
+    </div> -->
+    }
+    <!-- <div class="quick-actions-section">
       <div class="section-header">
         <h2 class="section-title">{{ "home.quickActions" | translate }}</h2>
         <p class="section-subtitle">{{ "home.whatToDoToday" | translate }}</p>
@@ -588,7 +518,6 @@
           </div>
         </div>
         }
-        <!-- Primary Actions -->
         <div class="action-card primary" (click)="openCycleCalendar()">
           <div class="action-background">
             <div class="action-pattern"></div>
@@ -673,8 +602,7 @@
           </div>
         </div>
       </div>
-    </div>
-    }
+    </div> -->
     <section class="home-feature-slider">
       <div class="slider-container">
         <article class="slider-item card">

@@ -130,7 +130,7 @@ export class CycleSettingsService {
   /** Apply Trying-to-conceive home mode (does not overwrite period data). */
   applyTryingToConceiveHomeMode(): void {
     this.setUserStatus('Trying to Conceive');
-    // this.setPregnancyStatus(false);
+    this.setPregnancyStatus(false);
     this.setPostpartumStatus(false);
     this.setGetPregnantProfileCardPending(true);
   }

@@ -190,9 +190,6 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
 
-
-
-
   // Today
   todayDate: Date = new Date();
   todayCycleDay: number = 0; // 1-based day number in current cycle relative to startDate
@@ -583,7 +580,7 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   goToLogPeriod(): void {
-    void this.router.navigate(['/period-date-picker']);
+    void this.router.navigate(['/cycle-calendar']);
   }
 
   // --- helpers & recompute ---

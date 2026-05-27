@@ -298,9 +298,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     // Embedded home tab may not always fire Ionic view enter before first paint.
     this.syncDashboardFromServerAndRefreshChart();
 
-    this.langChangeSub = this.languageService.currentLanguage$.subscribe(() => {
-      this.cdr.markForCheck();
-    });
   }
 
   ngOnDestroy(): void {
@@ -314,8 +311,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     // Load user status
     this.userStatus = this.cycleSettings.userStatus();
     this.isPregnant.set(this.cycleSettings.isPregnant());
-    console.log('=========================>',this.isPregnant());
-    debugger;
     this.isPostpartum = this.cycleSettings.isPostpartum();
     // Load pregnancy data
     this.pregnancyWeek = this.cycleSettings.pregnancyWeek();
@@ -341,94 +336,188 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   /**
    * Check if user has completed onboarding and set appropriate status
    */
-  private checkOnboardingStatus() {
+  // private checkOnboardingStatus() {
     
+  //   const onboardingCompleted = localStorage.getItem('onboarding_completed');
+  //   const onboardingData = localStorage.getItem('onboarding_data');
+
+  //   if (onboardingCompleted === 'true' && onboardingData) {
+  //     try {
+  //       const data = JSON.parse(onboardingData);
+  //       // Update user status based on onboarding data
+  //       if (data.pregnancy_status === 'pregnant') {
+  //         this.userStatus = 'Pregnant';
+  //         this.isPregnant.set(true);
+  //         this.isPostpartum = false;
+
+  //         const lmpFromStore = normalizeLmpInput(
+  //           data.lmp_date ?? data.last_period
+  //         );
+  //         if (lmpFromStore) {
+  //           const w = gestationalWeekFromLmp(lmpFromStore);
+  //           const now = new Date();
+  //           const u1 = Date.UTC(
+  //             now.getUTCFullYear(),
+  //             now.getUTCMonth(),
+  //             now.getUTCDate()
+  //           );
+  //           const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lmpFromStore);
+  //           const u0 = m
+  //             ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+  //             : NaN;
+  //           const diffDays =
+  //             Number.isFinite(u0) && u1 >= u0
+  //               ? Math.floor((u1 - u0) / 86400000)
+  //               : 0;
+  //           this.pregnancyWeek = w;
+  //           this.pregnancyDayInWeek = diffDays % 7;
+  //           this.pregnancyStartDate = lmpFromStore;
+  //           this.pregnancyProgress = Math.min(100, Math.round((w / 40) * 100));
+  //           this.cycleSettings.setPregnancyWeek(w);
+  //           this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
+  //         }
+
+  //         // Update cycle settings
+  //         this.cycleSettings.setUserStatus('Pregnant');
+  //         // this.cycleSettings.setPregnancyStatus(true);
+  //         this.cycleSettings.setPostpartumStatus(false);
+  //       } else if (data.pregnancy_status === 'postpartum') {
+  //         this.userStatus = 'Postpartum';
+  //         this.isPregnant.set(false);
+  //         this.isPostpartum = true;
+
+  //         // Update cycle settings
+  //         this.cycleSettings.setUserStatus('Postpartum');
+  //         // this.cycleSettings.setPregnancyStatus(false);
+
+  //         this.cycleSettings.setPostpartumStatus(true);
+  //       } else {
+  //         // Trying to conceive or tracking
+  //         this.userStatus = 'Trying to Conceive';
+  //         this.isPregnant.set(false);
+  //         this.isPostpartum = false;
+
+  //         // Update cycle settings
+  //         this.cycleSettings.setUserStatus('Trying to Conceive');
+  //         this.cycleSettings.setPregnancyStatus(false);
+  //         this.cycleSettings.setPostpartumStatus(false);
+  //       }
+
+  //       // Set cycle data if provided
+  //       if (data.cycle_length) {
+  //         this.cycleSettings.setCycleLength(data.cycle_length);
+  //       }
+  //       if (data.period_length) {
+  //         this.cycleSettings.setPeriodLength(data.period_length);
+  //       }
+  //       const lmpForCycle = normalizeLmpInput(
+  //         data.lmp_date ?? data.last_period
+  //       );
+  //       if (lmpForCycle) {
+  //         this.cycleSettings.setLastPeriodStart(lmpForCycle);
+  //         this.periodStartDate = new Date(`${lmpForCycle}T12:00:00`);
+  //         this.updateCycleDay();
+  //       }
+  //     } catch (error) {
+  //       console.error('Error parsing onboarding data:', error);
+  //     }
+  //   } else {
+  //   }
+  // }
+
+
+  private checkOnboardingStatus() {
     const onboardingCompleted = localStorage.getItem('onboarding_completed');
     const onboardingData = localStorage.getItem('onboarding_data');
-
-    if (onboardingCompleted === 'true' && onboardingData) {
-      try {
-        const data = JSON.parse(onboardingData);
-        // Update user status based on onboarding data
-        if (data.pregnancy_status === 'pregnant') {
-          this.userStatus = 'Pregnant';
-          this.isPregnant.set(true);
-          this.isPostpartum = false;
-
-          const lmpFromStore = normalizeLmpInput(
-            data.lmp_date ?? data.last_period
-          );
-          if (lmpFromStore) {
-            const w = gestationalWeekFromLmp(lmpFromStore);
-            const now = new Date();
-            const u1 = Date.UTC(
-              now.getUTCFullYear(),
-              now.getUTCMonth(),
-              now.getUTCDate()
-            );
-            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lmpFromStore);
-            const u0 = m
-              ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
-              : NaN;
-            const diffDays =
-              Number.isFinite(u0) && u1 >= u0
-                ? Math.floor((u1 - u0) / 86400000)
-                : 0;
-            this.pregnancyWeek = w;
-            this.pregnancyDayInWeek = diffDays % 7;
-            this.pregnancyStartDate = lmpFromStore;
-            this.pregnancyProgress = Math.min(100, Math.round((w / 40) * 100));
-            this.cycleSettings.setPregnancyWeek(w);
-            this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
-          }
-
-          // Update cycle settings
-          this.cycleSettings.setUserStatus('Pregnant');
-          // this.cycleSettings.setPregnancyStatus(true);
-          this.cycleSettings.setPostpartumStatus(false);
-        } else if (data.pregnancy_status === 'postpartum') {
-          this.userStatus = 'Postpartum';
-          this.isPregnant.set(false);
-          this.isPostpartum = true;
-
-          // Update cycle settings
-          this.cycleSettings.setUserStatus('Postpartum');
-          // this.cycleSettings.setPregnancyStatus(false);
-
-          this.cycleSettings.setPostpartumStatus(true);
-        } else {
-          // Trying to conceive or tracking
-          this.userStatus = 'Trying to Conceive';
-          this.isPregnant.set(false);
-          this.isPostpartum = false;
-
-          // Update cycle settings
-          this.cycleSettings.setUserStatus('Trying to Conceive');
-          this.cycleSettings.setPregnancyStatus(false);
-          this.cycleSettings.setPostpartumStatus(false);
-        }
-
-        // Set cycle data if provided
-        if (data.cycle_length) {
-          this.cycleSettings.setCycleLength(data.cycle_length);
-        }
-        if (data.period_length) {
-          this.cycleSettings.setPeriodLength(data.period_length);
-        }
-        const lmpForCycle = normalizeLmpInput(
-          data.lmp_date ?? data.last_period
-        );
-        if (lmpForCycle) {
-          this.cycleSettings.setLastPeriodStart(lmpForCycle);
-          this.periodStartDate = new Date(`${lmpForCycle}T12:00:00`);
-          this.updateCycleDay();
-        }
-      } catch (error) {
-        console.error('Error parsing onboarding data:', error);
-      }
-    } else {
+  
+    if (onboardingCompleted !== 'true' || !onboardingData) return;
+  
+    try {
+      const data = JSON.parse(onboardingData);
+      
+      // 1. Handle Status-Specific logic
+      const statusHandlers: Record<string, () => void> = {
+        pregnant: () => this.handlePregnant(data),
+        postpartum: () => this.handlePostpartum(data),
+        default: () => this.handleTryingToConceive()
+      };
+  
+      const handler = statusHandlers[data.pregnancy_status] || statusHandlers['default'];
+      handler();
+  
+      // 2. Handle Common Settings (Cycles/Periods)
+      this.updateCommonCycleSettings(data);
+      
+    } catch (error) {
+      console.error('Error parsing onboarding data:', error);
     }
   }
+  
+  private handlePregnant(data: any) {
+    this.userStatus = 'Pregnant';
+    this.isPregnant.set(true);
+    this.isPostpartum = false;
+  
+    const lmp = normalizeLmpInput(data.lmp_date ?? data.last_period);
+    if (lmp) {
+      this.calculatePregnancyMetrics(lmp);
+    }
+  
+    this.cycleSettings.setUserStatus('Pregnant');
+    this.cycleSettings.setPostpartumStatus(false);
+  }
+  
+  private handlePostpartum(data: any) {
+    this.userStatus = 'Postpartum';
+    this.isPregnant.set(false);
+    this.isPostpartum = true;
+  
+    this.cycleSettings.setUserStatus('Postpartum');
+    this.cycleSettings.setPostpartumStatus(true);
+  }
+  
+  private handleTryingToConceive() {
+    this.userStatus = 'Trying to Conceive';
+    this.isPregnant.set(false);
+    this.isPostpartum = false;
+  
+    this.cycleSettings.setUserStatus('Trying to Conceive');
+    this.cycleSettings.setPregnancyStatus(false);
+    this.cycleSettings.setPostpartumStatus(false);
+  }
+  
+  private calculatePregnancyMetrics(lmp: string) {
+    const w = gestationalWeekFromLmp(lmp);
+    const now = new Date();
+    
+    // Logic to calculate days
+    const u1 = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lmp);
+    const u0 = m ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : NaN;
+    
+    const diffDays = (Number.isFinite(u0) && u1 >= u0) ? Math.floor((u1 - u0) / 86400000) : 0;
+  
+    this.pregnancyWeek = w;
+    this.pregnancyDayInWeek = diffDays % 7;
+    this.pregnancyStartDate = lmp;
+    this.pregnancyProgress = Math.min(100, Math.round((w / 40) * 100));
+    
+    this.cycleSettings.setPregnancyWeek(w);
+    this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
+  }
+  
+  private updateCommonCycleSettings(data: any) {
+    if (data.cycle_length) this.cycleSettings.setCycleLength(data.cycle_length);
+    if (data.period_length) this.cycleSettings.setPeriodLength(data.period_length);
+    
+    const lmpForCycle = normalizeLmpInput(data.lmp_date ?? data.last_period);
+    if (lmpForCycle) {
+      this.cycleSettings.setLastPeriodStart(lmpForCycle);
+      this.periodStartDate = new Date(`${lmpForCycle}T12:00:00`);
+      this.updateCycleDay();
+    }
+  }
+  
 
   /**
    * Generate personalized messages for the user
@@ -587,6 +676,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   private loadDashboardState() {
+    debugger
     if (!this.authService.getAccessToken()) {
       return;
     }
