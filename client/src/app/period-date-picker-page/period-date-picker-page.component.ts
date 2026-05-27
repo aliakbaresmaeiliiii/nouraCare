@@ -94,12 +94,13 @@ export class PeriodDatePickerPageComponent implements OnInit {
   async savePeriod() {
     if (!this.selectedRange?.startDate) return;
 
-    const onPickerRoute = this.router.url.split('?')[0].includes('/period-date-picker');
+    const onPickerRoute = this.router.url
+      .split('?')[0]
+      .includes('/period-date-picker');
     if (!onPickerRoute) {
       await this.modalController.dismiss(this.selectedRange);
       return;
     }
-
     const iso = this.toLocalIsoDate(this.selectedRange.startDate);
     const userId = this.homeData.getCurrentUserId();
     await this.periodCycleState.savePeriodStart(userId, {
@@ -108,14 +109,18 @@ export class PeriodDatePickerPageComponent implements OnInit {
       mood: '',
       notes: '',
     });
+    this.cycleSettings.isPregnant.set(false);
     this.cycleSettings.setUserStatus('Trying to Conceive');
-    this.cycleSettings.setPregnancyStatus(false);
+    // this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
+
     await this.router.navigate(['/tabs/home']);
   }
 
   async cancel() {
-    const onPickerRoute = this.router.url.split('?')[0].includes('/period-date-picker');
+    const onPickerRoute = this.router.url
+      .split('?')[0]
+      .includes('/period-date-picker');
     if (!onPickerRoute) {
       await this.modalController.dismiss();
       return;

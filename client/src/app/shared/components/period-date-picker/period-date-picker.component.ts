@@ -28,6 +28,7 @@ import {
   formatMonthYearTitle,
   getCalendarWeekdayLabels,
 } from '../../utils/locale-date-format.util';
+import { PeriodHistoryService } from '../../services/period-history.service';
 
 export interface PeriodDateRange {
   startDate: Date;
@@ -49,6 +50,7 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
   }
 
   private languageService = inject(LanguageService);
+  periodLogService = inject(PeriodHistoryService)
   private appLang = toSignal(this.languageService.currentLanguage$, {
     initialValue: this.languageService.getCurrentLanguage(),
   });

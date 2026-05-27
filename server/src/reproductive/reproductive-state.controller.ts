@@ -15,7 +15,7 @@ export class ReproductiveStateController {
     return this.reproductiveStateService.getDashboard(user.id);
   }
 
-  @Patch('state')
+  @Patch(':id/state')
   async updateState(@Req() req: Request, @Body() dto: UpdateReproductiveStateDto) {
     const user = req.user as { id: number };
     return this.reproductiveStateService.updateState(user.id, dto);

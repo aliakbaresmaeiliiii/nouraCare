@@ -69,7 +69,6 @@ import { TranslatePipe } from './pipes/translate.pipe';
 import { LanguageSwitcherComponent } from './components/language-switcher/language-switcher.component';
 import { HeaderLanguageSwitcherComponent } from './components/header-language-switcher/header-language-switcher.component';
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
-import { MapboxMapComponent } from './components/mapbox-map/mapbox-map.component';
 import { LogoLoadingComponent } from './components/logo-loading/logo-loading.component';
 import { AppButtonComponent } from './components/app-button/app-button.component';
 /**
@@ -151,7 +150,6 @@ export const SHARED_STANDALONE_IMPORTS = [
   LanguageSwitcherComponent,
   HeaderLanguageSwitcherComponent,
   CircleProgressBarComponent,
-  MapboxMapComponent,
   LogoLoadingComponent,
   AppButtonComponent,
 ] as const;

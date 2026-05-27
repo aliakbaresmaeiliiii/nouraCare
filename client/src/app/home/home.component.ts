@@ -7,87 +7,23 @@ import {
   HostListener,
   inject,
   NgZone,
-  OnInit,
   OnDestroy,
-  ViewChild,
+  OnInit,
   signal,
+  ViewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { firstValueFrom, forkJoin, of, Subscription } from 'rxjs';
-import { catchError, finalize, tap } from 'rxjs/operators';
 import {
   AlertController,
   ModalController,
   ToastController,
   ViewWillEnter,
 } from '@ionic/angular';
-import { addIcons } from 'ionicons';
-import {
-  add,
-  addCircleOutline,
-  airplaneOutline,
-  alertCircleOutline,
-  analytics,
-  analyticsOutline,
-  bedOutline,
-  bulbOutline,
-  calendar,
-  calendarNumber,
-  calendarNumberOutline,
-  calendarOutline,
-  calculatorOutline,
-  checkmark,
-  checkmarkCircle,
-  chevronDownOutline,
-  chevronForward,
-  chevronUpOutline,
-  closeCircleOutline,
-  ellipseOutline,
-  fitnessOutline,
-  flameOutline,
-  flower,
-  flashOutline,
-  handLeftOutline,
-  happy,
-  happyOutline,
-  heart,
-  heartDislikeOutline,
-  heartOutline,
-  homeOutline,
-  lockClosedOutline,
-  lockOpenOutline,
-  medkitOutline,
-  medical,
-  medicalOutline,
-  moonOutline,
-  nutritionOutline,
-  peopleCircleOutline,
-  peopleOutline,
-  personCircle,
-  playCircleOutline,
-  pulseOutline,
-  refreshOutline,
-  removeCircleOutline,
-  resize,
-  restaurantOutline,
-  sad,
-  sadOutline,
-  scale,
-  shareOutline,
-  shieldOutline,
-  sparkles,
-  star,
-  swapHorizontalOutline,
-  trendingUp,
-  trophy,
-  warningOutline,
-  waterOutline,
-  batteryDeadOutline,
-  helpCircleOutline,
-  informationCircleOutline,
-} from 'ionicons/icons';
-import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
+import { firstValueFrom, forkJoin, of, Subscription } from 'rxjs';
+import { catchError, finalize, tap } from 'rxjs/operators';
+import { AuthService } from '../auth/services/auth';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
+import { DailyInsightsStoryModalComponent } from '../shared/components/daily-insights-story-modal/daily-insights-story-modal.component';
 import {
   FertilityResults,
   FertilityResultsModalComponent,
@@ -96,49 +32,49 @@ import {
   PregnancyResults,
   PregnancyResultsModalComponent,
 } from '../shared/components/pregnancy-results-modal/pregnancy-results-modal.component';
+import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
+import { getAllSymptoms } from '../shared/constants/symptoms-config';
+import type { UserInfo } from '../shared/interfaces/user-info-api.interface';
+import type { DailyInsightTopic } from '../shared/models/daily-insight-topic.model';
 import { SymptomsDto } from '../shared/models/symptoms.dto';
+import {
+  pregnancyWeekIllustrationAlt,
+  pregnancyWeekIllustrationUrl,
+} from '../shared/pregnancy-week-illustration';
 import {
   BabyDevelopmentService,
   BabySizeData,
 } from '../shared/services/baby-development.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import { LanguageService } from '../shared/services/language.service';
 import { MessageService } from '../shared/services/message.service';
-import { TrackDataService } from '../shared/services/track-data.service';
-import { UserInfoService } from '../shared/services/user-info.service';
-import { AuthService } from '../auth/services/auth';
-import type { UserInfo } from '../shared/interfaces/user-info-api.interface';
-import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import {
   OnboardingService,
   type InitializeReproductiveStateDto,
 } from '../shared/services/onboarding.service';
-import {
-  HomeReproductiveUiService,
-  type HomePageJourneyState,
-} from './services/home-reproductive-ui.service';
-import { HomeJourneyBridgeService } from './services/home-journey-bridge.service';
-import { HomeDataService } from './services/home-data.service';
-import {
-  getBabyDevelopmentFactForWeek,
-  getBabyFunFactForWeek,
-} from './data/home-baby-week-copy';
+import { PeriodCycleStateService } from '../shared/services/period-cycle-state.service';
+import { TrackDataService } from '../shared/services/track-data.service';
+import { TranslationService } from '../shared/services/translation.service';
+import { UserInfoService } from '../shared/services/user-info.service';
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { pregnancyDashboardInsightFromWeek } from '../shared/utils/pregnancy-dashboard-insight.util';
 import {
   gestationalWeekFromLmp,
   isoDateOnly,
   normalizeLmpInput,
 } from '../shared/utils/pregnancy-lmp.util';
-import { pregnancyDashboardInsightFromWeek } from '../shared/utils/pregnancy-dashboard-insight.util';
 import {
-  pregnancyWeekIllustrationAlt,
-  pregnancyWeekIllustrationUrl,
-} from '../shared/pregnancy-week-illustration';
+  getBabyDevelopmentFactForWeek,
+  getBabyFunFactForWeek,
+} from './data/home-baby-week-copy';
 import { HOME_POSTPARTUM_WEEK_SAMPLES } from './data/home-postpartum-sample.data';
-import { DailyInsightsStoryModalComponent } from '../shared/components/daily-insights-story-modal/daily-insights-story-modal.component';
-import type { DailyInsightTopic } from '../shared/models/daily-insight-topic.model';
-import { getAllSymptoms } from '../shared/constants/symptoms-config';
-import { TranslationService } from '../shared/services/translation.service';
-import { LanguageService } from '../shared/services/language.service';
-import { PeriodCycleStateService } from '../shared/services/period-cycle-state.service';
+import { HomeDataService } from './services/home-data.service';
+import { HomeJourneyBridgeService } from './services/home-journey-bridge.service';
+import {
+  HomeReproductiveUiService,
+  type HomePageJourneyState,
+} from './services/home-reproductive-ui.service';
+import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
 
 @Component({
   selector: 'app-home',
@@ -163,6 +99,9 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   private ngZone = inject(NgZone);
   private readonly translation = inject(TranslationService);
   private readonly languageService = inject(LanguageService);
+  private readonly reproductiveStatusService = inject(
+    ReproductiveStatusService
+  );
   private langChangeSub?: Subscription;
 
   /** i18n with optional {{var}} replacement */
@@ -320,71 +259,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     private modalController: ModalController,
     private messageService: MessageService
   ) {
-    addIcons({
-      add,
-      addCircleOutline,
-      airplaneOutline,
-      alertCircleOutline,
-      analytics,
-      analyticsOutline,
-      bedOutline,
-      bulbOutline,
-      calendar,
-      calendarNumber,
-      calendarNumberOutline,
-      calendarOutline,
-      calculatorOutline,
-      checkmark,
-      checkmarkCircle,
-      chevronDownOutline,
-      chevronForward,
-      chevronUpOutline,
-      closeCircleOutline,
-      ellipseOutline,
-      fitnessOutline,
-      flameOutline,
-      flower,
-      flashOutline,
-      handLeftOutline,
-      happy,
-      happyOutline,
-      heart,
-      heartDislikeOutline,
-      heartOutline,
-      homeOutline,
-      lockClosedOutline,
-      lockOpenOutline,
-      medkitOutline,
-      medical,
-      medicalOutline,
-      moonOutline,
-      nutritionOutline,
-      peopleCircleOutline,
-      peopleOutline,
-      personCircle,
-      playCircleOutline,
-      pulseOutline,
-      refreshOutline,
-      removeCircleOutline,
-      resize,
-      restaurantOutline,
-      sad,
-      sadOutline,
-      scale,
-      shareOutline,
-      shieldOutline,
-      sparkles,
-      star,
-      swapHorizontalOutline,
-      trendingUp,
-      trophy,
-      warningOutline,
-      waterOutline,
-      batteryDeadOutline,
-      helpCircleOutline,
-      informationCircleOutline,
-    });
-
     // Reacts when week-detail pushes savedJourneyFromWeekDetail (signal) — works when ionViewWillEnter does not run.
     effect(() => {
       if (!this.authService.getAccessToken()) {
@@ -412,12 +286,12 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   ngOnInit() {
     this.generateMessages();
-    if (!this.authService.getAccessToken()) {
+    // if (!this.authService.getAccessToken()) {
       this.loadPersistedData();
       this.checkOnboardingStatus();
-    } else {
-      this.hydrateFromLocalOnboardingForAuthenticatedFallback();
-    }
+    // } else {
+    //   this.hydrateFromLocalOnboardingForAuthenticatedFallback();
+    // }
     this.loadTodaySymptoms();
     this.loadRecentSymptomsDays();
     this.initializeHealthTip();
@@ -427,12 +301,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.langChangeSub = this.languageService.currentLanguage$.subscribe(() => {
       this.cdr.markForCheck();
     });
-
-    // Listen for symptoms updates
-    // window.addEventListener('symptomsUpdated', () => {
-    //   this.loadTodaySymptoms();
-    //   this.loadRecentSymptomsDays();
-    // });
   }
 
   ngOnDestroy(): void {
@@ -445,10 +313,10 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   private loadPersistedData() {
     // Load user status
     this.userStatus = this.cycleSettings.userStatus();
-    debugger;
     this.isPregnant.set(this.cycleSettings.isPregnant());
+    console.log('=========================>',this.isPregnant());
+    debugger;
     this.isPostpartum = this.cycleSettings.isPostpartum();
-
     // Load pregnancy data
     this.pregnancyWeek = this.cycleSettings.pregnancyWeek();
     this.pregnancyProgress = this.cycleSettings.pregnancyProgress();
@@ -468,96 +336,13 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     // and will be computed based on the current pregnancy week
   }
 
-  /**
-   * Signed-in fallback for users who selected dates in onboarding but have not fully
-   * completed profile persistence yet. Prevents the "log last period" prompt flash
-   * and backfills the journey row once.
-   */
-  private hydrateFromLocalOnboardingForAuthenticatedFallback(): void {
-    const hasLmp = !!this.cycleSettings.lastPeriodStartDate();
-    if (hasLmp) {
-      return;
-    }
-    let data: {
-      pregnancy_status?: string;
-      lmp_date?: unknown;
-      last_period?: unknown;
-      cycle_length?: number;
-      period_length?: number;
-    } | null = null;
-    try {
-      const raw = localStorage.getItem('onboarding_data');
-      if (!raw) {
-        return;
-      }
-      data = JSON.parse(raw);
-    } catch {
-      return;
-    }
-    if (!data) {
-      return;
-    }
-
-    const lmp = normalizeLmpInput(data.lmp_date ?? data.last_period);
-    if (!lmp) {
-      return;
-    }
-
-    const status = String(data.pregnancy_status ?? '').toLowerCase();
-    const cycleLength = Number(data.cycle_length) || 28;
-    const periodLength = Number(data.period_length) || 5;
-
-    this.cycleSettings.setCycleLength(cycleLength);
-    this.cycleSettings.setPeriodLength(periodLength);
-    this.cycleSettings.setLastPeriodStart(lmp);
-    this.periodStartDate = new Date(`${lmp}T12:00:00`);
-    this.updateCycleDay();
-
-    if (status === 'pregnant') {
-      this.cycleSettings.setUserStatus('Pregnant');
-      this.cycleSettings.setPregnancyStatus(true);
-      this.cycleSettings.setPostpartumStatus(false);
-      this.pregnancyStartDate = lmp;
-      this.recomputePregnancyStatsFromLmpIfAvailable();
-    } else if (status === 'postpartum') {
-      this.cycleSettings.setUserStatus('Postpartum');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(true);
-    } else {
-      this.cycleSettings.setUserStatus('Trying to Conceive');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(false);
-    }
-
-    // One-time best-effort backfill to server journey row for signed-in users.
-    const key = '__onboarding_lmp_backfilled__';
-    if (sessionStorage.getItem(key) === '1') {
-      return;
-    }
-    this.userInfoService
-      .patchMeOnboarding({
-        pregnancyStatus:
-          status === 'pregnant'
-            ? 'PREGNANT'
-            : status === 'postpartum'
-            ? 'POSTPARTUM'
-            : 'PLANNING_PREGNANCY',
-        lastPeriodDate: lmp,
-        cycleLength,
-        periodLength,
-      })
-      .subscribe({
-        next: () => sessionStorage.setItem(key, '1'),
-        error: () => {
-          // non-fatal; dashboard sync will still run
-        },
-      });
-  }
+ 
 
   /**
    * Check if user has completed onboarding and set appropriate status
    */
   private checkOnboardingStatus() {
+    
     const onboardingCompleted = localStorage.getItem('onboarding_completed');
     const onboardingData = localStorage.getItem('onboarding_data');
 
@@ -599,7 +384,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
           // Update cycle settings
           this.cycleSettings.setUserStatus('Pregnant');
-          this.cycleSettings.setPregnancyStatus(true);
+          // this.cycleSettings.setPregnancyStatus(true);
           this.cycleSettings.setPostpartumStatus(false);
         } else if (data.pregnancy_status === 'postpartum') {
           this.userStatus = 'Postpartum';
@@ -608,7 +393,8 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
           // Update cycle settings
           this.cycleSettings.setUserStatus('Postpartum');
-          this.cycleSettings.setPregnancyStatus(false);
+          // this.cycleSettings.setPregnancyStatus(false);
+
           this.cycleSettings.setPostpartumStatus(true);
         } else {
           // Trying to conceive or tracking
@@ -831,7 +617,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   private applyJourneyStateToView(state: HomePageJourneyState) {
     this.userStatus = state.userStatus;
-    this.isPregnant.set(state.isPregnant);
+    // this.isPregnant.set(state.isPregnant);
     this.isPostpartum = state.isPostpartum;
     this.needsPregnancyInput = false;
     this.dashboardPregnancyTips = [];
@@ -1153,141 +939,141 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   // User Status Management
-  async updateUserStatus() {
-    const alert = await this.alertController.create({
-      header: this.tr('home.alert.updateStatusHeader'),
-      message: this.tr('home.alert.updateStatusMessage'),
-      buttons: [
-        {
-          text: this.tr('home.dialog.statusTTC'),
-          handler: () => {
-            this.userStatus = 'Trying to Conceive';
-            this.isPregnant.set(false);
-            this.isPostpartum = false;
-            this.cycleSettings.setUserStatus('Trying to Conceive');
-            this.cycleSettings.setPregnancyStatus(false);
-            this.cycleSettings.setPostpartumStatus(false);
-            this.showToast(this.tr('home.dialog.statusUpdatedTTC'));
-          },
-        },
-        {
-          text: this.tr('home.dialog.statusPregnant'),
-          handler: async () => {
-            this.userStatus = 'Pregnant';
-            this.isPregnant.set(true);
-            this.isPostpartum = false;
-            this.cycleSettings.setUserStatus('Pregnant');
-            this.cycleSettings.setPregnancyStatus(true);
-            this.cycleSettings.setPostpartumStatus(false);
+  // async updateUserStatus() {
+  //   const alert = await this.alertController.create({
+  //     header: this.tr('home.alert.updateStatusHeader'),
+  //     message: this.tr('home.alert.updateStatusMessage'),
+  //     buttons: [
+  //       {
+  //         text: this.tr('home.dialog.statusTTC'),
+  //         handler: () => {
+  //           this.userStatus = 'Trying to Conceive';
+  //           this.isPregnant.set(false);
+  //           this.isPostpartum = false;
+  //           this.cycleSettings.setUserStatus('Trying to Conceive');
+  //           this.cycleSettings.setPregnancyStatus(false);
+  //           this.cycleSettings.setPostpartumStatus(false);
+  //           this.showToast(this.tr('home.dialog.statusUpdatedTTC'));
+  //         },
+  //       },
+  //       {
+  //         text: this.tr('home.dialog.statusPregnant'),
+  //         handler: async () => {
+  //           this.userStatus = 'Pregnant';
+  //           this.isPregnant.set(true);
+  //           this.isPostpartum = false;
+  //           this.cycleSettings.setUserStatus('Pregnant');
+  //           this.cycleSettings.setPregnancyStatus(true);
+  //           this.cycleSettings.setPostpartumStatus(false);
 
-            // Ask for pregnancy week
-            const weekAlert = await this.alertController.create({
-              header: this.tr('home.alert.congratsPregnantHeader'),
-              message: this.tr('home.alert.congratsPregnantMessage'),
-              inputs: [
-                {
-                  name: 'week',
-                  type: 'number',
-                  placeholder: this.tr('home.dialog.weekPlaceholderPregnancy'),
-                  min: 4,
-                  max: 40,
-                  value: 12,
-                },
-              ],
-              buttons: [
-                {
-                  text: this.tr('home.common.cancel'),
-                  role: 'cancel',
-                },
-                {
-                  text: this.tr('home.dialog.setWeek'),
-                  handler: (data) => {
-                    const week = parseInt(data.week);
-                    if (week >= 4 && week <= 40) {
-                      this.updatePregnancyWeek(week);
-                      const babyData = this.getCurrentBabySize();
-                      this.showToast(
-                        this.tr('home.dialog.weekBabyToast', {
-                          week,
-                          size: babyData.size.split(' ')[0],
-                        })
-                      );
-                    } else {
-                      this.showToast(
-                        this.tr('home.dialog.invalidWeekPregnancy'),
-                        'warning'
-                      );
-                    }
-                  },
-                },
-              ],
-            });
-            await weekAlert.present();
-          },
-        },
-        {
-          text: this.tr('home.dialog.statusPostpartum'),
-          handler: async () => {
-            this.userStatus = 'Postpartum';
-            this.isPregnant.set(false);
-            this.isPostpartum = true;
-            this.cycleSettings.setUserStatus('Postpartum');
-            this.cycleSettings.setPregnancyStatus(false);
-            this.cycleSettings.setPostpartumStatus(true);
+  //           // Ask for pregnancy week
+  //           const weekAlert = await this.alertController.create({
+  //             header: this.tr('home.alert.congratsPregnantHeader'),
+  //             message: this.tr('home.alert.congratsPregnantMessage'),
+  //             inputs: [
+  //               {
+  //                 name: 'week',
+  //                 type: 'number',
+  //                 placeholder: this.tr('home.dialog.weekPlaceholderPregnancy'),
+  //                 min: 4,
+  //                 max: 40,
+  //                 value: 12,
+  //               },
+  //             ],
+  //             buttons: [
+  //               {
+  //                 text: this.tr('home.common.cancel'),
+  //                 role: 'cancel',
+  //               },
+  //               {
+  //                 text: this.tr('home.dialog.setWeek'),
+  //                 handler: (data) => {
+  //                   const week = parseInt(data.week);
+  //                   if (week >= 4 && week <= 40) {
+  //                     this.updatePregnancyWeek(week);
+  //                     const babyData = this.getCurrentBabySize();
+  //                     this.showToast(
+  //                       this.tr('home.dialog.weekBabyToast', {
+  //                         week,
+  //                         size: babyData.size.split(' ')[0],
+  //                       })
+  //                     );
+  //                   } else {
+  //                     this.showToast(
+  //                       this.tr('home.dialog.invalidWeekPregnancy'),
+  //                       'warning'
+  //                     );
+  //                   }
+  //                 },
+  //               },
+  //             ],
+  //           });
+  //           await weekAlert.present();
+  //         },
+  //       },
+  //       {
+  //         text: this.tr('home.dialog.statusPostpartum'),
+  //         handler: async () => {
+  //           this.userStatus = 'Postpartum';
+  //           this.isPregnant.set(false);
+  //           this.isPostpartum = true;
+  //           this.cycleSettings.setUserStatus('Postpartum');
+  //           this.cycleSettings.setPregnancyStatus(false);
+  //           this.cycleSettings.setPostpartumStatus(true);
 
-            // Ask for postpartum week
-            const weekAlert = await this.alertController.create({
-              header: this.tr('home.alert.postpartumWelcomeHeader'),
-              message: this.tr('home.alert.postpartumWelcomeMessage'),
-              inputs: [
-                {
-                  name: 'week',
-                  type: 'number',
-                  placeholder: this.tr('home.dialog.weekPlaceholderPostpartum'),
-                  min: 1,
-                  max: 12,
-                  value: 1,
-                },
-              ],
-              buttons: [
-                {
-                  text: this.tr('home.common.cancel'),
-                  role: 'cancel',
-                },
-                {
-                  text: this.tr('home.dialog.setWeek'),
-                  handler: (data) => {
-                    const week = parseInt(data.week);
-                    if (week >= 1 && week <= 12) {
-                      this.updatePostpartumWeek(week);
-                      const postpartumData = this.getCurrentPostpartumData();
-                      this.showToast(
-                        this.tr('home.dialog.postpartumWeekToast', {
-                          week,
-                          recovery: postpartumData.recovery,
-                        })
-                      );
-                    } else {
-                      this.showToast(
-                        this.tr('home.dialog.invalidWeekPostpartum'),
-                        'warning'
-                      );
-                    }
-                  },
-                },
-              ],
-            });
-            await weekAlert.present();
-          },
-        },
-        {
-          text: this.tr('home.common.cancel'),
-          role: 'cancel',
-        },
-      ],
-    });
-    await alert.present();
-  }
+  //           // Ask for postpartum week
+  //           const weekAlert = await this.alertController.create({
+  //             header: this.tr('home.alert.postpartumWelcomeHeader'),
+  //             message: this.tr('home.alert.postpartumWelcomeMessage'),
+  //             inputs: [
+  //               {
+  //                 name: 'week',
+  //                 type: 'number',
+  //                 placeholder: this.tr('home.dialog.weekPlaceholderPostpartum'),
+  //                 min: 1,
+  //                 max: 12,
+  //                 value: 1,
+  //               },
+  //             ],
+  //             buttons: [
+  //               {
+  //                 text: this.tr('home.common.cancel'),
+  //                 role: 'cancel',
+  //               },
+  //               {
+  //                 text: this.tr('home.dialog.setWeek'),
+  //                 handler: (data) => {
+  //                   const week = parseInt(data.week);
+  //                   if (week >= 1 && week <= 12) {
+  //                     this.updatePostpartumWeek(week);
+  //                     const postpartumData = this.getCurrentPostpartumData();
+  //                     this.showToast(
+  //                       this.tr('home.dialog.postpartumWeekToast', {
+  //                         week,
+  //                         recovery: postpartumData.recovery,
+  //                       })
+  //                     );
+  //                   } else {
+  //                     this.showToast(
+  //                       this.tr('home.dialog.invalidWeekPostpartum'),
+  //                       'warning'
+  //                     );
+  //                   }
+  //                 },
+  //               },
+  //             ],
+  //           });
+  //           await weekAlert.present();
+  //         },
+  //       },
+  //       {
+  //         text: this.tr('home.common.cancel'),
+  //         role: 'cancel',
+  //       },
+  //     ],
+  //   });
+  //   await alert.present();
+  // }
 
   // Pregnancy Progress
   viewPregnancyDetails() {
@@ -1681,7 +1467,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       });
 
       this.userStatus = 'Trying to Conceive';
-      this.isPregnant.set(false);
+      // this.isPregnant.set(false);
       this.isPostpartum = false;
 
       // Reset pregnancy-related data
@@ -1690,7 +1476,8 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
       // Save to persistent storage
       this.cycleSettings.setUserStatus('Trying to Conceive');
-      this.cycleSettings.setPregnancyStatus(false);
+
+      // this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(false);
       this.cycleSettings.setPregnancyWeek(0);
       this.cycleSettings.setPregnancyProgress(0);

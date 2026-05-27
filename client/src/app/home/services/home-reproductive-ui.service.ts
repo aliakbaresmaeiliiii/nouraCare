@@ -100,7 +100,7 @@ export class HomeReproductiveUiService {
 
     if (dashboard.state === 'postpartum') {
       this.cycleSettings.setUserStatus('Postpartum');
-      this.cycleSettings.setPregnancyStatus(false);
+      // this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(true);
       return {
         userStatus: 'Postpartum',

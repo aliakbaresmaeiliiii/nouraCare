@@ -258,7 +258,7 @@ export class ToolsComponent implements OnInit {
       if (isPregnant) {
         // Update pregnancy status
         this.cycleSettings.setUserStatus('Pregnant');
-        this.cycleSettings.setPregnancyStatus(true);
+        // this.cycleSettings.setPregnancyStatus(true);
         this.cycleSettings.setPostpartumStatus(false);
         
         // Update pregnancy week if valid
@@ -272,7 +272,7 @@ export class ToolsComponent implements OnInit {
       } else {
         // Update to trying to conceive
         this.cycleSettings.setUserStatus('Trying to Conceive');
-        this.cycleSettings.setPregnancyStatus(false);
+        // this.cycleSettings.setPregnancyStatus(false);
         this.cycleSettings.setPostpartumStatus(false);
         
         await this.showToast('Status updated to "Trying to Conceive"', 'success');

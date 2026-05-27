@@ -17,7 +17,7 @@ export class UpdateReproductiveStateDto {
 
   @IsOptional()
   @IsDateString()
-  tryingSince?: string;
+  tryingSince?: string; 
 
   @IsOptional()
   @IsString()

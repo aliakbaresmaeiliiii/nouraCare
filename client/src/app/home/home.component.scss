@@ -1119,72 +1119,48 @@
   }
 }
 
-// End-of-home feature promo (swiper)
 .home-feature-slider {
-  margin-top: 1.5rem;
-  padding: 0 1rem 2.25rem;
   max-width: 520px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
+}
 
-  &__head {
-    margin-bottom: 0.75rem;
-    text-align: center;
-  }
+.slider-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* مخفی کردن اسکرول بار در فایرفاکس */
+}
 
-  &__title {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--ion-text-color);
-  }
+.slider-container::-webkit-scrollbar {
+  display: none; /* مخفی کردن اسکرول بار در کروم و سافاری */
+}
 
-  &__swiper {
-    width: 100%;
-    --swiper-pagination-bottom: 6px;
-    --swiper-pagination-color: var(--ion-color-primary);
-    --swiper-pagination-bullet-inactive-color: var(--ion-color-medium);
-    --swiper-pagination-bullet-inactive-opacity: 0.35;
-    --swiper-pagination-bullet-size: 7px;
-    --swiper-pagination-bullet-horizontal-gap: 5px;
-    padding-bottom: 1.75rem;
-  }
+.slider-item {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  padding: 1rem;
+}
 
-  &__card {
-    margin: 0 auto;
-    max-width: 100%;
-    border-radius: 18px;
-    overflow: hidden;
-    background: var(--ion-card-background, var(--ion-item-background));
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(var(--ion-color-medium-rgb, 152, 154, 162), 0.2);
-  }
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
 
-  &__media {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    background: var(--ion-color-light);
+.card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
 
-    img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-    }
-  }
-
-  &__text {
-    margin: 0;
-    padding: 1rem 1.1rem 1.15rem;
-    font-size: 0.98rem;
-    font-weight: 500;
-    line-height: 1.45;
-    text-align: center;
-    color: var(--ion-text-color);
-  }
+.card p {
+  padding: 1rem;
+  margin: 0;
+  text-align: center;
 }
 
 // Animations

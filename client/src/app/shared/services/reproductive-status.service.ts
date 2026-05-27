@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { addCalendarDaysIso, isoDateOnly } from '../utils/pregnancy-lmp.util';
+import { UpdateReproductiveStateDto } from '../../profile/models/UpdateReproductiveStateDto';
 
 export interface ReproductiveStatusData {
   isPregnant?: boolean;
@@ -69,7 +70,10 @@ export class ReproductiveStatusService {
   private baseUrl = environment.apiEndPoint + 'profile';
   private meBaseUrl = environment.apiEndPoint + 'me';
 
-  updateReproductiveStatus(userId: number, data: ReproductiveStatusData): Observable<any> {
+  updateReproductiveStatus(
+    userId: number,
+    data: ReproductiveStatusData
+  ): Observable<any> {
     const payload: Record<string, unknown> = {};
 
     if (data.pregnancyEndDate) {
@@ -82,7 +86,8 @@ export class ReproductiveStatusService {
     }
 
     if (data.lastPeriodDate) payload['lastPeriodDate'] = data.lastPeriodDate;
-    if (typeof data.cycleLength === 'number') payload['cycleLength'] = data.cycleLength;
+    if (typeof data.cycleLength === 'number')
+      payload['cycleLength'] = data.cycleLength;
     if (data.notes) payload['notes'] = data.notes;
 
     return this.http
@@ -102,8 +107,8 @@ export class ReproductiveStatusService {
 
   // Create pregnancy planning
   createPregnancyPlanning(
-    userId:number,
-    data: CreatePregnancyPlanningDto,
+    userId: number,
+    data: CreatePregnancyPlanningDto
   ): Observable<PregnancyPlanningResponseDto> {
     return this.http.post<PregnancyPlanningResponseDto>(
       `${this.baseUrl}/${userId}/pregnancy-planning`,
@@ -160,7 +165,7 @@ export class ReproductiveStatusService {
 
   calculateFertileWindow(
     lastPeriodDate: string,
-    cycleLength: number,
+    cycleLength: number
   ): { start: Date; end: Date } {
     const cl = this.clampCycleLength(cycleLength);
     const iso = isoDateOnly(lastPeriodDate);
@@ -192,11 +197,23 @@ export class ReproductiveStatusService {
 
   getPeriodLogs(userId: number): Observable<PeriodLogResponseDto[]> {
     return this.http.get<PeriodLogResponseDto[]>(
-      `${environment.apiEndPoint}profile/${userId}/period-logs`,
+      `${environment.apiEndPoint}profile/${userId}/period-logs`
     );
   }
 
-  private mapDashboardToReproductiveStatus(source: any): ReproductiveStatusData {
+  updateState(
+    userId: number,
+    data: UpdateReproductiveStateDto
+  ): Observable<any> {
+    return this.http.patch<any>(
+      `${environment.apiEndPoint}me/${userId}/state`,
+      data
+    );
+  }
+
+  private mapDashboardToReproductiveStatus(
+    source: any
+  ): ReproductiveStatusData {
     if (!source || typeof source !== 'object') {
       return {};
     }
@@ -210,14 +227,17 @@ export class ReproductiveStatusService {
     return {
       isPregnant: state === 'pregnant',
       pregnancyEndDate:
-        state === 'postpartum' ? (source.pregnancyEndDate ?? source.nextPeriod ?? null) : undefined,
+        state === 'postpartum'
+          ? source.pregnancyEndDate ?? source.nextPeriod ?? null
+          : undefined,
       lastPeriodDate:
         source.lastMenstrualPeriod ??
         source.lastPeriodDate ??
         source.lastPeriodDateIso ??
         null,
       cycleLength: source.cycleLength ?? source.avgCycleLength ?? null,
-      averagePeriodDuration: source.avgPeriodLength ?? source.periodLength ?? null,
+      averagePeriodDuration:
+        source.avgPeriodLength ?? source.periodLength ?? null,
       notes: source.notes ?? null,
     };
   }

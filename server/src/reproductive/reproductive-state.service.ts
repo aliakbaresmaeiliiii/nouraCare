@@ -32,31 +32,55 @@ export class ReproductiveStateService {
   }
 
   async updateState(userId: number, dto: UpdateReproductiveStateDto) {
+    const nextState = dto.state;
+  
+    // Execute database operations within an atomic transaction
     await this.prisma.$transaction(async (tx) => {
+      // 1. Ensure user exists
       await this.ensureUserExists(tx, userId);
-      const current = await tx.reproductive_state.findUnique({ where: { userId } });
-      const nextState = dto.state;
-      if (!current) {
+      // 2. Retrieve current state and parse it
+      const currentRecord = await tx.reproductive_state.findUnique({ 
+        where: { userId } 
+      });
+      const currentState = currentRecord 
+        ? fromPrismaReproductiveState(currentRecord.state) 
+        : null;
+  
+      // 3. Perform state modification only if state changed or is new
+      if (!currentRecord) {
+        // Ensure setState maps 'nextState' correctly internally, or map it here:
         await this.setState(tx, userId, nextState);
-      } else {
+      } else if (currentState !== nextState) {
+        const nextStatePrisma = toPrismaReproductiveState(nextState);
         await tx.reproductive_state.update({
           where: { userId },
-          data: { state: toPrismaReproductiveState(nextState), updatedAt: new Date() },
+          data: { 
+            state: nextStatePrisma, 
+            updatedAt: new Date() // Omit this if your Prisma schema uses @updatedAt
+          },
         });
       }
-
-      if (
-        current &&
-        fromPrismaReproductiveState(current.state) === 'pregnant' &&
-        nextState !== 'pregnant'
-      ) {
+  
+      // 4. Handle Lifecycle Transitions (State Machine Rules)
+      
+      // Leaving 'pregnant' -> Close active pregnancy
+      if (currentState === 'pregnant' && nextState !== 'pregnant') {
         await this.pregnancyService.closeActivePregnancy(tx, userId);
       }
-
+  
+      // Entering 'pregnant' -> Optional: Auto-create pregnancy if not already handled
+      // if (currentState !== 'pregnant' && nextState === 'pregnant') {
+      //   await this.pregnancyService.startActivePregnancy(tx, userId);
+      // }
+  
+      // 5. Sync other domains (ensure 'tx' is used inside this method)
       await this.syncDomainForState(tx, userId, nextState, dto);
     });
+  
+    // 6. Read operation outside the transaction block (Best practice for performance)
     return this.buildDashboard(this.prisma, userId);
   }
+  
 
   async getDashboard(userId: number) {
     return this.prisma.$transaction(async (tx) => {

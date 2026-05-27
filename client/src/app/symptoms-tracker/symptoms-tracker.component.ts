@@ -795,7 +795,6 @@ export class SymptomsTrackerComponent implements OnInit {
 
   getUserId(): string {
     try {
-      debugger;
       const userInfo = localStorage.getItem('userInfo');
       if (userInfo) {
         const parsed = JSON.parse(userInfo);

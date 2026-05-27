@@ -5,17 +5,21 @@
       [refreshingText]="'common.refreshing' | translate"
     ></ion-refresher-content>
   </ion-refresher>
-<div class="home-content" [class.home-content--pregnancy-today]="isPregnant()">
-  <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
-  @if (!isPregnant() && !showStartTrackingOnboarding() && !isHomeCycleTrackingLayout()) {
-    <div class="welcome-hero ">
+  <div
+    class="home-content"
+    [class.home-content--pregnancy-today]="isPregnant()"
+  >
+    <!-- Welcome Hero Section (hidden while pregnant — replaced by pregnancy today layout) -->
+    @if (!isPregnant() && !showStartTrackingOnboarding() &&
+    !isHomeCycleTrackingLayout()) {
+    <div class="welcome-hero">
       <div class="hero-background">
         <div class="floating-bubble bubble-1"></div>
         <div class="floating-bubble bubble-2"></div>
         <div class="floating-bubble bubble-3"></div>
       </div>
 
-      <div class="hero-content ">
+      <div class="hero-content">
         <div class="greeting-section">
           <div class="greeting-avatar">
             <img
@@ -24,7 +28,7 @@
               onerror="this.style.display='none'"
             />
             @if (hasUserAvatar) {
-              <ion-icon name="person-circle"></ion-icon>
+            <ion-icon name="person-circle"></ion-icon>
             }
           </div>
           <div class="greeting-text">
@@ -34,11 +38,10 @@
         </div>
       </div>
     </div>
-  }
-  
+    }
 
-  <!-- Default State - Onboarding Section -->
-  @if (showStartTrackingOnboarding()) {
+    <!-- Default State - Onboarding Section -->
+    @if (showStartTrackingOnboarding()) {
     <section class="onboarding-section">
       <div class="onboarding-card onboarding-card--planning">
         <div class="planning-header-row">
@@ -55,10 +58,10 @@
 
         <ul class="planning-feature-list" role="list">
           @for (label of getPreCycleEmptyCopy().features; track label) {
-            <li class="planning-feature-item" role="listitem">
-              <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
-              <span>{{ label }}</span>
-            </li>
+          <li class="planning-feature-item" role="listitem">
+            <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
+            <span>{{ label }}</span>
+          </li>
           }
         </ul>
 
@@ -69,12 +72,12 @@
           (click)="openPeriodDatePicker()"
         >
           <ion-icon name="play-circle-outline" slot="start"></ion-icon>
-          {{ 'home.startTracking' | translate }}
+          {{ "home.startTracking" | translate }}
         </ion-button>
       </div>
     </section>
-  }
-  @if (!isPregnant() && !isPostpartum && isHomeCycleTrackingLayout() && !showStartTrackingOnboarding()) {
+    } @if (!isPregnant() && !isPostpartum && isHomeCycleTrackingLayout() &&
+    !showStartTrackingOnboarding()) {
     <div class="cycle-compact-section">
       <div class="cycle-hero-sky">
         <div class="cycle-ring-shell cycle-ring-shell--hero">
@@ -86,16 +89,26 @@
       </div>
 
       <div class="pregnancy-daily-insights">
-        <h2 class="pregnancy-daily-insights-title">{{ getCycleInsightsHeading() }}</h2>
-        <div class="pds-quick-links pds-quick-links--before-strip" aria-label="More cycle tools">
+        <h2 class="pregnancy-daily-insights-title">
+          {{ getCycleInsightsHeading() }}
+        </h2>
+        <div
+          class="pds-quick-links pds-quick-links--before-strip"
+          aria-label="More cycle tools"
+        >
           <button
             type="button"
             class="pds-cycle-calendar-btn"
             (click)="openCycleCalendar()"
             [attr.aria-label]="'home.cycleCalendarChip' | translate"
           >
-            <strong class="pds-cycle-calendar-btn__label">{{ 'home.cycleCalendarChip' | translate }}</strong>
-            <div class="pds-cycle-calendar-btn__container-stars" aria-hidden="true">
+            <strong class="pds-cycle-calendar-btn__label">{{
+              "home.cycleCalendarChip" | translate
+            }}</strong>
+            <div
+              class="pds-cycle-calendar-btn__container-stars"
+              aria-hidden="true"
+            >
               <div class="pds-cycle-calendar-btn__stars"></div>
             </div>
             <div class="pds-cycle-calendar-btn__glow" aria-hidden="true">
@@ -114,12 +127,16 @@
               <span class="pds-summary-orb pds-summary-orb--b">
                 <ion-icon name="happy-outline"></ion-icon>
               </span>
-              <span class="pds-summary-orb pds-summary-orb--c">+{{ cdsStoryTopics.length }}</span>
+              <span class="pds-summary-orb pds-summary-orb--c"
+                >+{{ cdsStoryTopics.length }}</span
+              >
             </div>
             <button
               type="button"
               class="pds-summary-story-btn"
-              (click)="openDailyInsightStory(getCycleDailyInsightSummaryTopic())"
+              (click)="
+                openDailyInsightStory(getCycleDailyInsightSummaryTopic())
+              "
               aria-label="Open daily insights summary"
             ></button>
             <button
@@ -133,43 +150,54 @@
           </div>
 
           @for (topic of cdsStoryTopics; track topic.id) {
-            <button
-              type="button"
-              class="pds-card"
-              [class.pds-card--topic]="!topic.personalized"
-              [class.pds-card--personalized]="topic.personalized"
-              role="listitem"
-              (click)="openDailyInsightStory(topic)"
+          <button
+            type="button"
+            class="pds-card"
+            [class.pds-card--topic]="!topic.personalized"
+            [class.pds-card--personalized]="topic.personalized"
+            role="listitem"
+            (click)="openDailyInsightStory(topic)"
+          >
+            @if (!topic.personalized) {
+            <span class="pds-topic-label" [style.color]="topic.accentHex">{{
+              topic.categoryLabel
+            }}</span>
+            <span
+              class="pds-topic-icon-ring"
+              [style.--pds-accent]="topic.accentHex"
             >
-              @if (!topic.personalized) {
-                <span class="pds-topic-label" [style.color]="topic.accentHex">{{ topic.categoryLabel }}</span>
-                <span class="pds-topic-icon-ring" [style.--pds-accent]="topic.accentHex">
-                  <ion-icon [name]="topic.ionIcon"></ion-icon>
-                </span>
-                <span class="pds-topic-inner" [style.--pds-accent]="topic.accentHex">
-                  <span class="pds-topic-teaser">{{ topic.teaser }}</span>
-                </span>
-              } @else {
-                <p class="pds-personal-copy">
-                  <strong>{{ getCycleWelcomeName() }}</strong
-                  >{{ 'home.personalizedCycleTeaser' | translate }}
-                </p>
-                <div class="pds-personal-foot" aria-hidden="true">
-                  <span class="pds-dot"></span>
-                  <span class="pds-dot"></span>
-                  <span class="pds-dot"></span>
-                  <ion-icon class="pds-personal-help" name="help-circle-outline"></ion-icon>
-                </div>
-              }
-            </button>
+              <ion-icon [name]="topic.ionIcon"></ion-icon>
+            </span>
+            <span
+              class="pds-topic-inner"
+              [style.--pds-accent]="topic.accentHex"
+            >
+              <span class="pds-topic-teaser">{{ topic.teaser }}</span>
+            </span>
+            } @else {
+            <p class="pds-personal-copy">
+              <strong>{{ getCycleWelcomeName() }}</strong
+              >{{ "home.personalizedCycleTeaser" | translate }}
+            </p>
+            <div class="pds-personal-foot" aria-hidden="true">
+              <span class="pds-dot"></span>
+              <span class="pds-dot"></span>
+              <span class="pds-dot"></span>
+              <ion-icon
+                class="pds-personal-help"
+                name="help-circle-outline"
+              ></ion-icon>
+            </div>
+            }
+          </button>
           }
         </div>
       </div>
     </div>
-  }
+    }
 
-  <!-- Pregnancy “Today” layout (reference UI above Quick Actions) -->
-  @if (isPregnant()) {
+    <!-- Pregnancy “Today” layout (reference UI above Quick Actions) -->
+    @if (isPregnant()) {
     <div class="pregnancy-today-shell">
       <div class="pregnancy-today-bg" aria-hidden="true">
         <div class="pregnancy-today-blob pregnancy-today-blob--1"></div>
@@ -178,23 +206,20 @@
       </div>
 
       @if (needsPregnancyInput) {
-        <div class="pregnancy-input-banner ion-padding-horizontal">
-          <p class="pregnancy-input-banner-lead">{{ 'home.pregnancyInputLead' | translate }}</p>
-          <p>
-            {{ 'home.pregnancyInputBody' | translate }}
-          </p>
-          <ion-button size="small" (click)="presentPregnancySetupModal()">{{
-            'home.addDates' | translate
-          }}</ion-button>
-        </div>
+      <div class="pregnancy-input-banner ion-padding-horizontal">
+        <p class="pregnancy-input-banner-lead">
+          {{ "home.pregnancyInputLead" | translate }}
+        </p>
+        <p>
+          {{ "home.pregnancyInputBody" | translate }}
+        </p>
+        <ion-button size="small" (click)="presentPregnancySetupModal()">{{
+          "home.addDates" | translate
+        }}</ion-button>
+      </div>
       }
 
-      <div
-        class="pregnancy-connect-wrapper"
-        #pregnancyConnectWrapper
-      >
-       
-
+      <div class="pregnancy-connect-wrapper" #pregnancyConnectWrapper>
         <div
           #pregnancyCalendarScroll
           class="pregnancy-calendar-swiper"
@@ -203,26 +228,26 @@
           (scroll)="onPregnancyCalendarScrollForConnector()"
         >
           @for (week of getPregnancyCalendarWeeks(); track week.weekKey) {
-            <div class="pregnancy-calendar-week">
-              @for (d of week.days; track d.isoKey) {
-                <button
-                  type="button"
-                  class="pregnancy-calendar-col"
-                  [class.pregnancy-calendar-col--today]="d.isToday"
-                  [class.pregnancy-calendar-col--selected]="
-                    isPregnancyCalendarDaySelected(d) &&
-                    !isPregnancyCalendarDayDisabled(d)
-                  "
-                  [disabled]="isPregnancyCalendarDayDisabled(d)"
-                  (click)="onPregnancyCalendarPickDay(d)"
-                >
-                  <span class="pregnancy-calendar-label">{{ d.label }}</span>
-                  <span class="pregnancy-calendar-date-wrap">
-                    <span class="pregnancy-calendar-date">{{ d.dateNum }}</span>
-                  </span>
-                </button>
-              }
-            </div>
+          <div class="pregnancy-calendar-week">
+            @for (d of week.days; track d.isoKey) {
+            <button
+              type="button"
+              class="pregnancy-calendar-col"
+              [class.pregnancy-calendar-col--today]="d.isToday"
+              [class.pregnancy-calendar-col--selected]="
+                isPregnancyCalendarDaySelected(d) &&
+                !isPregnancyCalendarDayDisabled(d)
+              "
+              [disabled]="isPregnancyCalendarDayDisabled(d)"
+              (click)="onPregnancyCalendarPickDay(d)"
+            >
+              <span class="pregnancy-calendar-label">{{ d.label }}</span>
+              <span class="pregnancy-calendar-date-wrap">
+                <span class="pregnancy-calendar-date">{{ d.dateNum }}</span>
+              </span>
+            </button>
+            }
+          </div>
           }
         </div>
 
@@ -232,101 +257,116 @@
             [class.pregnancy-hero-disk-shell--no-ring]="needsPregnancyInput"
           >
             @if (!needsPregnancyInput) {
-              <svg
-                class="pregnancy-hero-progress-ring"
-                viewBox="0 0 100 100"
-                role="progressbar"
-                [attr.aria-valuenow]="getPregnancyProgressBarPercent()"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                [attr.aria-valuetext]="getPregnancyProgressRingAriaValuetext()"
-                [attr.aria-label]="'home.pregnancyRingAria' | translate"
-              >
-                <defs>
-                  <linearGradient
-                    [attr.id]="pregnancyHeroRingGradId"
-                    x1="15%"
-                    y1="100%"
-                    x2="85%"
-                    y2="0%"
-                  >
-                    <stop offset="0%" stop-color="#ffcaba" />
-                    <stop offset="38%" stop-color="#f2a090" />
-                    <stop offset="100%" stop-color="#d86a52" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  class="pregnancy-hero-progress-ring__halo"
-                  cx="50"
-                  cy="50"
-                  r="46"
-                  fill="none"
-                />
-                <circle
-                  class="pregnancy-hero-progress-ring__track"
-                  cx="50"
-                  cy="50"
-                  r="46"
-                  fill="none"
-                />
-                <circle
-                  class="pregnancy-hero-progress-ring__fill"
-                  cx="50"
-                  cy="50"
-                  r="46"
-                  fill="none"
-                  [attr.stroke]="'url(#' + pregnancyHeroRingGradId + ')'"
-                  stroke-width="4.25"
-                  stroke-linecap="round"
-                  transform="rotate(-90 50 50)"
-                  [attr.stroke-dasharray]="getPregnancyProgressRingDasharray()"
-                  [attr.stroke-dashoffset]="getPregnancyProgressRingDashoffset()"
-                />
-                @for (dot of getPregnancyRingMilestoneDots(); track dot.key) {
-                  <circle
-                    class="pregnancy-hero-progress-ring__milestone"
-                    [attr.cx]="dot.cx"
-                    [attr.cy]="dot.cy"
-                    r="2.1"
-                  />
-                }
-              </svg>
-
-              <div
-                class="pregnancy-hero-ring-week"
-                aria-live="polite"
-                [ngStyle]="getPregnancyHeroRingWeekBadgeStyle()"
-              >
-                <button
-                  type="button"
-                  class="pregnancy-hero-summary-badge pregnancy-hero-summary-badge--on-ring"
-                  (click)="openCurrentPregnancyWeekDetail()"
-                  [attr.aria-label]="'Week ' + getPregnancyDisplayWeek() + ', ' + getPregnancyWeekAlongUnit() + '. Open week details'"
+            <svg
+              class="pregnancy-hero-progress-ring"
+              viewBox="0 0 100 100"
+              role="progressbar"
+              [attr.aria-valuenow]="getPregnancyProgressBarPercent()"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              [attr.aria-valuetext]="getPregnancyProgressRingAriaValuetext()"
+              [attr.aria-label]="'home.pregnancyRingAria' | translate"
+            >
+              <defs>
+                <linearGradient
+                  [attr.id]="pregnancyHeroRingGradId"
+                  x1="15%"
+                  y1="100%"
+                  x2="85%"
+                  y2="0%"
                 >
-                  <span class="pregnancy-hero-summary-badge__num">{{ getPregnancyDisplayWeek() }}</span>
-                  <span class="pregnancy-hero-summary-badge__suffix">{{ getPregnancyWeekBadgeSuffix() }}</span>
-                </button>
-              </div>
+                  <stop offset="0%" stop-color="#ffcaba" />
+                  <stop offset="38%" stop-color="#f2a090" />
+                  <stop offset="100%" stop-color="#d86a52" />
+                </linearGradient>
+              </defs>
+              <circle
+                class="pregnancy-hero-progress-ring__halo"
+                cx="50"
+                cy="50"
+                r="46"
+                fill="none"
+              />
+              <circle
+                class="pregnancy-hero-progress-ring__track"
+                cx="50"
+                cy="50"
+                r="46"
+                fill="none"
+              />
+              <circle
+                class="pregnancy-hero-progress-ring__fill"
+                cx="50"
+                cy="50"
+                r="46"
+                fill="none"
+                [attr.stroke]="'url(#' + pregnancyHeroRingGradId + ')'"
+                stroke-width="4.25"
+                stroke-linecap="round"
+                transform="rotate(-90 50 50)"
+                [attr.stroke-dasharray]="getPregnancyProgressRingDasharray()"
+                [attr.stroke-dashoffset]="getPregnancyProgressRingDashoffset()"
+              />
+              @for (dot of getPregnancyRingMilestoneDots(); track dot.key) {
+              <circle
+                class="pregnancy-hero-progress-ring__milestone"
+                [attr.cx]="dot.cx"
+                [attr.cy]="dot.cy"
+                r="2.1"
+              />
+              }
+            </svg>
+
+            <div
+              class="pregnancy-hero-ring-week"
+              aria-live="polite"
+              [ngStyle]="getPregnancyHeroRingWeekBadgeStyle()"
+            >
+              <button
+                type="button"
+                class="pregnancy-hero-summary-badge pregnancy-hero-summary-badge--on-ring"
+                (click)="openCurrentPregnancyWeekDetail()"
+                [attr.aria-label]="
+                  'Week ' +
+                  getPregnancyDisplayWeek() +
+                  ', ' +
+                  getPregnancyWeekAlongUnit() +
+                  '. Open week details'
+                "
+              >
+                <span class="pregnancy-hero-summary-badge__num">{{
+                  getPregnancyDisplayWeek()
+                }}</span>
+                <span class="pregnancy-hero-summary-badge__suffix">{{
+                  getPregnancyWeekBadgeSuffix()
+                }}</span>
+              </button>
+            </div>
             }
 
             <div class="pregnancy-hero-disk pregnancy-hero-disk--illustration">
-              <div class="pregnancy-hero-visual pregnancy-hero-visual--illustration" aria-hidden="true">
+              <div
+                class="pregnancy-hero-visual pregnancy-hero-visual--illustration"
+                aria-hidden="true"
+              >
                 <div class="pregnancy-hero-fetus">
-                  @let heroIll = getPregnancyHeroIllustrationUrl();
-                  @if (heroIll) {
-                    <div class="pregnancy-hero-fetus-circle">
-                      <img
-                        class="pregnancy-hero-fetus-img"
-                        [src]="heroIll"
-                        [attr.alt]="getPregnancyHeroIllustrationAlt()"
-                        loading="lazy"
-                        decoding="async"
-                        width="200"
-                        height="200"
-                      />
-                    </div>
+                  @let heroIll = getPregnancyHeroIllustrationUrl(); @if
+                  (heroIll) {
+                  <div class="pregnancy-hero-fetus-circle">
+                    <img
+                      class="pregnancy-hero-fetus-img"
+                      [src]="heroIll"
+                      [attr.alt]="getPregnancyHeroIllustrationAlt()"
+                      loading="lazy"
+                      decoding="async"
+                      width="200"
+                      height="200"
+                    />
+                  </div>
                   } @else {
-                    <span class="pregnancy-hero-fetus-emoji">{{ getPregnancyBabyEmoji() }}</span>
+                  <span class="pregnancy-hero-fetus-emoji">{{
+                    getPregnancyBabyEmoji()
+                  }}</span>
                   }
                 </div>
               </div>
@@ -336,66 +376,75 @@
                 class="pregnancy-hero-details-btn"
                 (click)="openCurrentPregnancyWeekDetail()"
               >
-                {{ 'home.details' | translate }}
+                {{ "home.details" | translate }}
               </button>
             </div>
           </div>
         </div>
 
         @if (pregnancyConnector) {
-          <svg
-            class="pregnancy-date-hero-connector"
-            [attr.viewBox]="'0 0 ' + pregnancyConnector.w + ' ' + pregnancyConnector.h"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <defs>
-              <marker
-                [attr.id]="pregnancyConnectorMarkerId"
-                markerWidth="5"
-                markerHeight="5"
-                refX="4.6"
-                refY="2.5"
-                orient="auto"
-              >
-                <path d="M0,0 L5,2.5 L0,5 Z" fill="rgba(255,255,255,0.88)" />
-              </marker>
-            </defs>
-            <path
-              class="pregnancy-date-hero-connector-path"
-              [attr.d]="pregnancyConnector.pathD"
-              fill="none"
-              stroke="rgba(255,255,255,0.72)"
-              stroke-width="1.1"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              [attr.marker-end]="'url(#' + pregnancyConnectorMarkerId + ')'"
-            />
-          </svg>
+        <svg
+          class="pregnancy-date-hero-connector"
+          [attr.viewBox]="
+            '0 0 ' + pregnancyConnector.w + ' ' + pregnancyConnector.h
+          "
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <defs>
+            <marker
+              [attr.id]="pregnancyConnectorMarkerId"
+              markerWidth="5"
+              markerHeight="5"
+              refX="4.6"
+              refY="2.5"
+              orient="auto"
+            >
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="rgba(255,255,255,0.88)" />
+            </marker>
+          </defs>
+          <path
+            class="pregnancy-date-hero-connector-path"
+            [attr.d]="pregnancyConnector.pathD"
+            fill="none"
+            stroke="rgba(255,255,255,0.72)"
+            stroke-width="1.1"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            [attr.marker-end]="'url(#' + pregnancyConnectorMarkerId + ')'"
+          />
+        </svg>
         }
       </div>
 
       @if (!needsPregnancyInput && isPregnancyPostDueWindow()) {
-        <section class="pregnancy-post-due-card" [attr.aria-label]="'home.pregnancyPostDueAria' | translate">
-          <div class="pregnancy-post-due-card__inner">
-            <div class="pregnancy-post-due-card__icon" aria-hidden="true">
-              <span class="pregnancy-post-due-card__emoji">✨</span>
-            </div>
-            <div class="pregnancy-post-due-card__copy">
-              <h3 class="pregnancy-post-due-card__title">{{ 'home.postDueTitle' | translate }}</h3>
-              <p class="pregnancy-post-due-card__body">
-                {{ 'home.postDueBody' | translate }}
-              </p>
-              <p class="pregnancy-post-due-card__hint">
-                {{ getPostDueHintText() }}
-              </p>
-            </div>
+      <section
+        class="pregnancy-post-due-card"
+        [attr.aria-label]="'home.pregnancyPostDueAria' | translate"
+      >
+        <div class="pregnancy-post-due-card__inner">
+          <div class="pregnancy-post-due-card__icon" aria-hidden="true">
+            <span class="pregnancy-post-due-card__emoji">✨</span>
           </div>
-        </section>
+          <div class="pregnancy-post-due-card__copy">
+            <h3 class="pregnancy-post-due-card__title">
+              {{ "home.postDueTitle" | translate }}
+            </h3>
+            <p class="pregnancy-post-due-card__body">
+              {{ "home.postDueBody" | translate }}
+            </p>
+            <p class="pregnancy-post-due-card__hint">
+              {{ getPostDueHintText() }}
+            </p>
+          </div>
+        </div>
+      </section>
       }
 
       <div class="pregnancy-daily-insights">
-        <h2 class="pregnancy-daily-insights-title">{{ getPregnancyInsightsHeading() }}</h2>
+        <h2 class="pregnancy-daily-insights-title">
+          {{ getPregnancyInsightsHeading() }}
+        </h2>
         @let pdsStoryTopics = getPregnancyDailyInsightStripTopics();
         <div class="pds-strip" role="list" aria-label="Daily insight stories">
           <div class="pds-card pds-card--summary" role="listitem">
@@ -406,12 +455,16 @@
               <span class="pds-summary-orb pds-summary-orb--b">
                 <ion-icon name="happy-outline"></ion-icon>
               </span>
-              <span class="pds-summary-orb pds-summary-orb--c">+{{ pdsStoryTopics.length }}</span>
+              <span class="pds-summary-orb pds-summary-orb--c"
+                >+{{ pdsStoryTopics.length }}</span
+              >
             </div>
             <button
               type="button"
               class="pds-summary-story-btn"
-              (click)="openDailyInsightStory(getPregnancyDailyInsightSummaryTopic())"
+              (click)="
+                openDailyInsightStory(getPregnancyDailyInsightSummaryTopic())
+              "
               aria-label="Open daily insights summary"
             ></button>
             <button
@@ -425,230 +478,218 @@
           </div>
 
           @for (topic of pdsStoryTopics; track topic.id) {
-            <button
-              type="button"
-              class="pds-card"
-              [class.pds-card--topic]="!topic.personalized"
-              [class.pds-card--personalized]="topic.personalized"
-              role="listitem"
-              (click)="openDailyInsightStory(topic)"
+          <button
+            type="button"
+            class="pds-card"
+            [class.pds-card--topic]="!topic.personalized"
+            [class.pds-card--personalized]="topic.personalized"
+            role="listitem"
+            (click)="openDailyInsightStory(topic)"
+          >
+            @if (!topic.personalized) {
+            <span class="pds-topic-label" [style.color]="topic.accentHex">{{
+              topic.categoryLabel
+            }}</span>
+            <span
+              class="pds-topic-icon-ring"
+              [style.--pds-accent]="topic.accentHex"
             >
-              @if (!topic.personalized) {
-                <span class="pds-topic-label" [style.color]="topic.accentHex">{{ topic.categoryLabel }}</span>
-                <span class="pds-topic-icon-ring" [style.--pds-accent]="topic.accentHex">
-                  <ion-icon [name]="topic.ionIcon"></ion-icon>
-                </span>
-                <span class="pds-topic-inner" [style.--pds-accent]="topic.accentHex">
-                  <span class="pds-topic-teaser">{{ topic.teaser }}</span>
-                </span>
-              } @else {
-                <p class="pds-personal-copy">
-                  <strong>{{ getCycleWelcomeName() }}</strong
-                  >{{ 'home.personalizedCycleTeaser' | translate }}
-                </p>
-                <div class="pds-personal-foot" aria-hidden="true">
-                  <span class="pds-dot"></span>
-                  <span class="pds-dot"></span>
-                  <span class="pds-dot"></span>
-                  <ion-icon class="pds-personal-help" name="help-circle-outline"></ion-icon>
-                </div>
-              }
-            </button>
+              <ion-icon [name]="topic.ionIcon"></ion-icon>
+            </span>
+            <span
+              class="pds-topic-inner"
+              [style.--pds-accent]="topic.accentHex"
+            >
+              <span class="pds-topic-teaser">{{ topic.teaser }}</span>
+            </span>
+            } @else {
+            <p class="pds-personal-copy">
+              <strong>{{ getCycleWelcomeName() }}</strong
+              >{{ "home.personalizedCycleTeaser" | translate }}
+            </p>
+            <div class="pds-personal-foot" aria-hidden="true">
+              <span class="pds-dot"></span>
+              <span class="pds-dot"></span>
+              <span class="pds-dot"></span>
+              <ion-icon
+                class="pds-personal-help"
+                name="help-circle-outline"
+              ></ion-icon>
+            </div>
+            }
+          </button>
           }
         </div>
 
         <div class="pds-quick-links" aria-label="More pregnancy tools">
-          <button type="button" class="pds-chip" (click)="openCurrentPregnancyWeekDetail()">
+          <button
+            type="button"
+            class="pds-chip"
+            (click)="openCurrentPregnancyWeekDetail()"
+          >
             {{ getWeekDetailChipLabel() }}
           </button>
-          <button type="button" class="pds-chip pds-chip--accent" (click)="openPregnancyWatchouts()">
-            {{ 'home.watchOuts' | translate }}
+          <button
+            type="button"
+            class="pds-chip pds-chip--accent"
+            (click)="openPregnancyWatchouts()"
+          >
+            {{ "home.watchOuts" | translate }}
           </button>
         </div>
 
-        @if (!needsPregnancyInput) {
-          @let tipsBlock = getPregnancyTipsForDetailBlock();
-          @if (tipsBlock.length > 0) {
-            <div class="pregnancy-tips-block ion-padding-horizontal">
-              <h3 class="pregnancy-tips-title">{{ 'home.tipsForYou' | translate }}</h3>
-              <ul class="pregnancy-tips-list">
-                @for (tip of tipsBlock; track $index) {
-                  <li>{{ tip }}</li>
-                }
-              </ul>
+        @if (!needsPregnancyInput) { @let tipsBlock =
+        getPregnancyTipsForDetailBlock(); @if (tipsBlock.length > 0) {
+        <div class="pregnancy-tips-block ion-padding-horizontal">
+          <h3 class="pregnancy-tips-title">
+            {{ "home.tipsForYou" | translate }}
+          </h3>
+          <ul class="pregnancy-tips-list">
+            @for (tip of tipsBlock; track $index) {
+            <li>{{ tip }}</li>
+            }
+          </ul>
+        </div>
+        } }
+      </div>
+    </div>
+    } @if (!isPregnant()) {
+    <!-- Quick actions and cycle sections (hidden during pregnancy) -->
+    <div class="quick-actions-section">
+      <div class="section-header">
+        <h2 class="section-title">{{ "home.quickActions" | translate }}</h2>
+        <p class="section-subtitle">{{ "home.whatToDoToday" | translate }}</p>
+      </div>
+
+      <div class="actions-grid">
+        @if (showStartTrackingOnboarding()) {
+        <div
+          class="action-card primary"
+          (click)="openPeriodDatePicker()"
+          role="button"
+          tabindex="0"
+          (keydown.enter)="openPeriodDatePicker()"
+          (keydown.space)="$event.preventDefault(); openPeriodDatePicker()"
+        >
+          <div class="action-background">
+            <div class="action-pattern"></div>
+          </div>
+          <div class="action-content">
+            <div class="action-icon">
+              <ion-icon name="calendar-number-outline"></ion-icon>
             </div>
-          }
+            <h3 class="action-title">{{ getPreCycleEmptyCopy().title }}</h3>
+            <p class="action-description">
+              {{ getPreCycleEmptyCopy().body }}
+            </p>
+          </div>
+          <div class="action-arrow">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </div>
+        </div>
         }
-      </div>
-    </div>
-  }
-
-  @if (!isPregnant()) {
-  <!-- Quick actions and cycle sections (hidden during pregnancy) -->
-  <div class="quick-actions-section">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'home.quickActions' | translate }}</h2>
-      <p class="section-subtitle">{{ 'home.whatToDoToday' | translate }}</p>
-    </div>
-
-    <div class="actions-grid">
-      @if (showStartTrackingOnboarding()) {
-      <div
-        class="action-card primary"
-        (click)="openPeriodDatePicker()"
-        role="button"
-        tabindex="0"
-        (keydown.enter)="openPeriodDatePicker()"
-        (keydown.space)="$event.preventDefault(); openPeriodDatePicker()"
-      >
-        <div class="action-background">
-          <div class="action-pattern"></div>
-        </div>
-        <div class="action-content">
-          <div class="action-icon">
-            <ion-icon name="calendar-number-outline"></ion-icon>
+        <!-- Primary Actions -->
+        <div class="action-card primary" (click)="openCycleCalendar()">
+          <div class="action-background">
+            <div class="action-pattern"></div>
           </div>
-          <h3 class="action-title">{{ getPreCycleEmptyCopy().title }}</h3>
-          <p class="action-description">
-            {{ getPreCycleEmptyCopy().body }}
-          </p>
-        </div>
-        <div class="action-arrow">
-          <ion-icon name="chevron-forward"></ion-icon>
-        </div>
-      </div>
-      }
-      <!-- Primary Actions -->
-      <div class="action-card primary" (click)="openCycleCalendar()">
-        <div class="action-background">
-          <div class="action-pattern"></div>
-        </div>
-        <div class="action-content">
-          <div class="action-icon">
-            <ion-icon name="calendar-clear-outline"></ion-icon>
+          <div class="action-content">
+            <div class="action-icon">
+              <ion-icon name="calendar-clear-outline"></ion-icon>
+            </div>
+            <h3 class="action-title">{{ "home.viewCalendar" | translate }}</h3>
+            <p class="action-description">
+              {{ "home.cycleOverview" | translate }}
+            </p>
           </div>
-          <h3 class="action-title">{{ 'home.viewCalendar' | translate }}</h3>
-          <p class="action-description">{{ 'home.cycleOverview' | translate }}</p>
+          <div class="action-arrow">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </div>
         </div>
-        <div class="action-arrow">
-          <ion-icon name="chevron-forward"></ion-icon>
-        </div>
-      </div>
 
-      <div class="action-card secondary" (click)="openFertilityCalculator()">
-        <div class="action-background">
-          <div class="action-pattern"></div>
-        </div>
-        <div class="action-content">
-          <div class="action-icon">
-            <ion-icon name="calculator-outline"></ion-icon>
+        <div class="action-card secondary" (click)="openFertilityCalculator()">
+          <div class="action-background">
+            <div class="action-pattern"></div>
           </div>
-          <h3 class="action-title">{{ 'home.actionFertilityTitle' | translate }}</h3>
-          <p class="action-description">{{ 'home.actionFertilityDesc' | translate }}</p>
+          <div class="action-content">
+            <div class="action-icon">
+              <ion-icon name="calculator-outline"></ion-icon>
+            </div>
+            <h3 class="action-title">
+              {{ "home.actionFertilityTitle" | translate }}
+            </h3>
+            <p class="action-description">
+              {{ "home.actionFertilityDesc" | translate }}
+            </p>
+          </div>
+          <div class="action-arrow">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </div>
         </div>
-        <div class="action-arrow">
-          <ion-icon name="chevron-forward"></ion-icon>
-        </div>
-      </div>
 
-      <div class="action-card tertiary" (click)="onActionClick('appointment')">
-        <div class="action-background">
-          <div class="action-pattern"></div>
-        </div>
-        <div class="action-content">
-          <div class="action-icon">
-            <ion-icon name="calendar-outline"></ion-icon>
+        <div
+          class="action-card tertiary"
+          (click)="onActionClick('appointment')"
+        >
+          <div class="action-background">
+            <div class="action-pattern"></div>
           </div>
-          <h3 class="action-title">{{ 'home.actionAppointment' | translate }}</h3>
-          <p class="action-description">{{ 'home.actionAppointmentShortDesc' | translate }}</p>
+          <div class="action-content">
+            <div class="action-icon">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <h3 class="action-title">
+              {{ "home.actionAppointment" | translate }}
+            </h3>
+            <p class="action-description">
+              {{ "home.actionAppointmentShortDesc" | translate }}
+            </p>
+          </div>
+          <div class="action-arrow">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </div>
         </div>
-        <div class="action-arrow">
-          <ion-icon name="chevron-forward"></ion-icon>
-        </div>
-      </div>
 
-      <div class="action-card quaternary" (click)="onActionClick('community')">
-        <div class="action-background">
-          <div class="action-pattern"></div>
-        </div>
-        <div class="action-content">
-          <div class="action-icon">
-            <ion-icon name="people-outline"></ion-icon>
+        <div
+          class="action-card quaternary"
+          (click)="onActionClick('community')"
+        >
+          <div class="action-background">
+            <div class="action-pattern"></div>
           </div>
-          <h3 class="action-title">{{ 'home.actionCommunityShort' | translate }}</h3>
-          <p class="action-description">{{ 'home.actionCommunityShortDesc' | translate }}</p>
-        </div>
-        <div class="action-arrow">
-          <ion-icon name="chevron-forward"></ion-icon>
+          <div class="action-content">
+            <div class="action-icon">
+              <ion-icon name="people-outline"></ion-icon>
+            </div>
+            <h3 class="action-title">
+              {{ "home.actionCommunityShort" | translate }}
+            </h3>
+            <p class="action-description">
+              {{ "home.actionCommunityShortDesc" | translate }}
+            </p>
+          </div>
+          <div class="action-arrow">
+            <ion-icon name="chevron-forward"></ion-icon>
+          </div>
         </div>
       </div>
     </div>
+    }
+    <section class="home-feature-slider">
+      <div class="slider-container">
+        <article class="slider-item card">
+          <img src="assets/images/sliders/changing.jpg" alt="" />
+          <p>توضیح اول</p>
+        </article>
+        <article class="slider-item card">
+          <img src="assets/images/sliders/Access.jpg" alt="" />
+          <p>توضیح دوم</p>
+        </article>
+        <article class="slider-item card">
+          <img src="assets/images/sliders/track.jpg" alt="" />
+          <p>توضیح سوم</p>
+        </article>
+      </div>
+    </section>
   </div>
-
- 
-
-  }
-
-  <section
-    class="home-feature-slider"
-    [attr.aria-label]="'home.featureSliderAria' | translate"
-  >
-    <div class="home-feature-slider__head">
-      <h2 class="home-feature-slider__title">{{ 'home.featureSliderTitle' | translate }}</h2>
-    </div>
-
-    <swiper-container
-      class="home-feature-slider__swiper"
-      slides-per-view="1"
-      space-between="12"
-      speed="380"
-      loop="true"
-      pagination="true"
-      pagination-clickable="true"
-      autoplay-delay="5200"
-      autoplay-disable-on-interaction="false"
-    >
-      <swiper-slide>
-        <article class="home-feature-slider__card">
-          <div class="home-feature-slider__media">
-            <img
-              src="assets/images/sliders/changing.jpg"
-              [attr.alt]="'home.featureSliderChanging' | translate"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <p class="home-feature-slider__text">{{ 'home.featureSliderChanging' | translate }}</p>
-        </article>
-      </swiper-slide>
-      <swiper-slide>
-        <article class="home-feature-slider__card">
-          <div class="home-feature-slider__media">
-            <img
-              src="assets/images/sliders/Access.jpg"
-              [attr.alt]="'home.featureSliderAccess' | translate"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <p class="home-feature-slider__text">{{ 'home.featureSliderAccess' | translate }}</p>
-        </article>
-      </swiper-slide>
-      <swiper-slide>
-        <article class="home-feature-slider__card">
-          <div class="home-feature-slider__media">
-            <img
-              src="assets/images/sliders/track.jpg"
-              [attr.alt]="'home.featureSliderTrack' | translate"
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-          <p class="home-feature-slider__text">{{ 'home.featureSliderTrack' | translate }}</p>
-        </article>
-      </swiper-slide>
-    </swiper-container>
-  </section>
-
-</div>
 </ion-content>

@@ -1,20 +1,23 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { normalizeLmpInput } from '../utils/pregnancy-lmp.util';
+import { ReproductiveStatusService } from './reproductive-status.service';
 
 @Injectable({ providedIn: 'root' })
 export class CycleSettingsService {
   private readonly storageKey = 'cycleSettings';
 
+  reproductiveStatus = inject(ReproductiveStatusService)
   cycleLength = signal<number>(28);
   periodLength = signal<number>(5);
   lastPeriodStartDate = signal<string | null>(null);
   userStatus = signal<string>('Not Set');
-  isPregnant = signal<boolean>(false);
+  isPregnant = signal<boolean>(true);
   isPostpartum = signal<boolean>(false);
   pregnancyWeek = signal<number>(0);
   pregnancyProgress = signal<number>(0);
   /** Optional focused cycle day (YYYY-MM-DD) selected by user in cycle strip. */
   selectedCycleViewDate = signal<string | null>(null);
+
 
   /**
    * Profile “Get pregnant” (PLANNING) card should stay highlighted after the intro flow completes
@@ -30,11 +33,14 @@ export class CycleSettingsService {
   /** Mark Get-pregnant as the active Profile experience intent (persisted). */
   setGetPregnantProfileCardPending(value: boolean): void {
     this.getPregnantProfileCardPending.set(value);
+    this.setUserStatus('NOT_PREGNANT')
     this.saveToStorage();
   }
 
   clearGetPregnantProfileCardPending(): void {
     this.getPregnantProfileCardPending.set(false);
+    this.setUserStatus('Trying to Conceive');
+
     this.saveToStorage();
   }
 
@@ -124,7 +130,7 @@ export class CycleSettingsService {
   /** Apply Trying-to-conceive home mode (does not overwrite period data). */
   applyTryingToConceiveHomeMode(): void {
     this.setUserStatus('Trying to Conceive');
-    this.setPregnancyStatus(false);
+    // this.setPregnancyStatus(false);
     this.setPostpartumStatus(false);
     this.setGetPregnantProfileCardPending(true);
   }

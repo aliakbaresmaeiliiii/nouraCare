@@ -77,7 +77,6 @@ export class SymptomsHistoryComponent implements OnInit {
             )
             .subscribe((fallbackRows) => {
               this.symptomsHistory = this.toHistoryRows(fallbackRows);
-              debugger;
               this.loading = false;
             });
         },

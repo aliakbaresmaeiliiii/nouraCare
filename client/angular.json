@@ -38,9 +38,7 @@
 							"node_modules/swiper/swiper-bundle.min.css"
 						],
 						"scripts": [],
-						"allowedCommonJsDependencies": [
-							"mapbox-gl"
-						],
+					
 						"main": "src/main.ts",
 						"commonChunk": false
 					},

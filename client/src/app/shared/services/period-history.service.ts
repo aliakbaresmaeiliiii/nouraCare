@@ -1,4 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { CreatePeriodLogDto } from '../models/period-log.dto';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 export interface PeriodHistoryEntry {
   /** First day of period (YYYY-MM-DD) */
@@ -12,6 +15,10 @@ const MAX_ENTRIES = 36;
 
 @Injectable({ providedIn: 'root' })
 export class PeriodHistoryService {
+  apiUrl = environment.apiEndPoint + '/';
+
+  http = inject(HttpClient);
+
   private parseEntries(raw: string | null): PeriodHistoryEntry[] {
     if (!raw) return [];
     try {
@@ -21,12 +28,14 @@ export class PeriodHistoryService {
         (e): e is PeriodHistoryEntry =>
           e &&
           typeof (e as PeriodHistoryEntry).lastPeriodStartDate === 'string' &&
-          typeof (e as PeriodHistoryEntry).recordedAt === 'string',
+          typeof (e as PeriodHistoryEntry).recordedAt === 'string'
       );
     } catch {
       return [];
     }
   }
+
+
 
   /** If the user has cycle data but no history yet, create one row so the list is not empty. */
   seedFromCurrentIfEmpty(lastPeriodStartDate: string): void {
@@ -39,7 +48,7 @@ export class PeriodHistoryService {
       return this.parseEntries(localStorage.getItem(STORAGE_KEY)).sort(
         (a, b) =>
           new Date(b.lastPeriodStartDate).getTime() -
-          new Date(a.lastPeriodStartDate).getTime(),
+          new Date(a.lastPeriodStartDate).getTime()
       );
     } catch {
       return [];

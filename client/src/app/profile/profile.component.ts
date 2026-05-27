@@ -27,6 +27,7 @@ import {
   OnboardingService,
   ReproductiveState,
 } from '../shared/services/onboarding.service';
+import { UpdateReproductiveStateDto } from './models/UpdateReproductiveStateDto';
 
 // Extend Window interface to include Capacitor
 declare global {
@@ -66,7 +67,9 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   }
 
   get isDateOfBirthCompleted(): boolean {
-    return this.profileCompletionService.currentUserData?.dateOfBirth ? true : false;
+    return this.profileCompletionService.currentUserData?.dateOfBirth
+      ? true
+      : false;
   }
 
   get currentUserData(): any {
@@ -131,7 +134,9 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   openAvatarPicker(): void {
     if (this.isUploadingAvatar) return;
-    const input = document.getElementById('profileAvatarInput') as HTMLInputElement | null;
+    const input = document.getElementById(
+      'profileAvatarInput'
+    ) as HTMLInputElement | null;
     input?.click();
   }
 
@@ -190,7 +195,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       error: (err) => {
         console.error('Error uploading profile image from profile page:', err);
         URL.revokeObjectURL(previewUrl);
-        this.avatarImageSrc = this.lastAvatarImageSrc || this.imageUrlService.getImageUrl(null);
+        this.avatarImageSrc =
+          this.lastAvatarImageSrc || this.imageUrlService.getImageUrl(null);
         this.avatarImgLoaded = true;
         this.avatarSkeletonActive = false;
         this.isUploadingAvatar = false;
@@ -271,7 +277,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
     this.currentReproductiveStatus = 'PLANNING_PREGNANCY';
     this.cycleSettings.setGetPregnantProfileCardPending(true);
-    await this.router.navigate(['/track-pregnancy-intro']);
+    await this.router.navigate(['/tabs/home']);
   }
 
   async openTrackPregnancyIntro(): Promise<void> {
@@ -296,7 +302,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     }
 
     this.currentReproductiveStatus = 'PREGNANT';
-    await this.router.navigate(['/track-pregnancy-intro']);
+    await this.router.navigate(['/tabs/home']);
   }
 
   onTrackCycleCardClick(): void {
@@ -304,7 +310,15 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       return;
     }
     this.cycleSettings.clearGetPregnantProfileCardPending();
-    this.goToCycleCalendar();
+    const payload: UpdateReproductiveStateDto = {
+      state: 'cycle',
+      
+    };
+    this.reproductiveStatusService
+      .updateState(this.userId,payload)
+      .subscribe((res) => {});
+
+    // this.goToCycleCalendar();
   }
 
   onTrackPlanningCardClick(): void {
@@ -350,7 +364,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   }
 
   private mapUiReproductiveToApiPregnancyStatus(
-    ui: string | null | undefined,
+    ui: string | null | undefined
   ): ReproductiveState | null {
     if (!ui) return null;
     if (ui === 'NOT_PREGNANT') return 'cycle';
@@ -361,7 +375,9 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   private syncCurrentStatusFromProfileData(): void {
     const merged = this.profileCompletionService.currentUserData?.status;
-    const fromApi = this.normalizeExperienceCardFromApi(String(merged ?? '').trim());
+    const fromApi = this.normalizeExperienceCardFromApi(
+      String(merged ?? '').trim()
+    );
     const journeyRow = this.userInfoService.onboardingJourney();
     const journeyPs = journeyRow?.pregnancyStatus;
     const fromJourney =
@@ -421,11 +437,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     if (!raw) return null;
 
     const u = raw.trim().replace(/\s+/g, '_').toUpperCase();
-    if (
-      u === 'PREGNANT' ||
-      u === 'PREGNANCY' ||
-      u === 'EXPECTING'
-    ) {
+    if (u === 'PREGNANT' || u === 'PREGNANCY' || u === 'EXPECTING') {
       return 'PREGNANT';
     }
     if (
@@ -458,53 +470,6 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
     return null;
   }
-
-  // // Reproductive status methods
-  // async loadReproductiveStatus() {
-  //   try {
-  //     this.reproductiveStatusService
-  //       .getReproductiveStatus(this.userId)
-  //       .subscribe({
-  //         next: (data) => {
-  //           this.reproductiveStatus = data;
-  //           if (data.lastPeriodDate) {
-  //             this.lastPeriodDate = data.lastPeriodDate;
-  //           }
-  //           if (data.cycleLength) {
-  //             this.selectedCycleLength = data.cycleLength;
-  //           }
-  //         },
-  //         error: (error: any) => {
-  //           // Backend intentionally returns 404 because pregnancy planning
-  //           // was replaced with HealthRecord. Treat this as non-fatal.
-  //           const message =
-  //             error?.message ||
-  //             error?.error?.message ||
-  //             error?.error?.error?.message ||
-  //             '';
-  //           const isReplacedFeature404 =
-  //             (error?.status === 404 ||
-  //               error?.error?.status === 404 ||
-  //               error?.error?.error?.statusCode === 404) &&
-  //             typeof message === 'string' &&
-  //             message
-  //               .toLowerCase()
-  //               .includes('pregnancy planning feature has been replaced');
-
-  //           if (isReplacedFeature404) {
-  //             this.reproductiveStatus = {};
-  //             this.lastPeriodDate = '';
-  //             this.selectedCycleLength = 28;
-  //             return;
-  //           }
-
-  //           console.error('Error loading reproductive status:', error);
-  //         },
-  //       });
-  //   } catch (error) {
-  //     console.error('Error loading reproductive status:', error);
-  //   }
-  // }
 
   async openPregnancyEndDialog() {
     const modal = await this.modalCtrl.create({
@@ -565,7 +530,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   }
 
   goToCycleCalendar() {
-    this.router.navigate(['/pregnancy-mode']);
+    this.router.navigate(['/period-date-picker']);
   }
 
   getTodayDate(): string {
@@ -882,7 +847,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       this.dateOfBirth = u.dateOfBirth || '';
       this.city = u.city || '';
       const quick = this.imageUrlService.getImageUrl(
-        u.profileImage ?? u.profile_img ?? null,
+        u.profileImage ?? u.profile_img ?? null
       );
       this.profileImage = quick;
       this.avatarImageSrc = quick;
@@ -894,13 +859,14 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
     } catch (error) {
       console.error(
         'ProfileComponent - Error loading from localStorage:',
-        error,
+        error
       );
     }
   }
 
   private applyStatusFromQuery(): void {
-    const selectedFromQuery = this.route.snapshot.queryParamMap.get('selectStatus');
+    const selectedFromQuery =
+      this.route.snapshot.queryParamMap.get('selectStatus');
     if (selectedFromQuery === 'PREGNANT') {
       this.currentReproductiveStatus = 'PREGNANT';
       this.cdr.markForCheck();
