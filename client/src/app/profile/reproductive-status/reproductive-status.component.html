@@ -6,46 +6,59 @@
 </ion-header>
 
 <ion-content>
-  <!-- Duration of period -->
-  <div>
-    <ion-item class="ion-margin-top">
-      <ion-input
-        labelPlacement="floating"
-        [label]="'معمولا طول دوره شما چند روز است'"
-        [value]="displayDurationDays"
-        readonly
-        inputmode="none"
-        (click)="openDurationDaysPicker()"
-        helperText=" *فاصله زمانی بین روز اول پریودتون تا شروع پریود بعدی"
-      ></ion-input>
-    </ion-item>
-  </div>
-  <!-- Bleeding  -->
-  <div>
-    <ion-item class="ion-margin-top">
-      <ion-input
-        labelPlacement="floating"
-        [label]="'معمولاً خونریزی شما چند روز است؟'"
-        [value]="displayBleedingDays"
-        readonly
-        inputmode="none"
-        (click)="openBleedingDaysPicker()"
-      ></ion-input>
-    </ion-item>
-  </div>
-  <!-- Period  -->
-  <div>
-    <ion-item class="ion-margin-top">
-      <ion-input
-        labelPlacement="floating"
-        label="تاریخ شروع آخرین پریود"
-        [value]="displayPeriodPickerDays"
-        readonly
-        inputmode="none"
-        (click)="openJalaliPicker()"
-      ></ion-input>
-    </ion-item>
-  </div>
+  <form [formGroup]="form">
+    <!-- Duration of period -->
+    <div>
+      <ion-item class="ion-margin-top">
+        <ion-input
+          formControlName="durationDays"
+          labelPlacement="floating"
+          [label]="'معمولا طول دوره شما چند روز است'"
+          readonly
+          inputmode="none"
+          (click)="openDurationDaysPicker()"
+          helperText=" *فاصله زمانی بین روز اول پریودتون تا شروع پریود بعدی"
+        ></ion-input>
+      </ion-item>
+    </div>
+    <!-- Bleeding  -->
+    <div>
+      <ion-item class="ion-margin-top">
+        <ion-input
+          formControlName="bleedingDays"
+          labelPlacement="floating"
+          [label]="'معمولاً خونریزی شما چند روز است؟'"
+          [value]="displayBleedingDays"
+          readonly
+          inputmode="none"
+          (click)="openBleedingDaysPicker()"
+        ></ion-input>
+      </ion-item>
+    </div>
+    <!-- Period  -->
+    <div>
+      <ion-item class="ion-margin-top">
+        <ion-input
+          formControlName="periodStartIso"
+          labelPlacement="floating"
+          label="تاریخ شروع آخرین پریود"
+          [value]="displayPeriodPickerDays"
+          readonly
+          inputmode="none"
+          (click)="openJalaliPicker()"
+        ></ion-input>
+      </ion-item>
+    </div>
+
+    <div class="btn">
+      <app-button  (buttonClick)="saveInfo()">{{
+        "ذخیره" | translate
+      }}</app-button>
+      <app-button (buttonClick)="saveInfo()">{{
+        "انصراف" | translate
+      }}</app-button>
+    </div>
+  </form>
 </ion-content>
 
 <!-- Modal Duration of period -->
@@ -112,8 +125,7 @@
 </ion-modal>
 
 <!-- Modal period -->
-
-<ion-modal [isOpen]="isPeriodDateOpen" (didDismiss)="onPeriodDateDismiss()" >
+<ion-modal [isOpen]="isPeriodDateOpen" (didDismiss)="onPeriodDateDismiss()">
   <ng-template>
     <ion-toolbar>
       <ion-buttons slot="start">
@@ -128,7 +140,7 @@
 
     <ion-picker>
       <ion-datetime
-        class="datetime-ltr"
+        class="ltr"
         presentation="date"
         [preferWheel]="true"
         [value]="periodDateIso"

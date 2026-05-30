@@ -1,4 +1,12 @@
-import { Component, inject, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  inject,
+  Input,
+  NgZone,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { IonInput, ModalController, PickerController } from '@ionic/angular';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import {
@@ -8,6 +16,7 @@ import {
   jalaliToIsoDate,
   toFa,
 } from '../../shared/utils/jalali-iranian-calendar.util';
+import { FormControl, FormGroup } from '@angular/forms';
 
 interface pregnancyForm {
   pregnancyEndDate: string;
@@ -21,14 +30,8 @@ interface pregnancyForm {
 })
 export class ReproductiveStatusComponent implements OnInit {
   private modalCtrl = inject(ModalController);
+  private cdr = inject(ChangeDetectorRef);
   maxDate = new Date().toISOString().split('T')[0];
-  @ViewChild('ionInputEl', { static: true }) ionInputEl!: IonInput;
-  @Input() title: string = '';
-  @Input() subTitle: string = '';
-  @ViewChild('bleedingInput') bleedingInput!: IonInput;
-  @ViewChild('durationInput') durationInput!: IonInput;
-  currentValue = 22;
-  isPickerOpen = false;
   durationDaysNumber = Array.from({ length: 41 }, (_, i) => i + 20);
   bleedingDaysNumbers = Array.from({ length: 8 }, (_, i) => i + 3);
   tempPeriodDuration = 28;
@@ -41,7 +44,7 @@ export class ReproductiveStatusComponent implements OnInit {
 
   periodDate = '';
   isPeriodDateOpen = false;
-  periodDateIso = '';
+  periodDateIso = jalaliToIsoDate(1405, 3, 2);
 
   get displayDurationDays(): string {
     return `${this.toPersianNumber(this.durationDays)} روز`;
@@ -55,6 +58,12 @@ export class ReproductiveStatusComponent implements OnInit {
       ? formatJalaliFaFromIso(this.periodDateIso, 'DD MMMM YYYY')
       : '';
   }
+
+  form = new FormGroup({
+    durationDays: new FormControl(this.durationDays),
+    bleedingDays: new FormControl(this.bleedingDays),
+    periodStartIso: new FormControl(this.periodDateIso),
+  });
 
   constructor(private pickerCtrl: PickerController) {}
 
@@ -72,11 +81,6 @@ export class ReproductiveStatusComponent implements OnInit {
     this.tempDurationDays = this.durationDays;
     this.isDurationDaysOpen = true;
   }
-  // openLastPeriodPicker() {
-  //   if (this.isPeriodDateOpen) return;
-  //   this.tempPeriodDate = this.periodDate || new Date().toISOString();
-  //   this.isPeriodDateOpen = true;
-  // }
 
   closeBleedingDays(role: 'cancel' | 'confirm') {
     if (role === 'confirm') {
@@ -84,10 +88,6 @@ export class ReproductiveStatusComponent implements OnInit {
     }
 
     this.isBleedingDaysOpen = false;
-
-    setTimeout(() => {
-      this.bleedingInput?.getInputElement().then((input) => input.blur());
-    }, 0);
   }
 
   closeDurationPicker(role: 'cancel' | 'confirm') {
@@ -96,15 +96,11 @@ export class ReproductiveStatusComponent implements OnInit {
     }
 
     this.isDurationDaysOpen = false;
-
-    setTimeout(() => {
-      this.durationInput?.getInputElement().then((input) => input.blur());
-    }, 0);
   }
 
   closePeriodDate(role: 'cancel' | 'confirm') {
     if (role === 'confirm') {
-      this.periodDate = this.periodDateIso; // ذخیره نهایی
+      this.periodDate = this.periodDateIso;
     }
     this.isPeriodDateOpen = false;
   }
@@ -113,25 +109,25 @@ export class ReproductiveStatusComponent implements OnInit {
     return String(value).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
   }
 
-  onBleedingDaysChange(event: CustomEvent) {
-    const value = event.detail.value;
-    if (value != null) {
-      this.tempBleedingDays = Number(value);
-    }
-  }
-
   onDurationDaysChange(event: CustomEvent) {
     const value = event.detail.value;
     if (value != null) {
       this.tempDurationDays = Number(value);
+      this.form.get('durationDays')?.patchValue(value);
+    }
+  }
+  onBleedingDaysChange(event: CustomEvent) {
+    const value = event.detail.value;
+    if (value != null) {
+      this.tempBleedingDays = Number(value);
+      this.form.get('bleedingDays')?.patchValue(value);
     }
   }
 
   onPeriodDateChange(event: CustomEvent) {
-    const value = (event.detail as any).value;
-    if (value != null) {
-      this.periodDateIso = String(value);
-    }
+    const value = (event.detail as any).value as string;
+    this.periodDate = value;
+    this.form.get('periodStartIso')?.patchValue(value);
   }
 
   onPeriodDateDismiss() {
@@ -141,13 +137,12 @@ export class ReproductiveStatusComponent implements OnInit {
   cancel() {
     this.modalCtrl.dismiss(null, 'cancel');
   }
-  async openJalaliPicker() {
-    // پیش‌فرض: امروز جلالی
-    // می‌تونی اگر periodDateIso داری، از روی آن jy/jm/jd را هم استخراج کنیم (اگر خواستی می‌دم)
-    const now = new Date();
-    const tempJ = (await import('jalaali-js')).toJalaali(now); // {jy,jm,jd}
 
-    const years = Array.from({ length: 60 }, (_, i) => 1360 + i); // ۱۳۶۰..۱۴۱۹ نمونه
+  async openJalaliPicker() {
+    const now = new Date();
+    const tempJ = (await import('jalaali-js')).toJalaali(now);
+
+    const years = Array.from({ length: 60 }, (_, i) => 1360 + i);
     const yearCol = {
       name: 'year',
       selectedIndex: years.indexOf(tempJ.jy),
@@ -173,24 +168,26 @@ export class ReproductiveStatusComponent implements OnInit {
     const dayCol = makeDayCol(tempJ.jy, tempJ.jm, tempJ.jd);
 
     const picker = await this.pickerCtrl.create({
-      columns: [yearCol, monthCol, dayCol],
+      columns: [dayCol, monthCol, yearCol],
       buttons: [
         { text: 'انصراف', role: 'cancel' },
         {
           text: 'ثبت',
           handler: (value) => {
-            const jy = value.year.value;
-            const jm = value.month.value;
             const jd = value.day.value;
+            const jm = value.month.value;
+            const jy = value.year.value;
             this.periodDateIso = jalaliToIsoDate(jy, jm, jd);
+            this.cdr.detectChanges();
           },
         },
       ],
-      // وقتی سال/ماه عوض میشه تعداد روزها باید آپدیت بشه
-      // Ionic Picker رو میشه با event تغییر ستون کنترل کرد؛ اگر نسخه‌ات اجازه داد:
-      // اگر نگذاشت، یک راه ساده: با تغییر ماه/سال، picker را دوباره بسازیم.
     });
 
     await picker.present();
+  }
+
+  saveInfo() {
+    console.log(this.form.value);
   }
 }
