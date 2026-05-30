@@ -62,7 +62,8 @@ import {
   IonTitle,
   IonToolbar,
   IonToast,
-  IonChip
+  IonChip,
+  IonActionSheet,
 } from '@ionic/angular/standalone';
 
 import { TranslatePipe } from './pipes/translate.pipe';
@@ -71,6 +72,8 @@ import { HeaderLanguageSwitcherComponent } from './components/header-language-sw
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
 import { LogoLoadingComponent } from './components/logo-loading/logo-loading.component';
 import { AppButtonComponent } from './components/app-button/app-button.component';
+import { FormField } from '@angular/forms/signals';
+import { IonAlert } from '@ionic/angular';
 /**
  * Drop-in replacement for the old `SharedModule`.
  * Use this in `standalone` component `imports` arrays.
@@ -84,6 +87,7 @@ export const SHARED_STANDALONE_IMPORTS = [
   RouterOutlet,
   IonRouterOutlet,
   AppButtonComponent,
+  FormField,
 
   // Ionic standalone components (mirrors the old SharedModule exports)
   IonInput,
@@ -145,12 +149,12 @@ export const SHARED_STANDALONE_IMPORTS = [
   IonSpinner,
   IonMenuToggle,
   IonTextarea,
-
+  IonActionSheet,
   TranslatePipe,
   LanguageSwitcherComponent,
   HeaderLanguageSwitcherComponent,
   CircleProgressBarComponent,
   LogoLoadingComponent,
   AppButtonComponent,
+  
 ] as const;
-

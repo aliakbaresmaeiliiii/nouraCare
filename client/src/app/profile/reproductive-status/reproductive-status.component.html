@@ -1,0 +1,139 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-icon name="close" aria-hidden="true" (click)="cancel()"></ion-icon>
+    <ion-title>{{ "reproductive-status.title" | translate }} </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Duration of period -->
+  <div>
+    <ion-item class="ion-margin-top">
+      <ion-input
+        labelPlacement="floating"
+        [label]="'معمولا طول دوره شما چند روز است'"
+        [value]="displayDurationDays"
+        readonly
+        inputmode="none"
+        (click)="openDurationDaysPicker()"
+        helperText=" *فاصله زمانی بین روز اول پریودتون تا شروع پریود بعدی"
+      ></ion-input>
+    </ion-item>
+  </div>
+  <!-- Bleeding  -->
+  <div>
+    <ion-item class="ion-margin-top">
+      <ion-input
+        labelPlacement="floating"
+        [label]="'معمولاً خونریزی شما چند روز است؟'"
+        [value]="displayBleedingDays"
+        readonly
+        inputmode="none"
+        (click)="openBleedingDaysPicker()"
+      ></ion-input>
+    </ion-item>
+  </div>
+  <!-- Period  -->
+  <div>
+    <ion-item class="ion-margin-top">
+      <ion-input
+        labelPlacement="floating"
+        label="تاریخ شروع آخرین پریود"
+        [value]="displayPeriodPickerDays"
+        readonly
+        inputmode="none"
+        (click)="openJalaliPicker()"
+      ></ion-input>
+    </ion-item>
+  </div>
+</ion-content>
+
+<!-- Modal Duration of period -->
+<ion-modal
+  [isOpen]="isDurationDaysOpen"
+  (didDismiss)="isDurationDaysOpen = false"
+>
+  <ng-template>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="closeDurationPicker('cancel')">انصراف</ion-button>
+      </ion-buttons>
+
+      <ion-title>طول دوره</ion-title>
+
+      <ion-buttons slot="end">
+        <ion-button (click)="closeDurationPicker('confirm')">تأیید</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-picker>
+      <ion-picker-column
+        [value]="tempDurationDays"
+        (ionChange)="onDurationDaysChange($event)"
+      >
+        @for (num of durationDaysNumber; track num) {
+          <ion-picker-column-option [value]="num">
+            {{ toPersianNumber(num) }} روز
+          </ion-picker-column-option>
+        }
+      </ion-picker-column>
+    </ion-picker>
+  </ng-template>
+</ion-modal>
+
+<!-- Modal Bleeding -->
+<ion-modal
+  [isOpen]="isBleedingDaysOpen"
+  (didDismiss)="isBleedingDaysOpen = false"
+>
+  <ng-template>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="closeBleedingDays('cancel')">انصراف</ion-button>
+      </ion-buttons>
+      <ion-title>طول پریود</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="closeBleedingDays('confirm')">تأیید</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+
+    <ion-picker>
+      <ion-picker-column
+        [value]="tempBleedingDays"
+        (ionChange)="onBleedingDaysChange($event)"
+      >
+        @for (num of bleedingDaysNumbers; track num) {
+          <ion-picker-column-option [value]="num">
+            {{ toPersianNumber(num) }} روز
+          </ion-picker-column-option>
+        }
+      </ion-picker-column>
+    </ion-picker>
+  </ng-template>
+</ion-modal>
+
+<!-- Modal period -->
+
+<ion-modal [isOpen]="isPeriodDateOpen" (didDismiss)="onPeriodDateDismiss()" >
+  <ng-template>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="closePeriodDate('cancel')">انصراف</ion-button>
+      </ion-buttons>
+      <ion-title>انتخاب تاریخ</ion-title>
+
+      <ion-buttons slot="end">
+        <ion-button (click)="closePeriodDate('confirm')">تأیید</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+
+    <ion-picker>
+      <ion-datetime
+        class="datetime-ltr"
+        presentation="date"
+        [preferWheel]="true"
+        [value]="periodDateIso"
+        (ionChange)="onPeriodDateChange($event)"
+      ></ion-datetime>
+    </ion-picker>
+  </ng-template>
+</ion-modal>

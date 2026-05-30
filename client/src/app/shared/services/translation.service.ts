@@ -1471,10 +1471,10 @@ export class TranslationService {
       'editProfile.viewProfile': 'مشاهده پروفایل',
       'editProfile.languageHint':
         'در کل برنامه اعمال می‌شود. برای انتخاب زبان روی پرچم بزنید.',
-      'editProfile.experienceTitle': 'تجربه Flo شما',
+      'editProfile.experienceTitle': 'وضعیت شما',
       'editProfile.reproductiveStatusAria': 'وضعیت تولیدمثل',
       'editProfile.trackCycle': 'فقط ردیابی چرخه',
-      'editProfile.getPregnant': 'باردار شدن',
+      'editProfile.getPregnant': 'قصد بارداری دارم',
       'editProfile.trackPregnancy': 'ردیابی بارداری',
       'trackPregnancyIntro.closeAria': 'بستن',
       'trackPregnancyIntro.title': 'به سفر خود برای پدر و مادر شدن خوش آمدید!',
@@ -1498,8 +1498,11 @@ export class TranslationService {
       'editProfile.nothingToSave': 'قبل از ذخیره، فیلدی را اضافه یا تغییر دهید.',
       'editProfile.saved': 'پروفایل ذخیره شد.',
       'editProfile.saveFailed': 'ذخیره نشد. اتصال را بررسی کنید و دوباره تلاش کنید.',
-      'editProfile.dobMissingHint':
-        'تاریخ تولد را اضافه کنید تا پروفایل کامل شود و بینش‌ها دقیق‌تر باشند.',
+      'reproductive-status.title':'اطلاعات چرخه ی پریود شما',
+      'reproductive-status.experienceSubTitle': 'اطالاعات چرخه پریود شما',
+      'reproductive-status.What is the usual duration of your period':'معمولا طول دوره شما چند روز است؟',
+      'reproductive-status.The time between the first day of one period and the first day of the next.':'فاصله زمانی بین روز اول پریودتون تا شروع پریود بعدی',
+      'reproductive-status. How many days does your period usually last':'معمولا خونریزی شما چند روز است؟',
       'editProfile.alert.switchCycleHeader': 'به ردیابی چرخه برویم؟',
       'editProfile.alert.switchCycleMessage':
         'بینش‌های سلامت و ابزارهای ردیابی چرخه با حالت «ردیابی چرخه» هماهنگ می‌شوند. می‌خواهید ادامه دهید؟',

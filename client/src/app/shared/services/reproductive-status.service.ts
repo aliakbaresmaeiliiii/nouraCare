@@ -91,7 +91,7 @@ export class ReproductiveStatusService {
     if (data.notes) payload['notes'] = data.notes;
 
     return this.http
-      .patch<any>(`${this.meBaseUrl}/state`, payload)
+      .patch<any>(`${this.meBaseUrl}/${userId}/state`, payload)
       .pipe(map((res) => this.mapDashboardToReproductiveStatus(res)));
   }
 

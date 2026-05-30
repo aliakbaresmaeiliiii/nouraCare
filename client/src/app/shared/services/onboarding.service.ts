@@ -38,10 +38,10 @@ export interface CompleteOnboardingResponse {
   accessToken?: string;
 }
 
-export type ReproductiveState = 'cycle' | 'planning' | 'pregnant' | 'postpartum';
+export type ReproductiveStatus = 'cycle' | 'planning' | 'pregnant' | 'postpartum';
 
 export interface InitializeReproductiveStateDto {
-  state: ReproductiveState;
+  state: ReproductiveStatus;
   pregnancyStartDate?: string;
   pregnancyDueDate?: string;
   tryingSince?: string;
@@ -57,7 +57,7 @@ export interface DashboardFertileWindow {
 }
 
 export interface DashboardResponse {
-  state: ReproductiveState;
+  state: ReproductiveStatus;
   week: number | null;
   /** Day within current pregnancy week (0–6); aligned with 1-based `week` from LMP. */
   day?: number | null;

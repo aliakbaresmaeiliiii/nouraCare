@@ -41,7 +41,7 @@ import {
   DashboardResponse,
   InitializeReproductiveStateDto,
   OnboardingService,
-  ReproductiveState,
+  ReproductiveStatus,
 } from '../shared/services/onboarding.service';
 import { AlertController, ModalController } from '@ionic/angular/standalone';
 import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
@@ -1218,7 +1218,7 @@ export class EditProfileComponent implements OnInit {
 
   private mapUiReproductiveToApiPregnancyStatus(
     ui: string | null,
-  ): ReproductiveState | null {
+  ): ReproductiveStatus | null {
     if (!ui) return null;
     if (ui === 'NOT_PREGNANT') return 'cycle';
     if (ui === 'PLANNING_PREGNANCY') return 'planning';
