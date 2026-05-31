@@ -123,26 +123,37 @@ export class HomeReproductiveUiService {
     // Server defaults reproductive_state to `cycle`; `planning` is TTC. Both use the same
     // home layout (cycle ring, metrics). `userStatus === 'Trying to Conceive'` gates that UI.
     const userStatus =
-      dashboard.state === 'planning' || dashboard.state === 'cycle'
+      dashboard.state === 'planning'
         ? 'Trying to Conceive'
-        : 'Cycle Tracking';
+        : dashboard.state === 'cycle'
+          ? 'Cycle Tracking'
+          : 'Cycle Tracking';
     this.cycleSettings.setUserStatus(userStatus);
     this.cycleSettings.setPostpartumStatus(false);
+    this.cycleSettings.setPregnancyStatus(false);
 
     if (dashboard.state === 'planning') {
-      this.cycleSettings.clearGetPregnantProfileCardPending();
+      this.cycleSettings.setGetPregnantProfileCardPending(false);
     }
 
-    const cycleLen = dashboard.cycleLength ?? dashboard.avgCycleLength;
+    const cycleLen = dashboard.cycleLength;
     if (cycleLen != null && Number.isFinite(Number(cycleLen))) {
       this.cycleSettings.setCycleLength(Math.round(Number(cycleLen)));
     }
 
     if (
+      dashboard.avgPeriodLength != null &&
+      Number.isFinite(Number(dashboard.avgPeriodLength))
+    ) {
+      this.cycleSettings.setPeriodLength(
+        Math.round(Number(dashboard.avgPeriodLength)),
+      );
+    }
+
+    if (
       dashboard.cycleDay != null &&
       Number.isFinite(dashboard.cycleDay) &&
-      dashboard.cycleDay >= 1 &&
-      !this.cycleSettings.lastPeriodStartDate()
+      dashboard.cycleDay >= 1
     ) {
       const today = new Date();
       today.setHours(12, 0, 0, 0);

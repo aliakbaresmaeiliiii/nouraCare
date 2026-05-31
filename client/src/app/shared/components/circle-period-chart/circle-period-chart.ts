@@ -4,6 +4,7 @@ import {
   inject,
   Input,
   OnChanges,
+  OnDestroy,
   OnInit,
   SimpleChanges,
   ChangeDetectorRef,
@@ -12,11 +13,9 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonDatetime } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 import { CycleSettingsService } from '../../services/cycle-settings.service';
-import { UserInfoService } from '../../services/user-info.service';
-import type { UserInfo } from '../../interfaces/user-info-api.interface';
-import { AuthService } from '../../../auth/services/auth';
 import { TranslationService } from '../../services/translation.service';
 import { LanguageService } from '../../services/language.service';
 import { UserSessionService } from '../../services/user-session.service';
@@ -41,25 +40,40 @@ export interface Segment {
   templateUrl: './circle-period-chart.html',
   styleUrl: './circle-period-chart.scss',
 })
-export class CirclePeriodChart implements OnInit, OnChanges {
+export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
   @ViewChild('periodCalendar') periodCalendar!: IonDatetime;
   @ViewChild('cycleChartWeekScroll', { read: ElementRef })
   cycleChartWeekScroll?: ElementRef<HTMLElement>;
 
   router = inject(Router);
   private cycleSettings = inject(CycleSettingsService);
-  private userInfoService = inject(UserInfoService);
-  private authService = inject(AuthService);
   private translationService = inject(TranslationService);
   private languageService = inject(LanguageService);
   private userSession = inject(UserSessionService);
   private periodCycleState = inject(PeriodCycleStateService);
   private cdr = inject(ChangeDetectorRef);
+  private langSub?: Subscription;
+  /** Parent-bound cycle length; wins over cycleSettings when Home passes fresh inputs. */
+  private boundCycleLength: number | null = null;
+  private boundPeriodLength: number | null = null;
+
   // Configuration inputs
   @Input() cycleLength: number = 28; // total cycle length in days
   @Input() periodLength: number = 5; // menstruation length in days
+  /** ISO date (YYYY-MM-DD) for cycle ring anchor; kept in sync with {@link CycleSettingsService}. */
+  @Input() lastPeriodStart: string | null = null;
   /** When true, shows the Mon–Sun week strip above the ring (cycle home). */
   @Input() showWeekStrip = true;
+
+  /** Rebuild SVG when shared cycle store changes (profile save, dashboard sync). */
+  private readonly cycleStoreSyncEffect = effect(() => {
+    this.cycleSettings.cycleLength();
+    this.cycleSettings.periodLength();
+    this.cycleSettings.lastPeriodStartDate();
+    this.applyLocalCycleState();
+    this.recomputeEverything();
+    this.syncWeekCalendarSelectionFromStartDate();
+  });
 
   private readonly weekCalWeeksPast = 10;
   private readonly weekCalWeeksFuture = 10;
@@ -275,32 +289,45 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['cycleLength']?.currentValue != null) {
+      this.boundCycleLength = Math.max(
+        21,
+        Math.min(60, Math.floor(Number(changes['cycleLength'].currentValue) || 28)),
+      );
+      this.cycleLength = this.boundCycleLength;
+    }
+    if (changes['periodLength']?.currentValue != null) {
+      this.boundPeriodLength = Math.max(
+        1,
+        Math.min(10, Math.floor(Number(changes['periodLength'].currentValue) || 5)),
+      );
+      this.periodLength = this.boundPeriodLength;
+    }
+    if (changes['lastPeriodStart']) {
+      const raw = changes['lastPeriodStart'].currentValue;
+      if (raw) {
+        this.startDate = String(raw).includes('T')
+          ? String(raw).split('T')[0]
+          : String(raw).slice(0, 10);
+        this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+      }
+    }
     this.recomputeEverything();
   }
 
   ngOnInit() {
-    // Paint immediately from local journey / cycle store; home already syncs onboarding in parallel.
+    // Home owns GET /me/dashboard; chart reads cycleSettings updated by Home.
     this.applyLocalCycleState();
     this.recomputeEverything();
     this.syncWeekCalendarSelectionFromStartDate();
     this.scheduleWeekScrollToAnchor();
-    // void this.periodCycleState.ensureLatestPeriodFromApi(
-    //   this.userSession.getCurrentUserId(),
-    // );
-    this.refreshOnboardingFromServer();
+    this.langSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.markForCheck();
+    });
   }
 
-  private applyUserInfoToChart(userInfo: UserInfo): void {
-    this.cycleLength = userInfo.cycleLength || 28;
-    this.periodLength = userInfo.periodLength || 5;
-    this.startDate = this.resolvePreferredStartDate(
-      this.toPeriodIso(userInfo.lastPeriodDate),
-    );
-    if (this.startDate) {
-      this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
-    } else {
-      this.endDate = null;
-    }
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   /**
@@ -308,8 +335,10 @@ export class CirclePeriodChart implements OnInit, OnChanges {
    * Journey payload can be stale for a short time after new period logs are created.
    */
   private applyLocalCycleState(): void {
-    this.cycleLength = this.cycleSettings.cycleLength();
-    this.periodLength = this.cycleSettings.periodLength();
+    this.cycleLength =
+      this.boundCycleLength ?? this.cycleSettings.cycleLength();
+    this.periodLength =
+      this.boundPeriodLength ?? this.cycleSettings.periodLength();
     this.startDate = this.cycleSettings.lastPeriodStartDate();
 
     // const journey = this.userInfoService.onboardingJourney();
@@ -344,29 +373,6 @@ export class CirclePeriodChart implements OnInit, OnChanges {
   }
 
   /**
-   * Refresh journey from server without hiding the chart (GET is duplicated with home sync but stays non-blocking).
-   */
-  private refreshOnboardingFromServer(): void {
-    if (!this.authService.getAccessToken()) {
-      return;
-    }
-    // this.userInfoService.getUserOnboardingData().subscribe({
-    //   next: (userInfo) => {
-    //     this.applyUserInfoToChart(userInfo);
-    //     this.recomputeEverything();
-    //     this.syncWeekCalendarSelectionFromStartDate();
-    //     queueMicrotask(() => this.scheduleWeekScrollToAnchor());
-    //   },
-    //   error: () => {
-    //     this.applyLocalCycleState();
-    //     this.recomputeEverything();
-    //     this.syncWeekCalendarSelectionFromStartDate();
-    //     queueMicrotask(() => this.scheduleWeekScrollToAnchor());
-    //   },
-    // });
-  }
-
-  /**
    * Public method to manually refresh the chart
    * This can be called from parent components when data changes
    */
@@ -375,10 +381,6 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     this.recomputeEverything();
     this.syncWeekCalendarSelectionFromStartDate();
     queueMicrotask(() => this.scheduleWeekScrollToAnchor());
-    // void this.periodCycleState.ensureLatestPeriodFromApi(
-    //   this.userSession.getCurrentUserId(),
-    // );
-    this.refreshOnboardingFromServer();
   }
 
   /**
@@ -1126,6 +1128,26 @@ export class CirclePeriodChart implements OnInit, OnChanges {
       days: this.periodDays,
       dayWord: this.dayWord(this.periodDays),
     });
+  }
+
+  getTrackButtonAriaLabel(): string {
+    return this.isInPeriod
+      ? this.t('cycleChart.a11y.editLoggedPeriod')
+      : this.t('cycleChart.a11y.logPeriod');
+  }
+
+  getTrackButtonTitle(): string {
+    return this.isInPeriod
+      ? this.t('cycleChart.track.editLogPeriod')
+      : this.t('cycleChart.track.logPeriod');
+  }
+
+  getTrackButtonHint(): string {
+    return this.t('cycleChart.track.hint');
+  }
+
+  getPeriodSheetTitle(): string {
+    return this.t('cycleChart.sheet.title');
   }
 
   getWheelPickerHint(): string {

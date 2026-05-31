@@ -112,9 +112,23 @@ export function lmpIsoFromGestationalWeek1Based(
   week: number,
   ref: Date = new Date(),
 ): string | null {
-  const w = Math.floor(Number(week));
+  return lmpIsoFromGestationalWeekAndDay(week, 0, ref);
+}
+
+/**
+ * LMP from 1-based gestational week and 0–6 day index within that week
+ * (same convention as server `computePregnancyMetricsFromLmp`).
+ */
+export function lmpIsoFromGestationalWeekAndDay(
+  week1Based: number,
+  day0to6: number,
+  ref: Date = new Date(),
+): string | null {
+  const w = Math.floor(Number(week1Based));
+  const d = Math.floor(Number(day0to6));
   if (!Number.isFinite(w) || w < 1 || w > 42) return null;
+  if (!Number.isFinite(d) || d < 0 || d > 6) return null;
+  const totalDays = (w - 1) * 7 + d;
   const todayIso = utcTodayIsoDateOnly(ref);
-  const offsetDays = (w - 1) * 7;
-  return addCalendarDaysIso(todayIso, -offsetDays);
+  return addCalendarDaysIso(todayIso, -totalDays);
 }

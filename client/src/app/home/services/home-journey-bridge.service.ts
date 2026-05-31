@@ -20,14 +20,29 @@ export class HomeJourneyBridgeService {
   );
 
   /**
-   * Call from week-detail after PATCH with the same merge rules as home (synchronous, before navigate).
+   * Call from profile/week-detail after PATCH with the same merge rules as home (synchronous, before navigate).
    */
   pushJourneyStateFromWeekDetail(state: HomePageJourneyState): void {
     this._savedJourneyFromWeekDetail.set(state);
     this._skipNextRemoteDashboardFetch.set(true);
   }
 
-  /** Used by the home effect: read-once apply. */
+  /**
+   * Applies pending journey once (effect + ionViewWillEnter may both call; first wins).
+   */
+  applySavedJourneyIfPending(
+    apply: (state: HomePageJourneyState) => void,
+  ): boolean {
+    const state = this._savedJourneyFromWeekDetail();
+    if (!state) {
+      return false;
+    }
+    apply(state);
+    this._savedJourneyFromWeekDetail.set(null);
+    return true;
+  }
+
+  /** Used by the home effect: read-once apply. @deprecated Prefer {@link applySavedJourneyIfPending}. */
   consumeSavedJourneyFromWeekDetail(): HomePageJourneyState | null {
     const value = this._savedJourneyFromWeekDetail();
     this._savedJourneyFromWeekDetail.set(null);

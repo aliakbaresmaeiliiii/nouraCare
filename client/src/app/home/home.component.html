@@ -10,12 +10,14 @@
     [class.home-content--pregnancy-today]="isPregnant()"
   >
 
+    @if (!isPregnant()) {
     <div class="cycle-compact-section">
       <div class="cycle-hero-sky">
         <div class="cycle-ring-shell cycle-ring-shell--hero">
           <app-circle-period-chart
             [cycleLength]="currentCycleLength"
             [periodLength]="periodLength"
+            [lastPeriodStart]="lastPeriodStartIso"
           />
         </div>
       </div>
@@ -26,7 +28,7 @@
         </h2>
         <div
           class="pds-quick-links pds-quick-links--before-strip"
-          aria-label="More cycle tools"
+          [attr.aria-label]="'home.a11y.moreCycleTools' | translate"
         >
           <button
             type="button"
@@ -50,7 +52,7 @@
           </button>
         </div>
         @let cdsStoryTopics = getCycleDailyInsightStripTopics();
-        <div class="pds-strip" role="list" aria-label="Daily insight stories">
+        <div class="pds-strip" role="list" [attr.aria-label]="'home.a11y.dailyInsightStories' | translate">
           <div class="pds-card pds-card--summary" role="listitem">
             <div class="pds-summary-stack" aria-hidden="true">
               <span class="pds-summary-orb pds-summary-orb--a">
@@ -69,13 +71,13 @@
               (click)="
                 openDailyInsightStory(getCycleDailyInsightSummaryTopic())
               "
-              aria-label="Open daily insights summary"
+              [attr.aria-label]="'home.a11y.openDailyInsightsSummary' | translate"
             ></button>
             <button
               type="button"
               class="pds-summary-plus"
               (click)="openSymptomsTracking()"
-              aria-label="Track symptoms"
+              [attr.aria-label]="'home.a11y.trackSymptoms' | translate"
             >
               <ion-icon name="add" aria-hidden="true"></ion-icon>
             </button>
@@ -126,10 +128,11 @@
         </div>
       </div>
     </div>
+    }
 
     <!-- Pregnancy “Today” layout (reference UI above Quick Actions) -->
     @if (isPregnant()) {
-    <!-- <div class="pregnancy-today-shell">
+    <div class="pregnancy-today-shell">
       <div class="pregnancy-today-bg" aria-hidden="true">
         <div class="pregnancy-today-blob pregnancy-today-blob--1"></div>
         <div class="pregnancy-today-blob pregnancy-today-blob--2"></div>
@@ -483,7 +486,7 @@
         </div>
         } }
       </div>
-    </div> -->
+    </div>
     }
     <!-- <div class="quick-actions-section">
       <div class="section-header">
@@ -603,19 +606,22 @@
         </div>
       </div>
     </div> -->
-    <section class="home-feature-slider">
+    <section
+      class="home-feature-slider"
+      [attr.aria-label]="'home.featureSliderAria' | translate"
+    >
       <div class="slider-container">
         <article class="slider-item card">
           <img src="assets/images/sliders/changing.jpg" alt="" />
-          <p>توضیح اول</p>
+          <p>{{ "home.featureSliderChanging" | translate }}</p>
         </article>
         <article class="slider-item card">
           <img src="assets/images/sliders/Access.jpg" alt="" />
-          <p>توضیح دوم</p>
+          <p>{{ "home.featureSliderAccess" | translate }}</p>
         </article>
         <article class="slider-item card">
           <img src="assets/images/sliders/track.jpg" alt="" />
-          <p>توضیح سوم</p>
+          <p>{{ "home.featureSliderTrack" | translate }}</p>
         </article>
       </div>
     </section>

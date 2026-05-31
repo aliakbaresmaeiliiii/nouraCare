@@ -1,7 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, ReplaySubject, share } from 'rxjs';
 import { environment } from '../../../environments/environment';
+
+export interface DashboardRequestOptions {
+  /** Bypass in-flight / shared cache (pull-to-refresh, after PATCH). */
+  force?: boolean;
+}
 
 
 export interface OnboardingSession {
@@ -94,6 +99,8 @@ export class OnboardingService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiEndPoint + 'onboarding';
   private meBaseUrl = environment.apiEndPoint + 'me';
+  /** Coalesces concurrent GET /me/dashboard subscribers into one HTTP call. */
+  private dashboardShared$: Observable<DashboardResponse> | null = null;
 
   startOnboarding(): Observable<OnboardingSession> {
     return this.http.post<OnboardingSession>(`${this.baseUrl}/start`, {});
@@ -168,8 +175,27 @@ export class OnboardingService {
     return this.http.post<DashboardResponse>(this.baseUrl, payload);
   }
 
-  getDashboard(): Observable<DashboardResponse> {
-    return this.http.get<DashboardResponse>(`${this.meBaseUrl}/dashboard`);
+  getDashboard(options?: DashboardRequestOptions): Observable<DashboardResponse> {
+    if (options?.force) {
+      this.invalidateDashboardCache();
+    }
+    if (!this.dashboardShared$) {
+      this.dashboardShared$ = this.http
+        .get<DashboardResponse>(`${this.meBaseUrl}/dashboard`)
+        .pipe(
+          share({
+            connector: () => new ReplaySubject<DashboardResponse>(1),
+            resetOnRefCountZero: true,
+            resetOnError: true,
+            resetOnComplete: true,
+          }),
+        );
+    }
+    return this.dashboardShared$;
+  }
+
+  invalidateDashboardCache(): void {
+    this.dashboardShared$ = null;
   }
 
   updateReproductiveState(

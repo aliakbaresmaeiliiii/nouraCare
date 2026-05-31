@@ -423,18 +423,14 @@
       class="cycle-chart-track-btn"
       [class.cycle-chart-track-btn--period]="isInPeriod"
       (click)="goToLogPeriod()"
-      [attr.aria-label]="isInPeriod ? 'Edit logged period dates' : 'Log period'"
+      [attr.aria-label]="getTrackButtonAriaLabel()"
     >
       <span class="cycle-chart-track-btn__icon" aria-hidden="true">
         <ion-icon name="calendar-outline"></ion-icon>
       </span>
       <span class="cycle-chart-track-btn__copy">
-        <span class="cycle-chart-track-btn__title">{{
-          isInPeriod ? 'Edit Log Period' : 'Log Period'
-        }}</span>
-        <span class="cycle-chart-track-btn__hint"
-          >Update your last period date quickly</span
-        >
+        <span class="cycle-chart-track-btn__title">{{ getTrackButtonTitle() }}</span>
+        <span class="cycle-chart-track-btn__hint">{{ getTrackButtonHint() }}</span>
       </span>
       <ion-icon
         name="chevron-forward-outline"
@@ -458,16 +454,18 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Period dates</ion-title>
+        <ion-title>{{ getPeriodSheetTitle() }}</ion-title>
         <ion-buttons slot="end">
-          <ion-button fill="clear" (click)="closePeriodSheet()">Close</ion-button>
+          <ion-button fill="clear" (click)="closePeriodSheet()">{{
+            "cycleChart.sheet.close" | translate
+          }}</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <ion-content class="cycle-period-sheet-content ion-padding">
       <p class="cycle-period-sheet-lead">
-        First and last day of bleeding for this period. The ring’s rose segment follows these dates.
+        {{ "cycleChart.sheet.lead" | translate }}
       </p>
 
       <div class="cycle-period-sheet-fields">
@@ -484,7 +482,9 @@
             [value]="startDate"
             (ionFocus)="openPicker('start')"
           >
-            <div slot="label" class="cycle-period-sheet-label">First day of last period</div>
+            <div slot="label" class="cycle-period-sheet-label">{{
+              "cycleChart.picker.firstDayLastPeriod" | translate
+            }}</div>
           </ion-input>
         </ion-item>
 
@@ -501,7 +501,9 @@
             [value]="endDate"
             (ionFocus)="openPicker('end')"
           >
-            <div slot="label" class="cycle-period-sheet-label">Last day of this period</div>
+            <div slot="label" class="cycle-period-sheet-label">{{
+              "cycleChart.picker.lastDayThisPeriod" | translate
+            }}</div>
           </ion-input>
         </ion-item>
 
@@ -520,13 +522,15 @@
               </svg>
             </span>
             <span class="cycle-period-sheet-summary-text">
-              Length this period: <strong>{{ periodDays }}</strong> day{{ periodDays === 1 ? '' : 's' }}
+              {{ getPeriodLengthSummaryText() }}
             </span>
           </div>
         }
       </div>
 
-      <app-button (buttonClick)="savePeriod()">Save</app-button>
+      <app-button (buttonClick)="savePeriod()">{{
+        "common.save" | translate
+      }}</app-button>
     </ion-content>
   </ng-template>
 </ion-modal>
@@ -539,14 +543,18 @@
       <ion-toolbar>
         <ion-title>{{ pickerModalTitle }}</ion-title>
         <ion-buttons slot="end">
-          <ion-button fill="clear" (click)="closePicker()">Cancel</ion-button>
-          <ion-button strong="true" (click)="confirmPicker()">Done</ion-button>
+          <ion-button fill="clear" (click)="closePicker()">{{
+            "common.cancel" | translate
+          }}</ion-button>
+          <ion-button strong="true" (click)="confirmPicker()">{{
+            "cycleChart.picker.done" | translate
+          }}</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <ion-content class="cycle-wheel-picker-content ion-padding">
-      <p class="cycle-wheel-picker-hint">Spin the wheels, then tap <strong>Done</strong>.</p>
+      <p class="cycle-wheel-picker-hint">{{ getWheelPickerHint() }}</p>
       <ion-picker>
         <!-- Year -->
         <ion-picker-column [value]="tempYear" (ionChange)="onChange($event,'year')">

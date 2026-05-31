@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { addCalendarDaysIso, isoDateOnly } from '../utils/pregnancy-lmp.util';
 import { UpdateReproductiveStateDto } from '../../profile/models/UpdateReproductiveStateDto';
-import type { DashboardResponse } from './onboarding.service';
+import { OnboardingService, type DashboardResponse } from './onboarding.service';
+import { UserInfoService } from './user-info.service';
 
 export interface ReproductiveStatusData {
   isPregnant?: boolean;
@@ -68,6 +69,8 @@ export interface PeriodLogResponseDto {
 })
 export class ReproductiveStatusService {
   http = inject(HttpClient);
+  private onboardingService = inject(OnboardingService);
+  private userInfoService = inject(UserInfoService);
   private baseUrl = environment.apiEndPoint + 'profile';
   private meBaseUrl = environment.apiEndPoint + 'me';
 
@@ -206,10 +209,17 @@ export class ReproductiveStatusService {
     userId: number,
     data: UpdateReproductiveStateDto
   ): Observable<DashboardResponse> {
-    return this.http.patch<DashboardResponse>(
-      `${environment.apiEndPoint}me/${userId}/state`,
-      data
-    );
+    return this.http
+      .patch<DashboardResponse>(
+        `${environment.apiEndPoint}me/${userId}/state`,
+        data,
+      )
+      .pipe(
+        tap(() => {
+          this.onboardingService.invalidateDashboardCache();
+          this.userInfoService.invalidateOnboardingCache();
+        }),
+      );
   }
 
   private mapDashboardToReproductiveStatus(

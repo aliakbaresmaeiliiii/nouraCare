@@ -1,7 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Observable, ReplaySubject, share, throwError } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+
+export interface OnboardingJourneyRequestOptions {
+  force?: boolean;
+}
 import {
   ApiEnvelope,
   UserInfo,
@@ -31,6 +35,8 @@ export class UserInfoService {
 
   /** Last journey payload from `GET user/me/onboarding` (and PATCH). */
   onboardingJourney = signal<UserInfo | null>(null);
+  /** Coalesces concurrent GET user/me/onboarding subscribers into one HTTP call. */
+  private onboardingShared$: Observable<UserInfo> | null = null;
 
   /** @deprecated Prefer {@link onboardingJourney}; kept for edit-profile merges. */
   userInfo = signal<any>(null);
@@ -47,7 +53,10 @@ export class UserInfoService {
       )
       .pipe(
         map((res) => this.unwrap(res)),
-        tap((data) => this.onboardingJourney.set(data)),
+        tap((data) => {
+          this.invalidateOnboardingCache();
+          this.onboardingJourney.set(data);
+        }),
       );
   }
 
@@ -105,18 +114,37 @@ export class UserInfoService {
    * Authenticated: loads the signed-in user's journey from `GET user/me/onboarding`.
    * The optional userId parameter is ignored (kept for call-site compatibility).
    */
-  getUserOnboardingData(_userId?: number): Observable<UserInfo> {
+  getUserOnboardingData(
+    _userId?: number,
+    options?: OnboardingJourneyRequestOptions,
+  ): Observable<UserInfo> {
     if (!this.authService.getAccessToken()) {
       return throwError(() => new Error('Not authenticated'));
     }
-    return this.http
-      .get<ApiEnvelope<UserInfo>>(
-        `${environment.apiEndPoint}user/me/onboarding`,
-      )
-      .pipe(
-        map((res) => this.unwrap(res)),
-        tap((data) => this.onboardingJourney.set(data)),
-      );
+    if (options?.force) {
+      this.invalidateOnboardingCache();
+    }
+    if (!this.onboardingShared$) {
+      this.onboardingShared$ = this.http
+        .get<ApiEnvelope<UserInfo>>(
+          `${environment.apiEndPoint}user/me/onboarding`,
+        )
+        .pipe(
+          map((res) => this.unwrap(res)),
+          tap((data) => this.onboardingJourney.set(data)),
+          share({
+            connector: () => new ReplaySubject<UserInfo>(1),
+            resetOnRefCountZero: true,
+            resetOnError: true,
+            resetOnComplete: true,
+          }),
+        );
+    }
+    return this.onboardingShared$;
+  }
+
+  invalidateOnboardingCache(): void {
+    this.onboardingShared$ = null;
   }
 
   /** @deprecated Use {@link getUserOnboardingData} — same HTTP call. */

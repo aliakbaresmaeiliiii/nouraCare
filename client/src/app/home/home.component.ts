@@ -91,6 +91,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   private userInfoService = inject(UserInfoService);
   private authService = inject(AuthService);
   // private onboardingService = inject(OnboardingService);
+  private onboardingService = inject(OnboardingService);
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private homeData = inject(HomeDataService);
@@ -182,6 +183,8 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   currentCycleDay: number = 0;
   currentCycleLength: number = 28;
   periodStartDate: Date | null = null;
+  /** Bound to cycle chart — updates when dashboard/profile sync writes cycle settings. */
+  lastPeriodStartIso: string | null = null;
   periodLength: number = 5;
   pregnancyWeek: number = 0;
   pregnancyProgress: number = 0;
@@ -271,16 +274,13 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       if (!this.authService.getAccessToken()) {
         return;
       }
-      if (this.homeJourneyBridge.savedJourneyFromWeekDetail() === null) {
-        return;
-      }
-      const state = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
-      if (!state) {
-        return;
-      }
-      this.applyJourneyStateToView(state);
-      this.cdr.markForCheck();
-      this.ngZone.run(() => this.runPeriodChartRefresh());
+      // Subscribe to pending profile/week-detail pushes.
+      this.homeJourneyBridge.savedJourneyFromWeekDetail();
+      this.homeJourneyBridge.applySavedJourneyIfPending((state) => {
+        this.applyJourneyStateToView(state);
+        this.cdr.markForCheck();
+        this.ngZone.run(() => this.runPeriodChartRefresh());
+      });
     });
 
     // effect(() => {
@@ -292,19 +292,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   ngOnInit() {
-    // this.generateMessages();
-    // // if (!this.authService.getAccessToken()) {
-    //   this.loadPersistedData();
-    //   // this.checkOnboardingStatus();
-    // // } else {
-    // //   this.hydrateFromLocalOnboardingForAuthenticatedFallback();
-    // // }
-    // this.loadTodaySymptoms();
-    // this.loadRecentSymptomsDays();
-    // this.initializeHealthTip();
-    // // Embedded home tab may not always fire Ionic view enter before first paint.
-    // this.syncDashboardFromServerAndRefreshChart();
-
+    this.loadPersistedData();
   }
 
   ngOnDestroy(): void {
@@ -327,6 +315,9 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     const lastPeriodStart = this.cycleSettings.lastPeriodStartDate();
     if (lastPeriodStart) {
       this.periodStartDate = new Date(lastPeriodStart);
+      this.lastPeriodStartIso = lastPeriodStart.includes('T')
+        ? lastPeriodStart.split('T')[0]
+        : lastPeriodStart.slice(0, 10);
       this.updateCycleDay();
     }
 
@@ -548,10 +539,9 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   refreshDisplay() {
     if (!this.authService.getAccessToken()) {
       this.loadPersistedData();
-      // this.checkOnboardingStatus();
       return;
     }
-    // this.loadDashboardState();
+    this.fetchDashboardAndApplyToView();
   }
 
   /**
@@ -562,7 +552,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.syncDashboardFromServerAndRefreshChart();
     this.loadRecentSymptomsDays();
     this.loadTodaySymptoms();
-    this.runPeriodChartRefresh();
     if (this.isPregnant()) {
       this.clearPregnancyCalendarSelectionIfInvalid();
     }
@@ -594,58 +583,67 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
     if (!this.authService.getAccessToken()) {
       this.loadPersistedData();
-      // this.checkOnboardingStatus();
       this.runPeriodChartRefresh();
       this.cdr.markForCheck();
       return;
     }
 
-    try {
-      // vccccccxxxxxxxxxxxxxxhh
-    } catch {
-      // network errors: still refresh chart from local state
-    } finally {
-      // await this.syncLatestPeriodLogFromApi();
+    this.fetchDashboardAndApplyToView(true);
+  }
+
+  /**
+   * GET /me/dashboard (+ onboarding journey), apply to cycle/pregnancy home UI, refresh chart.
+   * Skips one fetch when profile/week-detail already pushed fresh dashboard via the journey bridge.
+   */
+  private fetchDashboardAndApplyToView(forceRemote = false): void {
+    if (!this.authService.getAccessToken()) {
+      this.loadPersistedData();
       this.runPeriodChartRefresh();
       this.cdr.markForCheck();
+      return;
     }
+
+    if (this.homeJourneyBridge.takeSkipNextRemoteDashboardFetch()) {
+      this.homeJourneyBridge.applySavedJourneyIfPending((state) => {
+        this.applyJourneyStateToView(state);
+      });
+      // Journey may already have been applied in the constructor effect before the chart existed.
+      this.runPeriodChartRefresh();
+      this.cdr.markForCheck();
+      return;
+    }
+
+    forkJoin({
+      dashboard: this.onboardingService.getDashboard(
+        forceRemote ? { force: true } : undefined,
+      ),
+      journey: this.userInfoService
+        .getUserOnboardingData(undefined, forceRemote ? { force: true } : undefined)
+        .pipe(catchError(() => of<UserInfo | null>(null))),
+    }).subscribe({
+      next: ({ dashboard, journey }) => {
+        const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+          dashboard,
+          journey,
+        );
+        this.applyJourneyStateToView(state);
+        this.runPeriodChartRefresh();
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        console.error('Home dashboard sync failed:', err);
+        this.loadPersistedData();
+        this.runPeriodChartRefresh();
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   /**
    * One dashboard read per enter: week-detail save publishes via signal first, else GET.
    */
   private syncDashboardFromServerAndRefreshChart() {
-    if (!this.authService.getAccessToken()) {
-      this.runPeriodChartRefresh();
-      return;
-    }
-    void this.syncLatestPeriodLogFromApi();
-    if (this.homeJourneyBridge.takeSkipNextRemoteDashboardFetch()) {
-      const leftover =
-        this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
-      if (leftover) {
-        this.applyJourneyStateToView(leftover);
-        this.cdr.markForCheck();
-      }
-      this.runPeriodChartRefresh();
-      return;
-    }
-    // forkJoin({
-    //   // dashboard: this.onboardingService.getDashboard(),
-    //   journey: this.userInfoService
-    //     .getUserOnboardingData()
-    //     .pipe(catchError(() => of<UserInfo | null>(null))),
-    // }).subscribe({
-    //   next: ({ dashboard, journey }) => {
-    //     const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
-    //       dashboard,
-    //       journey
-    //     );
-    //     this.applyJourneyStateToView(state);
-    //     this.runPeriodChartRefresh();
-    //   },
-    //   error: () => this.runPeriodChartRefresh(),
-    // });
+    this.fetchDashboardAndApplyToView();
   }
 
   private async syncLatestPeriodLogFromApi(): Promise<void> {
@@ -668,33 +666,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   private loadDashboardState() {
-    debugger
-    if (!this.authService.getAccessToken()) {
-      return;
-    }
-    if (this.homeJourneyBridge.takeSkipNextRemoteDashboardFetch()) {
-      const leftover =
-        this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
-      if (leftover) {
-        this.applyJourneyStateToView(leftover);
-        this.cdr.markForCheck();
-      }
-      return;
-    }
-    // forkJoin({
-    //   dashboard: this.onboardingService.getDashboard(),
-    //   journey: this.userInfoService
-    //     .getUserOnboardingData()
-    //     .pipe(catchError(() => of<UserInfo | null>(null))),
-    // }).subscribe({
-    //   next: ({ dashboard, journey }) => {
-    //     const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
-    //       dashboard,
-    //       journey
-    //     );
-    //     this.applyJourneyStateToView(state);
-    //   },
-    // });
+    this.fetchDashboardAndApplyToView();
   }
 
   private applyJourneyStateToView(state: HomePageJourneyState) {
@@ -746,11 +718,18 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       this.pregnancyStartDate = '';
     }
     this.periodStartDate = state.periodStartDate;
+    const settingsCycleLen = this.cycleSettings.cycleLength();
     this.currentCycleLength =
-      state.dashboardCycleLength ??
-      this.cycleSettings.cycleLength() ??
-      this.currentCycleLength;
+      settingsCycleLen >= 21
+        ? settingsCycleLen
+        : state.dashboardCycleLength ?? this.currentCycleLength;
     this.periodLength = this.cycleSettings.periodLength();
+    const storedLmp = this.cycleSettings.lastPeriodStartDate();
+    this.lastPeriodStartIso = storedLmp
+      ? storedLmp.includes('T')
+        ? storedLmp.split('T')[0]
+        : storedLmp.slice(0, 10)
+      : null;
     if (!this.periodStartDate && this.cycleSettings.lastPeriodStartDate()) {
       const iso = this.cycleSettings.lastPeriodStartDate()!;
       const day = iso.includes('T') ? iso.split('T')[0] : iso.slice(0, 10);
@@ -964,7 +943,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     );
   }
 
-  private runPeriodChartRefresh() {
+  private runPeriodChartRefresh(attempt = 0): void {
     const refresh = () => {
       if (!this.periodChart) {
         return false;
@@ -974,14 +953,13 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       return true;
     };
 
-    // Try immediately (best UX when returning from period update), then retry once
-    // in case the chart view has not attached yet.
     if (refresh()) {
       return;
     }
-    setTimeout(() => {
-      void refresh();
-    }, 180);
+    if (attempt >= 5) {
+      return;
+    }
+    setTimeout(() => this.runPeriodChartRefresh(attempt + 1), 80 * (attempt + 1));
   }
 
   getBabyDevelopmentFacts(week: number): string {

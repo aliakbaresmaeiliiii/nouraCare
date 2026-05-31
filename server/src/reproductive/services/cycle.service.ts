@@ -215,7 +215,8 @@ export class CycleService {
       create: {
         userId,
         lastPeriodDate: lastStart,
-        cycleLength: Math.round(personalized.effectiveCycleLength),
+        cycleLength:
+          storedCycleLength ?? Math.round(personalized.effectiveCycleLength),
         lastPredictedNextPeriodIso: personalized.nextPeriodIso,
         updatedAt: new Date(),
       },
@@ -225,9 +226,13 @@ export class CycleService {
       },
     });
 
+    const configuredCycleLength =
+      storedCycleLength ?? Math.round(personalized.effectiveCycleLength);
+
     return {
       nextPeriod: nextPeriodDate,
-      cycleLength: Math.round(personalized.effectiveCycleLength),
+      /** User-configured cycle length (ring UI); not the adaptive prediction blend. */
+      cycleLength: configuredCycleLength,
       cycleDay: basePred.cycleDay,
       ovulationDate: personalized.ovulationIso,
       fertileWindow: personalized.fertileWindow,

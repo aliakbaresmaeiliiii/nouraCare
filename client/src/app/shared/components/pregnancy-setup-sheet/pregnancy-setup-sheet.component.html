@@ -1,7 +1,12 @@
 <ion-header class="pregnancy-sheet-header ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="cancel()">
+      <ion-button
+        fill="clear"
+        class="pregnancy-sheet-close"
+        (click)="cancel()"
+        [attr.aria-label]="'pregnancySetup.closeAria' | translate"
+      >
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -9,93 +14,272 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="pregnancy-sheet-content ion-padding">
+<ion-content class="pregnancy-sheet-content">
   <div class="pregnancy-sheet-handle" aria-hidden="true"></div>
 
-  <p class="intro">{{ "pregnancySetup.intro" | translate }}</p>
+  <form [formGroup]="form" class="pregnancy-sheet-form">
+    <div class="pregnancy-name-card">
+      <label class="pregnancy-name-label" for="childNameInput">
+        {{ "pregnancySetup.childNameLabel" | translate }}
+      </label>
+      <input
+        id="childNameInput"
+        class="pregnancy-name-input"
+        type="text"
+        formControlName="childName"
+        [placeholder]="'pregnancySetup.childNamePlaceholder' | translate"
+        autocomplete="off"
+        maxlength="64"
+      />
+      <p class="pregnancy-name-hint">
+        {{ "pregnancySetup.childNameHint" | translate }}
+      </p>
+    </div>
 
-  <ion-segment [(ngModel)]="mode" class="mode-segment">
-    <ion-segment-button value="lmp">
-      {{ "pregnancySetup.modeLmp" | translate }}
-    </ion-segment-button>
-    <ion-segment-button value="week">
-      {{ "pregnancySetup.modeWeek" | translate }}
-    </ion-segment-button>
-    <ion-segment-button value="due">
-      {{ "pregnancySetup.modeDue" | translate }}
-    </ion-segment-button>
-  </ion-segment>
+    <p class="pregnancy-method-intro">
+      {{ "pregnancySetup.methodIntro" | translate }}
+    </p>
 
-  <div class="pregnancy-panel">
-    @if (mode === 'lmp') {
-      <ion-item lines="none" class="pregnancy-field">
-        <ion-label position="stacked">{{
-          "pregnancySetup.lmpLabel" | translate
-        }}</ion-label>
-        <ion-datetime
-          presentation="date"
-          [(ngModel)]="lmpIso"
-          [max]="todayStr"
-          [highlightedDates]="lmpDatetimeHighlights"
-        />
-        <p class="lmp-calendar-legend">
-          <span class="lmp-calendar-legend__row">
-            <span
-              class="lmp-calendar-legend__swatch lmp-calendar-legend__swatch--period"
-            ></span>
-            {{ "pregnancySetup.legendBleeding" | translate }}
-          </span>
-          <span class="lmp-calendar-legend__row">
-            <span
-              class="lmp-calendar-legend__swatch lmp-calendar-legend__swatch--ovu"
-            ></span>
-            {{ "pregnancySetup.legendOvulation" | translate }}
-          </span>
+    <div class="pregnancy-method-list">
+      <button
+        type="button"
+        class="pregnancy-field-card"
+        [class.pregnancy-field-card--active]="isMethodActive('due')"
+        (click)="openDueDatePicker()"
+      >
+        <span class="pregnancy-field-icon pregnancy-field-icon--due">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </span>
+        <span class="pregnancy-field-body">
+          <span class="pregnancy-field-label">{{
+            "pregnancySetup.dueLabel" | translate
+          }}</span>
+          <span class="pregnancy-field-value">{{ displayDueDate }}</span>
+        </span>
+        <span
+          class="pregnancy-field-radio"
+          [class.pregnancy-field-radio--checked]="isMethodActive('due')"
+          aria-hidden="true"
+        ></span>
+        <ion-icon name="chevron-forward-outline" class="pregnancy-field-chevron"></ion-icon>
+      </button>
+
+      <button
+        type="button"
+        class="pregnancy-field-card"
+        [class.pregnancy-field-card--active]="isMethodActive('lmp')"
+        (click)="openLmpDatePicker()"
+      >
+        <span class="pregnancy-field-icon pregnancy-field-icon--lmp">
+          <ion-icon name="water-outline"></ion-icon>
+        </span>
+        <span class="pregnancy-field-body">
+          <span class="pregnancy-field-label">{{
+            "pregnancySetup.lmpLabel" | translate
+          }}</span>
+          <span class="pregnancy-field-value">{{ displayLmpDate }}</span>
+          <span class="pregnancy-field-hint">{{
+            "pregnancySetup.lmpCardHint" | translate
+          }}</span>
+        </span>
+        <span
+          class="pregnancy-field-radio"
+          [class.pregnancy-field-radio--checked]="isMethodActive('lmp')"
+          aria-hidden="true"
+        ></span>
+        <ion-icon name="chevron-forward-outline" class="pregnancy-field-chevron"></ion-icon>
+      </button>
+
+      <div
+        class="pregnancy-gestational-group"
+        [class.pregnancy-gestational-group--active]="isMethodActive('gestational')"
+      >
+        <p class="pregnancy-gestational-title">
+          {{ "pregnancySetup.gestationalGroupTitle" | translate }}
         </p>
-      </ion-item>
+        <div class="pregnancy-gestational-row">
+          <button
+            type="button"
+            class="pregnancy-field-card pregnancy-field-card--compact"
+            [class.pregnancy-field-card--active]="isMethodActive('gestational')"
+            (click)="openGestationalWeekPicker()"
+          >
+            <span class="pregnancy-field-icon pregnancy-field-icon--week">
+              <ion-icon name="fitness-outline"></ion-icon>
+            </span>
+            <span class="pregnancy-field-body">
+              <span class="pregnancy-field-label">{{
+                "pregnancySetup.gestationalWeekLabel" | translate
+              }}</span>
+              <span class="pregnancy-field-value">{{ displayGestationalWeek }}</span>
+            </span>
+            <ion-icon name="chevron-forward-outline" class="pregnancy-field-chevron"></ion-icon>
+          </button>
+
+          <button
+            type="button"
+            class="pregnancy-field-card pregnancy-field-card--compact"
+            [class.pregnancy-field-card--active]="isMethodActive('gestational')"
+            (click)="openGestationalDayPicker()"
+          >
+            <span class="pregnancy-field-icon pregnancy-field-icon--day">
+              <ion-icon name="today-outline"></ion-icon>
+            </span>
+            <span class="pregnancy-field-body">
+              <span class="pregnancy-field-label">{{
+                "pregnancySetup.gestationalDayLabel" | translate
+              }}</span>
+              <span class="pregnancy-field-value">{{ displayGestationalDay }}</span>
+            </span>
+            <ion-icon name="chevron-forward-outline" class="pregnancy-field-chevron"></ion-icon>
+          </button>
+        </div>
+        <p class="pregnancy-gestational-hint">
+          {{ "pregnancySetup.gestationalHint" | translate }}
+        </p>
+      </div>
+    </div>
+
+    @if (validationMessage) {
+      <p class="pregnancy-sheet-error">{{ validationMessage }}</p>
     }
 
-    @if (mode === 'week') {
-      <ion-item class="pregnancy-field">
-        <ion-label position="stacked">{{
-          "pregnancySetup.weekLabel" | translate
-        }}</ion-label>
-        <ion-input
-          type="number"
-          inputmode="numeric"
-          [(ngModel)]="weekInput"
-          min="0"
-          max="42"
-        />
-      </ion-item>
-      <ion-note class="hint">{{ "pregnancySetup.weekHint" | translate }}</ion-note>
-    }
-
-    @if (mode === 'due') {
-      <ion-item lines="none" class="pregnancy-field">
-        <ion-label position="stacked">{{
-          "pregnancySetup.dueLabel" | translate
-        }}</ion-label>
-        <ion-datetime
-          presentation="date"
-          [(ngModel)]="dueIso"
-          [highlightedDates]="datetimeHighlightedToday"
-        />
-      </ion-item>
-      <ion-note class="hint">{{ "pregnancySetup.dueHint" | translate }}</ion-note>
-    }
-  </div>
-
-  @if (validationMessage) {
-    <p class="error">{{ validationMessage }}</p>
-  }
-
-  <div class="pregnancy-sheet-actions">
-    <app-button (buttonClick)="submit()">{{
-      "common.save" | translate
-    }}</app-button>
-    <button type="button" class="pregnancy-sheet-cancel" (click)="cancel()">
-      {{ "common.cancel" | translate }}
-    </button>
-  </div>
+    <div class="pregnancy-sheet-actions">
+      <app-button (buttonClick)="submit()">{{
+        "common.save" | translate
+      }}</app-button>
+      <button type="button" class="pregnancy-sheet-cancel" (click)="cancel()">
+        {{ "common.cancel" | translate }}
+      </button>
+    </div>
+  </form>
 </ion-content>
+
+<ion-modal
+  [isOpen]="isDueDateOpen"
+  (didDismiss)="isDueDateOpen = false"
+  class="pregnancy-picker-modal"
+>
+  <ng-template>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="closeDueDate('cancel')">{{
+          "common.cancel" | translate
+        }}</ion-button>
+      </ion-buttons>
+      <ion-title>{{ "pregnancySetup.pickerDueDate" | translate }}</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="closeDueDate('confirm')">{{
+          "reproductiveStatus.confirm" | translate
+        }}</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-datetime
+      class="pregnancy-date-wheel ltr"
+      presentation="date"
+      [preferWheel]="true"
+      [value]="dueIso || todayStr"
+      [highlightedDates]="datetimeHighlightedToday"
+      (ionChange)="onDueDateChange($event)"
+    ></ion-datetime>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  [isOpen]="isLmpDateOpen"
+  (didDismiss)="isLmpDateOpen = false"
+  class="pregnancy-picker-modal"
+>
+  <ng-template>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="closeLmpDate('cancel')">{{
+          "common.cancel" | translate
+        }}</ion-button>
+      </ion-buttons>
+      <ion-title>{{ "pregnancySetup.pickerLmpDate" | translate }}</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="closeLmpDate('confirm')">{{
+          "reproductiveStatus.confirm" | translate
+        }}</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-datetime
+      class="pregnancy-date-wheel ltr"
+      presentation="date"
+      [preferWheel]="true"
+      [value]="lmpIso || todayStr"
+      [max]="todayStr"
+      [highlightedDates]="lmpDatetimeHighlights"
+      (ionChange)="onLmpDateChange($event)"
+    ></ion-datetime>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  [isOpen]="isGestationalWeekOpen"
+  (didDismiss)="isGestationalWeekOpen = false"
+  class="pregnancy-picker-modal"
+>
+  <ng-template>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="closeGestationalWeek('cancel')">{{
+          "common.cancel" | translate
+        }}</ion-button>
+      </ion-buttons>
+      <ion-title>{{ "pregnancySetup.pickerGestationalWeek" | translate }}</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="closeGestationalWeek('confirm')">{{
+          "reproductiveStatus.confirm" | translate
+        }}</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-picker>
+      <ion-picker-column
+        [value]="tempGestationalWeek"
+        (ionChange)="onGestationalWeekChange($event)"
+      >
+        @for (num of gestationalWeekNumbers; track num) {
+          <ion-picker-column-option [value]="num">
+            {{ num }}
+          </ion-picker-column-option>
+        }
+      </ion-picker-column>
+    </ion-picker>
+  </ng-template>
+</ion-modal>
+
+<ion-modal
+  [isOpen]="isGestationalDayOpen"
+  (didDismiss)="isGestationalDayOpen = false"
+  class="pregnancy-picker-modal"
+>
+  <ng-template>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="closeGestationalDay('cancel')">{{
+          "common.cancel" | translate
+        }}</ion-button>
+      </ion-buttons>
+      <ion-title>{{ "pregnancySetup.pickerGestationalDay" | translate }}</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="closeGestationalDay('confirm')">{{
+          "reproductiveStatus.confirm" | translate
+        }}</ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+    <ion-picker>
+      <ion-picker-column
+        [value]="tempGestationalDay"
+        (ionChange)="onGestationalDayChange($event)"
+      >
+        @for (num of gestationalDayNumbers; track num) {
+          <ion-picker-column-option [value]="num">
+            {{ num }}
+          </ion-picker-column-option>
+        }
+      </ion-picker-column>
+    </ion-picker>
+  </ng-template>
+</ion-modal>

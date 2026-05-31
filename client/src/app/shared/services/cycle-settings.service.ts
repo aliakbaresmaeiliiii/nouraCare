@@ -12,10 +12,12 @@ export class CycleSettingsService {
   periodLength = signal<number>(5);
   lastPeriodStartDate = signal<string | null>(null);
   userStatus = signal<string>('Not Set');
-  isPregnant = signal<boolean>(true);
+  isPregnant = signal<boolean>(false);
   isPostpartum = signal<boolean>(false);
   pregnancyWeek = signal<number>(0);
   pregnancyProgress = signal<number>(0);
+  /** Optional baby/child name for pregnancy tracking (local only). */
+  babyName = signal<string>('');
   /** Optional focused cycle day (YYYY-MM-DD) selected by user in cycle strip. */
   selectedCycleViewDate = signal<string | null>(null);
 
@@ -87,6 +89,11 @@ export class CycleSettingsService {
     this.saveToStorage();
   }
 
+  setBabyName(name: string) {
+    this.babyName.set(String(name ?? '').trim());
+    this.saveToStorage();
+  }
+
   setSelectedCycleViewDate(dateIso: string | null) {
     this.selectedCycleViewDate.set(dateIso ?? null);
     this.saveToStorage();
@@ -153,6 +160,7 @@ export class CycleSettingsService {
       if (typeof data.isPostpartum === 'boolean') this.isPostpartum.set(data.isPostpartum);
       if (typeof data.pregnancyWeek === 'number') this.pregnancyWeek.set(data.pregnancyWeek);
       if (typeof data.pregnancyProgress === 'number') this.pregnancyProgress.set(data.pregnancyProgress);
+      if (typeof data.babyName === 'string') this.babyName.set(data.babyName);
       if (
         typeof data.selectedCycleViewDateStored === 'string' ||
         data.selectedCycleViewDateStored === null
@@ -176,6 +184,7 @@ export class CycleSettingsService {
         isPostpartum: this.isPostpartum(),
         pregnancyWeek: this.pregnancyWeek(),
         pregnancyProgress: this.pregnancyProgress(),
+        babyName: this.babyName(),
         selectedCycleViewDateStored: this.selectedCycleViewDate(),
         getPregnantProfileCardPending: this.getPregnantProfileCardPending(),
       };
