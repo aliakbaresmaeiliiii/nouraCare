@@ -5,6 +5,7 @@ import { ReproductiveStatusService } from './reproductive-status.service';
 @Injectable({ providedIn: 'root' })
 export class CycleSettingsService {
   private readonly storageKey = 'cycleSettings';
+  
 
   reproductiveStatus = inject(ReproductiveStatusService)
   cycleLength = signal<number>(28);

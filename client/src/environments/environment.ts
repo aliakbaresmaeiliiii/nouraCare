@@ -13,10 +13,15 @@ export const environment = {
     measurementId: 'G-Y8RLZHZ7NM',
 },
   production: false,
-  apiEndPoint: 'http://192.168.1.143:3000/api/v1/',
-  urlProfileImg: 'http://192.168.1.143:3000/uploads/',
+  // apiEndPoint: 'http://192.168.1.143:3000/api/v1/',
+  // urlProfileImg: 'http://192.168.1.143:3000/uploads/',
   // apiEndPoint: 'http://10.42.66.237:3000/api/v1/',
   // urlProfileImg: 'http://10.42.66.237:3000/uploads/',
+  
+  // coffee
+  apiEndPoint: 'http://192.168.1.12:3000/api/v1/',
+  urlProfileImg: 'http://192.168.1.12:3000/uploads/',
+  
   profileImageFallback: 'assets/images/bg-01.png',
   neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',

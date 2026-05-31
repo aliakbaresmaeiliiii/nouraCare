@@ -1,0 +1,21 @@
+.test-content {
+  --background: var(--ion-background-color);
+  --color: var(--ion-text-color);
+}
+
+.test-container {
+  padding: 24px 20px;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 12px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+  }
+}

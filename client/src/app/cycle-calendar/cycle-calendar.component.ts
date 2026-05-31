@@ -106,7 +106,7 @@ export class CycleCalendarComponent implements OnInit {
     this.refreshCalendar();
     this.refreshHistory();
     const userId = this.homeService.getCurrentUserId();
-    void this.periodCycleState.ensureLatestPeriodFromApi(userId);
+    // void this.periodCycleState.ensureLatestPeriodFromApi(userId);
     this.loadReproductiveStatus(userId);
   }
 

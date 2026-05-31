@@ -90,7 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
   private authService = inject(AuthService);
-  private onboardingService = inject(OnboardingService);
+  // private onboardingService = inject(OnboardingService);
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private homeData = inject(HomeDataService);
@@ -260,43 +260,43 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     private messageService: MessageService
   ) {
     // Reacts when week-detail pushes savedJourneyFromWeekDetail (signal) — works when ionViewWillEnter does not run.
-    effect(() => {
-      if (!this.authService.getAccessToken()) {
-        return;
-      }
-      if (this.homeJourneyBridge.savedJourneyFromWeekDetail() === null) {
-        return;
-      }
-      const state = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
-      if (!state) {
-        return;
-      }
-      this.applyJourneyStateToView(state);
-      this.cdr.markForCheck();
-      this.ngZone.run(() => this.runPeriodChartRefresh());
-    });
+    // effect(() => {
+    //   if (!this.authService.getAccessToken()) {
+    //     return;
+    //   }
+    //   if (this.homeJourneyBridge.savedJourneyFromWeekDetail() === null) {
+    //     return;
+    //   }
+    //   const state = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
+    //   if (!state) {
+    //     return;
+    //   }
+    //   this.applyJourneyStateToView(state);
+    //   this.cdr.markForCheck();
+    //   this.ngZone.run(() => this.runPeriodChartRefresh());
+    // });
 
-    effect(() => {
-      // Reflect selected day from cycle strip in Home's cycle labels/cards.
-      this.cycleSettings.selectedCycleViewDate();
-      this.updateCycleDay();
-      this.cdr.markForCheck();
-    });
+    // effect(() => {
+    //   // Reflect selected day from cycle strip in Home's cycle labels/cards.
+    //   this.cycleSettings.selectedCycleViewDate();
+    //   this.updateCycleDay();
+    //   this.cdr.markForCheck();
+    // });
   }
 
   ngOnInit() {
-    this.generateMessages();
-    // if (!this.authService.getAccessToken()) {
-      this.loadPersistedData();
-      this.checkOnboardingStatus();
-    // } else {
-    //   this.hydrateFromLocalOnboardingForAuthenticatedFallback();
-    // }
-    this.loadTodaySymptoms();
-    this.loadRecentSymptomsDays();
-    this.initializeHealthTip();
-    // Embedded home tab may not always fire Ionic view enter before first paint.
-    this.syncDashboardFromServerAndRefreshChart();
+    // this.generateMessages();
+    // // if (!this.authService.getAccessToken()) {
+    //   this.loadPersistedData();
+    //   // this.checkOnboardingStatus();
+    // // } else {
+    // //   this.hydrateFromLocalOnboardingForAuthenticatedFallback();
+    // // }
+    // this.loadTodaySymptoms();
+    // this.loadRecentSymptomsDays();
+    // this.initializeHealthTip();
+    // // Embedded home tab may not always fire Ionic view enter before first paint.
+    // this.syncDashboardFromServerAndRefreshChart();
 
   }
 
@@ -541,10 +541,10 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   refreshDisplay() {
     if (!this.authService.getAccessToken()) {
       this.loadPersistedData();
-      this.checkOnboardingStatus();
+      // this.checkOnboardingStatus();
       return;
     }
-    this.loadDashboardState();
+    // this.loadDashboardState();
   }
 
   /**
@@ -587,33 +587,18 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
     if (!this.authService.getAccessToken()) {
       this.loadPersistedData();
-      this.checkOnboardingStatus();
+      // this.checkOnboardingStatus();
       this.runPeriodChartRefresh();
       this.cdr.markForCheck();
       return;
     }
 
     try {
-      await firstValueFrom(
-        forkJoin({
-          dashboard: this.onboardingService.getDashboard(),
-          journey: this.userInfoService
-            .getUserOnboardingData()
-            .pipe(catchError(() => of<UserInfo | null>(null))),
-        }).pipe(
-          tap(({ dashboard, journey }) => {
-            const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
-              dashboard,
-              journey
-            );
-            this.applyJourneyStateToView(state);
-          })
-        )
-      );
+      // vccccccxxxxxxxxxxxxxxhh
     } catch {
       // network errors: still refresh chart from local state
     } finally {
-      await this.syncLatestPeriodLogFromApi();
+      // await this.syncLatestPeriodLogFromApi();
       this.runPeriodChartRefresh();
       this.cdr.markForCheck();
     }
@@ -638,22 +623,22 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       this.runPeriodChartRefresh();
       return;
     }
-    forkJoin({
-      dashboard: this.onboardingService.getDashboard(),
-      journey: this.userInfoService
-        .getUserOnboardingData()
-        .pipe(catchError(() => of<UserInfo | null>(null))),
-    }).subscribe({
-      next: ({ dashboard, journey }) => {
-        const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
-          dashboard,
-          journey
-        );
-        this.applyJourneyStateToView(state);
-        this.runPeriodChartRefresh();
-      },
-      error: () => this.runPeriodChartRefresh(),
-    });
+    // forkJoin({
+    //   // dashboard: this.onboardingService.getDashboard(),
+    //   journey: this.userInfoService
+    //     .getUserOnboardingData()
+    //     .pipe(catchError(() => of<UserInfo | null>(null))),
+    // }).subscribe({
+    //   next: ({ dashboard, journey }) => {
+    //     const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+    //       dashboard,
+    //       journey
+    //     );
+    //     this.applyJourneyStateToView(state);
+    //     this.runPeriodChartRefresh();
+    //   },
+    //   error: () => this.runPeriodChartRefresh(),
+    // });
   }
 
   private async syncLatestPeriodLogFromApi(): Promise<void> {
@@ -661,12 +646,12 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     if (userId <= 0) return;
 
     try {
-      const latestIso = await this.periodCycleState.ensureLatestPeriodFromApi(
-        userId
-      );
-      if (!latestIso) return;
+      // const latestIso = await this.periodCycleState.ensureLatestPeriodFromApi(
+      //   userId
+      // );
+      // if (!latestIso) return;
 
-      this.periodStartDate = new Date(`${latestIso}T12:00:00`);
+      // this.periodStartDate = new Date(`${latestIso}T12:00:00`);
       this.updateCycleDay();
       this.runPeriodChartRefresh();
       this.cdr.markForCheck();
@@ -689,20 +674,20 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       }
       return;
     }
-    forkJoin({
-      dashboard: this.onboardingService.getDashboard(),
-      journey: this.userInfoService
-        .getUserOnboardingData()
-        .pipe(catchError(() => of<UserInfo | null>(null))),
-    }).subscribe({
-      next: ({ dashboard, journey }) => {
-        const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
-          dashboard,
-          journey
-        );
-        this.applyJourneyStateToView(state);
-      },
-    });
+    // forkJoin({
+    //   dashboard: this.onboardingService.getDashboard(),
+    //   journey: this.userInfoService
+    //     .getUserOnboardingData()
+    //     .pipe(catchError(() => of<UserInfo | null>(null))),
+    // }).subscribe({
+    //   next: ({ dashboard, journey }) => {
+    //     const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+    //       dashboard,
+    //       journey
+    //     );
+    //     this.applyJourneyStateToView(state);
+    //   },
+    // });
   }
 
   private applyJourneyStateToView(state: HomePageJourneyState) {
@@ -812,23 +797,23 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     }
 
     this.isPromotingOnboardingPregnancy = true;
-    this.onboardingService
-      .updateReproductiveState({
-        state: 'pregnant',
-        pregnancyStartDate: lmp,
-        lastPeriodDate: lmp,
-        cycleLength: Number(data.cycle_length) || undefined,
-      })
-      .subscribe({
-        next: () => {
-          sessionStorage.setItem(promotedKey, '1');
-          this.isPromotingOnboardingPregnancy = false;
-          this.syncDashboardFromServerAndRefreshChart();
-        },
-        error: () => {
-          this.isPromotingOnboardingPregnancy = false;
-        },
-      });
+    // this.onboardingService
+    //   .updateReproductiveState({
+    //     state: 'pregnant',
+    //     pregnancyStartDate: lmp,
+    //     lastPeriodDate: lmp,
+    //     cycleLength: Number(data.cycle_length) || undefined,
+    //   })
+    //   .subscribe({
+    //     next: () => {
+    //       sessionStorage.setItem(promotedKey, '1');
+    //       this.isPromotingOnboardingPregnancy = false;
+    //       this.syncDashboardFromServerAndRefreshChart();
+    //     },
+    //     error: () => {
+    //       this.isPromotingOnboardingPregnancy = false;
+    //     },
+    //   });
   }
 
   /**
@@ -1028,143 +1013,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.openCalendarView();
   }
 
-  // User Status Management
-  // async updateUserStatus() {
-  //   const alert = await this.alertController.create({
-  //     header: this.tr('home.alert.updateStatusHeader'),
-  //     message: this.tr('home.alert.updateStatusMessage'),
-  //     buttons: [
-  //       {
-  //         text: this.tr('home.dialog.statusTTC'),
-  //         handler: () => {
-  //           this.userStatus = 'Trying to Conceive';
-  //           this.isPregnant.set(false);
-  //           this.isPostpartum = false;
-  //           this.cycleSettings.setUserStatus('Trying to Conceive');
-  //           this.cycleSettings.setPregnancyStatus(false);
-  //           this.cycleSettings.setPostpartumStatus(false);
-  //           this.showToast(this.tr('home.dialog.statusUpdatedTTC'));
-  //         },
-  //       },
-  //       {
-  //         text: this.tr('home.dialog.statusPregnant'),
-  //         handler: async () => {
-  //           this.userStatus = 'Pregnant';
-  //           this.isPregnant.set(true);
-  //           this.isPostpartum = false;
-  //           this.cycleSettings.setUserStatus('Pregnant');
-  //           this.cycleSettings.setPregnancyStatus(true);
-  //           this.cycleSettings.setPostpartumStatus(false);
-
-  //           // Ask for pregnancy week
-  //           const weekAlert = await this.alertController.create({
-  //             header: this.tr('home.alert.congratsPregnantHeader'),
-  //             message: this.tr('home.alert.congratsPregnantMessage'),
-  //             inputs: [
-  //               {
-  //                 name: 'week',
-  //                 type: 'number',
-  //                 placeholder: this.tr('home.dialog.weekPlaceholderPregnancy'),
-  //                 min: 4,
-  //                 max: 40,
-  //                 value: 12,
-  //               },
-  //             ],
-  //             buttons: [
-  //               {
-  //                 text: this.tr('home.common.cancel'),
-  //                 role: 'cancel',
-  //               },
-  //               {
-  //                 text: this.tr('home.dialog.setWeek'),
-  //                 handler: (data) => {
-  //                   const week = parseInt(data.week);
-  //                   if (week >= 4 && week <= 40) {
-  //                     this.updatePregnancyWeek(week);
-  //                     const babyData = this.getCurrentBabySize();
-  //                     this.showToast(
-  //                       this.tr('home.dialog.weekBabyToast', {
-  //                         week,
-  //                         size: babyData.size.split(' ')[0],
-  //                       })
-  //                     );
-  //                   } else {
-  //                     this.showToast(
-  //                       this.tr('home.dialog.invalidWeekPregnancy'),
-  //                       'warning'
-  //                     );
-  //                   }
-  //                 },
-  //               },
-  //             ],
-  //           });
-  //           await weekAlert.present();
-  //         },
-  //       },
-  //       {
-  //         text: this.tr('home.dialog.statusPostpartum'),
-  //         handler: async () => {
-  //           this.userStatus = 'Postpartum';
-  //           this.isPregnant.set(false);
-  //           this.isPostpartum = true;
-  //           this.cycleSettings.setUserStatus('Postpartum');
-  //           this.cycleSettings.setPregnancyStatus(false);
-  //           this.cycleSettings.setPostpartumStatus(true);
-
-  //           // Ask for postpartum week
-  //           const weekAlert = await this.alertController.create({
-  //             header: this.tr('home.alert.postpartumWelcomeHeader'),
-  //             message: this.tr('home.alert.postpartumWelcomeMessage'),
-  //             inputs: [
-  //               {
-  //                 name: 'week',
-  //                 type: 'number',
-  //                 placeholder: this.tr('home.dialog.weekPlaceholderPostpartum'),
-  //                 min: 1,
-  //                 max: 12,
-  //                 value: 1,
-  //               },
-  //             ],
-  //             buttons: [
-  //               {
-  //                 text: this.tr('home.common.cancel'),
-  //                 role: 'cancel',
-  //               },
-  //               {
-  //                 text: this.tr('home.dialog.setWeek'),
-  //                 handler: (data) => {
-  //                   const week = parseInt(data.week);
-  //                   if (week >= 1 && week <= 12) {
-  //                     this.updatePostpartumWeek(week);
-  //                     const postpartumData = this.getCurrentPostpartumData();
-  //                     this.showToast(
-  //                       this.tr('home.dialog.postpartumWeekToast', {
-  //                         week,
-  //                         recovery: postpartumData.recovery,
-  //                       })
-  //                     );
-  //                   } else {
-  //                     this.showToast(
-  //                       this.tr('home.dialog.invalidWeekPostpartum'),
-  //                       'warning'
-  //                     );
-  //                   }
-  //                 },
-  //               },
-  //             ],
-  //           });
-  //           await weekAlert.present();
-  //         },
-  //       },
-  //       {
-  //         text: this.tr('home.common.cancel'),
-  //         role: 'cancel',
-  //       },
-  //     ],
-  //   });
-  //   await alert.present();
-  // }
-
+ 
   // Pregnancy Progress
   viewPregnancyDetails() {
     const w = this.getPregnancyWeekDetailRouteParam();
@@ -1550,11 +1399,11 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   // Update not pregnant status
   async updateNotPregnantStatus() {
     try {
-      await new Promise<void>((resolve, reject) => {
-        this.onboardingService
-          .updateReproductiveState({ state: 'cycle' })
-          .subscribe({ next: () => resolve(), error: () => reject() });
-      });
+      // await new Promise<void>((resolve, reject) => {
+      //   this.onboardingService
+      //     .updateReproductiveState({ state: 'cycle' })
+      //     .subscribe({ next: () => resolve(), error: () => reject() });
+      // });
 
       this.userStatus = 'Trying to Conceive';
       // this.isPregnant.set(false);
@@ -1616,9 +1465,9 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       return;
     }
     try {
-      await firstValueFrom(
-        this.onboardingService.updateReproductiveState(data)
-      );
+      // await firstValueFrom(
+      //   this.onboardingService.updateReproductiveState(data)
+      // );
       await this.runPullToRefresh();
       await this.showToast(
         this.tr('home.dialog.pregnancyDatesSaved'),
@@ -1668,32 +1517,32 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
     // If not found locally, fetch from API
 
-    this.trackDataService
-      .getTrackDay(this.homeData.getCurrentUserId(), today)
-      .subscribe({
-        next: (data) => {
-          if (data && data.length > 0) {
-            this.todaySymptoms = data[0] as SymptomsDto;
+    // this.trackDataService
+    //   .getTrackDay(this.homeData.getCurrentUserId(), today)
+    //   .subscribe({
+    //     next: (data) => {
+    //       if (data && data.length > 0) {
+    //         this.todaySymptoms = data[0] as SymptomsDto;
 
-            // Store in local service for future use
-            this.trackDataService.saveTrackData({
-              id: data[0].id,
-              userId: this.homeData.getCurrentUserId(),
-              date: today,
-              symptoms: data[0].symptoms,
-              mood: data[0].mood,
-              energy: data[0].energy,
-              notes: data[0].notes,
-              createdAt: data[0].createdAt,
-              updatedAt: data[0].updatedAt,
-            });
-          }
-          console.log('🔍 Today symptoms from API:', this.todaySymptoms);
-        },
-        error: (error) => {
-          this.todaySymptoms = {} as SymptomsDto;
-        },
-      });
+    //         // Store in local service for future use
+    //         this.trackDataService.saveTrackData({
+    //           id: data[0].id,
+    //           userId: this.homeData.getCurrentUserId(),
+    //           date: today,
+    //           symptoms: data[0].symptoms,
+    //           mood: data[0].mood,
+    //           energy: data[0].energy,
+    //           notes: data[0].notes,
+    //           createdAt: data[0].createdAt,
+    //           updatedAt: data[0].updatedAt,
+    //         });
+    //       }
+    //       console.log('🔍 Today symptoms from API:', this.todaySymptoms);
+    //     },
+    //     error: (error) => {
+    //       this.todaySymptoms = {} as SymptomsDto;
+    //     },
+    //   });
   }
 
   // Daily Insights Methods

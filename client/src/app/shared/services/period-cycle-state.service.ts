@@ -27,42 +27,42 @@ export class PeriodCycleStateService {
   periodStartIso = this.latestPeriodIso.asReadonly();
   isLoading = this.loading.asReadonly();
 
-  async ensureLatestPeriodFromApi(
-    userId: number,
-    opts?: { force?: boolean },
-  ): Promise<string | null> {
-    if (userId <= 0) {
-      return this.getCurrentLocalPeriodIso();
-    }
+  // async ensureLatestPeriodFromApi(
+  //   userId: number,
+  //   opts?: { force?: boolean },
+  // ): Promise<string | null> {
+  //   if (userId <= 0) {
+  //     return this.getCurrentLocalPeriodIso();
+  //   }
 
-    const now = Date.now();
-    const force = !!opts?.force;
-    const hasFreshCache =
-      !force &&
-      this.latestPeriodIso() != null &&
-      now - this.lastFetchedAtMs() < this.cacheTtlMs;
+  //   const now = Date.now();
+  //   const force = !!opts?.force;
+  //   const hasFreshCache =
+  //     !force &&
+  //     this.latestPeriodIso() != null &&
+  //     now - this.lastFetchedAtMs() < this.cacheTtlMs;
 
-    if (hasFreshCache) {
-      return this.latestPeriodIso();
-    }
+  //   if (hasFreshCache) {
+  //     return this.latestPeriodIso();
+  //   }
 
-    this.loading.set(true);
-    try {
-      const logs = await firstValueFrom(
-        this.reproductiveStatusService.getPeriodLogs(userId),
-      );
-      const latestIso = this.extractLatestIso(logs);
-      if (latestIso) {
-        this.applyPeriodLocally(latestIso);
-      }
-      this.lastFetchedAtMs.set(Date.now());
-      return latestIso;
-    } catch {
-      return this.getCurrentLocalPeriodIso();
-    } finally {
-      this.loading.set(false);
-    }
-  }
+  //   this.loading.set(true);
+  //   try {
+  //     const logs = await firstValueFrom(
+  //       this.reproductiveStatusService.getPeriodLogs(userId),
+  //     );
+  //     const latestIso = this.extractLatestIso(logs);
+  //     if (latestIso) {
+  //       this.applyPeriodLocally(latestIso);
+  //     }
+  //     this.lastFetchedAtMs.set(Date.now());
+  //     return latestIso;
+  //   } catch {
+  //     return this.getCurrentLocalPeriodIso();
+  //   } finally {
+  //     this.loading.set(false);
+  //   }
+  // }
 
   async savePeriodStart(
     userId: number,

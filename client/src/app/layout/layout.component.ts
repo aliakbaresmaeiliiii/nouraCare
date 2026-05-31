@@ -1,4 +1,10 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
@@ -20,7 +26,10 @@ import { NotificationUnreadService } from '../shared/services/notification-unrea
 import { TranslationService } from '../shared/services/translation.service';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
-import { UserSessionService } from '../shared/services/user-session.service';
+import {
+  UserInfoStore,
+  UserSessionService,
+} from '../shared/services/user-session.service';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
 @Component({
   selector: 'app-layout',
@@ -46,7 +55,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   /** Resolved URL for `<img [src]>` when the user has a real profile photo (not the generic fallback). */
   headerAvatarSrc: string | null = null;
   hasUserAvatar = false;
-
+  userInfoStore!: UserInfoStore;
   unreadCount = 0;
   notificationsAriaLabel = '';
 
@@ -72,15 +81,19 @@ export class LayoutComponent implements OnInit, OnDestroy {
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe(() => this.applyHeaderFromUserStore());
 
-    this.unreadSubscription = this.notificationUnread.unreadCount$.subscribe((count) => {
-      this.unreadCount = count;
-      this.refreshNotificationButtonA11y();
-    });
+    this.unreadSubscription = this.notificationUnread.unreadCount$.subscribe(
+      (count) => {
+        this.unreadCount = count;
+        this.refreshNotificationButtonA11y();
+      },
+    );
 
-    this.languageSubscription = this.languageService.currentLanguage$.subscribe(() => {
-      this.updateTitle(this.router.url);
-      this.refreshNotificationButtonA11y();
-    });
+    this.languageSubscription = this.languageService.currentLanguage$.subscribe(
+      () => {
+        this.updateTitle(this.router.url);
+        this.refreshNotificationButtonA11y();
+      },
+    );
   }
 
   ngOnDestroy() {
@@ -97,36 +110,39 @@ export class LayoutComponent implements OnInit, OnDestroy {
   }
 
   private loadHeaderProfile(): void {
-    this.applyHeaderFromUserStore();
-
-    this.profileCompletion.refreshFromAPI().subscribe({
-      next: (merged) => {
-        if (!merged) {
-          return;
-        }
-        const raw = (merged.profileImageRaw ?? '').toString().trim();
-        if (raw) {
-          this.hasUserAvatar = true;
-          this.headerAvatarSrc = merged.profileImage;
-        } else {
-          this.hasUserAvatar = false;
-          this.headerAvatarSrc = null;
-        }
-      },
-    });
+    if (this.userInfoStore) {
+      this.profileCompletion.refreshFromAPI().subscribe({
+        next: (merged) => {
+          if (!merged) {
+            return;
+          }
+          const raw = (merged.profileImageRaw ?? '').toString().trim();
+          if (raw) {
+            this.hasUserAvatar = true;
+            this.headerAvatarSrc = merged.profileImage;
+          } else {
+            this.hasUserAvatar = false;
+            this.headerAvatarSrc = null;
+          }
+        },
+      });
+    } else {
+      this.applyHeaderFromUserStore();
+    }
   }
 
   /** Reads `userInfo.user` from storage (aligned with the side menu). */
   private applyHeaderFromUserStore(): void {
     try {
-      const userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
-      const user = (userInfoStore.user ?? {}) as Record<string, unknown>;
+      this.userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
+      const user = (this.userInfoStore.user ?? {}) as Record<string, unknown>;
       const profileImage = user['profileImage'] ?? user['profile_img'];
-      const raw =
-        typeof profileImage === 'string' ? profileImage.trim() : null;
+      const raw = typeof profileImage === 'string' ? profileImage.trim() : null;
       if (raw && !raw.startsWith('blob:') && !raw.startsWith('data:')) {
         this.hasUserAvatar = true;
-        this.headerAvatarSrc = this.imageUrlService.getImageUrl(profileImage as string);
+        this.headerAvatarSrc = this.imageUrlService.getImageUrl(
+          profileImage as string,
+        );
       } else if (raw === '') {
         this.hasUserAvatar = false;
         this.headerAvatarSrc = null;
@@ -142,7 +158,9 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   private refreshNotificationButtonA11y(): void {
     if (this.unreadCount <= 0) {
-      this.notificationsAriaLabel = this.translation.translate('header.notifications.noUnread');
+      this.notificationsAriaLabel = this.translation.translate(
+        'header.notifications.noUnread',
+      );
       return;
     }
     this.notificationsAriaLabel = this.translation
@@ -165,16 +183,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
       this.selectedTitle = 'common.home';
     }
   }
-
-  // New methods for the modern header
-  // getPageIcon(): string {
-  //   if (this.selectedTitle.includes('home')) return 'home-outline';
-  //   if (this.selectedTitle.includes('insights')) return 'bulb-outline';
-  //   if (this.selectedTitle.includes('SecretChats')) return 'people-outline';
-  //   if (this.selectedTitle.includes('consultation')) return 'calendar-outline';
-  //   if (this.selectedTitle.includes('school')) return 'school-outline';
-  //   return 'home-outline';
-  // }
 
   openNotifications(): void {
     this.router.navigate(['/notifications']);

@@ -284,9 +284,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     this.recomputeEverything();
     this.syncWeekCalendarSelectionFromStartDate();
     this.scheduleWeekScrollToAnchor();
-    void this.periodCycleState.ensureLatestPeriodFromApi(
-      this.userSession.getCurrentUserId(),
-    );
+    // void this.periodCycleState.ensureLatestPeriodFromApi(
+    //   this.userSession.getCurrentUserId(),
+    // );
     this.refreshOnboardingFromServer();
   }
 
@@ -312,14 +312,14 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     this.periodLength = this.cycleSettings.periodLength();
     this.startDate = this.cycleSettings.lastPeriodStartDate();
 
-    const journey = this.userInfoService.onboardingJourney();
-    if (journey) {
-      this.cycleLength = journey.cycleLength || this.cycleLength;
-      this.periodLength = journey.periodLength || this.periodLength;
-      this.startDate = this.resolvePreferredStartDate(
-        this.toPeriodIso(journey.lastPeriodDate),
-      );
-    }
+    // const journey = this.userInfoService.onboardingJourney();
+    // if (journey) {
+    //   this.cycleLength = journey.cycleLength || this.cycleLength;
+    //   this.periodLength = journey.periodLength || this.periodLength;
+    //   this.startDate = this.resolvePreferredStartDate(
+    //     this.toPeriodIso(journey.lastPeriodDate),
+    //   );
+    // }
 
     if (this.startDate) {
       this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
@@ -350,20 +350,20 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     if (!this.authService.getAccessToken()) {
       return;
     }
-    this.userInfoService.getUserOnboardingData().subscribe({
-      next: (userInfo) => {
-        this.applyUserInfoToChart(userInfo);
-        this.recomputeEverything();
-        this.syncWeekCalendarSelectionFromStartDate();
-        queueMicrotask(() => this.scheduleWeekScrollToAnchor());
-      },
-      error: () => {
-        this.applyLocalCycleState();
-        this.recomputeEverything();
-        this.syncWeekCalendarSelectionFromStartDate();
-        queueMicrotask(() => this.scheduleWeekScrollToAnchor());
-      },
-    });
+    // this.userInfoService.getUserOnboardingData().subscribe({
+    //   next: (userInfo) => {
+    //     this.applyUserInfoToChart(userInfo);
+    //     this.recomputeEverything();
+    //     this.syncWeekCalendarSelectionFromStartDate();
+    //     queueMicrotask(() => this.scheduleWeekScrollToAnchor());
+    //   },
+    //   error: () => {
+    //     this.applyLocalCycleState();
+    //     this.recomputeEverything();
+    //     this.syncWeekCalendarSelectionFromStartDate();
+    //     queueMicrotask(() => this.scheduleWeekScrollToAnchor());
+    //   },
+    // });
   }
 
   /**
@@ -375,9 +375,9 @@ export class CirclePeriodChart implements OnInit, OnChanges {
     this.recomputeEverything();
     this.syncWeekCalendarSelectionFromStartDate();
     queueMicrotask(() => this.scheduleWeekScrollToAnchor());
-    void this.periodCycleState.ensureLatestPeriodFromApi(
-      this.userSession.getCurrentUserId(),
-    );
+    // void this.periodCycleState.ensureLatestPeriodFromApi(
+    //   this.userSession.getCurrentUserId(),
+    // );
     this.refreshOnboardingFromServer();
   }
 
