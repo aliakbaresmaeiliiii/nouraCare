@@ -5,6 +5,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { addCalendarDaysIso, isoDateOnly } from '../utils/pregnancy-lmp.util';
 import { UpdateReproductiveStateDto } from '../../profile/models/UpdateReproductiveStateDto';
+import type { DashboardResponse } from './onboarding.service';
 
 export interface ReproductiveStatusData {
   isPregnant?: boolean;
@@ -204,8 +205,8 @@ export class ReproductiveStatusService {
   updateState(
     userId: number,
     data: UpdateReproductiveStateDto
-  ): Observable<any> {
-    return this.http.patch<any>(
+  ): Observable<DashboardResponse> {
+    return this.http.patch<DashboardResponse>(
       `${environment.apiEndPoint}me/${userId}/state`,
       data
     );

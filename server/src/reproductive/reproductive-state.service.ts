@@ -209,6 +209,12 @@ export class ReproductiveStateService {
         tryingSince: dto.tryingSince,
         notes: dto.notes,
       });
+      if (dto.lastPeriodDate !== undefined || dto.cycleLength !== undefined) {
+        await this.cycleService.upsertCycleData(tx, userId, {
+          lastPeriodDate: dto.lastPeriodDate,
+          cycleLength: dto.cycleLength,
+        });
+      }
       return;
     }
     await this.cycleService.upsertCycleData(tx, userId, {

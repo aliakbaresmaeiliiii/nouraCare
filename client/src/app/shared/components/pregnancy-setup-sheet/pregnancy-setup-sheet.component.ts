@@ -15,9 +15,12 @@ import {
   IonSegmentButton,
   IonTitle,
   IonToolbar,
+  IonIcon,
 } from '@ionic/angular/standalone';
 import type { InitializeReproductiveStateDto } from '../../services/onboarding.service';
 import { CycleSettingsService } from '../../services/cycle-settings.service';
+import { TranslationService } from '../../services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import {
   buildCycleLmpDatetimeHighlights,
   ionDatetimeTodayHighlight,
@@ -47,6 +50,8 @@ export type PregnancySetupInputMode = 'lmp' | 'week' | 'due';
     IonInput,
     IonNote,
     AppButtonComponent,
+    TranslatePipe,
+    IonIcon,
   ],
   templateUrl: './pregnancy-setup-sheet.component.html',
   styleUrls: ['./pregnancy-setup-sheet.component.scss'],
@@ -54,6 +59,7 @@ export type PregnancySetupInputMode = 'lmp' | 'week' | 'due';
 export class PregnancySetupSheetComponent {
   private modalCtrl = inject(ModalController);
   private cycleSettings = inject(CycleSettingsService);
+  private translation = inject(TranslationService);
 
   readonly todayStr = localCalendarIsoDate();
   readonly datetimeHighlightedToday = ionDatetimeTodayHighlight();
@@ -83,12 +89,16 @@ export class PregnancySetupSheetComponent {
     if (this.mode === 'lmp') {
       const raw = (this.lmpIso || '').trim();
       if (!raw) {
-        this.validationMessage = 'Please choose your last period start date (LMP).';
+        this.validationMessage = this.translation.translate(
+          'pregnancySetup.validationLmpRequired',
+        );
         return;
       }
       const day = raw.includes('T') ? raw.split('T')[0] : raw.slice(0, 10);
       if (day > todayStr) {
-        this.validationMessage = 'LMP cannot be in the future.';
+        this.validationMessage = this.translation.translate(
+          'pregnancySetup.validationLmpFuture',
+        );
         return;
       }
       const patch: InitializeReproductiveStateDto = {
@@ -101,12 +111,16 @@ export class PregnancySetupSheetComponent {
     if (this.mode === 'week') {
       const w = this.weekInput;
       if (w === null || w === undefined || Number.isNaN(Number(w))) {
-        this.validationMessage = 'Please enter how many full weeks you are along (0–42).';
+        this.validationMessage = this.translation.translate(
+          'pregnancySetup.validationWeekRequired',
+        );
         return;
       }
       const wi = Math.floor(Number(w));
       if (wi < 0 || wi > 42) {
-        this.validationMessage = 'Week must be between 0 and 42.';
+        this.validationMessage = this.translation.translate(
+          'pregnancySetup.validationWeekRange',
+        );
         return;
       }
       const patch: InitializeReproductiveStateDto = {
@@ -118,12 +132,16 @@ export class PregnancySetupSheetComponent {
 
     const due = (this.dueIso || '').trim();
     if (!due) {
-      this.validationMessage = 'Please choose your estimated due date.';
+      this.validationMessage = this.translation.translate(
+        'pregnancySetup.validationDueRequired',
+      );
       return;
     }
     const dueDay = due.includes('T') ? due.split('T')[0] : due.slice(0, 10);
     if (dueDay < todayStr) {
-      this.validationMessage = 'Due date cannot be in the past.';
+      this.validationMessage = this.translation.translate(
+        'pregnancySetup.validationDuePast',
+      );
       return;
     }
     const patch: InitializeReproductiveStateDto = {

@@ -1,69 +1,101 @@
-<ion-header>
+<ion-header class="pregnancy-sheet-header ion-no-border">
   <ion-toolbar>
-    <ion-title>Pregnancy dates</ion-title>
-    <ion-buttons slot="end">
-      <ion-button fill="clear" (click)="cancel()">Cancel</ion-button>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="cancel()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
+    <ion-title>{{ "pregnancySetup.title" | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <p class="intro">
-    Choose <strong>one</strong> way to set your timeline. We store only your last period start (LMP) and
-    never guess the rest.
-  </p>
+<ion-content class="pregnancy-sheet-content ion-padding">
+  <div class="pregnancy-sheet-handle" aria-hidden="true"></div>
+
+  <p class="intro">{{ "pregnancySetup.intro" | translate }}</p>
 
   <ion-segment [(ngModel)]="mode" class="mode-segment">
-    <ion-segment-button value="lmp">LMP</ion-segment-button>
-    <ion-segment-button value="week">Weeks</ion-segment-button>
-    <ion-segment-button value="due">Due date</ion-segment-button>
+    <ion-segment-button value="lmp">
+      {{ "pregnancySetup.modeLmp" | translate }}
+    </ion-segment-button>
+    <ion-segment-button value="week">
+      {{ "pregnancySetup.modeWeek" | translate }}
+    </ion-segment-button>
+    <ion-segment-button value="due">
+      {{ "pregnancySetup.modeDue" | translate }}
+    </ion-segment-button>
   </ion-segment>
 
-  @if (mode === 'lmp') {
-    <ion-item lines="none">
-      <ion-label position="stacked">First day of last period</ion-label>
-      <ion-datetime
-        presentation="date"
-        [(ngModel)]="lmpIso"
-        [max]="todayStr"
-        [highlightedDates]="lmpDatetimeHighlights"
-      />
-      <p class="lmp-calendar-legend">
-        <span class="lmp-calendar-legend__row"
-          ><span class="lmp-calendar-legend__swatch lmp-calendar-legend__swatch--period"></span> Bleeding days
-          (estimate)</span
-        >
-        <span class="lmp-calendar-legend__row"
-          ><span class="lmp-calendar-legend__swatch lmp-calendar-legend__swatch--ovu"></span> Estimated ovulation
-          (Ov)</span
-        >
-      </p>
-    </ion-item>
-  }
+  <div class="pregnancy-panel">
+    @if (mode === 'lmp') {
+      <ion-item lines="none" class="pregnancy-field">
+        <ion-label position="stacked">{{
+          "pregnancySetup.lmpLabel" | translate
+        }}</ion-label>
+        <ion-datetime
+          presentation="date"
+          [(ngModel)]="lmpIso"
+          [max]="todayStr"
+          [highlightedDates]="lmpDatetimeHighlights"
+        />
+        <p class="lmp-calendar-legend">
+          <span class="lmp-calendar-legend__row">
+            <span
+              class="lmp-calendar-legend__swatch lmp-calendar-legend__swatch--period"
+            ></span>
+            {{ "pregnancySetup.legendBleeding" | translate }}
+          </span>
+          <span class="lmp-calendar-legend__row">
+            <span
+              class="lmp-calendar-legend__swatch lmp-calendar-legend__swatch--ovu"
+            ></span>
+            {{ "pregnancySetup.legendOvulation" | translate }}
+          </span>
+        </p>
+      </ion-item>
+    }
 
-  @if (mode === 'week') {
-    <ion-item>
-      <ion-label position="stacked">Completed weeks since LMP (0–42)</ion-label>
-      <ion-input type="number" inputmode="numeric" [(ngModel)]="weekInput" min="0" max="42" />
-    </ion-item>
-    <ion-note class="hint">We set LMP as today minus this many full weeks (day within the week starts at 0).</ion-note>
-  }
+    @if (mode === 'week') {
+      <ion-item class="pregnancy-field">
+        <ion-label position="stacked">{{
+          "pregnancySetup.weekLabel" | translate
+        }}</ion-label>
+        <ion-input
+          type="number"
+          inputmode="numeric"
+          [(ngModel)]="weekInput"
+          min="0"
+          max="42"
+        />
+      </ion-item>
+      <ion-note class="hint">{{ "pregnancySetup.weekHint" | translate }}</ion-note>
+    }
 
-  @if (mode === 'due') {
-    <ion-item lines="none">
-      <ion-label position="stacked">Estimated due date</ion-label>
-      <ion-datetime
-        presentation="date"
-        [(ngModel)]="dueIso"
-        [highlightedDates]="datetimeHighlightedToday"
-      />
-    </ion-item>
-    <ion-note class="hint">LMP is calculated as your due date minus 280 days.</ion-note>
-  }
+    @if (mode === 'due') {
+      <ion-item lines="none" class="pregnancy-field">
+        <ion-label position="stacked">{{
+          "pregnancySetup.dueLabel" | translate
+        }}</ion-label>
+        <ion-datetime
+          presentation="date"
+          [(ngModel)]="dueIso"
+          [highlightedDates]="datetimeHighlightedToday"
+        />
+      </ion-item>
+      <ion-note class="hint">{{ "pregnancySetup.dueHint" | translate }}</ion-note>
+    }
+  </div>
 
   @if (validationMessage) {
     <p class="error">{{ validationMessage }}</p>
   }
 
-  <app-button (buttonClick)="submit()">Save</app-button>
+  <div class="pregnancy-sheet-actions">
+    <app-button (buttonClick)="submit()">{{
+      "common.save" | translate
+    }}</app-button>
+    <button type="button" class="pregnancy-sheet-cancel" (click)="cancel()">
+      {{ "common.cancel" | translate }}
+    </button>
+  </div>
 </ion-content>

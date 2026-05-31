@@ -1,25 +1,81 @@
+:host {
+  display: block;
+  background: linear-gradient(180deg, #fff7fb 0%, #ffffff 28%);
+}
+
+.pregnancy-sheet-header ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+}
+
+.pregnancy-sheet-content {
+  --background: transparent;
+}
+
+.pregnancy-sheet-handle {
+  width: 42px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.14);
+  margin: 0 auto 14px;
+}
+
 .intro {
   color: var(--ion-color-medium-shade, #64748b);
   font-size: 14px;
-  line-height: 1.45;
+  line-height: 1.5;
   margin: 0 0 16px;
+  text-align: center;
 }
 
 .mode-segment {
   margin-bottom: 16px;
+  --background: rgba(15, 23, 42, 0.05);
+  border-radius: 14px;
+}
+
+.pregnancy-panel {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  padding: 8px 0 4px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.pregnancy-field {
+  --background: transparent;
+  --padding-start: 16px;
+  --padding-end: 16px;
 }
 
 .hint {
   display: block;
-  margin: 8px 0 16px;
-  padding-left: 16px;
-  padding-right: 16px;
+  margin: 8px 16px 16px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .error {
   color: var(--ion-color-danger, #c21e56);
-  font-size: 14px;
-  margin: 8px 0 16px;
+  font-size: 13px;
+  margin: 8px 4px 0;
+}
+
+.pregnancy-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.pregnancy-sheet-cancel {
+  border: 0;
+  background: transparent;
+  color: var(--ion-color-medium-shade, #64748b);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px;
 }
 
 ion-datetime {

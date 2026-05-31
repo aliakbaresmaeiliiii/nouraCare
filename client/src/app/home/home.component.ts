@@ -191,6 +191,13 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   dashboardPregnancyTips: string[] = [];
   /** From dashboard `insight` when pregnant; may be filled locally if API omits it. */
   dashboardPregnancyInsight: string | null = null;
+  /** Cycle/planning dashboard fields from PATCH /me/state or GET dashboard. */
+  dashboardCycleDay: number | null = null;
+  dashboardCycleLength: number | null = null;
+  dashboardNextPeriodDate: Date | null = null;
+  dashboardOvulationDate: string | null = null;
+  dashboardFertileWindow: { start: string; end: string } | null = null;
+  dashboardCycleInsight: string | null = null;
   private isPromotingOnboardingPregnancy = false;
 
   // Dynamic baby size data - now computed from service
@@ -259,22 +266,22 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     private modalController: ModalController,
     private messageService: MessageService
   ) {
-    // Reacts when week-detail pushes savedJourneyFromWeekDetail (signal) — works when ionViewWillEnter does not run.
-    // effect(() => {
-    //   if (!this.authService.getAccessToken()) {
-    //     return;
-    //   }
-    //   if (this.homeJourneyBridge.savedJourneyFromWeekDetail() === null) {
-    //     return;
-    //   }
-    //   const state = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
-    //   if (!state) {
-    //     return;
-    //   }
-    //   this.applyJourneyStateToView(state);
-    //   this.cdr.markForCheck();
-    //   this.ngZone.run(() => this.runPeriodChartRefresh());
-    // });
+    // Reacts when profile/week-detail pushes savedJourneyFromWeekDetail — works when ionViewWillEnter does not run.
+    effect(() => {
+      if (!this.authService.getAccessToken()) {
+        return;
+      }
+      if (this.homeJourneyBridge.savedJourneyFromWeekDetail() === null) {
+        return;
+      }
+      const state = this.homeJourneyBridge.consumeSavedJourneyFromWeekDetail();
+      if (!state) {
+        return;
+      }
+      this.applyJourneyStateToView(state);
+      this.cdr.markForCheck();
+      this.ngZone.run(() => this.runPeriodChartRefresh());
+    });
 
     // effect(() => {
     //   // Reflect selected day from cycle strip in Home's cycle labels/cards.
@@ -692,11 +699,20 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   private applyJourneyStateToView(state: HomePageJourneyState) {
     this.userStatus = state.userStatus;
-    // this.isPregnant.set(state.isPregnant);
+    this.isPregnant.set(state.isPregnant);
     this.isPostpartum = state.isPostpartum;
     this.needsPregnancyInput = false;
     this.dashboardPregnancyTips = [];
     this.dashboardPregnancyInsight = null;
+    this.dashboardCycleDay = state.dashboardCycleDay ?? null;
+    this.dashboardCycleLength = state.dashboardCycleLength ?? null;
+    this.dashboardOvulationDate = state.dashboardOvulationIso ?? null;
+    this.dashboardFertileWindow = state.dashboardFertileWindow ?? null;
+    this.dashboardCycleInsight = state.dashboardCycleInsight ?? null;
+    this.dashboardNextPeriodDate = state.dashboardNextPeriodIso
+      ? new Date(`${state.dashboardNextPeriodIso}T12:00:00`)
+      : null;
+
     if (state.isPregnant) {
       this.needsPregnancyInput = !!state.needsPregnancyInput;
       if (this.needsPregnancyInput) {
@@ -730,8 +746,23 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       this.pregnancyStartDate = '';
     }
     this.periodStartDate = state.periodStartDate;
-    if (state.cycleDayDirty) {
+    this.currentCycleLength =
+      state.dashboardCycleLength ??
+      this.cycleSettings.cycleLength() ??
+      this.currentCycleLength;
+    this.periodLength = this.cycleSettings.periodLength();
+    if (!this.periodStartDate && this.cycleSettings.lastPeriodStartDate()) {
+      const iso = this.cycleSettings.lastPeriodStartDate()!;
+      const day = iso.includes('T') ? iso.split('T')[0] : iso.slice(0, 10);
+      this.periodStartDate = new Date(`${day}T12:00:00`);
+    }
+    if (state.cycleDayDirty || this.periodStartDate) {
       this.updateCycleDay();
+    } else if (
+      this.dashboardCycleDay != null &&
+      this.dashboardCycleDay >= 1
+    ) {
+      this.currentCycleDay = Math.round(this.dashboardCycleDay);
     }
 
     if (this.isPregnant()) {
@@ -740,7 +771,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       this.scheduleScrollPregnancyCalendarToAnchor();
     }
     if (
-      !this.isPregnant &&
+      !this.isPregnant() &&
       !this.isPostpartum &&
       this.isHomeCycleTrackingLayout() &&
       !this.showStartTrackingOnboarding()
@@ -748,6 +779,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       this.periodChart?.scheduleWeekScrollToAnchor();
     }
     this.schedulePregnancyConnectorUpdate();
+    this.runPeriodChartRefresh();
   }
 
   /**
@@ -3240,6 +3272,14 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   }
 
   getNextPeriodInDays(): number {
+    if (this.dashboardNextPeriodDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const next = new Date(this.dashboardNextPeriodDate);
+      next.setHours(0, 0, 0, 0);
+      const diff = Math.ceil((next.getTime() - today.getTime()) / 86400000);
+      return Math.max(0, diff);
+    }
     const safeLen = Math.max(1, this.currentCycleLength || 28);
     const safeDay = this.getCycleDisplayDay();
     const remaining = safeLen - safeDay;

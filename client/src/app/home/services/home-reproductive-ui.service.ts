@@ -24,7 +24,16 @@ export interface HomePageJourneyState {
   periodStartDate: Date | null;
   /** Call {@link updateCycleDay} on the component when true. */
   cycleDayDirty: boolean;
+  /** Server cycle dashboard (planning / cycle). */
+  dashboardCycleDay?: number | null;
+  dashboardCycleLength?: number | null;
+  dashboardNextPeriodIso?: string | null;
+  dashboardOvulationIso?: string | null;
+  dashboardFertileWindow?: DashboardFertileWindow | null;
+  dashboardCycleInsight?: string | null;
 }
+
+type DashboardFertileWindow = NonNullable<DashboardResponse['fertileWindow']>;
 
 @Injectable({ providedIn: 'root' })
 export class HomeReproductiveUiService {
@@ -120,12 +129,55 @@ export class HomeReproductiveUiService {
     this.cycleSettings.setUserStatus(userStatus);
     this.cycleSettings.setPostpartumStatus(false);
 
+    if (dashboard.state === 'planning') {
+      this.cycleSettings.clearGetPregnantProfileCardPending();
+    }
+
+    const cycleLen = dashboard.cycleLength ?? dashboard.avgCycleLength;
+    if (cycleLen != null && Number.isFinite(Number(cycleLen))) {
+      this.cycleSettings.setCycleLength(Math.round(Number(cycleLen)));
+    }
+
+    if (
+      dashboard.cycleDay != null &&
+      Number.isFinite(dashboard.cycleDay) &&
+      dashboard.cycleDay >= 1 &&
+      !this.cycleSettings.lastPeriodStartDate()
+    ) {
+      const today = new Date();
+      today.setHours(12, 0, 0, 0);
+      const start = new Date(today);
+      start.setDate(today.getDate() - (Math.round(Number(dashboard.cycleDay)) - 1));
+      periodStartDate = start;
+      cycleDayDirty = true;
+      const y = start.getFullYear();
+      const m = String(start.getMonth() + 1).padStart(2, '0');
+      const d = String(start.getDate()).padStart(2, '0');
+      this.cycleSettings.setLastPeriodStart(`${y}-${m}-${d}`);
+    }
+
+    const nextPeriodIso =
+      dashboard.nextPeriod != null
+        ? String(dashboard.nextPeriod).includes('T')
+          ? String(dashboard.nextPeriod).split('T')[0]
+          : String(dashboard.nextPeriod).slice(0, 10)
+        : null;
+
     return {
       userStatus,
       isPregnant: false,
       isPostpartum: false,
       periodStartDate,
       cycleDayDirty,
+      dashboardCycleDay: dashboard.cycleDay ?? null,
+      dashboardCycleLength:
+        cycleLen != null && Number.isFinite(Number(cycleLen))
+          ? Math.round(Number(cycleLen))
+          : null,
+      dashboardNextPeriodIso: nextPeriodIso,
+      dashboardOvulationIso: dashboard.ovulationDate ?? null,
+      dashboardFertileWindow: dashboard.fertileWindow ?? null,
+      dashboardCycleInsight: dashboard.insight?.trim() ? dashboard.insight.trim() : null,
     };
   }
 

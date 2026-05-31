@@ -132,10 +132,25 @@ export class CycleService {
     const mergedStarts = dedupeSortedPeriodStarts([...logStarts, ...fromCycle]);
 
     const lengths = inferCycleLengthsFromSortedStarts(mergedStarts);
-    let simpleAvgCycle = Math.round(mean(lengths));
-    if (!lengths.length || !Number.isFinite(simpleAvgCycle) || simpleAvgCycle < 21 || simpleAvgCycle > 45) {
-      simpleAvgCycle = Math.round(cycle?.cycleLength ?? 28);
-      simpleAvgCycle = Math.max(21, Math.min(45, simpleAvgCycle));
+    let simpleAvgCycle = 28;
+    const storedCycleLength =
+      cycle?.cycleLength != null && Number.isFinite(cycle.cycleLength)
+        ? Math.round(cycle.cycleLength)
+        : null;
+    if (
+      storedCycleLength != null &&
+      storedCycleLength >= 21 &&
+      storedCycleLength <= 60
+    ) {
+      // Explicit user cycle length in cycle_data wins over sparse log inference.
+      simpleAvgCycle = storedCycleLength;
+    } else {
+      let fromLogs = Math.round(mean(lengths));
+      if (!lengths.length || !Number.isFinite(fromLogs) || fromLogs < 21 || fromLogs > 45) {
+        fromLogs = Math.round(cycle?.cycleLength ?? 28);
+        fromLogs = Math.max(21, Math.min(45, fromLogs));
+      }
+      simpleAvgCycle = fromLogs;
     }
 
     const bleedSamples: number[] = [];

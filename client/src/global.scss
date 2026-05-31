@@ -1856,3 +1856,15 @@ ion-content[class^='tpi'] ion-progress-bar {
   );
 }
 
+// Bottom sheets opened from Profile reproductive flows
+ion-modal.cycle-setup-sheet,
+ion-modal.pregnancy-setup-sheet {
+  --border-radius: 24px 24px 0 0;
+  --box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.16);
+
+  &::part(content) {
+    border-radius: 24px 24px 0 0;
+    overflow: hidden;
+  }
+}
+

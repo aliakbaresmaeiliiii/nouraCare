@@ -3,9 +3,9 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>My Profile</ion-title>
+    <ion-title>{{ "profile.pageTitle" | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="shareProfile()">
+      <ion-button (click)="shareProfile()" class="share-button">
         <ion-icon name="share-social-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,7 +13,6 @@
 </ion-header>
 
 <ion-content class="profile-content">
-  <!-- Hero Section -->
   <div class="hero-section">
     <div class="profile-avatar-container">
       <input
@@ -26,7 +25,7 @@
       />
 
       @if (avatarSkeleton) {
-      <div class="avatar-skeleton"></div>
+        <div class="avatar-skeleton"></div>
       }
 
       <ion-avatar class="profile-avatar">
@@ -48,27 +47,32 @@
 
     <div class="profile-info">
       <h1 class="profile-name">
-        {{ profileCompletion.currentUserData?.fullName || "Add Your Name" }}
+        {{
+          profileCompletion.currentUserData?.fullName ||
+            ("profile.addYourName" | translate)
+        }}
       </h1>
       <p class="profile-subtitle">
-        {{ profileCompletion.currentUserData?.email || "Add your email" }}
+        {{
+          profileCompletion.currentUserData?.email ||
+            ("profile.addYourEmail" | translate)
+        }}
       </p>
 
       <div class="profile-stats">
-        @for (stat of userActivity() | keyvalue; track stat.key) {
-        <div class="stat-item">
-          <span class="stat-number">{{ stat.value }}</span>
-          <span class="stat-label">{{ stat.key | titlecase }}</span>
-        </div>
+        @for (stat of userActivity(); track stat.key) {
+          <div class="stat-item">
+            <span class="stat-number">{{ stat.value }}</span>
+            <span class="stat-label">{{ stat.labelKey | translate }}</span>
+          </div>
         }
       </div>
     </div>
   </div>
 
-  <!-- Progress Section -->
   <div class="progress-section">
     <div class="progress-header">
-      <h3 class="progress-title">Profile Completion</h3>
+      <h3 class="progress-title">{{ "profile.completionTitle" | translate }}</h3>
       <span class="progress-percentage"
         >{{ profileCompletion.profileCompletion() }}%</span
       >
@@ -84,7 +88,6 @@
     }}</app-button>
   </div>
 
-  <!-- Reproductive Status -->
   <section class="experience-section">
     <h2 class="experience-title">
       {{ "editProfile.experienceTitle" | translate }}
@@ -96,81 +99,101 @@
         [class.experience-card--selected]="isStatusSelected('NOT_PREGNANT')"
         (click)="changeReproductiveStatus('NOT_PREGNANT')"
       >
-        <img src="assets/images/profile/trackCyclePeriod.jpg" />
-        <span>{{ "editProfile.trackCycle" | translate }}</span>
+        <div class="experience-card-media">
+          <img src="assets/images/profile/trackCyclePeriod.jpg" alt="" />
+        </div>
+        <span class="experience-label">{{
+          "editProfile.trackCycle" | translate
+        }}</span>
       </button>
 
       <button
         class="experience-card"
         [class.experience-card--selected]="
-          isStatusSelected('PREGNANT')
+          isStatusSelected('PLANNING_PREGNANCY')
         "
-        (click)="changeReproductiveStatus('PREGNANT')"
+        (click)="changeReproductiveStatus('PLANNING_PREGNANCY')"
       >
-        <img src="assets/images/profile/getPregnent.jpg" />
-        <span>{{ "editProfile.getPregnant" | translate }}</span>
+        <div class="experience-card-media">
+          <img src="assets/images/profile/getPregnent.jpg" alt="" />
+        </div>
+        <span class="experience-label">{{
+          "editProfile.getPregnant" | translate
+        }}</span>
       </button>
 
       <button
-        class="experience-card"
-        [class.experience-card--selected]="isStatusSelected('PLANNING_PREGNANCY')"
-        (click)="changeReproductiveStatus('PLANNING_PREGNANCY')"
+        class="experience-card experience-card--wide"
+        [class.experience-card--selected]="isStatusSelected('PREGNANT')"
+        (click)="changeReproductiveStatus('PREGNANT')"
       >
-        <img src="assets/images/profile/trackPregnency.jpg" />
-        <span>{{ "editProfile.trackPregnancy" | translate }}</span>
+        <div class="experience-card-media">
+          <img src="assets/images/profile/trackPregnency.jpg" alt="" />
+        </div>
+        <span class="experience-label">{{
+          "editProfile.trackPregnancy" | translate
+        }}</span>
       </button>
     </div>
   </section>
 
-  <!-- Profile Fields (Dynamic Loop) -->
   <div class="profile-fields">
-    <h3 class="section-title">Complete Your Profile</h3>
+    <h3 class="section-title">{{ "profile.completeProfile" | translate }}</h3>
     <div class="field-cards">
       @for (field of profileFields; track field.key) {
-      <div
-        class="field-card"
-        [class.completed]="isFieldCompleted(field.key)"
-        (click)="goEdit(field.key)"
-      >
-        <div class="field-icon"><ion-icon [name]="field.icon"></ion-icon></div>
-        <div class="field-content">
-          <h4 class="field-title">{{ field.label }}</h4>
-          <p class="field-value">
-            {{ getFieldValue(field.key) || "Add " + field.label }}
-          </p>
+        <div
+          class="field-card"
+          [class.completed]="isFieldCompleted(field.key)"
+          (click)="goEdit(field.key)"
+        >
+          <div class="field-icon">
+            <ion-icon [name]="field.icon"></ion-icon>
+          </div>
+          <div class="field-content">
+            <h4 class="field-title">{{ field.labelKey | translate }}</h4>
+            <p class="field-value">
+              {{
+                getFieldValue(field.key) || getFieldPlaceholder(field.labelKey)
+              }}
+            </p>
+          </div>
+          @if (isFieldCompleted(field.key)) {
+            <div class="completion-badge">
+              <ion-icon name="checkmark-circle"></ion-icon>
+            </div>
+          }
         </div>
-        @if (isFieldCompleted(field.key)) {
-        <div class="completion-badge">
-          <ion-icon name="checkmark-circle"></ion-icon>
-        </div>
-        }
-      </div>
       }
     </div>
   </div>
 
-  <!-- Tabs (Truncated for brevity) -->
   <div class="activity-section">
-    <ion-segment [(ngModel)]="selectedTab">
-      <ion-segment-button value="first"
-        ><ion-label>Questions</ion-label></ion-segment-button
-      >
-      <ion-segment-button value="second"
-        ><ion-label>Answers</ion-label></ion-segment-button
-      >
-      <ion-segment-button value="third"
-        ><ion-label>Experiences</ion-label></ion-segment-button
-      >
+    <ion-segment [(ngModel)]="selectedTab" class="profile-segment">
+      <ion-segment-button value="first">
+        <ion-label>{{ "profile.tabQuestions" | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="second">
+        <ion-label>{{ "profile.tabAnswers" | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="third">
+        <ion-label>{{ "profile.tabExperiences" | translate }}</ion-label>
+      </ion-segment-button>
     </ion-segment>
 
     <div class="tab-content">
-      @switch (selectedTab) { @case ('first') {
-      <div class="empty-state">No Questions Yet</div>
-      } @case ('second') {
-      <div class="empty-state">No Answers Yet</div>
-      } @case ('third') {
-      <div class="empty-state">No Experiences Shared</div>
-      } }
+      @switch (selectedTab) {
+        @case ('first') {
+          <div class="empty-state">{{ "profile.noQuestions" | translate }}</div>
+        }
+        @case ('second') {
+          <div class="empty-state">{{ "profile.noAnswers" | translate }}</div>
+        }
+        @case ('third') {
+          <div class="empty-state">
+            {{ "profile.noExperiences" | translate }}
+          </div>
+        }
+      }
     </div>
   </div>
 </ion-content>

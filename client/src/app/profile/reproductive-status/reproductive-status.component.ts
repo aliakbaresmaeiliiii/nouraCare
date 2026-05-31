@@ -2,12 +2,10 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
-  Input,
-  NgZone,
   OnInit,
-  ViewChild,
 } from '@angular/core';
-import { IonInput, ModalController, PickerController } from '@ionic/angular';
+import { FormControl, FormGroup } from '@angular/forms';
+import { ModalController, PickerController } from '@ionic/angular';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import {
   formatJalaliFaFromIso,
@@ -16,48 +14,47 @@ import {
   jalaliToIsoDate,
   toFa,
 } from '../../shared/utils/jalali-iranian-calendar.util';
-import { FormControl, FormGroup } from '@angular/forms';
+import {
+  formatLocalizedNumber,
+  formatHistoryDayDate,
+  isPersianAppLanguage,
+} from '../../shared/utils/locale-date-format.util';
+import { LanguageService } from '../../shared/services/language.service';
+import { TranslationService } from '../../shared/services/translation.service';
 
-interface pregnancyForm {
-  pregnancyEndDate: string;
-  notes: string;
+export interface CycleSetupSheetResult {
+  lastPeriodDate: string;
+  cycleLength: number;
+  averagePeriodDuration: number;
 }
+
 @Component({
   selector: 'app-reproductive-status',
   templateUrl: './reproductive-status.component.html',
   styleUrls: ['./reproductive-status.component.scss'],
+  standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class ReproductiveStatusComponent implements OnInit {
   private modalCtrl = inject(ModalController);
   private cdr = inject(ChangeDetectorRef);
+  private pickerCtrl = inject(PickerController);
+  private languageService = inject(LanguageService);
+  private translation = inject(TranslationService);
+
   maxDate = new Date().toISOString().split('T')[0];
   durationDaysNumber = Array.from({ length: 41 }, (_, i) => i + 20);
   bleedingDaysNumbers = Array.from({ length: 8 }, (_, i) => i + 3);
-  tempPeriodDuration = 28;
   isBleedingDaysOpen = false;
   isDurationDaysOpen = false;
   bleedingDays = 5;
-  durationDays = 22;
+  durationDays = 28;
   tempBleedingDays = 5;
-  tempDurationDays = 22;
-
+  tempDurationDays = 28;
   periodDate = '';
   isPeriodDateOpen = false;
-  periodDateIso = jalaliToIsoDate(1405, 3, 2);
-
-  get displayDurationDays(): string {
-    return `${this.toPersianNumber(this.durationDays)} روز`;
-  }
-  get displayBleedingDays(): string {
-    return `${this.toPersianNumber(this.bleedingDays)} روز`;
-  }
-
-  get displayPeriodPickerDays() {
-    return this.periodDateIso
-      ? formatJalaliFaFromIso(this.periodDateIso, 'DD MMMM YYYY')
-      : '';
-  }
+  periodDateIso = '';
+  validationMessage = '';
 
   form = new FormGroup({
     durationDays: new FormControl(this.durationDays),
@@ -65,10 +62,38 @@ export class ReproductiveStatusComponent implements OnInit {
     periodStartIso: new FormControl(this.periodDateIso),
   });
 
-  constructor(private pickerCtrl: PickerController) {}
-
   ngOnInit(): void {
     this.maxDate = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    today.setDate(today.getDate() - 7);
+    this.periodDateIso = today.toISOString().split('T')[0];
+    this.form.patchValue({ periodStartIso: this.periodDateIso });
+  }
+
+  get displayDurationDays(): string {
+    return this.formatDays(this.durationDays);
+  }
+
+  get displayBleedingDays(): string {
+    return this.formatDays(this.bleedingDays);
+  }
+
+  get displayPeriodPickerDays(): string {
+    if (!this.periodDateIso) {
+      return '';
+    }
+    const lang = this.languageService.getCurrentLanguage();
+    if (isPersianAppLanguage(lang)) {
+      return formatJalaliFaFromIso(this.periodDateIso, 'DD MMMM YYYY');
+    }
+    const [y, m, d] = this.periodDateIso.split('-').map((n) => parseInt(n, 10));
+    return formatHistoryDayDate(new Date(y, m - 1, d), lang);
+  }
+
+  formatDays(value: number): string {
+    const unit = this.translation.translate('reproductiveStatus.daysUnit');
+    const num = formatLocalizedNumber(value, this.languageService.getCurrentLanguage());
+    return `${num} ${unit}`;
   }
 
   openBleedingDaysPicker() {
@@ -76,37 +101,43 @@ export class ReproductiveStatusComponent implements OnInit {
     this.tempBleedingDays = this.bleedingDays;
     this.isBleedingDaysOpen = true;
   }
+
   openDurationDaysPicker() {
     if (this.isDurationDaysOpen) return;
     this.tempDurationDays = this.durationDays;
     this.isDurationDaysOpen = true;
   }
 
+  openPeriodDatePicker() {
+    if (isPersianAppLanguage(this.languageService.getCurrentLanguage())) {
+      void this.openJalaliPicker();
+      return;
+    }
+    this.isPeriodDateOpen = true;
+  }
+
   closeBleedingDays(role: 'cancel' | 'confirm') {
     if (role === 'confirm') {
       this.bleedingDays = Number(this.tempBleedingDays);
+      this.form.patchValue({ bleedingDays: this.bleedingDays });
     }
-
     this.isBleedingDaysOpen = false;
   }
 
   closeDurationPicker(role: 'cancel' | 'confirm') {
     if (role === 'confirm') {
       this.durationDays = Number(this.tempDurationDays);
+      this.form.patchValue({ durationDays: this.durationDays });
     }
-
     this.isDurationDaysOpen = false;
   }
 
   closePeriodDate(role: 'cancel' | 'confirm') {
     if (role === 'confirm') {
       this.periodDate = this.periodDateIso;
+      this.form.patchValue({ periodStartIso: this.periodDateIso });
     }
     this.isPeriodDateOpen = false;
-  }
-
-  toPersianNumber(value: number | string): string {
-    return String(value).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
   }
 
   onDurationDaysChange(event: CustomEvent) {
@@ -116,6 +147,7 @@ export class ReproductiveStatusComponent implements OnInit {
       this.form.get('durationDays')?.patchValue(value);
     }
   }
+
   onBleedingDaysChange(event: CustomEvent) {
     const value = event.detail.value;
     if (value != null) {
@@ -125,9 +157,11 @@ export class ReproductiveStatusComponent implements OnInit {
   }
 
   onPeriodDateChange(event: CustomEvent) {
-    const value = (event.detail as any).value as string;
-    this.periodDate = value;
-    this.form.get('periodStartIso')?.patchValue(value);
+    const value = (event.detail as { value?: string }).value as string;
+    if (!value) return;
+    this.periodDateIso = value.includes('T') ? value.split('T')[0] : value.slice(0, 10);
+    this.periodDate = this.periodDateIso;
+    this.form.get('periodStartIso')?.patchValue(this.periodDateIso);
   }
 
   onPeriodDateDismiss() {
@@ -170,14 +204,15 @@ export class ReproductiveStatusComponent implements OnInit {
     const picker = await this.pickerCtrl.create({
       columns: [dayCol, monthCol, yearCol],
       buttons: [
-        { text: 'انصراف', role: 'cancel' },
+        { text: this.translation.translate('common.cancel'), role: 'cancel' },
         {
-          text: 'ثبت',
+          text: this.translation.translate('reproductiveStatus.confirm'),
           handler: (value) => {
             const jd = value.day.value;
             const jm = value.month.value;
             const jy = value.year.value;
             this.periodDateIso = jalaliToIsoDate(jy, jm, jd);
+            this.form.patchValue({ periodStartIso: this.periodDateIso });
             this.cdr.detectChanges();
           },
         },
@@ -188,6 +223,48 @@ export class ReproductiveStatusComponent implements OnInit {
   }
 
   saveInfo() {
-    console.log(this.form.value);
+    this.validationMessage = '';
+
+    const lastPeriodDate =
+      this.form.get('periodStartIso')?.value || this.periodDateIso;
+    const cycleLength = Number(this.durationDays);
+    const averagePeriodDuration = Number(this.bleedingDays);
+
+    if (!lastPeriodDate) {
+      this.validationMessage = this.translation.translate(
+        'reproductiveStatus.validationRequired',
+      );
+      return;
+    }
+
+    if (
+      !Number.isFinite(cycleLength) ||
+      cycleLength < 21 ||
+      cycleLength > 60
+    ) {
+      this.validationMessage = this.translation.translate(
+        'reproductiveStatus.validationRequired',
+      );
+      return;
+    }
+
+    if (
+      !Number.isFinite(averagePeriodDuration) ||
+      averagePeriodDuration < 2 ||
+      averagePeriodDuration > 10
+    ) {
+      this.validationMessage = this.translation.translate(
+        'reproductiveStatus.validationRequired',
+      );
+      return;
+    }
+
+    const result: CycleSetupSheetResult = {
+      lastPeriodDate: String(lastPeriodDate).slice(0, 10),
+      cycleLength,
+      averagePeriodDuration,
+    };
+
+    this.modalCtrl.dismiss(result, 'confirm');
   }
 }

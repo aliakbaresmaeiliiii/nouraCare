@@ -1,4 +1,5 @@
 import { IsDateString, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 import { REPRODUCTIVE_STATES } from '../types/reproductive-state.type';
 
 export class UpdateReproductiveStateDto {
@@ -28,6 +29,7 @@ export class UpdateReproductiveStateDto {
   lastPeriodDate?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(15)
   @Max(60)

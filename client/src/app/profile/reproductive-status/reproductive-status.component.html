@@ -1,81 +1,101 @@
-<ion-header>
+<ion-header class="cycle-sheet-header ion-no-border">
   <ion-toolbar>
-    <ion-icon name="close" aria-hidden="true" (click)="cancel()"></ion-icon>
-    <ion-title>{{ "reproductive-status.title" | translate }} </ion-title>
+    <ion-buttons slot="start">
+      <ion-button
+        fill="clear"
+        class="cycle-sheet-close"
+        (click)="cancel()"
+        [attr.aria-label]="'reproductiveStatus.closeAria' | translate"
+      >
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ "reproductiveStatus.title" | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <form [formGroup]="form">
-    <!-- Duration of period -->
-    <div>
-      <ion-item class="ion-margin-top">
-        <ion-input
-          formControlName="durationDays"
-          labelPlacement="floating"
-          [label]="'معمولا طول دوره شما چند روز است'"
-          readonly
-          inputmode="none"
-          (click)="openDurationDaysPicker()"
-          helperText=" *فاصله زمانی بین روز اول پریودتون تا شروع پریود بعدی"
-        ></ion-input>
-      </ion-item>
-    </div>
-    <!-- Bleeding  -->
-    <div>
-      <ion-item class="ion-margin-top">
-        <ion-input
-          formControlName="bleedingDays"
-          labelPlacement="floating"
-          [label]="'معمولاً خونریزی شما چند روز است؟'"
-          [value]="displayBleedingDays"
-          readonly
-          inputmode="none"
-          (click)="openBleedingDaysPicker()"
-        ></ion-input>
-      </ion-item>
-    </div>
-    <!-- Period  -->
-    <div>
-      <ion-item class="ion-margin-top">
-        <ion-input
-          formControlName="periodStartIso"
-          labelPlacement="floating"
-          label="تاریخ شروع آخرین پریود"
-          [value]="displayPeriodPickerDays"
-          readonly
-          inputmode="none"
-          (click)="openJalaliPicker()"
-        ></ion-input>
-      </ion-item>
-    </div>
+<ion-content class="cycle-sheet-content">
+  <div class="cycle-sheet-handle" aria-hidden="true"></div>
 
-    <div class="btn">
-      <app-button  (buttonClick)="saveInfo()">{{
-        "ذخیره" | translate
-      }}</app-button>
+  <p class="cycle-sheet-subtitle">
+    {{ "reproductiveStatus.subtitle" | translate }}
+  </p>
+
+  <form [formGroup]="form" class="cycle-sheet-form">
+    <button type="button" class="cycle-field-card" (click)="openDurationDaysPicker()">
+      <span class="cycle-field-icon cycle-field-icon--cycle">
+        <ion-icon name="sync-outline"></ion-icon>
+      </span>
+      <span class="cycle-field-body">
+        <span class="cycle-field-label">{{
+          "reproductiveStatus.cycleLengthLabel" | translate
+        }}</span>
+        <span class="cycle-field-value">{{ displayDurationDays }}</span>
+        <span class="cycle-field-hint">{{
+          "reproductiveStatus.cycleLengthHint" | translate
+        }}</span>
+      </span>
+      <ion-icon name="chevron-forward-outline" class="cycle-field-chevron"></ion-icon>
+    </button>
+
+    <button type="button" class="cycle-field-card" (click)="openBleedingDaysPicker()">
+      <span class="cycle-field-icon cycle-field-icon--bleed">
+        <ion-icon name="water-outline"></ion-icon>
+      </span>
+      <span class="cycle-field-body">
+        <span class="cycle-field-label">{{
+          "reproductiveStatus.bleedingDaysLabel" | translate
+        }}</span>
+        <span class="cycle-field-value">{{ displayBleedingDays }}</span>
+      </span>
+      <ion-icon name="chevron-forward-outline" class="cycle-field-chevron"></ion-icon>
+    </button>
+
+    <button type="button" class="cycle-field-card" (click)="openPeriodDatePicker()">
+      <span class="cycle-field-icon cycle-field-icon--date">
+        <ion-icon name="calendar-outline"></ion-icon>
+      </span>
+      <span class="cycle-field-body">
+        <span class="cycle-field-label">{{
+          "reproductiveStatus.lastPeriodLabel" | translate
+        }}</span>
+        <span class="cycle-field-value">{{ displayPeriodPickerDays }}</span>
+      </span>
+      <ion-icon name="chevron-forward-outline" class="cycle-field-chevron"></ion-icon>
+    </button>
+
+    @if (validationMessage) {
+      <p class="cycle-sheet-error">{{ validationMessage }}</p>
+    }
+
+    <div class="cycle-sheet-actions">
       <app-button (buttonClick)="saveInfo()">{{
-        "انصراف" | translate
+        "common.save" | translate
       }}</app-button>
+      <button type="button" class="cycle-sheet-cancel" (click)="cancel()">
+        {{ "common.cancel" | translate }}
+      </button>
     </div>
   </form>
 </ion-content>
 
-<!-- Modal Duration of period -->
 <ion-modal
   [isOpen]="isDurationDaysOpen"
   (didDismiss)="isDurationDaysOpen = false"
+  class="cycle-picker-modal"
 >
   <ng-template>
     <ion-toolbar>
       <ion-buttons slot="start">
-        <ion-button (click)="closeDurationPicker('cancel')">انصراف</ion-button>
+        <ion-button (click)="closeDurationPicker('cancel')">{{
+          "common.cancel" | translate
+        }}</ion-button>
       </ion-buttons>
-
-      <ion-title>طول دوره</ion-title>
-
+      <ion-title>{{ "reproductiveStatus.pickerCycleLength" | translate }}</ion-title>
       <ion-buttons slot="end">
-        <ion-button (click)="closeDurationPicker('confirm')">تأیید</ion-button>
+        <ion-button (click)="closeDurationPicker('confirm')">{{
+          "reproductiveStatus.confirm" | translate
+        }}</ion-button>
       </ion-buttons>
     </ion-toolbar>
     <ion-picker>
@@ -85,7 +105,7 @@
       >
         @for (num of durationDaysNumber; track num) {
           <ion-picker-column-option [value]="num">
-            {{ toPersianNumber(num) }} روز
+            {{ formatDays(num) }}
           </ion-picker-column-option>
         }
       </ion-picker-column>
@@ -93,22 +113,25 @@
   </ng-template>
 </ion-modal>
 
-<!-- Modal Bleeding -->
 <ion-modal
   [isOpen]="isBleedingDaysOpen"
   (didDismiss)="isBleedingDaysOpen = false"
+  class="cycle-picker-modal"
 >
   <ng-template>
     <ion-toolbar>
       <ion-buttons slot="start">
-        <ion-button (click)="closeBleedingDays('cancel')">انصراف</ion-button>
+        <ion-button (click)="closeBleedingDays('cancel')">{{
+          "common.cancel" | translate
+        }}</ion-button>
       </ion-buttons>
-      <ion-title>طول پریود</ion-title>
+      <ion-title>{{ "reproductiveStatus.pickerBleeding" | translate }}</ion-title>
       <ion-buttons slot="end">
-        <ion-button (click)="closeBleedingDays('confirm')">تأیید</ion-button>
+        <ion-button (click)="closeBleedingDays('confirm')">{{
+          "reproductiveStatus.confirm" | translate
+        }}</ion-button>
       </ion-buttons>
     </ion-toolbar>
-
     <ion-picker>
       <ion-picker-column
         [value]="tempBleedingDays"
@@ -116,7 +139,7 @@
       >
         @for (num of bleedingDaysNumbers; track num) {
           <ion-picker-column-option [value]="num">
-            {{ toPersianNumber(num) }} روز
+            {{ formatDays(num) }}
           </ion-picker-column-option>
         }
       </ion-picker-column>
@@ -124,28 +147,32 @@
   </ng-template>
 </ion-modal>
 
-<!-- Modal period -->
-<ion-modal [isOpen]="isPeriodDateOpen" (didDismiss)="onPeriodDateDismiss()">
+<ion-modal
+  [isOpen]="isPeriodDateOpen"
+  (didDismiss)="onPeriodDateDismiss()"
+  class="cycle-picker-modal"
+>
   <ng-template>
     <ion-toolbar>
       <ion-buttons slot="start">
-        <ion-button (click)="closePeriodDate('cancel')">انصراف</ion-button>
+        <ion-button (click)="closePeriodDate('cancel')">{{
+          "common.cancel" | translate
+        }}</ion-button>
       </ion-buttons>
-      <ion-title>انتخاب تاریخ</ion-title>
-
+      <ion-title>{{ "reproductiveStatus.pickerDate" | translate }}</ion-title>
       <ion-buttons slot="end">
-        <ion-button (click)="closePeriodDate('confirm')">تأیید</ion-button>
+        <ion-button (click)="closePeriodDate('confirm')">{{
+          "reproductiveStatus.confirm" | translate
+        }}</ion-button>
       </ion-buttons>
     </ion-toolbar>
-
-    <ion-picker>
-      <ion-datetime
-        class="ltr"
-        presentation="date"
-        [preferWheel]="true"
-        [value]="periodDateIso"
-        (ionChange)="onPeriodDateChange($event)"
-      ></ion-datetime>
-    </ion-picker>
+    <ion-datetime
+      class="cycle-date-wheel ltr"
+      presentation="date"
+      [preferWheel]="true"
+      [value]="periodDateIso"
+      [max]="maxDate"
+      (ionChange)="onPeriodDateChange($event)"
+    ></ion-datetime>
   </ng-template>
 </ion-modal>
