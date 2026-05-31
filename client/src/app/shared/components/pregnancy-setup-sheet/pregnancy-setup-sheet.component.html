@@ -45,6 +45,7 @@
         type="button"
         class="pregnancy-field-card"
         [class.pregnancy-field-card--active]="isMethodActive('due')"
+        [class.pregnancy-field-card--invalid]="isDueFieldInvalid()"
         (click)="openDueDatePicker()"
       >
         <span class="pregnancy-field-icon pregnancy-field-icon--due">
@@ -55,6 +56,15 @@
             "pregnancySetup.dueLabel" | translate
           }}</span>
           <span class="pregnancy-field-value">{{ displayDueDate }}</span>
+          @if (isMethodActive('due') && gestationalAgePreview) {
+            <span class="pregnancy-field-preview">{{ gestationalAgePreview }}</span>
+          }
+          @if (isDueFieldInvalid()) {
+            <span class="pregnancy-field-error">{{ dueFieldError() }}</span>
+            @if (dueFieldHelp()) {
+              <span class="pregnancy-field-help">{{ dueFieldHelp() }}</span>
+            }
+          }
         </span>
         <span
           class="pregnancy-field-radio"
@@ -68,6 +78,7 @@
         type="button"
         class="pregnancy-field-card"
         [class.pregnancy-field-card--active]="isMethodActive('lmp')"
+        [class.pregnancy-field-card--invalid]="isLmpFieldInvalid()"
         (click)="openLmpDatePicker()"
       >
         <span class="pregnancy-field-icon pregnancy-field-icon--lmp">
@@ -81,6 +92,15 @@
           <span class="pregnancy-field-hint">{{
             "pregnancySetup.lmpCardHint" | translate
           }}</span>
+          @if (isMethodActive('lmp') && gestationalAgePreview) {
+            <span class="pregnancy-field-preview">{{ gestationalAgePreview }}</span>
+          }
+          @if (isLmpFieldInvalid()) {
+            <span class="pregnancy-field-error">{{ lmpFieldError() }}</span>
+            @if (lmpFieldHelp()) {
+              <span class="pregnancy-field-help">{{ lmpFieldHelp() }}</span>
+            }
+          }
         </span>
         <span
           class="pregnancy-field-radio"
@@ -93,6 +113,7 @@
       <div
         class="pregnancy-gestational-group"
         [class.pregnancy-gestational-group--active]="isMethodActive('gestational')"
+        [class.pregnancy-gestational-group--invalid]="isGestationalGroupInvalid()"
       >
         <p class="pregnancy-gestational-title">
           {{ "pregnancySetup.gestationalGroupTitle" | translate }}
@@ -137,15 +158,33 @@
         <p class="pregnancy-gestational-hint">
           {{ "pregnancySetup.gestationalHint" | translate }}
         </p>
+        @if (isMethodActive('gestational') && gestationalAgePreview) {
+          <p class="pregnancy-gestational-preview">{{ gestationalAgePreview }}</p>
+        }
+        @if (isGestationalGroupInvalid()) {
+          <p class="pregnancy-field-error pregnancy-field-error--group">
+            {{ gestationalFieldError() }}
+          </p>
+          @if (gestationalFieldHelp()) {
+            <p class="pregnancy-field-help pregnancy-field-help--group">
+              {{ gestationalFieldHelp() }}
+            </p>
+          }
+        }
       </div>
     </div>
 
     @if (validationMessage) {
-      <p class="pregnancy-sheet-error">{{ validationMessage }}</p>
+      <div class="pregnancy-sheet-feedback" role="alert">
+        <p class="pregnancy-sheet-error">{{ validationMessage }}</p>
+        @if (validationHelp) {
+          <p class="pregnancy-sheet-help">{{ validationHelp }}</p>
+        }
+      </div>
     }
 
     <div class="pregnancy-sheet-actions">
-      <app-button (buttonClick)="submit()">{{
+      <app-button [disabled]="!canSubmit" (buttonClick)="submit()">{{
         "common.save" | translate
       }}</app-button>
       <button type="button" class="pregnancy-sheet-cancel" (click)="cancel()">
@@ -174,14 +213,28 @@
         }}</ion-button>
       </ion-buttons>
     </ion-toolbar>
+    <p class="pregnancy-picker-range-hint">{{ duePickerRangeHint }}</p>
     <ion-datetime
       class="pregnancy-date-wheel ltr"
       presentation="date"
       [preferWheel]="true"
       [value]="dueIso || todayStr"
+      [min]="todayStr"
+      [max]="maxDueIso"
       [highlightedDates]="datetimeHighlightedToday"
       (ionChange)="onDueDateChange($event)"
     ></ion-datetime>
+    @if (getDuePickerPreview()) {
+      <p class="pregnancy-picker-preview" role="status">{{ getDuePickerPreview() }}</p>
+    }
+    @if (pickerValidationMessage && isDueDateOpen) {
+      <div class="pregnancy-picker-feedback" role="alert">
+        <p class="pregnancy-picker-error">{{ pickerValidationMessage }}</p>
+        @if (pickerValidationHelp) {
+          <p class="pregnancy-picker-help">{{ pickerValidationHelp }}</p>
+        }
+      </div>
+    }
   </ng-template>
 </ion-modal>
 
@@ -204,15 +257,28 @@
         }}</ion-button>
       </ion-buttons>
     </ion-toolbar>
+    <p class="pregnancy-picker-range-hint">{{ lmpPickerRangeHint }}</p>
     <ion-datetime
       class="pregnancy-date-wheel ltr"
       presentation="date"
       [preferWheel]="true"
-      [value]="lmpIso || todayStr"
+      [value]="lmpIso || defaultLmpPreviewIso"
+      [min]="minLmpIso"
       [max]="todayStr"
       [highlightedDates]="lmpDatetimeHighlights"
       (ionChange)="onLmpDateChange($event)"
     ></ion-datetime>
+    @if (getLmpPickerPreview()) {
+      <p class="pregnancy-picker-preview" role="status">{{ getLmpPickerPreview() }}</p>
+    }
+    @if (pickerValidationMessage && isLmpDateOpen) {
+      <div class="pregnancy-picker-feedback" role="alert">
+        <p class="pregnancy-picker-error">{{ pickerValidationMessage }}</p>
+        @if (pickerValidationHelp) {
+          <p class="pregnancy-picker-help">{{ pickerValidationHelp }}</p>
+        }
+      </div>
+    }
   </ng-template>
 </ion-modal>
 
@@ -247,6 +313,17 @@
         }
       </ion-picker-column>
     </ion-picker>
+    @if (pickerGestationalPreview && isGestationalWeekOpen) {
+      <p class="pregnancy-picker-preview" role="status">{{ pickerGestationalPreview }}</p>
+    }
+    @if (pickerValidationMessage && isGestationalWeekOpen) {
+      <div class="pregnancy-picker-feedback" role="alert">
+        <p class="pregnancy-picker-error">{{ pickerValidationMessage }}</p>
+        @if (pickerValidationHelp) {
+          <p class="pregnancy-picker-help">{{ pickerValidationHelp }}</p>
+        }
+      </div>
+    }
   </ng-template>
 </ion-modal>
 
@@ -281,5 +358,16 @@
         }
       </ion-picker-column>
     </ion-picker>
+    @if (pickerGestationalPreview && isGestationalDayOpen) {
+      <p class="pregnancy-picker-preview" role="status">{{ pickerGestationalPreview }}</p>
+    }
+    @if (pickerValidationMessage && isGestationalDayOpen) {
+      <div class="pregnancy-picker-feedback" role="alert">
+        <p class="pregnancy-picker-error">{{ pickerValidationMessage }}</p>
+        @if (pickerValidationHelp) {
+          <p class="pregnancy-picker-help">{{ pickerValidationHelp }}</p>
+        }
+      </div>
+    }
   </ng-template>
 </ion-modal>

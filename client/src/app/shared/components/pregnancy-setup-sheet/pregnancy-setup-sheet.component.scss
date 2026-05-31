@@ -127,6 +127,11 @@
       0 0 0 1px rgba(var(--flo-primary-rgb), 0.08);
   }
 
+  &--invalid {
+    border-color: rgba(var(--ion-color-danger-rgb, 194, 30, 86), 0.55);
+    box-shadow: 0 0 0 1px rgba(var(--ion-color-danger-rgb, 194, 30, 86), 0.12);
+  }
+
   &--compact {
     flex: 1;
     min-width: 0;
@@ -196,6 +201,34 @@
   color: var(--ion-color-medium, #94a3b8);
 }
 
+.pregnancy-field-preview {
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: rgb(var(--flo-primary-rgb));
+}
+
+.pregnancy-field-error {
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--ion-color-danger, #c21e56);
+
+  &--group {
+    margin: 6px 4px 0;
+  }
+}
+
+.pregnancy-field-help {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ion-color-medium-shade, #64748b);
+
+  &--group {
+    margin: 4px 4px 0;
+  }
+}
+
 .pregnancy-field-radio {
   width: 18px;
   height: 18px;
@@ -234,6 +267,18 @@
     border-color: rgba(var(--flo-primary-rgb), 0.45);
     box-shadow: 0 8px 24px rgba(var(--flo-primary-rgb), 0.08);
   }
+
+  &--invalid {
+    border-color: rgba(var(--ion-color-danger-rgb, 194, 30, 86), 0.55);
+  }
+}
+
+.pregnancy-gestational-preview {
+  margin: 8px 4px 0;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: rgb(var(--flo-primary-rgb));
 }
 
 .pregnancy-gestational-title {
@@ -255,10 +300,23 @@
   color: var(--ion-color-medium, #94a3b8);
 }
 
+.pregnancy-sheet-feedback {
+  margin: 4px 4px 0;
+}
+
 .pregnancy-sheet-error {
-  margin: 0 4px;
+  margin: 0;
   font-size: 13px;
+  line-height: 1.45;
+  font-weight: 600;
   color: var(--ion-color-danger, #c21e56);
+}
+
+.pregnancy-sheet-help {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ion-color-medium-shade, #64748b);
 }
 
 .pregnancy-sheet-actions {
@@ -275,6 +333,54 @@
   font-size: 15px;
   font-weight: 600;
   padding: 10px;
+}
+
+.pregnancy-picker-preview {
+  margin: 0 16px 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: rgb(var(--flo-primary-rgb));
+  background: rgba(var(--flo-primary-rgb), 0.08);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.pregnancy-picker-range-hint {
+  margin: 8px 16px 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ion-color-medium-shade, #64748b);
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.pregnancy-picker-feedback {
+  margin: 0 16px 12px;
+}
+
+.pregnancy-picker-error {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--ion-color-danger, #c21e56);
+  background: rgba(194, 30, 86, 0.08);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.pregnancy-picker-help {
+  margin: 6px 0 0;
+  padding: 0 4px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ion-color-medium-shade, #64748b);
+  text-align: center;
 }
 
 .pregnancy-picker-modal {

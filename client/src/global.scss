@@ -1868,3 +1868,37 @@ ion-modal.pregnancy-setup-sheet {
   }
 }
 
+.jalali-picker-range-hint {
+  margin: 8px 16px 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ion-color-medium-shade, #64748b);
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.jalali-picker-feedback {
+  margin: 0 16px 12px;
+  padding: 10px 12px;
+  background: rgba(194, 30, 86, 0.08);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.jalali-picker-feedback__error {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: var(--ion-color-danger, #c21e56);
+}
+
+.jalali-picker-feedback__help {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ion-color-medium-shade, #64748b);
+}
+

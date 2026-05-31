@@ -636,7 +636,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
       initialBreakpoint: 0.85,
 
-      backdropDismiss: true,
+      backdropDismiss: false,
 
       cssClass: 'pregnancy-setup-sheet',
 

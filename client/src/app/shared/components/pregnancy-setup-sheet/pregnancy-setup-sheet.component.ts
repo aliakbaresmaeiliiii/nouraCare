@@ -17,10 +17,24 @@ import {
   localCalendarIsoDate,
 } from '../../utils/ion-datetime-today-highlight.util';
 import {
-  isCalendarDateNotAfterToday,
-  lmpIsoFromGestationalWeekAndDay,
+  lmpIsoFromDueIso,
   normalizeLmpInput,
+  pregnancyMetricsFromLmpIso,
 } from '../../utils/pregnancy-lmp.util';
+import {
+  attachJalaliPickerLiveValidation,
+  clearJalaliPickerFeedback,
+  showJalaliPickerFeedback,
+} from '../../utils/jalali-picker-live-validation.util';
+import {
+  helpKeyForValidationError,
+  maxPregnancyDueIso,
+  minPregnancyLmpIso,
+  type ReproductiveDateValidationResult,
+  validateGestationalWeekAndDay,
+  validatePregnancyDueIso,
+  validatePregnancyLmpIso,
+} from '../../utils/reproductive-date-validation.util';
 import {
   formatJalaliFaFromIso,
   J_MONTHS,
@@ -52,12 +66,18 @@ export class PregnancySetupSheetComponent implements OnInit {
   private languageService = inject(LanguageService);
 
   readonly todayStr = localCalendarIsoDate();
+  readonly minLmpIso = minPregnancyLmpIso();
+  readonly maxDueIso = maxPregnancyDueIso();
   readonly datetimeHighlightedToday = ionDatetimeTodayHighlight();
   readonly gestationalWeekNumbers = Array.from({ length: 42 }, (_, i) => i + 1);
   readonly gestationalDayNumbers = Array.from({ length: 7 }, (_, i) => i);
 
   activeMethod: PregnancyDateMethod = 'due';
   validationMessage = '';
+  validationHelp = '';
+  pickerValidationMessage = '';
+  pickerValidationHelp = '';
+  submitAttempted = false;
 
   dueIso = '';
   lmpIso = '';
@@ -71,7 +91,6 @@ export class PregnancySetupSheetComponent implements OnInit {
   isGestationalWeekOpen = false;
   isGestationalDayOpen = false;
 
-  /** Which Jalali picker is active when using Persian calendar. */
   private jalaliTarget: 'due' | 'lmp' | null = null;
 
   form = new FormGroup({
@@ -119,9 +138,244 @@ export class PregnancySetupSheetComponent implements OnInit {
     return `${num} ${unit}`;
   }
 
+  get defaultLmpPreviewIso(): string {
+    return this.lmpIso || this.defaultLmpIso();
+  }
+
   selectMethod(method: PregnancyDateMethod): void {
     this.activeMethod = method;
     this.validationMessage = '';
+    this.submitAttempted = false;
+  }
+
+  get canSubmit(): boolean {
+    return this.getActiveMethodValidation().valid;
+  }
+
+  get gestationalAgePreview(): string {
+    const lang = this.languageService.getCurrentLanguage();
+    if (this.activeMethod === 'gestational') {
+      const check = validateGestationalWeekAndDay(
+        this.gestationalWeek,
+        this.gestationalDay,
+      );
+      if (!check.valid) {
+        return '';
+      }
+      const weekNum = formatLocalizedNumber(this.gestationalWeek, lang);
+      if (this.gestationalDay > 0) {
+        const dayNum = formatLocalizedNumber(this.gestationalDay, lang);
+        return this.translation.translateParams('pregnancySetup.agePreviewWithDay', {
+          week: weekNum,
+          day: dayNum,
+        });
+      }
+      return this.translation.translateParams('pregnancySetup.agePreview', {
+        week: weekNum,
+      });
+    }
+
+    const lmpIso = this.resolveLmpIsoForPreview();
+    if (!lmpIso) {
+      return '';
+    }
+    const metrics = pregnancyMetricsFromLmpIso(lmpIso);
+    if (!metrics) {
+      return '';
+    }
+    const weekNum = formatLocalizedNumber(metrics.week, lang);
+    if (metrics.day > 0) {
+      const dayNum = formatLocalizedNumber(metrics.day, lang);
+      return this.translation.translateParams('pregnancySetup.agePreviewWithDay', {
+        week: weekNum,
+        day: dayNum,
+      });
+    }
+    return this.translation.translateParams('pregnancySetup.agePreview', {
+      week: weekNum,
+    });
+  }
+
+  get pickerGestationalPreview(): string {
+    const lang = this.languageService.getCurrentLanguage();
+    const week = this.isGestationalWeekOpen
+      ? this.tempGestationalWeek
+      : this.gestationalWeek;
+    const day = this.isGestationalDayOpen
+      ? this.tempGestationalDay
+      : this.gestationalDay;
+    const check = validateGestationalWeekAndDay(week, day);
+    if (!check.valid) {
+      return '';
+    }
+    const weekNum = formatLocalizedNumber(week, lang);
+    if (day > 0) {
+      const dayNum = formatLocalizedNumber(day, lang);
+      return this.translation.translateParams('pregnancySetup.agePreviewWithDay', {
+        week: weekNum,
+        day: dayNum,
+      });
+    }
+    return this.translation.translateParams('pregnancySetup.agePreview', {
+      week: weekNum,
+    });
+  }
+
+  activeMethodFieldError(): string {
+    const check = this.getActiveMethodValidation();
+    return check.valid ? '' : this.translation.translate(check.errorKey);
+  }
+
+  activeMethodFieldHelp(): string {
+    const check = this.getActiveMethodValidation();
+    if (check.valid) {
+      return '';
+    }
+    const helpKey = helpKeyForValidationError(check.errorKey);
+    return helpKey ? this.translation.translate(helpKey) : '';
+  }
+
+  dueFieldErrorKey(): string | null {
+    if (!this.dueIso) {
+      return null;
+    }
+    const check = validatePregnancyDueIso(this.dueIso);
+    return check.valid ? null : check.errorKey;
+  }
+
+  lmpFieldErrorKey(): string | null {
+    if (!this.lmpIso) {
+      return null;
+    }
+    const check = validatePregnancyLmpIso(this.lmpIso);
+    return check.valid ? null : check.errorKey;
+  }
+
+  gestationalFieldErrorKey(): string | null {
+    const check = validateGestationalWeekAndDay(
+      this.gestationalWeek,
+      this.gestationalDay,
+    );
+    return check.valid ? null : check.errorKey;
+  }
+
+  fieldHelpForError(errorKey: string | null): string {
+    if (!errorKey) {
+      return '';
+    }
+    const helpKey = helpKeyForValidationError(errorKey);
+    return helpKey ? this.translation.translate(helpKey) : '';
+  }
+
+  showDueFieldIssue(): boolean {
+    return this.activeMethod === 'due' && !!this.dueFieldErrorKey();
+  }
+
+  showLmpFieldIssue(): boolean {
+    return this.activeMethod === 'lmp' && !!this.lmpFieldErrorKey();
+  }
+
+  showGestationalFieldIssue(): boolean {
+    return (
+      this.activeMethod === 'gestational' && !!this.gestationalFieldErrorKey()
+    );
+  }
+
+  isDueFieldInvalid(): boolean {
+    return this.showDueFieldIssue() || (this.submitAttempted && this.isMethodActive('due') && !this.getActiveMethodValidation().valid);
+  }
+
+  isLmpFieldInvalid(): boolean {
+    return this.showLmpFieldIssue() || (this.submitAttempted && this.isMethodActive('lmp') && !this.getActiveMethodValidation().valid);
+  }
+
+  isGestationalGroupInvalid(): boolean {
+    return (
+      this.showGestationalFieldIssue() ||
+      (this.submitAttempted &&
+        this.isMethodActive('gestational') &&
+        !this.getActiveMethodValidation().valid)
+    );
+  }
+
+  get duePickerRangeHint(): string {
+    return this.translation.translateParams('pregnancySetup.pickerDueRangeHint', {
+      minDate: this.formatDisplayDate(this.todayStr),
+      maxDate: this.formatDisplayDate(this.maxDueIso),
+    });
+  }
+
+  get lmpPickerRangeHint(): string {
+    return this.translation.translateParams('pregnancySetup.pickerLmpRangeHint', {
+      minDate: this.formatDisplayDate(this.minLmpIso),
+      maxDate: this.formatDisplayDate(this.todayStr),
+    });
+  }
+
+  dueFieldError(): string {
+    const key = this.dueFieldErrorKey();
+    if (key) {
+      return this.translation.translate(key);
+    }
+    if (this.submitAttempted && this.isMethodActive('due')) {
+      return this.activeMethodFieldError();
+    }
+    return '';
+  }
+
+  dueFieldHelp(): string {
+    const key = this.dueFieldErrorKey();
+    if (key) {
+      return this.fieldHelpForError(key);
+    }
+    if (this.submitAttempted && this.isMethodActive('due')) {
+      return this.activeMethodFieldHelp();
+    }
+    return '';
+  }
+
+  lmpFieldError(): string {
+    const key = this.lmpFieldErrorKey();
+    if (key) {
+      return this.translation.translate(key);
+    }
+    if (this.submitAttempted && this.isMethodActive('lmp')) {
+      return this.activeMethodFieldError();
+    }
+    return '';
+  }
+
+  lmpFieldHelp(): string {
+    const key = this.lmpFieldErrorKey();
+    if (key) {
+      return this.fieldHelpForError(key);
+    }
+    if (this.submitAttempted && this.isMethodActive('lmp')) {
+      return this.activeMethodFieldHelp();
+    }
+    return '';
+  }
+
+  gestationalFieldError(): string {
+    const key = this.gestationalFieldErrorKey();
+    if (key) {
+      return this.translation.translate(key);
+    }
+    if (this.submitAttempted && this.isMethodActive('gestational')) {
+      return this.activeMethodFieldError();
+    }
+    return '';
+  }
+
+  gestationalFieldHelp(): string {
+    const key = this.gestationalFieldErrorKey();
+    if (key) {
+      return this.fieldHelpForError(key);
+    }
+    if (this.submitAttempted && this.isMethodActive('gestational')) {
+      return this.activeMethodFieldHelp();
+    }
+    return '';
   }
 
   isMethodActive(method: PregnancyDateMethod): boolean {
@@ -134,6 +388,7 @@ export class PregnancySetupSheetComponent implements OnInit {
 
   openDueDatePicker(): void {
     this.selectMethod('due');
+    this.setPickerFeedback(null);
     if (isPersianAppLanguage(this.languageService.getCurrentLanguage())) {
       this.jalaliTarget = 'due';
       void this.openJalaliPicker(this.dueIso || this.todayStr);
@@ -144,6 +399,7 @@ export class PregnancySetupSheetComponent implements OnInit {
 
   openLmpDatePicker(): void {
     this.selectMethod('lmp');
+    this.setPickerFeedback(null);
     if (isPersianAppLanguage(this.languageService.getCurrentLanguage())) {
       this.jalaliTarget = 'lmp';
       const fallback = this.lmpIso || this.defaultLmpIso();
@@ -155,58 +411,128 @@ export class PregnancySetupSheetComponent implements OnInit {
 
   openGestationalWeekPicker(): void {
     this.selectMethod('gestational');
+    this.setPickerFeedback(null);
     this.tempGestationalWeek = this.gestationalWeek;
     this.isGestationalWeekOpen = true;
   }
 
   openGestationalDayPicker(): void {
     this.selectMethod('gestational');
+    this.setPickerFeedback(null);
     this.tempGestationalDay = this.gestationalDay;
     this.isGestationalDayOpen = true;
   }
 
   closeDueDate(role: 'cancel' | 'confirm'): void {
-    if (role === 'confirm' && this.dueIso) {
+    if (role === 'confirm') {
+      const check = validatePregnancyDueIso(this.dueIso);
+      if (!check.valid) {
+        this.setPickerFeedback(check.errorKey);
+        return;
+      }
+      this.dueIso = check.iso;
       this.selectMethod('due');
+      this.setFormValidationFeedback(null);
     }
+    this.setPickerFeedback(null);
     this.isDueDateOpen = false;
   }
 
   closeLmpDate(role: 'cancel' | 'confirm'): void {
-    if (role === 'confirm' && this.lmpIso) {
+    if (role === 'confirm') {
+      const check = validatePregnancyLmpIso(this.lmpIso);
+      if (!check.valid) {
+        this.setPickerFeedback(check.errorKey);
+        return;
+      }
+      this.lmpIso = check.iso;
       this.selectMethod('lmp');
+      this.setFormValidationFeedback(null);
     }
+    this.setPickerFeedback(null);
     this.isLmpDateOpen = false;
   }
 
   closeGestationalWeek(role: 'cancel' | 'confirm'): void {
     if (role === 'confirm') {
+      const check = validateGestationalWeekAndDay(
+        this.tempGestationalWeek,
+        this.gestationalDay,
+      );
+      if (!check.valid) {
+        this.setPickerFeedback(check.errorKey);
+        return;
+      }
       this.gestationalWeek = Number(this.tempGestationalWeek);
       this.selectMethod('gestational');
+      this.setFormValidationFeedback(null);
     }
+    this.setPickerFeedback(null);
     this.isGestationalWeekOpen = false;
   }
 
   closeGestationalDay(role: 'cancel' | 'confirm'): void {
     if (role === 'confirm') {
+      const check = validateGestationalWeekAndDay(
+        this.gestationalWeek,
+        this.tempGestationalDay,
+      );
+      if (!check.valid) {
+        this.setPickerFeedback(check.errorKey);
+        return;
+      }
       this.gestationalDay = Number(this.tempGestationalDay);
       this.selectMethod('gestational');
+      this.setFormValidationFeedback(null);
     }
+    this.setPickerFeedback(null);
     this.isGestationalDayOpen = false;
   }
 
   onDueDateChange(event: CustomEvent): void {
     this.dueIso = this.extractIsoFromDatetimeEvent(event);
+    if (!this.dueIso) {
+      this.setPickerFeedback(null);
+    } else {
+      const check = validatePregnancyDueIso(this.dueIso);
+      this.setPickerFeedback(check.valid ? null : check.errorKey);
+    }
+    this.cdr.markForCheck();
   }
 
   onLmpDateChange(event: CustomEvent): void {
     this.lmpIso = this.extractIsoFromDatetimeEvent(event);
+    if (!this.lmpIso) {
+      this.setPickerFeedback(null);
+    } else {
+      const check = validatePregnancyLmpIso(this.lmpIso);
+      this.setPickerFeedback(check.valid ? null : check.errorKey);
+    }
+    this.cdr.markForCheck();
+  }
+
+  getDuePickerPreview(): string {
+    if (!this.dueIso) {
+      return '';
+    }
+    const lmp = lmpIsoFromDueIso(this.dueIso);
+    return lmp ? this.previewFromLmpIso(lmp) : '';
+  }
+
+  getLmpPickerPreview(): string {
+    return this.lmpIso ? this.previewFromLmpIso(this.lmpIso) : '';
   }
 
   onGestationalWeekChange(event: CustomEvent): void {
     const value = event.detail.value;
     if (value != null) {
       this.tempGestationalWeek = Number(value);
+      const check = validateGestationalWeekAndDay(
+        this.tempGestationalWeek,
+        this.gestationalDay,
+      );
+      this.setPickerFeedback(check.valid ? null : check.errorKey);
+      this.cdr.markForCheck();
     }
   }
 
@@ -214,79 +540,104 @@ export class PregnancySetupSheetComponent implements OnInit {
     const value = event.detail.value;
     if (value != null) {
       this.tempGestationalDay = Number(value);
+      const check = validateGestationalWeekAndDay(
+        this.gestationalWeek,
+        this.tempGestationalDay,
+      );
+      this.setPickerFeedback(check.valid ? null : check.errorKey);
+      this.cdr.markForCheck();
     }
   }
 
   submit(): void {
-    this.validationMessage = '';
+    this.submitAttempted = true;
+    this.setFormValidationFeedback(null);
     const childName = String(this.form.get('childName')?.value ?? '').trim();
     if (childName) {
       this.cycleSettings.setBabyName(childName);
     }
 
-    const todayStr = localCalendarIsoDate();
-
-    if (this.activeMethod === 'lmp') {
-      const raw = (this.lmpIso || '').trim();
-      if (!raw) {
-        this.validationMessage = this.translation.translate(
-          'pregnancySetup.validationLmpRequired',
-        );
-        return;
-      }
-      const day = raw.includes('T') ? raw.split('T')[0] : raw.slice(0, 10);
-      if (day > todayStr) {
-        this.validationMessage = this.translation.translate(
-          'pregnancySetup.validationLmpFuture',
-        );
-        return;
-      }
-      const patch: InitializeReproductiveStateDto = {
-        state: 'pregnant',
-        pregnancyStartDate: day,
-      };
-      void this.modalCtrl.dismiss(patch, 'confirm');
+    const check = this.getActiveMethodValidation();
+    if (!check.valid) {
+      this.setFormValidationFeedback(check.errorKey);
+      this.cdr.markForCheck();
       return;
     }
 
+    if (this.activeMethod === 'lmp' || this.activeMethod === 'gestational') {
+      void this.modalCtrl.dismiss(
+        {
+          state: 'pregnant',
+          pregnancyStartDate: check.iso,
+        } satisfies InitializeReproductiveStateDto,
+        'confirm',
+      );
+      return;
+    }
+
+    void this.modalCtrl.dismiss(
+      {
+        state: 'pregnant',
+        pregnancyDueDate: check.iso,
+      } satisfies InitializeReproductiveStateDto,
+      'confirm',
+    );
+  }
+
+  private getActiveMethodValidation(): ReproductiveDateValidationResult {
+    if (this.activeMethod === 'lmp') {
+      if (!this.lmpIso) {
+        return { valid: false, errorKey: 'pregnancySetup.validationLmpRequired' };
+      }
+      return validatePregnancyLmpIso(this.lmpIso);
+    }
     if (this.activeMethod === 'gestational') {
-      const lmp = lmpIsoFromGestationalWeekAndDay(
+      return validateGestationalWeekAndDay(
         this.gestationalWeek,
         this.gestationalDay,
       );
-      if (!lmp || !isCalendarDateNotAfterToday(lmp)) {
-        this.validationMessage = this.translation.translate(
-          'pregnancySetup.validationGestationalInvalid',
-        );
-        return;
-      }
-      const patch: InitializeReproductiveStateDto = {
-        state: 'pregnant',
-        pregnancyStartDate: lmp,
-      };
-      void this.modalCtrl.dismiss(patch, 'confirm');
-      return;
     }
+    if (!this.dueIso) {
+      return { valid: false, errorKey: 'pregnancySetup.validationDueRequired' };
+    }
+    return validatePregnancyDueIso(this.dueIso);
+  }
 
-    const due = (this.dueIso || '').trim();
-    if (!due) {
-      this.validationMessage = this.translation.translate(
-        'pregnancySetup.validationDueRequired',
-      );
-      return;
+  private resolveLmpIsoForPreview(): string | null {
+    if (this.activeMethod === 'lmp') {
+      const check = validatePregnancyLmpIso(this.lmpIso);
+      return check.valid ? check.iso : null;
     }
-    const dueDay = due.includes('T') ? due.split('T')[0] : due.slice(0, 10);
-    if (dueDay < todayStr) {
-      this.validationMessage = this.translation.translate(
-        'pregnancySetup.validationDuePast',
-      );
-      return;
+    if (this.activeMethod === 'due') {
+      if (!this.dueIso) {
+        return null;
+      }
+      const dueCheck = validatePregnancyDueIso(this.dueIso);
+      if (!dueCheck.valid) {
+        return null;
+      }
+      return lmpIsoFromDueIso(dueCheck.iso);
     }
-    const patch: InitializeReproductiveStateDto = {
-      state: 'pregnant',
-      pregnancyDueDate: dueDay,
-    };
-    void this.modalCtrl.dismiss(patch, 'confirm');
+    return null;
+  }
+
+  private previewFromLmpIso(lmpIso: string): string {
+    const metrics = pregnancyMetricsFromLmpIso(lmpIso);
+    if (!metrics) {
+      return '';
+    }
+    const lang = this.languageService.getCurrentLanguage();
+    const weekNum = formatLocalizedNumber(metrics.week, lang);
+    if (metrics.day > 0) {
+      const dayNum = formatLocalizedNumber(metrics.day, lang);
+      return this.translation.translateParams('pregnancySetup.agePreviewWithDay', {
+        week: weekNum,
+        day: dayNum,
+      });
+    }
+    return this.translation.translateParams('pregnancySetup.agePreview', {
+      week: weekNum,
+    });
   }
 
   private defaultLmpIso(): string {
@@ -299,6 +650,28 @@ export class PregnancySetupSheetComponent implements OnInit {
     const value = (event.detail as { value?: string }).value as string;
     if (!value) return '';
     return value.includes('T') ? value.split('T')[0] : value.slice(0, 10);
+  }
+
+  private setPickerFeedback(errorKey: string | null): void {
+    if (!errorKey) {
+      this.pickerValidationMessage = '';
+      this.pickerValidationHelp = '';
+      return;
+    }
+    this.pickerValidationMessage = this.translation.translate(errorKey);
+    const helpKey = helpKeyForValidationError(errorKey);
+    this.pickerValidationHelp = helpKey ? this.translation.translate(helpKey) : '';
+  }
+
+  private setFormValidationFeedback(errorKey: string | null): void {
+    if (!errorKey) {
+      this.validationMessage = '';
+      this.validationHelp = '';
+      return;
+    }
+    this.validationMessage = this.translation.translate(errorKey);
+    const helpKey = helpKeyForValidationError(errorKey);
+    this.validationHelp = helpKey ? this.translation.translate(helpKey) : '';
   }
 
   private formatDisplayDate(iso: string): string {
@@ -343,6 +716,8 @@ export class PregnancySetupSheetComponent implements OnInit {
 
     const dayCol = makeDayCol(initial.jy, initial.jm, initial.jd);
     const target = this.jalaliTarget;
+    const rangeHint =
+      target === 'due' ? this.duePickerRangeHint : this.lmpPickerRangeHint;
 
     const picker = await this.pickerCtrl.create({
       columns: [dayCol, monthCol, yearCol],
@@ -356,18 +731,41 @@ export class PregnancySetupSheetComponent implements OnInit {
               value.month.value,
               value.day.value,
             );
-            if (target === 'due') {
-              this.dueIso = iso;
-            } else if (target === 'lmp') {
-              this.lmpIso = iso;
+            const check =
+              target === 'due'
+                ? validatePregnancyDueIso(iso)
+                : validatePregnancyLmpIso(iso);
+            if (!check.valid) {
+              showJalaliPickerFeedback(picker, check.errorKey, (key) =>
+                this.translation.translate(key),
+              );
+              this.cdr.detectChanges();
+              return false;
             }
+            clearJalaliPickerFeedback(picker);
+            if (target === 'due') {
+              this.dueIso = check.iso;
+            } else if (target === 'lmp') {
+              this.lmpIso = check.iso;
+            }
+            this.setFormValidationFeedback(null);
             this.jalaliTarget = null;
             this.cdr.detectChanges();
+            return true;
           },
         },
       ],
     });
 
     await picker.present();
+
+    attachJalaliPickerLiveValidation(picker, {
+      validate: (iso) =>
+        target === 'due'
+          ? validatePregnancyDueIso(iso)
+          : validatePregnancyLmpIso(iso),
+      translate: (key) => this.translation.translate(key),
+      rangeHint,
+    });
   }
 }

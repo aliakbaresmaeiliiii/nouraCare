@@ -51,7 +51,12 @@
       <ion-icon name="chevron-forward-outline" class="cycle-field-chevron"></ion-icon>
     </button>
 
-    <button type="button" class="cycle-field-card" (click)="openPeriodDatePicker()">
+    <button
+      type="button"
+      class="cycle-field-card"
+      [class.cycle-field-card--invalid]="isPeriodFieldInvalid()"
+      (click)="openPeriodDatePicker()"
+    >
       <span class="cycle-field-icon cycle-field-icon--date">
         <ion-icon name="calendar-outline"></ion-icon>
       </span>
@@ -60,16 +65,27 @@
           "reproductiveStatus.lastPeriodLabel" | translate
         }}</span>
         <span class="cycle-field-value">{{ displayPeriodPickerDays }}</span>
+        @if (isPeriodFieldInvalid() || (submitAttempted && periodFieldError())) {
+          <span class="cycle-field-error">{{ periodFieldError() }}</span>
+          @if (periodFieldHelp()) {
+            <span class="cycle-field-help">{{ periodFieldHelp() }}</span>
+          }
+        }
       </span>
       <ion-icon name="chevron-forward-outline" class="cycle-field-chevron"></ion-icon>
     </button>
 
     @if (validationMessage) {
-      <p class="cycle-sheet-error">{{ validationMessage }}</p>
+      <div class="cycle-sheet-feedback" role="alert">
+        <p class="cycle-sheet-error">{{ validationMessage }}</p>
+        @if (validationHelp) {
+          <p class="cycle-sheet-help">{{ validationHelp }}</p>
+        }
+      </div>
     }
 
     <div class="cycle-sheet-actions">
-      <app-button (buttonClick)="saveInfo()">{{
+      <app-button [disabled]="!canSubmit" (buttonClick)="saveInfo()">{{
         "common.save" | translate
       }}</app-button>
       <button type="button" class="cycle-sheet-cancel" (click)="cancel()">
@@ -110,6 +126,14 @@
         }
       </ion-picker-column>
     </ion-picker>
+    @if (pickerValidationMessage && isDurationDaysOpen) {
+      <div class="cycle-picker-feedback" role="alert">
+        <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
+        @if (pickerValidationHelp) {
+          <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
+        }
+      </div>
+    }
   </ng-template>
 </ion-modal>
 
@@ -144,6 +168,14 @@
         }
       </ion-picker-column>
     </ion-picker>
+    @if (pickerValidationMessage && isBleedingDaysOpen) {
+      <div class="cycle-picker-feedback" role="alert">
+        <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
+        @if (pickerValidationHelp) {
+          <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
+        }
+      </div>
+    }
   </ng-template>
 </ion-modal>
 
@@ -166,13 +198,23 @@
         }}</ion-button>
       </ion-buttons>
     </ion-toolbar>
+    <p class="cycle-picker-range-hint">{{ periodPickerRangeHint }}</p>
     <ion-datetime
       class="cycle-date-wheel ltr"
       presentation="date"
       [preferWheel]="true"
       [value]="periodDateIso"
+      [min]="minPeriodDate"
       [max]="maxDate"
       (ionChange)="onPeriodDateChange($event)"
     ></ion-datetime>
+    @if (pickerValidationMessage && isPeriodDateOpen) {
+      <div class="cycle-picker-feedback" role="alert">
+        <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
+        @if (pickerValidationHelp) {
+          <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
+        }
+      </div>
+    }
   </ng-template>
 </ion-modal>

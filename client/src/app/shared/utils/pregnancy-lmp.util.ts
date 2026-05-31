@@ -70,20 +70,50 @@ export function lmpIsoFromLastBleedingDay(
   return addCalendarDaysIso(lastBleedingDayIso, -(pl - 1));
 }
 
+/** Standard gestation length (LMP → due date), aligned with server metrics. */
+export const GESTATION_LENGTH_DAYS = 280;
+
+export interface PregnancyGestationalMetrics {
+  week: number;
+  day: number;
+}
+
 /** 1-based gestational week from LMP (aligned with server `computePregnancyMetricsFromLmp`). */
 export function gestationalWeekFromLmp(
   lmpIso: string,
   ref: Date = new Date(),
 ): number {
+  return pregnancyMetricsFromLmpIso(lmpIso, ref)?.week ?? 0;
+}
+
+/**
+ * Gestational week (1-based) and day index within the current week (0–6),
+ * matching server `computePregnancyMetricsFromLmp`.
+ */
+export function pregnancyMetricsFromLmpIso(
+  lmpIso: string,
+  ref: Date = new Date(),
+): PregnancyGestationalMetrics | null {
   const lmp = parseIsoDateOnlyUtc(lmpIso);
-  if (Number.isNaN(lmp.getTime())) return 0;
+  if (Number.isNaN(lmp.getTime())) return null;
   const today = new Date(
     Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), ref.getUTCDate()),
   );
-  const days = Math.floor(
-    (today.getTime() - lmp.getTime()) / (1000 * 60 * 60 * 24),
+  const days = Math.max(
+    0,
+    Math.floor((today.getTime() - lmp.getTime()) / (1000 * 60 * 60 * 24)),
   );
-  return Math.floor(days / 7) + 1;
+  return {
+    week: Math.min(42, Math.max(1, Math.floor(days / 7) + 1)),
+    day: days % 7,
+  };
+}
+
+/** Implied LMP from an estimated due date (280-day rule). */
+export function lmpIsoFromDueIso(dueIso: string): string | null {
+  const due = isoDateOnly(dueIso);
+  if (!due) return null;
+  return addCalendarDaysIso(due, -GESTATION_LENGTH_DAYS);
 }
 
 export function isCalendarDateNotAfterToday(iso: string, ref: Date = new Date()): boolean {

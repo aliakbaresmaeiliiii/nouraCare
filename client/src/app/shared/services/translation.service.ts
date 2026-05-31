@@ -91,7 +91,37 @@ export class TranslationService {
       'reproductiveStatus.pickerDate': 'Choose date',
       'reproductiveStatus.confirm': 'Confirm',
       'reproductiveStatus.daysUnit': 'days',
+      'reproductiveStatus.chooseDate': 'Tap to choose',
       'reproductiveStatus.validationRequired': 'Please complete all fields.',
+      'reproductiveStatus.validationPeriodRequired':
+        'Please choose the first day of your last period.',
+      'reproductiveStatus.validationInvalidDate': 'Please choose a valid date.',
+      'reproductiveStatus.validationPeriodFuture':
+        'Last period cannot be in the future.',
+      'reproductiveStatus.validationPeriodTooOld':
+        'Last period cannot be more than a year ago.',
+      'reproductiveStatus.validationCycleLengthRange':
+        'Cycle length must be between 21 and 60 days.',
+      'reproductiveStatus.validationBleedingRange':
+        'Bleeding length must be between 2 and 10 days.',
+      'reproductiveStatus.validationBleedingTooLong':
+        'Bleeding days must be shorter than your cycle length.',
+      'reproductiveStatus.pickerPeriodRangeHint':
+        'Allowed: from {{minDate}} through today ({{maxDate}}).',
+      'reproductiveStatus.helpInvalidDate':
+        'Choose a valid calendar date, then tap Confirm.',
+      'reproductiveStatus.helpPeriodRequired':
+        'Tap the last period row and pick the first day of bleeding.',
+      'reproductiveStatus.helpPeriodFuture':
+        'The first day of your period cannot be in the future.',
+      'reproductiveStatus.helpPeriodTooOld':
+        'Pick a date within the last year. If unsure, choose your best estimate.',
+      'reproductiveStatus.helpCycleLengthRange':
+        'Most cycles are 21–60 days. Typical is about 28 days.',
+      'reproductiveStatus.helpBleedingRange':
+        'Bleeding usually lasts 2–10 days. Typical is about 5 days.',
+      'reproductiveStatus.helpBleedingTooLong':
+        'Reduce bleeding days or increase cycle length — bleeding must be shorter than the full cycle.',
       'reproductiveStatus.closeAria': 'Close',
       'pregnancySetup.title': 'Your baby\'s information',
       'pregnancySetup.closeAria': 'Close',
@@ -123,6 +153,39 @@ export class TranslationService {
         'Please choose a valid pregnancy week and day.',
       'pregnancySetup.validationDueRequired': 'Please choose your estimated due date.',
       'pregnancySetup.validationDuePast': 'Due date cannot be in the past.',
+      'pregnancySetup.validationInvalidDate': 'Please choose a valid date.',
+      'pregnancySetup.validationLmpTooOld':
+        'That last period date is too far back for a current pregnancy.',
+      'pregnancySetup.validationDueTooFar':
+        'Due date is too far in the future; check the date you entered.',
+      'pregnancySetup.validationDueImpliedInvalid':
+        'This due date does not match a supported pregnancy timeline.',
+      'pregnancySetup.pickerDueRangeHint':
+        'Allowed: from today ({{minDate}}) up to about 40 weeks ahead ({{maxDate}}).',
+      'pregnancySetup.pickerLmpRangeHint':
+        'Allowed: from {{minDate}} through today ({{maxDate}}) — first day of your last period.',
+      'pregnancySetup.helpInvalidDate':
+        'Scroll the wheel until the date looks correct, then tap Confirm.',
+      'pregnancySetup.helpLmpRequired':
+        'Open the calendar and choose the first day you started bleeding.',
+      'pregnancySetup.helpLmpFuture':
+        'Your last period must be today or earlier — it cannot be a future date.',
+      'pregnancySetup.helpLmpTooOld':
+        'That date is too far back. Try pregnancy week & day, or pick a more recent last period.',
+      'pregnancySetup.helpDueRequired':
+        'Choose your estimated delivery date from the calendar.',
+      'pregnancySetup.helpDuePast':
+        'Delivery date must be today or later. If the baby was already born, switch to postpartum mode.',
+      'pregnancySetup.helpDueTooFar':
+        'Pick a date within about 40 weeks from today — that matches a full-term pregnancy.',
+      'pregnancySetup.helpDueImpliedInvalid':
+        'Try a date closer to today, or use last period / week & day instead.',
+      'pregnancySetup.helpGestationalInvalid':
+        'Week must be 1–42 and day 0–6 (day 0 is the first day of that week).',
+      'pregnancySetup.agePreview':
+        'With this date, you are about {{week}} weeks pregnant.',
+      'pregnancySetup.agePreviewWithDay':
+        'With this date, you are about {{week}} weeks and {{day}} days pregnant.',
       'editProfile.editProfilePicture': 'Edit profile picture',
       'editProfile.done': 'Done',
       'editProfile.cropHint': 'Drag to move. Pinch or use the slider to zoom.',
@@ -997,7 +1060,25 @@ export class TranslationService {
       'reproductiveStatus.pickerDate': '选择日期',
       'reproductiveStatus.confirm': '确认',
       'reproductiveStatus.daysUnit': '天',
+      'reproductiveStatus.chooseDate': '点击选择',
       'reproductiveStatus.validationRequired': '请填写所有字段。',
+      'reproductiveStatus.validationPeriodRequired': '请选择末次月经第一天。',
+      'reproductiveStatus.validationInvalidDate': '请选择有效日期。',
+      'reproductiveStatus.validationPeriodFuture': '末次月经不能是未来日期。',
+      'reproductiveStatus.validationPeriodTooOld': '末次月经不能超过一年前。',
+      'reproductiveStatus.validationCycleLengthRange': '周期长度须在 21 到 60 天之间。',
+      'reproductiveStatus.validationBleedingRange': '出血天数须在 2 到 10 天之间。',
+      'reproductiveStatus.validationBleedingTooLong': '出血天数必须短于周期长度。',
+      'reproductiveStatus.pickerPeriodRangeHint':
+        '可选范围：{{minDate}} 至今天（{{maxDate}}）。',
+      'reproductiveStatus.helpInvalidDate': '请选择有效日期后点击确认。',
+      'reproductiveStatus.helpPeriodRequired': '点击末次月经并选择出血第一天。',
+      'reproductiveStatus.helpPeriodFuture': '月经第一天不能是未来日期。',
+      'reproductiveStatus.helpPeriodTooOld': '请选择一年内的日期；不确定可选最接近的估计。',
+      'reproductiveStatus.helpCycleLengthRange': '周期通常为 21–60 天，常见约 28 天。',
+      'reproductiveStatus.helpBleedingRange': '出血通常 2–10 天，常见约 5 天。',
+      'reproductiveStatus.helpBleedingTooLong':
+        '出血天数须小于周期长度，请调整其中一项。',
       'reproductiveStatus.closeAria': '关闭',
       'pregnancySetup.title': '宝宝信息',
       'pregnancySetup.closeAria': '关闭',
@@ -1024,6 +1105,26 @@ export class TranslationService {
       'pregnancySetup.validationGestationalInvalid': '请选择有效的孕周和天数。',
       'pregnancySetup.validationDueRequired': '请选择预计预产期。',
       'pregnancySetup.validationDuePast': '预产期不能是过去日期。',
+      'pregnancySetup.validationInvalidDate': '请选择有效日期。',
+      'pregnancySetup.validationLmpTooOld': '该末次月经日期过早，不符合当前孕期。',
+      'pregnancySetup.validationDueTooFar': '预产期过远，请检查所填日期。',
+      'pregnancySetup.validationDueImpliedInvalid': '该预产期不符合支持的孕期时间线。',
+      'pregnancySetup.pickerDueRangeHint':
+        '可选：今天（{{minDate}}）至约 40 周后（{{maxDate}}）。',
+      'pregnancySetup.pickerLmpRangeHint':
+        '可选：{{minDate}} 至今天（{{maxDate}}）— 末次月经出血第一天。',
+      'pregnancySetup.helpInvalidDate': '滚动选择正确日期后点击确认。',
+      'pregnancySetup.helpLmpRequired': '打开日历，选择开始出血的第一天。',
+      'pregnancySetup.helpLmpFuture': '末次月经必须是今天或更早的日期。',
+      'pregnancySetup.helpLmpTooOld': '日期过早。请尝试孕周方式，或选择更近的末次月经。',
+      'pregnancySetup.helpDueRequired': '从日历中选择预计分娩日期。',
+      'pregnancySetup.helpDuePast': '分娩日期必须是今天或之后。',
+      'pregnancySetup.helpDueTooFar': '请选择约 40 周内的日期。',
+      'pregnancySetup.helpDueImpliedInvalid': '请选择更接近今天的日期，或改用末次月经/孕周。',
+      'pregnancySetup.helpGestationalInvalid': '孕周 1–42，天数 0–6（0 为本周第一天）。',
+      'pregnancySetup.agePreview': '按此日期计算，您大约怀孕 {{week}} 周。',
+      'pregnancySetup.agePreviewWithDay':
+        '按此日期计算，您大约怀孕 {{week}} 周零 {{day}} 天。',
       'editProfile.editProfilePicture': '编辑头像',
       'editProfile.done': '完成',
       'editProfile.cropHint': '拖动移动。双指捏合或使用滑块缩放。',
@@ -1367,7 +1468,37 @@ export class TranslationService {
       'reproductiveStatus.pickerDate': 'Pilih tarikh',
       'reproductiveStatus.confirm': 'Sahkan',
       'reproductiveStatus.daysUnit': 'hari',
+      'reproductiveStatus.chooseDate': 'Ketik untuk pilih',
       'reproductiveStatus.validationRequired': 'Sila lengkapkan semua medan.',
+      'reproductiveStatus.validationPeriodRequired':
+        'Sila pilih hari pertama haid terakhir.',
+      'reproductiveStatus.validationInvalidDate': 'Sila pilih tarikh yang sah.',
+      'reproductiveStatus.validationPeriodFuture':
+        'Haid terakhir tidak boleh pada masa hadapan.',
+      'reproductiveStatus.validationPeriodTooOld':
+        'Haid terakhir tidak boleh lebih setahun lalu.',
+      'reproductiveStatus.validationCycleLengthRange':
+        'Panjang kitaran mesti antara 21 dan 60 hari.',
+      'reproductiveStatus.validationBleedingRange':
+        'Tempoh pendarahan mesti antara 2 dan 10 hari.',
+      'reproductiveStatus.validationBleedingTooLong':
+        'Hari pendarahan mesti lebih pendek daripada panjang kitaran.',
+      'reproductiveStatus.pickerPeriodRangeHint':
+        'Dibenarkan: {{minDate}} hingga hari ini ({{maxDate}}).',
+      'reproductiveStatus.helpInvalidDate':
+        'Pilih tarikh yang sah, kemudian ketik Sahkan.',
+      'reproductiveStatus.helpPeriodRequired':
+        'Ketik baris haid terakhir dan pilih hari pertama pendarahan.',
+      'reproductiveStatus.helpPeriodFuture':
+        'Hari pertama haid tidak boleh pada masa hadapan.',
+      'reproductiveStatus.helpPeriodTooOld':
+        'Pilih tarikh dalam setahun lepas. Jika tidak pasti, anggaran terbaik sudah memadai.',
+      'reproductiveStatus.helpCycleLengthRange':
+        'Kebanyakan kitaran 21–60 hari. Biasa kira-kira 28 hari.',
+      'reproductiveStatus.helpBleedingRange':
+        'Pendarahan biasanya 2–10 hari. Lazimnya kira-kira 5 hari.',
+      'reproductiveStatus.helpBleedingTooLong':
+        'Kurangkan hari pendarahan atau tambah panjang kitaran — pendarahan mesti lebih pendek.',
       'reproductiveStatus.closeAria': 'Tutup',
       'pregnancySetup.title': 'Maklumat bayi anda',
       'pregnancySetup.closeAria': 'Tutup',
@@ -1399,6 +1530,38 @@ export class TranslationService {
         'Sila pilih minggu dan hari kehamilan yang sah.',
       'pregnancySetup.validationDueRequired': 'Sila pilih tarikh jangka bersalin.',
       'pregnancySetup.validationDuePast': 'Tarikh jangka tidak boleh lepas.',
+      'pregnancySetup.validationInvalidDate': 'Sila pilih tarikh yang sah.',
+      'pregnancySetup.validationLmpTooOld':
+        'Tarikh haid terakhir itu terlalu lama untuk kehamilan semasa.',
+      'pregnancySetup.validationDueTooFar':
+        'Tarikh jangka terlalu jauh; semak tarikh yang dimasukkan.',
+      'pregnancySetup.validationDueImpliedInvalid':
+        'Tarikh jangka ini tidak sepadan dengan garis masa kehamilan yang disokong.',
+      'pregnancySetup.pickerDueRangeHint':
+        'Dibenarkan: hari ini ({{minDate}}) hingga kira-kira 40 minggu ({{maxDate}}).',
+      'pregnancySetup.pickerLmpRangeHint':
+        'Dibenarkan: {{minDate}} hingga hari ini ({{maxDate}}) — hari pertama haid.',
+      'pregnancySetup.helpInvalidDate':
+        'Tatal roda tarikh, kemudian ketik Sahkan.',
+      'pregnancySetup.helpLmpRequired':
+        'Buka kalendar dan pilih hari pertama pendarahan.',
+      'pregnancySetup.helpLmpFuture':
+        'Haid terakhir mesti hari ini atau lebih awal.',
+      'pregnancySetup.helpLmpTooOld':
+        'Tarikh terlalu lama. Cuba minggu & hari kehamilan, atau pilih haid yang lebih baru.',
+      'pregnancySetup.helpDueRequired': 'Pilih anggaran tarikh bersalin.',
+      'pregnancySetup.helpDuePast':
+        'Tarikh bersalin mesti hari ini atau selepasnya.',
+      'pregnancySetup.helpDueTooFar':
+        'Pilih tarikh dalam kira-kira 40 minggu dari hari ini.',
+      'pregnancySetup.helpDueImpliedInvalid':
+        'Cuba tarikh lebih hampir hari ini, atau guna haid terakhir / minggu & hari.',
+      'pregnancySetup.helpGestationalInvalid':
+        'Minggu 1–42, hari 0–6 (hari 0 = hari pertama minggu itu).',
+      'pregnancySetup.agePreview':
+        'Berdasarkan tarikh ini, anda kira-kira {{week}} minggu mengandung.',
+      'pregnancySetup.agePreviewWithDay':
+        'Berdasarkan tarikh ini, anda kira-kira {{week}} minggu dan {{day}} hari mengandung.',
       'editProfile.editProfilePicture': 'Edit gambar profil',
       'editProfile.done': 'Selesai',
       'editProfile.cropHint':
@@ -1757,7 +1920,37 @@ export class TranslationService {
       'reproductiveStatus.pickerDate': 'انتخاب تاریخ',
       'reproductiveStatus.confirm': 'تأیید',
       'reproductiveStatus.daysUnit': 'روز',
+      'reproductiveStatus.chooseDate': 'برای انتخاب بزنید',
       'reproductiveStatus.validationRequired': 'لطفاً همه فیلدها را تکمیل کنید.',
+      'reproductiveStatus.validationPeriodRequired':
+        'لطفاً روز اول آخرین قاعدگی را انتخاب کنید.',
+      'reproductiveStatus.validationInvalidDate': 'لطفاً یک تاریخ معتبر انتخاب کنید.',
+      'reproductiveStatus.validationPeriodFuture':
+        'تاریخ آخرین قاعدگی نمی‌تواند در آینده باشد.',
+      'reproductiveStatus.validationPeriodTooOld':
+        'تاریخ آخرین قاعدگی نمی‌تواند بیش از یک سال قبل باشد.',
+      'reproductiveStatus.validationCycleLengthRange':
+        'طول سیکل باید بین ۲۱ تا ۶۰ روز باشد.',
+      'reproductiveStatus.validationBleedingRange':
+        'مدت خونریزی باید بین ۲ تا ۱۰ روز باشد.',
+      'reproductiveStatus.validationBleedingTooLong':
+        'روزهای خونریزی باید کمتر از طول سیکل باشد.',
+      'reproductiveStatus.pickerPeriodRangeHint':
+        'مجاز: از {{minDate}} تا امروز ({{maxDate}}).',
+      'reproductiveStatus.helpInvalidDate':
+        'تاریخ معتبر انتخاب کنید و تأیید را بزنید.',
+      'reproductiveStatus.helpPeriodRequired':
+        'روی ردیف آخرین قاعدگی بزنید و روز اول خونریزی را انتخاب کنید.',
+      'reproductiveStatus.helpPeriodFuture':
+        'روز اول قاعدگی نمی‌تواند در آینده باشد.',
+      'reproductiveStatus.helpPeriodTooOld':
+        'تاریخی در یک سال گذشته انتخاب کنید؛ در صورت تردید، بهترین حدس کافی است.',
+      'reproductiveStatus.helpCycleLengthRange':
+        'طول سیکل معمولاً ۲۱ تا ۶۰ روز است (حدود ۲۸ روز رایج است).',
+      'reproductiveStatus.helpBleedingRange':
+        'خونریزی معمولاً ۲ تا ۱۰ روز است (حدود ۵ روز رایج است).',
+      'reproductiveStatus.helpBleedingTooLong':
+        'روزهای خونریزی را کم کنید یا طول سیکل را بیشتر — خونریزی باید کوتاه‌تر از کل سیکل باشد.',
       'reproductiveStatus.closeAria': 'بستن',
       'pregnancySetup.title': 'اطلاعات کودک شما',
       'pregnancySetup.closeAria': 'بستن',
@@ -1789,6 +1982,38 @@ export class TranslationService {
         'لطفاً هفته و روز بارداری معتبر انتخاب کنید.',
       'pregnancySetup.validationDueRequired': 'لطفاً تاریخ تقریبی زایمان را انتخاب کنید.',
       'pregnancySetup.validationDuePast': 'تاریخ زایمان نمی‌تواند در گذشته باشد.',
+      'pregnancySetup.validationInvalidDate': 'لطفاً یک تاریخ معتبر انتخاب کنید.',
+      'pregnancySetup.validationLmpTooOld':
+        'تاریخ آخرین قاعدگی برای بارداری فعلی خیلی قدیمی است.',
+      'pregnancySetup.validationDueTooFar':
+        'تاریخ زایمان خیلی دور است؛ تاریخ واردشده را بررسی کنید.',
+      'pregnancySetup.validationDueImpliedInvalid':
+        'این تاریخ زایمان با بازه بارداری پشتیبانی‌شده هم‌خوان نیست.',
+      'pregnancySetup.pickerDueRangeHint':
+        'مجاز: از امروز ({{minDate}}) تا حدود ۴۰ هفته بعد ({{maxDate}}).',
+      'pregnancySetup.pickerLmpRangeHint':
+        'مجاز: از {{minDate}} تا امروز ({{maxDate}}) — روز اول آخرین قاعدگی.',
+      'pregnancySetup.helpInvalidDate':
+        'چرخ تاریخ را بچرخانید و پس از انتخاب درست، تأیید را بزنید.',
+      'pregnancySetup.helpLmpRequired':
+        'تقویم را باز کنید و روز اول خونریزی را انتخاب کنید.',
+      'pregnancySetup.helpLmpFuture':
+        'آخرین قاعدگی باید امروز یا قبل از آن باشد.',
+      'pregnancySetup.helpLmpTooOld':
+        'این تاریخ خیلی قدیمی است. از «هفته و روز بارداری» استفاده کنید یا قاعدگی جدیدتر انتخاب کنید.',
+      'pregnancySetup.helpDueRequired': 'تاریخ تقریبی زایمان را از تقویم انتخاب کنید.',
+      'pregnancySetup.helpDuePast':
+        'تاریخ زایمان باید از امروز به بعد باشد.',
+      'pregnancySetup.helpDueTooFar':
+        'تاریخی در حدود ۴۰ هفته آینده انتخاب کنید.',
+      'pregnancySetup.helpDueImpliedInvalid':
+        'تاریخ نزدیک‌تری انتخاب کنید یا از قاعدگی / هفته بارداری استفاده کنید.',
+      'pregnancySetup.helpGestationalInvalid':
+        'هفته ۱ تا ۴۲ و روز ۰ تا ۶ (روز ۰ = اولین روز آن هفته).',
+      'pregnancySetup.agePreview':
+        'با این تاریخ، بارداری شما حدود {{week}} هفته است.',
+      'pregnancySetup.agePreviewWithDay':
+        'با این تاریخ، بارداری شما حدود {{week}} هفته و {{day}} روز است.',
       'editProfile.editProfilePicture': 'ویرایش عکس پروفایل',
       'editProfile.done': 'تأیید',
       'editProfile.cropHint':
