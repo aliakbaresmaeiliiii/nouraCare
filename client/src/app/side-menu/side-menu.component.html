@@ -16,7 +16,7 @@
               <div class="progress-bar">
                 <div class="progress-fill" [style.width.%]="profileCompletion"></div>
               </div>
-              <span class="progress-text">{{ profileCompletion }}% {{ 'menu.completed' | translate }}</span>
+              <span class="progress-text">{{ profileCompletion | localNum }}% {{ 'menu.completed' | translate }}</span>
             </div>
           </div>
           <ion-button
@@ -53,7 +53,7 @@
                 <ion-icon [name]="item.icon" slot="start" class="menu-icon"></ion-icon>
                 <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
                 @if (item.badge) {
-                  <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
+                  <ion-badge slot="end" class="menu-badge">{{ item.badge | localNum }}</ion-badge>
                 }
               </ion-item>
             </ion-menu-toggle>
@@ -106,7 +106,7 @@
             <ion-icon [name]="item.icon" slot="start" class="menu-icon"></ion-icon>
             <ion-label class="menu-label">{{ item.label | translate }}</ion-label>
             @if (item.badge) {
-            <ion-badge slot="end" class="menu-badge">{{ item.badge }}</ion-badge>
+            <ion-badge slot="end" class="menu-badge">{{ item.badge | localNum }}</ion-badge>
             }
           </ion-item>
         </ion-menu-toggle>
@@ -139,7 +139,7 @@
 
     <!-- App Version -->
     <div class="app-version">
-      <span class="version-text">NouraCare v{{ appVersion }}</span>
+      <span class="version-text">NouraCare v{{ appVersion | localNum }}</span>
     </div>
   </ion-content>
 </ion-menu>

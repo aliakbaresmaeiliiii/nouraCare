@@ -179,11 +179,8 @@
   margin-top: 2px;
 }
 
-.week-controls-hint {
-  margin: 10px 0 4px;
-  font-size: 0.8rem;
-  line-height: 1.4;
-  color: var(--ion-color-medium, #6b6b73);
+.week-detail-progress {
+  margin-top: 14px;
 }
 
 .week-controls-save {
@@ -546,4 +543,5 @@ ion-segment-button ion-label {
   .stepper-btn {
     background: rgba(255, 255, 255, 0.08);
   }
+
 }

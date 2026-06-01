@@ -158,6 +158,7 @@ export class ReproductiveStateService {
       const cycle = await this.cycleService.getDashboardData(userId);
       return {
         ...base,
+        tips: cycle.tips,
         nextPeriod: cycle.nextPeriod,
         cycleDay: cycle.cycleDay,
         ovulationDate: cycle.ovulationDate,
@@ -167,6 +168,7 @@ export class ReproductiveStateService {
         avgPeriodLength: cycle.avgPeriodLength,
         cycleLength: cycle.cycleLength,
         insight: cycle.insight,
+        phaseGuide: cycle.phaseGuide,
       };
     }
     if (state === 'planning') {
@@ -176,6 +178,7 @@ export class ReproductiveStateService {
         ...base,
         tryingSince: planning.tryingSince,
         notes: planning.notes,
+        tips: cycle.tips,
         nextPeriod: cycle.nextPeriod,
         cycleDay: cycle.cycleDay,
         ovulationDate: cycle.ovulationDate,
@@ -185,6 +188,7 @@ export class ReproductiveStateService {
         avgPeriodLength: cycle.avgPeriodLength,
         cycleLength: cycle.cycleLength,
         insight: cycle.insight,
+        phaseGuide: cycle.phaseGuide,
       };
     }
     return base;

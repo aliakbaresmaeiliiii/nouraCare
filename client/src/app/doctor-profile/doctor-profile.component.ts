@@ -6,6 +6,7 @@ import { DoctorService } from '../shared/services/doctor.service';
 import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
 import { Share } from '@capacitor/share';
 import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
+import { LocalizedNumberPipe } from '../shared/pipes/localized-number.pipe';
 
 // Extend Window interface to include Capacitor
 declare global {
@@ -21,7 +22,7 @@ declare global {
   templateUrl: './doctor-profile.component.html',
   styleUrls: ['./doctor-profile.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, LogoLoadingComponent],
+  imports: [IonicModule, CommonModule, LogoLoadingComponent, LocalizedNumberPipe],
 })
 export class DoctorProfileComponent implements OnInit {
   private readonly avatarWomenPath = 'assets/images/avatarWomen.png';

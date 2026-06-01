@@ -16,6 +16,10 @@ import {
   parsePredictionErrors,
   pushPredictionErrorFifo,
 } from '../utils/cycle-personalization.util';
+import {
+  buildCyclePhaseGuide,
+  CyclePhaseGuidePayload,
+} from '../utils/cycle-phase-guide.util';
 
 export interface CycleDashboardPayload {
   nextPeriod: Date | null;
@@ -27,6 +31,8 @@ export interface CycleDashboardPayload {
   avgCycleLength: number;
   avgPeriodLength: number;
   insight: string;
+  phaseGuide: CyclePhaseGuidePayload;
+  tips: string[];
 }
 
 @Injectable()
@@ -167,6 +173,18 @@ export class CycleService {
 
     const lastStart = pickLatestPeriodStartOnOrBefore(mergedStarts, new Date());
     if (!lastStart) {
+      const phaseGuide = buildCyclePhaseGuide({
+        cycleDay: null,
+        avgBleed,
+        cycleLength: simpleAvgCycle,
+        nextPeriodIso: null,
+        ovulationIso: null,
+        fertileWindow: null,
+        prePeriodPattern: false,
+        ovulationPattern: false,
+        gradualChangeDetected: false,
+        confidence: 0.18,
+      });
       return {
         nextPeriod: null,
         cycleLength: simpleAvgCycle,
@@ -177,6 +195,8 @@ export class CycleService {
         avgCycleLength: simpleAvgCycle,
         avgPeriodLength: avgBleed,
         insight: 'Log your last period start to unlock predictions and adaptive tuning.',
+        phaseGuide,
+        tips: phaseGuide.cards.map((c) => c.body),
       };
     }
 
@@ -229,6 +249,19 @@ export class CycleService {
     const configuredCycleLength =
       storedCycleLength ?? Math.round(personalized.effectiveCycleLength);
 
+    const phaseGuide = buildCyclePhaseGuide({
+      cycleDay: basePred.cycleDay,
+      avgBleed,
+      cycleLength: configuredCycleLength,
+      nextPeriodIso: personalized.nextPeriodIso,
+      ovulationIso: personalized.ovulationIso,
+      fertileWindow: personalized.fertileWindow,
+      prePeriodPattern: personalized.offsets.prePeriodPattern,
+      ovulationPattern: personalized.offsets.ovulationPattern,
+      gradualChangeDetected: personalized.offsets.gradualChangeDetected,
+      confidence,
+    });
+
     return {
       nextPeriod: nextPeriodDate,
       /** User-configured cycle length (ring UI); not the adaptive prediction blend. */
@@ -240,6 +273,8 @@ export class CycleService {
       avgCycleLength: Math.round(personalized.effectiveCycleLength),
       avgPeriodLength: avgBleed,
       insight: personalized.insight,
+      phaseGuide,
+      tips: phaseGuide.cards.map((c) => c.body),
     };
   }
 }

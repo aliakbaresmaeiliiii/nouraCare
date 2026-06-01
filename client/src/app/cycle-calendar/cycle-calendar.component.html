@@ -20,16 +20,29 @@
         (click)="openLogPeriodModal()"
       >
         <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-        Log period
+        {{ 'home.cycleActionLogPeriod' | translate }}
       </ion-button>
     </div>
 
-    <nav class="cc-month-bar" aria-label="Month">
-      <button type="button" class="cc-nav-btn" (click)="prevMonth()" aria-label="Previous month">
+    <nav
+      class="cc-month-bar"
+      [attr.aria-label]="'cycleCalendar.a11y.monthNav' | translate"
+    >
+      <button
+        type="button"
+        class="cc-nav-btn"
+        (click)="prevMonth()"
+        [attr.aria-label]="'cycleCalendar.a11y.prevMonth' | translate"
+      >
         <ion-icon name="chevron-back-outline"></ion-icon>
       </button>
       <h1 class="cc-month-title">{{ monthTitle }}</h1>
-      <button type="button" class="cc-nav-btn" (click)="nextMonth()" aria-label="Next month">
+      <button
+        type="button"
+        class="cc-nav-btn"
+        (click)="nextMonth()"
+        [attr.aria-label]="'cycleCalendar.a11y.nextMonth' | translate"
+      >
         <ion-icon name="chevron-forward-outline"></ion-icon>
       </button>
     </nav>
@@ -37,15 +50,15 @@
     <div class="cc-legend" role="list">
       <span class="cc-legend-pill cc-legend-pill--period" role="listitem">
         <span class="cc-legend-dot cc-legend-dot--period"></span>
-        Period
+        {{ 'cycleCalendar.legend.period' | translate }}
       </span>
       <span class="cc-legend-pill cc-legend-pill--fertile" role="listitem">
         <span class="cc-legend-dot cc-legend-dot--fertile"></span>
-        Fertile Window
+        {{ 'cycleCalendar.legend.fertileWindow' | translate }}
       </span>
       <span class="cc-legend-pill cc-legend-pill--ovulation" role="listitem">
         <span class="cc-legend-dot cc-legend-dot--ovulation"></span>
-        Ovulation
+        {{ 'cycleCalendar.legend.ovulation' | translate }}
       </span>
     </div>
 
@@ -71,7 +84,7 @@
                   [class.cc-cell--fertile]="cell.kind === 'fertile'"
                   [class.cc-cell--ovulation]="cell.kind === 'ovulation'"
                 >
-                  <span class="cc-date-num">{{ cell.dayNum }}</span>
+                  <span class="cc-date-num">{{ cell.dayNum | localNum }}</span>
                 </div>
               }
             }
@@ -83,7 +96,7 @@
     @if (!hasCycleData) {
       <div class="cc-hint">
         <p class="cc-hint-text">
-          Log your last period above, or add cycle details in your profile for predictions.
+          {{ 'cycleCalendar.hint' | translate }}
         </p>
         <ion-button
           fill="outline"
@@ -92,21 +105,25 @@
           (click)="goToProfile()"
         >
           <ion-icon name="person-outline" slot="start"></ion-icon>
-          Go to profile
+          {{ 'cycleCalendar.goToProfile' | translate }}
         </ion-button>
       </div>
     }
 
     <section class="cc-history" aria-labelledby="cc-history-heading">
       <div class="cc-history-header">
-        <h2 id="cc-history-heading" class="cc-history-title">Tracking history</h2>
-        <p class="cc-history-sub">Recent period starts you saved in this app</p>
+        <h2 id="cc-history-heading" class="cc-history-title">
+          {{ 'cycleCalendar.historyTitle' | translate }}
+        </h2>
+        <p class="cc-history-sub">
+          {{ 'cycleCalendar.historySub' | translate }}
+        </p>
       </div>
 
       @if (historyEntries.length === 0) {
         <div class="cc-history-empty">
           <ion-icon name="calendar-outline" class="cc-history-empty-icon"></ion-icon>
-          <p>No entries yet. Tap <strong>Log period</strong> when your period begins.</p>
+          <p>{{ 'cycleCalendar.historyEmpty' | translate }}</p>
         </div>
       } @else {
         <ul class="cc-history-list">
@@ -114,8 +131,8 @@
             <li class="cc-history-item">
               <div class="cc-history-dot" aria-hidden="true"></div>
               <div class="cc-history-body">
-                <p class="cc-history-main">Period started {{ formatHistoryDay(entry.lastPeriodStartDate) }}</p>
-                <p class="cc-history-meta">Logged {{ formatRecordedAt(entry.recordedAt) }}</p>
+                <p class="cc-history-main">{{ formatHistoryMain(entry) }}</p>
+                <p class="cc-history-meta">{{ formatHistoryMeta(entry) }}</p>
               </div>
             </li>
           }

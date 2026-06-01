@@ -1,0 +1,175 @@
+<ion-header class="fertility-sheet-header ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button
+        fill="clear"
+        class="fertility-sheet-close"
+        (click)="dismiss()"
+        [attr.aria-label]="'fertilitySheet.closeAria' | translate"
+      >
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ "fertilitySheet.title" | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="fertility-sheet-content">
+  <div class="fertility-sheet-handle" aria-hidden="true"></div>
+
+  @if (!hasData) {
+    <section class="fertility-empty">
+      <div class="fertility-empty__icon" aria-hidden="true">
+        <ion-icon name="calendar-outline"></ion-icon>
+      </div>
+      <h2 class="fertility-empty__title">
+        {{ "fertilitySheet.noDataTitle" | translate }}
+      </h2>
+      <p class="fertility-empty__body">
+        {{ "fertilitySheet.noDataBody" | translate }}
+      </p>
+      <ion-button expand="block" class="fertility-empty__cta" (click)="logPeriod()">
+        <ion-icon name="create-outline" slot="start"></ion-icon>
+        {{ "fertilitySheet.logPeriodCta" | translate }}
+      </ion-button>
+    </section>
+  } @else if (overview) {
+    <section
+      class="fertility-hero fertility-hero--{{ phaseTone(overview.phase) }}"
+      [attr.aria-label]="'fertilitySheet.heroAria' | translate"
+    >
+      <div class="fertility-hero__icon" aria-hidden="true">
+        <ion-icon [name]="phaseIcon(overview.phase)"></ion-icon>
+      </div>
+      <p class="fertility-hero__eyebrow">
+        {{ cycleDayLabel() }}
+      </p>
+      <h2 class="fertility-hero__title">
+        {{ "fertilitySheet.phase." + overview.phase + ".title" | translate }}
+      </h2>
+      <p class="fertility-hero__body">
+        {{ "fertilitySheet.phase." + overview.phase + ".body" | translate }}
+      </p>
+    </section>
+
+    <section class="fertility-chart" [attr.aria-label]="'fertilitySheet.timelineAria' | translate">
+      <h3 class="fertility-chart__title">{{ "fertilitySheet.chartTitle" | translate }}</h3>
+      <div class="fertility-chart__canvas-wrap">
+        <canvas #fertilityChartCanvas role="img"></canvas>
+      </div>
+      <div class="fertility-chart__legend">
+        @for (phase of legendPhases; track phase) {
+          <span class="fertility-chart__legend-item">
+            <span
+              class="fertility-chart__legend-dot"
+              [style.background]="legendColor(phase)"
+            ></span>
+            {{ legendLabel(phase) }}
+          </span>
+        }
+      </div>
+    </section>
+
+    <section class="fertility-dates">
+      <article class="fertility-date-card fertility-date-card--window">
+        <span class="fertility-date-card__icon" aria-hidden="true">
+          <ion-icon name="sparkles-outline"></ion-icon>
+        </span>
+        <div class="fertility-date-card__body">
+          <h3>{{ "fertilitySheet.fertileWindow" | translate }}</h3>
+          <p class="fertility-date-card__value">
+            {{ formatRange(overview.fertileWindowStart, overview.fertileWindowEnd) }}
+          </p>
+          <span class="fertility-date-card__hint">{{
+            "fertilitySheet.fertileWindowHint" | translate
+          }}</span>
+        </div>
+      </article>
+
+      <article class="fertility-date-card fertility-date-card--ovulation">
+        <span class="fertility-date-card__icon" aria-hidden="true">
+          <ion-icon name="egg-outline"></ion-icon>
+        </span>
+        <div class="fertility-date-card__body">
+          <h3>{{ "cycleChart.fertility.ovulation" | translate }}</h3>
+          <p class="fertility-date-card__value">
+            {{ formatSingle(overview.ovulationDate) }}
+          </p>
+          <span class="fertility-date-card__hint">{{
+            "fertilitySheet.ovulationHint" | translate
+          }}</span>
+        </div>
+      </article>
+
+      <article class="fertility-date-card fertility-date-card--period">
+        <span class="fertility-date-card__icon" aria-hidden="true">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </span>
+        <div class="fertility-date-card__body">
+          <h3>{{ "fertilitySheet.nextPeriod" | translate }}</h3>
+          <p class="fertility-date-card__value">
+            {{ formatSingle(overview.nextPeriodDate) }}
+          </p>
+          <span class="fertility-date-card__hint">{{
+            "fertilitySheet.nextPeriodHint" | translate
+          }}</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="fertility-days" [attr.aria-label]="'fertilitySheet.bestDaysAria' | translate">
+      <div class="fertility-days__header">
+        <h3>{{ "fertilitySheet.bestDaysTitle" | translate }}</h3>
+        <p>{{ "fertilitySheet.bestDaysSubtitle" | translate }}</p>
+      </div>
+      <div class="fertility-days__grid">
+        @for (day of overview.fertileDays; track day.formatted) {
+          <div
+            class="fertility-day-chip"
+            [class.fertility-day-chip--peak]="day.isPeak"
+            [class.fertility-day-chip--today]="day.isToday"
+            [class.fertility-day-chip--past]="day.isPast"
+          >
+            <span class="fertility-day-chip__date">{{ day.formatted }}</span>
+            @if (day.isPeak) {
+              <span class="fertility-day-chip__badge">{{
+                "fertilitySheet.peak" | translate
+              }}</span>
+            } @else {
+              <span class="fertility-day-chip__badge fertility-day-chip__badge--high">{{
+                "fertilitySheet.high" | translate
+              }}</span>
+            }
+            @if (day.isToday) {
+              <span class="fertility-day-chip__today">{{
+                "home.day.today" | translate
+              }}</span>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <p class="fertility-disclaimer">
+      <ion-icon name="information-circle-outline" aria-hidden="true"></ion-icon>
+      {{ "fertilitySheet.disclaimer" | translate }}
+    </p>
+  }
+</ion-content>
+
+@if (hasData) {
+  <ion-footer class="ion-no-border">
+    <ion-toolbar>
+      <div class="fertility-sheet-actions">
+        <ion-button expand="block" (click)="trackSymptoms()">
+          <ion-icon name="medical-outline" slot="start"></ion-icon>
+          {{ "fertilitySheet.trackSymptoms" | translate }}
+        </ion-button>
+        <ion-button expand="block" fill="outline" (click)="setReminder()">
+          <ion-icon name="notifications-outline" slot="start"></ion-icon>
+          {{ "fertilitySheet.setReminder" | translate }}
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

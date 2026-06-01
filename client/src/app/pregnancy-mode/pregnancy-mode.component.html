@@ -14,7 +14,7 @@
     <ion-accordion value="gestational-age" class="pm-accordion">
       <div class="pm-row" slot="header">
         <span class="pm-label">Gestational age</span>
-        <span class="pm-value">{{ gestationalAge }}</span>
+        <span class="pm-value">{{ gestationalAge | localNum }}</span>
       </div>
       <div class="pm-accordion-content pm-accordion-content--gestational" slot="content">
         <div class="pm-custom-picker">
@@ -37,7 +37,7 @@
                 [disabled]="week === null"
                 (click)="week !== null && selectWeek(week)"
               >
-                {{ week ?? '' }}
+                {{ (week ?? '') | localNum }}
               </button>
             }
           </div>
@@ -59,7 +59,7 @@
                 [disabled]="day === null"
                 (click)="day !== null && selectDay(day)"
               >
-                {{ day ?? '' }}
+                {{ (day ?? '') | localNum }}
               </button>
             }
           </div>
@@ -70,7 +70,7 @@
     <ion-accordion value="due-date" class="pm-accordion">
       <div class="pm-row" slot="header">
         <span class="pm-label">Due date</span>
-        <span class="pm-value">{{ dueDate }}</span>
+        <span class="pm-value">{{ dueDate | localNum }}</span>
       </div>
       <div class="pm-accordion-content" slot="content">
         <ion-datetime
@@ -88,7 +88,7 @@
     <ion-accordion value="multiple-babies" class="pm-accordion">
       <div class="pm-row" slot="header">
         <span class="pm-label">Are you having more than one baby?</span>
-        <span class="pm-value">{{ multipleBabies }}</span>
+        <span class="pm-value">{{ multipleBabies | localNum }}</span>
       </div>
       <div class="pm-accordion-content" slot="content">
         <ion-picker

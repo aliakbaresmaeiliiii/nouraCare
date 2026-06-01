@@ -22,6 +22,7 @@ import { TrackDataService } from '../shared/services/track-data.service';
 import { SymptomsDataService } from './services/symptoms-data.service';
 import { SymptomsUIService } from './services/symptoms-ui.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { TranslationService } from '../shared/services/translation.service';
 
 @Component({
   selector: 'app-symptoms-tracker',
@@ -43,6 +44,7 @@ export class SymptomsTrackerComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private symptomsDataService = inject(SymptomsDataService);
   private symptomsUIService = inject(SymptomsUIService);
+  private translation = inject(TranslationService);
   selectedDate: string = this.symptomsUIService.getLocalDateString();
 
   maxDate: string = new Date().toISOString();
@@ -133,7 +135,7 @@ export class SymptomsTrackerComponent implements OnInit {
         );
         if (hasOppositeAlready) {
           void this.showToast(
-            'Please select either a positive or negative emotion (example: not both “Happy” and “Sad”).',
+            this.tr('symptomsTracker.toast.valenceConflict'),
             'warning',
             { duration: 3000 },
           );
@@ -168,18 +170,67 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   getPregnancyProgress(): string {
-    // Calculate pregnancy progress based on stored data
     const lastPeriod = localStorage.getItem('lastPeriodDate');
+    let weeks = 2;
+    let days = 1;
     if (lastPeriod) {
       const lastPeriodDate = new Date(lastPeriod);
       const today = new Date();
       const diffTime = Math.abs(today.getTime() - lastPeriodDate.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const weeks = Math.floor(diffDays / 7);
-      const days = diffDays % 7;
-      return `${weeks} weeks, ${days} day${days !== 1 ? 's' : ''}`;
+      weeks = Math.floor(diffDays / 7);
+      days = diffDays % 7;
     }
-    return '2 weeks, 1 day'; // Default fallback
+    const dayLabel = this.tr(
+      days === 1 ? 'symptomsTracker.daySingular' : 'symptomsTracker.dayPlural',
+    );
+    return this.translation.translateParams('symptomsTracker.pregnancyProgress', {
+      weeks,
+      days,
+      dayLabel,
+    });
+  }
+
+  symptomLabel(id: string): string {
+    return this.symptomsUIService.symptomLabel(id);
+  }
+
+  getDayProgressLabel(): string {
+    return this.translation.translateParams('symptomsTracker.dayProgress', {
+      percent: this.getDayProgress(),
+    });
+  }
+
+  getSelectedCountLabel(count: number): string {
+    return this.translation.translateParams('symptomsTracker.selectedCount', {
+      count,
+    });
+  }
+
+  getSymptomsCountLabel(count: number): string {
+    return this.translation.translateParams('symptomsTracker.symptomsCount', {
+      count,
+    });
+  }
+
+  getSaveButtonLabel(): string {
+    const action = this.tr(
+      this.hasDataForDate ? 'symptomsTracker.update' : 'symptomsTracker.save',
+    );
+    return this.translation.translateParams('symptomsTracker.saveButton', {
+      action,
+      count: this.getTotalSelections(),
+    });
+  }
+
+  getReadyToSaveMessage(): string {
+    return this.translation.translateParams('symptomsTracker.readyToSave', {
+      date: this.getFormattedDate(),
+    });
+  }
+
+  private tr(key: string): string {
+    return this.translation.translate(key);
   }
 
   goBack(): void {
@@ -196,7 +247,10 @@ export class SymptomsTrackerComponent implements OnInit {
       error: (error) => {
         console.error('Error loading existing data:', error);
         this.showToast(
-          `Failed to load existing data: ${error.message}`,
+          this.translation.translateParams(
+            'symptomsTracker.toast.loadFailed',
+            { message: error.message ?? '' },
+          ),
           'danger',
           { duration: 3000 },
         );
@@ -400,39 +454,43 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   async updateSymptomSeverity(symptom: SymptomData) {
+    const symptomName = this.symptomLabel(symptom.id);
     const alert = await this.alertController.create({
-      header: 'Symptom Severity',
-      message: `How severe is your ${symptom.name.toLowerCase()}?`,
+      header: this.tr('symptomsTracker.alert.severity.header'),
+      message: this.translation.translateParams(
+        'symptomsTracker.alert.severity.message',
+        { symptom: symptomName },
+      ),
       inputs: [
         {
           name: 'severity',
           type: 'radio',
-          label: 'Mild',
+          label: this.tr('symptomsTracker.severity.mild'),
           value: 'mild',
           checked: symptom.severity === 'mild',
         },
         {
           name: 'severity',
           type: 'radio',
-          label: 'Moderate',
+          label: this.tr('symptomsTracker.severity.moderate'),
           value: 'moderate',
           checked: symptom.severity === 'moderate',
         },
         {
           name: 'severity',
           type: 'radio',
-          label: 'Severe',
+          label: this.tr('symptomsTracker.severity.severe'),
           value: 'severe',
           checked: symptom.severity === 'severe',
         },
       ],
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('common.cancel'),
           role: 'cancel',
         },
         {
-          text: 'Update',
+          text: this.tr('symptomsTracker.update'),
           handler: (data) => {
             if (data) {
               symptom.severity = data;
@@ -446,24 +504,28 @@ export class SymptomsTrackerComponent implements OnInit {
   }
 
   async addSymptomNote(symptom: SymptomData) {
+    const symptomName = this.symptomLabel(symptom.id);
     const alert = await this.alertController.create({
-      header: 'Add Note',
-      message: `Add a note about your ${symptom.name.toLowerCase()}:`,
+      header: this.tr('symptomsTracker.alert.note.header'),
+      message: this.translation.translateParams(
+        'symptomsTracker.alert.note.message',
+        { symptom: symptomName },
+      ),
       inputs: [
         {
           name: 'note',
           type: 'textarea',
-          placeholder: 'Describe your symptoms...',
+          placeholder: this.tr('symptomsTracker.alert.note.placeholder'),
           value: symptom.notes || '',
         },
       ],
       buttons: [
         {
-          text: 'Cancel',
+          text: this.tr('common.cancel'),
           role: 'cancel',
         },
         {
-          text: 'Save',
+          text: this.tr('common.save'),
           handler: (data) => {
             if (data.note) {
               symptom.notes = data.note;
@@ -495,10 +557,7 @@ export class SymptomsTrackerComponent implements OnInit {
 
       // Check if any symptoms are selected
       if (!this.hasAnySelection()) {
-        this.showToast(
-          'Please select at least one symptom to track',
-          'warning',
-        );
+        this.showToast(this.tr('symptomsTracker.toast.selectOne'), 'warning');
         return;
       }
 
@@ -512,7 +571,7 @@ export class SymptomsTrackerComponent implements OnInit {
       });
       if (hasConflict) {
         void this.showToast(
-          'Invalid emotion selection. Please avoid mixing positive and negative emotions (example: “Happy” + “Sad”).',
+          this.tr('symptomsTracker.toast.valenceInvalid'),
           'warning',
           { duration: 3000 },
         );
@@ -539,7 +598,7 @@ export class SymptomsTrackerComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error saving symptoms:', error);
-      this.showToast('❌ Failed to save symptoms. Please try again.', 'danger');
+      this.showToast(this.tr('symptomsTracker.toast.failedRetry'), 'danger');
     }
   }
 
@@ -617,7 +676,7 @@ export class SymptomsTrackerComponent implements OnInit {
           });
 
           this.mergeDailyHistoryAndRefresh(selectedSymptoms);
-          void this.showToast('Symptoms saved successfully!', 'success', {
+          void this.showToast(this.tr('symptomsTracker.toast.saved'), 'success', {
             duration: 2500,
           });
           this.router.navigate(['/tabs/home']);
@@ -630,7 +689,8 @@ export class SymptomsTrackerComponent implements OnInit {
             return;
           }
           void this.showToast(
-            this.getApiErrorMessage(error) || 'Failed to save symptoms',
+            this.getApiErrorMessage(error) ||
+              this.tr('symptomsTracker.toast.saveFailed'),
             'danger',
             { duration: 3500 },
           );
@@ -638,7 +698,7 @@ export class SymptomsTrackerComponent implements OnInit {
       });
     } catch (error) {
       console.error('API Error:', error);
-      void this.showToast('Failed to save symptoms', 'danger');
+      void this.showToast(this.tr('symptomsTracker.toast.saveFailed'), 'danger');
       throw error;
     }
   }
@@ -662,15 +722,18 @@ export class SymptomsTrackerComponent implements OnInit {
             });
 
             this.mergeDailyHistoryAndRefresh(selectedSymptoms);
-            void this.showToast('Symptoms updated successfully!', 'success', {
-              duration: 2500,
-            });
+            void this.showToast(
+              this.tr('symptomsTracker.toast.updated'),
+              'success',
+              { duration: 2500 },
+            );
             this.router.navigate(['/tabs/home']);
           },
           error: (error) => {
             console.error('Update API Error:', error);
             void this.showToast(
-              this.getApiErrorMessage(error) || 'Failed to update symptoms',
+              this.getApiErrorMessage(error) ||
+                this.tr('symptomsTracker.toast.updateFailed'),
               'danger',
               { duration: 3500 },
             );
@@ -678,7 +741,10 @@ export class SymptomsTrackerComponent implements OnInit {
         });
     } catch (error) {
       console.error('Update API Error:', error);
-      void this.showToast('Failed to update symptoms', 'danger');
+      void this.showToast(
+        this.tr('symptomsTracker.toast.updateFailed'),
+        'danger',
+      );
       throw error;
     }
   }
@@ -686,7 +752,9 @@ export class SymptomsTrackerComponent implements OnInit {
   async handleExistingDayConflict(date: string) {
     const dateLabel = this.symptomsUIService.getFormattedDate(date);
     await this.showToast(
-      `You already saved symptoms for ${dateLabel}. Use the date arrows to pick another day, or use "Edit this day" in the popup to update that entry.`,
+      this.translation.translateParams('symptomsTracker.toast.alreadySaved', {
+        date: dateLabel,
+      }),
       'warning',
       { duration: 6000 },
     );
@@ -699,7 +767,7 @@ export class SymptomsTrackerComponent implements OnInit {
             void this.showExistingDayAlert(existingData[0], date);
           } else {
             void this.showToast(
-              'This day is already logged. Try a different date.',
+              this.tr('symptomsTracker.toast.dayLogged'),
               'warning',
               { duration: 4500 },
             );
@@ -707,7 +775,7 @@ export class SymptomsTrackerComponent implements OnInit {
         },
         error: () => {
           void this.showToast(
-            'This day is already logged. Try a different date or try again later.',
+            this.tr('symptomsTracker.toast.dayLoggedRetry'),
             'warning',
             { duration: 4500 },
           );
@@ -718,18 +786,21 @@ export class SymptomsTrackerComponent implements OnInit {
   async showExistingDayAlert(existingData: any, date: string) {
     const dateLabel = this.symptomsUIService.getFormattedDate(date);
     const alert = await this.alertController.create({
-      header: 'Already saved for this day',
-      message: `You already have an entry for ${dateLabel}. You can load it to edit, or cancel and choose another date.`,
+      header: this.tr('symptomsTracker.alert.existingDay.header'),
+      message: this.translation.translateParams(
+        'symptomsTracker.alert.existingDay.message',
+        { date: dateLabel },
+      ),
       buttons: [
         {
-          text: 'Edit this day',
+          text: this.tr('symptomsTracker.alert.existingDay.edit'),
           handler: () => {
             this.loadExistingDataFromAPI(existingData);
             this.isUpdateMode = true;
           },
         },
         {
-          text: 'Cancel',
+          text: this.tr('common.cancel'),
           role: 'cancel',
         },
       ],
@@ -760,7 +831,12 @@ export class SymptomsTrackerComponent implements OnInit {
       notes: this.notes,
     });
 
-    this.showToast(`Data loaded for ${this.getFormattedDate()}`, 'success');
+    this.showToast(
+      this.translation.translateParams('symptomsTracker.toast.dataLoaded', {
+        date: this.getFormattedDate(),
+      }),
+      'success',
+    );
     this.cdr.detectChanges();
   }
 
@@ -788,7 +864,12 @@ export class SymptomsTrackerComponent implements OnInit {
         notes: this.notes,
       });
 
-      this.showToast(`Data loaded for ${this.getFormattedDate()}`, 'success');
+      this.showToast(
+        this.translation.translateParams('symptomsTracker.toast.dataLoaded', {
+          date: this.getFormattedDate(),
+        }),
+        'success',
+      );
       this.cdr.detectChanges();
     }
   }

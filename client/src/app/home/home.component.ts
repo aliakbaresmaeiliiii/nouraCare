@@ -24,6 +24,7 @@ import { catchError, finalize, tap } from 'rxjs/operators';
 import { AuthService } from '../auth/services/auth';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
 import { DailyInsightsStoryModalComponent } from '../shared/components/daily-insights-story-modal/daily-insights-story-modal.component';
+import { FertilityOverviewSheetComponent } from '../shared/components/fertility-overview-sheet/fertility-overview-sheet.component';
 import {
   FertilityResults,
   FertilityResultsModalComponent,
@@ -50,6 +51,8 @@ import { LanguageService } from '../shared/services/language.service';
 import { MessageService } from '../shared/services/message.service';
 import {
   OnboardingService,
+  type DashboardCyclePhaseGuide,
+  type DashboardCyclePhaseGuideCard,
   type InitializeReproductiveStateDto,
 } from '../shared/services/onboarding.service';
 import { PeriodCycleStateService } from '../shared/services/period-cycle-state.service';
@@ -63,6 +66,7 @@ import {
   isoDateOnly,
   normalizeLmpInput,
 } from '../shared/utils/pregnancy-lmp.util';
+import { formatLocalizedNumber } from '../shared/utils/locale-date-format.util';
 import {
   getBabyDevelopmentFactForWeek,
   getBabyFunFactForWeek,
@@ -105,15 +109,21 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   );
   private langChangeSub?: Subscription;
 
-  /** i18n with optional {{var}} replacement */
+  /** i18n with optional {{var}} replacement (Persian digits when language is `fa`). */
   private tr(key: string, vars?: Record<string, string | number>): string {
-    let s = this.translation.translate(key);
     if (vars) {
-      for (const [k, v] of Object.entries(vars)) {
-        s = s.split(`{{${k}}}`).join(String(v));
-      }
+      return this.translation.translateParams(key, vars);
     }
-    return s;
+    return this.translation.translate(key);
+  }
+
+  /** Returns null when the translation key is missing. */
+  private trOrNull(
+    key: string,
+    vars?: Record<string, string | number>,
+  ): string | null {
+    const text = vars ? this.translation.translateParams(key, vars) : this.translation.translate(key);
+    return text === key ? null : text;
   }
 
   private dateLocaleTag(): string {
@@ -201,6 +211,8 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   dashboardOvulationDate: string | null = null;
   dashboardFertileWindow: { start: string; end: string } | null = null;
   dashboardCycleInsight: string | null = null;
+  dashboardPhaseGuide: DashboardCyclePhaseGuide | null = null;
+  dashboardCycleTips: string[] = [];
   private isPromotingOnboardingPregnancy = false;
 
   // Dynamic baby size data - now computed from service
@@ -676,11 +688,15 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.needsPregnancyInput = false;
     this.dashboardPregnancyTips = [];
     this.dashboardPregnancyInsight = null;
+    this.dashboardPhaseGuide = null;
+    this.dashboardCycleTips = [];
     this.dashboardCycleDay = state.dashboardCycleDay ?? null;
     this.dashboardCycleLength = state.dashboardCycleLength ?? null;
     this.dashboardOvulationDate = state.dashboardOvulationIso ?? null;
     this.dashboardFertileWindow = state.dashboardFertileWindow ?? null;
     this.dashboardCycleInsight = state.dashboardCycleInsight ?? null;
+    this.dashboardPhaseGuide = state.dashboardPhaseGuide ?? null;
+    this.dashboardCycleTips = state.dashboardTips ?? [];
     this.dashboardNextPeriodDate = state.dashboardNextPeriodIso
       ? new Date(`${state.dashboardNextPeriodIso}T12:00:00`)
       : null;
@@ -2033,38 +2049,35 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   // Health Tools Methods
   async openFertilityCalculator() {
     try {
-      const calculatorAlert = await this.alertController.create({
-        header: this.tr('home.alert.fertilityCalcHeader'),
-        message: this.tr('home.dialog.fertilityCalcBody'),
-        buttons: [
-          {
-            text: this.tr('home.dialog.openCalculator'),
-            handler: async () => {
-              await this.showToast(
-                this.tr('home.dialog.openingFertilityCalc'),
-                'success'
-              );
-              // Navigate to tools page and trigger fertility calculator
-              this.router.navigate(['/tools'], {
-                queryParams: { openTool: 'fertility' },
-              });
-            },
-          },
-          {
-            text: this.tr('home.common.continue'),
-            handler: async () => {
-              // Show inline fertility calculator
-              await this.showInlineFertilityCalculator();
-            },
-          },
-        ],
+      const modal = await this.modalController.create({
+        component: FertilityOverviewSheetComponent,
+        presentingElement: await this.modalController.getTop(),
+        canDismiss: true,
+        showBackdrop: true,
+        backdropDismiss: true,
+        cssClass: 'fertility-overview-sheet',
       });
 
-      await calculatorAlert.present();
+      await modal.present();
+      const { data } = await modal.onWillDismiss();
+
+      if (!data?.action) return;
+
+      switch (data.action) {
+        case 'trackSymptoms':
+          await this.openSymptomsTracking();
+          break;
+        case 'setReminder':
+          if (data.results) await this.setFertilityReminder(data.results);
+          break;
+        case 'logPeriod':
+          this.openPeriodDatePicker();
+          break;
+      }
     } catch (error) {
       await this.showToast(
         this.tr('home.dialog.fertilityCalcFailed'),
-        'danger'
+        'danger',
       );
     }
   }
@@ -3298,6 +3311,156 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     return this.tr('home.cycleDesc.next');
   }
 
+  getCycleGreetingEyebrow(): string {
+    const h = new Date().getHours();
+    if (h < 12) return this.tr('home.cycleGreetingMorning');
+    if (h < 17) return this.tr('home.cycleGreetingAfternoon');
+    return this.tr('home.cycleGreetingEvening');
+  }
+
+  getCyclePhaseTone():
+    | 'none'
+    | 'period'
+    | 'follicular'
+    | 'fertile'
+    | 'luteal' {
+    if (this.dashboardPhaseGuide?.phase) {
+      return this.dashboardPhaseGuide.phase;
+    }
+    if (this.currentCycleDay <= 0) return 'none';
+    const plen = Math.max(1, this.periodLength || 5);
+    const len = Math.max(1, this.currentCycleLength || 28);
+    const day = this.getCycleDisplayDay();
+    const ovulationDay = Math.max(plen + 1, len - 14);
+    const fertileStart = Math.max(plen + 1, ovulationDay - 5);
+    const fertileEnd = ovulationDay + 1;
+    if (day <= plen) return 'period';
+    if (day >= fertileStart && day <= fertileEnd) return 'fertile';
+    if (day < ovulationDay) return 'follicular';
+    return 'luteal';
+  }
+
+  getCyclePeriodStatValue(): string {
+    if (this.currentCycleDay <= 0) {
+      return '—';
+    }
+    if (this.currentCycleDay <= this.periodLength) {
+      return this.tr('home.cycleStatPeriodDayValue', {
+        day: this.currentCycleDay,
+        total: this.periodLength,
+      });
+    }
+    const days = this.getNextPeriodInDays();
+    if (days === 0) return this.tr('home.ovulation.today');
+    return this.tr('home.cycleStatPeriodInValue', { days });
+  }
+
+  getCyclePeriodStatLabel(): string {
+    if (this.currentCycleDay <= 0) {
+      return this.tr('home.cycleStatPeriod');
+    }
+    if (this.currentCycleDay <= this.periodLength) {
+      return this.tr('home.cycleStatPeriodDayCaption');
+    }
+    return this.tr('home.cycleStatPeriodNext');
+  }
+
+  getCycleDayStatValue(): string {
+    if (this.currentCycleDay <= 0) return '—';
+    return this.tr('home.cycleStatDayOfValue', {
+      day: this.getCycleDisplayDay(),
+      len: Math.max(1, this.currentCycleLength || 28),
+    });
+  }
+
+  getCyclePhaseGuideHeadline(): string {
+    const fromApi = this.dashboardPhaseGuide?.headline?.trim();
+    if (fromApi) {
+      return fromApi;
+    }
+    return this.tr(`home.cycleGuide.${this.getCyclePhaseTone()}.headline`);
+  }
+
+  getCyclePhaseGuideSubtitle(): string {
+    const fromApi = this.dashboardPhaseGuide?.subtitle?.trim();
+    if (fromApi) {
+      return fromApi;
+    }
+    const tone = this.getCyclePhaseTone();
+    if (tone === 'luteal' && this.currentCycleDay > 0) {
+      return this.tr('home.cycleGuide.luteal.subtitleDynamic', {
+        days: this.getNextPeriodInDays(),
+      });
+    }
+    if (tone === 'fertile' && this.currentCycleDay > 0) {
+      return this.tr('home.cycleGuide.fertile.subtitleDynamic', {
+        summary: this.getOvulationSummary(),
+      });
+    }
+    return this.tr(`home.cycleGuide.${tone}.subtitle`);
+  }
+
+  getCyclePhaseGuideCards(): DashboardCyclePhaseGuideCard[] {
+    const fromApi = this.dashboardPhaseGuide?.cards;
+    if (fromApi?.length) {
+      return fromApi;
+    }
+    return this.buildFallbackCycleGuideCards();
+  }
+
+  private buildFallbackCycleGuideCards(): DashboardCyclePhaseGuideCard[] {
+    const tone = this.getCyclePhaseTone();
+    const p = `home.cycleGuide.${tone}`;
+    return [
+      {
+        id: `${tone}-1`,
+        ionIcon: 'sparkles-outline',
+        accentHex: '#db2777',
+        title: this.tr(`${p}.card1Title`),
+        body: this.tr(`${p}.card1Body`),
+        action: tone === 'fertile' ? 'fertility' : 'symptoms',
+      },
+      {
+        id: `${tone}-2`,
+        ionIcon: 'book-outline',
+        accentHex: '#0d9488',
+        title: this.tr(`${p}.card2Title`),
+        body: this.tr(`${p}.card2Body`),
+        action: 'insights',
+      },
+      {
+        id: `${tone}-3`,
+        ionIcon: 'calendar-outline',
+        accentHex: '#9333ea',
+        title: this.tr(`${p}.card3Title`),
+        body: this.tr(`${p}.card3Body`),
+        action: tone === 'none' ? 'period' : 'calendar',
+      },
+    ];
+  }
+
+  onCycleGuideCardAction(
+    action: 'insights' | 'fertility' | 'symptoms' | 'calendar' | 'period',
+  ): void {
+    switch (action) {
+      case 'insights':
+        this.openCycleInsightsFromHome();
+        break;
+      case 'fertility':
+        void this.openFertilityCalculator();
+        break;
+      case 'symptoms':
+        void this.openSymptomsTracking();
+        break;
+      case 'calendar':
+        this.openCycleCalendar();
+        break;
+      case 'period':
+        this.openPeriodDatePicker();
+        break;
+    }
+  }
+
   updateCycleDay() {
     if (!this.periodStartDate) {
       this.currentCycleDay = 0;
@@ -4096,13 +4259,251 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     this.router.navigate(['/tabs/insights']);
   }
 
-  getCycleInsightsHeading(): string {
-    return this.tr('home.dailyInsights.headingToday');
+  /** Cycle home: phase + mood aware horizontal story strip. */
+  getCycleDailyInsightStripTopics(): DailyInsightTopic[] {
+    const fromApi = this.buildPhaseGuideStripTopics();
+    if (fromApi.length >= 2) {
+      return [
+        this.buildSymptomLogInsightTopic('cycle'),
+        ...this.orderCycleStripByMood(fromApi),
+        this.buildCycleMoodPersonalizedTopic(),
+      ];
+    }
+    return this.buildFallbackCycleStripTopics();
   }
 
-  /** Cycle home: same horizontal story strip as pregnancy “My daily insights”. */
-  getCycleDailyInsightStripTopics(): DailyInsightTopic[] {
+  /** Icons on the stacked summary card — reflect mood + cycle phase. */
+  getCycleSummaryStripIcons(): { mood: string; phase: string } {
+    return {
+      mood: this.moodStripMeta(this.getLatestMoodKey()).icon,
+      phase: this.getCyclePhaseStripIcon(),
+    };
+  }
+
+  /** Personalized wide-card teaser bound to latest logged mood. */
+  getCyclePersonalizedStripTeaser(): string {
+    const moodLabel = this.getLatestMoodLabel();
+    if (!moodLabel) {
+      return this.tr('home.personalizedCycleTeaser');
+    }
+    const group = this.moodStripMeta(this.getLatestMoodKey()).group;
+    return this.tr(`home.cycleStrip.moodGroup.${group}.personalTeaser`, {
+      mood: moodLabel,
+    });
+  }
+
+  getCycleInsightsHeading(): string {
+    const moodLabel = this.getLatestMoodLabel();
+    if (moodLabel) {
+      return this.tr('home.cycleInsights.headingWithMood', { mood: moodLabel });
+    }
+    return this.getCyclePhaseGuideHeadline();
+  }
+
+  private getLatestMoodKey(): string | null {
+    const last = this.recentSymptomsDays[0];
+    if (!last) {
+      return null;
+    }
+    const raw = last?.mood;
+    if (typeof raw === 'string' && raw.trim()) {
+      return raw.trim().replace(/\s+/g, '_').toLowerCase();
+    }
+    if (raw && typeof raw === 'object') {
+      const id = String(raw['id'] ?? '').trim();
+      if (id) {
+        return id.replace(/\s+/g, '_').toLowerCase();
+      }
+    }
+    return null;
+  }
+
+  private getLatestMoodLabel(): string {
+    const last = this.recentSymptomsDays[0];
+    if (!last) {
+      return '';
+    }
+    return this.describeSymptomLogRow(last).moodText.trim();
+  }
+
+  private moodStripMeta(moodKey: string | null): {
+    icon: string;
+    accent: string;
+    group: 'upbeat' | 'low' | 'anxious' | 'irritable' | 'default';
+  } {
+    const k = (moodKey ?? '').toLowerCase();
+    const low = [
+      'low_energy',
+      'tired',
+      'apathetic',
+      'depressed',
+      'sad',
+      'fatigue',
+    ];
+    const anxious = [
+      'anxious',
+      'mood_swings',
+      'obsessive',
+      'confused',
+      'guilty',
+      'self_critical',
+    ];
+    const upbeat = ['happy', 'energetic', 'frisky', 'calm'];
+    if (low.includes(k)) {
+      return { icon: 'moon-outline', accent: '#9333ea', group: 'low' };
+    }
+    if (anxious.includes(k)) {
+      return { icon: 'heart-dislike-outline', accent: '#f97316', group: 'anxious' };
+    }
+    if (upbeat.includes(k)) {
+      return { icon: 'happy-outline', accent: '#db2777', group: 'upbeat' };
+    }
+    if (k === 'irritated') {
+      return { icon: 'flash-outline', accent: '#e11d48', group: 'irritable' };
+    }
+    return { icon: 'heart-outline', accent: '#db2777', group: 'default' };
+  }
+
+  private getCyclePhaseStripIcon(): string {
+    const icons: Record<string, string> = {
+      period: 'water-outline',
+      follicular: 'walk-outline',
+      fertile: 'heart-outline',
+      luteal: 'moon-outline',
+      none: 'calendar-outline',
+    };
+    return icons[this.getCyclePhaseTone()] ?? 'pulse-outline';
+  }
+
+  /** Map dashboard phase-guide cards into strip topics (API-driven). */
+  private buildPhaseGuideStripTopics(): DailyInsightTopic[] {
+    const cards = this.dashboardPhaseGuide?.cards;
+    if (!cards?.length) {
+      return [];
+    }
+    const tips = this.dashboardCycleTips;
+    return cards.slice(0, 3).map((card, index) => ({
+      id: `cycle-pg-${card.id}`,
+      categoryLabel: card.title,
+      teaser: this.truncateInsightTeaser(card.body),
+      accentHex: card.accentHex,
+      ionIcon: card.ionIcon,
+      slides: [
+        { title: card.title, body: card.body },
+        {
+          title: this.tr('home.strip.tryThisToday'),
+          body: tips[index]?.trim() || card.body,
+        },
+      ],
+    }));
+  }
+
+  private orderCycleStripByMood(
+    topics: DailyInsightTopic[],
+  ): DailyInsightTopic[] {
+    const group = this.moodStripMeta(this.getLatestMoodKey()).group;
+    if (group !== 'low' && group !== 'anxious') {
+      return topics;
+    }
+    const restLike = topics.find((t) =>
+      /rest|moon|comfort|calm|pms|mood/i.test(`${t.id} ${t.categoryLabel}`),
+    );
+    if (!restLike) {
+      return topics;
+    }
+    return [restLike, ...topics.filter((t) => t.id !== restLike.id)];
+  }
+
+  private buildCycleMoodPersonalizedTopic(): DailyInsightTopic {
     const name = this.getCycleWelcomeName();
+    const moodKey = this.getLatestMoodKey();
+    const moodLabel = this.getLatestMoodLabel();
+    const phase = this.getCyclePhaseTone();
+    const phaseLabel = this.tr(`home.cyclePhase.${phase}`);
+    const phaseAdvice =
+      this.dashboardPhaseGuide?.subtitle?.trim() ||
+      this.getCyclePhaseGuideSubtitle();
+    const meta = this.moodStripMeta(moodKey);
+    const day = this.getCycleDisplayDay();
+    const len = Math.max(1, this.currentCycleLength || 28);
+    const plen = Math.max(1, this.periodLength || 5);
+    const describe = this.getCycleDayDescription();
+
+    if (moodLabel) {
+      const g = meta.group;
+      return {
+        id: 'cycle-mood-for-you',
+        categoryLabel: this.tr(`home.cycleStrip.moodGroup.${g}.category`, {
+          mood: moodLabel,
+        }),
+        teaser: this.tr(`home.cycleStrip.moodGroup.${g}.teaser`, {
+          name,
+          mood: moodLabel,
+        }),
+        accentHex: meta.accent,
+        ionIcon: meta.icon,
+        personalized: true,
+        slides: [
+          {
+            title: this.tr(`home.cycleStrip.moodGroup.${g}.slide1Title`, {
+              name,
+              mood: moodLabel,
+            }),
+            body: this.tr(`home.cycleStrip.moodGroup.${g}.slide1Body`, {
+              mood: moodLabel,
+              phase: phaseLabel,
+              advice: phaseAdvice,
+              day,
+              len,
+            }),
+          },
+          {
+            title: this.tr(`home.cycleStrip.moodGroup.${g}.slide2Title`),
+            body: this.tr(`home.cycleStrip.moodGroup.${g}.slide2Body`, {
+              mood: moodLabel,
+              describe,
+            }),
+          },
+          {
+            title: this.tr('home.cycleStrip.forYouSlide3Title'),
+            body: this.tr('home.cycleStrip.forYouSlide3Body'),
+          },
+        ],
+      };
+    }
+
+    return {
+      id: 'cycle-for-you',
+      categoryLabel: this.tr('home.strip.categoryForYou'),
+      teaser: this.tr('home.cycleStrip.forYouTeaser', { name }),
+      accentHex: '#db2777',
+      ionIcon: 'heart-outline',
+      personalized: true,
+      slides: [
+        {
+          title: this.tr('home.cycleStrip.forYouSlide1Title', { name }),
+          body: this.tr('home.cycleStrip.forYouSlide1Body', {
+            day,
+            len,
+            plen,
+            p: plen === 1 ? '' : 's',
+            describe,
+          }),
+        },
+        {
+          title: this.tr('home.cycleStrip.forYouSlide2Title'),
+          body: phaseAdvice || this.tr('home.cycleStrip.forYouSlide2Body'),
+        },
+        {
+          title: this.tr('home.cycleStrip.forYouSlide3Title'),
+          body: this.tr('home.cycleStrip.forYouSlide3Body'),
+        },
+      ],
+    };
+  }
+
+  private buildFallbackCycleStripTopics(): DailyInsightTopic[] {
+    const phase = this.getCyclePhaseTone();
     const day = this.getCycleDisplayDay();
     const len = Math.max(1, this.currentCycleLength || 28);
     const plen = Math.max(1, this.periodLength || 5);
@@ -4110,22 +4511,28 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     const status = this.getCycleDayStatus();
     const describe = this.getCycleDayDescription();
     const ovulationDay = Math.max(1, len - 14);
+    const tipA = this.dashboardCycleTips[0]?.trim();
+    const tipB = this.dashboardCycleTips[1]?.trim();
 
-    const hydrationBody = this.tr('home.cycleStrip.hydrationBody');
+    const hydrationBody = tipA || this.tr('home.cycleStrip.hydrationBody');
 
-    const restBody = this.tr('home.cycleStrip.restBody');
+    const restBody = tipB || this.tr('home.cycleStrip.restBody');
 
-    return [
+    const topics: DailyInsightTopic[] = [
       this.buildSymptomLogInsightTopic('cycle'),
       {
-        id: 'cycle-hydration',
+        id: `cycle-hydration-${phase}`,
         categoryLabel: this.tr('home.strip.categoryHydration'),
-        teaser: this.tr('home.cycleStrip.hydrationTeaser'),
+        teaser:
+          this.trOrNull(`home.cycleStrip.${phase}.hydrationTeaser`) ||
+          this.tr('home.cycleStrip.hydrationTeaser'),
         accentHex: '#0284c7',
         ionIcon: 'water-outline',
         slides: [
           {
-            title: this.tr('home.cycleStrip.hydrationSlide1Title'),
+            title:
+              this.trOrNull(`home.cycleStrip.${phase}.hydrationSlide1Title`) ||
+              this.tr('home.cycleStrip.hydrationSlide1Title'),
             body: hydrationBody,
           },
           {
@@ -4135,13 +4542,20 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
         ],
       },
       {
-        id: 'cycle-rest',
+        id: `cycle-rest-${phase}`,
         categoryLabel: this.tr('home.strip.categoryRest'),
-        teaser: this.tr('home.cycleStrip.restTeaser'),
+        teaser:
+          this.trOrNull(`home.cycleStrip.${phase}.restTeaser`) ||
+          this.tr('home.cycleStrip.restTeaser'),
         accentHex: '#9333ea',
         ionIcon: 'moon-outline',
         slides: [
-          { title: this.tr('home.cycleStrip.restSlide1Title'), body: restBody },
+          {
+            title:
+              this.trOrNull(`home.cycleStrip.${phase}.restSlide1Title`) ||
+              this.tr('home.cycleStrip.restSlide1Title'),
+            body: restBody,
+          },
           {
             title: this.tr('home.pregInsight.restWindTitle'),
             body: this.tr('home.cycleStrip.restSlide2Body'),
@@ -4174,34 +4588,12 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
           },
         ],
       },
-      {
-        id: 'cycle-for-you',
-        categoryLabel: this.tr('home.strip.categoryForYou'),
-        teaser: this.tr('home.cycleStrip.forYouTeaser', { name }),
-        accentHex: '#db2777',
-        ionIcon: 'heart-outline',
-        personalized: true,
-        slides: [
-          {
-            title: this.tr('home.cycleStrip.forYouSlide1Title', { name }),
-            body: this.tr('home.cycleStrip.forYouSlide1Body', {
-              day,
-              len,
-              plen,
-              p: plen === 1 ? '' : 's',
-              describe,
-            }),
-          },
-          {
-            title: this.tr('home.cycleStrip.forYouSlide2Title'),
-            body: this.tr('home.cycleStrip.forYouSlide2Body'),
-          },
-          {
-            title: this.tr('home.cycleStrip.forYouSlide3Title'),
-            body: this.tr('home.cycleStrip.forYouSlide3Body'),
-          },
-        ],
-      },
+      this.buildCycleMoodPersonalizedTopic(),
+    ];
+    return [
+      topics[0],
+      ...this.orderCycleStripByMood(topics.slice(1, -1)),
+      topics[topics.length - 1],
     ];
   }
 
@@ -4215,11 +4607,13 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
         : this.tr('home.cycleSummary.teaserEmpty');
 
     const last = this.recentSymptomsDays[0];
-    let snapshotBody = this.tr('home.cycleSummary.bodyBase', {
-      day,
-      len,
-      status: this.getCycleDayStatus(),
-    });
+    let snapshotBody =
+      this.dashboardCycleInsight?.trim() ||
+      this.tr('home.cycleSummary.bodyBase', {
+        day,
+        len,
+        status: this.getCycleDayStatus(),
+      });
     if (last) {
       const dk = this.isoDateFromTrackRow(last.date);
       const { moodText, symptomNames } = this.describeSymptomLogRow(last);
@@ -4265,6 +4659,12 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     });
   }
 
+  getWeekDetailActionTitle(): string {
+    return this.tr('home.weekDetailActionTitle', {
+      week: this.getPregnancyDisplayWeek(),
+    });
+  }
+
   getPregnancyInsightsHeading(): string {
     if (!this.pregnancyCalendarViewDate) {
       return this.tr('home.dailyInsights.headingToday');
@@ -4299,19 +4699,6 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
       return tip;
     }
     return pregnancyDashboardInsightFromWeek(displayWeek);
-  }
-
-  /** Tips list under the cards: omit the first tip when it is already shown on the first card. */
-  getPregnancyTipsForDetailBlock(): string[] {
-    if (this.pregnancyCalendarViewDate) {
-      return this.dashboardPregnancyTips;
-    }
-    const first = this.dashboardPregnancyTips[0]?.trim();
-    const shown = this.getPregnancyPhaseOrInsightLine().trim();
-    if (first && shown && first === shown) {
-      return this.dashboardPregnancyTips.slice(1);
-    }
-    return this.dashboardPregnancyTips;
   }
 
   getPregnancyBabyEmoji(): string {

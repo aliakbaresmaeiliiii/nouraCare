@@ -13,12 +13,12 @@
     <div class="results-header">
       <div class="pregnancy-icon">
         <div class="week-badge">
-          <span class="week-number">{{ results.pregnancyWeek }}</span>
+          <span class="week-number">{{ results.pregnancyWeek | localNum }}</span>
           <span class="week-label">weeks</span>
         </div>
       </div>
       <h2>{{ getTrimesterName() }}</h2>
-      <p>You're {{ results.progressPercentage }}% through your pregnancy journey!</p>
+      <p>You're {{ results.progressPercentage | localNum }}% through your pregnancy journey!</p>
     </div>
 
     <!-- Progress Bar -->
@@ -27,7 +27,7 @@
         <div class="progress-bar">
           <div class="progress-fill" [style.width.%]="results.progressPercentage"></div>
           <div class="progress-marker" [style.left.%]="results.progressPercentage">
-            <span>{{ results.pregnancyWeek }}w</span>
+            <span>{{ results.pregnancyWeek | localNum }}w</span>
           </div>
         </div>
         <div class="progress-labels">
@@ -58,7 +58,7 @@
         </div>
         <div class="info-content">
           <h4>Due Date</h4>
-          <p class="info-value">{{ results.dueDate }}</p>
+          <p class="info-value">{{ results.dueDate | localNum }}</p>
           <span class="info-subtitle">Estimated delivery</span>
         </div>
       </div>
@@ -69,7 +69,7 @@
         </div>
         <div class="info-content">
           <h4>Weeks Left</h4>
-          <p class="info-value">{{ results.remainingWeeks }}</p>
+          <p class="info-value">{{ results.remainingWeeks | localNum }}</p>
           <span class="info-subtitle">Until due date</span>
         </div>
       </div>
@@ -80,7 +80,7 @@
         </div>
         <div class="info-content">
           <h4>Trimester</h4>
-          <p class="info-value">{{ results.trimester }}</p>
+          <p class="info-value">{{ results.trimester | localNum }}</p>
           <span class="info-subtitle">of 3</span>
         </div>
       </div>
@@ -91,7 +91,7 @@
         </div>
         <div class="info-content">
           <h4>Days Since</h4>
-          <p class="info-value">{{ results.daysSinceConception }}</p>
+          <p class="info-value">{{ results.daysSinceConception | localNum }}</p>
           <span class="info-subtitle">Conception</span>
         </div>
       </div>
@@ -143,7 +143,7 @@
       <div class="tip-card">
         <ion-icon name="medical" color="tertiary"></ion-icon>
         <div class="tip-content">
-          <h4>💡 Health Tips for Week {{ results.pregnancyWeek }}</h4>
+          <h4>💡 Health Tips for Week {{ results.pregnancyWeek | localNum }}</h4>
           <ul>
             <li>Take prenatal vitamins daily</li>
             <li>Stay hydrated - aim for 8-10 glasses of water</li>

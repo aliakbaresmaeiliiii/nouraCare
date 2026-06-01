@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
+import { TranslationService } from '../../services/translation.service';
 
 export interface FertilityResults {
   fertileDays: string[];
@@ -20,7 +21,14 @@ export interface FertilityResults {
 export class FertilityResultsModalComponent {
   @Input() results!: FertilityResults;
 
-  constructor(private modalController: ModalController) {}
+  private modalController = inject(ModalController);
+  private translation = inject(TranslationService);
+
+  cycleLengthLabel(): string {
+    return this.translation.translateParams('fertilityResults.basedOnCycle', {
+      days: this.results.cycleLength,
+    });
+  }
 
   dismiss() {
     this.modalController.dismiss();

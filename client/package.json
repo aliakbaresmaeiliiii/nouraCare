@@ -108,6 +108,8 @@
 
     "angular-auth-oidc-client": "^21.0.1",
 
+    "chart.js": "^4.5.1",
+
     "date-fns-jalali": "^4.1.0-0",
 
     "dayjs": "^1.11.21",

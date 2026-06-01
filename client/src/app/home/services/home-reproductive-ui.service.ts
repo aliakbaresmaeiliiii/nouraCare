@@ -3,6 +3,7 @@ import { CycleSettingsService } from '../../shared/services/cycle-settings.servi
 import { UserInfoService } from '../../shared/services/user-info.service';
 import { UserInfo } from '../../shared/interfaces/user-info-api.interface';
 import { DashboardResponse } from '../../shared/services/onboarding.service';
+import type { DashboardCyclePhaseGuide } from '../../shared/services/onboarding.service';
 import { normalizeLmpInput } from '../../shared/utils/pregnancy-lmp.util';
 
 /** Journey fields the home page binds after each dashboard + onboarding sync. */
@@ -31,6 +32,8 @@ export interface HomePageJourneyState {
   dashboardOvulationIso?: string | null;
   dashboardFertileWindow?: DashboardFertileWindow | null;
   dashboardCycleInsight?: string | null;
+  /** Personalized phase guide from GET /me/dashboard (cycle/planning). */
+  dashboardPhaseGuide?: DashboardCyclePhaseGuide | null;
 }
 
 type DashboardFertileWindow = NonNullable<DashboardResponse['fertileWindow']>;
@@ -189,6 +192,8 @@ export class HomeReproductiveUiService {
       dashboardOvulationIso: dashboard.ovulationDate ?? null,
       dashboardFertileWindow: dashboard.fertileWindow ?? null,
       dashboardCycleInsight: dashboard.insight?.trim() ? dashboard.insight.trim() : null,
+      dashboardTips: dashboard.tips?.length ? dashboard.tips : [],
+      dashboardPhaseGuide: dashboard.phaseGuide ?? null,
     };
   }
 

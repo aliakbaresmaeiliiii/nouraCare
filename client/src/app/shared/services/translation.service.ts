@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LanguageService } from './language.service';
+import { localizeDigitsInText } from '../utils/locale-date-format.util';
 
 @Injectable({
   providedIn: 'root',
@@ -545,9 +546,183 @@ export class TranslationService {
       'home.pregnancyPostDueAria': 'After your due date',
       'home.tipsForYou': 'Tips for you',
       'home.weekDetailChip': 'Week {{week}} detail',
+      'home.weekDetailActionTitle': 'Week {{week}}',
+      'home.weekDetailActionDesc': 'Baby size, symptoms & tips',
       'home.watchOuts': 'Watch-outs',
+      'home.watchOutsDesc': 'Signs to watch this week',
       'home.cycleCalendarChip': 'Cycle calendar',
+      'home.cycleGreetingMorning': 'Good morning',
+      'home.cycleGreetingAfternoon': 'Good afternoon',
+      'home.cycleGreetingEvening': 'Good evening',
+      'home.cycleStatsAria': 'Cycle summary',
+      'home.cycleStatPeriod': 'Period',
+      'home.cycleStatPeriodNext': 'Next period',
+      'home.cycleStatPeriodDayCaption': 'Current period',
+      'home.cycleStatPeriodInValue': '{{days}} days',
+      'home.cycleStatPeriodDayValue': 'Day {{day}} of {{total}}',
+      'home.cycleStatOvulation': 'Ovulation',
+      'home.cycleStatCycle': 'This cycle',
+      'home.cycleStatDayOfValue': '{{day}} / {{len}}',
+      'home.cycleActionCalendarDesc': 'Full month view',
+      'home.cycleActionSymptomsDesc': 'Mood, pain & more',
+      'home.cycleActionLogPeriod': 'Log period',
+      'home.cycleActionLogPeriodDesc': 'Update your dates',
+      'home.cycleGuide.sectionAria': 'Tips for your cycle phase',
+      'home.cycleGuide.ctaExplore': 'Explore',
+      'home.cycleGuide.none.headline': 'Begin your cycle story',
+      'home.cycleGuide.none.subtitle':
+        'Log once — we personalize predictions and tips after that.',
+      'home.cycleGuide.none.card1Title': 'Log your last period',
+      'home.cycleGuide.none.card1Body':
+        'One date unlocks your ring, fertile window, and daily insights.',
+      'home.cycleGuide.none.card2Title': 'Expert-backed reads',
+      'home.cycleGuide.none.card2Body':
+        'Nutrition, fertility, and body signs — curated for you.',
+      'home.cycleGuide.none.card3Title': 'Track how you feel',
+      'home.cycleGuide.none.card3Body':
+        'Small daily logs reveal patterns over time.',
+      'home.cycleGuide.period.headline': 'Rest & renew',
+      'home.cycleGuide.period.subtitle':
+        'Your body is working hard — go gently today.',
+      'home.cycleGuide.period.card1Title': 'Ease cramps naturally',
+      'home.cycleGuide.period.card1Body':
+        'Warmth, hydration, and light stretching often help.',
+      'home.cycleGuide.period.card2Title': 'Replenish iron',
+      'home.cycleGuide.period.card2Body':
+        'Leafy greens, lentils, and lean protein support recovery.',
+      'home.cycleGuide.period.card3Title': 'Spot your patterns',
+      'home.cycleGuide.period.card3Body':
+        'Log symptoms to see what repeats each month.',
+      'home.cycleGuide.follicular.headline': 'Energy is rising',
+      'home.cycleGuide.follicular.subtitle':
+        'A great window for movement and new routines.',
+      'home.cycleGuide.follicular.card1Title': 'Move your way',
+      'home.cycleGuide.follicular.card1Body':
+        'Moderate exercise often feels best in this phase.',
+      'home.cycleGuide.follicular.card2Title': 'Fuel consistently',
+      'home.cycleGuide.follicular.card2Body':
+        'Balanced meals keep energy steady through the day.',
+      'home.cycleGuide.follicular.card3Title': 'See the month ahead',
+      'home.cycleGuide.follicular.card3Body':
+        'Open your calendar to plan around your cycle.',
+      'home.cycleGuide.fertile.headline': 'Your fertile window',
+      'home.cycleGuide.fertile.subtitle':
+        'These days matter most for conception planning.',
+      'home.cycleGuide.fertile.subtitleDynamic':
+        'Peak fertility timing · {{summary}}',
+      'home.cycleGuide.fertile.card1Title': 'Highest-chance days',
+      'home.cycleGuide.fertile.card1Body':
+        'You are in your most fertile days of this cycle.',
+      'home.cycleGuide.fertile.card2Title': 'Fertility calculator',
+      'home.cycleGuide.fertile.card2Body':
+        'See your personalized window and conception tips.',
+      'home.cycleGuide.fertile.card3Title': 'Tune into signs',
+      'home.cycleGuide.fertile.card3Body':
+        'Mood, energy, and body signals can be useful clues.',
+      'home.cycleGuide.luteal.headline': 'Pre-period phase',
+      'home.cycleGuide.luteal.subtitle':
+        'Your body is winding down — extra care helps.',
+      'home.cycleGuide.luteal.subtitleDynamic':
+        'Period may start in about {{days}} days — be kind to yourself.',
+      'home.cycleGuide.luteal.card1Title': 'Soothe PMS gently',
+      'home.cycleGuide.luteal.card1Body':
+        'Rest, magnesium-rich foods, and calm movement help.',
+      'home.cycleGuide.luteal.card2Title': 'Mood check-in',
+      'home.cycleGuide.luteal.card2Body':
+        'Logging feelings now builds a clearer monthly picture.',
+      'home.cycleGuide.luteal.card3Title': 'Prepare ahead',
+      'home.cycleGuide.luteal.card3Body':
+        'Note cravings or cramps so you know what to expect.',
+      'cycleCalendar.a11y.monthNav': 'Month',
+      'cycleCalendar.a11y.prevMonth': 'Previous month',
+      'cycleCalendar.a11y.nextMonth': 'Next month',
+      'cycleCalendar.legend.period': 'Period',
+      'cycleCalendar.legend.fertileWindow': 'Fertile Window',
+      'cycleCalendar.legend.ovulation': 'Ovulation',
+      'cycleCalendar.hint':
+        'Log your last period above, or add cycle details in your profile for predictions.',
+      'cycleCalendar.goToProfile': 'Go to profile',
+      'cycleCalendar.historyTitle': 'Tracking history',
+      'cycleCalendar.historySub': 'Recent period starts you saved in this app',
+      'cycleCalendar.historyEmpty':
+        'No entries yet. Tap Log period when your period begins.',
+      'cycleCalendar.historyPeriodStarted': 'Period started {{date}}',
+      'cycleCalendar.historyLogged': 'Logged {{date}}',
+      'periodDatePicker.title': 'Last period',
+      'periodDatePicker.introTitle': 'When did your last period start?',
+      'periodDatePicker.introText':
+        'Tap the first day. We’ll highlight the days that match your usual length so you can confirm before saving.',
+      'periodDatePicker.selectedRange': 'Selected range',
+      'periodDatePicker.savePeriod': 'Save period',
+      'periodDatePicker.selectStartDate': 'Select a start date',
+      'periodDatePicker.saveHint':
+        'Pick the first day of your last period to continue.',
+      'periodDatePicker.a11y.save': 'Save period dates',
+      'periodDatePicker.legend.firstDay': 'First day',
+      'periodDatePicker.legend.period': 'Period',
+      'periodDatePicker.legend.cycle': 'Cycle',
+      'periodDatePicker.legend.today': 'Today',
+      'periodDatePicker.a11y.highlightFirstDay': 'Highlight first day',
+      'periodDatePicker.a11y.highlightPeriodDays': 'Highlight period days',
+      'periodDatePicker.a11y.highlightToday': 'Highlight today',
+      'fertilitySheet.title': 'Fertility check',
+      'fertilitySheet.closeAria': 'Close',
+      'fertilitySheet.noDataTitle': 'Log your period to get started',
+      'fertilitySheet.noDataBody':
+        'Add your last period start date so we can estimate your fertile window, ovulation, and next period.',
+      'fertilitySheet.logPeriodCta': 'Log period',
+      'fertilitySheet.heroAria': 'Current fertility phase',
+      'fertilitySheet.cycleDay': 'Cycle day {{day}} of {{len}}',
+      'fertilitySheet.phase.period.title': 'Menstruation phase',
+      'fertilitySheet.phase.period.body':
+        'Very low chance of pregnancy during bleeding. Rest and recovery come first.',
+      'fertilitySheet.phase.follicular.title': 'Follicular phase',
+      'fertilitySheet.phase.follicular.body':
+        'Your body is preparing for ovulation. Fertility is building but not at its peak yet.',
+      'fertilitySheet.phase.fertile.title': 'Fertile window',
+      'fertilitySheet.phase.fertile.body':
+        'High chance of pregnancy — you are in your most fertile days this cycle.',
+      'fertilitySheet.phase.ovulation_peak.title': 'Ovulation day',
+      'fertilitySheet.phase.ovulation_peak.body':
+        'Peak fertility today — the best estimated day for conception this cycle.',
+      'fertilitySheet.phase.luteal.title': 'Luteal phase',
+      'fertilitySheet.phase.luteal.body':
+        'Fertility has passed its peak. Your next period is approaching.',
+      'fertilitySheet.timelineAria': 'Cycle timeline',
+      'fertilitySheet.chartTitle': 'Fertility through your cycle',
+      'fertilitySheet.chartYAxis': 'Relative chance',
+      'fertilitySheet.chartToday': 'Today',
+      'fertilitySheet.chartOvulation': 'Ovulation',
+      'fertilitySheet.chartFollicular': 'Follicular',
+      'fertilitySheet.fertileWindow': 'Fertile window',
+      'fertilitySheet.fertileWindowHint': 'Best days for conception planning',
+      'fertilitySheet.ovulationHint': 'Estimated peak fertility day',
+      'fertilitySheet.nextPeriod': 'Next period',
+      'fertilitySheet.nextPeriodHint': 'Expected start based on your cycle',
+      'fertilitySheet.bestDaysAria': 'Most fertile days',
+      'fertilitySheet.bestDaysTitle': 'Most fertile days',
+      'fertilitySheet.bestDaysSubtitle': 'Your highest chance of conception',
+      'fertilitySheet.peak': 'Peak',
+      'fertilitySheet.high': 'High',
+      'fertilitySheet.disclaimer':
+        'These are estimates based on your cycle data. Individual cycles may vary. Consult your healthcare provider for personalized advice.',
+      'fertilitySheet.trackSymptoms': 'Track symptoms',
+      'fertilitySheet.setReminder': 'Set reminder',
+      'fertilityResults.title': 'Fertility calculator results',
+      'fertilityResults.windowTitle': 'Your fertility window',
+      'fertilityResults.basedOnCycle': 'Based on your {{days}}-day cycle',
+      'fertilityResults.mostFertileDays': 'Most fertile days',
+      'fertilityResults.mostFertileDaysSub': 'Your highest chance of conception',
+      'fertilityResults.peakFertilityDay': 'Peak fertility day',
+      'fertilityResults.expectedStart': 'Expected start date',
+      'fertilityResults.proTips': 'Pro tips',
+      'fertilityResults.tip1': 'Track your symptoms daily for more accurate predictions',
+      'fertilityResults.tip2': 'Consider using ovulation predictor kits',
+      'fertilityResults.tip3': 'Monitor cervical mucus changes',
+      'fertilityResults.tip4': 'Maintain a healthy lifestyle',
+      'fertilityResults.shareResults': 'Share results',
       'home.a11y.moreCycleTools': 'More cycle tools',
+      'home.a11y.morePregnancyTools': 'More pregnancy tools',
       'home.a11y.dailyInsightStories': 'Daily insight stories',
       'home.a11y.openDailyInsightsSummary': 'Open daily insights summary',
       'home.a11y.trackSymptoms': 'Track symptoms',
@@ -743,6 +918,76 @@ export class TranslationService {
       'home.cycleStrip.forYouSlide3Body':
         'Every cycle has noisy charts and calm ones. Opening the app already counts as self-care.',
 
+      'home.cycleInsights.headingWithMood': 'Today · feeling {{mood}}',
+      'home.cyclePhase.none': 'getting started',
+      'home.cyclePhase.period': 'your period',
+      'home.cyclePhase.follicular': 'follicular phase',
+      'home.cyclePhase.fertile': 'fertile window',
+      'home.cyclePhase.luteal': 'luteal phase',
+
+      'home.cycleStrip.period.hydrationTeaser': 'Warm fluids on day 1',
+      'home.cycleStrip.period.hydrationSlide1Title': 'Hydration during flow',
+      'home.cycleStrip.period.restTeaser': 'Rest while bleeding',
+      'home.cycleStrip.period.restSlide1Title': 'Your body is working',
+
+      'home.cycleStrip.luteal.hydrationTeaser': 'Ease bloating before your period',
+      'home.cycleStrip.luteal.restTeaser': 'Wind down before flow returns',
+
+      'home.cycleStrip.moodGroup.upbeat.category': 'Mood · {{mood}}',
+      'home.cycleStrip.moodGroup.upbeat.teaser': '{{name}}, riding a {{mood}} wave',
+      'home.cycleStrip.moodGroup.upbeat.personalTeaser':
+        ', you logged feeling {{mood}} — we’ll match tips to that energy today.',
+      'home.cycleStrip.moodGroup.upbeat.slide1Title': '{{name}}, your {{mood}} day',
+      'home.cycleStrip.moodGroup.upbeat.slide1Body':
+        'You noted {{mood}} during {{phase}}. {{advice}}',
+      'home.cycleStrip.moodGroup.upbeat.slide2Title': 'Channel it gently',
+      'home.cycleStrip.moodGroup.upbeat.slide2Body':
+        'Light movement or a favorite meal can keep {{mood}} steady without overdoing it.',
+
+      'home.cycleStrip.moodGroup.low.category': 'Mood · {{mood}}',
+      'home.cycleStrip.moodGroup.low.teaser': '{{name}}, low-energy check-in',
+      'home.cycleStrip.moodGroup.low.personalTeaser':
+        ', you logged {{mood}} — rest counts as care, especially on heavier cycle days.',
+      'home.cycleStrip.moodGroup.low.slide1Title': '{{name}}, be gentle',
+      'home.cycleStrip.moodGroup.low.slide1Body':
+        'Feeling {{mood}} on {{phase}} (day {{day}} of {{len}}) is common. {{advice}}',
+      'home.cycleStrip.moodGroup.low.slide2Title': 'Small comforts',
+      'home.cycleStrip.moodGroup.low.slide2Body':
+        'Warmth, shorter to-do lists, and earlier sleep often help when {{mood}} shows up.',
+
+      'home.cycleStrip.moodGroup.anxious.category': 'Mood · {{mood}}',
+      'home.cycleStrip.moodGroup.anxious.teaser': '{{name}}, we see the {{mood}}',
+      'home.cycleStrip.moodGroup.anxious.personalTeaser':
+        ', you logged {{mood}} — hormones can amplify worry; your log helps us tune support.',
+      'home.cycleStrip.moodGroup.anxious.slide1Title': '{{name}}, you’re not alone',
+      'home.cycleStrip.moodGroup.anxious.slide1Body':
+        '{{mood}} during {{phase}} happens often. {{advice}}',
+      'home.cycleStrip.moodGroup.anxious.slide2Title': 'Grounding ideas',
+      'home.cycleStrip.moodGroup.anxious.slide2Body':
+        'Slow breaths, a short walk, or writing one line about {{describe}} can ease the edge.',
+
+      'home.cycleStrip.moodGroup.irritable.category': 'Mood · {{mood}}',
+      'home.cycleStrip.moodGroup.irritable.teaser': '{{name}}, tender day noted',
+      'home.cycleStrip.moodGroup.irritable.personalTeaser':
+        ', you logged {{mood}} — we’ll keep tips practical, not preachy.',
+      'home.cycleStrip.moodGroup.irritable.slide1Title': '{{name}}, valid feelings',
+      'home.cycleStrip.moodGroup.irritable.slide1Body':
+        '{{mood}} in {{phase}} is a real signal. {{advice}}',
+      'home.cycleStrip.moodGroup.irritable.slide2Title': 'Ease the friction',
+      'home.cycleStrip.moodGroup.irritable.slide2Body':
+        'Snacks, hydration, and pausing before big decisions help when {{mood}} spikes.',
+
+      'home.cycleStrip.moodGroup.default.category': 'For you',
+      'home.cycleStrip.moodGroup.default.teaser': '{{name}}, today’s check-in',
+      'home.cycleStrip.moodGroup.default.personalTeaser':
+        ', you logged {{mood}} — we’re matching reads to how you feel today.',
+      'home.cycleStrip.moodGroup.default.slide1Title': '{{name}}, today’s read',
+      'home.cycleStrip.moodGroup.default.slide1Body':
+        'You noted {{mood}} during {{phase}}. {{advice}}',
+      'home.cycleStrip.moodGroup.default.slide2Title': 'Keep noticing',
+      'home.cycleStrip.moodGroup.default.slide2Body':
+        'Patterns emerge when you log {{mood}} alongside {{describe}} — no perfection needed.',
+
       'home.cycleSummary.categoryToday': 'Today',
       'home.cycleSummary.teaserMulti': '{{count}} short reads for today',
       'home.cycleSummary.teaserEmpty': 'Your snapshot',
@@ -828,6 +1073,60 @@ export class TranslationService {
       'home.dialog.calendarMedication': '💊 Medication Schedule',
       'home.dialog.calendarAppointments': '📅 Appointments',
       'home.dialog.openingWeekDetails': 'Opening week {{week}} details...',
+
+      'weekDetail.toolbarTitle': 'Week {{week}}',
+      'weekDetail.weekPill': 'Week {{week}}',
+      'weekDetail.ofPregnancy': 'of pregnancy',
+      'weekDetail.heroLede':
+        'Pick a topic below for this stage. For symptoms or care decisions, follow your provider.',
+      'weekDetail.aboutSizeOf': 'About the size of',
+      'weekDetail.viewing': 'Viewing',
+      'weekDetail.weekOf40': 'Week {{week}}',
+      'weekDetail.of40': 'of 40',
+      'weekDetail.prevWeekAria': 'Previous week',
+      'weekDetail.nextWeekAria': 'Next week',
+      'weekDetail.sliderHint': 'Tap the bar or drag the handle to jump to any week.',
+      'weekDetail.progressLabel': '{{pct}}% through pregnancy',
+      'pregnancyWeekProgress.eyebrow': 'Pregnancy journey',
+      'pregnancyWeekProgress.complete': 'complete',
+      'pregnancyWeekProgress.aria': 'Pregnancy week progress',
+      'pregnancyWeekProgress.weekAria': 'Go to week {{week}}',
+      'pregnancyWeekProgress.trimester1': '1st trimester',
+      'pregnancyWeekProgress.trimester2': '2nd trimester',
+      'pregnancyWeekProgress.trimester3': '3rd trimester',
+      'pregnancyWeekProgress.hint': 'Tap any week to jump · arrows move one week',
+      'weekDetail.jumpWeekAria': 'Jump to pregnancy week',
+      'weekDetail.saveExplainer':
+        'Save week updates Home so your timeline, size, and tips match what you chose (not a medical record).',
+      'weekDetail.saveButton': 'Save as my week on Home',
+      'weekDetail.saving': 'Saving…',
+      'weekDetail.topicsForWeek': 'Topics for week {{week}}',
+      'weekDetail.tab.overview': 'Overview',
+      'weekDetail.tab.eating': 'Eating',
+      'weekDetail.tab.activity': 'Activity',
+      'weekDetail.tab.intimacy': 'Intimacy',
+      'weekDetail.tab.checkups': 'Checkups',
+      'weekDetail.section.babyDevelopment': 'Baby development',
+      'weekDetail.section.commonSymptoms': 'Common symptoms',
+      'weekDetail.section.funFacts': 'Fun facts',
+      'weekDetail.section.foodsEnjoy': 'Foods to enjoy',
+      'weekDetail.section.limitAvoid': 'Limit or avoid',
+      'weekDetail.section.supplements': 'Supplements',
+      'weekDetail.section.movement': 'Movement',
+      'weekDetail.section.restCare': 'Rest & care',
+      'weekDetail.section.prepChecklist': 'Prep checklist',
+      'weekDetail.section.intimacy': 'Intimacy',
+      'weekDetail.section.tips': 'Tips',
+      'weekDetail.section.comfortIdeas': 'Comfort ideas',
+      'weekDetail.section.appointments': 'Appointments',
+      'weekDetail.section.testsScreenings': 'Tests & screenings',
+      'weekDetail.section.callProvider': 'When to call your provider',
+      'weekDetail.section.thisWeek': 'This week',
+      'weekDetail.intimacy.safe': 'Generally safe — listen to your body',
+      'weekDetail.intimacy.caution': 'Use caution — check with your care provider',
+      'weekDetail.toast.saved': 'Saved week {{week}}',
+      'weekDetail.toast.saveFailed': 'Could not save pregnancy week. Try again.',
+
       'home.dialog.openingCycleCalendar': 'Opening cycle tracking calendar...',
       'home.dialog.openingSymptomsCalendar': 'Opening symptoms calendar...',
       'home.dialog.openingMedicationCalendar': 'Opening medication calendar...',
@@ -977,6 +1276,116 @@ export class TranslationService {
       'home.dialog.appointmentComingSoon': 'Appointment booking coming soon!',
       'home.dialog.pregnancyWeekCalcFailed':
         'Failed to calculate pregnancy week',
+
+      'symptomsTracker.title': 'Track Symptoms',
+      'symptomsTracker.dataExists': 'Data exists',
+      'symptomsTracker.history': 'Symptom history',
+      'symptomsTracker.dayProgress': '{{percent}}% of day',
+      'symptomsTracker.howFeeling': 'How are you feeling?',
+      'symptomsTracker.quickSymptoms': 'Quick Symptoms',
+      'symptomsTracker.detailedSymptoms': 'Detailed Symptoms',
+      'symptomsTracker.physicalSymptoms': 'Physical Symptoms',
+      'symptomsTracker.moodEmotional': 'Mood & Emotional',
+      'symptomsTracker.intimacySexDrive': 'Intimacy & Sex Drive',
+      'symptomsTracker.additionalNotes': 'Additional Notes',
+      'symptomsTracker.notesPlaceholder':
+        'How are you feeling overall? Any other observations...',
+      'symptomsTracker.summary': 'Summary',
+      'symptomsTracker.summaryMood': 'Mood:',
+      'symptomsTracker.summaryQuick': 'Quick Symptoms:',
+      'symptomsTracker.summaryDetailed': 'Detailed Symptoms:',
+      'symptomsTracker.summaryTotal': 'Total:',
+      'symptomsTracker.selectedCount': '{{count}} selected',
+      'symptomsTracker.symptomsCount': '{{count}} symptoms',
+      'symptomsTracker.save': 'Save',
+      'symptomsTracker.update': 'Update',
+      'symptomsTracker.saveButton': '{{action}} Symptoms ({{count}})',
+      'symptomsTracker.readyToSave':
+        'Ready to save your symptoms for {{date}}',
+      'symptomsTracker.pregnancyProgress': '{{weeks}} weeks, {{days}} {{dayLabel}}',
+      'symptomsTracker.daySingular': 'day',
+      'symptomsTracker.dayPlural': 'days',
+      'symptomsTracker.toast.selectOne':
+        'Please select at least one symptom to track',
+      'symptomsTracker.toast.saved': 'Symptoms saved successfully!',
+      'symptomsTracker.toast.updated': 'Symptoms updated successfully!',
+      'symptomsTracker.toast.saveFailed': 'Failed to save symptoms',
+      'symptomsTracker.toast.updateFailed': 'Failed to update symptoms',
+      'symptomsTracker.toast.failedRetry':
+        'Failed to save symptoms. Please try again.',
+      'symptomsTracker.toast.valenceConflict':
+        'Please select either a positive or negative emotion (example: not both “Happy” and “Sad”).',
+      'symptomsTracker.toast.valenceInvalid':
+        'Invalid emotion selection. Please avoid mixing positive and negative emotions (example: “Happy” + “Sad”).',
+      'symptomsTracker.toast.dataLoaded': 'Data loaded for {{date}}',
+      'symptomsTracker.toast.loadFailed': 'Failed to load existing data: {{message}}',
+      'symptomsTracker.toast.alreadySaved':
+        'You already saved symptoms for {{date}}. Use the date arrows to pick another day, or use "Edit this day" in the popup to update that entry.',
+      'symptomsTracker.toast.dayLogged':
+        'This day is already logged. Try a different date.',
+      'symptomsTracker.toast.dayLoggedRetry':
+        'This day is already logged. Try a different date or try again later.',
+      'symptomsTracker.alert.existingDay.header': 'Already saved for this day',
+      'symptomsTracker.alert.existingDay.message':
+        'You already have an entry for {{date}}. You can load it to edit, or cancel and choose another date.',
+      'symptomsTracker.alert.existingDay.edit': 'Edit this day',
+      'symptomsTracker.alert.severity.header': 'Symptom Severity',
+      'symptomsTracker.alert.severity.message':
+        'How severe is your {{symptom}}?',
+      'symptomsTracker.alert.note.header': 'Add Note',
+      'symptomsTracker.alert.note.message': 'Add a note about your {{symptom}}:',
+      'symptomsTracker.alert.note.placeholder': 'Describe your symptoms...',
+      'symptomsTracker.severity.mild': 'Mild',
+      'symptomsTracker.severity.moderate': 'Moderate',
+      'symptomsTracker.severity.severe': 'Severe',
+      'symptoms.option.great': 'Great',
+      'symptoms.option.good': 'Good',
+      'symptoms.option.okay': 'Okay',
+      'symptoms.option.not_great': 'Not Great',
+      'symptoms.option.terrible': 'Terrible',
+      'symptoms.option.fatigue': 'Fatigue',
+      'symptoms.option.nausea': 'Nausea',
+      'symptoms.option.headache': 'Headache',
+      'symptoms.option.cramps': 'Cramps',
+      'symptoms.option.masturbation': 'Masturbation',
+      'symptoms.option.no_sex': "Didn't have sex",
+      'symptoms.option.protected_sex': 'Protected sex',
+      'symptoms.option.unprotected_sex': 'Unprotected sex',
+      'symptoms.option.high_sex_drive': 'High sex drive',
+      'symptoms.option.low_sex_drive': 'Low sex drive',
+      'symptoms.option.calm': 'Calm',
+      'symptoms.option.happy': 'Happy',
+      'symptoms.option.energetic': 'Energetic',
+      'symptoms.option.frisky': 'Frisky',
+      'symptoms.option.mood_swings': 'Mood swings',
+      'symptoms.option.irritated': 'Irritated',
+      'symptoms.option.sad': 'Sad',
+      'symptoms.option.anxious': 'Anxious',
+      'symptoms.option.depressed': 'Depressed',
+      'symptoms.option.guilty': 'Feeling guilty',
+      'symptoms.option.obsessive': 'Obsessive thoughts',
+      'symptoms.option.low_energy': 'Low energy',
+      'symptoms.option.apathetic': 'Apathetic',
+      'symptoms.option.confused': 'Confused',
+      'symptoms.option.self_critical': 'Very self-critical',
+      'symptoms.option.breast_tenderness': 'Breast Tenderness',
+      'symptoms.option.leg_cramps': 'Leg Cramps',
+      'symptoms.option.back_pain': 'Back Pain',
+      'symptoms.option.morning_sickness': 'Morning Sickness',
+      'symptoms.option.heartburn': 'Heartburn',
+      'symptoms.option.bloating': 'Bloating',
+      'symptoms.option.frequent_urination': 'Frequent Urination',
+      'symptoms.option.food_aversions': 'Food Aversions',
+      'symptoms.option.nasal_congestion': 'Nasal Congestion',
+      'symptoms.option.baby_movements': 'Baby Movements',
+      'symptoms.option.shortness_breath': 'Shortness of Breath',
+      'symptoms.option.swelling': 'Swelling (Edema)',
+      'symptoms.option.braxton_hicks': 'Braxton Hicks',
+      'symptoms.option.sleep_difficulties': 'Sleep Difficulties',
+      'symptoms.option.nesting_instinct': 'Nesting Instinct',
+      'symptoms.option.dizziness': 'Dizziness',
+      'symptoms.option.constipation': 'Constipation',
+      'symptoms.option.cravings': 'Food Cravings',
     },
     zh: {
       'common.welcome': '欢迎',
@@ -2346,9 +2755,183 @@ export class TranslationService {
       'home.pregnancyPostDueAria': 'بعد از تاریخِ تقریبی زایمان',
       'home.tipsForYou': 'نکات برای شما',
       'home.weekDetailChip': 'جزئیات هفتهٔ {{week}}',
+      'home.weekDetailActionTitle': 'هفتهٔ {{week}}',
+      'home.weekDetailActionDesc': 'اندازهٔ جنین، علائم و نکات',
       'home.watchOuts': 'هشدارها',
+      'home.watchOutsDesc': 'علائمی که باید مراقب باشید',
       'home.cycleCalendarChip': 'تقویم چرخه',
+      'home.cycleGreetingMorning': 'صبح بخیر',
+      'home.cycleGreetingAfternoon': 'عصر بخیر',
+      'home.cycleGreetingEvening': 'شب بخیر',
+      'home.cycleStatsAria': 'خلاصهٔ چرخه',
+      'home.cycleStatPeriod': 'قاعدگی',
+      'home.cycleStatPeriodNext': 'قاعدگی بعدی',
+      'home.cycleStatPeriodDayCaption': 'قاعدگی جاری',
+      'home.cycleStatPeriodInValue': '{{days}} روز',
+      'home.cycleStatPeriodDayValue': 'روز {{day}} از {{total}}',
+      'home.cycleStatOvulation': 'تخمک‌گذاری',
+      'home.cycleStatCycle': 'این چرخه',
+      'home.cycleStatDayOfValue': '{{day}} / {{len}}',
+      'home.cycleActionCalendarDesc': 'نمای ماهانه',
+      'home.cycleActionSymptomsDesc': 'خلق، درد و بیشتر',
+      'home.cycleActionLogPeriod': 'ثبت قاعدگی',
+      'home.cycleActionLogPeriodDesc': 'به‌روزرسانی تاریخ‌ها',
+      'home.cycleGuide.sectionAria': 'نکات متناسب با فاز چرخه',
+      'home.cycleGuide.ctaExplore': 'مشاهده',
+      'home.cycleGuide.none.headline': 'داستان چرخهٔ خود را شروع کنید',
+      'home.cycleGuide.none.subtitle':
+        'یک‌بار ثبت کنید — بعد پیش‌بینی‌ها و نکات شخصی می‌شوند.',
+      'home.cycleGuide.none.card1Title': 'آخرین قاعدگی را ثبت کنید',
+      'home.cycleGuide.none.card1Body':
+        'یک تاریخ، حلقه، پنجرهٔ باروری و بینش روزانه را فعال می‌کند.',
+      'home.cycleGuide.none.card2Title': 'مطالب تأییدشده',
+      'home.cycleGuide.none.card2Body':
+        'تغذیه، باروری و علائم بدن — انتخاب‌شده برای شما.',
+      'home.cycleGuide.none.card3Title': 'احساس خود را ثبت کنید',
+      'home.cycleGuide.none.card3Body':
+        'ثبت‌های کوچک روزانه، الگوها را آشکار می‌کنند.',
+      'home.cycleGuide.period.headline': 'استراحت و تجدید',
+      'home.cycleGuide.period.subtitle':
+        'بدن سخت کار می‌کند — امروز با خودتان ملایم باشید.',
+      'home.cycleGuide.period.card1Title': 'کاهش گرفتگی به‌صورت طبیعی',
+      'home.cycleGuide.period.card1Body':
+        'گرما، آب و کشش ملایم اغلب کمک می‌کنند.',
+      'home.cycleGuide.period.card2Title': 'جبران آهن',
+      'home.cycleGuide.period.card2Body':
+        'سبزیجات برگ‌دار، عدس و پروتئین کم‌چرب به بازیابی کمک می‌کنند.',
+      'home.cycleGuide.period.card3Title': 'الگوهای خود را بشناسید',
+      'home.cycleGuide.period.card3Body':
+        'علائم را ثبت کنید تا تکرار ماهانه را ببینید.',
+      'home.cycleGuide.follicular.headline': 'انرژی در حال افزایش',
+      'home.cycleGuide.follicular.subtitle':
+        'زمان خوبی برای تحرک و عادت‌های تازه است.',
+      'home.cycleGuide.follicular.card1Title': 'به سبک خودتان حرکت کنید',
+      'home.cycleGuide.follicular.card1Body':
+        'ورزش متوسط در این فاز معمولاً بهتر احساس می‌شود.',
+      'home.cycleGuide.follicular.card2Title': 'تغذیهٔ منظم',
+      'home.cycleGuide.follicular.card2Body':
+        'وعده‌های متعادل انرژی را در طول روز پایدار نگه می‌دارند.',
+      'home.cycleGuide.follicular.card3Title': 'ماه پیش رو',
+      'home.cycleGuide.follicular.card3Body':
+        'تقویم را باز کنید و بر اساس چرخه برنامه بریزید.',
+      'home.cycleGuide.fertile.headline': 'پنجرهٔ باروری',
+      'home.cycleGuide.fertile.subtitle':
+        'این روزها برای برنامه‌ریزی بارداری مهم‌ترند.',
+      'home.cycleGuide.fertile.subtitleDynamic':
+        'زمان اوج باروری · {{summary}}',
+      'home.cycleGuide.fertile.card1Title': 'روزهای با بیشترین شانس',
+      'home.cycleGuide.fertile.card1Body':
+        'در باروری‌ترین روزهای این چرخه هستید.',
+      'home.cycleGuide.fertile.card2Title': 'ماشین‌حساب باروری',
+      'home.cycleGuide.fertile.card2Body':
+        'پنجرهٔ شخصی و نکات باروری را ببینید.',
+      'home.cycleGuide.fertile.card3Title': 'به نشانه‌ها گوش دهید',
+      'home.cycleGuide.fertile.card3Body':
+        'خلق، انرژی و علائم بدن می‌توانند سرنخ باشند.',
+      'home.cycleGuide.luteal.headline': 'فاز پیش از قاعدگی',
+      'home.cycleGuide.luteal.subtitle':
+        'بدن در حال آرام شدن است — مراقبت بیشتر کمک می‌کند.',
+      'home.cycleGuide.luteal.subtitleDynamic':
+        'قاعدگی حدود {{days}} روز دیگر — با خودتان مهربان باشید.',
+      'home.cycleGuide.luteal.card1Title': 'PMS را ملایم تسکین دهید',
+      'home.cycleGuide.luteal.card1Body':
+        'استراحت، منیزیم و حرکت آرام کمک می‌کنند.',
+      'home.cycleGuide.luteal.card2Title': 'بررسی خلق',
+      'home.cycleGuide.luteal.card2Body':
+        'ثبت احساسات الان تصویر ماهانهٔ واضح‌تری می‌سازد.',
+      'home.cycleGuide.luteal.card3Title': 'آماده‌سازی',
+      'home.cycleGuide.luteal.card3Body':
+        'هوس‌ها یا گرفتگی را یادداشت کنید تا بدانید چه انتظاری داشته باشید.',
+      'cycleCalendar.a11y.monthNav': 'ماه',
+      'cycleCalendar.a11y.prevMonth': 'ماه قبل',
+      'cycleCalendar.a11y.nextMonth': 'ماه بعد',
+      'cycleCalendar.legend.period': 'قاعدگی',
+      'cycleCalendar.legend.fertileWindow': 'پنجرهٔ باروری',
+      'cycleCalendar.legend.ovulation': 'تخمک‌گذاری',
+      'cycleCalendar.hint':
+        'آخرین قاعدگی را بالا ثبت کنید، یا جزئیات چرخه را در پروفایل اضافه کنید تا پیش‌بینی‌ها فعال شوند.',
+      'cycleCalendar.goToProfile': 'رفتن به پروفایل',
+      'cycleCalendar.historyTitle': 'سابقهٔ پیگیری',
+      'cycleCalendar.historySub': 'شروع‌های اخیر قاعدگی که در این برنامه ذخیره کرده‌اید',
+      'cycleCalendar.historyEmpty':
+        'هنوز موردی ثبت نشده. وقتی قاعدگی‌تان شروع شد، «ثبت قاعدگی» را بزنید.',
+      'cycleCalendar.historyPeriodStarted': 'شروع قاعدگی {{date}}',
+      'cycleCalendar.historyLogged': 'ثبت شده {{date}}',
+      'periodDatePicker.title': 'آخرین قاعدگی',
+      'periodDatePicker.introTitle': 'آخرین قاعدگی‌تان از چه روزی شروع شد؟',
+      'periodDatePicker.introText':
+        'روز اول را بزنید. روزهایی که با طول معمول قاعدگی‌تان هم‌خوان است را برجسته می‌کنیم تا قبل از ذخیره تأیید کنید.',
+      'periodDatePicker.selectedRange': 'بازهٔ انتخاب‌شده',
+      'periodDatePicker.savePeriod': 'ذخیرهٔ قاعدگی',
+      'periodDatePicker.selectStartDate': 'روز شروع را انتخاب کنید',
+      'periodDatePicker.saveHint':
+        'برای ادامه، اولین روز آخرین قاعدگی را انتخاب کنید.',
+      'periodDatePicker.a11y.save': 'ذخیرهٔ تاریخ‌های قاعدگی',
+      'periodDatePicker.legend.firstDay': 'روز اول',
+      'periodDatePicker.legend.period': 'قاعدگی',
+      'periodDatePicker.legend.cycle': 'چرخه',
+      'periodDatePicker.legend.today': 'امروز',
+      'periodDatePicker.a11y.highlightFirstDay': 'برجسته‌کردن روز اول',
+      'periodDatePicker.a11y.highlightPeriodDays': 'برجسته‌کردن روزهای قاعدگی',
+      'periodDatePicker.a11y.highlightToday': 'برجسته‌کردن امروز',
+      'fertilitySheet.title': 'بررسی باروری',
+      'fertilitySheet.closeAria': 'بستن',
+      'fertilitySheet.noDataTitle': 'برای شروع، قاعدگی را ثبت کنید',
+      'fertilitySheet.noDataBody':
+        'تاریخ شروع آخرین قاعدگی را اضافه کنید تا پنجرهٔ باروری، تخمک‌گذاری و قاعدگی بعدی را تخمین بزنیم.',
+      'fertilitySheet.logPeriodCta': 'ثبت قاعدگی',
+      'fertilitySheet.heroAria': 'فاز باروری فعلی',
+      'fertilitySheet.cycleDay': 'روز {{day}} از {{len}} چرخه',
+      'fertilitySheet.phase.period.title': 'فاز قاعدگی',
+      'fertilitySheet.phase.period.body':
+        'در دوران خونریزی احتمال بارداری بسیار کم است. استراحت و بازیابی در اولویت است.',
+      'fertilitySheet.phase.follicular.title': 'فاز فولیکولی',
+      'fertilitySheet.phase.follicular.body':
+        'بدن برای تخمک‌گذاری آماده می‌شود. باروری در حال افزایش است اما هنوز به اوج نرسیده.',
+      'fertilitySheet.phase.fertile.title': 'پنجرهٔ باروری',
+      'fertilitySheet.phase.fertile.body':
+        'احتمال بارداری بالاست — در باروری‌ترین روزهای این چرخه هستید.',
+      'fertilitySheet.phase.ovulation_peak.title': 'روز تخمک‌گذاری',
+      'fertilitySheet.phase.ovulation_peak.body':
+        'امروز اوج باروری است — بهترین روز تخمینی برای بارداری در این چرخه.',
+      'fertilitySheet.phase.luteal.title': 'فاز لوتئال',
+      'fertilitySheet.phase.luteal.body':
+        'باروری از اوج گذشته است. قاعدگی بعدی در راه است.',
+      'fertilitySheet.timelineAria': 'خط زمانی چرخه',
+      'fertilitySheet.chartTitle': 'روند باروری در چرخه',
+      'fertilitySheet.chartYAxis': 'احتمال نسبی',
+      'fertilitySheet.chartToday': 'امروز',
+      'fertilitySheet.chartOvulation': 'تخمک‌گذاری',
+      'fertilitySheet.chartFollicular': 'فولیکولی',
+      'fertilitySheet.fertileWindow': 'پنجرهٔ باروری',
+      'fertilitySheet.fertileWindowHint': 'بهترین روزها برای برنامه‌ریزی بارداری',
+      'fertilitySheet.ovulationHint': 'روز تخمینی اوج باروری',
+      'fertilitySheet.nextPeriod': 'قاعدگی بعدی',
+      'fertilitySheet.nextPeriodHint': 'شروع پیش‌بینی‌شده بر اساس چرخهٔ شما',
+      'fertilitySheet.bestDaysAria': 'باروری‌ترین روزها',
+      'fertilitySheet.bestDaysTitle': 'باروری‌ترین روزها',
+      'fertilitySheet.bestDaysSubtitle': 'بیشترین احتمال بارداری',
+      'fertilitySheet.peak': 'اوج',
+      'fertilitySheet.high': 'بالا',
+      'fertilitySheet.disclaimer':
+        'این‌ها تخمین بر اساس داده‌های چرخهٔ شماست. چرخه‌ها ممکن است متفاوت باشند. برای مشاورهٔ شخصی با پزشک خود تماس بگیرید.',
+      'fertilitySheet.trackSymptoms': 'ثبت علائم',
+      'fertilitySheet.setReminder': 'تنظیم یادآور',
+      'fertilityResults.title': 'نتایج محاسبهٔ باروری',
+      'fertilityResults.windowTitle': 'پنجرهٔ باروری شما',
+      'fertilityResults.basedOnCycle': 'بر اساس چرخهٔ {{days}} روزهٔ شما',
+      'fertilityResults.mostFertileDays': 'باروری‌ترین روزها',
+      'fertilityResults.mostFertileDaysSub': 'بیشترین احتمال بارداری',
+      'fertilityResults.peakFertilityDay': 'روز اوج باروری',
+      'fertilityResults.expectedStart': 'تاریخ شروع پیش‌بینی‌شده',
+      'fertilityResults.proTips': 'نکات کاربردی',
+      'fertilityResults.tip1': 'برای پیش‌بینی دقیق‌تر، علائم را روزانه ثبت کنید',
+      'fertilityResults.tip2': 'از کیت پیش‌بینی تخمک‌گذاری استفاده کنید',
+      'fertilityResults.tip3': 'تغییرات ترشحات را زیر نظر بگیرید',
+      'fertilityResults.tip4': 'سبک زندگی سالم داشته باشید',
+      'fertilityResults.shareResults': 'اشتراک‌گذاری نتایج',
       'home.a11y.moreCycleTools': 'ابزارهای بیشتر چرخه',
+      'home.a11y.morePregnancyTools': 'ابزارهای بیشتر بارداری',
       'home.a11y.dailyInsightStories': 'داستان‌های بینش روزانه',
       'home.a11y.openDailyInsightsSummary': 'باز کردن خلاصه بینش‌های روزانه',
       'home.a11y.trackSymptoms': 'ثبت علائم',
@@ -2547,6 +3130,76 @@ export class TranslationService {
       'home.cycleStrip.forYouSlide3Body':
         'هر چرخه نمودار شلوغ و آرام دارد. باز کردن برنامه خودش مراقبت است.',
 
+      'home.cycleInsights.headingWithMood': 'امروز · احساس {{mood}}',
+      'home.cyclePhase.none': 'شروع مسیر',
+      'home.cyclePhase.period': 'قاعدگی',
+      'home.cyclePhase.follicular': 'فاز فولیکولار',
+      'home.cyclePhase.fertile': 'پنجره باروری',
+      'home.cyclePhase.luteal': 'فاز لوتئال',
+
+      'home.cycleStrip.period.hydrationTeaser': 'مایعات گرم در روز اول',
+      'home.cycleStrip.period.hydrationSlide1Title': 'آبرسانی در ایام پریود',
+      'home.cycleStrip.period.restTeaser': 'استراحت در روزهای خونریزی',
+      'home.cycleStrip.period.restSlide1Title': 'بدنتان در حال کار است',
+
+      'home.cycleStrip.luteal.hydrationTeaser': 'کاهش نفخ قبل از پریود',
+      'home.cycleStrip.luteal.restTeaser': 'آرام‌سازی قبل از شروع دوباره',
+
+      'home.cycleStrip.moodGroup.upbeat.category': 'خلق · {{mood}}',
+      'home.cycleStrip.moodGroup.upbeat.teaser': '{{name}}، موج {{mood}}',
+      'home.cycleStrip.moodGroup.upbeat.personalTeaser':
+        '، {{mood}} ثبت کردید — نکات امروز با همین انرژی هماهنگ می‌شود.',
+      'home.cycleStrip.moodGroup.upbeat.slide1Title': '{{name}}، روز {{mood}}',
+      'home.cycleStrip.moodGroup.upbeat.slide1Body':
+        'در {{phase}} احساس {{mood}} دارید. {{advice}}',
+      'home.cycleStrip.moodGroup.upbeat.slide2Title': 'آرام هدایتش کنید',
+      'home.cycleStrip.moodGroup.upbeat.slide2Body':
+        'حرکت سبک یا یک وعده دلخواه می‌تواند {{mood}} را پایدار نگه دارد.',
+
+      'home.cycleStrip.moodGroup.low.category': 'خلق · {{mood}}',
+      'home.cycleStrip.moodGroup.low.teaser': '{{name}}، بررسی کم‌انرژی',
+      'home.cycleStrip.moodGroup.low.personalTeaser':
+        '، {{mood}} ثبت کردید — استراحت هم مراقبت است، مخصوصاً در روزهای سنگین‌تر چرخه.',
+      'home.cycleStrip.moodGroup.low.slide1Title': '{{name}}، با خودتان مهربان باشید',
+      'home.cycleStrip.moodGroup.low.slide1Body':
+        'احساس {{mood}} در {{phase}} (روز {{day}} از {{len}}) رایج است. {{advice}}',
+      'home.cycleStrip.moodGroup.low.slide2Title': 'آرامش‌های کوچک',
+      'home.cycleStrip.moodGroup.low.slide2Body':
+        'گرما، لیست کار کوتاه‌تر و خواب زودتر وقتی {{mood}} می‌آید کمک می‌کند.',
+
+      'home.cycleStrip.moodGroup.anxious.category': 'خلق · {{mood}}',
+      'home.cycleStrip.moodGroup.anxious.teaser': '{{name}}، {{mood}} را می‌بینیم',
+      'home.cycleStrip.moodGroup.anxious.personalTeaser':
+        '، {{mood}} ثبت کردید — هورمون‌ها نگرانی را تشدید می‌کنند؛ ثبت شما کمک می‌کند.',
+      'home.cycleStrip.moodGroup.anxious.slide1Title': '{{name}}، تنها نیستید',
+      'home.cycleStrip.moodGroup.anxious.slide1Body':
+        '{{mood}} در {{phase}} اغلب رخ می‌دهد. {{advice}}',
+      'home.cycleStrip.moodGroup.anxious.slide2Title': 'ایده‌های grounding',
+      'home.cycleStrip.moodGroup.anxious.slide2Body':
+        'نفس آهسته، پیاده‌روی کوتاه یا یک خط درباره {{describe}} می‌تواند آرام‌تر کند.',
+
+      'home.cycleStrip.moodGroup.irritable.category': 'خلق · {{mood}}',
+      'home.cycleStrip.moodGroup.irritable.teaser': '{{name}}، روز حساس ثبت شد',
+      'home.cycleStrip.moodGroup.irritable.personalTeaser':
+        '، {{mood}} ثبت کردید — نکات عملی می‌دهیم، نه موعظه.',
+      'home.cycleStrip.moodGroup.irritable.slide1Title': '{{name}}، احساسات معتبرند',
+      'home.cycleStrip.moodGroup.irritable.slide1Body':
+        '{{mood}} در {{phase}} سیگنال واقعی است. {{advice}}',
+      'home.cycleStrip.moodGroup.irritable.slide2Title': 'کاهش اصطکاک',
+      'home.cycleStrip.moodGroup.irritable.slide2Body':
+        'میان‌وعده، آب و مکث قبل از تصمیم‌های بزرگ وقتی {{mood}} بالا می‌رود کمک می‌کند.',
+
+      'home.cycleStrip.moodGroup.default.category': 'برای شما',
+      'home.cycleStrip.moodGroup.default.teaser': '{{name}}، بررسی امروز',
+      'home.cycleStrip.moodGroup.default.personalTeaser':
+        '، {{mood}} ثبت کردید — مطالب را با احساس امروزتان هماهنگ می‌کنیم.',
+      'home.cycleStrip.moodGroup.default.slide1Title': '{{name}}، مطلب امروز',
+      'home.cycleStrip.moodGroup.default.slide1Body':
+        'در {{phase}} احساس {{mood}} دارید. {{advice}}',
+      'home.cycleStrip.moodGroup.default.slide2Title': 'به ثبت ادامه دهید',
+      'home.cycleStrip.moodGroup.default.slide2Body':
+        'وقتی {{mood}} را کنار {{describe}} ثبت کنید الگوها مشخص می‌شوند — کمال لازم نیست.',
+
       'home.cycleSummary.categoryToday': 'امروز',
       'home.cycleSummary.teaserMulti': '{{count}} مطلب کوتاه برای امروز',
       'home.cycleSummary.teaserEmpty': 'خلاصهٔ وضعیت شما',
@@ -2635,6 +3288,60 @@ export class TranslationService {
       'home.dialog.calendarAppointments': '📅 نوبت‌ها',
       'home.dialog.openingWeekDetails':
         'در حال باز کردن جزئیات هفته {{week}}...',
+
+      'weekDetail.toolbarTitle': 'هفته {{week}}',
+      'weekDetail.weekPill': 'هفته {{week}}',
+      'weekDetail.ofPregnancy': 'از بارداری',
+      'weekDetail.heroLede':
+        'برای این مرحله موضوعی را انتخاب کنید. برای علائم یا تصمیم‌های درمانی، پزشک خود را ملاک قرار دهید.',
+      'weekDetail.aboutSizeOf': 'حدود اندازهٔ',
+      'weekDetail.viewing': 'در حال مشاهده',
+      'weekDetail.weekOf40': 'هفته {{week}}',
+      'weekDetail.of40': 'از ۴۰',
+      'weekDetail.prevWeekAria': 'هفتهٔ قبل',
+      'weekDetail.nextWeekAria': 'هفتهٔ بعد',
+      'weekDetail.sliderHint': 'روی نوار بزنید یا دسته را بکشید تا به هر هفته بروید.',
+      'weekDetail.progressLabel': '{{pct}}٪ از مسیر بارداری',
+      'pregnancyWeekProgress.eyebrow': 'مسیر بارداری',
+      'pregnancyWeekProgress.complete': 'پیشرفت',
+      'pregnancyWeekProgress.aria': 'پیشرفت هفته‌های بارداری',
+      'pregnancyWeekProgress.weekAria': 'رفتن به هفته {{week}}',
+      'pregnancyWeekProgress.trimester1': 'سه‌ماهه اول',
+      'pregnancyWeekProgress.trimester2': 'سه‌ماهه دوم',
+      'pregnancyWeekProgress.trimester3': 'سه‌ماهه سوم',
+      'pregnancyWeekProgress.hint': 'روی هر هفته بزنید · فلش‌ها یک هفته جابه‌جا می‌کنند',
+      'weekDetail.jumpWeekAria': 'پرش به هفتهٔ بارداری',
+      'weekDetail.saveExplainer':
+        'ذخیرهٔ هفته، صفحهٔ خانه را با خط زمانی، اندازه و نکات هماهنگ می‌کند (سابقهٔ پزشکی نیست).',
+      'weekDetail.saveButton': 'ذخیره به‌عنوان هفتهٔ من در خانه',
+      'weekDetail.saving': 'در حال ذخیره…',
+      'weekDetail.topicsForWeek': 'موضوعات هفته {{week}}',
+      'weekDetail.tab.overview': 'نمای کلی',
+      'weekDetail.tab.eating': 'تغذیه',
+      'weekDetail.tab.activity': 'فعالیت',
+      'weekDetail.tab.intimacy': 'صمیمیت',
+      'weekDetail.tab.checkups': 'ویزیت‌ها',
+      'weekDetail.section.babyDevelopment': 'رشد جنین',
+      'weekDetail.section.commonSymptoms': 'علائم شایع',
+      'weekDetail.section.funFacts': 'حقایق جالب',
+      'weekDetail.section.foodsEnjoy': 'غذاهای مناسب',
+      'weekDetail.section.limitAvoid': 'محدود یا پرهیز',
+      'weekDetail.section.supplements': 'مکمل‌ها',
+      'weekDetail.section.movement': 'تحرک',
+      'weekDetail.section.restCare': 'استراحت و مراقبت',
+      'weekDetail.section.prepChecklist': 'چک‌لیست آماده‌سازی',
+      'weekDetail.section.intimacy': 'صمیمیت',
+      'weekDetail.section.tips': 'نکات',
+      'weekDetail.section.comfortIdeas': 'ایده‌های راحتی',
+      'weekDetail.section.appointments': 'نوبت‌ها',
+      'weekDetail.section.testsScreenings': 'آزمایش‌ها و غربالگری',
+      'weekDetail.section.callProvider': 'چه زمانی با پزشک تماس بگیرید',
+      'weekDetail.section.thisWeek': 'این هفته',
+      'weekDetail.intimacy.safe': 'معمولاً ایمن است — به بدن خود گوش دهید',
+      'weekDetail.intimacy.caution': 'با احتیاط — با پزشک خود مشورت کنید',
+      'weekDetail.toast.saved': 'هفته {{week}} ذخیره شد',
+      'weekDetail.toast.saveFailed': 'ذخیرهٔ هفتهٔ بارداری ممکن نشد. دوباره تلاش کنید.',
+
       'home.dialog.openingCycleCalendar':
         'در حال باز کردن تقویم ردیابی چرخه...',
       'home.dialog.openingSymptomsCalendar': 'در حال باز کردن تقویم علائم...',
@@ -2784,6 +3491,116 @@ export class TranslationService {
         'هفتهٔ بارداری در پروفایل به‌روز شد!',
       'home.dialog.appointmentComingSoon': 'رزرو نوبت به‌زودی!',
       'home.dialog.pregnancyWeekCalcFailed': 'محاسبهٔ هفتهٔ بارداری ناموفق بود',
+
+      'symptomsTracker.title': 'ثبت علائم',
+      'symptomsTracker.dataExists': 'داده ثبت شده است',
+      'symptomsTracker.history': 'تاریخچهٔ علائم',
+      'symptomsTracker.dayProgress': '{{percent}}٪ از روز',
+      'symptomsTracker.howFeeling': 'حالتان چطور است؟',
+      'symptomsTracker.quickSymptoms': 'علائم سریع',
+      'symptomsTracker.detailedSymptoms': 'علائم تفصیلی',
+      'symptomsTracker.physicalSymptoms': 'علائم جسمی',
+      'symptomsTracker.moodEmotional': 'خلق و احساسات',
+      'symptomsTracker.intimacySexDrive': 'صمیمیت و میل جنسی',
+      'symptomsTracker.additionalNotes': 'یادداشت‌های اضافه',
+      'symptomsTracker.notesPlaceholder':
+        'به‌طور کلی حالتان چطور است؟ مشاهدات دیگر را بنویسید...',
+      'symptomsTracker.summary': 'خلاصه',
+      'symptomsTracker.summaryMood': 'خلق:',
+      'symptomsTracker.summaryQuick': 'علائم سریع:',
+      'symptomsTracker.summaryDetailed': 'علائم تفصیلی:',
+      'symptomsTracker.summaryTotal': 'مجموع:',
+      'symptomsTracker.selectedCount': '{{count}} مورد انتخاب شده',
+      'symptomsTracker.symptomsCount': '{{count}} علامت',
+      'symptomsTracker.save': 'ذخیره',
+      'symptomsTracker.update': 'به‌روزرسانی',
+      'symptomsTracker.saveButton': '{{action}} علائم ({{count}})',
+      'symptomsTracker.readyToSave':
+        'آمادهٔ ذخیرهٔ علائم برای {{date}}',
+      'symptomsTracker.pregnancyProgress': '{{weeks}} هفته، {{days}} {{dayLabel}}',
+      'symptomsTracker.daySingular': 'روز',
+      'symptomsTracker.dayPlural': 'روز',
+      'symptomsTracker.toast.selectOne':
+        'لطفاً حداقل یک علامت برای ثبت انتخاب کنید',
+      'symptomsTracker.toast.saved': 'علائم با موفقیت ذخیره شد!',
+      'symptomsTracker.toast.updated': 'علائم با موفقیت به‌روزرسانی شد!',
+      'symptomsTracker.toast.saveFailed': 'ذخیرهٔ علائم ناموفق بود',
+      'symptomsTracker.toast.updateFailed': 'به‌روزرسانی علائم ناموفق بود',
+      'symptomsTracker.toast.failedRetry':
+        'ذخیرهٔ علائم ناموفق بود. لطفاً دوباره تلاش کنید.',
+      'symptomsTracker.toast.valenceConflict':
+        'لطفاً فقط یک احساس مثبت یا منفی انتخاب کنید (مثلاً همزمان «شاد» و «غمگین» نباشد).',
+      'symptomsTracker.toast.valenceInvalid':
+        'انتخاب احساس نامعتبر است. احساسات مثبت و منفی را با هم مخلوط نکنید.',
+      'symptomsTracker.toast.dataLoaded': 'داده برای {{date}} بارگذاری شد',
+      'symptomsTracker.toast.loadFailed':
+        'بارگذاری دادهٔ موجود ناموفق بود: {{message}}',
+      'symptomsTracker.toast.alreadySaved':
+        'برای {{date}} قبلاً علائم ثبت کرده‌اید. با فلش تاریخ روز دیگری انتخاب کنید یا در پنجره «ویرایش این روز» را بزنید.',
+      'symptomsTracker.toast.dayLogged':
+        'این روز قبلاً ثبت شده است. تاریخ دیگری انتخاب کنید.',
+      'symptomsTracker.toast.dayLoggedRetry':
+        'این روز قبلاً ثبت شده است. تاریخ دیگری انتخاب کنید یا بعداً دوباره تلاش کنید.',
+      'symptomsTracker.alert.existingDay.header': 'برای این روز قبلاً ثبت شده',
+      'symptomsTracker.alert.existingDay.message':
+        'برای {{date}} قبلاً ورودی دارید. می‌توانید آن را برای ویرایش بارگذاری کنید یا لغو کنید و تاریخ دیگری انتخاب کنید.',
+      'symptomsTracker.alert.existingDay.edit': 'ویرایش این روز',
+      'symptomsTracker.alert.severity.header': 'شدت علامت',
+      'symptomsTracker.alert.severity.message': 'شدت {{symptom}} چقدر است؟',
+      'symptomsTracker.alert.note.header': 'افزودن یادداشت',
+      'symptomsTracker.alert.note.message': 'یادداشتی دربارهٔ {{symptom}} بنویسید:',
+      'symptomsTracker.alert.note.placeholder': 'علائم خود را توصیف کنید...',
+      'symptomsTracker.severity.mild': 'خفیف',
+      'symptomsTracker.severity.moderate': 'متوسط',
+      'symptomsTracker.severity.severe': 'شدید',
+      'symptoms.option.great': 'عالی',
+      'symptoms.option.good': 'خوب',
+      'symptoms.option.okay': 'معمولی',
+      'symptoms.option.not_great': 'نه چندان خوب',
+      'symptoms.option.terrible': 'خیلی بد',
+      'symptoms.option.fatigue': 'خستگی',
+      'symptoms.option.nausea': 'تهوع',
+      'symptoms.option.headache': 'سردرد',
+      'symptoms.option.cramps': 'گرفتگی',
+      'symptoms.option.masturbation': 'خودارضایی',
+      'symptoms.option.no_sex': 'رابطهٔ جنسی نداشتم',
+      'symptoms.option.protected_sex': 'رابطهٔ محافظت‌شده',
+      'symptoms.option.unprotected_sex': 'رابطهٔ بدون محافظت',
+      'symptoms.option.high_sex_drive': 'میل جنسی بالا',
+      'symptoms.option.low_sex_drive': 'میل جنسی پایین',
+      'symptoms.option.calm': 'آرام',
+      'symptoms.option.happy': 'شاد',
+      'symptoms.option.energetic': 'پرانرژی',
+      'symptoms.option.frisky': 'بازیگوش',
+      'symptoms.option.mood_swings': 'نوسان خلقی',
+      'symptoms.option.irritated': 'عصبی',
+      'symptoms.option.sad': 'غمگین',
+      'symptoms.option.anxious': 'مضطرب',
+      'symptoms.option.depressed': 'افسرده',
+      'symptoms.option.guilty': 'احساس گناه',
+      'symptoms.option.obsessive': 'افکار وسواسی',
+      'symptoms.option.low_energy': 'انرژی کم',
+      'symptoms.option.apathetic': 'بی‌تفاوت',
+      'symptoms.option.confused': 'گیج',
+      'symptoms.option.self_critical': 'خیلی خودانتقادگر',
+      'symptoms.option.breast_tenderness': 'حساسیت سینه',
+      'symptoms.option.leg_cramps': 'گرفتگی پا',
+      'symptoms.option.back_pain': 'کمردرد',
+      'symptoms.option.morning_sickness': 'تهوع صبحگاهی',
+      'symptoms.option.heartburn': 'سوزش سر دل',
+      'symptoms.option.bloating': 'نفخ',
+      'symptoms.option.frequent_urination': 'ادرار مکرر',
+      'symptoms.option.food_aversions': 'بی‌میلی به غذا',
+      'symptoms.option.nasal_congestion': 'گرفتگی بینی',
+      'symptoms.option.baby_movements': 'حرکت جنین',
+      'symptoms.option.shortness_breath': 'تنگی نفس',
+      'symptoms.option.swelling': 'ورم (ادم)',
+      'symptoms.option.braxton_hicks': 'انقباضات براکتون هیکس',
+      'symptoms.option.sleep_difficulties': 'مشکل خواب',
+      'symptoms.option.nesting_instinct': 'غریزهٔ لانه‌سازی',
+      'symptoms.option.dizziness': 'سرگیجه',
+      'symptoms.option.constipation': 'یبوست',
+      'symptoms.option.cravings': 'ولع غذایی',
     },
   };
 
@@ -2795,19 +3612,22 @@ export class TranslationService {
       this.translations[currentLanguage] || this.translations['en'];
     const localized = languageTranslations[key];
     if (localized !== undefined && localized !== '') {
-      return localized;
+      return this.localizeForLanguage(localized, currentLanguage);
     }
     const en = this.translations['en'][key];
-    return en !== undefined && en !== '' ? en : key;
+    const fallback = en !== undefined && en !== '' ? en : key;
+    return this.localizeForLanguage(fallback, currentLanguage);
   }
 
   /** Replace `{{name}}` placeholders in a translated string. */
   translateParams(key: string, params: Record<string, string | number>): string {
+    const lang = this.languageService.getCurrentLanguage();
     let text = this.translate(key);
     for (const [name, value] of Object.entries(params)) {
-      text = text.replace(new RegExp(`\\{\\{${name}\\}\\}`, 'g'), String(value));
+      const rendered = localizeDigitsInText(String(value), lang);
+      text = text.replace(new RegExp(`\\{\\{${name}\\}\\}`, 'g'), rendered);
     }
-    return text;
+    return localizeDigitsInText(text, lang);
   }
 
   getTranslation(key: string, language?: string): string {
@@ -2816,9 +3636,14 @@ export class TranslationService {
       this.translations[lang] || this.translations['en'];
     const localized = languageTranslations[key];
     if (localized !== undefined && localized !== '') {
-      return localized;
+      return this.localizeForLanguage(localized, lang);
     }
     const en = this.translations['en'][key];
-    return en !== undefined && en !== '' ? en : key;
+    const fallback = en !== undefined && en !== '' ? en : key;
+    return this.localizeForLanguage(fallback, lang);
+  }
+
+  private localizeForLanguage(text: string, languageCode: string): string {
+    return localizeDigitsInText(text, languageCode);
   }
 }

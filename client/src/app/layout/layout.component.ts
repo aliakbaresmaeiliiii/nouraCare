@@ -163,9 +163,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
       );
       return;
     }
-    this.notificationsAriaLabel = this.translation
-      .translate('header.notifications.withUnread')
-      .replace(/\{\{count\}\}/g, String(this.unreadCount));
+    this.notificationsAriaLabel = this.translation.translateParams(
+      'header.notifications.withUnread',
+      { count: this.unreadCount },
+    );
   }
 
   private updateTitle(url: string) {

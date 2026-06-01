@@ -41,7 +41,7 @@
               >
                 <span class="pregnancy-calendar-label">{{ d.label }}</span>
                 <span class="pregnancy-calendar-date-wrap">
-                  <span class="pregnancy-calendar-date">{{ d.dateNum }}</span>
+                  <span class="pregnancy-calendar-date">{{ d.dateNum | localNum }}</span>
                 </span>
               </button>
             }
@@ -72,25 +72,47 @@
           <stop offset="100%" stop-color="var(--brand-bg)" stop-opacity="1" />
         </radialGradient>
 
-        <!-- Phase-tinted outer disk (period = blush/wine; fertile / peak = brand teal–cyan) -->
-        <radialGradient id="centerGradientPeriod" cx="42%" cy="36%" r="58%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
-          <stop offset="34%" stop-color="#fce7f0" stop-opacity="1" />
-          <stop offset="66%" stop-color="#e8b4c8" stop-opacity="0.97" />
-          <stop offset="100%" stop-color="#b87a8f" stop-opacity="0.38" />
+        <!-- Phase-tinted outer disk — soft blush / mint washes -->
+        <radialGradient id="centerGradientPeriod" cx="44%" cy="38%" r="62%">
+          <stop offset="0%" stop-color="#fffafb" stop-opacity="1" />
+          <stop offset="38%" stop-color="#ffe4ec" stop-opacity="1" />
+          <stop offset="72%" stop-color="#fecdd3" stop-opacity="0.72" />
+          <stop offset="100%" stop-color="#fda4af" stop-opacity="0.22" />
         </radialGradient>
-        <radialGradient id="centerGradientFertile" cx="42%" cy="36%" r="58%">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
-          <stop offset="36%" stop-color="#ecfeff" stop-opacity="1" />
-          <stop offset="68%" stop-color="#a5e8e3" stop-opacity="0.95" />
-          <stop offset="100%" stop-color="#5ec9bf" stop-opacity="0.36" />
+        <radialGradient id="centerGradientFertile" cx="44%" cy="38%" r="62%">
+          <stop offset="0%" stop-color="#fafffe" stop-opacity="1" />
+          <stop offset="40%" stop-color="#ecfdf5" stop-opacity="1" />
+          <stop offset="72%" stop-color="#a7f3d0" stop-opacity="0.62" />
+          <stop offset="100%" stop-color="#5eead4" stop-opacity="0.2" />
         </radialGradient>
-        <radialGradient id="centerGradientOvulationPeak" cx="42%" cy="36%" r="58%">
-          <stop offset="0%" stop-color="#f6fffe" stop-opacity="1" />
-          <stop offset="38%" stop-color="#ccfbf8" stop-opacity="1" />
-          <stop offset="70%" stop-color="#5eead4" stop-opacity="0.94" />
-          <stop offset="100%" stop-color="#0d9488" stop-opacity="0.42" />
+        <radialGradient id="centerGradientOvulationPeak" cx="44%" cy="38%" r="62%">
+          <stop offset="0%" stop-color="#f0fdfa" stop-opacity="1" />
+          <stop offset="42%" stop-color="#ccfbf1" stop-opacity="1" />
+          <stop offset="74%" stop-color="#5eead4" stop-opacity="0.58" />
+          <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0.24" />
         </radialGradient>
+
+        <!-- Ring segment gradients -->
+        <linearGradient id="segmentGradientPeriod" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fda4af" />
+          <stop offset="55%" stop-color="#fb7185" />
+          <stop offset="100%" stop-color="#f43f5e" />
+        </linearGradient>
+        <linearGradient id="segmentGradientFertile" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#99f6e4" />
+          <stop offset="50%" stop-color="#5eead4" />
+          <stop offset="100%" stop-color="#2dd4bf" />
+        </linearGradient>
+        <linearGradient id="segmentGradientOvulation" x1="0%" y1="50%" x2="100%" y2="50%">
+          <stop offset="0%" stop-color="#6ee7b7" />
+          <stop offset="50%" stop-color="#14b8a6" />
+          <stop offset="100%" stop-color="#0d9488" />
+        </linearGradient>
+        <linearGradient id="segmentGradientLuteal" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ddd6fe" />
+          <stop offset="55%" stop-color="#c4b5fd" />
+          <stop offset="100%" stop-color="#a78bfa" />
+        </linearGradient>
 
         <!-- Glow effect for today marker -->
         <filter id="glow">
@@ -190,16 +212,33 @@
         ></circle>
 
         <!-- Main cycle circle (neutral track) -->
-        <circle r="210" fill="none" stroke-width="30" class="chart-track-ring"></circle>
+        <circle
+          r="210"
+          fill="none"
+          stroke-width="28"
+          class="chart-track-ring"
+        ></circle>
 
         <!-- Animated Aura Circles around the ring content -->
 
 
         <!-- Cycle segments -->
         @for (s of segments; track $index) {
-        <circle r="210" fill="none" [attr.stroke]="s.color" stroke-width="24" stroke-linecap="round"
-          transform="rotate(-90)" [attr.stroke-dasharray]="dashArray(s.len)"
-          [attr.stroke-dashoffset]="dashOffset(s.start)" class="cycle-segment" />
+        <circle
+          r="210"
+          fill="none"
+          [attr.stroke]="s.color"
+          stroke-width="22"
+          stroke-linecap="round"
+          transform="rotate(-90)"
+          [attr.stroke-dasharray]="dashArray(s.len)"
+          [attr.stroke-dashoffset]="dashOffset(s.start)"
+          class="cycle-segment"
+          [class.cycle-segment--period]="s.kind === 'period'"
+          [class.cycle-segment--fertile]="s.kind === 'fertile'"
+          [class.cycle-segment--ovulation]="s.kind === 'ovulation'"
+          [class.cycle-segment--luteal]="s.kind === 'luteal'"
+        />
         }
 
 
@@ -209,7 +248,7 @@
           <text [attr.x]="getOuterNumberX($index, cycleLength)" [attr.y]="getOuterNumberY($index, cycleLength)"
             text-anchor="middle" alignment-baseline="middle" font-size="20" font-weight="700"
             class="outer-number period-day-number">
-            {{ day }}
+            {{ day | localNum }}
           </text>
         </g>
         }
@@ -219,7 +258,7 @@
           <text [attr.x]="getOuterNumberX(cycleLength - 1, cycleLength)"
             [attr.y]="getOuterNumberY(cycleLength - 1, cycleLength)" text-anchor="middle" alignment-baseline="middle"
             font-size="12" font-weight="700" class="outer-number last-day-number">
-            {{ cycleLength }}
+            {{ cycleLength | localNum }}
           </text>
         </g>
 
@@ -227,11 +266,11 @@
         <!-- Period Mark - Dynamic based on current cycle day -->
         @if (isInPeriod) {
         <g class="phase-mark period-mark">
-          <circle r="12" fill="#9b4a63" opacity="0.92" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
+          <circle r="12" fill="#f43f5e" opacity="0.94" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)" [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)">
-            {{ viewCycleDay }}
+            {{ viewCycleDay | localNum }}
           </text>
         </g>
         }
@@ -239,7 +278,7 @@
         <!-- Fertile Window Mark - Dynamic -->
         @if (isInFertileWindow && !isInPeriod && !isOvulationDay) {
         <g class="phase-mark fertile-mark">
-          <circle r="12" fill="#14b8a6" opacity="0.92" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
+          <circle r="12" fill="#2dd4bf" opacity="0.94" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
@@ -252,10 +291,10 @@
         <!-- Ovulation Mark - Dynamic -->
         @if (isOvulationDay && !isInPeriod) {
         <g class="phase-mark ovulation-mark">
-          <circle r="12" fill="rgba(var(--brand-accent-rgb), 0.26)" stroke="var(--brand-accent)" stroke-width="1.5"
+          <circle r="12" fill="#0d9488" stroke="#99f6e4" stroke-width="1.5"
             opacity="0.96" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
-          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="800" fill="var(--brand-text)"
+          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="800" fill="#ffffff"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)" [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)">
             O
           </text>
@@ -265,7 +304,7 @@
         <!-- PMS Mark - Dynamic -->
         @if (isInPMS && !isInPeriod) {
         <g class="phase-mark pms-mark">
-          <circle r="11" fill="#7c3aed" opacity="0.92" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
+          <circle r="11" fill="#a78bfa" opacity="0.94" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
           <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="800" fill="white"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
@@ -278,7 +317,7 @@
         <!-- Ovulation Day Heart -->
         @if (ovulationDay > 0) {
         <g class="ovulation-heart" [attr.transform]="'translate(' + ovulationX + ',' + ovulationY + ')'">
-          <circle r="12" fill="#14b8a6" opacity="0.92" filter="url(#shadow)"></circle>
+          <circle r="12" fill="#14b8a6" opacity="0.95" filter="url(#shadow)"></circle>
           <g transform="translate(0, 0)">
             <path
               d="M-4,-2 C-6,-4 -8,-2 -8,0 C-8,2 -4,6 0,8 C4,6 8,2 8,0 C8,-2 6,-4 4,-2 C2,-4 0,-2 0,0 C0,-2 -2,-4 -4,-2 Z"
@@ -410,7 +449,7 @@
             fill="var(--brand-text)"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"
-          >{{ viewCycleDay }}</text>
+          >{{ viewCycleDay | localNum }}</text>
         </g>
         }
       </g>
@@ -541,14 +580,18 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>{{ pickerModalTitle }}</ion-title>
-        <ion-buttons slot="end">
-          <ion-button fill="clear" (click)="closePicker()">{{
+        <ion-buttons slot="start">
+          <ion-button fill="clear" class="sheet-dialog-btn" (click)="closePicker()">{{
             "common.cancel" | translate
           }}</ion-button>
-          <ion-button strong="true" (click)="confirmPicker()">{{
-            "cycleChart.picker.done" | translate
-          }}</ion-button>
+        </ion-buttons>
+        <ion-title>{{ pickerModalTitle }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button
+            fill="clear"
+            class="sheet-dialog-btn sheet-dialog-btn--confirm"
+            (click)="confirmPicker()"
+          >{{ "cycleChart.picker.done" | translate }}</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -560,7 +603,7 @@
         <ion-picker-column [value]="tempYear" (ionChange)="onChange($event,'year')">
           @for (y of years; track $index) {
           <ion-picker-column-option [value]="y" [class.date-picker-option--today]="isPickerYearToday(y)">
-            {{ y }}
+            {{ y | localNum }}
           </ion-picker-column-option>
           }
         </ion-picker-column>
@@ -569,7 +612,7 @@
         <ion-picker-column [value]="tempMonth" (ionChange)="onChange($event,'month')">
           @for (m of months; track $index) {
           <ion-picker-column-option [value]="m" [class.date-picker-option--today]="isPickerMonthToday(m)">
-            {{ m }}
+            {{ m | localNum }}
           </ion-picker-column-option>
           }
         </ion-picker-column>
@@ -578,7 +621,7 @@
         <ion-picker-column [value]="tempDay" (ionChange)="onChange($event,'day')">
           @for (d of pickerDays; track $index) {
           <ion-picker-column-option [value]="d" [class.date-picker-option--today]="isPickerDayToday(d)">
-            {{ d }}
+            {{ d | localNum }}
           </ion-picker-column-option>
           }
         </ion-picker-column>

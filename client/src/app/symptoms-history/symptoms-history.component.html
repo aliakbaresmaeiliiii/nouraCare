@@ -51,7 +51,7 @@
       <!-- Header -->
       <div class="history-header">
         <h2>Your Symptoms History</h2>
-        <p>{{ symptomsHistory.length }} days tracked</p>
+        <p>{{ symptomsHistory.length | localNum }} days tracked</p>
       </div>
 
       <!-- History Items -->
@@ -84,7 +84,7 @@
           }
           @if (day.symptoms.length > 3) {
           <div class="more-symptoms">
-            +{{ day.symptoms.length - 3 }} more
+            +{{ (day.symptoms.length - 3) | localNum }} more
           </div>
           }
         </div>

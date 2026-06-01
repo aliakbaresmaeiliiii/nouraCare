@@ -18,8 +18,8 @@
       @if (isExploringOtherWeek) {
         <div class="explore-banner" role="status">
           <span class="explore-banner-text">
-            You are viewing <strong>week {{ pregnancyWeek }}</strong>. Your pregnancy is
-            <strong>week {{ actualPregnancyWeek }}</strong>.
+            You are viewing <strong>week {{ pregnancyWeek | localNum }}</strong>. Your pregnancy is
+            <strong>week {{ actualPregnancyWeek | localNum }}</strong>.
           </span>
           <ion-button
             size="small"
@@ -46,7 +46,7 @@
 
           <div class="week-card-center" id="week-heading">
             <span class="week-kicker">Pregnancy</span>
-            <p class="week-big">Week {{ pregnancyWeek }}</p>
+            <p class="week-big">Week {{ pregnancyWeek | localNum }}</p>
             <p class="week-of">of 40</p>
           </div>
 
@@ -61,23 +61,14 @@
           </ion-button>
         </div>
 
-        <div class="week-slider-block">
-          <div class="week-slider-labels">
-            <span>4</span>
-            <span class="week-slider-mid">Slide to change week</span>
-            <span>40</span>
-          </div>
-          <ion-range
-            [min]="4"
-            [max]="40"
-            [step]="1"
-            [value]="pregnancyWeek"
-            [pin]="true"
-            snaps="true"
-            aria-label="Choose pregnancy week from 4 to 40"
-            (ionInput)="onWeekRangeChange($event)"
-          ></ion-range>
-        </div>
+        <app-pregnancy-week-progress
+          class="school-week-progress"
+          [week]="pregnancyWeek"
+          [minWeek]="4"
+          [maxWeek]="40"
+          [profileWeek]="actualPregnancyWeek"
+          (weekChange)="onWeekProgressChange($event)"
+        />
       </section>
 
       <section class="surface-card baby-card" aria-labelledby="size-heading">
@@ -121,19 +112,6 @@
         <p class="read-body">{{ getFunFacts(pregnancyWeek) }}</p>
       </section>
 
-      <section class="surface-card progress-card" aria-labelledby="progress-heading">
-        <div class="read-card-head">
-          <ion-icon name="time-outline" class="read-icon progress" aria-hidden="true"></ion-icon>
-          <h3 class="read-title" id="progress-heading">Overall progress</h3>
-        </div>
-        <div class="progress-track" role="progressbar" [attr.aria-valuenow]="getProgressPercentage()" aria-valuemin="0" aria-valuemax="100" aria-label="Pregnancy progress">
-          <div class="progress-fill" [style.width.%]="(pregnancyWeek / 40) * 100"></div>
-        </div>
-        <div class="progress-meta">
-          <span>Week {{ pregnancyWeek }} of 40</span>
-          <span class="progress-pct">{{ getProgressPercentage() }}% through pregnancy</span>
-        </div>
-      </section>
     </div>
   }
 

@@ -166,16 +166,8 @@
   }
 }
 
-ion-range {
-  --bar-height: 6px;
-  --bar-border-radius: 6px;
-  --bar-background: rgba(var(--brand-text-rgb), 0.1);
-  --bar-background-active: var(--ion-color-primary);
-  --knob-background: var(--ion-color-primary);
-  --knob-size: 22px;
-  --pin-background: var(--brand-text);
-  --pin-color: var(--ion-background-color, #fff);
-  padding: 8px 0 12px;
+.school-week-progress {
+  margin-top: 14px;
 }
 
 .baby-card {

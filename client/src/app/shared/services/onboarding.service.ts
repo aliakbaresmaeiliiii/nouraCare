@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable, ReplaySubject, share } from 'rxjs';
+import { Observable, ReplaySubject, share, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { UserInfoService } from './user-info.service';
+import { UserSessionService } from './user-session.service';
 
 export interface DashboardRequestOptions {
   /** Bypass in-flight / shared cache (pull-to-refresh, after PATCH). */
@@ -61,6 +63,42 @@ export interface DashboardFertileWindow {
   end: string;
 }
 
+export type CyclePhaseGuideAction =
+  | 'insights'
+  | 'fertility'
+  | 'symptoms'
+  | 'calendar'
+  | 'period';
+
+export interface DashboardCyclePhaseGuideCard {
+  id: string;
+  ionIcon: string;
+  accentHex: string;
+  title: string;
+  body: string;
+  action?: CyclePhaseGuideAction;
+}
+
+export interface DashboardCyclePhaseGuideContext {
+  cycleDay: number;
+  periodDay: number | null;
+  cycleLength: number;
+  daysToNextPeriod: number | null;
+  daysToOvulation: number | null;
+  avgBleed: number;
+  confidence: number;
+  hasPrePeriodPattern: boolean;
+  hasOvulationPattern: boolean;
+}
+
+export interface DashboardCyclePhaseGuide {
+  phase: 'none' | 'period' | 'follicular' | 'fertile' | 'luteal';
+  headline: string;
+  subtitle: string;
+  cards: DashboardCyclePhaseGuideCard[];
+  context: DashboardCyclePhaseGuideContext;
+}
+
 export interface DashboardResponse {
   state: ReproductiveStatus;
   week: number | null;
@@ -90,6 +128,8 @@ export interface DashboardResponse {
   needsPregnancyInput?: boolean;
   /** LMP stored on the server (ISO date), when pregnant and known. */
   lastMenstrualPeriod?: string | null;
+  /** Cycle/planning: personalized phase guide cards from dashboard API. */
+  phaseGuide?: DashboardCyclePhaseGuide | null;
 }
 
 @Injectable({
@@ -97,6 +137,8 @@ export interface DashboardResponse {
 })
 export class OnboardingService {
   private http = inject(HttpClient);
+  private userSession = inject(UserSessionService);
+  private userInfoService = inject(UserInfoService);
   private baseUrl = environment.apiEndPoint + 'onboarding';
   private meBaseUrl = environment.apiEndPoint + 'me';
   /** Coalesces concurrent GET /me/dashboard subscribers into one HTTP call. */
@@ -201,6 +243,17 @@ export class OnboardingService {
   updateReproductiveState(
     payload: InitializeReproductiveStateDto,
   ): Observable<DashboardResponse> {
-    return this.http.patch<DashboardResponse>(`${this.meBaseUrl}/state`, payload);
+    const userId = this.userSession.getCurrentUserId();
+    if (!userId) {
+      return throwError(() => new Error('Not authenticated'));
+    }
+    return this.http
+      .patch<DashboardResponse>(`${this.meBaseUrl}/${userId}/state`, payload)
+      .pipe(
+        tap(() => {
+          this.invalidateDashboardCache();
+          this.userInfoService.invalidateOnboardingCache();
+        }),
+      );
   }
 }

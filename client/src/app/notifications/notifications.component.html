@@ -6,7 +6,7 @@
     <ion-title class="header-title">Notifications</ion-title>
     <ion-buttons slot="end">
       @if (unreadCount > 0) {
-        <ion-badge class="header-unread-badge" color="light">{{ unreadCount }}</ion-badge>
+        <ion-badge class="header-unread-badge" color="light">{{ unreadCount | localNum }}</ion-badge>
       }
       <ion-button
         fill="clear"
@@ -37,7 +37,7 @@
 
   <div class="page-inner">
     @if (unreadCount > 0 && selectedFilter === 'all') {
-      <p class="summary-line">{{ unreadCount }} unread</p>
+      <p class="summary-line">{{ unreadCount | localNum }} unread</p>
     }
 
     <ion-segment

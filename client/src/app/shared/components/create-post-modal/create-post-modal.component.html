@@ -68,7 +68,7 @@
     <!-- Character Count (if needed) -->
     @if (characterCount > 1500) {
     <div class="character-count">
-      {{ characterCount }}/{{ maxCharacters }}
+      {{ characterCount | localNum }}/{{ maxCharacters | localNum }}
     </div>
     }
 

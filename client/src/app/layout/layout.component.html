@@ -21,7 +21,7 @@
           <span class="notification-bell" aria-hidden="true">
             <ion-icon name="notifications-outline"></ion-icon>
             @if (unreadCount > 0) {
-              <span class="notification-bell__badge">{{ unreadBadgeText }}</span>
+              <span class="notification-bell__badge">{{ unreadBadgeText | localNum }}</span>
             }
           </span>
         </ion-button>

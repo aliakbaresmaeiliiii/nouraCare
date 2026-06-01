@@ -6,13 +6,14 @@ import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { FavoritesService, FavoriteItem, FavoriteStats } from '../shared/services/favorites.service';
 import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
+import { LocalizedNumberPipe } from '../shared/pipes/localized-number.pipe';
 
 @Component({
   selector: 'app-my-favorites',
   templateUrl: './my-favorites.component.html',
   styleUrls: ['./my-favorites.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, LogoLoadingComponent],
+  imports: [IonicModule, CommonModule, FormsModule, LogoLoadingComponent, LocalizedNumberPipe],
 })
 export class MyFavoritesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

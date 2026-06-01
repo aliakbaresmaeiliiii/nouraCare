@@ -31,14 +31,14 @@
       <div class="summary-card">
         <ion-icon name="albums-outline" class="summary-icon"></ion-icon>
         <div class="summary-copy">
-          <span class="summary-value">{{ categories().length }}</span>
+          <span class="summary-value">{{ categories().length | localNum }}</span>
           <span class="summary-label">Categories</span>
         </div>
       </div>
       <div class="summary-card">
         <ion-icon name="chatbubbles-outline" class="summary-icon"></ion-icon>
         <div class="summary-copy">
-          <span class="summary-value">{{ topics().length }}</span>
+          <span class="summary-value">{{ topics().length | localNum }}</span>
           <span class="summary-label">Topics</span>
         </div>
       </div>
@@ -308,7 +308,7 @@
                 </div>
               <div class="stat">
                 <ion-icon name="heart-outline" class="stat-icon"></ion-icon>
-                <span class="stat-text">{{ topic.likeCount || 0 }}</span>
+                <span class="stat-text">{{ topic.likeCount || 0 | localNum }}</span>
               </div>
                 <div class="stat">
                   <ion-icon name="eye-outline" class="stat-icon"></ion-icon>

@@ -188,7 +188,7 @@
   .phase-mark {
     &.period-mark {
       circle {
-        filter: drop-shadow(0 2px 5px rgba(155, 74, 99, 0.35));
+        filter: drop-shadow(0 2px 5px rgba(244, 63, 94, 0.32));
       }
     }
 
@@ -220,19 +220,19 @@
 
     &.fertile-mark {
       circle {
-        filter: drop-shadow(0 2px 5px rgba(13, 148, 136, 0.32));
+        filter: drop-shadow(0 2px 5px rgba(45, 212, 191, 0.28));
       }
     }
 
     &.ovulation-mark {
       circle {
-        filter: drop-shadow(0 2px 4px rgba(245, 158, 11, 0.3));
+        filter: drop-shadow(0 2px 6px rgba(13, 148, 136, 0.32));
       }
     }
 
     &.pms-mark {
       circle {
-        filter: drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3));
+        filter: drop-shadow(0 2px 4px rgba(167, 139, 250, 0.28));
       }
     }
   }
@@ -261,25 +261,25 @@
 }
 
 .cycle-chart-container.cycle-chart-container--phase-period {
-  --cycle-ambient-rgb: 194, 30, 86;
+  --cycle-ambient-rgb: 251, 113, 133;
   --cycle-drift-wave-1: radial-gradient(
     circle at 42% 38%,
-    rgba(232, 180, 200, 0.52) 0%,
-    rgba(184, 122, 143, 0.34) 42%,
-    rgba(155, 74, 99, 0.18) 58%,
+    rgba(254, 205, 211, 0.48) 0%,
+    rgba(251, 113, 133, 0.28) 42%,
+    rgba(244, 63, 94, 0.12) 58%,
     transparent 74%
   );
   --cycle-drift-wave-2: radial-gradient(
     circle at 50% 50%,
-    rgba(127, 29, 29, 0.2) 0%,
-    rgba(190, 24, 93, 0.12) 44%,
+    rgba(255, 241, 242, 0.35) 0%,
+    rgba(251, 113, 133, 0.1) 44%,
     transparent 64%
   );
   --cycle-drift-wave-3: radial-gradient(
     circle at 58% 42%,
-    rgba(252, 231, 240, 0.42) 0%,
-    rgba(232, 180, 200, 0.24) 48%,
-    rgba(190, 24, 93, 0.14) 62%,
+    rgba(255, 228, 230, 0.42) 0%,
+    rgba(253, 164, 175, 0.22) 48%,
+    rgba(244, 63, 94, 0.1) 62%,
     transparent 74%
   );
 }
@@ -647,7 +647,7 @@
 }
 
 .cycle-chart.cycle-chart--disk-period .chart-bg-disk {
-  stroke: rgba(181, 99, 122, 0.24);
+  stroke: rgba(253, 164, 175, 0.28);
 }
 
 .cycle-chart.cycle-chart--disk-fertile .chart-bg-disk,
@@ -656,27 +656,27 @@
 }
 
 .chart-track-ring {
-  stroke: rgba(var(--brand-primary-rgb), 0.055);
+  stroke: rgba(251, 113, 133, 0.1);
 }
 
 .chart-center-disk {
-  fill: var(--brand-surface);
-  stroke: rgba(var(--brand-primary-rgb), 0.1);
+  fill: #fffbfc;
+  stroke: rgba(251, 113, 133, 0.12);
 }
 
 .chart-center-disk--period {
-  fill: #fdf6f8;
-  stroke: rgba(181, 99, 122, 0.3);
+  fill: #fff5f7;
+  stroke: rgba(244, 63, 94, 0.18);
 }
 
 .chart-center-disk--fertile {
-  fill: #f4fffd;
-  stroke: rgba(20, 184, 166, 0.32);
+  fill: #f6fffe;
+  stroke: rgba(45, 212, 191, 0.22);
 }
 
 .chart-center-disk--ovulation {
-  fill: #f0fdfc;
-  stroke: rgba(13, 148, 136, 0.36);
+  fill: #f0fdfa;
+  stroke: rgba(20, 184, 166, 0.26);
 }
 
 :host-context(html.ion-palette-dark) {
@@ -708,9 +708,28 @@
   }
 }
 
-// SVG Elements
+// SVG ring segments — soft Flo-style tints
 .cycle-segment {
-  opacity: 0.93;
+  opacity: 0.96;
+  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.06));
+  transition: opacity 0.2s ease;
+}
+
+.cycle-segment--period {
+  filter: drop-shadow(0 2px 6px rgba(244, 63, 94, 0.22));
+}
+
+.cycle-segment--fertile {
+  filter: drop-shadow(0 2px 6px rgba(45, 212, 191, 0.2));
+}
+
+.cycle-segment--ovulation {
+  opacity: 1;
+  filter: drop-shadow(0 2px 8px rgba(13, 148, 136, 0.28));
+}
+
+.cycle-segment--luteal {
+  filter: drop-shadow(0 2px 5px rgba(167, 139, 250, 0.18));
 }
 
 // Outer Numbers Styling
@@ -1140,19 +1159,19 @@
 }
 
 .period-dot {
-  background: linear-gradient(135deg, #d4849a 0%, #9b4a63 100%);
+  background: linear-gradient(135deg, #fda4af 0%, #f43f5e 100%);
 }
 
 .fertility-dot {
-  background: linear-gradient(135deg, #5eead4 0%, #14b8a6 100%);
+  background: linear-gradient(135deg, #99f6e4 0%, #2dd4bf 100%);
 }
 
 .ovulation-dot {
-  background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+  background: linear-gradient(135deg, #6ee7b7 0%, #0d9488 100%);
 }
 
 .pms-dot {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #ddd6fe 0%, #a78bfa 100%);
 }
 
 // Animations
@@ -1491,12 +1510,12 @@ html:lang(fa) .cycle-chart-week-hero .pregnancy-calendar-label {
   border-radius: 50%;
   font-size: 0.88rem;
   font-weight: 800;
-  color: #f2003d;
+  color: #f43f5e;
   border: none;
   box-sizing: border-box;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.4) inset,
-    0 4px 14px rgba(124, 61, 82, 0.28);
+    0 4px 14px rgba(244, 63, 94, 0.22);
   animation: none;
 }
 
@@ -2158,6 +2177,13 @@ html:lang(fa) .cycle-chart-week-hero .pregnancy-calendar-label {
 .cycle-wheel-picker-modal {
   --height: 52%;
   --border-radius: 20px 20px 0 0;
+
+  ion-toolbar {
+    --background: var(--brand-surface, #fff);
+    --color: var(--brand-text);
+    --border-width: 0 0 1px 0;
+    --border-color: rgba(15, 23, 42, 0.08);
+  }
 }
 
 .cycle-wheel-picker-content {

@@ -9,7 +9,7 @@
     </div>
     <div class="progress-text">
       <span class="progress-label">{{ getStepProgressLabel() }}</span>
-      <span class="progress-fraction" aria-hidden="true">{{ currentStep + 1 }} / {{ totalSteps }}</span>
+      <span class="progress-fraction" aria-hidden="true">{{ (currentStep + 1) | localNum }} / {{ totalSteps | localNum }}</span>
     </div>
   </div>
 
@@ -233,7 +233,7 @@
               @for (row of getResultBullets(); track row.label) {
                 <li class="result-row">
                   <span class="result-label">{{ row.label }}</span>
-                  <span class="result-value">{{ row.value }}</span>
+                  <span class="result-value">{{ row.value | localNum }}</span>
                 </li>
               }
             </ul>

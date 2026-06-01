@@ -69,10 +69,10 @@
             @if (doctor.rating) {
               <span class="rating">
                 <ion-icon name="star" aria-hidden="true"></ion-icon>
-                {{ doctor.rating }}/5
+                {{ doctor.rating | localNum }}/{{ 5 | localNum }}
               </span>
             }
-            <span class="experience">{{ doctor.experienceYears }}+ years experience</span>
+            <span class="experience">{{ doctor.experienceYears | localNum }}+ years experience</span>
           </div>
           <div class="specialist-availability">
             @if (doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH') {
@@ -82,7 +82,7 @@
               <span class="available">In-Person Available</span>
             }
             @if (doctor.fee) {
-              <span class="fee">${{ doctor.fee }}</span>
+              <span class="fee">${{ doctor.fee | localNum }}</span>
             }
           </div>
           @if (doctor.location) {

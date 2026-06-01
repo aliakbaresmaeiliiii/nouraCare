@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button (click)="goBack()" class="back-btn"></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Track Symptoms</ion-title>
+    <ion-title class="header-title">{{ 'symptomsTracker.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -21,7 +21,7 @@
         @if (hasDataForDate) {
           <div class="data-indicator">
             <ion-icon name="checkmark-circle" color="success"></ion-icon>
-            <span>Data exists</span>
+            <span>{{ 'symptomsTracker.dataExists' | translate }}</span>
           </div>
         }
         <button
@@ -30,7 +30,7 @@
           (click)="viewHistory(); $event.stopPropagation()"
         >
           <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
-          <span>Symptom history</span>
+          <span>{{ 'symptomsTracker.history' | translate }}</span>
         </button>
       </div>
       
@@ -44,20 +44,20 @@
       <div class="progress-bar">
         <div class="progress-fill" [style.width.%]="getDayProgress()"></div>
       </div>
-      <span class="progress-text">{{ getDayProgress() }}% of day</span>
+      <span class="progress-text">{{ getDayProgressLabel() }}</span>
     </div>
   </div>
 
   <!-- Mood Tracker -->
   <div class="mood-section">
-    <h3>How are you feeling?</h3>
+    <h3>{{ 'symptomsTracker.howFeeling' | translate }}</h3>
     <div class="mood-options">
       @for (mood of getMoodOptions(); track mood.id) {
         <div class="mood-item" 
              [class.selected]="currentMood === mood.id"
              (click)="selectMood(mood.id)">
           <span class="emoji">{{ mood.emoji }}</span>
-          <span class="label">{{ mood.name }}</span>
+          <span class="label">{{ symptomLabel(mood.id) }}</span>
         </div>
       }
     </div>
@@ -65,14 +65,14 @@
 
   <!-- Quick Symptoms -->
   <div class="quick-symptoms">
-    <h3>Quick Symptoms</h3>
+    <h3>{{ 'symptomsTracker.quickSymptoms' | translate }}</h3>
     <div class="quick-grid">
       @for (symptom of ['fatigue', 'nausea', 'headache', 'cramps']; track symptom) {
         <div class="quick-item" 
              [class.selected]="isQuickSymptomSelected(symptom)"
              (click)="toggleQuickSymptom(symptom)">
           <ion-icon [name]="getSymptomIcon(symptom)"></ion-icon>
-          <span>{{ getSymptomName(symptom) }}</span>
+          <span>{{ symptomLabel(symptom) }}</span>
         </div>
       }
     </div>
@@ -80,18 +80,18 @@
 
   <!-- Detailed Symptoms -->
   <div class="detailed-symptoms">
-    <h3>Detailed Symptoms</h3>
+    <h3>{{ 'symptomsTracker.detailedSymptoms' | translate }}</h3>
     
     <!-- Physical Symptoms -->
     <div class="category">
-      <h4>Physical Symptoms</h4>
+      <h4>{{ 'symptomsTracker.physicalSymptoms' | translate }}</h4>
       <div class="symptoms-list">
         @for (symptom of physicalSymptoms; track symptom.id) {
           <div class="symptom-item" 
                [class.selected]="isSelected(symptom.id)"
                (click)="toggleSelection(symptom.id)">
             <ion-icon [name]="symptom.icon"></ion-icon>
-            <span>{{ symptom.name }}</span>
+            <span>{{ symptomLabel(symptom.id) }}</span>
             @if (isSelected(symptom.id)) {
               <ion-icon name="checkmark"></ion-icon>
             }
@@ -102,14 +102,14 @@
 
     <!-- Mood Symptoms -->
     <div class="category">
-      <h4>Mood & Emotional</h4>
+      <h4>{{ 'symptomsTracker.moodEmotional' | translate }}</h4>
       <div class="symptoms-list">
         @for (symptom of moodOptions; track symptom.id) {
           <div class="symptom-item" 
                [class.selected]="isSelected(symptom.id)"
                (click)="toggleSelection(symptom.id)">
             <ion-icon [name]="symptom.icon"></ion-icon>
-            <span>{{ symptom.name }}</span>
+            <span>{{ symptomLabel(symptom.id) }}</span>
             @if (isSelected(symptom.id)) {
               <ion-icon name="checkmark"></ion-icon>
             }
@@ -120,14 +120,14 @@
 
     <!-- Intimacy Symptoms -->
     <div class="category">
-      <h4>Intimacy & Sex Drive</h4>
+      <h4>{{ 'symptomsTracker.intimacySexDrive' | translate }}</h4>
       <div class="symptoms-list">
         @for (symptom of sexDriveOptions; track symptom.id) {
           <div class="symptom-item" 
                [class.selected]="isSelected(symptom.id)"
                (click)="toggleSelection(symptom.id)">
             <ion-icon [name]="symptom.icon"></ion-icon>
-            <span>{{ symptom.name }}</span>
+            <span>{{ symptomLabel(symptom.id) }}</span>
             @if (isSelected(symptom.id)) {
               <ion-icon name="checkmark"></ion-icon>
             }
@@ -139,11 +139,11 @@
 
   <!-- Notes -->
   <div class="notes-section">
-    <h3>Additional Notes</h3>
+    <h3>{{ 'symptomsTracker.additionalNotes' | translate }}</h3>
     <ion-textarea 
       [value]="notes" 
       (ionInput)="onNotesChange($event)"
-      placeholder="How are you feeling overall? Any other observations..."
+      [placeholder]="'symptomsTracker.notesPlaceholder' | translate"
       rows="3">
     </ion-textarea>
   </div>
@@ -153,24 +153,24 @@
     <div class="summary-section">
       <h3>
         <ion-icon name="list-outline"></ion-icon>
-        Summary
+        {{ 'symptomsTracker.summary' | translate }}
       </h3>
       <div class="summary-content">
         <div class="summary-item">
-          <span class="summary-label">Mood:</span>
+          <span class="summary-label">{{ 'symptomsTracker.summaryMood' | translate }}</span>
           <span class="summary-value">{{ getCurrentMoodName() }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Quick Symptoms:</span>
-          <span class="summary-value">{{ quickSymptoms.size }} selected</span>
+          <span class="summary-label">{{ 'symptomsTracker.summaryQuick' | translate }}</span>
+          <span class="summary-value">{{ getSelectedCountLabel(quickSymptoms.size) }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Detailed Symptoms:</span>
-          <span class="summary-value">{{ selectedItems.size }} selected</span>
+          <span class="summary-label">{{ 'symptomsTracker.summaryDetailed' | translate }}</span>
+          <span class="summary-value">{{ getSelectedCountLabel(selectedItems.size) }}</span>
         </div>
         <div class="summary-item">
-          <span class="summary-label">Total:</span>
-          <span class="summary-value">{{ getTotalSelections() }} symptoms</span>
+          <span class="summary-label">{{ 'symptomsTracker.summaryTotal' | translate }}</span>
+          <span class="summary-value">{{ getSymptomsCountLabel(getTotalSelections()) }}</span>
         </div>
       </div>
     </div>
@@ -184,13 +184,13 @@
       [disabled]="!hasAnySelection()"
       (click)="saveSymptoms()">
       <ion-icon [name]="hasDataForDate ? 'refresh-outline' : 'checkmark-outline'" slot="start"></ion-icon>
-      {{ hasDataForDate ? 'Update' : 'Save' }} Symptoms ({{ getTotalSelections() }})
+      {{ getSaveButtonLabel() }}
     </ion-button>
     
     @if (hasAnySelection()) {
       <div class="save-info">
         <ion-icon name="information-circle-outline"></ion-icon>
-        <span>Ready to save your symptoms for {{ getFormattedDate() }}</span>
+        <span>{{ getReadyToSaveMessage() }}</span>
       </div>
     }
   </div>

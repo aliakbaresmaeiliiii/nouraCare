@@ -1,0 +1,100 @@
+<div class="pwp-card">
+  <div class="pwp-header">
+    <div class="pwp-header__week">
+      <span class="pwp-header__eyebrow">{{
+        'pregnancyWeekProgress.eyebrow' | translate
+      }}</span>
+      <p class="pwp-header__value">
+        <span class="pwp-header__num">{{ week() | localNum }}</span>
+        <span class="pwp-header__of"
+          >/ {{ maxWeek() | localNum }}</span
+        >
+      </p>
+    </div>
+    <div class="pwp-header__badge" aria-hidden="true">
+      <span class="pwp-header__pct">{{ progressPercent() | localNum }}%</span>
+      <span class="pwp-header__pct-label">{{
+        'pregnancyWeekProgress.complete' | translate
+      }}</span>
+    </div>
+  </div>
+
+  <div
+    class="pwp-track-wrap"
+    role="progressbar"
+    [attr.aria-valuenow]="week()"
+    [attr.aria-valuemin]="minWeek()"
+    [attr.aria-valuemax]="maxWeek()"
+    [attr.aria-label]="'pregnancyWeekProgress.aria' | translate"
+  >
+    <div class="pwp-trimester-zones" aria-hidden="true">
+      <span class="pwp-zone pwp-zone--t1"></span>
+      <span class="pwp-zone pwp-zone--t2"></span>
+      <span class="pwp-zone pwp-zone--t3"></span>
+    </div>
+
+    <div class="pwp-fill-glow" [style.width.%]="fillPercent"></div>
+
+    <div class="pwp-segments" role="group">
+      @for (w of weeks(); track w) {
+        @if (readonly()) {
+          <span
+            class="pwp-segment"
+            [class.pwp-segment--past]="isPast(w)"
+            [class.pwp-segment--current]="isCurrent(w)"
+            [class.pwp-segment--profile]="isProfile(w)"
+            [attr.aria-current]="isCurrent(w) ? 'step' : null"
+          ></span>
+        } @else {
+          <button
+            type="button"
+            class="pwp-segment"
+            [class.pwp-segment--past]="isPast(w)"
+            [class.pwp-segment--current]="isCurrent(w)"
+            [class.pwp-segment--profile]="isProfile(w)"
+            [attr.aria-label]="weekAriaLabel(w)"
+            [attr.aria-current]="isCurrent(w) ? 'step' : null"
+            (click)="selectWeek(w)"
+          ></button>
+        }
+      }
+    </div>
+
+    @if (showProfileMarker()) {
+      <span
+        class="pwp-profile-pin"
+        [style.inset-inline-start.%]="
+          ((profileWeek()! - minWeek()) / (maxWeek() - minWeek())) * 100
+        "
+        aria-hidden="true"
+      ></span>
+    }
+  </div>
+
+  <div class="pwp-legend" aria-hidden="true">
+    <span class="pwp-legend__item pwp-legend__item--t1">{{
+      'pregnancyWeekProgress.trimester1' | translate
+    }}</span>
+    <span class="pwp-legend__item pwp-legend__item--t2">{{
+      'pregnancyWeekProgress.trimester2' | translate
+    }}</span>
+    <span class="pwp-legend__item pwp-legend__item--t3">{{
+      'pregnancyWeekProgress.trimester3' | translate
+    }}</span>
+  </div>
+
+  <div class="pwp-scale" aria-hidden="true">
+    <span>{{ minWeek() | localNum }}</span>
+    @if (minWeek() <= 13 && maxWeek() >= 13) {
+      <span>{{ 13 | localNum }}</span>
+    }
+    @if (minWeek() <= 27 && maxWeek() >= 27) {
+      <span>{{ 27 | localNum }}</span>
+    }
+    <span>{{ maxWeek() | localNum }}</span>
+  </div>
+
+  @if (!readonly()) {
+    <p class="pwp-hint">{{ 'pregnancyWeekProgress.hint' | translate }}</p>
+  }
+</div>

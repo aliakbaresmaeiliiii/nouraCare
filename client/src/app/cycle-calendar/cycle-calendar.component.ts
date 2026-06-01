@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   DestroyRef,
   inject,
@@ -28,6 +29,7 @@ import { HomeDataService } from '../home/services/home-data.service';
 import { PeriodDatePickerPageComponent } from '../period-date-picker-page/period-date-picker-page.component';
 import { PeriodDateRange } from '../shared/components/period-date-picker/period-date-picker.component';
 import { LanguageService } from '../shared/services/language.service';
+import { TranslationService } from '../shared/services/translation.service';
 import { PeriodCycleStateService } from '../shared/services/period-cycle-state.service';
 import {
   formatHistoryDayDate,
@@ -86,8 +88,10 @@ export class CycleCalendarComponent implements OnInit {
   private router = inject(Router);
   homeService = inject(HomeDataService);
   private languageService = inject(LanguageService);
+  private translation = inject(TranslationService);
   private periodCycleState = inject(PeriodCycleStateService);
   private destroyRef = inject(DestroyRef);
+  private cdr = inject(ChangeDetectorRef);
 
   reproductiveStatus: ReproductiveStatusData = {};
   viewDate = new Date();
@@ -102,7 +106,10 @@ export class CycleCalendarComponent implements OnInit {
   ngOnInit() {
     this.languageService.currentLanguage$
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.refreshCalendar());
+      .subscribe(() => {
+        this.refreshCalendar();
+        this.cdr.markForCheck();
+      });
     this.refreshCalendar();
     this.refreshHistory();
     const userId = this.homeService.getCurrentUserId();
@@ -183,6 +190,18 @@ export class CycleCalendarComponent implements OnInit {
   formatRecordedAt(iso: string): string {
     const date = new Date(iso);
     return formatRecordedAtDate(date, this.languageService.getCurrentLanguage());
+  }
+
+  formatHistoryMain(entry: PeriodHistoryEntry): string {
+    return this.translation.translateParams('cycleCalendar.historyPeriodStarted', {
+      date: this.formatHistoryDay(entry.lastPeriodStartDate),
+    });
+  }
+
+  formatHistoryMeta(entry: PeriodHistoryEntry): string {
+    return this.translation.translateParams('cycleCalendar.historyLogged', {
+      date: this.formatRecordedAt(entry.recordedAt),
+    });
   }
 
   goToProfile() {

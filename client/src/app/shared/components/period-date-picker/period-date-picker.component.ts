@@ -29,6 +29,8 @@ import {
   getCalendarWeekdayLabels,
 } from '../../utils/locale-date-format.util';
 import { PeriodHistoryService } from '../../services/period-history.service';
+import { LocalizedNumberPipe } from '../../pipes/localized-number.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 export interface PeriodDateRange {
   startDate: Date;
@@ -42,7 +44,7 @@ export interface PeriodDateRange {
   templateUrl: './period-date-picker.component.html',
   styleUrls: ['./period-date-picker.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, LocalizedNumberPipe, TranslatePipe],
 })
 export class PeriodDatePickerComponent implements OnInit, OnChanges {
   constructor() {

@@ -39,7 +39,7 @@
     @if (!isLoading && !errorMessage && blockedUsers.length > 0) {
     <div class="users-container">
       <div class="list-header">
-        <h2 class="list-title">Blocked Users ({{ blockedUsers.length }})</h2>
+        <h2 class="list-title">Blocked Users ({{ blockedUsers.length | localNum }})</h2>
         <p class="list-subtitle">Users you've blocked from contacting you</p>
       </div>
 

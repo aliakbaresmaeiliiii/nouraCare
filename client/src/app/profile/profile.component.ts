@@ -427,21 +427,13 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   isStatusSelected(s: string) {
 
     if (
-
       s === 'PLANNING_PREGNANCY' &&
-
       this.cycleSettings.getPregnantProfileCardPending()
-
     ) {
-
       return true;
-
     }
-
     return this.currentReproductiveStatus === s;
-
   }
-
 
 
   syncStatusFromApi() {

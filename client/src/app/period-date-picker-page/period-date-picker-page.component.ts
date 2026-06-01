@@ -18,6 +18,8 @@ import {
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import { HomeDataService } from '../home/services/home-data.service';
 import { PeriodCycleStateService } from '../shared/services/period-cycle-state.service';
+import { LanguageService } from '../shared/services/language.service';
+import { formatHistoryDayDate } from '../shared/utils/locale-date-format.util';
 
 @Component({
   selector: 'app-period-date-picker-page',
@@ -45,6 +47,7 @@ export class PeriodDatePickerPageComponent implements OnInit {
   private cycleSettings = inject(CycleSettingsService);
   private periodCycleState = inject(PeriodCycleStateService);
   private homeData = inject(HomeDataService);
+  private languageService = inject(LanguageService);
 
   ngOnInit() {
     this.periodLength = this.cycleSettings.periodLength();
@@ -56,6 +59,10 @@ export class PeriodDatePickerPageComponent implements OnInit {
 
   onRangeSelected(range: PeriodDateRange) {
     this.selectedRange = range;
+  }
+
+  formatSummaryDate(date: Date): string {
+    return formatHistoryDayDate(date, this.languageService.getCurrentLanguage());
   }
 
   private buildInitialRange(startIso: string | null): PeriodDateRange | null {

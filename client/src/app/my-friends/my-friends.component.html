@@ -95,7 +95,7 @@
       <div class="friends-container">
         <div class="friends-list-header">
           <h2 class="friends-title">
-            {{ filteredFriends.length }}
+            {{ filteredFriends.length | localNum }}
             {{ filteredFriends.length === 1 ? 'friend' : 'friends' }}
           </h2>
         </div>

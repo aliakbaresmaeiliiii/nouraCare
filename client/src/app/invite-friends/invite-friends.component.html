@@ -55,7 +55,7 @@
             <h2 class="section-title">Invite Your Friends</h2>
             <p class="section-subtitle">
               Share your link — when a friend creates an account with your code, you both earn
-              {{ 50 }} bonus growth points.
+              {{ 50 | localNum }} bonus growth points.
             </p>
           </div>
 
@@ -106,17 +106,17 @@
             <ion-card class="stats-card">
               <ion-card-content class="stats-content">
                 <div class="stat-item">
-                  <div class="stat-number">{{ successfulReferrals }}</div>
+                  <div class="stat-number">{{ successfulReferrals | localNum }}</div>
                   <div class="stat-label">Friends joined</div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
-                  <div class="stat-number">{{ growthPoints }}</div>
+                  <div class="stat-number">{{ growthPoints | localNum }}</div>
                   <div class="stat-label">Growth points</div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
-                  <div class="stat-number">+50</div>
+                  <div class="stat-number">+{{ 50 | localNum }}</div>
                   <div class="stat-label">Each reward</div>
                 </div>
               </ion-card-content>

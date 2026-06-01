@@ -32,15 +32,15 @@
       <p class="hero-subtitle">Connect with world-class healthcare professionals tailored to your needs</p>
       <div class="hero-metrics">
         <div class="metric">
-          <div class="metric-number">{{ doctors.length }}+</div>
+          <div class="metric-number">{{ doctors.length | localNum }}+</div>
           <div class="metric-label">Expert Doctors</div>
         </div>
         <div class="metric">
-          <div class="metric-number">98%</div>
+          <div class="metric-number">{{ 98 | localNum }}%</div>
           <div class="metric-label">Success Rate</div>
         </div>
         <div class="metric">
-          <div class="metric-number">4.9★</div>
+          <div class="metric-number">{{ '4.9' | localNum }}★</div>
           <div class="metric-label">Patient Rating</div>
         </div>
       </div>
@@ -85,9 +85,9 @@
     <!-- Results Summary -->
     <div class="results-summary">
       <div class="results-count">
-        <span class="count">{{ filteredDoctors.length }}</span>
+        <span class="count">{{ filteredDoctors.length | localNum }}</span>
         <span class="label">showing</span>
-        <span class="count count-total"> / {{ totalDoctors }}</span>
+        <span class="count count-total"> / {{ totalDoctors | localNum }}</span>
         <span class="label">total</span>
       </div>
       <div class="sort-option">
@@ -171,7 +171,7 @@
                   }
                   }
                 </div>
-                <span class="rating-number">{{ doctor.rating }}</span>
+                <span class="rating-number">{{ doctor.rating | localNum }}</span>
               </div>
               }
             </div>
@@ -181,7 +181,7 @@
             <div class="doctor-meta">
               <div class="meta-item">
                 <ion-icon name="time-outline"></ion-icon>
-                <span>{{ doctor.experienceYears }}+ years</span>
+                <span>{{ doctor.experienceYears | localNum }}+ years</span>
               </div>
               @if (doctor.location) {
               <div class="meta-item">
@@ -198,7 +198,7 @@
 
           <div class="price-section">
             <div class="price-container">
-              <span class="price">${{ doctor.fee }}</span>
+              <span class="price">${{ doctor.fee | localNum }}</span>
               <span class="price-label">per consultation</span>
             </div>
             <div class="availability">

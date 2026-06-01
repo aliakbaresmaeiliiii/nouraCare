@@ -46,7 +46,7 @@
             
             <div class="doctor-stats">
               <div class="stat-item">
-                <div class="stat-value">{{ doctor.rating }}/5</div>
+                <div class="stat-value">{{ doctor.rating | localNum }}/{{ 5 | localNum }}</div>
                 <div class="stat-label">Rating</div>
                 <div class="stars">
                   @for (_ of getStars(doctor.rating || 0); track $index) {
@@ -56,12 +56,12 @@
               </div>
               <div class="stat-divider"></div>
               <div class="stat-item">
-                <div class="stat-value">{{ doctor.experienceYears }}+</div>
+                <div class="stat-value">{{ doctor.experienceYears | localNum }}+</div>
                 <div class="stat-label">Years Experience</div>
               </div>
               <div class="stat-divider"></div>
               <div class="stat-item">
-                <div class="stat-value">500+</div>
+                <div class="stat-value">{{ 500 | localNum }}+</div>
                 <div class="stat-label">Patients</div>
               </div>
             </div>
@@ -74,7 +74,7 @@
             <span>{{ getConsultationTypeLabel(doctor.consultationType) }}</span>
           </div>
           <div class="consultation-fee">
-            <span class="fee-amount">${{ doctor.fee }}</span>
+            <span class="fee-amount">${{ doctor.fee | localNum }}</span>
             <span class="fee-label">per consultation</span>
           </div>
         </div>
@@ -164,7 +164,7 @@
             <div class="reviews-summary">
               <div class="rating-overview">
                 <div class="overall-rating">
-                  <span class="rating-number">{{ doctor.rating }}</span>
+                  <span class="rating-number">{{ doctor.rating | localNum }}</span>
                   <div class="rating-stars">
                     @for (_ of getStars(doctor.rating || 0); track $index) {
                       <ion-icon name="star"></ion-icon>
@@ -172,7 +172,7 @@
                   </div>
                 </div>
                 <div class="rating-details">
-                  <p>Based on {{ reviews.length || 0 }} verified reviews</p>
+                  <p>Based on {{ reviews.length || 0 | localNum }} verified reviews</p>
                 </div>
               </div>
             </div>

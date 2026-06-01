@@ -168,20 +168,75 @@
   color: var(--ion-color-medium-shade, #64748b);
 }
 
-.cycle-sheet-actions {
+.cycle-sheet-footer {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 8px;
+  align-items: stretch;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
 }
 
-.cycle-sheet-cancel {
-  border: 0;
-  background: transparent;
-  color: var(--ion-color-medium-shade, #64748b);
+.cycle-sheet-btn {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 14px;
   font-size: 15px;
-  font-weight: 600;
-  padding: 10px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease,
+    background 0.15s ease;
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(var(--flo-primary-rgb), 0.45);
+    outline-offset: 2px;
+  }
+
+  &--secondary {
+    border: 1.5px solid rgba(15, 23, 42, 0.1);
+    background: #fff;
+    color: var(--ion-color-dark);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+
+    &:hover {
+      background: rgba(15, 23, 42, 0.02);
+    }
+  }
+
+  &--primary {
+    flex: 1.35;
+    border: 0;
+    color: #fff;
+    background: linear-gradient(
+      135deg,
+      rgb(var(--flo-primary-rgb)) 0%,
+      rgba(var(--flo-primary-rgb), 0.88) 100%
+    );
+    box-shadow:
+      0 10px 24px rgba(var(--flo-primary-rgb), 0.28),
+      0 2px 6px rgba(var(--flo-primary-rgb), 0.12);
+
+    &:hover:not(:disabled) {
+      box-shadow:
+        0 12px 28px rgba(var(--flo-primary-rgb), 0.34),
+        0 3px 8px rgba(var(--flo-primary-rgb), 0.16);
+    }
+
+    &:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+  }
 }
 
 .cycle-picker-modal {
@@ -189,9 +244,36 @@
   align-items: end;
 }
 
+.cycle-picker-sheet {
+  display: flex;
+  flex-direction: column;
+  background: var(--brand-surface, #fff);
+  padding-bottom: calc(16px + var(--ion-safe-area-bottom, 0px));
+
+  ion-toolbar {
+    --background: transparent;
+    --border-width: 0;
+    --padding-start: 16px;
+    --padding-end: 16px;
+  }
+
+  ion-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    text-align: center;
+  }
+}
+
+.cycle-sheet-footer--picker {
+  margin-top: 0;
+  margin-inline: 16px;
+  padding-top: 12px;
+}
+
 .cycle-picker-modal ion-picker,
 .cycle-date-wheel {
-  margin-bottom: var(--ion-safe-area-bottom, 0px);
+  margin-bottom: 0;
 }
 
 .cycle-date-wheel {

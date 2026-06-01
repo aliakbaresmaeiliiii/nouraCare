@@ -3,20 +3,30 @@ import { faIR } from 'date-fns-jalali/locale';
 
 const FA = { locale: faIR };
 
+const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
+
 /** Localized digits for UI numbers (Persian uses Eastern Arabic numerals). */
 export function formatLocalizedNumber(
   value: number | string,
   languageCode: string,
 ): string {
   if (isPersianAppLanguage(languageCode)) {
-    return String(value).replace(/\d/g, (d) => '۰۱۲۳۴۵۶۷۸۹'[+d]);
+    return String(value).replace(/\d/g, (d) => PERSIAN_DIGITS[+d]);
   }
   return String(value);
 }
 
+/** Convert Western digits in any string when the app language is Persian. */
+export function localizeDigitsInText(
+  text: string,
+  languageCode: string,
+): string {
+  return formatLocalizedNumber(text, languageCode);
+}
+
 /** App Persian/Farsi language code (see `LanguageService`). */
 export function isPersianAppLanguage(code: string): boolean {
-  return code === 'fa';
+  return code === 'fa' || code.startsWith('fa-');
 }
 
 /**

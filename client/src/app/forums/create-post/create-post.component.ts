@@ -27,6 +27,7 @@ import { catchError, finalize } from 'rxjs/operators';
 import { ForumService } from '../../shared/services/forum.service';
 import { LogoLoadingComponent } from '../../shared/components/logo-loading/logo-loading.component';
 import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
+import { LocalizedNumberPipe } from '../../shared/pipes/localized-number.pipe';
 
 interface ForumCategory {
   id: string;
@@ -63,6 +64,7 @@ interface CreatePostForm {
     ReactiveFormsModule,
     LogoLoadingComponent,
     AppButtonComponent,
+    LocalizedNumberPipe,
   ],
 })
 export class CreatePostComponent implements OnInit {

@@ -1,30 +1,35 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+import { TranslationService } from '../../shared/services/translation.service';
+import { LanguageService } from '../../shared/services/language.service';
+import { formatCyclePhaseShortDate } from '../../shared/utils/locale-date-format.util';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SymptomsUIService {
-
-  constructor() {}
+  private readonly translation = inject(TranslationService);
+  private readonly language = inject(LanguageService);
 
   /**
-   * Get formatted date for display
+   * Get formatted date for display (locale-aware, Jalali when Persian).
    */
   getFormattedDate(selectedDate: string): string {
-    const date = new Date(selectedDate);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+    const date = new Date(`${selectedDate}T12:00:00`);
+    if (Number.isNaN(date.getTime())) {
+      return selectedDate;
+    }
+    return formatCyclePhaseShortDate(date, this.language.getCurrentLanguage());
   }
 
   /**
    * Get pregnancy progress text
    */
   getPregnancyProgress(): string {
-    // This would be calculated based on user's pregnancy data
-    return "Week 12 • Day 3";
+    return this.translation.translateParams('symptomsTracker.pregnancyProgress', {
+      weeks: 12,
+      days: 3,
+      dayLabel: this.translation.translate('symptomsTracker.dayPlural'),
+    });
   }
 
   /**
@@ -32,7 +37,11 @@ export class SymptomsUIService {
    */
   getDayProgress(): number {
     const now = new Date();
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
     const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
     const total = endOfDay.getTime() - startOfDay.getTime();
     const elapsed = now.getTime() - startOfDay.getTime();
@@ -40,37 +49,34 @@ export class SymptomsUIService {
   }
 
   /**
-   * Get mood options for UI
+   * Top-level mood chips (great / good / …)
    */
-  getMoodOptions(): any[] {
+  getMoodOptions(): { id: string; emoji: string }[] {
     return [
-      { id: 'great', name: 'Great', emoji: '😊' },
-      { id: 'good', name: 'Good', emoji: '🙂' },
-      { id: 'okay', name: 'Okay', emoji: '😐' },
-      { id: 'not_great', name: 'Not Great', emoji: '😔' },
-      { id: 'terrible', name: 'Terrible', emoji: '😢' }
+      { id: 'great', emoji: '😊' },
+      { id: 'good', emoji: '🙂' },
+      { id: 'okay', emoji: '😐' },
+      { id: 'not_great', emoji: '😔' },
+      { id: 'terrible', emoji: '😢' },
     ];
+  }
+
+  symptomLabel(id: string): string {
+    return this.translation.translate(`symptoms.option.${id}`);
   }
 
   /**
    * Get current mood name
    */
   getCurrentMoodName(currentMood: string): string {
-    const mood = this.getMoodOptions().find(m => m.id === currentMood);
-    return mood?.name || '';
+    return this.symptomLabel(currentMood);
   }
 
   /**
    * Get symptom name
    */
   getSymptomName(symptom: string): string {
-    const symptomNames: { [key: string]: string } = {
-      'fatigue': 'Fatigue',
-      'nausea': 'Nausea',
-      'headache': 'Headache',
-      'cramps': 'Cramps'
-    };
-    return symptomNames[symptom] || symptom;
+    return this.symptomLabel(symptom);
   }
 
   /**
@@ -78,10 +84,10 @@ export class SymptomsUIService {
    */
   getSymptomIcon(symptom: string): string {
     const symptomIcons: { [key: string]: string } = {
-      'fatigue': 'bed-outline',
-      'nausea': 'medical-outline',
-      'headache': 'headset-outline',
-      'cramps': 'heart-outline'
+      fatigue: 'bed-outline',
+      nausea: 'medical-outline',
+      headache: 'headset-outline',
+      cramps: 'heart-outline',
     };
     return symptomIcons[symptom] || 'medical-outline';
   }
@@ -91,11 +97,11 @@ export class SymptomsUIService {
    */
   getMoodEmoji(mood: string): string {
     const moodEmojis: { [key: string]: string } = {
-      'great': '😊',
-      'good': '🙂',
-      'okay': '😐',
-      'not_great': '😔',
-      'terrible': '😢'
+      great: '😊',
+      good: '🙂',
+      okay: '😐',
+      not_great: '😔',
+      terrible: '😢',
     };
     return moodEmojis[mood] || '🙂';
   }
@@ -105,9 +111,9 @@ export class SymptomsUIService {
    */
   getEnergyEmoji(energy: string): string {
     const energyEmojis: { [key: string]: string } = {
-      'high': '⚡',
-      'medium': '🔋',
-      'low': '🪫'
+      high: '⚡',
+      medium: '🔋',
+      low: '🪫',
     };
     return energyEmojis[energy] || '🔋';
   }
@@ -134,7 +140,6 @@ export class SymptomsUIService {
    * Get current pregnancy week (placeholder)
    */
   getCurrentPregnancyWeek(): number {
-    // This would be calculated based on user's pregnancy data
     return 12;
   }
 }

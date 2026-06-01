@@ -1,65 +1,44 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, OnInit, inject, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavController, ToastController } from '@ionic/angular';
 import { IonContent } from '@ionic/angular/standalone';
+import { Subscription } from 'rxjs';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { OnboardingService } from '../shared/services/onboarding.service';
 import { UserInfoService } from '../shared/services/user-info.service';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
 import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
+import { FA_WEEK_DATA } from './week-detail-fa-week-data';
+import type { WeekData } from './week-detail.types';
+import { PregnancyWeekProgressComponent } from '../shared/components/pregnancy-week-progress/pregnancy-week-progress.component';
 
 const PREGNANCY_WEEK_MIN = 1;
 const PREGNANCY_WEEK_MAX = 40;
-
-interface WeekData {
-  week: number;
-  title: string;
-  babySize: string;
-  babyWeight: string;
-  babyLength: string;
-  development: string[];
-  symptoms: string[];
-  nutrition: {
-    foods: string[];
-    avoid: string[];
-    supplements: string[];
-  };
-  activities: {
-    exercise: string[];
-    relaxation: string[];
-    preparation: string[];
-  };
-  intimacy: {
-    safe: boolean;
-    tips: string[];
-    positions: string[];
-  };
-  medical: {
-    appointments: string[];
-    tests: string[];
-    concerns: string[];
-  };
-  tips: string[];
-  funFacts: string[];
-}
 
 @Component({
   selector: 'app-week-detail',
   templateUrl: './week-detail.component.html',
   styleUrls: ['./week-detail.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS],
+  imports: [...SHARED_STANDALONE_IMPORTS, PregnancyWeekProgressComponent],
 })
-export class WeekDetailComponent implements OnInit {
+export class WeekDetailComponent implements OnInit, OnDestroy {
   @ViewChild('weekScroll') private weekIonContent?: IonContent;
 
   private navCtrl = inject(NavController);
+  private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastController = inject(ToastController);
   private onboardingService = inject(OnboardingService);
   private userInfoService = inject(UserInfoService);
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
+  private translation = inject(TranslationService);
+  private languageService = inject(LanguageService);
+
+  private langSub?: Subscription;
 
   pregnancyWeek: number = 4;
   weekData: WeekData | null = null;
@@ -67,6 +46,10 @@ export class WeekDetailComponent implements OnInit {
   isSavingWeek = false;
 
   ngOnInit() {
+    this.langSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.loadWeekData();
+    });
+
     this.route.queryParams.subscribe((params) => {
       const fromQuery = parseInt(params['week'], 10);
       this.pregnancyWeek = Number.isFinite(fromQuery)
@@ -78,9 +61,52 @@ export class WeekDetailComponent implements OnInit {
     this.loadWeekFromStateApi();
   }
 
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+  }
+
+  tr(key: string, vars?: Record<string, string | number>): string {
+    if (vars) {
+      return this.translation.translateParams(key, vars);
+    }
+    return this.translation.translate(key);
+  }
+
   loadWeekData() {
     const base = this.getWeekData(this.pregnancyWeek);
-    this.weekData = { ...base, week: this.pregnancyWeek };
+    const localized = this.applyLanguageOverlay(base);
+    this.weekData = { ...localized, week: this.pregnancyWeek };
+  }
+
+  private applyLanguageOverlay(data: WeekData): WeekData {
+    if (this.languageService.getCurrentLanguage() !== 'fa') {
+      return data;
+    }
+    const fa =
+      FA_WEEK_DATA[this.pregnancyWeek] ?? FA_WEEK_DATA[1] ?? {};
+    return this.mergeWeekData(data, fa);
+  }
+
+  private mergeWeekData(
+    base: WeekData,
+    overlay: Partial<WeekData>,
+  ): WeekData {
+    return {
+      ...base,
+      ...overlay,
+      nutrition: overlay.nutrition
+        ? { ...base.nutrition, ...overlay.nutrition }
+        : base.nutrition,
+      activities: overlay.activities
+        ? { ...base.activities, ...overlay.activities }
+        : base.activities,
+      intimacy: overlay.intimacy
+        ? { ...base.intimacy, ...overlay.intimacy }
+        : base.intimacy,
+      medical: overlay.medical
+        ? { ...base.medical, ...overlay.medical }
+        : base.medical,
+    };
   }
 
   previousWeek() {
@@ -119,12 +145,16 @@ export class WeekDetailComponent implements OnInit {
     this.navCtrl.back();
   }
 
-  onWeekRangeChange(event: any) {
-    const value = Number(event?.detail?.value);
-    if (!Number.isFinite(value)) {
+  onWeekProgressChange(week: number) {
+    this.setPregnancyWeekFromControl(week);
+  }
+
+  private setPregnancyWeekFromControl(week: number) {
+    const next = this.clampWeek(week);
+    if (next === this.pregnancyWeek) {
       return;
     }
-    this.pregnancyWeek = Math.min(40, Math.max(1, Math.round(value)));
+    this.pregnancyWeek = next;
     this.loadWeekData();
   }
 
@@ -146,12 +176,14 @@ export class WeekDetailComponent implements OnInit {
           );
           this.homeJourneyBridge.pushJourneyStateFromWeekDetail(state);
           this.isSavingWeek = false;
-          await this.showToast(`Saved week ${this.pregnancyWeek}`);
-          this.navCtrl.navigateBack('/tabs/home');
+          await this.showToast(
+            this.tr('weekDetail.toast.saved', { week: this.pregnancyWeek }),
+          );
+          void this.router.navigate(['/tabs/home'], { replaceUrl: true });
         },
         error: async () => {
           this.isSavingWeek = false;
-          await this.showToast('Could not save pregnancy week. Try again.');
+          await this.showToast(this.tr('weekDetail.toast.saveFailed'));
         },
       });
   }

@@ -1,0 +1,357 @@
+:host {
+  display: block;
+  background: linear-gradient(180deg, #f0fdf8 0%, #ffffff 32%);
+}
+
+.fertility-sheet-header ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+  --padding-top: 4px;
+}
+
+.fertility-sheet-close {
+  --color: var(--ion-color-dark);
+}
+
+.fertility-sheet-content {
+  --background: transparent;
+  --padding-start: 20px;
+  --padding-end: 20px;
+  --padding-bottom: calc(12px + var(--ion-safe-area-bottom, 0px));
+}
+
+.fertility-sheet-handle {
+  width: 42px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.14);
+  margin: 0 auto 14px;
+}
+
+.fertility-empty {
+  text-align: center;
+  padding: 24px 8px 32px;
+
+  &__icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
+    border-radius: 22px;
+    display: grid;
+    place-items: center;
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+
+    ion-icon {
+      font-size: 34px;
+    }
+  }
+
+  &__title {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+  }
+
+  &__body {
+    margin: 0 0 22px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ion-color-medium-shade, #64748b);
+  }
+
+  &__cta {
+    --border-radius: 14px;
+    margin: 0;
+  }
+}
+
+.fertility-hero {
+  border-radius: 22px;
+  padding: 22px 18px;
+  margin-bottom: 18px;
+  text-align: center;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+
+  &--rose {
+    background: linear-gradient(145deg, #fff1f2, #ffe4e6);
+  }
+  &--sky {
+    background: linear-gradient(145deg, #eff6ff, #dbeafe);
+  }
+  &--emerald {
+    background: linear-gradient(145deg, #ecfdf5, #d1fae5);
+  }
+  &--amber {
+    background: linear-gradient(145deg, #fffbeb, #fef3c7);
+  }
+  &--violet {
+    background: linear-gradient(145deg, #f5f3ff, #ede9fe);
+  }
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.72);
+
+    ion-icon {
+      font-size: 28px;
+      color: var(--ion-color-dark);
+    }
+  }
+
+  &__eyebrow {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ion-color-medium-shade, #64748b);
+  }
+
+  &__title {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--ion-color-dark);
+  }
+
+  &__body {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: rgba(15, 23, 42, 0.72);
+  }
+}
+
+.fertility-chart {
+  margin-bottom: 18px;
+  padding: 16px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+
+  &__title {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+  }
+
+  &__canvas-wrap {
+    position: relative;
+    height: 220px;
+    width: 100%;
+  }
+
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--ion-color-medium-shade, #64748b);
+  }
+
+  &__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+}
+
+.fertility-dates {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.fertility-date-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 22px;
+    }
+  }
+
+  &--window .fertility-date-card__icon {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+  }
+  &--ovulation .fertility-date-card__icon {
+    background: rgba(245, 158, 11, 0.14);
+    color: #d97706;
+  }
+  &--period .fertility-date-card__icon {
+    background: rgba(244, 63, 94, 0.12);
+    color: #e11d48;
+  }
+
+  &__body {
+    min-width: 0;
+
+    h3 {
+      margin: 0 0 4px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ion-color-dark);
+    }
+  }
+
+  &__value {
+    margin: 0 0 4px;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--ion-color-dark);
+  }
+
+  &__hint {
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--ion-color-medium-shade, #64748b);
+  }
+}
+
+.fertility-days {
+  margin-bottom: 16px;
+
+  &__header {
+    margin-bottom: 12px;
+
+    h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ion-color-dark);
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--ion-color-medium-shade, #64748b);
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+.fertility-day-chip {
+  position: relative;
+  padding: 14px 12px;
+  border-radius: 16px;
+  background: #ecfdf5;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  text-align: center;
+
+  &--peak {
+    background: linear-gradient(145deg, #fff7ed, #ffedd5);
+    border-color: rgba(245, 158, 11, 0.35);
+  }
+
+  &--today {
+    box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.85);
+  }
+
+  &--past {
+    opacity: 0.72;
+  }
+
+  &__date {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin-bottom: 6px;
+  }
+
+  &__badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.18);
+    color: #b45309;
+
+    &--high {
+      background: rgba(16, 185, 129, 0.16);
+      color: #047857;
+    }
+  }
+
+  &__today {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+}
+
+.fertility-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.04);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ion-color-medium-shade, #64748b);
+
+  ion-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+.fertility-sheet-actions {
+  padding: 12px 16px calc(12px + var(--ion-safe-area-bottom, 0px));
+  display: grid;
+  gap: 10px;
+
+  ion-button {
+    margin: 0;
+    --border-radius: 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  .fertility-days__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -255,7 +255,456 @@
   }
 }
 
-// Compact cycle overview (reference-like first screen)
+// Compact cycle overview (Flo-style “Today” home)
+.home-content.home-content--cycle-today {
+  background: linear-gradient(165deg, #fff5f9 0%, #fdf2f8 38%, #f8fafc 100%);
+  --background: transparent;
+}
+
+.cycle-today-shell {
+  position: relative;
+  margin-top: 0;
+  padding: 0.75rem var(--app-side-padding, 1rem) 1.25rem;
+  z-index: 1;
+}
+
+.cycle-today-bg {
+  position: absolute;
+  inset: 0;
+  top: -0.5rem;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.cycle-today-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.55;
+}
+
+.cycle-today-blob--1 {
+  width: 220px;
+  height: 220px;
+  background: #fbcfe8;
+  top: -4%;
+  right: -10%;
+}
+
+.cycle-today-blob--2 {
+  width: 260px;
+  height: 260px;
+  background: #ccfbf1;
+  bottom: 22%;
+  left: -18%;
+}
+
+.cycle-today-blob--3 {
+  width: 150px;
+  height: 150px;
+  background: #e9d5ff;
+  opacity: 0.35;
+  top: 38%;
+  left: 58%;
+}
+
+.cycle-onboard-card {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #fff 0%, #fff5f9 100%);
+  border: 1px solid rgba(219, 39, 119, 0.18);
+  box-shadow:
+    0 4px 20px rgba(219, 39, 119, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(219, 39, 119, 0.12);
+    color: #db2777;
+
+    ion-icon {
+      font-size: 1.35rem;
+    }
+  }
+
+  &__title {
+    margin: 0 0 0.35rem;
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: #831843;
+    line-height: 1.25;
+  }
+
+  &__body {
+    margin: 0 0 0.5rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #9d174d;
+  }
+
+  &__features {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+
+    li {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #be185d;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(219, 39, 119, 0.14);
+      border-radius: 999px;
+      padding: 0.28rem 0.55rem;
+    }
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 44px;
+    border: 0;
+    border-radius: 14px;
+    padding: 0.65rem 1rem;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    background: linear-gradient(
+      135deg,
+      rgb(var(--flo-primary-rgb)) 0%,
+      rgba(var(--flo-primary-rgb), 0.88) 100%
+    );
+    box-shadow: 0 8px 20px rgba(var(--flo-primary-rgb), 0.24);
+
+    ion-icon {
+      font-size: 1rem;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+.cycle-greeting {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+
+  &__eyebrow {
+    margin: 0 0 0.15rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.02em;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #141414;
+    line-height: 1.15;
+  }
+}
+
+.cycle-phase-badge {
+  flex-shrink: 0;
+  max-width: 42%;
+  padding: 0.38rem 0.62rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  border: 1px solid transparent;
+
+  &--none {
+    color: #64748b;
+    background: rgba(100, 116, 139, 0.1);
+    border-color: rgba(100, 116, 139, 0.16);
+  }
+
+  &--period {
+    color: #be123c;
+    background: rgba(244, 63, 94, 0.12);
+    border-color: rgba(244, 63, 94, 0.22);
+  }
+
+  &--follicular {
+    color: #0f766e;
+    background: rgba(13, 148, 136, 0.12);
+    border-color: rgba(13, 148, 136, 0.22);
+  }
+
+  &--fertile {
+    color: #7c3aed;
+    background: rgba(139, 92, 246, 0.12);
+    border-color: rgba(139, 92, 246, 0.22);
+  }
+
+  &--luteal {
+    color: #c2410c;
+    background: rgba(249, 115, 22, 0.12);
+    border-color: rgba(249, 115, 22, 0.22);
+  }
+}
+
+.cycle-hero-sky {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.cycle-day-desc {
+  margin: 0 0 0.35rem;
+  padding: 0 1rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.cycle-stats-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0.85rem 0 0.25rem;
+}
+
+.cycle-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.2rem;
+  min-height: 5.5rem;
+  padding: 0.65rem 0.45rem;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+
+  &__icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    ion-icon {
+      font-size: 1.05rem;
+      color: #fff;
+    }
+  }
+
+  &__value {
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #141414;
+  }
+
+  &__label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #64748b;
+  }
+
+  &--period .cycle-stat-card__icon {
+    background: linear-gradient(145deg, #fb7185, #e11d48);
+  }
+
+  &--ovulation .cycle-stat-card__icon {
+    background: linear-gradient(145deg, #a78bfa, #7c3aed);
+  }
+
+  &--cycle .cycle-stat-card__icon {
+    background: linear-gradient(145deg, #2dd4bf, #0d9488);
+  }
+}
+
+.cycle-daily-insights {
+  position: relative;
+  z-index: 2;
+  margin-top: 0.85rem;
+  padding-top: 0.35rem;
+
+  .pds-action-grid {
+    margin-top: 0.85rem;
+    padding-inline: 0;
+  }
+}
+
+:host-context([dir='rtl']) {
+  .cycle-onboard-card__cta ion-icon {
+    transform: scaleX(-1);
+  }
+
+  .cycle-guide-card__cta ion-icon {
+    transform: scaleX(-1);
+  }
+}
+
+.cycle-phase-guide {
+  position: relative;
+  z-index: 2;
+  margin-top: 1.15rem;
+  padding-top: 0.35rem;
+}
+
+.cycle-phase-guide__header {
+  margin-bottom: 0.75rem;
+  padding-inline: 2px;
+}
+
+.cycle-phase-guide__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #141414;
+  line-height: 1.25;
+}
+
+.cycle-phase-guide__subtitle {
+  margin: 0;
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.cycle-phase-guide__scroll {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding: 0.15rem 2px 0.5rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.cycle-guide-card {
+  --guide-accent: #db2777;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: min(78vw, 260px);
+  min-height: 168px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.85rem 0.85rem 0.75rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--guide-accent) 22%, transparent);
+  background: linear-gradient(
+    155deg,
+    #fff 0%,
+    color-mix(in srgb, var(--guide-accent) 8%, #fff) 100%
+  );
+  box-shadow:
+    0 8px 24px color-mix(in srgb, var(--guide-accent) 14%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
+
+  &--clickable {
+    cursor: pointer;
+    transition:
+      transform 0.12s ease,
+      box-shadow 0.2s ease;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--guide-accent) 45%, transparent);
+      outline-offset: 2px;
+    }
+  }
+
+  &__icon {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.55rem;
+    background: linear-gradient(
+      145deg,
+      var(--guide-accent),
+      color-mix(in srgb, var(--guide-accent) 78%, #000)
+    );
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--guide-accent) 32%, transparent);
+
+    ion-icon {
+      font-size: 1.15rem;
+      color: #fff;
+    }
+  }
+
+  &__title {
+    margin: 0 0 0.35rem;
+    font-size: 0.88rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: #141414;
+  }
+
+  &__body {
+    margin: 0;
+    flex: 1;
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: #64748b;
+  }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--guide-accent);
+
+    ion-icon {
+      font-size: 0.85rem;
+    }
+  }
+}
+
 .cycle-compact-section {
   --cycle-hero-pink: #f9a8d4;
   --cycle-hero-pink-deep: #db2777;
@@ -916,6 +1365,95 @@
     --cycle-hero-pink: #f472b6;
     --cycle-hero-pink-deep: #fbcfe8;
     --cycle-hero-fade-stop: var(--ion-background-color);
+  }
+
+  .home-content.home-content--cycle-today {
+    background: linear-gradient(
+      165deg,
+      #1a1520 0%,
+      #151820 42%,
+      #121820 100%
+    );
+  }
+
+  .cycle-greeting__name {
+    color: var(--ion-text-color);
+  }
+
+  .cycle-greeting__eyebrow,
+  .cycle-day-desc,
+  .cycle-stat-card__label {
+    color: var(--ion-color-medium);
+  }
+
+  .cycle-stat-card {
+    background: var(--ion-card-background);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: var(--app-shadow-card);
+  }
+
+  .cycle-stat-card__value {
+    color: var(--ion-text-color);
+  }
+
+  .cycle-onboard-card {
+    background: linear-gradient(145deg, #2a1a24 0%, #221820 100%);
+    border-color: rgba(244, 114, 182, 0.28);
+
+    &__title {
+      color: #fbcfe8;
+    }
+
+    &__body {
+      color: rgba(251, 207, 232, 0.85);
+    }
+
+    &__features li {
+      color: #f9a8d4;
+      background: rgba(0, 0, 0, 0.2);
+      border-color: rgba(244, 114, 182, 0.2);
+    }
+  }
+
+  .pds-action-tile--fertility {
+    background: linear-gradient(145deg, #221a2e 0%, #1a1524 100%);
+    border-color: rgba(167, 139, 250, 0.28);
+
+    .pds-action-tile__title {
+      color: #c4b5fd;
+    }
+  }
+
+  .pds-action-tile--period {
+    background: linear-gradient(145deg, #2a1820 0%, #221418 100%);
+    border-color: rgba(251, 113, 133, 0.28);
+
+    .pds-action-tile__title {
+      color: #fda4af;
+    }
+  }
+
+  .cycle-phase-guide__title {
+    color: var(--ion-text-color);
+  }
+
+  .cycle-phase-guide__subtitle,
+  .cycle-guide-card__body {
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  .cycle-guide-card {
+    background: linear-gradient(
+      155deg,
+      var(--ion-card-background) 0%,
+      color-mix(in srgb, var(--guide-accent) 12%, var(--ion-card-background)) 100%
+    );
+    border-color: color-mix(in srgb, var(--guide-accent) 28%, transparent);
+    box-shadow: var(--app-shadow-card);
+  }
+
+  .cycle-guide-card__title {
+    color: var(--ion-text-color);
   }
 
   .cycle-hello-card {

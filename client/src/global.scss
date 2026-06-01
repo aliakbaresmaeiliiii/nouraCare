@@ -19,7 +19,7 @@
   --font-secondary: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-persian: 'Vazirmatn', 'Tahoma', 'Arial', sans-serif;
   --font-display: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  
+
   // Font Weights
   --font-weight-light: 300;
   --font-weight-normal: 400;
@@ -28,18 +28,18 @@
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
   --font-weight-black: 900;
-  
+
   // Font Sizes
-  --font-size-xs: 0.75rem;    // 12px
-  --font-size-sm: 0.875rem;  // 14px
+  --font-size-xs: 0.75rem; // 12px
+  --font-size-sm: 0.875rem; // 14px
   --font-size-base: 1.03rem; // ~16.5px
-  --font-size-lg: 1.125rem;  // 18px
-  --font-size-xl: 1.25rem;   // 20px
-  --font-size-2xl: 1.5rem;   // 24px
+  --font-size-lg: 1.125rem; // 18px
+  --font-size-xl: 1.25rem; // 20px
+  --font-size-2xl: 1.5rem; // 24px
   --font-size-3xl: 1.875rem; // 30px
-  --font-size-4xl: 2.25rem;  // 36px
-  --font-size-5xl: 3rem;     // 48px
-  
+  --font-size-4xl: 2.25rem; // 36px
+  --font-size-5xl: 3rem; // 48px
+
   // Line Heights
   --line-height-tight: 1.25;
   --line-height-snug: 1.375;
@@ -102,9 +102,7 @@ ion-content.tab-page-content {
  */
 html.plt-mobile ion-content.tab-page-content,
 html.plt-capacitor ion-content.tab-page-content {
-  --padding-top: calc(
-    var(--layout-tab-scroll-padding-top, 8px) + env(safe-area-inset-top, 0px) + 58px
-  );
+  --padding-top: calc(var(--layout-tab-scroll-padding-top, 8px) + env(safe-area-inset-top, 0px) + 58px);
 }
 
 
@@ -114,19 +112,24 @@ ion-router-outlet {
 }
 
 /* Reinforce main header above tab content (Ionic header can use fixed positioning internally). */
-app-layout > ion-header.modern-header {
+app-layout>ion-header.modern-header {
   flex-shrink: 0;
   position: relative !important;
   // Solid toolbar so week rows / insights don’t paint through on mobile WebViews.
   --opacity-translucent: 1;
 }
 
-app-layout > ion-header.modern-header ion-toolbar {
+app-layout>ion-header.modern-header ion-toolbar {
   --opacity-translucent: 1;
 }
 
 // Headings with beautiful typography
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
@@ -171,9 +174,11 @@ h6 {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -256,6 +261,7 @@ ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   ion-button:not([fill='outline']):not([fill='clear']):not([fill='default'])::part(native),
   ion-fab-button::part(native) {
     animation: none !important;
@@ -265,22 +271,16 @@ ion-button:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.
 }
 
 ion-button[color='secondary']:not([fill='outline']):not([fill='clear']) {
-  --background: linear-gradient(
-    135deg,
-    var(--ion-color-secondary-tint) 0%,
-    var(--ion-color-secondary) 55%,
-    var(--ion-color-secondary-shade) 100%
-  );
-  --background-hover: linear-gradient(
-    135deg,
-    var(--ion-color-secondary) 0%,
-    var(--ion-color-secondary-shade) 100%
-  );
-  --background-focused: linear-gradient(
-    135deg,
-    var(--ion-color-secondary) 0%,
-    var(--ion-color-secondary-shade) 100%
-  );
+  --background: linear-gradient(135deg,
+      var(--ion-color-secondary-tint) 0%,
+      var(--ion-color-secondary) 55%,
+      var(--ion-color-secondary-shade) 100%);
+  --background-hover: linear-gradient(135deg,
+      var(--ion-color-secondary) 0%,
+      var(--ion-color-secondary-shade) 100%);
+  --background-focused: linear-gradient(135deg,
+      var(--ion-color-secondary) 0%,
+      var(--ion-color-secondary-shade) 100%);
   --background-activated: linear-gradient(135deg, var(--ion-color-secondary-shade) 0%, #0d6d64 100%);
   --ripple-color: rgba(var(--ion-color-secondary-rgb), 0.28);
   --color: var(--ion-color-secondary-contrast);
@@ -288,21 +288,15 @@ ion-button[color='secondary']:not([fill='outline']):not([fill='clear']) {
 }
 
 ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']) {
-  --background: linear-gradient(
-    135deg,
-    var(--ion-color-tertiary-tint) 0%,
-    var(--ion-color-tertiary) 100%
-  );
-  --background-hover: linear-gradient(
-    135deg,
-    var(--ion-color-tertiary) 0%,
-    var(--ion-color-tertiary-shade) 100%
-  );
-  --background-focused: linear-gradient(
-    135deg,
-    var(--ion-color-tertiary) 0%,
-    var(--ion-color-tertiary-shade) 100%
-  );
+  --background: linear-gradient(135deg,
+      var(--ion-color-tertiary-tint) 0%,
+      var(--ion-color-tertiary) 100%);
+  --background-hover: linear-gradient(135deg,
+      var(--ion-color-tertiary) 0%,
+      var(--ion-color-tertiary-shade) 100%);
+  --background-focused: linear-gradient(135deg,
+      var(--ion-color-tertiary) 0%,
+      var(--ion-color-tertiary-shade) 100%);
   --background-activated: linear-gradient(135deg, var(--ion-color-tertiary-shade) 0%, #a16207 100%);
   --ripple-color: rgba(var(--ion-color-tertiary-rgb), 0.28);
   --color: var(--ion-color-tertiary-contrast);
@@ -432,7 +426,8 @@ ion-fab-button:not(.button-disabled):not([disabled]):active {
 }
 
 // Input typography
-ion-input, ion-textarea {
+ion-input,
+ion-textarea {
   font-family: var(--font-primary);
   font-size: var(--font-size-base);
 }
@@ -535,27 +530,34 @@ ion-toolbar ion-back-button {
 }
 
 // Persian language specific fonts
-[lang="fa"], [dir="rtl"] {
+[lang="fa"],
+[dir="rtl"] {
   * {
     font-family: var(--font-persian);
   }
-  
+
   body {
     font-family: var(--font-persian);
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-persian);
   }
-  
+
   ion-button {
     font-family: var(--font-persian);
   }
-  
-  ion-input, ion-textarea {
+
+  ion-input,
+  ion-textarea {
     font-family: var(--font-persian);
   }
-  
+
   ion-card {
     font-family: var(--font-persian);
   }
@@ -763,82 +765,58 @@ ion-app.ion-palette-dark {
   --flo-text-secondary: var(--brand-text-secondary);
   --flo-text-secondary-rgb: var(--brand-text-secondary-rgb);
 
-  --app-gradient-soft: linear-gradient(
-    135deg,
-    var(--ion-background-color-step-100) 0%,
-    var(--ion-background-color) 100%
-  );
-  --app-gradient-header: linear-gradient(
-    135deg,
-    var(--ion-background-color-step-100) 0%,
-    var(--ion-background-color-step-50) 45%,
-    var(--ion-background-color) 100%
-  );
-  --app-gradient-header-45: linear-gradient(
-    45deg,
-    var(--ion-background-color-step-150),
-    var(--ion-background-color-step-50)
-  );
-  --app-gradient-header-90: linear-gradient(
-    90deg,
-    var(--ion-background-color-step-100),
-    var(--ion-background-color)
-  );
-  --app-gradient-ribbon: linear-gradient(
-    90deg,
-    var(--ion-background-color-step-200),
-    var(--ion-background-color-step-100),
-    var(--ion-background-color-step-50)
-  );
-  --app-gradient-fade: linear-gradient(
-    90deg,
-    var(--ion-background-color-step-150),
-    transparent
-  );
-  --app-gradient-accent-warm: linear-gradient(
-    135deg,
-    var(--ion-background-color-step-200) 0%,
-    var(--ion-background-color-step-100) 100%
-  );
+  --app-gradient-soft: linear-gradient(135deg,
+      var(--ion-background-color-step-100) 0%,
+      var(--ion-background-color) 100%);
+  --app-gradient-header: linear-gradient(135deg,
+      var(--ion-background-color-step-100) 0%,
+      var(--ion-background-color-step-50) 45%,
+      var(--ion-background-color) 100%);
+  --app-gradient-header-45: linear-gradient(45deg,
+      var(--ion-background-color-step-150),
+      var(--ion-background-color-step-50));
+  --app-gradient-header-90: linear-gradient(90deg,
+      var(--ion-background-color-step-100),
+      var(--ion-background-color));
+  --app-gradient-ribbon: linear-gradient(90deg,
+      var(--ion-background-color-step-200),
+      var(--ion-background-color-step-100),
+      var(--ion-background-color-step-50));
+  --app-gradient-fade: linear-gradient(90deg,
+      var(--ion-background-color-step-150),
+      transparent);
+  --app-gradient-accent-warm: linear-gradient(135deg,
+      var(--ion-background-color-step-200) 0%,
+      var(--ion-background-color-step-100) 100%);
 
   /* Navy + brand glow — profile, edit-profile, auth/sign-in login (reuse app-wide). */
   --app-dark-page-shell-bg:
     radial-gradient(120% 65% at 50% -8%, rgba(var(--flo-primary-rgb), 0.26) 0%, transparent 55%),
     radial-gradient(95% 50% at 100% 0%, rgba(var(--flo-light-rgb), 0.12) 0%, transparent 48%),
     radial-gradient(80% 45% at 0% 100%, rgba(79, 70, 229, 0.1) 0%, transparent 50%),
-    linear-gradient(
-      165deg,
+    linear-gradient(165deg,
       var(--navy-shell-950, #050a1a) 0%,
       #0b0d18 26%,
       #080c14 52%,
       #061018 78%,
-      #04080c 100%
-    );
-  --app-dark-header-shell-bg: linear-gradient(
-    165deg,
-    #070a14 0%,
-    rgba(var(--navy-shell-900-rgb), 0.96) 40%,
-    #0b0e16 100%
-  );
+      #04080c 100%);
+  --app-dark-header-shell-bg: linear-gradient(165deg,
+      #070a14 0%,
+      rgba(var(--navy-shell-900-rgb), 0.96) 40%,
+      #0b0e16 100%);
 
-  --app-button-solid-bg: linear-gradient(
-    135deg,
-    var(--ion-color-primary) 0%,
-    var(--ion-color-primary-shade) 52%,
-    var(--ion-color-secondary) 100%
-  );
-  --app-button-gradient-hover: linear-gradient(
-    135deg,
-    var(--ion-color-primary-tint) 0%,
-    var(--ion-color-primary) 40%,
-    var(--ion-color-secondary) 100%
-  );
-  --app-button-gradient-pressed: linear-gradient(
-    135deg,
-    #312e81 0%,
-    var(--ion-color-primary-shade) 48%,
-    var(--ion-color-secondary-shade) 100%
-  );
+  --app-button-solid-bg: linear-gradient(135deg,
+      var(--ion-color-primary) 0%,
+      var(--ion-color-primary-shade) 52%,
+      var(--ion-color-secondary) 100%);
+  --app-button-gradient-hover: linear-gradient(135deg,
+      var(--ion-color-primary-tint) 0%,
+      var(--ion-color-primary) 40%,
+      var(--ion-color-secondary) 100%);
+  --app-button-gradient-pressed: linear-gradient(135deg,
+      #312e81 0%,
+      var(--ion-color-primary-shade) 48%,
+      var(--ion-color-secondary-shade) 100%);
   --app-button-ripple: rgba(255, 255, 255, 0.2);
   --app-button-solid-color: var(--ion-color-primary-contrast);
   --app-button-solid-shadow: 0 4px 18px rgba(var(--ion-background-color-rgb), 0.45);
@@ -925,12 +903,12 @@ ion-menu .menu-icon {
   --max-height: 90dvh;
   --border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
   --backdrop-opacity: 0.4;
-  
+
   ion-modal {
     --height: auto;
     --max-height: 90dvh;
     --border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
-    
+
     &::part(content) {
       border-radius: var(--app-radius-lg) var(--app-radius-lg) 0 0;
       overflow: hidden;
@@ -940,19 +918,20 @@ ion-menu .menu-icon {
 
 /* Bottom Sheet Modal Animation */
 @media (max-width: 768px) {
+
   .fertility-results-modal,
   .pregnancy-results-modal {
     --width: 100%;
     --height: auto;
     --max-height: 90dvh;
     --min-height: 50dvh;
-    
+
     ion-modal {
       --width: 100%;
       --height: auto;
       --max-height: 90dvh;
       --min-height: 50dvh;
-      
+
       &::part(content) {
         position: absolute;
         bottom: 0;
@@ -966,7 +945,7 @@ ion-menu .menu-icon {
         transform: translateY(100%);
         transition: transform 0.3s ease-out;
       }
-      
+
       &.modal-open::part(content) {
         transform: translateY(0);
       }
@@ -976,19 +955,20 @@ ion-menu .menu-icon {
 
 /* Desktop Modal Styling */
 @media (min-width: 769px) {
+
   .fertility-results-modal,
   .pregnancy-results-modal {
     --width: 600px;
     --height: auto;
     --max-height: 80dvh;
     --border-radius: 16px;
-    
+
     ion-modal {
       --width: 600px;
       --height: auto;
       --max-height: 80dvh;
       --border-radius: 16px;
-      
+
       &::part(content) {
         border-radius: 16px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
@@ -1003,16 +983,16 @@ ion-menu .menu-icon {
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 3px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: var(--ion-color-primary);
     border-radius: 3px;
-    
+
     &:hover {
       background: var(--ion-color-primary-shade);
     }
@@ -1029,6 +1009,73 @@ ion-alert,
 ion-action-sheet {
   --background: var(--brand-surface);
   --color: var(--brand-text);
+}
+
+/* Sheet pickers: text-only Cancel (start) / Confirm (end) */
+.cycle-picker-modal,
+.pregnancy-picker-modal,
+.cycle-wheel-picker-modal {
+  ion-toolbar {
+    --background: var(--brand-surface, #fff);
+    --border-width: 0 0 1px 0;
+    --border-color: rgba(15, 23, 42, 0.08);
+    --padding-start: 4px;
+    --padding-end: 4px;
+  }
+
+  ion-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--brand-text);
+  }
+
+  .sheet-dialog-btn {
+    --background: transparent;
+    --background-hover: transparent;
+    --background-focused: transparent;
+    --background-activated: transparent;
+    --box-shadow: none;
+    --color: var(--ion-color-medium-shade, #64748b);
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .sheet-dialog-btn--confirm {
+    --color: rgb(var(--flo-primary-rgb));
+    font-weight: 700;
+  }
+}
+
+.sheet-dialog-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.sheet-dialog-action {
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 10px 4px;
+  cursor: pointer;
+  color: var(--ion-color-medium-shade, #64748b);
+
+  &--confirm {
+    color: rgb(var(--flo-primary-rgb));
+    font-weight: 700;
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
 }
 
 /* Pregnancy mode pickers: small centered dialog */
@@ -1066,11 +1113,9 @@ ion-alert.liquid-glass-dialog::part(backdrop) {
 }
 
 ion-alert.liquid-glass-dialog .alert-wrapper {
-  background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.62) 0%,
-    rgba(255, 255, 255, 0.38) 100%
-  ) !important;
+  background: linear-gradient(145deg,
+      rgba(255, 255, 255, 0.62) 0%,
+      rgba(255, 255, 255, 0.38) 100%) !important;
   border: 1px solid rgba(255, 255, 255, 0.45);
   box-shadow:
     0 14px 36px rgba(15, 23, 42, 0.22),
@@ -1099,11 +1144,9 @@ ion-alert.liquid-glass-dialog .alert-button-group .alert-button.alert-button-rol
 }
 
 html.ion-palette-dark ion-alert.liquid-glass-dialog .alert-wrapper {
-  background: linear-gradient(
-    145deg,
-    rgba(30, 41, 59, 0.7) 0%,
-    rgba(30, 41, 59, 0.5) 100%
-  ) !important;
+  background: linear-gradient(145deg,
+      rgba(30, 41, 59, 0.7) 0%,
+      rgba(30, 41, 59, 0.5) 100%) !important;
   border-color: rgba(148, 163, 184, 0.35);
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.42),
@@ -1121,14 +1164,17 @@ html.ion-palette-dark ion-alert.liquid-glass-dialog .alert-button-group .alert-b
 
 /* Edit Profile — liquid glass (same family as `.liquid-glass-dialog`) */
 @keyframes edit-profile-sheen {
+
   0%,
   100% {
     transform: translateX(-140%) skewX(-16deg);
     opacity: 0;
   }
+
   12% {
     opacity: 0.45;
   }
+
   50% {
     transform: translateX(140%) skewX(-16deg);
     opacity: 0.55;
@@ -1159,14 +1205,12 @@ ion-button.edit-profile-btn {
     overflow: hidden;
     pointer-events: none;
     z-index: 0;
-    background: linear-gradient(
-      110deg,
-      transparent 0%,
-      transparent 42%,
-      rgba(255, 255, 255, 0.55) 50%,
-      transparent 58%,
-      transparent 100%
-    );
+    background: linear-gradient(110deg,
+        transparent 0%,
+        transparent 42%,
+        rgba(255, 255, 255, 0.55) 50%,
+        transparent 58%,
+        transparent 100%);
     background-size: 200% 100%;
     opacity: 0;
     mix-blend-mode: soft-light;
@@ -1219,20 +1263,16 @@ ion-button.edit-profile-btn:not([expand='block']) {
     border-radius: 50%;
   }
 
-  --background: linear-gradient(
-      152deg,
-      rgba(255, 255, 255, 0.74) 0%,
-      rgba(255, 255, 255, 0.34) 45%,
-      rgba(var(--ion-color-primary-rgb), 0.16) 100%
-    )
-    rgb(247 250 253);
+  --background: linear-gradient(152deg,
+    rgba(255, 255, 255, 0.74) 0%,
+    rgba(255, 255, 255, 0.34) 45%,
+    rgba(var(--ion-color-primary-rgb), 0.16) 100%) rgb(247 250 253);
   backdrop-filter: blur(18px) saturate(165%);
   -webkit-backdrop-filter: blur(18px) saturate(165%);
-  --box-shadow:
-    0 8px 24px rgba(15, 23, 42, 0.12),
-    0 3px 10px rgba(var(--ion-color-primary-rgb), 0.1),
-    inset 0 1px 1px rgba(255, 255, 255, 0.7),
-    inset 0 -1px 1px rgba(148, 163, 184, 0.2);
+  --box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12),
+  0 3px 10px rgba(var(--ion-color-primary-rgb), 0.1),
+  inset 0 1px 1px rgba(255, 255, 255, 0.7),
+  inset 0 -1px 1px rgba(148, 163, 184, 0.2);
 
   &:hover {
     transform: translateY(-1px) scale(1.02);
@@ -1258,13 +1298,10 @@ html.ion-palette-dark ion-button.edit-profile-btn:not([expand='block']) {
   --border-color: rgba(148, 163, 184, 0.32);
   --color: #e8ecff;
 
-  --background: linear-gradient(
-      152deg,
+  --background: linear-gradient(152deg,
       rgba(30, 41, 59, 0.65) 0%,
       rgba(30, 41, 59, 0.38) 55%,
-      rgba(var(--ion-color-primary-rgb), 0.25) 100%
-    )
-    rgba(15, 23, 42, 0.5);
+      rgba(var(--ion-color-primary-rgb), 0.25) 100%) rgba(15, 23, 42, 0.5);
   --box-shadow:
     0 10px 28px rgba(0, 0, 0, 0.45),
     0 2px 8px rgba(var(--ion-color-primary-rgb), 0.12),
@@ -1298,13 +1335,10 @@ ion-button.edit-profile-btn[expand='block'] {
   --border-color: rgba(255, 255, 255, 0.5);
   --color: var(--ion-color-primary-shade, var(--ion-color-primary));
 
-  --background: linear-gradient(
-      155deg,
+  --background: linear-gradient(155deg,
       rgba(255, 255, 255, 0.78) 0%,
       rgba(255, 255, 255, 0.42) 48%,
-      rgba(var(--ion-color-primary-rgb), 0.18) 100%
-    )
-    rgb(250 252 255);
+      rgba(var(--ion-color-primary-rgb), 0.18) 100%) rgb(250 252 255);
   backdrop-filter: blur(22px) saturate(170%);
   -webkit-backdrop-filter: blur(22px) saturate(170%);
   --box-shadow:
@@ -1333,13 +1367,10 @@ html.ion-palette-dark ion-button.edit-profile-btn[expand='block'] {
   --border-color: rgba(148, 163, 184, 0.35);
   --color: #f1f5ff;
 
-  --background: linear-gradient(
-      155deg,
+  --background: linear-gradient(155deg,
       rgba(30, 41, 59, 0.62) 0%,
       rgba(30, 41, 59, 0.36) 52%,
-      rgba(var(--ion-color-primary-rgb), 0.28) 100%
-    )
-    rgba(17, 24, 39, 0.55);
+      rgba(var(--ion-color-primary-rgb), 0.28) 100%) rgba(17, 24, 39, 0.55);
   --box-shadow:
     0 14px 40px rgba(0, 0, 0, 0.42),
     0 4px 16px rgba(var(--ion-color-primary-rgb), 0.14),
@@ -1366,19 +1397,19 @@ ion-button.edit-profile-btn:focus-visible {
   ion-button {
     --border-radius: 12px;
     font-weight: 600;
-    
+
     &[fill="solid"] {
       --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
-      
+
       &:hover {
         --box-shadow: 0 6px 16px rgba(var(--ion-color-primary-rgb), 0.4);
         transform: translateY(-1px);
       }
     }
-    
+
     &[fill="outline"] {
       --border-width: 2px;
-      
+
       &:hover {
         --background: rgba(var(--ion-color-primary-rgb), 0.05);
       }
@@ -1391,9 +1422,11 @@ ion-button.edit-profile-btn:focus-visible {
   0% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
+
   100% {
     opacity: 1;
   }
@@ -1405,19 +1438,21 @@ ion-button.edit-profile-btn:focus-visible {
 
 /* Accessibility Improvements */
 @media (prefers-reduced-motion: reduce) {
+
   .fertility-results-modal,
   .pregnancy-results-modal {
     ion-modal::part(content) {
       transition: none;
     }
   }
-  
+
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
+
 ion-item {
   --transition: background-color 200ms ease, transform 200ms ease;
 }
@@ -1433,6 +1468,7 @@ ion-note {
 
 /* Minimum 44×44pt touch targets (Apple HIG); Ionic buttons often need explicit min size on mobile */
 @media (max-width: 768px) {
+
   ion-button[fill='clear']:not(.button-small),
   ion-menu-button,
   ion-back-button {
@@ -1597,10 +1633,12 @@ ion-modal.instagram-crop-modal .insta-zoom-range {
 
 /* Branded logo loader (shared + imperative overlays) */
 @keyframes app-brand-logo-pulse {
+
   0%,
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.035);
   }
@@ -1661,22 +1699,16 @@ ion-popover ion-button:not([fill='outline']):not([fill='clear']):not([fill='defa
 ion-app ion-button[color='secondary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
 ion-modal ion-button[color='secondary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
 ion-popover ion-button[color='secondary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
-  --background: linear-gradient(
-    135deg,
-    var(--ion-color-secondary-tint) 0%,
-    var(--ion-color-secondary) 55%,
-    var(--ion-color-secondary-shade) 100%
-  ) !important;
-  --background-hover: linear-gradient(
-    135deg,
-    var(--ion-color-secondary) 0%,
-    var(--ion-color-secondary-shade) 100%
-  ) !important;
-  --background-focused: linear-gradient(
-    135deg,
-    var(--ion-color-secondary) 0%,
-    var(--ion-color-secondary-shade) 100%
-  ) !important;
+  --background: linear-gradient(135deg,
+      var(--ion-color-secondary-tint) 0%,
+      var(--ion-color-secondary) 55%,
+      var(--ion-color-secondary-shade) 100%) !important;
+  --background-hover: linear-gradient(135deg,
+      var(--ion-color-secondary) 0%,
+      var(--ion-color-secondary-shade) 100%) !important;
+  --background-focused: linear-gradient(135deg,
+      var(--ion-color-secondary) 0%,
+      var(--ion-color-secondary-shade) 100%) !important;
   --background-activated: linear-gradient(135deg, var(--ion-color-secondary-shade) 0%, #0d6d64 100%) !important;
   --color: var(--ion-color-secondary-contrast) !important;
 }
@@ -1684,21 +1716,15 @@ ion-popover ion-button[color='secondary']:not([fill='outline']):not([fill='clear
 ion-app ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
 ion-modal ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button),
 ion-popover ion-button[color='tertiary']:not([fill='outline']):not([fill='clear']):not([fill='default']):not(.button-disabled):not([disabled]):not(.social-button) {
-  --background: linear-gradient(
-    135deg,
-    var(--ion-color-tertiary-tint) 0%,
-    var(--ion-color-tertiary) 100%
-  ) !important;
-  --background-hover: linear-gradient(
-    135deg,
-    var(--ion-color-tertiary) 0%,
-    var(--ion-color-tertiary-shade) 100%
-  ) !important;
-  --background-focused: linear-gradient(
-    135deg,
-    var(--ion-color-tertiary) 0%,
-    var(--ion-color-tertiary-shade) 100%
-  ) !important;
+  --background: linear-gradient(135deg,
+      var(--ion-color-tertiary-tint) 0%,
+      var(--ion-color-tertiary) 100%) !important;
+  --background-hover: linear-gradient(135deg,
+      var(--ion-color-tertiary) 0%,
+      var(--ion-color-tertiary-shade) 100%) !important;
+  --background-focused: linear-gradient(135deg,
+      var(--ion-color-tertiary) 0%,
+      var(--ion-color-tertiary-shade) 100%) !important;
   --background-activated: linear-gradient(135deg, var(--ion-color-tertiary-shade) 0%, #a16207 100%) !important;
   --color: var(--ion-color-tertiary-contrast) !important;
 }
@@ -1827,6 +1853,7 @@ ion-modal button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):
 }
 
 @media (prefers-reduced-motion: no-preference) {
+
   ion-content button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):not(.pdp-nav-btn):not(.experience-card),
   ion-modal button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip) {
     animation: app-button-gradient-wave 14s ease-in-out infinite;
@@ -1834,6 +1861,7 @@ ion-modal button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   ion-content button[type='submit']:not(.tab-button):not(.pds-chip):not(.pdp-nav-btn):not(.experience-card),
   ion-modal button[type='submit']:not(.tab-button):not(.pds-chip) {
     animation: none !important;
@@ -1848,17 +1876,16 @@ ion-content[class^='tpi'] ion-progress-bar {
   overflow: hidden;
 
   --background: rgba(var(--ion-color-primary-rgb), 0.2);
-  --progress-background: linear-gradient(
-    90deg,
-    var(--ion-color-primary) 0%,
-    var(--ion-color-primary-tint) 52%,
-    var(--ion-color-secondary) 100%
-  );
+  --progress-background: linear-gradient(90deg,
+      var(--ion-color-primary) 0%,
+      var(--ion-color-primary-tint) 52%,
+      var(--ion-color-secondary) 100%);
 }
 
 // Bottom sheets opened from Profile reproductive flows
 ion-modal.cycle-setup-sheet,
-ion-modal.pregnancy-setup-sheet {
+ion-modal.pregnancy-setup-sheet,
+ion-modal.fertility-overview-sheet {
   --border-radius: 24px 24px 0 0;
   --box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.16);
 
@@ -1901,4 +1928,3 @@ ion-modal.pregnancy-setup-sheet {
   line-height: 1.45;
   color: var(--ion-color-medium-shade, #64748b);
 }
-

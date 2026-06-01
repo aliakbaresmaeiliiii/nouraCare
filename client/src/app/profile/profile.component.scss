@@ -22,26 +22,18 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .back-button,
-  .share-button {
-    color: #1e293b;
-    --color-hover: rgba(30, 41, 59, 0.8);
-
-    ion-icon {
-      font-size: 24px;
-    }
+  ion-back-button {
+    --color: #1e293b;
   }
 
-  .share-button {
-    --background: rgba(255, 255, 255, 0.15);
-    --border-radius: 50%;
-    width: 44px;
-    height: 44px;
-    backdrop-filter: blur(10px);
+  .header-action-btn {
+    --color: #1e293b;
+    --padding-start: 8px;
+    --padding-end: 8px;
+    margin: 0;
 
-    &:hover {
-      --background: rgba(255, 255, 255, 0.25);
-      transform: scale(1.1);
+    ion-icon {
+      font-size: 22px;
     }
   }
 }
@@ -947,10 +939,9 @@
         0 1px 3px rgba(0, 0, 0, 0.45);
     }
 
-    .back-button,
-    .share-button {
-      color: #f8fafc;
-      --color-hover: rgba(248, 250, 252, 0.88);
+    ion-back-button,
+    .header-action-btn {
+      --color: #f8fafc;
     }
   }
 

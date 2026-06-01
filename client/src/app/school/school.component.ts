@@ -7,13 +7,14 @@ import {
   BabyDevelopmentService,
   BabySizeData,
 } from '../shared/services/baby-development.service';
+import { PregnancyWeekProgressComponent } from '../shared/components/pregnancy-week-progress/pregnancy-week-progress.component';
 
 @Component({
   selector: 'app-school',
   templateUrl: './school.component.html',
   styleUrls: ['./school.component.scss'],
   standalone: true,
-  imports:[...SHARED_STANDALONE_IMPORTS],
+  imports: [...SHARED_STANDALONE_IMPORTS, PregnancyWeekProgressComponent],
   schemas:[CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })
@@ -64,26 +65,9 @@ export class SchoolComponent implements OnInit {
     this.currentBaby = this.babyDevelopmentService.getBabySizeForWeek(w);
   }
 
-  onWeekRangeChange(event: CustomEvent<{ value: unknown }>): void {
-    const v = this.coerceRangeWeek(event.detail?.value);
-    if (v === null) {
-      return;
-    }
-    this.pregnancyWeek = v;
+  onWeekProgressChange(week: number): void {
+    this.pregnancyWeek = Math.max(4, Math.min(40, Math.round(week)));
     this.syncBabyToDisplayedWeek();
-  }
-
-  private coerceRangeWeek(value: unknown): number | null {
-    if (typeof value === 'number' && Number.isFinite(value)) {
-      return Math.max(4, Math.min(40, Math.round(value)));
-    }
-    if (value && typeof value === 'object' && 'lower' in value) {
-      const lower = (value as { lower: number }).lower;
-      if (typeof lower === 'number' && Number.isFinite(lower)) {
-        return Math.max(4, Math.min(40, Math.round(lower)));
-      }
-    }
-    return null;
   }
 
   resetToProfileWeek(): void {

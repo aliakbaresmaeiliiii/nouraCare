@@ -23,6 +23,7 @@ import { PeriodCycleStateService } from '../../services/period-cycle-state.servi
 import {
   formatCyclePhaseShortDate,
   formatCycleStripCenterDate,
+  formatLocalizedNumber,
   weekStripDayOfMonth,
   weekStripWeekdayShort,
 } from '../../utils/locale-date-format.util';
@@ -82,7 +83,7 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
 
   // Computed state
   @Input() ovulationDay: number = 14; // computed from cycleLength in ngOnInit
-  segments: { start: number; len: number; color: string }[] = [];
+  segments: { start: number; len: number; color: string; kind?: string }[] = [];
 
   // User selections
   startDate: string | null = null; // last period start (YYYY-MM-DD)
@@ -715,7 +716,7 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
       return {
         status: this.t('cycleChart.fertility.period'),
         description: this.t('cycleChart.fertility.veryLowDuringMenstruation'),
-        color: '#9b4a63',
+        color: '#f43f5e',
         icon: '🩸',
         tone: 'rose',
       };
@@ -756,7 +757,7 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
         description: peak
           ? this.t('cycleChart.fertility.highestChanceThisCycle')
           : this.t('cycleChart.fertility.highChanceInWindow'),
-        color: '#0d9488',
+        color: '#2dd4bf',
         icon: '💚',
         tone: 'emerald',
       };
@@ -869,17 +870,22 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     this.recomputeEverything();
   }
 
-  private addSegmentWithWrap(start: number, len: number, color: string) {
+  private addSegmentWithWrap(
+    start: number,
+    len: number,
+    color: string,
+    kind?: string,
+  ) {
     // normalize start
     let s = ((start % this.cycleLength) + this.cycleLength) % this.cycleLength;
     if (len <= 0) return;
     if (s + len <= this.cycleLength) {
-      this.segments.push({ start: s, len, color });
+      this.segments.push({ start: s, len, color, kind });
     } else {
       const firstPart = this.cycleLength - s;
       const secondPart = len - firstPart;
-      this.segments.push({ start: s, len: firstPart, color });
-      this.segments.push({ start: 0, len: secondPart, color });
+      this.segments.push({ start: s, len: firstPart, color, kind });
+      this.segments.push({ start: 0, len: secondPart, color, kind });
     }
   }
 
@@ -1168,14 +1174,20 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
   }
 
   private t(key: string, params?: Record<string, string | number>): string {
-    const template = this.translationService.translate(key);
-    if (!params) {
-      return template;
+    let template = this.translationService.translate(key);
+    if (params) {
+      template = Object.entries(params).reduce(
+        (acc, [paramKey, value]) =>
+          acc.replace(
+            new RegExp(`\\{\\{\\s*${paramKey}\\s*\\}\\}`, 'g'),
+            String(value),
+          ),
+        template,
+      );
     }
-    return Object.entries(params).reduce(
-      (acc, [paramKey, value]) =>
-        acc.replace(new RegExp(`\\{\\{\\s*${paramKey}\\s*\\}\\}`, 'g'), String(value)),
+    return formatLocalizedNumber(
       template,
+      this.languageService.getCurrentLanguage(),
     );
   }
 
@@ -1407,23 +1419,30 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
         1;
     }
 
-    // rebuild segments
+    // rebuild segments — soft Flo-style palette (see SVG gradient defs)
     this.segments = [];
-    // Period segment starts at day 0 (cycle start) for periodLength days
-    this.addSegmentWithWrap(0, this.periodLength, '#C21E56');
+    this.addSegmentWithWrap(0, this.periodLength, 'url(#segmentGradientPeriod)', 'period');
 
-    // Fertile window: ovulationDay - 5 to ovulationDay + 1 (6 days)
     const fertileStart = this.ovulationDay - 5;
-    this.addSegmentWithWrap(fertileStart, this.fertileWindowLength, '#063935');
+    this.addSegmentWithWrap(
+      fertileStart,
+      this.fertileWindowLength,
+      'url(#segmentGradientFertile)',
+      'fertile',
+    );
 
-    // Ovulation marker: very short segment at ovulationDay
-    this.addSegmentWithWrap(this.ovulationDay, 0.6, '#ffd700');
+    this.addSegmentWithWrap(
+      this.ovulationDay,
+      0.65,
+      'url(#segmentGradientOvulation)',
+      'ovulation',
+    );
 
-    // PMS: last pmsLength days before next period
     this.addSegmentWithWrap(
       this.cycleLength - this.pmsLength,
       this.pmsLength,
-      '#EE82EE',
+      'url(#segmentGradientLuteal)',
+      'luteal',
     );
 
     // positions for today & ovulation

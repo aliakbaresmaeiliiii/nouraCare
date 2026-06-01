@@ -35,19 +35,19 @@
       <!-- Stats Cards -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-number">{{ favoriteStats.totalFavorites }}</div>
+          <div class="stat-number">{{ favoriteStats.totalFavorites | localNum }}</div>
           <div class="stat-label">Total</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number">{{ favoriteStats.articleCount }}</div>
+          <div class="stat-number">{{ favoriteStats.articleCount | localNum }}</div>
           <div class="stat-label">Articles</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number">{{ favoriteStats.doctorCount }}</div>
+          <div class="stat-number">{{ favoriteStats.doctorCount | localNum }}</div>
           <div class="stat-label">Doctors</div>
         </div>
         <div class="stat-card">
-          <div class="stat-number">{{ favoriteStats.toolCount + favoriteStats.tipCount }}</div>
+          <div class="stat-number">{{ (favoriteStats.toolCount + favoriteStats.tipCount) | localNum }}</div>
           <div class="stat-label">Others</div>
         </div>
       </div>
@@ -98,7 +98,7 @@
       </ion-select>
       
       <div class="results-count">
-        <span class="count">{{ filteredFavorites.length }}</span>
+        <span class="count">{{ filteredFavorites.length | localNum }}</span>
         <span class="label">{{ filteredFavorites.length === 1 ? 'item' : 'items' }}</span>
       </div>
     </div>

@@ -84,12 +84,21 @@
       </div>
     }
 
-    <div class="cycle-sheet-actions">
-      <app-button [disabled]="!canSubmit" (buttonClick)="saveInfo()">{{
-        "common.save" | translate
-      }}</app-button>
-      <button type="button" class="cycle-sheet-cancel" (click)="cancel()">
+    <div class="cycle-sheet-footer">
+      <button
+        type="button"
+        class="cycle-sheet-btn cycle-sheet-btn--secondary"
+        (click)="cancel()"
+      >
         {{ "common.cancel" | translate }}
+      </button>
+      <button
+        type="button"
+        class="cycle-sheet-btn cycle-sheet-btn--primary"
+        [disabled]="!canSubmit"
+        (click)="saveInfo()"
+      >
+        {{ "common.save" | translate }}
       </button>
     </div>
   </form>
@@ -101,39 +110,47 @@
   class="cycle-picker-modal"
 >
   <ng-template>
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-button (click)="closeDurationPicker('cancel')">{{
-          "common.cancel" | translate
-        }}</ion-button>
-      </ion-buttons>
-      <ion-title>{{ "reproductiveStatus.pickerCycleLength" | translate }}</ion-title>
-      <ion-buttons slot="end">
-        <ion-button (click)="closeDurationPicker('confirm')">{{
-          "reproductiveStatus.confirm" | translate
-        }}</ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-    <ion-picker>
-      <ion-picker-column
-        [value]="tempDurationDays"
-        (ionChange)="onDurationDaysChange($event)"
-      >
-        @for (num of durationDaysNumber; track num) {
-          <ion-picker-column-option [value]="num">
-            {{ formatDays(num) }}
-          </ion-picker-column-option>
-        }
-      </ion-picker-column>
-    </ion-picker>
-    @if (pickerValidationMessage && isDurationDaysOpen) {
-      <div class="cycle-picker-feedback" role="alert">
-        <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
-        @if (pickerValidationHelp) {
-          <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
-        }
+    <div class="cycle-picker-sheet">
+      <ion-toolbar>
+        <ion-title>{{ "reproductiveStatus.pickerCycleLength" | translate }}</ion-title>
+      </ion-toolbar>
+      <ion-picker>
+        <ion-picker-column
+          [value]="tempDurationDays"
+          (ionChange)="onDurationDaysChange($event)"
+        >
+          @for (num of durationDaysNumber; track num) {
+            <ion-picker-column-option [value]="num">
+              {{ formatDays(num) }}
+            </ion-picker-column-option>
+          }
+        </ion-picker-column>
+      </ion-picker>
+      @if (pickerValidationMessage && isDurationDaysOpen) {
+        <div class="cycle-picker-feedback" role="alert">
+          <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
+          @if (pickerValidationHelp) {
+            <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
+          }
+        </div>
+      }
+      <div class="cycle-sheet-footer cycle-sheet-footer--picker">
+        <button
+          type="button"
+          class="cycle-sheet-btn cycle-sheet-btn--secondary"
+          (click)="closeDurationPicker('cancel')"
+        >
+          {{ "common.cancel" | translate }}
+        </button>
+        <button
+          type="button"
+          class="cycle-sheet-btn cycle-sheet-btn--primary"
+          (click)="closeDurationPicker('confirm')"
+        >
+          {{ "reproductiveStatus.confirm" | translate }}
+        </button>
       </div>
-    }
+    </div>
   </ng-template>
 </ion-modal>
 
@@ -143,39 +160,47 @@
   class="cycle-picker-modal"
 >
   <ng-template>
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-button (click)="closeBleedingDays('cancel')">{{
-          "common.cancel" | translate
-        }}</ion-button>
-      </ion-buttons>
-      <ion-title>{{ "reproductiveStatus.pickerBleeding" | translate }}</ion-title>
-      <ion-buttons slot="end">
-        <ion-button (click)="closeBleedingDays('confirm')">{{
-          "reproductiveStatus.confirm" | translate
-        }}</ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-    <ion-picker>
-      <ion-picker-column
-        [value]="tempBleedingDays"
-        (ionChange)="onBleedingDaysChange($event)"
-      >
-        @for (num of bleedingDaysNumbers; track num) {
-          <ion-picker-column-option [value]="num">
-            {{ formatDays(num) }}
-          </ion-picker-column-option>
-        }
-      </ion-picker-column>
-    </ion-picker>
-    @if (pickerValidationMessage && isBleedingDaysOpen) {
-      <div class="cycle-picker-feedback" role="alert">
-        <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
-        @if (pickerValidationHelp) {
-          <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
-        }
+    <div class="cycle-picker-sheet">
+      <ion-toolbar>
+        <ion-title>{{ "reproductiveStatus.pickerBleeding" | translate }}</ion-title>
+      </ion-toolbar>
+      <ion-picker>
+        <ion-picker-column
+          [value]="tempBleedingDays"
+          (ionChange)="onBleedingDaysChange($event)"
+        >
+          @for (num of bleedingDaysNumbers; track num) {
+            <ion-picker-column-option [value]="num">
+              {{ formatDays(num) }}
+            </ion-picker-column-option>
+          }
+        </ion-picker-column>
+      </ion-picker>
+      @if (pickerValidationMessage && isBleedingDaysOpen) {
+        <div class="cycle-picker-feedback" role="alert">
+          <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
+          @if (pickerValidationHelp) {
+            <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
+          }
+        </div>
+      }
+      <div class="cycle-sheet-footer cycle-sheet-footer--picker">
+        <button
+          type="button"
+          class="cycle-sheet-btn cycle-sheet-btn--secondary"
+          (click)="closeBleedingDays('cancel')"
+        >
+          {{ "common.cancel" | translate }}
+        </button>
+        <button
+          type="button"
+          class="cycle-sheet-btn cycle-sheet-btn--primary"
+          (click)="closeBleedingDays('confirm')"
+        >
+          {{ "reproductiveStatus.confirm" | translate }}
+        </button>
       </div>
-    }
+    </div>
   </ng-template>
 </ion-modal>
 
@@ -185,36 +210,44 @@
   class="cycle-picker-modal"
 >
   <ng-template>
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-button (click)="closePeriodDate('cancel')">{{
-          "common.cancel" | translate
-        }}</ion-button>
-      </ion-buttons>
-      <ion-title>{{ "reproductiveStatus.pickerDate" | translate }}</ion-title>
-      <ion-buttons slot="end">
-        <ion-button (click)="closePeriodDate('confirm')">{{
-          "reproductiveStatus.confirm" | translate
-        }}</ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-    <p class="cycle-picker-range-hint">{{ periodPickerRangeHint }}</p>
-    <ion-datetime
-      class="cycle-date-wheel ltr"
-      presentation="date"
-      [preferWheel]="true"
-      [value]="periodDateIso"
-      [min]="minPeriodDate"
-      [max]="maxDate"
-      (ionChange)="onPeriodDateChange($event)"
-    ></ion-datetime>
-    @if (pickerValidationMessage && isPeriodDateOpen) {
-      <div class="cycle-picker-feedback" role="alert">
-        <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
-        @if (pickerValidationHelp) {
-          <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
-        }
+    <div class="cycle-picker-sheet">
+      <ion-toolbar>
+        <ion-title>{{ "reproductiveStatus.pickerDate" | translate }}</ion-title>
+      </ion-toolbar>
+      <p class="cycle-picker-range-hint">{{ periodPickerRangeHint }}</p>
+      <ion-datetime
+        class="cycle-date-wheel ltr"
+        presentation="date"
+        [preferWheel]="true"
+        [value]="periodDateIso"
+        [min]="minPeriodDate"
+        [max]="maxDate"
+        (ionChange)="onPeriodDateChange($event)"
+      ></ion-datetime>
+      @if (pickerValidationMessage && isPeriodDateOpen) {
+        <div class="cycle-picker-feedback" role="alert">
+          <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>
+          @if (pickerValidationHelp) {
+            <p class="cycle-picker-help">{{ pickerValidationHelp }}</p>
+          }
+        </div>
+      }
+      <div class="cycle-sheet-footer cycle-sheet-footer--picker">
+        <button
+          type="button"
+          class="cycle-sheet-btn cycle-sheet-btn--secondary"
+          (click)="closePeriodDate('cancel')"
+        >
+          {{ "common.cancel" | translate }}
+        </button>
+        <button
+          type="button"
+          class="cycle-sheet-btn cycle-sheet-btn--primary"
+          (click)="closePeriodDate('confirm')"
+        >
+          {{ "reproductiveStatus.confirm" | translate }}
+        </button>
       </div>
-    }
+    </div>
   </ng-template>
 </ion-modal>

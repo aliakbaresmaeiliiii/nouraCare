@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { IonIcon, IonButton } from '@ionic/angular/standalone';
+import { IonIcon } from '@ionic/angular/standalone';
+import { LocalizedNumberPipe } from '../../pipes/localized-number.pipe';
 
 export interface PregnancyResults {
   pregnancyWeek: number;
@@ -17,7 +18,7 @@ export interface PregnancyResults {
   templateUrl: './pregnancy-results-modal.component.html',
   styleUrls: ['./pregnancy-results-modal.component.scss'],
   standalone: true,
-  imports: [IonIcon],
+  imports: [IonIcon, LocalizedNumberPipe],
 })
 export class PregnancyResultsModalComponent {
   @Input() results!: PregnancyResults;

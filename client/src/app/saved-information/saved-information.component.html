@@ -92,7 +92,7 @@
       <div class="items-container">
         <div class="items-header">
           <h2 class="items-title">
-            {{ filteredItems.length }}
+            {{ filteredItems.length | localNum }}
             saved {{ filteredItems.length === 1 ? 'item' : 'items' }}
           </h2>
         </div>
@@ -143,7 +143,7 @@
                   @if (item.readTime) {
                     <div class="read-time">
                       <ion-icon name="time-outline" class="meta-icon"></ion-icon>
-                      <span class="meta-text">{{ item.readTime }} min read</span>
+                      <span class="meta-text">{{ item.readTime | localNum }} min read</span>
                     </div>
                   }
                   <div class="saved-date">

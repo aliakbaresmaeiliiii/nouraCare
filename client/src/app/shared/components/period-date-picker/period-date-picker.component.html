@@ -1,10 +1,23 @@
 <div class="period-date-picker">
-  <nav class="pdp-month-bar" aria-label="Month">
-    <button type="button" class="pdp-nav-btn" (click)="previousMonth()" aria-label="Previous month">
+  <nav
+    class="pdp-month-bar"
+    [attr.aria-label]="'cycleCalendar.a11y.monthNav' | translate"
+  >
+    <button
+      type="button"
+      class="pdp-nav-btn"
+      (click)="previousMonth()"
+      [attr.aria-label]="'cycleCalendar.a11y.prevMonth' | translate"
+    >
       <ion-icon name="chevron-back-outline"></ion-icon>
     </button>
     <h2 class="pdp-month-title">{{ monthYearTitle() }}</h2>
-    <button type="button" class="pdp-nav-btn" (click)="nextMonth()" aria-label="Next month">
+    <button
+      type="button"
+      class="pdp-nav-btn"
+      (click)="nextMonth()"
+      [attr.aria-label]="'cycleCalendar.a11y.nextMonth' | translate"
+    >
       <ion-icon name="chevron-forward-outline"></ion-icon>
     </button>
   </nav>
@@ -16,10 +29,10 @@
       [class.pdp-legend-pill--active]="isLegendActive('start')"
       role="listitem"
       (click)="focusLegend('start')"
-      aria-label="Highlight first day"
+      [attr.aria-label]="'periodDatePicker.a11y.highlightFirstDay' | translate"
     >
       <span class="pdp-legend-dot pdp-legend-dot--start"></span>
-      First day
+      {{ 'periodDatePicker.legend.firstDay' | translate }}
     </button>
     <button
       type="button"
@@ -27,14 +40,14 @@
       [class.pdp-legend-pill--active]="isLegendActive('period')"
       role="listitem"
       (click)="focusLegend('period')"
-      aria-label="Highlight period days"
+      [attr.aria-label]="'periodDatePicker.a11y.highlightPeriodDays' | translate"
     >
       <span class="pdp-legend-dot pdp-legend-dot--period"></span>
-      Period
+      {{ 'periodDatePicker.legend.period' | translate }}
     </button>
     <span class="pdp-legend-pill pdp-legend-pill--cycle" role="listitem">
       <span class="pdp-legend-dot pdp-legend-dot--cycle"></span>
-      Cycle
+      {{ 'periodDatePicker.legend.cycle' | translate }}
     </span>
     <button
       type="button"
@@ -42,10 +55,10 @@
       [class.pdp-legend-pill--active]="isLegendActive('today')"
       role="listitem"
       (click)="focusLegend('today')"
-      aria-label="Highlight today"
+      [attr.aria-label]="'periodDatePicker.a11y.highlightToday' | translate"
     >
       <span class="pdp-legend-dot pdp-legend-dot--today"></span>
-      Today
+      {{ 'periodDatePicker.legend.today' | translate }}
     </button>
   </div>
 
@@ -73,7 +86,7 @@
             [disabled]="!isCurrentMonth(day)"
             (click)="onDateSelect(day)"
           >
-            <span class="pdp-day-num">{{ displayDayNum(day) }}</span>
+            <span class="pdp-day-num">{{ displayDayNum(day) | localNum }}</span>
           </button>
         </div>
       }

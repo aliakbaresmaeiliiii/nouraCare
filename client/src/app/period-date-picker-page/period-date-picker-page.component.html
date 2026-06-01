@@ -1,20 +1,25 @@
 <ion-header class="ion-no-border pdp-page-header">
   <ion-toolbar class="pdp-page-toolbar">
     <ion-buttons slot="start">
-      <ion-button fill="clear" class="pdp-toolbar-btn" (click)="cancel()" aria-label="Close">
+      <ion-button
+        fill="clear"
+        class="pdp-toolbar-btn"
+        (click)="cancel()"
+        [attr.aria-label]="'home.common.close' | translate"
+      >
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="pdp-page-title">Last period</ion-title>
+    <ion-title class="pdp-page-title">{{ 'periodDatePicker.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="pdp-page-content" [fullscreen]="true">
   <div class="pdp-page-inner">
     <div class="pdp-intro">
-      <h2 class="pdp-intro-title">When did your last period start?</h2>
+      <h2 class="pdp-intro-title">{{ 'periodDatePicker.introTitle' | translate }}</h2>
       <p class="pdp-intro-text">
-        Tap the first day. We’ll highlight the days that match your usual length so you can confirm before saving.
+        {{ 'periodDatePicker.introText' | translate }}
       </p>
     </div>
 
@@ -27,13 +32,14 @@
 
     @if (selectedRange) {
       <div class="pdp-summary">
-        <p class="pdp-summary-label">Selected range</p>
+        <p class="pdp-summary-label">{{ 'periodDatePicker.selectedRange' | translate }}</p>
         <p class="pdp-summary-dates">
-          {{ selectedRange.startDate | date: 'mediumDate' }}
+          {{ formatSummaryDate(selectedRange.startDate) }}
           —
           {{
-            selectedRange.periodDates[selectedRange.periodDates.length - 1]
-              | date: 'mediumDate'
+            formatSummaryDate(
+              selectedRange.periodDates[selectedRange.periodDates.length - 1]
+            )
           }}
         </p>
       </div>
@@ -46,17 +52,17 @@
         class="pdp-save-btn pdp-save-btn--bottom"
         [disabled]="!selectedRange"
         (click)="savePeriod()"
-        aria-label="Save period dates"
+        [attr.aria-label]="'periodDatePicker.a11y.save' | translate"
       >
         <ion-icon name="checkmark-circle" slot="start" aria-hidden="true"></ion-icon>
         @if (selectedRange) {
-          Save period
+          {{ 'periodDatePicker.savePeriod' | translate }}
         } @else {
-          Select a start date
+          {{ 'periodDatePicker.selectStartDate' | translate }}
         }
       </ion-button>
       @if (!selectedRange) {
-        <p class="pdp-save-hint">Pick the first day of your last period to continue.</p>
+        <p class="pdp-save-hint">{{ 'periodDatePicker.saveHint' | translate }}</p>
       }
     </div>
   </div>

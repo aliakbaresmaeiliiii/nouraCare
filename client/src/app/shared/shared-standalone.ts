@@ -67,6 +67,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { TranslatePipe } from './pipes/translate.pipe';
+import { LocalizedNumberPipe } from './pipes/localized-number.pipe';
 import { LanguageSwitcherComponent } from './components/language-switcher/language-switcher.component';
 import { HeaderLanguageSwitcherComponent } from './components/header-language-switcher/header-language-switcher.component';
 import { CircleProgressBarComponent } from './components/circle-progress-bar/circle-progress-bar.component';
@@ -151,6 +152,7 @@ export const SHARED_STANDALONE_IMPORTS = [
   IonTextarea,
   IonActionSheet,
   TranslatePipe,
+  LocalizedNumberPipe,
   LanguageSwitcherComponent,
   HeaderLanguageSwitcherComponent,
   CircleProgressBarComponent,
