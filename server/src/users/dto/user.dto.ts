@@ -8,7 +8,6 @@ import {
   IsInt,
   Min,
   Max,
-  IsUrl,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -46,7 +45,6 @@ export class CreateUserDto {
   isVerified?: boolean;
 
   @IsOptional()
-  // @IsUrl()
   profileImage?: string;
 
   @IsOptional()

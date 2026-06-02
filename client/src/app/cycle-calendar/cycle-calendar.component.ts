@@ -113,7 +113,6 @@ export class CycleCalendarComponent implements OnInit {
     this.refreshCalendar();
     this.refreshHistory();
     const userId = this.homeService.getCurrentUserId();
-    // void this.periodCycleState.ensureLatestPeriodFromApi(userId);
     this.loadReproductiveStatus(userId);
   }
 
@@ -166,7 +165,6 @@ export class CycleCalendarComponent implements OnInit {
       notes: '',
     });
     this.cycleSettings.setUserStatus('Trying to Conceive');
-    // this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
     this.refreshHistory();
     this.refreshCalendar();

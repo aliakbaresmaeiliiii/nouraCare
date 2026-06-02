@@ -89,6 +89,11 @@ export class FavoritesService {
     });
   }
 
+  // Check if item is favorite (sync, no subscription leak)
+  isFavoriteSync(id: string): boolean {
+    return this.favoritesSubject.value.some((item) => item.id === id);
+  }
+
   // Check if item is favorite
   isFavorite(id: string): Observable<boolean> {
     return new Observable(observer => {

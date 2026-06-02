@@ -10,8 +10,6 @@
     [class.home-content--pregnancy-today]="isPregnant()"
     [class.home-content--cycle-today]="!isPregnant()"
   >
-    <h1 class="hello-world">Hello World</h1>
-
     @if (!isPregnant()) {
     <div class="cycle-today-shell">
       <div class="cycle-today-bg" aria-hidden="true">
@@ -48,25 +46,6 @@
         </button>
       </section>
       }
-
-      <!-- <header class="cycle-greeting">
-        <div class="cycle-greeting__copy">
-          <p class="cycle-greeting__eyebrow">{{ getCycleGreetingEyebrow() }}</p>
-          <h1 class="cycle-greeting__name">{{ getCycleWelcomeName() }}</h1>
-        </div>
-        <span
-          class="cycle-phase-badge"
-          [class.cycle-phase-badge--period]="getCyclePhaseTone() === 'period'"
-          [class.cycle-phase-badge--follicular]="
-            getCyclePhaseTone() === 'follicular'
-          "
-          [class.cycle-phase-badge--fertile]="getCyclePhaseTone() === 'fertile'"
-          [class.cycle-phase-badge--luteal]="getCyclePhaseTone() === 'luteal'"
-          [class.cycle-phase-badge--none]="getCyclePhaseTone() === 'none'"
-        >
-          {{ getCycleDayStatus() }}
-        </span>
-      </header> -->
 
       <div class="cycle-hero-sky">
         <div class="cycle-ring-shell cycle-ring-shell--hero">
@@ -721,147 +700,69 @@
             ></ion-icon>
           </button>
         </div>
+
+        @if (!needsPregnancyInput) {
+        <section
+          class="home-feature-slider"
+          [attr.aria-label]="'home.featureSliderAria' | translate"
+        >
+          <header class="home-feature-slider__header">
+            <h2 class="home-feature-slider__title">
+              {{ "home.featureSliderTitle" | translate }}
+            </h2>
+            <p class="home-feature-slider__subtitle">
+              {{ "home.featureSliderSubtitle" | translate }}
+            </p>
+          </header>
+          <div class="home-feature-slider__track" role="list">
+            @for (slide of getPregnancyFeatureSlides(); track slide.id) {
+            <button
+              type="button"
+              class="preg-feature-card preg-feature-card--{{ slide.variant }}"
+              role="listitem"
+              (click)="onPregnancyFeatureSlideClick(slide)"
+              [attr.aria-label]="pregSlideAriaLabel(slide)"
+            >
+              <div class="preg-feature-card__top">
+                <span class="preg-feature-card__eyebrow">
+                  {{
+                    slide.eyebrowParams
+                      ? pregSlideText(slide.eyebrowKey, slide.eyebrowParams)
+                      : pregSlideText(slide.eyebrowKey)
+                  }}
+                </span>
+                @if (slide.imageUrl) {
+                <span class="preg-feature-card__thumb" aria-hidden="true">
+                  <img [src]="slide.imageUrl" alt="" loading="lazy" decoding="async" />
+                </span>
+                } @else {
+                <span class="preg-feature-card__icon" aria-hidden="true">
+                  <ion-icon [name]="slide.ionIcon"></ion-icon>
+                </span>
+                }
+              </div>
+              <h3 class="preg-feature-card__headline">{{ slide.headline }}</h3>
+              <p class="preg-feature-card__body">{{ slide.body }}</p>
+              @if (slide.footnoteKey) {
+              <p class="preg-feature-card__footnote">
+                {{
+                  slide.footnoteParams
+                    ? pregSlideText(slide.footnoteKey, slide.footnoteParams)
+                    : pregSlideText(slide.footnoteKey)
+                }}
+              </p>
+              }
+              <span class="preg-feature-card__cta" aria-hidden="true">
+                {{ "home.learnMore" | translate }}
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </span>
+            </button>
+            }
+          </div>
+        </section>
+        }
       </div>
     </div>
-    }
-    <!-- <div class="quick-actions-section">
-      <div class="section-header">
-        <h2 class="section-title">{{ "home.quickActions" | translate }}</h2>
-        <p class="section-subtitle">{{ "home.whatToDoToday" | translate }}</p>
-      </div>
-
-      <div class="actions-grid">
-        @if (showStartTrackingOnboarding()) {
-        <div
-          class="action-card primary"
-          (click)="openPeriodDatePicker()"
-          role="button"
-          tabindex="0"
-          (keydown.enter)="openPeriodDatePicker()"
-          (keydown.space)="$event.preventDefault(); openPeriodDatePicker()"
-        >
-          <div class="action-background">
-            <div class="action-pattern"></div>
-          </div>
-          <div class="action-content">
-            <div class="action-icon">
-              <ion-icon name="calendar-number-outline"></ion-icon>
-            </div>
-            <h3 class="action-title">{{ getPreCycleEmptyCopy().title }}</h3>
-            <p class="action-description">
-              {{ getPreCycleEmptyCopy().body }}
-            </p>
-          </div>
-          <div class="action-arrow">
-            <ion-icon name="chevron-forward"></ion-icon>
-          </div>
-        </div>
-        }
-        <div class="action-card primary" (click)="openCycleCalendar()">
-          <div class="action-background">
-            <div class="action-pattern"></div>
-          </div>
-          <div class="action-content">
-            <div class="action-icon">
-              <ion-icon name="calendar-clear-outline"></ion-icon>
-            </div>
-            <h3 class="action-title">{{ "home.viewCalendar" | translate }}</h3>
-            <p class="action-description">
-              {{ "home.cycleOverview" | translate }}
-            </p>
-          </div>
-          <div class="action-arrow">
-            <ion-icon name="chevron-forward"></ion-icon>
-          </div>
-        </div>
-
-        <div class="action-card secondary" (click)="openFertilityCalculator()">
-          <div class="action-background">
-            <div class="action-pattern"></div>
-          </div>
-          <div class="action-content">
-            <div class="action-icon">
-              <ion-icon name="calculator-outline"></ion-icon>
-            </div>
-            <h3 class="action-title">
-              {{ "home.actionFertilityTitle" | translate }}
-            </h3>
-            <p class="action-description">
-              {{ "home.actionFertilityDesc" | translate }}
-            </p>
-          </div>
-          <div class="action-arrow">
-            <ion-icon name="chevron-forward"></ion-icon>
-          </div>
-        </div>
-
-        <div
-          class="action-card tertiary"
-          (click)="onActionClick('appointment')"
-        >
-          <div class="action-background">
-            <div class="action-pattern"></div>
-          </div>
-          <div class="action-content">
-            <div class="action-icon">
-              <ion-icon name="calendar-outline"></ion-icon>
-            </div>
-            <h3 class="action-title">
-              {{ "home.actionAppointment" | translate }}
-            </h3>
-            <p class="action-description">
-              {{ "home.actionAppointmentShortDesc" | translate }}
-            </p>
-          </div>
-          <div class="action-arrow">
-            <ion-icon name="chevron-forward"></ion-icon>
-          </div>
-        </div>
-
-        <div
-          class="action-card quaternary"
-          (click)="onActionClick('community')"
-        >
-          <div class="action-background">
-            <div class="action-pattern"></div>
-          </div>
-          <div class="action-content">
-            <div class="action-icon">
-              <ion-icon name="people-outline"></ion-icon>
-            </div>
-            <h3 class="action-title">
-              {{ "home.actionCommunityShort" | translate }}
-            </h3>
-            <p class="action-description">
-              {{ "home.actionCommunityShortDesc" | translate }}
-            </p>
-          </div>
-          <div class="action-arrow">
-            <ion-icon name="chevron-forward"></ion-icon>
-          </div>
-        </div>
-      </div>
-    </div> -->
-    @if (isPregnant()) {
-    <section
-      class="home-feature-slider"
-      [attr.aria-label]="'home.featureSliderAria' | translate"
-    >
-      <div class="slider-container">
-        <article class="slider-item card">
-          <img src="assets/images/sliders/changing.jpg" alt="" />
-          <p>{{ "home.featureSliderChanging" | translate }}</p>
-        </article>
-        <article class="slider-item card">
-          <img src="assets/images/sliders/Access.jpg" alt="" />
-          <p>{{ "home.featureSliderAccess" | translate }}</p>
-        </article>
-        <article class="slider-item card">
-          <img src="assets/images/sliders/track.jpg" alt="" />
-          <p>{{ "home.featureSliderTrack" | translate }}</p>
-        </article>
-      </div>
-    </section>
     }
   </div>
 </ion-content>

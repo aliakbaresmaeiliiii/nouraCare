@@ -344,13 +344,6 @@
             {{ formatStripCenterDate() }}
           </text>
 
-          <!-- Wrapped hint (shorter copy + HTML line-break where needed) -->
-          <!-- <foreignObject x="-152" y="-98" width="304" height="46" class="cycle-center-context-fo">
-            <div xmlns="http://www.w3.org/1999/xhtml" class="cycle-center-context-inner">
-              {{ getViewContextText() }}
-            </div>
-          </foreignObject> -->
-
           @if (startDate && weekStripSelectionOvulationInsight) {
             <text
               class="center-ovulation-insight"
@@ -395,15 +388,6 @@
           >
             {{ getDetailedMilestone() }}
           </text>
-
-
-
-          <!-- Edit Button -->
-          <!-- <g class="edit-button-container" transform="translate(0, 80)" [class.disabled]="showPeriodSheet">
-              <rect x="-40" y="-15" width="80" height="30" rx="15" fill="#3b82f6" opacity="0.9" class="edit-button-bg"
-                (click)="editPeriod($event)"></rect>
-              <text text-anchor="middle" alignment-baseline="middle" font-size="12" font-weight="600" fill="white" class="edit-button-text" (click)="editPeriod($event)">Edit</text>
-            </g> -->
 
         </g>
 
@@ -573,8 +557,6 @@
     </ion-content>
   </ng-template>
 </ion-modal>
-
-<!-- <ion-dialog [isOpen]="showPicker" (didDismiss)="closePicker()"> -->
 
 <ion-modal class="ion-modal-picker cycle-wheel-picker-modal" #modal [isOpen]="showPicker" trigger="open-modal">
   <ng-template>

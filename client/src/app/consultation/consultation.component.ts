@@ -272,42 +272,6 @@ export class ConsultationComponent implements OnInit, OnDestroy {
   // View doctor profile
   async viewDoctorProfile(doctor: DoctorDto) {
     this.router.navigate(['/doctor', doctor.id]);
-    // const alert = await this.alertController.create({
-    //   header: doctor.fullName,
-    //   message: `
-    //     <div style="text-align: left;">
-    //       <p><strong>Specialty:</strong> ${doctor.specialty}</p>
-    //       <p><strong>Experience:</strong> ${doctor.experienceYears} years</p>
-    //       ${doctor.rating ? `<p><strong>Rating:</strong> ${doctor.rating}/5 ⭐</p>` : ''}
-    //       ${doctor.clinicName ? `<p><strong>Clinic:</strong> ${doctor.clinicName}</p>` : ''}
-    //       ${doctor.location ? `<p><strong>Location:</strong> ${doctor.location}</p>` : ''}
-    //       <p><strong>About:</strong></p>
-    //       <p style="font-style: italic;">${doctor.about}</p>
-    //       <p><strong>Consultation Fee:</strong> $${doctor.fee || 'Contact for pricing'}</p>
-    //       <p><strong>Available:</strong> ${this.getConsultationTypeLabel(doctor.consultationType)}</p>
-    //     </div>
-    //   `,
-    //   buttons: [
-    //     {
-    //       text: 'Book Appointment',
-    //       handler: () => {
-    //         this.bookWithDoctor(doctor);
-    //       }
-    //     },
-    //     {
-    //       text: 'Contact',
-    //       handler: () => {
-    //         this.contactDoctor(doctor);
-    //       }
-    //     },
-    //     {
-    //       text: 'Close',
-    //       role: 'cancel'
-    //     }
-    //   ]
-    // });
-
-    // await alert.present();
   }
 
   // Contact doctor

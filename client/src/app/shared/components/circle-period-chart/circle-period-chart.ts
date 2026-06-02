@@ -342,15 +342,6 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
       this.boundPeriodLength ?? this.cycleSettings.periodLength();
     this.startDate = this.cycleSettings.lastPeriodStartDate();
 
-    // const journey = this.userInfoService.onboardingJourney();
-    // if (journey) {
-    //   this.cycleLength = journey.cycleLength || this.cycleLength;
-    //   this.periodLength = journey.periodLength || this.periodLength;
-    //   this.startDate = this.resolvePreferredStartDate(
-    //     this.toPeriodIso(journey.lastPeriodDate),
-    //   );
-    // }
-
     if (this.startDate) {
       this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
     } else {
@@ -488,7 +479,6 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     const picked = new Date(event.detail.value);
     this.selectedStartDate = picked.toISOString();
     this.selectedEndDate = picked.toISOString();
-    // this.updateSegmentsFromDate(picked);
   }
 
   updateSegmentsFromDate(startDate: any, endDate: any) {
@@ -563,7 +553,6 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
   editCycle() {
     this.showCalendar = true;
     console.log('Edit cycle clicked!');
-    // this.router.navigate(['cycle-edit']);
   }
 
   openButtonSheet() {

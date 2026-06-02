@@ -199,12 +199,6 @@ export class ReproductiveStatusService {
     );
   }
 
-  // getPeriodLogs(userId: number): Observable<PeriodLogResponseDto[]> {
-  //   return this.http.get<PeriodLogResponseDto[]>(
-  //     `${environment.apiEndPoint}profile/${userId}/period-logs`
-  //   );
-  // }
-
   updateState(
     userId: number,
     data: UpdateReproductiveStateDto

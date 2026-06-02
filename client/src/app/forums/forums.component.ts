@@ -122,7 +122,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.categorySelectOptions.header = this.t('forums.selectCategory');
     this.categorySelectOptions.subHeader = this.t('forums.selectCategoryHint');
     this.fetchDataCategories();
-    // this.loadTopics();
     this.handleQueryParams();
     this.setupPostDeletionListener();
     this.setupPostCreationListener();
@@ -690,7 +689,6 @@ export class ForumsComponent implements OnInit, OnDestroy {
       .subscribe((postId: string) => {
         console.log('🔄 Forums: Post deletion detected, refreshing list...');
         // Remove the deleted post from the current list
-        // this.removeTopic(postId);
         // Also refresh the data to ensure we have the latest state
         this.refreshData();
       });

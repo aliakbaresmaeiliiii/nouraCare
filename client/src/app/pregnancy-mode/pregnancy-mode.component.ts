@@ -117,7 +117,6 @@ export class PregnancyModeComponent implements AfterViewInit, OnInit {
       console.error('Failed to switch to cycle mode after deleting pregnancy data:', error);
     } finally {
       // Keep and reuse previously logged cycle values on Home.
-      // this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(false);
       this.cycleSettings.setPregnancyWeek(0);
       this.cycleSettings.setPregnancyProgress(0);

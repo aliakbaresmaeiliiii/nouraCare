@@ -136,28 +136,6 @@
     }
   }
 
-  /* Smoothly blend into page background (no hard cut lines) */
-    // &::after {
-    //   content: "";
-    //   position: absolute;
-    //   left: 50%;
-    //   bottom: clamp(-7.25rem, -26vw, -3.5rem);
-    //   z-index: 1;
-    //   width: min(185%, 76rem);
-    //   height: clamp(4.25rem, 20vw, 11.5rem);
-    //   transform: translateX(-50%);
-    //   border-radius: 50%;
-    //   pointer-events: none;
-    //   background: radial-gradient(
-    //     ellipse at center,
-    //     rgba(var(--cycle-bottom-curve-fill-rgb), 0) 0%,
-    //     rgba(var(--cycle-bottom-curve-fill-rgb), 0.08) 44%,
-    //     rgba(var(--cycle-bottom-curve-fill-rgb), 0.2) 70%,
-    //     rgba(var(--cycle-bottom-curve-fill-rgb), 0.36) 88%,
-    //     rgba(var(--cycle-bottom-curve-fill-rgb), 0.5) 100%
-    //   );
-    // }
-
   > *:not(.cycle-chart-drift) {
     position: relative;
     z-index: 2;
@@ -236,13 +214,6 @@
       }
     }
   }
-  // padding: 1.5rem;
-  // background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  // border-radius: 24px;
-  // box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  // margin: 1rem;
-  // position: relative;
-  // overflow: hidden;
 
   &::before {
     content: "";

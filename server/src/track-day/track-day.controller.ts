@@ -81,18 +81,4 @@ export class TrackDayController {
       updateTrackDayDto,
     );
   }
-
-  // @Delete(':userId/range')
-  // async deleteTrackDay(
-  //   @Param('userId') userId: number,
-  //   @Query('startDate') startDate: string,
-  //   @Query('endDate') endDate: string,
-  // ) {
-  //   const userIdNumber = parseInt(userId);
-  //   if (isNaN(userIdNumber)) {
-  //     throw new BadRequestException('Invalid user ID');
-  //   }
-
-  //   return this.trackDayService.deleteTrackDay(userIdNumber, startDate, endDate);
-  // }
 }

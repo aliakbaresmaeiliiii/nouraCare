@@ -408,40 +408,6 @@ export class PregnancyPlanningComponent implements OnInit {
     return end;
   }
 
-  // private createPregnancyPlanWithCycleData(formValue: CycleFormData): void {
-  //   const pregnancyPlanData: CreatePregnancyPlanningDto = {
-  //     lastPeriodDate: formValue.lastPeriodDate,
-  //     cycleLength: formValue.averageCycleLength || 28,
-  //     lifestyleGoals: formValue.lifestyleGoals,
-  //     notes: formValue.notes,
-  //   };
-
-  //   this.reproductiveStatusService
-  //     .createPregnancyPlanning(pregnancyPlanData, this.userId)
-  //     .subscribe({
-  //       next: (response: PregnancyPlanningResponseDto) => {
-  //         console.log('Pregnancy plan created successfully:', response);
-
-  //         // Update calculations with server response
-  //         if (response.fertileWindow) {
-  //           this.fertileWindow.set({
-  //             start: new Date(response.fertileWindow.start),
-  //             end: new Date(response.fertileWindow.end),
-  //           });
-  //         }
-  //         if (response.ovulationDate) {
-  //           this.ovulationDate.set(new Date(response.ovulationDate));
-  //         }
-  //         if (response.nextPeriodDate) {
-  //           this.nextPeriodDate.set(new Date(response.nextPeriodDate));
-  //         }
-  //       },
-  //       error: (error) => {
-  //         console.error('Error creating pregnancy plan:', error);
-  //       },
-  //     });
-  // }
-
   updatePregnancyPlan() {
     if (this.cycleForm.get('lastPeriodDate')?.invalid) {
       this.showToast('Please select your last period date');

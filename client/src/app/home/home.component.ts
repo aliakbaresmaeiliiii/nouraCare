@@ -80,6 +80,19 @@ import {
 } from './services/home-reproductive-ui.service';
 import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
 
+interface PregnancyFeatureSlide {
+  id: 'baby-size' | 'fun-fact' | 'development' | 'countdown';
+  variant: 'rose' | 'violet' | 'teal' | 'amber';
+  eyebrowKey: string;
+  eyebrowParams?: Record<string, string | number>;
+  headline: string;
+  body: string;
+  footnoteKey?: string;
+  footnoteParams?: Record<string, string | number>;
+  ionIcon: string;
+  imageUrl?: string | null;
+}
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -94,7 +107,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
   private authService = inject(AuthService);
-  // private onboardingService = inject(OnboardingService);
   private onboardingService = inject(OnboardingService);
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
@@ -294,16 +306,12 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
         this.ngZone.run(() => this.runPeriodChartRefresh());
       });
     });
-
-    // effect(() => {
-    //   // Reflect selected day from cycle strip in Home's cycle labels/cards.
-    //   this.cycleSettings.selectedCycleViewDate();
-    //   this.updateCycleDay();
-    //   this.cdr.markForCheck();
-    // });
   }
 
   ngOnInit() {
+    this.langChangeSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.markForCheck();
+    });
     this.loadPersistedData();
   }
 
@@ -341,101 +349,9 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     // and will be computed based on the current pregnancy week
   }
 
- 
-
   /**
    * Check if user has completed onboarding and set appropriate status
    */
-  // private checkOnboardingStatus() {
-    
-  //   const onboardingCompleted = localStorage.getItem('onboarding_completed');
-  //   const onboardingData = localStorage.getItem('onboarding_data');
-
-  //   if (onboardingCompleted === 'true' && onboardingData) {
-  //     try {
-  //       const data = JSON.parse(onboardingData);
-  //       // Update user status based on onboarding data
-  //       if (data.pregnancy_status === 'pregnant') {
-  //         this.userStatus = 'Pregnant';
-  //         this.isPregnant.set(true);
-  //         this.isPostpartum = false;
-
-  //         const lmpFromStore = normalizeLmpInput(
-  //           data.lmp_date ?? data.last_period
-  //         );
-  //         if (lmpFromStore) {
-  //           const w = gestationalWeekFromLmp(lmpFromStore);
-  //           const now = new Date();
-  //           const u1 = Date.UTC(
-  //             now.getUTCFullYear(),
-  //             now.getUTCMonth(),
-  //             now.getUTCDate()
-  //           );
-  //           const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(lmpFromStore);
-  //           const u0 = m
-  //             ? Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
-  //             : NaN;
-  //           const diffDays =
-  //             Number.isFinite(u0) && u1 >= u0
-  //               ? Math.floor((u1 - u0) / 86400000)
-  //               : 0;
-  //           this.pregnancyWeek = w;
-  //           this.pregnancyDayInWeek = diffDays % 7;
-  //           this.pregnancyStartDate = lmpFromStore;
-  //           this.pregnancyProgress = Math.min(100, Math.round((w / 40) * 100));
-  //           this.cycleSettings.setPregnancyWeek(w);
-  //           this.cycleSettings.setPregnancyProgress(this.pregnancyProgress);
-  //         }
-
-  //         // Update cycle settings
-  //         this.cycleSettings.setUserStatus('Pregnant');
-  //         // this.cycleSettings.setPregnancyStatus(true);
-  //         this.cycleSettings.setPostpartumStatus(false);
-  //       } else if (data.pregnancy_status === 'postpartum') {
-  //         this.userStatus = 'Postpartum';
-  //         this.isPregnant.set(false);
-  //         this.isPostpartum = true;
-
-  //         // Update cycle settings
-  //         this.cycleSettings.setUserStatus('Postpartum');
-  //         // this.cycleSettings.setPregnancyStatus(false);
-
-  //         this.cycleSettings.setPostpartumStatus(true);
-  //       } else {
-  //         // Trying to conceive or tracking
-  //         this.userStatus = 'Trying to Conceive';
-  //         this.isPregnant.set(false);
-  //         this.isPostpartum = false;
-
-  //         // Update cycle settings
-  //         this.cycleSettings.setUserStatus('Trying to Conceive');
-  //         this.cycleSettings.setPregnancyStatus(false);
-  //         this.cycleSettings.setPostpartumStatus(false);
-  //       }
-
-  //       // Set cycle data if provided
-  //       if (data.cycle_length) {
-  //         this.cycleSettings.setCycleLength(data.cycle_length);
-  //       }
-  //       if (data.period_length) {
-  //         this.cycleSettings.setPeriodLength(data.period_length);
-  //       }
-  //       const lmpForCycle = normalizeLmpInput(
-  //         data.lmp_date ?? data.last_period
-  //       );
-  //       if (lmpForCycle) {
-  //         this.cycleSettings.setLastPeriodStart(lmpForCycle);
-  //         this.periodStartDate = new Date(`${lmpForCycle}T12:00:00`);
-  //         this.updateCycleDay();
-  //       }
-  //     } catch (error) {
-  //       console.error('Error parsing onboarding data:', error);
-  //     }
-  //   } else {
-  //   }
-  // }
-
-
   private checkOnboardingStatus() {
     const onboardingCompleted = localStorage.getItem('onboarding_completed');
     const onboardingData = localStorage.getItem('onboarding_data');
@@ -541,8 +457,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     // Generate daily inspirational message
     this.dailyMessage = this.messageService.generateDailyMessage();
 
-    // You can also generate pregnancy-specific messages if needed
-    // this.dailyMessage = this.messageService.generatePregnancyDailyMessage(28);
   }
 
   /**
@@ -663,12 +577,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     if (userId <= 0) return;
 
     try {
-      // const latestIso = await this.periodCycleState.ensureLatestPeriodFromApi(
-      //   userId
-      // );
-      // if (!latestIso) return;
-
-      // this.periodStartDate = new Date(`${latestIso}T12:00:00`);
       this.updateCycleDay();
       this.runPeriodChartRefresh();
       this.cdr.markForCheck();
@@ -824,23 +732,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     }
 
     this.isPromotingOnboardingPregnancy = true;
-    // this.onboardingService
-    //   .updateReproductiveState({
-    //     state: 'pregnant',
-    //     pregnancyStartDate: lmp,
-    //     lastPeriodDate: lmp,
-    //     cycleLength: Number(data.cycle_length) || undefined,
-    //   })
-    //   .subscribe({
-    //     next: () => {
-    //       sessionStorage.setItem(promotedKey, '1');
-    //       this.isPromotingOnboardingPregnancy = false;
-    //       this.syncDashboardFromServerAndRefreshChart();
-    //     },
-    //     error: () => {
-    //       this.isPromotingOnboardingPregnancy = false;
-    //     },
-    //   });
   }
 
   /**
@@ -1425,14 +1316,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   // Update not pregnant status
   async updateNotPregnantStatus() {
     try {
-      // await new Promise<void>((resolve, reject) => {
-      //   this.onboardingService
-      //     .updateReproductiveState({ state: 'cycle' })
-      //     .subscribe({ next: () => resolve(), error: () => reject() });
-      // });
-
       this.userStatus = 'Trying to Conceive';
-      // this.isPregnant.set(false);
       this.isPostpartum = false;
 
       // Reset pregnancy-related data
@@ -1442,7 +1326,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       // Save to persistent storage
       this.cycleSettings.setUserStatus('Trying to Conceive');
 
-      // this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(false);
       this.cycleSettings.setPregnancyWeek(0);
       this.cycleSettings.setPregnancyProgress(0);
@@ -1491,9 +1374,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       return;
     }
     try {
-      // await firstValueFrom(
-      //   this.onboardingService.updateReproductiveState(data)
-      // );
       await this.runPullToRefresh();
       await this.showToast(
         this.tr('home.dialog.pregnancyDatesSaved'),
@@ -1531,8 +1411,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   todaySymptoms: SymptomsDto = {} as SymptomsDto;
 
   loadTodaySymptoms() {
-    const today = new Date().toISOString().split('T')[0];
-
     // First try to get from local service (faster)
     const localData = this.trackDataService.getTodayTrackData();
     if (localData) {
@@ -1541,34 +1419,6 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       return;
     }
 
-    // If not found locally, fetch from API
-
-    // this.trackDataService
-    //   .getTrackDay(this.homeData.getCurrentUserId(), today)
-    //   .subscribe({
-    //     next: (data) => {
-    //       if (data && data.length > 0) {
-    //         this.todaySymptoms = data[0] as SymptomsDto;
-
-    //         // Store in local service for future use
-    //         this.trackDataService.saveTrackData({
-    //           id: data[0].id,
-    //           userId: this.homeData.getCurrentUserId(),
-    //           date: today,
-    //           symptoms: data[0].symptoms,
-    //           mood: data[0].mood,
-    //           energy: data[0].energy,
-    //           notes: data[0].notes,
-    //           createdAt: data[0].createdAt,
-    //           updatedAt: data[0].updatedAt,
-    //         });
-    //       }
-    //       console.log('🔍 Today symptoms from API:', this.todaySymptoms);
-    //     },
-    //     error: (error) => {
-    //       this.todaySymptoms = {} as SymptomsDto;
-    //     },
-    //   });
   }
 
   // Daily Insights Methods
@@ -1993,10 +1843,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
         buttons: [
           {
             text: this.tr('home.dialog.viewSchedule'),
-            handler: () => {
-              // Navigate to schedule page
-              // this.router.navigate(['/counselor-schedule']);
-            },
+            handler: () => {},
           },
           {
             text: this.tr('home.common.continue'),
@@ -4752,16 +4599,137 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   }
 
   getDueDate(): string {
-    if (!this.pregnancyStartDate) return 'Not set';
+    if (!this.pregnancyStartDate) {
+      return this.tr('home.pregSlider.dueDateNotSet');
+    }
     const raw = this.pregnancyStartDate.includes('T')
       ? this.pregnancyStartDate
       : `${this.pregnancyStartDate}T12:00:00`;
     const dueDate = new Date(raw);
     dueDate.setDate(dueDate.getDate() + 280);
-    return dueDate.toLocaleDateString('en-US', {
+    return dueDate.toLocaleDateString(this.dateLocaleTag(), {
       month: 'short',
       day: 'numeric',
     });
+  }
+
+  /** Localized school week copy (`school.dev.w12`, etc.) with English/service fallback. */
+  private schoolWeekText(
+    prefix: 'school.dev' | 'school.fun' | 'school.size' | 'school.sizeDesc',
+    week: number,
+  ): string {
+    const w = Math.max(4, Math.min(40, Math.round(week)));
+    const key = `${prefix}.w${w}`;
+    const translated = this.tr(key);
+    if (translated !== key) {
+      return translated;
+    }
+    const baby = this.getCurrentBabySize();
+    if (prefix === 'school.size') {
+      return baby.size;
+    }
+    if (prefix === 'school.sizeDesc') {
+      return baby.description;
+    }
+    return this.tr(`${prefix}.default`);
+  }
+
+  /** Swipeable pregnancy highlights — baby size, facts, and journey stats. */
+  getPregnancyFeatureSlides(): PregnancyFeatureSlide[] {
+    const week = Math.max(1, Math.min(42, this.getPregnancyDisplayWeek()));
+    const routeWeek = this.getPregnancyWeekDetailRouteParam();
+    const baby = this.getCurrentBabySize();
+    const trimester = this.getTrimesterInsightLabel();
+    const daysRemaining = this.getDaysRemaining();
+    const progress = this.getProgressPercentage();
+    const dueLabel = this.getDueDate();
+
+    const slides: PregnancyFeatureSlide[] = [
+      {
+        id: 'baby-size',
+        variant: 'rose',
+        eyebrowKey: 'home.pregSlider.babyEyebrow',
+        eyebrowParams: { week },
+        headline: this.schoolWeekText('school.size', routeWeek),
+        body: this.schoolWeekText('school.sizeDesc', routeWeek),
+        footnoteKey: 'home.pregSlider.babyWeight',
+        footnoteParams: { weight: baby.weight },
+        ionIcon: 'nutrition-outline',
+        imageUrl: this.getPregnancyHeroIllustrationUrl(),
+      },
+      {
+        id: 'fun-fact',
+        variant: 'violet',
+        eyebrowKey: 'home.didYouKnow',
+        headline: this.tr('home.pregSlider.funFactHeadline'),
+        body: this.schoolWeekText('school.fun', routeWeek),
+        ionIcon: 'sparkles-outline',
+      },
+      {
+        id: 'development',
+        variant: 'teal',
+        eyebrowKey: 'home.pregSlider.developEyebrow',
+        headline: this.tr('home.pregSlider.developHeadline', { week }),
+        body: this.schoolWeekText('school.dev', routeWeek),
+        ionIcon: 'pulse-outline',
+      },
+    ];
+
+    if (this.isPregnancyPostDueWindow()) {
+      slides.push({
+        id: 'countdown',
+        variant: 'amber',
+        eyebrowKey: 'home.pregSlider.postDueEyebrow',
+        headline: this.tr('home.pregSlider.postDueHeadline'),
+        body: this.tr('home.pregSlider.postDueBody'),
+        footnoteKey: 'home.pregSlider.postDueFootnote',
+        footnoteParams: { week },
+        ionIcon: 'heart-outline',
+      });
+    } else {
+      slides.push({
+        id: 'countdown',
+        variant: 'amber',
+        eyebrowKey: 'home.pregSlider.journeyEyebrow',
+        eyebrowParams: { trimester },
+        headline: this.tr('home.pregSlider.daysToGo', {
+          days: daysRemaining,
+        }),
+        body: this.tr('home.pregSlider.dueDate', { date: dueLabel }),
+        footnoteKey: 'home.pregSlider.progress',
+        footnoteParams: { percent: progress },
+        ionIcon: 'calendar-outline',
+      });
+    }
+
+    return slides;
+  }
+
+  onPregnancyFeatureSlideClick(slide: PregnancyFeatureSlide): void {
+    if (slide.id === 'fun-fact') {
+      const babyTopic = this.getPregnancyDailyInsightStripTopics().find(
+        (t) => t.id === 'baby',
+      );
+      if (babyTopic) {
+        void this.openDailyInsightStory(babyTopic);
+        return;
+      }
+    }
+    this.openCurrentPregnancyWeekDetail();
+  }
+
+  pregSlideText(
+    key: string,
+    params?: Record<string, string | number>,
+  ): string {
+    return this.tr(key, params);
+  }
+
+  pregSlideAriaLabel(slide: PregnancyFeatureSlide): string {
+    const eyebrow = slide.eyebrowParams
+      ? this.tr(slide.eyebrowKey, slide.eyebrowParams)
+      : this.tr(slide.eyebrowKey);
+    return `${eyebrow}. ${slide.headline}`;
   }
 
   getTrimester(): string {

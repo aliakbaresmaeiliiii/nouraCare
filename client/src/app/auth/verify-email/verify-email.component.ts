@@ -152,8 +152,6 @@ export class VerifyEmailComponent implements OnInit {
       // Check if user has completed onboarding
       if (this.onboardingService.getSessionId()){
         this.router.navigate(['/tabs/home']);
-      } else {
-        // this.router.navigate(['/onboarding']);
       }
     });
   }

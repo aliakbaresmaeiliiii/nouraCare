@@ -3,17 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import fs from 'fs';
 import helmet from 'helmet';
 
-  // Use HTTP instead of HTTPS to avoid SSL certificate issues on mobile
 async function bootstrap() {
-  const httpsOptions = {
-    key: fs.readFileSync('./certs/key.pem'),
-    cert: fs.readFileSync('./certs/cert.pem'),
-  };
-
-  // ✅ اینجا باید httpsOptions پاس داده بشه
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.use(

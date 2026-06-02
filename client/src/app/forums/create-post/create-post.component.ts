@@ -169,37 +169,6 @@ export class CreatePostComponent implements OnInit {
             }
           }
         }
-        // if (response && response.success) {
-        //   // Simple approach - just process the data as is
-        //   const categories = response.data
-        //     .filter(
-        //       (category: any) =>
-        //         category.forum_thread && category.forum_thread.length > 0
-        //     )
-        //     .map((category: any) => ({
-        //       id: category.id,
-        //       name: category.name,
-        //       description: category.description,
-        //       icon: category.icon || 'chatbubbles-outline',
-        //       forum_thread: category.color || '#3880ff',
-        //       forums: category.forum_thread.map((forum: any) => ({
-        //         id: forum.id,
-        //         name: forum.name,
-        //         description: forum.description,
-        //         categoryId: category.id,
-        //       })),
-        //     }));
-
-        //   this.categories.set(categories);
-
-        //   // Set default forum if available
-        //   if (categories.length > 0 && !this.postForm.get('forumId')?.value) {
-        //     const firstCategory = categories[0];
-        //     if (firstCategory.forums && firstCategory.forums.length > 0) {
-        //       this.postForm.patchValue({ forumId: firstCategory.forums[0].id });
-        //     }
-        //   }
-        // }
         this.isLoading = false;
       },
       error: (error: any) => {
@@ -386,11 +355,7 @@ export class CreatePostComponent implements OnInit {
   private navigateBackToForumsWithCategory() {
     const selectedForumId = this.postForm.get('forumId')?.value;
     if (selectedForumId) {
-      // Navigate to forums with query parameters to select the category
-      // this.router.navigate(['/forums'], {
-      //   queryParams: { category: selectedCategoryId, view: 'topics' },
-      //   replaceUrl: true
-      // });
+      this.navCtrl.back();
     } else {
       // Fallback to regular back navigation
       this.navCtrl.back();

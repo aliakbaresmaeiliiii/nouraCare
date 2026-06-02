@@ -1,38 +1,41 @@
-<ion-header class="modern-header">
-  <ion-toolbar color="transparent">
+<ion-header class="article-header ion-no-border">
+  <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="goBack()" class="back-btn">
+      <ion-button (click)="goBack()" class="header-icon-btn" [attr.aria-label]="'article.backToArticles' | translate">
         <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title class="header-title">{{ 'article.toolbarTitle' | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="toggleFavorite()" fill="clear" class="favorite-btn">
-        <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" 
-                  [class.favorited]="isFavorite"></ion-icon>
+      <ion-button (click)="toggleFavorite()" fill="clear" class="header-icon-btn">
+        <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" [class.favorited]="isFavorite"></ion-icon>
       </ion-button>
-      <ion-button (click)="shareArticle()" fill="clear" class="share-btn" [attr.aria-label]="'article.shareAria' | translate">
+      <ion-button (click)="shareArticle()" fill="clear" class="header-icon-btn" [attr.aria-label]="'article.shareAria' | translate">
         <ion-icon name="share-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
+  @if (article && readProgress > 0) {
+  <div class="reading-progress" role="progressbar" [attr.aria-valuenow]="readProgress" aria-valuemin="0" aria-valuemax="100">
+    <span class="reading-progress__fill" [style.width.%]="readProgress"></span>
+  </div>
+  }
 </ion-header>
 
-<ion-content class="article-content">
-
-  <!-- Loading State -->
+<ion-content class="article-content" [scrollEvents]="true" (ionScroll)="onContentScroll($event)">
   @if (isLoading) {
   <app-logo-loading [message]="loadingMessage" [ariaLabel]="loadingMessage" />
   }
 
-  <!-- Article Not Found -->
   @if (!isLoading && !article) {
   <div class="not-found-container">
     <div class="not-found-content">
-      <ion-icon name="document-outline"></ion-icon>
+      <div class="not-found-icon" aria-hidden="true">
+        <ion-icon name="document-text-outline"></ion-icon>
+      </div>
       <h2>{{ 'article.notFoundTitle' | translate }}</h2>
       <p>{{ 'article.notFoundMessage' | translate }}</p>
-      <ion-button expand="block" fill="solid" (click)="goBack()">
+      <ion-button expand="block" fill="solid" class="not-found-btn" (click)="goBack()">
         <ion-icon name="arrow-back" slot="start"></ion-icon>
         {{ 'article.backToArticles' | translate }}
       </ion-button>
@@ -40,142 +43,163 @@
   </div>
   }
 
-  <!-- Article Content -->
   @if (!isLoading && article) {
-  <div class="article-container">
-    
-    <!-- Hero Section -->
+  <article class="article-page" [attr.data-category]="getCategorySlug()">
     <div class="article-hero">
-      <div class="hero-image">
-        <img [src]="article.image" [alt]="article.title" loading="lazy">
-        <div class="hero-overlay"></div>
-      </div>
-      <div class="hero-content">
-        <div class="article-meta">
-          <span class="category">{{ article.category }}</span>
-          <span class="read-time">{{ article.readTime }}</span>
-        </div>
-        <h1 class="article-title">{{ article.title }}</h1>
-        <p class="article-summary">{{ article.summary }}</p>
-        <div class="author-info">
-          <div class="author-avatar">
-            <ion-icon name="person-circle"></ion-icon>
-          </div>
-          <div class="author-details">
-            <span class="author-name">{{ article.author }}</span>
-            <span class="publish-date">{{ article.publishDate | date:'MMM d, y' }}</span>
-          </div>
-        </div>
-      </div>
+      <img
+        class="article-hero__img"
+        [src]="article.image"
+        [alt]="article.title"
+        loading="eager"
+        decoding="async"
+        (error)="handleHeroImageError($event)"
+      />
+      <div class="article-hero__shade" aria-hidden="true"></div>
+      <div class="article-hero__accent" [style.background]="getCategoryGradient()" aria-hidden="true"></div>
     </div>
 
-    <!-- Article Body -->
-    <div class="article-body">
-      @for (section of article.content; track $index) {
-      <div class="content-section">
-        
-        @if (section.type === 'paragraph') {
-        <p class="content-paragraph">
-          {{ section.content }}
-        </p>
-        }
+    <div class="article-sheet">
+      <div class="article-sheet__handle" aria-hidden="true"></div>
 
-        @if (section.type === 'heading') {
-        <h3 class="content-heading">
-          {{ section.content }}
-        </h3>
-        }
+      <header class="article-head">
+        <div class="article-meta">
+          <span class="article-meta__category" [style.--cat-accent]="getCategoryAccent()">
+            {{ article.category }}
+          </span>
+          <span class="article-meta__dot" aria-hidden="true">·</span>
+          <span class="article-meta__time">
+            <ion-icon name="time-outline" aria-hidden="true"></ion-icon>
+            {{ article.readTime }}
+          </span>
+        </div>
+        <h1 class="article-head__title">{{ article.title }}</h1>
+        <div class="article-author">
+          <div class="article-author__avatar" aria-hidden="true">
+            <ion-icon name="person"></ion-icon>
+          </div>
+          <div class="article-author__text">
+            <span class="article-author__name">{{ article.author }}</span>
+            <span class="article-author__date">{{ formatPublishDate(article.publishDate) }}</span>
+          </div>
+        </div>
+      </header>
 
-        @if (section.type === 'list') {
-        <div class="content-list">
-          @if (section.content) {
-          <p class="list-intro">{{ section.content }}</p>
+      <section class="article-brief" [attr.aria-label]="'article.inBrief' | translate">
+        <div class="article-brief__icon" aria-hidden="true">
+          <ion-icon name="sparkles-outline"></ion-icon>
+        </div>
+        <div class="article-brief__copy">
+          <h2 class="article-brief__label">{{ 'article.inBrief' | translate }}</h2>
+          <p>{{ article.summary }}</p>
+        </div>
+      </section>
+
+      <div class="article-body">
+        @for (section of article.content; track $index; let first = $first) {
+        <div class="content-section">
+          @if (section.type === 'paragraph') {
+          <p class="content-paragraph" [class.content-paragraph--lead]="first">
+            {{ section.content }}
+          </p>
           }
-          <ul class="styled-list">
-            @for (item of section.items; track $index) {
-            <li>{{ item }}</li>
+
+          @if (section.type === 'heading') {
+          <h3 class="content-heading">
+            <span class="content-heading__text">{{ section.content }}</span>
+          </h3>
+          }
+
+          @if (section.type === 'list') {
+          <div class="content-list">
+            @if (section.content) {
+            <p class="list-intro">{{ section.content }}</p>
             }
-          </ul>
+            <ul class="styled-list">
+              @for (item of section.items; track $index) {
+              <li>
+                <span class="styled-list__bullet" aria-hidden="true"></span>
+                <span>{{ item }}</span>
+              </li>
+              }
+            </ul>
+          </div>
+          }
+
+          @if (section.type === 'quote') {
+          <blockquote class="content-quote">
+            <ion-icon name="chatbubble-ellipses-outline" class="quote-icon" aria-hidden="true"></ion-icon>
+            <p>{{ section.content }}</p>
+          </blockquote>
+          }
+
+          @if (section.type === 'image') {
+          <figure class="content-image">
+            <img [src]="section.content" [alt]="'article.imageAlt' | translate" loading="lazy" decoding="async" />
+          </figure>
+          }
         </div>
         }
-
-        @if (section.type === 'quote') {
-        <blockquote class="content-quote">
-          <ion-icon name="quote" class="quote-icon"></ion-icon>
-          <p>{{ section.content }}</p>
-        </blockquote>
-        }
-
-        @if (section.type === 'image') {
-        <div class="content-image">
-          <img [src]="section.content" [alt]="'article.imageAlt' | translate" loading="lazy">
-        </div>
-        }
-
       </div>
+
+      @if (article.tags.length > 0) {
+      <section class="article-tags">
+        <h2 class="section-label">{{ 'article.tags' | translate }}</h2>
+        <div class="tags-row">
+          @for (tag of article.tags; track tag) {
+          <span class="tag-chip">{{ tag }}</span>
+          }
+        </div>
+      </section>
+      }
+
+      @if (article.relatedArticles.length > 0) {
+      <section class="related-section">
+        <h2 class="section-label">{{ 'article.relatedTitle' | translate }}</h2>
+        <div class="related-scroll" role="list">
+          @for (relatedId of article.relatedArticles; track relatedId) {
+          @let preview = getRelatedPreview(relatedId);
+          <button
+            type="button"
+            class="related-card"
+            role="listitem"
+            (click)="openRelatedArticle(relatedId)"
+          >
+            <span class="related-card__thumb">
+              <img [src]="preview.image" [alt]="" loading="lazy" decoding="async" (error)="handleRelatedImageError($event, relatedId)" />
+            </span>
+            <span class="related-card__body">
+              <span class="related-card__category">{{ preview.category }}</span>
+              <span class="related-card__title">{{ preview.title }}</span>
+            </span>
+            <ion-icon class="related-card__chevron" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+          </button>
+          }
+        </div>
+      </section>
       }
     </div>
+  </article>
+  }
+</ion-content>
 
-    <!-- Article Footer -->
-    <div class="article-footer">
-      
-      <!-- Tags -->
-      <div class="article-tags">
-        <h4>{{ 'article.tags' | translate }}</h4>
-        <div class="tags-container">
-          @for (tag of article.tags; track tag) {
-          <span class="tag">{{ tag }}</span>
-          }
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="article-actions">
-        <ion-button 
-          expand="block" 
-          fill="solid" 
-          class="favorite-action-btn"
-          (click)="toggleFavorite()">
-          <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" slot="start"></ion-icon>
-          {{ isFavorite ? ('article.removeFavorite' | translate) : ('article.addFavorite' | translate) }}
+@if (!isLoading && article) {
+<ion-footer class="article-footer-bar ion-no-border">
+  <ion-toolbar>
+    <div class="footer-actions">
+      <ion-button fill="clear" class="footer-btn" (click)="goBack()">
+        <ion-icon name="library-outline" slot="start"></ion-icon>
+        {{ 'article.backToArticles' | translate }}
+      </ion-button>
+      <div class="footer-actions__end">
+        <ion-button fill="clear" class="footer-icon-btn" (click)="toggleFavorite()" [attr.aria-label]="isFavorite ? ('article.removeFavorite' | translate) : ('article.addFavorite' | translate)">
+          <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" [class.favorited]="isFavorite"></ion-icon>
         </ion-button>
-        
-        <ion-button 
-          expand="block" 
-          fill="outline" 
-          class="share-action-btn"
-          (click)="shareArticle()">
+        <ion-button fill="solid" class="footer-share-btn" (click)="shareArticle()">
           <ion-icon name="share-outline" slot="start"></ion-icon>
           {{ 'article.share' | translate }}
         </ion-button>
       </div>
-
-      <!-- Related Articles -->
-      @if (article.relatedArticles && article.relatedArticles.length > 0) {
-      <div class="related-articles">
-        <h4>{{ 'article.relatedTitle' | translate }}</h4>
-        <div class="related-grid">
-          @for (relatedId of article.relatedArticles; track relatedId) {
-          <div 
-            class="related-card" 
-            (click)="openRelatedArticle(relatedId)">
-            <div class="related-image">
-              <ion-icon name="document-text"></ion-icon>
-            </div>
-            <div class="related-content">
-              <h5>{{ relatedArticleTitle(relatedId) }}</h5>
-              <p>{{ 'article.relatedHint' | translate }}</p>
-            </div>
-            <ion-icon name="chevron-forward" class="related-arrow"></ion-icon>
-          </div>
-          }
-        </div>
-      </div>
-      }
-
     </div>
-
-  </div>
-  }
-
-</ion-content>
+  </ion-toolbar>
+</ion-footer>
+}

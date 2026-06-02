@@ -68,11 +68,6 @@ export class ReproductiveStateService {
         await this.pregnancyService.closeActivePregnancy(tx, userId);
       }
   
-      // Entering 'pregnant' -> Optional: Auto-create pregnancy if not already handled
-      // if (currentState !== 'pregnant' && nextState === 'pregnant') {
-      //   await this.pregnancyService.startActivePregnancy(tx, userId);
-      // }
-  
       // 5. Sync other domains (ensure 'tx' is used inside this method)
       await this.syncDomainForState(tx, userId, nextState, dto);
     });

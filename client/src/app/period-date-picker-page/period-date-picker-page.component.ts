@@ -118,7 +118,6 @@ export class PeriodDatePickerPageComponent implements OnInit {
     });
     this.cycleSettings.isPregnant.set(false);
     this.cycleSettings.setUserStatus('Trying to Conceive');
-    // this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(false);
 
     await this.router.navigate(['/tabs/home']);

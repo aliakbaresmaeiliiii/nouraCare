@@ -58,14 +58,12 @@ export class LoginComponent {
   registerForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: [''],
-    // Validators.required, Validators.pattern(/^\+?\d{10,15}$/)]
   });
 
   router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   renderer = inject(Renderer2);
   cdr = inject(ChangeDetectorRef);
-  // matcher = new ErrorStateMatcher();
 
   service = inject(AuthService);
   private googleSignIn = inject(GoogleSignInService);
@@ -85,18 +83,12 @@ export class LoginComponent {
   // theme = this.themeManager.theme;
   title = signal<string>('');
   storeDataUser: any;
-  // toggleTheme() {
-  //   this.themeManager.toggleTheme();
-  // }
-
   setRole(role: string) {
     this.selectedRole = role;
     this.title.set(role);
   }
 
-  refreshToken(): void {
-    // this.authService.refreshAuthToken(GoogleLoginProvider.PROVIDER_ID);
-  }
+  refreshToken(): void {}
 
   ngOnInit(): void {
     // Check for query parameters to determine active tab
@@ -391,14 +383,7 @@ export class LoginComponent {
   private isValidEmail(email: string): boolean {
     return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
-  resolved(captchaResponse: any) {
-    // console.log(`Captcha resolved with response: ${captchaResponse}`);
-    // // Send token to backend for verification
-    // this.#authService.verifyCaptcha(captchaResponse).subscribe(res => {
-    //   this.successCaptcha.set(res.success);
-    //   console.log('from captcha', res);
-    // });
-  }
+  resolved(_captchaResponse: any) {}
 
   navigateRegister() {
     this.router.navigate(['/auth/register']);

@@ -1660,50 +1660,6 @@
   }
 }
 
-.home-feature-slider {
-  max-width: 520px;
-  margin: 0 auto;
-}
-
-.slider-container {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* مخفی کردن اسکرول بار در فایرفاکس */
-}
-
-.slider-container::-webkit-scrollbar {
-  display: none; /* مخفی کردن اسکرول بار در کروم و سافاری */
-}
-
-.slider-item {
-  flex: 0 0 100%;
-  scroll-snap-align: center;
-  padding: 1rem;
-}
-
-.card {
-  border-radius: 16px;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.card img {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  display: block;
-}
-
-.card p {
-  padding: 1rem;
-  margin: 0;
-  text-align: center;
-}
-
 // Animations
 @keyframes float {
   0%,

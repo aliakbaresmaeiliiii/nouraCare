@@ -46,6 +46,9 @@ export class InsightsComponent implements OnInit, OnDestroy {
 
   searchQuery = signal('');
 
+  /** Cached favorite article ids — avoids per-render Observable subscriptions. */
+  private readonly favoriteIds = signal<Set<string>>(new Set());
+
   // Article sections
   pregnancyPopular: ArticleCard[] = [
     {
@@ -224,6 +227,14 @@ export class InsightsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.premiumBanner.title = this.translation.translate('insights.premiumBannerDefault');
+
+    this.favoritesService
+      .getFavorites()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((favorites) => {
+        this.favoriteIds.set(new Set(favorites.map((f) => f.id)));
+      });
+
     this.languageService.currentLanguage$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
@@ -287,12 +298,14 @@ export class InsightsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/article', article.id]);
   }
 
-  // Handle image error
+  // Handle image error (apply fallback once to avoid error loops / flicker)
   handleImageError(event: Event, category: string) {
     const img = event.target as HTMLImageElement;
-    if (img) {
-      img.src = this.getFallbackImage(category);
+    if (!img || img.dataset['fallbackApplied'] === 'true') {
+      return;
     }
+    img.dataset['fallbackApplied'] = 'true';
+    img.src = this.getFallbackImage(category);
   }
 
   // Get fallback image
@@ -309,12 +322,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
 
   // Check if article is favorite
   isFavorite(articleId: string): boolean {
-    // This is a synchronous check - could be improved with reactive approach
-    let isFav = false;
-    this.favoritesService.isFavorite(articleId).subscribe(result => {
-      isFav = result;
-    });
-    return isFav;
+    return this.favoriteIds().has(articleId);
   }
 
   // Check if article should be highlighted

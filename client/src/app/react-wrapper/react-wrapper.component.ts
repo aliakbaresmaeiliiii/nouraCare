@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-react-wrapper',
@@ -13,15 +13,6 @@ import { Component, OnInit } from '@angular/core';
   `,
   styleUrls: ['./react-wrapper.component.scss'],
 })
-export class ReactWrapperComponent implements OnInit {
+export class ReactWrapperComponent {
   loadError = false;
-
-  async ngOnInit() {
-    // try {
-    //   const module = await import('pregnancyApp/App');
-    //   module.mount(document.getElementById('react-root'));
-    // } catch {
-    //   this.loadError = true;
-    // }
-  }
 }

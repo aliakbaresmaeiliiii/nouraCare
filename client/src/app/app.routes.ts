@@ -293,8 +293,6 @@ export const routes: Routes = [
     path: 'tabs',
     component: LayoutComponent,
     canActivate: [authGuard],
-    // loadComponent: () =>
-    //   import('./layout/layout.component').then((m) => m.LayoutComponent),
     children: [
       {
         path: 'home',

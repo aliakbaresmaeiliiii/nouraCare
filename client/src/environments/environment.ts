@@ -21,10 +21,12 @@ const BACKEND_PROFILES = {
   phone: '10.42.66.237',
   /** Another network (e.g. café) */
   coffee: '192.168.1.7',
+  /** phone pedar (e.g. café) */
+  phonePedar: '10.209.157.237',
 } as const;
 
 /** Set to `house`, `phone`, or `coffee` to switch where API requests go. */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'house';
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'phonePedar';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';

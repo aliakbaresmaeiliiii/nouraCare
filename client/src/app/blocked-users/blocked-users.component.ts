@@ -39,18 +39,6 @@ export class BlockedUsersComponent implements OnInit {
     }
 
     // TODO: Replace with actual API call when backend is ready
-    // this.userService.getBlockedUsers(userId).subscribe({
-    //   next: (response: any) => {
-    //     this.blockedUsers = response.data || [];
-    //     this.isLoading = false;
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error loading blocked users:', error);
-    //     this.errorMessage = 'Failed to load blocked users. Please try again.';
-    //     this.isLoading = false;
-    //   }
-    // });
-
     // Mock data for now
     setTimeout(() => {
       this.blockedUsers = [
@@ -75,17 +63,6 @@ export class BlockedUsersComponent implements OnInit {
 
   unblockUser(userId: number) {
     // TODO: Replace with actual API call when backend is ready
-    // this.userService.unblockUser(userId).subscribe({
-    //   next: (response: any) => {
-    //     this.showSuccessAlert('User unblocked successfully!');
-    //     this.loadBlockedUsers(); // Reload the list
-    //   },
-    //   error: (error: any) => {
-    //     console.error('Error unblocking user:', error);
-    //     this.showErrorAlert('Failed to unblock user. Please try again.');
-    //   }
-    // });
-
     // Mock unblock for now
     this.blockedUsers = this.blockedUsers.filter(user => user.id !== userId);
     this.showSuccessAlert('User unblocked successfully!');

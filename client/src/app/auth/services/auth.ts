@@ -19,7 +19,6 @@ export class AuthService {
   private baseUrl = environment.apiEndPoint + 'auth';
 
   // Store Access Token in memory using BehaviorSubject
-  // private accessTokenSubject = new BehaviorSubject<string | null>(null);
   private accessTokenSubject = new BehaviorSubject<string | null>(
     localStorage.getItem('accessToken'),
   );

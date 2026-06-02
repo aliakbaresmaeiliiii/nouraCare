@@ -96,10 +96,6 @@ export class ToolsComponent implements OnInit {
   async loadTodayStats() {
     try {
       this.isLoading = true;
-      // const stats = await this.toolsService.getTodayStats(this.currentUserId).toPromise();
-      // if (stats) {
-      //   this.todayStats = stats;
-      // }
     } catch (error) {
       console.error('Error loading today stats:', error);
       await this.showToast('Failed to load today\'s statistics', 'danger');
@@ -258,7 +254,6 @@ export class ToolsComponent implements OnInit {
       if (isPregnant) {
         // Update pregnancy status
         this.cycleSettings.setUserStatus('Pregnant');
-        // this.cycleSettings.setPregnancyStatus(true);
         this.cycleSettings.setPostpartumStatus(false);
         
         // Update pregnancy week if valid
@@ -272,7 +267,6 @@ export class ToolsComponent implements OnInit {
       } else {
         // Update to trying to conceive
         this.cycleSettings.setUserStatus('Trying to Conceive');
-        // this.cycleSettings.setPregnancyStatus(false);
         this.cycleSettings.setPostpartumStatus(false);
         
         await this.showToast('Status updated to "Trying to Conceive"', 'success');
