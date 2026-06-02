@@ -211,18 +211,27 @@ export interface UserForumAnswer {
   threadTitle: string | null;
 }
 
+export type UserForumActivityType = 'questions' | 'answers' | 'experiences';
+
+export interface UserForumActivityPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
 export interface UserForumActivityResponse {
   success: boolean;
   data: {
     stats: {
       questions: number;
       answers: number;
+      experiences: number;
     };
-    questions: UserForumQuestion[];
-    answers: UserForumAnswer[];
-    pagination: {
-      page: number;
-      limit: number;
-    };
+    questions?: UserForumQuestion[];
+    answers?: UserForumAnswer[];
+    experiences?: UserForumQuestion[];
+    pagination: UserForumActivityPagination;
   };
 }

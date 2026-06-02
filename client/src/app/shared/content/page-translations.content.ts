@@ -1822,4 +1822,22 @@ const PAGE_UI_FA: Record<string, string> = {
   'postDetail.justNow': 'همین الان',
 
   'notificationPermission.title': 'اعلان‌ها فعال شود؟',
-  'notificationPermission.subtitle': 'یادآورها �
+  'notificationPermission.subtitle': 'یادآورها و به‌روزرسانی‌های سلامت دریافت کنید',
+  'notificationPermission.toggleLabel': 'دریافت اعلان',
+  'notificationPermission.continue': 'ادامه',
+
+  'categorySelection.title': 'انتخاب دسته',
+  'categorySelection.done': 'تمام',
+
+  'createDiscussion.placeholder': 'create-discussion-modal works!',
+
+  'dailyInsightsStory.closeAria': 'بستن',
+};
+
+/** Merged page UI copy per app language. */
+export const PAGE_TRANSLATIONS = {
+  en: { ...PAGE_UI_EN },
+  zh: { ...PAGE_UI_ZH },
+  ms: { ...PAGE_UI_MS },
+  fa: { ...PAGE_UI_FA },
+} as const;

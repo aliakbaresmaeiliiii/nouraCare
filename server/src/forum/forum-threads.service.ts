@@ -461,10 +461,32 @@ export class ForumThreadsService {
     };
   }
 
-  async getUserActivity(userId: number, page = 1, limit = 20) {
-    const skip = (page - 1) * limit;
+  private static readonly EXPERIENCE_CATEGORY_IDS = ['pregnancy-journey'];
 
-    const [questionsCount, answersCount, questions, answers] =
+  private async getExperienceForumIds(): Promise<string[]> {
+    const forums = await this.prismaService.forums.findMany({
+      where: {
+        categoryId: { in: ForumThreadsService.EXPERIENCE_CATEGORY_IDS },
+      },
+      select: { id: true },
+    });
+    return forums.map((forum) => forum.id);
+  }
+
+  async getUserActivity(
+    userId: number,
+    page = 1,
+    limit = 10,
+    type: 'questions' | 'answers' | 'experiences' = 'questions',
+  ) {
+    const skip = (page - 1) * limit;
+    const experienceForumIds = await this.getExperienceForumIds();
+    const experienceThreadFilter =
+      experienceForumIds.length > 0
+        ? { authorId: userId, forumId: { in: experienceForumIds } }
+        : { authorId: userId, forumId: { in: [] as string[] } };
+
+    const [questionsCount, answersCount, experiencesCount] =
       await Promise.all([
         this.prismaService.forum_threads.count({
           where: { authorId: userId },
@@ -472,20 +494,19 @@ export class ForumThreadsService {
         this.prismaService.forum_comments.count({
           where: { authorId: userId, isDeleted: false },
         }),
-        this.prismaService.forum_threads.findMany({
-          where: { authorId: userId },
-          orderBy: { createdAt: 'desc' },
-          skip,
-          take: limit,
-          select: {
-            id: true,
-            title: true,
-            content: true,
-            createdAt: true,
-            viewCount: true,
-            likeCount: true,
-          },
+        this.prismaService.forum_threads.count({
+          where: experienceThreadFilter,
         }),
+      ]);
+
+    const stats = {
+      questions: questionsCount,
+      answers: answersCount,
+      experiences: experiencesCount,
+    };
+
+    if (type === 'answers') {
+      const [answers, total] = await Promise.all([
         this.prismaService.forum_comments.findMany({
           where: { authorId: userId, isDeleted: false },
           orderBy: { createdAt: 'desc' },
@@ -498,8 +519,69 @@ export class ForumThreadsService {
             postId: true,
           },
         }),
+        Promise.resolve(answersCount),
       ]);
 
+      const mappedAnswers = await this.mapUserForumAnswers(answers);
+
+      return {
+        stats,
+        answers: mappedAnswers,
+        pagination: this.buildActivityPagination(page, limit, total),
+      };
+    }
+
+    const threadWhere =
+      type === 'experiences'
+        ? experienceThreadFilter
+        : { authorId: userId };
+
+    const total =
+      type === 'experiences' ? experiencesCount : questionsCount;
+
+    const threads = await this.prismaService.forum_threads.findMany({
+      where: threadWhere,
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        viewCount: true,
+        likeCount: true,
+      },
+    });
+
+    const listKey = type === 'experiences' ? 'experiences' : 'questions';
+
+    return {
+      stats,
+      [listKey]: threads,
+      pagination: this.buildActivityPagination(page, limit, total),
+    };
+  }
+
+  private buildActivityPagination(page: number, limit: number, total: number) {
+    const totalPages = limit > 0 ? Math.ceil(total / limit) : 0;
+    return {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasMore: page < totalPages,
+    };
+  }
+
+  private async mapUserForumAnswers(
+    answers: Array<{
+      id: string;
+      comment: string;
+      createdAt: Date;
+      postId: string;
+    }>,
+  ) {
     const postIds = [...new Set(answers.map((answer) => answer.postId))];
     const posts =
       postIds.length > 0
@@ -517,10 +599,12 @@ export class ForumThreadsService {
           })
         : [];
 
-    const postToThreadId = new Map(posts.map((post) => [post.id, post.threadId]));
+    const postToThreadId = new Map(
+      posts.map((post) => [post.id, post.threadId]),
+    );
     const threadById = new Map(threads.map((thread) => [thread.id, thread]));
 
-    const mappedAnswers = answers.map((answer) => {
+    return answers.map((answer) => {
       const threadId = postToThreadId.get(answer.postId) ?? null;
       const thread = threadId ? threadById.get(threadId) : undefined;
 
@@ -532,18 +616,5 @@ export class ForumThreadsService {
         threadTitle: thread?.title ?? null,
       };
     });
-
-    return {
-      stats: {
-        questions: questionsCount,
-        answers: answersCount,
-      },
-      questions,
-      answers: mappedAnswers,
-      pagination: {
-        page,
-        limit,
-      },
-    };
   }
 }

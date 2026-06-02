@@ -13,7 +13,7 @@ const BACKEND_PROFILES = {
   /** Home Wi‑Fi — API running on your LAN PC */
   house: '192.168.1.143',
   /** Phone hotspot — use your laptop IP as seen on the hotspot */
-  phone: '10.42.66.237',
+  phone: '172.20.10.2',
   /** Another network (e.g. café) */
   coffee: '192.168.1.13',
   /** phone pedar (e.g. café) */
@@ -21,7 +21,7 @@ const BACKEND_PROFILES = {
 } as const;
 
 /** Set to `house`, `phone`, or `coffee` to switch where API requests go. */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'coffee';
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'phone';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';

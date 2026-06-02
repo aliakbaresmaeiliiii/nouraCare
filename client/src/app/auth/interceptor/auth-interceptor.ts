@@ -68,6 +68,10 @@ export class AuthInterceptor implements HttpInterceptor {
           success: false,
           isSuccess: false,
           message: error.error?.message || error.message || 'An error occurred',
+          messageKey:
+            typeof error.error?.messageKey === 'string'
+              ? error.error.messageKey
+              : undefined,
           error: error.error,
           status: error.status,
         };

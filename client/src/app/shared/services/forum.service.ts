@@ -12,6 +12,7 @@ import {
   PostResponse,
   ThreadDetailResponse,
   UserForumActivityResponse,
+  UserForumActivityType,
 } from '../models/forum';
 import { environment } from '../../../environments/environment';
 
@@ -72,9 +73,13 @@ export class ForumService {
     );
   }
 
-  getUserForumActivity(page: number = 1, limit: number = 20) {
+  getUserForumActivity(
+    page: number = 1,
+    limit: number = 10,
+    type: UserForumActivityType = 'questions',
+  ) {
     return this.http.get<UserForumActivityResponse>(
-      `${this.forumThreadsBaseUrl}/me/activity?page=${page}&limit=${limit}`,
+      `${this.forumThreadsBaseUrl}/me/activity?page=${page}&limit=${limit}&type=${type}`,
     );
   }
 

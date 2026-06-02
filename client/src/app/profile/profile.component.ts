@@ -18,6 +18,12 @@ import {
 
 } from '@angular/core';
 
+import {
+  CdkFixedSizeVirtualScroll,
+  CdkVirtualForOf,
+  CdkVirtualScrollViewport,
+} from '@angular/cdk/scrolling';
+
 import { Router } from '@angular/router';
 
 import { ToastController, ViewWillEnter } from '@ionic/angular';
@@ -63,11 +69,14 @@ import { normalizeLmpInput } from '../shared/utils/pregnancy-lmp.util';
 import { ForumService } from '../shared/services/forum.service';
 
 import type {
+  UserForumActivityType,
   UserForumAnswer,
   UserForumQuestion,
 } from '../shared/models/forum';
 
 import { Subscription } from 'rxjs';
+
+import { finalize } from 'rxjs/operators';
 
 import {
 
@@ -101,7 +110,12 @@ declare global {
 
   templateUrl: './profile.component.html',
 
-  imports: [...SHARED_STANDALONE_IMPORTS],
+  imports: [
+    ...SHARED_STANDALONE_IMPORTS,
+    CdkVirtualScrollViewport,
+    CdkVirtualForOf,
+    CdkFixedSizeVirtualScroll,
+  ],
 
   styleUrls: ['./profile.component.scss'],
 
@@ -151,13 +165,62 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
   @ViewChild('profileAvatarInput') avatarInput!: ElementRef<HTMLInputElement>;
 
+  @ViewChild('activityViewport')
+  activityViewport?: CdkVirtualScrollViewport;
+
 
 
   currentReproductiveStatus: string | null = null;
 
   selectedTab = 'first';
 
+  /** Page size for profile activity tabs. */
+  readonly activityPageSize = 10;
 
+  /** Approximate row height for CDK virtual scroll. */
+  readonly virtualItemSizePx = 92;
+
+  private readonly activityTabBySegment: Record<
+    string,
+    UserForumActivityType
+  > = {
+    first: 'questions',
+    second: 'answers',
+    third: 'experiences',
+  };
+
+  private readonly activityFetchState: Record<
+    UserForumActivityType,
+    {
+      page: number;
+      hasMore: boolean;
+      loading: boolean;
+      loadingMore: boolean;
+      loaded: boolean;
+    }
+  > = {
+    questions: {
+      page: 0,
+      hasMore: true,
+      loading: false,
+      loadingMore: false,
+      loaded: false,
+    },
+    answers: {
+      page: 0,
+      hasMore: true,
+      loading: false,
+      loadingMore: false,
+      loaded: false,
+    },
+    experiences: {
+      page: 0,
+      hasMore: true,
+      loading: false,
+      loadingMore: false,
+      loaded: false,
+    },
+  };
 
   isUploadingAvatar = false;
 
@@ -181,7 +244,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
   userAnswers = signal<UserForumAnswer[]>([]);
 
-  isLoadingForumActivity = signal(false);
+  userExperiences = signal<UserForumQuestion[]>([]);
 
 
 
@@ -251,11 +314,11 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
     this.userId.set(this.userInfoStore?.user?.id);
 
-    this.loadForumActivity();
+    this.loadActivityTab('questions', true);
 
     this.forumActivitySub = this.forumService.postDeleted$.subscribe(() => {
 
-      this.loadForumActivity();
+      this.reloadActiveActivityTab();
 
     });
 
@@ -275,7 +338,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
     this.refreshProfile();
 
-    this.loadForumActivity();
+    this.reloadActiveActivityTab();
 
   }
 
@@ -309,61 +372,427 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
 
 
-  loadForumActivity() {
+  onActivityTabChanged(tab: string) {
 
-    this.isLoadingForumActivity.set(true);
+    const type = this.activityTabBySegment[tab];
 
-    this.forumService.getUserForumActivity().subscribe({
+    if (!type) return;
 
-      next: (response) => {
+    const state = this.activityFetchState[type];
 
-        if (!response?.success || !response.data) return;
+    if (!state.loaded) {
 
-        const { stats, questions, answers } = response.data;
+      this.loadActivityTab(type, true);
 
-        this.userQuestions.set(questions ?? []);
+    }
 
-        this.userAnswers.set(answers ?? []);
+    queueMicrotask(() => this.activityViewport?.scrollToIndex(0));
 
-        this.userActivity.update((items) =>
+  }
 
-          items.map((item) => {
 
-            if (item.key === 'questions') {
 
-              return { ...item, value: stats?.questions ?? 0 };
+  reloadActiveActivityTab() {
 
-            }
+    this.loadActivityTab(this.getActiveActivityType(), true);
 
-            if (item.key === 'answers') {
+  }
 
-              return { ...item, value: stats?.answers ?? 0 };
 
-            }
 
-            return item;
+  getActiveActivityType(): UserForumActivityType {
 
-          }),
+    return this.activityTabBySegment[this.selectedTab] ?? 'questions';
 
-        );
+  }
 
-      },
 
-      error: () => {
 
-        this.userQuestions.set([]);
+  isActiveTabLoading(): boolean {
 
-        this.userAnswers.set([]);
+    return this.activityFetchState[this.getActiveActivityType()].loading;
 
-      },
+  }
 
-      complete: () => {
 
-        this.isLoadingForumActivity.set(false);
 
-      },
+  isActiveTabLoadingMore(): boolean {
 
-    });
+    return this.activityFetchState[this.getActiveActivityType()].loadingMore;
+
+  }
+
+
+
+  getActiveActivityItems(): Array<UserForumQuestion | UserForumAnswer> {
+
+    switch (this.getActiveActivityType()) {
+
+      case 'answers':
+
+        return this.userAnswers();
+
+      case 'experiences':
+
+        return this.userExperiences();
+
+      default:
+
+        return this.userQuestions();
+
+    }
+
+  }
+
+
+
+  getActiveTabEmptyKey(): string {
+
+    switch (this.getActiveActivityType()) {
+
+      case 'answers':
+
+        return 'profile.noAnswers';
+
+      case 'experiences':
+
+        return 'profile.noExperiences';
+
+      default:
+
+        return 'profile.noQuestions';
+
+    }
+
+  }
+
+
+
+  trackActivityItem(
+
+    _index: number,
+
+    item: UserForumQuestion | UserForumAnswer,
+
+  ): string {
+
+    return item.id;
+
+  }
+
+
+
+  isAnswersTab(): boolean {
+
+    return this.getActiveActivityType() === 'answers';
+
+  }
+
+
+
+  getActivityThreadId(item: UserForumQuestion | UserForumAnswer): string | null {
+
+    if (this.isAnswersTab()) {
+
+      return (item as UserForumAnswer).threadId;
+
+    }
+
+    return item.id;
+
+  }
+
+
+
+  getActivityTitle(item: UserForumQuestion | UserForumAnswer): string | null {
+
+    if (this.isAnswersTab()) {
+
+      return (item as UserForumAnswer).threadTitle;
+
+    }
+
+    return (item as UserForumQuestion).title ?? null;
+
+  }
+
+
+
+  getActivityContent(item: UserForumQuestion | UserForumAnswer): string {
+
+    return item.content ?? '';
+
+  }
+
+
+
+  onActivityVirtualScroll(viewport: CdkVirtualScrollViewport) {
+
+    const state = this.activityFetchState[this.getActiveActivityType()];
+
+    if (state.loading || state.loadingMore || !state.hasMore) {
+
+      return;
+
+    }
+
+    const { end } = viewport.getRenderedRange();
+
+    if (end >= this.getActiveActivityItems().length - 2) {
+
+      this.loadActivityTab(this.getActiveActivityType(), false);
+
+    }
+
+  }
+
+
+
+  private loadActivityTab(type: UserForumActivityType, reset: boolean) {
+
+    const state = this.activityFetchState[type];
+
+    if (state.loading || state.loadingMore) {
+
+      return;
+
+    }
+
+    if (!reset && !state.hasMore) {
+
+      return;
+
+    }
+
+
+
+    const nextPage = reset ? 1 : state.page + 1;
+
+
+
+    if (reset) {
+
+      state.page = 0;
+
+      state.hasMore = true;
+
+      state.loaded = false;
+
+      this.setActivityItems(type, []);
+
+    }
+
+
+
+    state.loading = reset;
+
+    state.loadingMore = !reset;
+
+
+
+    this.forumService
+
+      .getUserForumActivity(nextPage, this.activityPageSize, type)
+
+      .pipe(
+
+        finalize(() => {
+
+          state.loading = false;
+
+          state.loadingMore = false;
+
+        }),
+
+      )
+
+      .subscribe({
+
+        next: (response) => {
+
+          if (!response?.success || !response.data) return;
+
+
+
+          const { stats, pagination } = response.data;
+
+          const items = this.extractActivityItems(type, response.data);
+
+
+
+          state.page = pagination?.page ?? nextPage;
+
+          state.hasMore = pagination?.hasMore ?? false;
+
+          state.loaded = true;
+
+
+
+          if (reset) {
+
+            this.setActivityItems(type, items);
+
+          } else {
+
+            this.appendActivityItems(type, items);
+
+          }
+
+
+
+          if (stats) {
+
+            this.userActivity.update((activityItems) =>
+
+              activityItems.map((item) => {
+
+                if (item.key === 'questions') {
+
+                  return { ...item, value: stats.questions ?? 0 };
+
+                }
+
+                if (item.key === 'answers') {
+
+                  return { ...item, value: stats.answers ?? 0 };
+
+                }
+
+                return item;
+
+              }),
+
+            );
+
+          }
+
+        },
+
+        error: () => {
+
+          if (reset) {
+
+            this.setActivityItems(type, []);
+
+          }
+
+          state.hasMore = false;
+
+        },
+
+      });
+
+  }
+
+
+
+  private extractActivityItems(
+
+    type: UserForumActivityType,
+
+    data: {
+
+      questions?: UserForumQuestion[];
+
+      answers?: UserForumAnswer[];
+
+      experiences?: UserForumQuestion[];
+
+    },
+
+  ): Array<UserForumQuestion | UserForumAnswer> {
+
+    if (type === 'answers') {
+
+      return data.answers ?? [];
+
+    }
+
+    if (type === 'experiences') {
+
+      return data.experiences ?? [];
+
+    }
+
+    return data.questions ?? [];
+
+  }
+
+
+
+  private setActivityItems(
+
+    type: UserForumActivityType,
+
+    items: Array<UserForumQuestion | UserForumAnswer>,
+
+  ) {
+
+    if (type === 'answers') {
+
+      this.userAnswers.set(items as UserForumAnswer[]);
+
+      return;
+
+    }
+
+    if (type === 'experiences') {
+
+      this.userExperiences.set(items as UserForumQuestion[]);
+
+      return;
+
+    }
+
+    this.userQuestions.set(items as UserForumQuestion[]);
+
+  }
+
+
+
+  private appendActivityItems(
+
+    type: UserForumActivityType,
+
+    items: Array<UserForumQuestion | UserForumAnswer>,
+
+  ) {
+
+    if (items.length === 0) return;
+
+
+
+    if (type === 'answers') {
+
+      const existing = new Set(this.userAnswers().map((item) => item.id));
+
+      const appended = (items as UserForumAnswer[]).filter(
+
+        (item) => !existing.has(item.id),
+
+      );
+
+      this.userAnswers.update((current) => [...current, ...appended]);
+
+      return;
+
+    }
+
+
+
+    const targetSignal =
+
+      type === 'experiences' ? this.userExperiences : this.userQuestions;
+
+    const existing = new Set(targetSignal().map((item) => item.id));
+
+    const appended = (items as UserForumQuestion[]).filter(
+
+      (item) => !existing.has(item.id),
+
+    );
+
+    targetSignal.update((current) => [...current, ...appended]);
 
   }
 

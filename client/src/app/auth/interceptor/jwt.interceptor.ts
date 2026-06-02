@@ -10,6 +10,7 @@ import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 import { AuthService } from '../services/auth';
 import { Router } from '@angular/router';
+import { isPublicAuthRequest } from './auth-request.util';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
@@ -25,23 +26,19 @@ export class JwtInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    // Skip token for auth endpoints and verify-email page
-    if (req.url.includes('/auth/')) {
-      return next.handle(req);
-    }
+    const skipBearer = isPublicAuthRequest(req.url);
 
     // Get access token
     const accessToken = this.authService.getAccessToken();
     // Add authorization header if token exists
     let authReq = req;
-    if (accessToken) {
+    if (accessToken && !skipBearer) {
       authReq = this.addToken(req, accessToken);
     }
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Skip error handling for auth endpoints
-        if (req.url.includes('/auth/')) {
+        if (skipBearer) {
           return throwError(() => error);
         }
 

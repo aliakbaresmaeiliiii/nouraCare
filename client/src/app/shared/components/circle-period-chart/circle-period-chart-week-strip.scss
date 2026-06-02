@@ -1,0 +1,901 @@
+﻿// Week calendar strip styles (split for Angular component style budget)
+
+// ---------------------------------------------------------------------------
+// Week calendar strip (lives with chart; styles were on home + pregnancy)
+// ---------------------------------------------------------------------------
+.cycle-chart-week-hero {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 0.1rem;
+}
+
+.cycle-chart-week-divider {
+  display: none;
+}
+
+.cycle-chart-week-hero .pregnancy-calendar-swiper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin: 0 0 0.2rem;
+  padding: 0 0 0.35rem;
+  box-sizing: border-box;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  align-items: stretch;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Force ovulation chip inside swiper to match the period-style circular chip */
+.cycle-chart-week-hero
+  .pregnancy-calendar-swiper
+  .pregnancy-calendar-col--ovulation,
+.cycle-chart-week-hero
+  .pregnancy-calendar-swiper
+  .pregnancy-calendar-col--ovulation.pregnancy-calendar-col--fertile-window {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-swiper
+  .pregnancy-calendar-col--ovulation
+  .pregnancy-calendar-date {
+  width: 2.12rem;
+  height: 2.12rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: #0d9488;
+  border: none;
+  box-sizing: border-box;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 4px 14px rgba(13, 148, 136, 0.28);
+  animation: none;
+}
+
+.cycle-chart-week-hero .pregnancy-calendar-week {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.15rem;
+  text-align: center;
+  padding: 0.35rem 0 0.35rem;
+  box-sizing: border-box;
+}
+
+.cycle-chart-week-hero .pregnancy-calendar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0.25rem 0 0.35rem;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 8px;
+
+  &:disabled {
+    opacity: 0.42;
+    cursor: default;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.cycle-chart-week-hero .pregnancy-calendar-label {
+  font-size: 0.7rem;
+  font-weight: 650;
+  color: var(--brand-text-secondary);
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  padding-top: 0.1rem;
+  -webkit-font-smoothing: antialiased;
+}
+
+html:lang(fa) .cycle-chart-week-hero .pregnancy-calendar-label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.cycle-chart-week-hero .pregnancy-calendar-date-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.1rem 0;
+  overflow: visible;
+}
+
+.cycle-chart-week-hero .pregnancy-calendar-date {
+  font-size: 0.93rem;
+  font-weight: 700;
+  color: var(--brand-text);
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+.cycle-chart-week-selection-stack {
+  margin: 0.05rem 0.45rem 0.4rem;
+}
+
+.cycle-chart-week-selection-insight {
+  margin: 0.1rem 0.65rem 0.2rem;
+  padding: 0.35rem 0.5rem 0.4rem;
+  text-align: center;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #0d9488;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 184, 166, 0.1) 0%,
+    rgba(20, 184, 166, 0.02) 100%
+  );
+  border: 1px solid rgba(13, 148, 136, 0.2);
+  box-sizing: border-box;
+}
+
+.cycle-chart-week-selection-fertility {
+  margin: 0.1rem 0.65rem 0.35rem;
+  padding: 0.32rem 0.55rem 0.38rem;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 10px;
+  box-sizing: border-box;
+  color: var(--brand-text-secondary);
+  background: rgba(var(--brand-text-rgb), 0.04);
+  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
+}
+
+.cycle-chart-week-selection-fertility.tone-emerald,
+.cycle-chart-week-selection-fertility.tone-mint {
+  color: #0d9488;
+  font-weight: 700;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 184, 166, 0.14) 0%,
+    rgba(20, 184, 166, 0.04) 100%
+  );
+  border-color: rgba(13, 148, 136, 0.28);
+}
+
+.cycle-chart-week-selection-fertility.tone-rose {
+  color: #9b4a63;
+  background: linear-gradient(
+    180deg,
+    rgba(232, 180, 200, 0.2) 0%,
+    rgba(232, 180, 200, 0.06) 100%
+  );
+  border-color: rgba(155, 74, 99, 0.22);
+}
+
+.cycle-chart-week-selection-fertility.tone-amber {
+  color: #b45309;
+  background: linear-gradient(
+    180deg,
+    rgba(251, 191, 36, 0.14) 0%,
+    rgba(251, 191, 36, 0.04) 100%
+  );
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+.cycle-chart-week-selection-fertility.tone-violet {
+  color: #5b21b6;
+  background: linear-gradient(
+    180deg,
+    rgba(196, 181, 253, 0.2) 0%,
+    rgba(196, 181, 253, 0.06) 100%
+  );
+  border-color: rgba(124, 58, 237, 0.22);
+}
+
+.cycle-chart-week-selection-fertility.tone-pink {
+  color: #9d174d;
+  background: linear-gradient(
+    180deg,
+    rgba(251, 207, 232, 0.35) 0%,
+    rgba(251, 207, 232, 0.1) 100%
+  );
+  border-color: rgba(219, 39, 119, 0.2);
+}
+
+.cycle-chart-week-selection-fertility.tone-slate {
+  color: var(--brand-text-secondary);
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--selected
+  .pregnancy-calendar-label {
+  color: var(--brand-text);
+  font-weight: 800;
+}
+
+/* Default selected disk (no period / ovulation / pre-ov look) */
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--selected:not(.pregnancy-calendar-col--period):not(
+    .pregnancy-calendar-col--ovulation
+  ):not(.pregnancy-calendar-col--pre-ovulation-selected)
+  .pregnancy-calendar-date {
+  width: 2.05rem;
+  height: 2.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-surface);
+  border-radius: 50%;
+  color: var(--brand-primary);
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(var(--brand-text-rgb), 0.08);
+}
+
+/* After period, before ovulation — selected day: dashed ring + light fill */
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--pre-ovulation-selected
+  .pregnancy-calendar-label {
+  color: #0f766e;
+  font-weight: 800;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--pre-ovulation-selected
+  .pregnancy-calendar-date {
+  width: 2.12rem;
+  height: 2.12rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0f766e;
+  background: #fff;
+  border: 2px dashed rgba(13, 148, 136, 0.55);
+  box-sizing: border-box;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 4px 14px rgba(15, 118, 110, 0.12);
+  animation: none;
+  text-shadow: none;
+}
+
+.cycle-chart-week-hero .pregnancy-calendar-col--period {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Period + ovulation use one shared highlight style in the swiper picker */
+.cycle-chart-week-hero .pregnancy-calendar-col--period .pregnancy-calendar-date,
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--ovulation
+  .pregnancy-calendar-date {
+  width: 2.12rem;
+  height: 2.12rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #f43f5e;
+  border: none;
+  box-sizing: border-box;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 4px 14px rgba(244, 63, 94, 0.22);
+  animation: none;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--period.pregnancy-calendar-col--selected
+  .pregnancy-calendar-date,
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--ovulation.pregnancy-calendar-col--selected
+  .pregnancy-calendar-date {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 0 0 2px rgba(255, 255, 255, 0.85),
+    0 0 0 4px rgba(181, 99, 122, 0.38),
+    0 6px 18px rgba(124, 61, 82, 0.3);
+}
+
+/* Last bleeding day: full-column “tail” + gold frame + rose → violet numeral */
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--period.pregnancy-calendar-col--period-last {
+  position: relative;
+  z-index: 1;
+  padding: 0.38rem 0.08rem 0.42rem;
+  margin: 0 0.02rem;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(254, 205, 211, 0.55) 0%,
+    rgba(233, 213, 255, 0.5) 50%,
+    rgba(196, 181, 253, 0.45) 100%
+  );
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--period.pregnancy-calendar-col--period-last
+  .pregnancy-calendar-label {
+  color: #7c2d12;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--period.pregnancy-calendar-col--period-last
+  .pregnancy-calendar-date {
+  width: 2.14rem;
+  height: 2.14rem;
+  border: 2px dashed rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--period.pregnancy-calendar-col--period-last.pregnancy-calendar-col--selected
+  .pregnancy-calendar-date {
+  box-shadow:
+    0 0 0 3px rgba(251, 191, 36, 1),
+    0 0 0 5px rgba(255, 255, 255, 0.95),
+    0 0 0 7px rgba(124, 58, 237, 0.35),
+    0 2px 0 rgba(0, 0, 0, 0.06) inset,
+    0 8px 24px rgba(91, 33, 182, 0.38);
+}
+
+/* Fertile window: icy teal wash + deep teal date (brand secondary family) */
+.cycle-chart-week-hero .pregnancy-calendar-col--fertile-window {
+  position: relative;
+  z-index: 1;
+  padding: 0.38rem 0.08rem 0.42rem;
+  margin: 0 0.02rem;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--fertile-window
+  .pregnancy-calendar-label {
+  color: #115e59;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--fertile-window
+  .pregnancy-calendar-date {
+  color: #0f766e;
+  font-weight: 800;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--fertile-window.pregnancy-calendar-col--selected
+  .pregnancy-calendar-date {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 0 0 4px rgba(20, 184, 166, 0.38);
+}
+
+/* Predicted ovulation: keep the same highlight style as period */
+.cycle-chart-week-hero .pregnancy-calendar-col--ovulation {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* If ovulation day is also in fertile window, keep ovulation as circle-only */
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--ovulation.pregnancy-calendar-col--fertile-window {
+  background: transparent;
+  box-shadow: none;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--ovulation
+  .pregnancy-calendar-label {
+  color: #7c2d12;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-shadow: none;
+}
+
+.cycle-chart-week-hero .pregnancy-calendar-col--ovulation-spotlight {
+  box-shadow: none;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--ovulation-spotlight
+  .pregnancy-calendar-date-wrap {
+  filter: drop-shadow(0 0 10px rgba(20, 184, 166, 0.35));
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--ovulation-spotlight
+  .pregnancy-calendar-date {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 0 0 5px rgba(20, 184, 166, 0.42),
+    0 4px 14px rgba(13, 148, 136, 0.3);
+}
+
+/* Today marker (pink) — only when not period / ovulation / pre-ov countdown look */
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--today
+  .pregnancy-calendar-label {
+  color: #0f172a;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  filter: none;
+  animation: none;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--today
+  .pregnancy-calendar-date-wrap {
+  filter: none;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--today:not(.pregnancy-calendar-col--period):not(
+    .pregnancy-calendar-col--ovulation
+  ):not(.pregnancy-calendar-col--pre-ovulation-selected)
+  .pregnancy-calendar-date {
+  width: 2.15rem;
+  height: 2.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #fff;
+  background: linear-gradient(145deg, #d4849a 0%, #b5637a 55%, #8f4258 100%);
+  border: none;
+  box-shadow: 0 2px 10px rgba(124, 61, 82, 0.32);
+  animation: none;
+  text-shadow: none;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--today:not(.pregnancy-calendar-col--period):not(
+    .pregnancy-calendar-col--ovulation
+  ):not(
+    .pregnancy-calendar-col--pre-ovulation-selected
+  ).pregnancy-calendar-col--selected
+  .pregnancy-calendar-date {
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 3px rgba(181, 99, 122, 0.45),
+    0 4px 14px rgba(124, 61, 82, 0.32);
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--today.pregnancy-calendar-col--pre-ovulation-selected
+  .pregnancy-calendar-label {
+  color: #0f766e;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--today.pregnancy-calendar-col--pre-ovulation-selected
+  .pregnancy-calendar-date {
+  color: #0f766e;
+  background: #fff;
+  border: 2px dashed rgba(13, 148, 136, 0.55);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 4px 14px rgba(15, 118, 110, 0.12);
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col--today.pregnancy-calendar-col--ovulation
+  .pregnancy-calendar-label {
+  color: #115e59;
+  text-shadow: none;
+}
+
+.cycle-chart-week-hero
+  .pregnancy-calendar-col:disabled
+  .pregnancy-calendar-label,
+.cycle-chart-week-hero
+  .pregnancy-calendar-col:disabled
+  .pregnancy-calendar-date {
+  animation: none;
+  text-shadow: none;
+}
+
+:host-context(html.ion-palette-dark) {
+  .cycle-chart-week-selection-insight {
+    color: #5eead4;
+    background: linear-gradient(
+      180deg,
+      rgba(45, 212, 191, 0.12) 0%,
+      rgba(45, 212, 191, 0.03) 100%
+    );
+    border-color: rgba(94, 234, 212, 0.22);
+  }
+
+  .cycle-chart-week-selection-fertility {
+    color: var(--ion-color-medium);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .cycle-chart-week-selection-fertility.tone-emerald,
+  .cycle-chart-week-selection-fertility.tone-mint {
+    color: #5eead4;
+    background: linear-gradient(
+      180deg,
+      rgba(20, 184, 166, 0.14) 0%,
+      rgba(20, 184, 166, 0.04) 100%
+    );
+    border-color: rgba(94, 234, 212, 0.28);
+  }
+
+  .cycle-chart-week-selection-fertility.tone-rose {
+    color: #f0b9cb;
+    border-color: rgba(212, 132, 158, 0.28);
+  }
+
+  .cycle-chart-week-selection-fertility.tone-amber {
+    color: #fcd34d;
+    border-color: rgba(251, 191, 36, 0.22);
+  }
+
+  .cycle-chart-week-selection-fertility.tone-violet {
+    color: #c4b5fd;
+    border-color: rgba(167, 139, 250, 0.28);
+  }
+
+  .cycle-chart-week-selection-fertility.tone-pink {
+    color: #f9a8d4;
+    border-color: rgba(244, 114, 182, 0.22);
+  }
+
+  .cycle-chart-week-hero .pregnancy-calendar-col--fertile-window {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--fertile-window
+    .pregnancy-calendar-label {
+    color: #ccfbf1;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--fertile-window
+    .pregnancy-calendar-date {
+    width: 2.12rem;
+    height: 2.12rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #99f6e4;
+    border: none;
+    box-sizing: border-box;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.4) inset,
+      0 4px 14px rgba(124, 61, 82, 0.28);
+    animation: none;
+    border: 2px solid;  
+  }
+
+  .cycle-chart-week-hero .pregnancy-calendar-label {
+    color: rgba(255, 255, 255, 0.78);
+    text-shadow: none;
+  }
+
+  .cycle-chart-week-hero .pregnancy-calendar-date {
+    color: #f8fafc;
+    font-weight: 700;
+    text-shadow: none;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--selected:not(.pregnancy-calendar-col--period):not(
+      .pregnancy-calendar-col--ovulation
+    ):not(.pregnancy-calendar-col--pre-ovulation-selected)
+    .pregnancy-calendar-date {
+    background: #ffffff;
+    color: #121212;
+    box-shadow:
+      0 2px 16px rgba(0, 0, 0, 0.42),
+      0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--pre-ovulation-selected
+    .pregnancy-calendar-label {
+    color: #5eead4;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--pre-ovulation-selected
+    .pregnancy-calendar-date {
+    color: #a7f3d0;
+    background: color-mix(
+      in srgb,
+      var(--ion-card-background, #1e293b) 88%,
+      #0f172a 12%
+    );
+    border-color: rgba(94, 234, 212, 0.45);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--period
+    .pregnancy-calendar-date {
+    color: var(--brand-text);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.2) inset,
+      0 4px 18px rgba(90, 45, 58, 0.45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    border: 1px dashed white;
+    background: #c21e56;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--period.pregnancy-calendar-col--selected
+    .pregnancy-calendar-date {
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.2) inset,
+      0 0 0 2px rgba(255, 255, 255, 0.25),
+      0 0 0 4px rgba(212, 132, 158, 0.38),
+      0 6px 20px rgba(90, 45, 58, 0.42);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--period.pregnancy-calendar-col--period-last {
+    background: linear-gradient(
+      180deg,
+      rgba(212, 132, 158, 0.22) 0%,
+      rgba(139, 92, 246, 0.2) 55%,
+      rgba(91, 33, 182, 0.22) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 0 0 2px rgba(251, 191, 36, 0.9),
+      0 4px 18px rgba(0, 0, 0, 0.35);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--period.pregnancy-calendar-col--period-last
+    .pregnancy-calendar-label {
+    color: #fde68a;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--period.pregnancy-calendar-col--period-last
+    .pregnancy-calendar-date {
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+
+  .cycle-chart-week-hero .pregnancy-calendar-col--ovulation {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--ovulation.pregnancy-calendar-col--fertile-window {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--ovulation
+    .pregnancy-calendar-label {
+    color: #5eead4;
+    text-shadow: none;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--ovulation
+    .pregnancy-calendar-date {
+    color: var(--brand-text);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.2) inset,
+      0 4px 18px rgba(6, 95, 90, 0.45);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    border: 1px dashed white;
+    background: #0d9488;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--ovulation.pregnancy-calendar-col--selected
+    .pregnancy-calendar-date {
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.2) inset,
+      0 0 0 2px rgba(255, 255, 255, 0.25),
+      0 0 0 4px rgba(45, 212, 191, 0.42),
+      0 6px 20px rgba(6, 78, 76, 0.42);
+  }
+
+  .cycle-chart-week-hero .pregnancy-calendar-col--ovulation-spotlight {
+    box-shadow: none;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--ovulation-spotlight
+    .pregnancy-calendar-date-wrap {
+    filter: drop-shadow(0 0 12px rgba(45, 212, 191, 0.42));
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--ovulation-spotlight
+    .pregnancy-calendar-date {
+    border-color: rgba(255, 255, 255, 0.55);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--today
+    .pregnancy-calendar-label {
+    color: #ffffff;
+    filter: none;
+    font-weight: 800;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--today:not(.pregnancy-calendar-col--period):not(
+      .pregnancy-calendar-col--ovulation
+    ):not(.pregnancy-calendar-col--pre-ovulation-selected)
+    .pregnancy-calendar-date {
+    color: #121212;
+    background: #ffffff;
+    border: none;
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.35),
+      0 4px 20px rgba(0, 0, 0, 0.45);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--today:not(.pregnancy-calendar-col--period):not(
+      .pregnancy-calendar-col--ovulation
+    ):not(
+      .pregnancy-calendar-col--pre-ovulation-selected
+    ).pregnancy-calendar-col--selected
+    .pregnancy-calendar-date {
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.35),
+      0 0 0 4px rgba(181, 99, 122, 0.45),
+      0 4px 22px rgba(124, 61, 82, 0.38);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--today.pregnancy-calendar-col--pre-ovulation-selected
+    .pregnancy-calendar-label {
+    color: #5eead4;
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--today.pregnancy-calendar-col--pre-ovulation-selected
+    .pregnancy-calendar-date {
+    color: #a7f3d0;
+    background: color-mix(
+      in srgb,
+      var(--ion-card-background, #1e293b) 88%,
+      #0f172a 12%
+    );
+    border: 2px dashed rgba(94, 234, 212, 0.45);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  .cycle-chart-week-hero
+    .pregnancy-calendar-col--today.pregnancy-calendar-col--ovulation
+    .pregnancy-calendar-label {
+    color: #ccfbf1;
+    text-shadow: none;
+  }
+
+  /* Log Period — high contrast on dark (default + in-period “edit” states) */
+  .cycle-chart-track-btn {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 6px 22px rgba(0, 0, 0, 0.35);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(251, 191, 211, 0.45);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        0 8px 28px rgba(0, 0, 0, 0.4);
+    }
+
+    &:focus-visible {
+      outline-color: #fda4af;
+    }
+  }
+
+  .cycle-chart-track-btn__icon {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fda4af;
+  }
+
+  .cycle-chart-track-btn__title {
+    color: #ffffff;
+  }
+
+  .cycle-chart-track-btn__hint {
+    color: rgba(255, 255, 255, 0.74);
+  }
+
+  .cycle-chart-track-btn__chev {
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .cycle-chart-track-btn.cycle-chart-track-btn--period {
+    background: #ffffff;
+    color: #9f1239;
+    border-color: rgba(194, 30, 86, 0.38);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 6px 24px rgba(0, 0, 0, 0.38);
+
+    &:hover {
+      background: #fffafb;
+      border-color: rgba(194, 30, 86, 0.48);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 1),
+        0 8px 28px rgba(0, 0, 0, 0.42);
+    }
+
+    .cycle-chart-track-btn__title,
+    .cycle-chart-track-btn__hint,
+    .cycle-chart-track-btn__chev {
+      color: #9f1239;
+    }
+  }
+
+  .cycle-chart-track-btn.cycle-chart-track-btn--period
+    .cycle-chart-track-btn__icon {
+    background: rgba(251, 113, 133, 0.16);
+    border-color: rgba(194, 30, 86, 0.22);
+    color: #be123c;
+  }
+}

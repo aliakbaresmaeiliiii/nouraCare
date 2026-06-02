@@ -63,13 +63,15 @@ export class ForumThreadsController {
   async getMyActivity(
     @Req() req: any,
     @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
+    @Query('limit') limit: string = '10',
+    @Query('type') type: 'questions' | 'answers' | 'experiences' = 'questions',
   ) {
     const userId = req.user.id;
     const result = await this.forumThreadsService.getUserActivity(
       userId,
       parseInt(page, 10),
       parseInt(limit, 10),
+      type,
     );
     return {
       success: true,

@@ -39,7 +39,10 @@ export interface Segment {
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
   templateUrl: './circle-period-chart.html',
-  styleUrl: './circle-period-chart.scss',
+  styleUrls: [
+    './circle-period-chart.scss',
+    './circle-period-chart-week-strip.scss',
+  ],
 })
 export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
   @ViewChild('periodCalendar') periodCalendar!: IonDatetime;

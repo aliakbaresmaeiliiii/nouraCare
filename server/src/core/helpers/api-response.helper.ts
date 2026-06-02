@@ -1,20 +1,32 @@
 import { ApiResponse, ApiErrorResponse } from '../interfaces/api-response.interface';
 
 export class ApiResponseHelper {
-  static success<T>(data?: T, message?: string, code: number = 200): ApiResponse<T> {
+  static success<T>(
+    data?: T,
+    message?: string,
+    code: number = 200,
+    messageKey?: string,
+  ): ApiResponse<T> {
     return {
       isSuccess: true,
       message,
+      messageKey,
       data,
       code,
       timestamp: new Date(),
     };
   }
 
-  static error(message: string, code: number = 400, errors?: any[]): ApiErrorResponse {
+  static error(
+    message: string,
+    code: number = 400,
+    errors?: any[],
+    messageKey?: string,
+  ): ApiErrorResponse {
     return {
       isSuccess: false,
       message,
+      messageKey,
       code,
       timestamp: new Date(),
       errors,

@@ -701,7 +701,32 @@
   }
 
   .tab-content {
-    padding: 32px 20px;
+    padding: 20px;
+
+    .activity-virtual-viewport {
+      width: 100%;
+      height: min(420px, 50vh);
+      min-height: 240px;
+    }
+
+    .activity-virtual-row {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+
+    .activity-load-more {
+      display: flex;
+      justify-content: center;
+      padding: 8px 0 4px;
+
+      ion-spinner {
+        --color: var(--brand-primary, var(--ion-color-primary));
+        width: 24px;
+        height: 24px;
+      }
+    }
 
     .activity-list {
       display: flex;

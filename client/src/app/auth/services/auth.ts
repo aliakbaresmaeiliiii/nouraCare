@@ -451,7 +451,11 @@ export class AuthService {
     }
     this.lastSessionVerifyAt = now;
     this.http.get(`${this.baseUrl}/verify-user-exists`).subscribe({
-      error: () => this.logout(),
+      error: (err: { status?: number }) => {
+        if (err?.status === 401) {
+          this.logout();
+        }
+      },
     });
   }
 }

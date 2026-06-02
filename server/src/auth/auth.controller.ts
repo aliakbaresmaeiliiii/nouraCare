@@ -57,7 +57,12 @@ export class AuthController {
       resolveRequestLocale(acceptLanguage, appLanguage),
     );
     if ('otpSent' in result && result.otpSent) {
-      return ApiResponseHelper.success(result, result.message);
+      return ApiResponseHelper.success(
+        result,
+        result.message,
+        200,
+        result.messageKey,
+      );
     }
     return ApiResponseHelper.success(result, 'Login successful');
   }
@@ -105,7 +110,12 @@ export class AuthController {
       verifyEmailDto.email,
       verifyEmailDto.code,
     );
-    return ApiResponseHelper.success(result, 'Email verified successfully');
+    return ApiResponseHelper.success(
+      result,
+      'Email verified successfully',
+      200,
+      result.messageKey,
+    );
   }
 
   @Public()
@@ -120,6 +130,11 @@ export class AuthController {
       resendVerificationDto.email,
       resolveRequestLocale(acceptLanguage, appLanguage),
     );
-    return ApiResponseHelper.success(result, 'Verification code sent successfully');
+    return ApiResponseHelper.success(
+      result,
+      'Verification code sent successfully',
+      200,
+      result.messageKey,
+    );
   }
 }

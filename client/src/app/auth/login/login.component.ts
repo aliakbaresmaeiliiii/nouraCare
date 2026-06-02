@@ -37,6 +37,11 @@ import {
   AppleSignInService,
 } from '../services/apple-sign-in.service';
 import { PENDING_INVITE_CODE_KEY } from '../../shared/constants/growth.constants';
+import { TranslationService } from '../../shared/services/translation.service';
+import {
+  extractApiMessagePayload,
+  resolveApiMessage,
+} from '../../shared/utils/resolve-api-message.util';
 
 @Component({  
   selector: 'app-login',
@@ -79,6 +84,7 @@ export class LoginComponent {
   private googleSignIn = inject(GoogleSignInService);
   private appleSignIn = inject(AppleSignInService);
   private onboardingStateService = inject(OnboardingService);
+  private translation = inject(TranslationService);
   selectedRole: string = '';
   private destroy$ = new Subject<void>();
   successCaptcha = signal<boolean>(false);
@@ -94,6 +100,11 @@ export class LoginComponent {
   // theme = this.themeManager.theme;
   title = signal<string>('');
   storeDataUser: any;
+
+  get toastOkButton(): string {
+    return this.t('common.ok');
+  }
+
   setRole(role: string) {
     this.selectedRole = role;
     this.title.set(role);
@@ -138,8 +149,10 @@ export class LoginComponent {
 
           return this.service.login(payload).pipe(
             catchError((err) => {
-              this.message =
-                err?.error?.message || 'Login failed. Please try again.';
+              this.message = resolveApiMessage(this.translation, {
+                ...extractApiMessagePayload(err),
+                fallbackKey: 'auth.toast.loginFailed',
+              });
               this.success = false;
               this.showToast = true;
               return EMPTY;
@@ -155,15 +168,17 @@ export class LoginComponent {
         next: (res) => {
           if (res?.data?.otpSent && !res?.data?.accessToken) {
             this.loginOtpStep = true;
-            this.message =
-              res?.message ||
-              'We sent a sign-in code to your email. Enter it below.';
+            this.message = resolveApiMessage(this.translation, {
+              messageKey: res.messageKey ?? res.data?.messageKey,
+              message: res.message,
+              fallbackKey: 'auth.api.otpSentIfExists',
+            });
             this.success = true;
             this.showToast = true;
             return;
           }
 
-          this.message = 'Login successful!';
+          this.message = this.t('auth.toast.loginSuccess');
           this.success = true;
           this.showToast = true;
 
@@ -299,7 +314,7 @@ export class LoginComponent {
   private finishSocialLogin(res: {
     data?: { accessToken?: string; user?: { isVerified?: boolean } };
   }): void {
-    this.message = 'Login successful!';
+    this.message = this.t('auth.toast.loginSuccess');
     this.success = true;
     this.showToast = true;
 
@@ -335,14 +350,16 @@ export class LoginComponent {
       this.finishSocialLogin(res);
     } catch (err: unknown) {
       if (err instanceof AppleSignInNotConfiguredError) {
-        this.message =
-          'Apple Sign-In is not configured. Set appleBundleId and appleServiceId in environment.';
+        this.message = this.t('auth.toast.appleNotConfigured');
       } else {
         const httpLike = err as { error?: { message?: string } };
-        this.message =
-          httpLike?.error?.message ||
-          (err instanceof Error ? err.message : '') ||
-          'Apple sign-in was cancelled or is unavailable.';
+        this.message = resolveApiMessage(this.translation, {
+          ...extractApiMessagePayload(err),
+          message:
+            httpLike?.error?.message ||
+            (err instanceof Error ? err.message : undefined),
+          fallbackKey: 'auth.toast.appleUnavailable',
+        });
       }
       this.success = false;
       this.showToast = true;
@@ -371,14 +388,16 @@ export class LoginComponent {
       this.finishSocialLogin(res);
     } catch (err: unknown) {
       if (err instanceof GoogleSignInNotConfiguredError) {
-        this.message =
-          'Google Sign-In is not configured. Add your OAuth Web Client ID as googleWebClientId in environments (Google Cloud Console).';
+        this.message = this.t('auth.toast.googleNotConfigured');
       } else {
         const httpLike = err as { error?: { message?: string } };
-        this.message =
-          httpLike?.error?.message ||
-          (err instanceof Error ? err.message : '') ||
-          'Google sign-in was cancelled or is unavailable.';
+        this.message = resolveApiMessage(this.translation, {
+          ...extractApiMessagePayload(err),
+          message:
+            httpLike?.error?.message ||
+            (err instanceof Error ? err.message : undefined),
+          fallbackKey: 'auth.toast.googleUnavailable',
+        });
       }
       this.success = false;
       this.showToast = true;
@@ -418,5 +437,9 @@ export class LoginComponent {
   viewLicenseAgreement(event: Event): void {
     event.preventDefault();
     void this.router.navigate(['/terms']);
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
   }
 }

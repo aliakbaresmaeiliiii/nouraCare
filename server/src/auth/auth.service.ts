@@ -19,6 +19,7 @@ import { mapRegisterOnboardingPayload } from './utils/map-register-onboarding.ut
 import { GrowthService } from '../growth/growth.service';
 import { ACCESS_TOKEN_TTL } from './config/jwt.config';
 import { parseRefreshToken } from './services/social-token.service';
+import { AUTH_MESSAGE_KEYS } from './constants/auth-message-keys';
 
 const USER_PUBLIC_SELECT = {
   id: true,
@@ -55,7 +56,10 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      throw new ConflictException({
+        message: 'User with this email already exists',
+        messageKey: AUTH_MESSAGE_KEYS.USER_ALREADY_EXISTS,
+      });
     }
 
     const verificationCode = this.generateOtp();
@@ -117,22 +121,34 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException({
+        message: 'User not found',
+        messageKey: AUTH_MESSAGE_KEYS.USER_NOT_FOUND,
+      });
     }
 
     if (user.isVerified) {
-      throw new BadRequestException('Email is already verified');
+      throw new BadRequestException({
+        message: 'Email is already verified',
+        messageKey: AUTH_MESSAGE_KEYS.EMAIL_ALREADY_VERIFIED,
+      });
     }
 
     if (user.emailVerificationCode !== code) {
-      throw new BadRequestException('Invalid verification code');
+      throw new BadRequestException({
+        message: 'Invalid verification code',
+        messageKey: AUTH_MESSAGE_KEYS.INVALID_VERIFICATION_CODE,
+      });
     }
 
     if (
       !user.emailVerificationCodeExpires ||
       user.emailVerificationCodeExpires < new Date()
     ) {
-      throw new BadRequestException('Verification code has expired');
+      throw new BadRequestException({
+        message: 'Verification code has expired',
+        messageKey: AUTH_MESSAGE_KEYS.VERIFICATION_CODE_EXPIRED,
+      });
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -149,6 +165,7 @@ export class AuthService {
 
     return {
       message: 'Email verified successfully',
+      messageKey: AUTH_MESSAGE_KEYS.EMAIL_VERIFIED,
       user: updatedUser,
       ...tokens,
     };
@@ -158,11 +175,17 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException({
+        message: 'User not found',
+        messageKey: AUTH_MESSAGE_KEYS.USER_NOT_FOUND,
+      });
     }
 
     if (user.isVerified) {
-      throw new BadRequestException('Email is already verified');
+      throw new BadRequestException({
+        message: 'Email is already verified',
+        messageKey: AUTH_MESSAGE_KEYS.EMAIL_ALREADY_VERIFIED,
+      });
     }
 
     const verificationCode = this.generateOtp();
@@ -183,10 +206,16 @@ export class AuthService {
       });
     } catch (error) {
       console.error('Failed to send verification email:', error);
-      throw new BadRequestException('Failed to send verification email');
+      throw new BadRequestException({
+        message: 'Failed to send verification email',
+        messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL,
+      });
     }
 
-    return { message: 'Verification code sent successfully' };
+    return {
+      message: 'Verification code sent successfully',
+      messageKey: AUTH_MESSAGE_KEYS.VERIFICATION_CODE_SENT,
+    };
   }
 
   async login(email: string, otp?: string, locale?: string) {
@@ -201,17 +230,25 @@ export class AuthService {
     });
 
     if (!user) {
-      return { otpSent: true, message: 'If the account exists, a sign-in code was sent.' };
+      return {
+        otpSent: true,
+        message: 'If the account exists, a sign-in code was sent.',
+        messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
+      };
     }
 
     if (user.status !== 'ACTIVE') {
-      throw new UnauthorizedException('Account is not active');
+      throw new UnauthorizedException({
+        message: 'Account is not active',
+        messageKey: AUTH_MESSAGE_KEYS.ACCOUNT_NOT_ACTIVE,
+      });
     }
 
     if (!user.isVerified) {
-      throw new UnauthorizedException(
-        'Email is not verified. Please complete email verification first.',
-      );
+      throw new UnauthorizedException({
+        message: 'Email is not verified. Please complete email verification first.',
+        messageKey: AUTH_MESSAGE_KEYS.EMAIL_NOT_VERIFIED,
+      });
     }
 
     if (!otp?.trim()) {
@@ -233,12 +270,16 @@ export class AuthService {
         });
       } catch (error) {
         console.error('Failed to send sign-in code:', error);
-        throw new BadRequestException('Failed to send sign-in code');
+        throw new BadRequestException({
+          message: 'Failed to send sign-in code',
+          messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_SIGNIN_CODE,
+        });
       }
 
       return {
         otpSent: true,
         message: 'If the account exists, a sign-in code was sent.',
+        messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
       };
     }
 
@@ -247,7 +288,10 @@ export class AuthService {
       !user.emailVerificationCodeExpires ||
       user.emailVerificationCodeExpires < new Date()
     ) {
-      throw new UnauthorizedException('Invalid or expired sign-in code');
+      throw new UnauthorizedException({
+        message: 'Invalid or expired sign-in code',
+        messageKey: AUTH_MESSAGE_KEYS.INVALID_OR_EXPIRED_SIGNIN_CODE,
+      });
     }
 
     await this.prisma.user.update({

@@ -6,6 +6,11 @@ import { finalize } from 'rxjs/operators';
 
 import { AuthService } from '../services/auth';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
+import { TranslationService } from '../../shared/services/translation.service';
+import {
+  extractApiMessagePayload,
+  resolveApiMessage,
+} from '../../shared/utils/resolve-api-message.util';
 
 import {
   EMAIL_OTP_LENGTH,
@@ -30,6 +35,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
   isLoading = false;
   isResending = false;
   service = inject(AuthService);
+  private translation = inject(TranslationService);
   userInfo!: Record<string, unknown>;
   form!: FormGroup;
   /** Seconds until the code expires (server-side window). */
@@ -57,6 +63,10 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
 
   get canResend(): boolean {
     return !this.isResending && (this.isExpired || this.resendCooldown <= 0);
+  }
+
+  get toastOkButton(): string {
+    return this.t('common.ok');
   }
 
   get timerDisplay(): string {
@@ -160,7 +170,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
   verifyOtp(otp: string): void {
     if (this.isExpired) {
       this.showToast = true;
-      this.message = 'Verification code expired. Please request a new one.';
+      this.message = this.t('auth.toast.codeExpiredResend');
       this.success.set(false);
       return;
     }
@@ -168,7 +178,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     const email = this.userEmail;
     if (!email) {
       this.showToast = true;
-      this.message = 'Email not found. Please sign in again.';
+      this.message = this.t('auth.toast.emailNotFound');
       this.success.set(false);
       return;
     }
@@ -180,7 +190,9 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res: {
           code?: number;
-          data?: { code?: string; accessToken?: string };
+          message?: string;
+          messageKey?: string;
+          data?: { code?: string; accessToken?: string; messageKey?: string };
         }) => {
           if (
             res.code === 200 ||
@@ -193,20 +205,26 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
             }
             localStorage.removeItem(EMAIL_VERIFICATION_EXPIRES_KEY);
             this.showToast = true;
-            this.message = 'Email verified successfully!';
+            this.message = resolveApiMessage(this.translation, {
+              messageKey: res.messageKey ?? res.data?.messageKey,
+              message: (res as { message?: string }).message,
+              fallbackKey: 'auth.api.emailVerified',
+            });
             this.success.set(true);
             this.router.navigate(['/tabs/home']);
             return;
           }
 
           this.showToast = true;
-          this.message = 'Invalid code, please try again.';
+          this.message = this.t('auth.toast.invalidCode');
           this.success.set(false);
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: { error?: { message?: string; messageKey?: string } }) => {
           this.showToast = true;
-          this.message =
-            error.error?.message ?? 'Verification failed. Please try again.';
+          this.message = resolveApiMessage(this.translation, {
+            ...extractApiMessagePayload(error),
+            fallbackKey: 'auth.toast.verifyFailed',
+          });
           this.success.set(false);
         },
       });
@@ -231,7 +249,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     const email = this.userEmail;
     if (!email) {
       this.showToast = true;
-      this.message = 'Email not found. Please sign in again.';
+      this.message = this.t('auth.toast.emailNotFound');
       this.success.set(false);
       return;
     }
@@ -241,7 +259,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       .resendOtp({ email })
       .pipe(finalize(() => (this.isResending = false)))
       .subscribe({
-        next: () => {
+        next: (res: { message?: string; messageKey?: string; data?: { messageKey?: string } }) => {
           this.codeExpiresAt = Date.now() + EMAIL_OTP_VALIDITY_MS;
           localStorage.setItem(
             EMAIL_VERIFICATION_EXPIRES_KEY,
@@ -251,15 +269,25 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
           this.startResendCooldown(EMAIL_OTP_RESEND_COOLDOWN_SEC);
           this.form.patchValue({ otpCode: '' });
           this.showToast = true;
-          this.message = 'A new verification code was sent to your email.';
+          this.message = resolveApiMessage(this.translation, {
+            messageKey: res.messageKey ?? res.data?.messageKey,
+            message: res.message,
+            fallbackKey: 'auth.api.verificationCodeSent',
+          });
           this.success.set(true);
         },
-        error: (error: { error?: { message?: string } }) => {
+        error: (error: { error?: { message?: string; messageKey?: string } }) => {
           this.showToast = true;
-          this.message =
-            error.error?.message ?? 'Could not resend code. Please try again.';
+          this.message = resolveApiMessage(this.translation, {
+            ...extractApiMessagePayload(error),
+            fallbackKey: 'auth.toast.resendFailed',
+          });
           this.success.set(false);
         },
       });
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
   }
 }

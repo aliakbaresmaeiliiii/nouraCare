@@ -12,10 +12,12 @@ export interface TokenResponse {
     refreshToken?: string;
     /** Step 1 email sign-in: code sent, no tokens yet. */
     otpSent?: boolean;
+    messageKey?: string;
     requiresVerification?: boolean;
   };
   isSuccess: boolean;
   message: string;
+  messageKey?: string;
   timestamp: string;
 }
 
