@@ -5,9 +5,10 @@ import {
   Get,
   Post,
   Req,
-  UseGuards
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { Throttle } from '@nestjs/throttler';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
@@ -15,12 +16,14 @@ import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 import { AuthService } from './auth.service';
+import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
 export class AuthController {
+  constructor(private authService: AuthService) {}
 
-  constructor(private authService:AuthService){}
-
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     if (!registerDto.email) {
@@ -30,36 +33,28 @@ export class AuthController {
     return ApiResponseHelper.success(result, 'User registered successfully');
   }
 
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('sign-in')
-  async signIn(@Body() body: any) {
-    // Extract email from the body object
-    let email = body.email;
-    // If email is not found in the expected location, try to parse it
-    if (!email && typeof body === 'object') {
-      // Try to find email in the body object
-      const bodyString = JSON.stringify(body);
-      const emailMatch = bodyString.match(/"email"\s*:\s*"([^"]+)"/);
-      if (emailMatch) {
-        email = emailMatch[1];
-      }
+  async signIn(@Body() loginDto: LoginDto) {
+    const result = await this.authService.login(loginDto.email, loginDto.otp);
+    if ('otpSent' in result && result.otpSent) {
+      return ApiResponseHelper.success(result, result.message);
     }
-    
-    if (!email) {
-      throw new BadRequestException('Email is required');
-    }
-
-    const result = await this.authService.login(email);
     return ApiResponseHelper.success(result, 'Login successful');
   }
 
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('social-login')
   async socialLogin(@Body() socialLoginDto: SocialLoginDto) {
     const result = await this.authService.socialLogin(socialLoginDto);
     return ApiResponseHelper.success(result, 'Social login successful');
   }
 
-  @Post('refresh')
+  @Public()
   @UseGuards(AuthGuard('refresh'))
+  @Post('refresh')
   async refreshTokens(@Req() req: any) {
     const { refreshToken } = req.user;
     const result = await this.authService.refreshTokens(refreshToken);
@@ -67,7 +62,6 @@ export class AuthController {
   }
 
   @Post('logout')
-  @UseGuards(AuthGuard('jwt'))
   async logout(@Req() req: any, @Body() body: { refreshToken: string }) {
     if (!body.refreshToken) {
       throw new BadRequestException('Refresh token is required');
@@ -77,28 +71,35 @@ export class AuthController {
   }
 
   @Post('logout-all')
-  @UseGuards(AuthGuard('jwt'))
   async logoutAll(@Req() req: any) {
     await this.authService.logoutAll(req.user.id);
     return ApiResponseHelper.success(null, 'Logged out from all devices successfully');
   }
 
   @Get('verify-user-exists')
-  @UseGuards(AuthGuard('jwt'))
   async verifyUserExists(@Req() req: any) {
     const result = await this.authService.verifyUserExists(req.user.id);
     return ApiResponseHelper.success(result, 'User verified successfully');
   }
 
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('verify-email')
   async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
-    const result = await this.authService.verifyEmail(verifyEmailDto.email, verifyEmailDto.code);
+    const result = await this.authService.verifyEmail(
+      verifyEmailDto.email,
+      verifyEmailDto.code,
+    );
     return ApiResponseHelper.success(result, 'Email verified successfully');
   }
 
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('resend-verification')
   async resendVerification(@Body() resendVerificationDto: ResendVerificationDto) {
-    const result = await this.authService.resendVerificationCode(resendVerificationDto.email);
+    const result = await this.authService.resendVerificationCode(
+      resendVerificationDto.email,
+    );
     return ApiResponseHelper.success(result, 'Verification code sent successfully');
   }
 }

@@ -8,6 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { RefreshTokenService } from './refresh-token.service';
+import { SocialTokenService } from './services/social-token.service';
 import { randomUUID } from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
@@ -16,6 +17,20 @@ import { EmailProvider } from './config/email';
 import { OnboardingService as UserOnboardingService } from '../users/onboarding.service';
 import { mapRegisterOnboardingPayload } from './utils/map-register-onboarding.util';
 import { GrowthService } from '../growth/growth.service';
+import { ACCESS_TOKEN_TTL } from './config/jwt.config';
+import { parseRefreshToken } from './services/social-token.service';
+
+const USER_PUBLIC_SELECT = {
+  id: true,
+  email: true,
+  phoneNumber: true,
+  fullName: true,
+  role: true,
+  status: true,
+  isVerified: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
 
 @Injectable()
 export class AuthService {
@@ -26,6 +41,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private refreshTokenService: RefreshTokenService,
+    private socialTokenService: SocialTokenService,
     private userOnboarding: UserOnboardingService,
     private growthService: GrowthService,
   ) {
@@ -34,7 +50,6 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    // Check if user already exists by email only
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email },
     });
@@ -43,11 +58,9 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
-    // Generate 4-digit verification code
-    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const verificationCode = this.generateOtp();
+    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
-    // Create user with verification code
     const user = await this.prisma.user.create({
       data: {
         email: registerDto.email,
@@ -62,25 +75,13 @@ export class AuthService {
           },
         },
       },
-      select: {
-        id: true,
-        email: true,
-        phoneNumber: true,
-        fullName: true,
-        role: true,
-        status: true,
-        isVerified: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      select: USER_PUBLIC_SELECT,
     });
 
-    // Send verification email
     try {
       await this.sendMail.sendAccountRegister(user.email, verificationCode);
     } catch (error) {
       console.error('Failed to send verification email:', error);
-      // Don't throw error here, just log it
     }
 
     const onboardingDto = mapRegisterOnboardingPayload(
@@ -103,36 +104,27 @@ export class AuthService {
       console.error('Growth referral setup failed at registration:', err);
     }
 
-    // Generate tokens
-    const tokens = await this.generateTokens(user.id, user.email,);
-
     return {
       user,
-      ...tokens,
+      requiresVerification: true,
     };
   }
 
   async verifyEmail(email: string, code: string) {
-    // Find user by email
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Check if user is already verified
     if (user.isVerified) {
       throw new BadRequestException('Email is already verified');
     }
 
-    // Check if verification code matches
     if (user.emailVerificationCode !== code) {
       throw new BadRequestException('Invalid verification code');
     }
 
-    // Check if verification code is expired
     if (
       !user.emailVerificationCodeExpires ||
       user.emailVerificationCodeExpires < new Date()
@@ -140,7 +132,6 @@ export class AuthService {
       throw new BadRequestException('Verification code has expired');
     }
 
-    // Update user as verified
     const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: {
@@ -148,45 +139,32 @@ export class AuthService {
         emailVerificationCode: null,
         emailVerificationCodeExpires: null,
       },
-      select: {
-        id: true,
-        email: true,
-        phoneNumber: true,
-        fullName: true,
-        role: true,
-        status: true,
-        isVerified: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      select: USER_PUBLIC_SELECT,
     });
+
+    const tokens = await this.generateTokens(updatedUser.id, updatedUser.email);
 
     return {
       message: 'Email verified successfully',
       user: updatedUser,
+      ...tokens,
     };
   }
 
   async resendVerificationCode(email: string) {
-    // Find user by email
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Check if user is already verified
     if (user.isVerified) {
       throw new BadRequestException('Email is already verified');
     }
 
-    // Generate new 4-digit verification code
-    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
-    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const verificationCode = this.generateOtp();
+    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
-    // Update user with new verification code
     await this.prisma.user.update({
       where: { id: user.id },
       data: {
@@ -195,7 +173,6 @@ export class AuthService {
       },
     });
 
-    // Send verification email
     try {
       await this.sendMail.sendAccountRegister(user.email, verificationCode);
     } catch (error) {
@@ -203,71 +180,113 @@ export class AuthService {
       throw new BadRequestException('Failed to send verification email');
     }
 
-    return {
-      message: 'Verification code sent successfully',
-    };
+    return { message: 'Verification code sent successfully' };
   }
 
-  async login(email: string) {
-    // Find user by email
-    const data = await this.prisma.user.findUnique({
-      where: { email },
+  async login(email: string, otp?: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({
+      where: { email: normalizedEmail },
       select: {
-        id: true,
-        email: true,
-        phoneNumber: true,
-        fullName: true,
-        role: true,
-        status: true,
-        isVerified: true,
-        createdAt: true,
-        updatedAt: true,
+        ...USER_PUBLIC_SELECT,
+        emailVerificationCode: true,
+        emailVerificationCodeExpires: true,
       },
     });
 
-    if (!data) {
-      throw new UnauthorizedException('Invalid credentials');
+    if (!user) {
+      return { otpSent: true, message: 'If the account exists, a sign-in code was sent.' };
     }
 
-    // Check if user is active
-    if (data.status !== 'ACTIVE') {
+    if (user.status !== 'ACTIVE') {
       throw new UnauthorizedException('Account is not active');
     }
 
-    // Generate tokens
-    const tokens = await this.generateTokens(data.id, data.email);
+    if (!user.isVerified) {
+      throw new UnauthorizedException(
+        'Email is not verified. Please complete email verification first.',
+      );
+    }
+
+    if (!otp?.trim()) {
+      const loginCode = this.generateOtp();
+      const loginCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerificationCode: loginCode,
+          emailVerificationCodeExpires: loginCodeExpires,
+        },
+      });
+
+      try {
+        await this.sendMail.sendAccountRegister(user.email, loginCode);
+      } catch (error) {
+        console.error('Failed to send sign-in code:', error);
+        throw new BadRequestException('Failed to send sign-in code');
+      }
+
+      return {
+        otpSent: true,
+        message: 'If the account exists, a sign-in code was sent.',
+      };
+    }
+
+    if (
+      user.emailVerificationCode !== otp.trim() ||
+      !user.emailVerificationCodeExpires ||
+      user.emailVerificationCodeExpires < new Date()
+    ) {
+      throw new UnauthorizedException('Invalid or expired sign-in code');
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerificationCode: null,
+        emailVerificationCodeExpires: null,
+      },
+    });
+
+    const { emailVerificationCode: _c, emailVerificationCodeExpires: _e, ...publicUser } =
+      user;
+    const tokens = await this.generateTokens(publicUser.id, publicUser.email);
 
     return {
-      user: data,
+      user: publicUser,
       ...tokens,
     };
   }
 
   async socialLogin(socialLoginDto: SocialLoginDto) {
-    const email = socialLoginDto.email?.trim().toLowerCase();
-    if (!email) {
-      throw new BadRequestException('Email is required');
+    let verifiedProfile: { email: string; fullName?: string };
+
+    if (socialLoginDto.provider === 'google') {
+      verifiedProfile = await this.socialTokenService.verifyGoogleToken({
+        idToken: socialLoginDto.idToken,
+        accessToken: socialLoginDto.accessToken,
+      });
+    } else {
+      verifiedProfile = await this.socialTokenService.verifyAppleToken({
+        idToken: socialLoginDto.idToken,
+        email: socialLoginDto.email,
+        fullName: socialLoginDto.fullName,
+      });
     }
+
+    const email = verifiedProfile.email;
+    const fullName =
+      socialLoginDto.fullName?.trim() || verifiedProfile.fullName;
 
     let user = await this.prisma.user.findUnique({
       where: { email },
-      select: {
-        id: true,
-        email: true,
-        phoneNumber: true,
-        fullName: true,
-        role: true,
-        status: true,
-        isVerified: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      select: USER_PUBLIC_SELECT,
     });
 
-    // Create user if this is first social login.
     if (!user) {
       const displayName =
-        socialLoginDto.fullName?.trim() ||
+        fullName?.trim() ||
         email.split('@')[0]?.replace(/[._-]/g, ' ') ||
         'User';
       const uniquePhone = `${socialLoginDto.provider}_${randomUUID().replace(/-/g, '').slice(0, 20)}`;
@@ -285,26 +304,18 @@ export class AuthService {
             },
           },
         },
-        select: {
-          id: true,
-          email: true,
-          phoneNumber: true,
-          fullName: true,
-          role: true,
-          status: true,
-          isVerified: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: USER_PUBLIC_SELECT,
       });
 
       try {
-        await this.growthService.onNewAccount(user.id, socialLoginDto.inviteCode);
+        await this.growthService.onNewAccount(
+          user.id,
+          socialLoginDto.inviteCode,
+        );
       } catch (err) {
         console.error('Growth referral setup failed at social registration:', err);
       }
     } else if (!user.isVerified) {
-      // Existing account can be promoted to verified via trusted social auth flow.
       user = await this.prisma.user.update({
         where: { id: user.id },
         data: {
@@ -312,17 +323,7 @@ export class AuthService {
           emailVerificationCode: null,
           emailVerificationCodeExpires: null,
         },
-        select: {
-          id: true,
-          email: true,
-          phoneNumber: true,
-          fullName: true,
-          role: true,
-          status: true,
-          isVerified: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+        select: USER_PUBLIC_SELECT,
       });
     }
 
@@ -331,10 +332,7 @@ export class AuthService {
     }
 
     const tokens = await this.generateTokens(user.id, user.email);
-    return {
-      user,
-      ...tokens,
-    };
+    return { user, ...tokens };
   }
 
   async refreshTokens(refreshToken: string) {
@@ -342,110 +340,81 @@ export class AuthService {
       throw new BadRequestException('Refresh token is required');
     }
 
-    // Verify refresh token
+    const parsed = parseRefreshToken(refreshToken);
+    if (!parsed) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
     const isValid = await this.refreshTokenService.validateRefreshToken(
       refreshToken,
-      0,
+      parsed.userId,
     );
 
     if (!isValid) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    // Extract user ID from JWT payload (we need to decode the token)
-    let userId: number;
-    try {
-      const payload = this.jwtService.decode(refreshToken) as any;
-      userId = payload?.sub;
-    } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    if (!userId) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-
-    // Find user
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        phoneNumber: true,
-        fullName: true,
-        role: true,
-        status: true,
-        isVerified: true,
-      },
+      where: { id: parsed.userId },
+      select: USER_PUBLIC_SELECT,
     });
 
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
-    // Generate new tokens
+    if (!user.isVerified) {
+      throw new UnauthorizedException('User email is not verified');
+    }
+
+    await this.refreshTokenService.revokeRefreshToken(
+      refreshToken,
+      parsed.userId,
+    );
+
     const tokens = await this.generateTokens(user.id, user.email);
 
-    return {
-      user,
-      ...tokens,
-    };
+    return { user, ...tokens };
   }
 
   async logout(refreshToken: string, userId: number) {
     if (!refreshToken) {
       throw new BadRequestException('Refresh token is required');
     }
-
-    // Revoke the refresh token
     await this.refreshTokenService.revokeRefreshToken(refreshToken, userId);
   }
 
   async logoutAll(userId: number) {
-    // Revoke all refresh tokens for the user
     await this.refreshTokenService.revokeAllUserTokens(userId);
   }
 
   async verifyUserExists(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        phoneNumber: true,
-        fullName: true,
-        role: true,
-        status: true,
-        isVerified: true,
-        createdAt: true,
-      },
+      select: USER_PUBLIC_SELECT,
     });
 
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
-    return {
-      exists: true,
-      user,
-    };
+    return { exists: true, user };
   }
 
-  private generateTokens(userId: number, email: string) {
-    // `sub` must be a string per JWT RFC; keeps Prisma Int lookups safe after parse
+  private generateOtp(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  private async generateTokens(userId: number, email: string) {
     const payload = { sub: String(userId), email };
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '15m',
+      expiresIn: ACCESS_TOKEN_TTL,
     });
 
-    // Generate a refresh token
-    const refreshToken = randomUUID();
-    this.refreshTokenService.createRefreshToken(userId, refreshToken);
+    const refreshToken =
+      await this.refreshTokenService.createRefreshToken(userId);
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return { accessToken, refreshToken };
   }
 }

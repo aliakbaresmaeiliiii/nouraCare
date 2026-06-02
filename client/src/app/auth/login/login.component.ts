@@ -12,6 +12,7 @@ import {
   OnboardingService,
 } from '../../shared/services/onboarding.service';
 import { RegisterRequest } from './model/register-request-interface';
+import { LoginRequest } from './model/login-request-interface';
 import { AuthService } from '../services/auth';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import {
@@ -53,7 +54,11 @@ export class LoginComponent {
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: [''],
+    otp: ['', [Validators.minLength(6), Validators.maxLength(6)]],
   });
+
+  /** After email submit, user enters the code sent to their inbox. */
+  loginOtpStep = false;
 
   registerForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -116,10 +121,14 @@ export class LoginComponent {
           this.cdr.detectChanges();
         }),
         exhaustMap(() => {
-          const payload = {
+          const payload: LoginRequest = {
             email: this.loginForm.value.email || '',
             phoneNumber: this.loginForm.value.phoneNumber || '',
           };
+          const otp = (this.loginForm.value.otp || '').trim();
+          if (this.loginOtpStep && otp) {
+            payload.otp = otp;
+          }
 
           return this.service.login(payload).pipe(
             catchError((err) => {
@@ -138,11 +147,21 @@ export class LoginComponent {
       )
       .subscribe({
         next: (res) => {
+          if (res?.data?.otpSent && !res?.data?.accessToken) {
+            this.loginOtpStep = true;
+            this.message =
+              res?.message ||
+              'We sent a sign-in code to your email. Enter it below.';
+            this.success = true;
+            this.showToast = true;
+            return;
+          }
+
           this.message = 'Login successful!';
           this.success = true;
           this.showToast = true;
 
-          if (res?.data) {
+          if (res?.data?.user) {
             this.service.setUserInfo({
               id: res.data.user.id,
               email: res.data.user.email,
@@ -159,12 +178,7 @@ export class LoginComponent {
             localStorage.setItem('userInfo', JSON.stringify(res.data));
           }
 
-          const isEmailVerified = !!res?.data?.user?.isVerified;
-          if (!isEmailVerified) {
-            this.router.navigate(['/auth/verify-email']);
-          } else {
-            this.router.navigate(['/tabs/home']);
-          }
+          this.router.navigate(['/tabs/home']);
         },
       });
   }
@@ -185,6 +199,8 @@ export class LoginComponent {
   }
   onTabChange(tab: 'login' | 'register') {
     this.activeTab = tab;
+    this.loginOtpStep = false;
+    this.loginForm.patchValue({ otp: '' });
     if (tab === 'register') {
       this.title.set('Register');
     } else {
@@ -226,7 +242,7 @@ export class LoginComponent {
       )
       .subscribe({
         next: (res) => {
-          localStorage.setItem('userInfo', JSON.stringify(res));
+          localStorage.setItem('userInfo', JSON.stringify(res?.data ?? res));
 
           // Clear onboarding data after successful registration
           if (onboardingData) {
@@ -247,6 +263,16 @@ export class LoginComponent {
 
   onLogin() {
     this.loginClick$.next();
+  }
+
+  isLoginDisabled(): boolean {
+    const emailInvalid = !!this.loginForm.get('email')?.invalid;
+    if (!this.loginOtpStep) {
+      return emailInvalid;
+    }
+    const otpInvalid = !!this.loginForm.get('otp')?.invalid;
+    const otpEmpty = !(this.loginForm.get('otp')?.value || '').trim();
+    return emailInvalid || otpInvalid || otpEmpty;
   }
 
   async onSocialLogin(provider: 'google' | 'apple') {
@@ -275,7 +301,7 @@ export class LoginComponent {
     this.cdr.detectChanges();
 
     this.service
-      .socialLogin(provider, email)
+      .socialLogin(provider, { email })
       .pipe(
         finalize(() => {
           this.isSocialLoading = false;
@@ -321,9 +347,15 @@ export class LoginComponent {
     this.cdr.detectChanges();
 
     try {
-      const { email, fullName } = await this.googleSignIn.signInWithGoogle();
+      const { email, fullName, idToken, accessToken } =
+        await this.googleSignIn.signInWithGoogle();
       const res = await firstValueFrom(
-        this.service.socialLogin('google', email, fullName),
+        this.service.socialLogin('google', {
+          email,
+          fullName,
+          idToken,
+          accessToken,
+        }),
       );
 
       this.message = 'Google login successful!';

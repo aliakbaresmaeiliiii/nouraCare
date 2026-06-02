@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from '../auth/decorators/public.decorator';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -22,6 +23,7 @@ export class ForumController {
   constructor(private readonly forumService: ForumService) {}
 
   // Categories
+  @Public()
   @Get('categories')
   async getCategories() {
     const categories = await this.forumService.getCategories();
@@ -32,6 +34,7 @@ export class ForumController {
   }
 
   // Topics
+  @Public()
   @Get('topics/:categoryId')
   async getTopicsByCategory(
     @Param('categoryId') categoryId: string,
@@ -50,6 +53,7 @@ export class ForumController {
   }
 
   // Posts
+  @Public()
   @Get('posts/:topicId')
   async getPostsByTopic(
     @Param('topicId') topicId: string,
@@ -67,6 +71,7 @@ export class ForumController {
     };
   }
 
+  @Public()
   @Get('post/:id')
   async getPostWithComments(@Param('id') id: string) {
     const post = await this.forumService.getPostWithComments(id);

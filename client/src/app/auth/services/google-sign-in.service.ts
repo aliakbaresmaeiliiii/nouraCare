@@ -26,7 +26,12 @@ export class GoogleSignInService {
    * Web: Google Identity Services token client — avoids legacy implicit OAuth
    * (`response_type=token id_token`) which often returns Google error 400 invalid_request.
    */
-  async signInWithGoogle(): Promise<{ email: string; fullName?: string }> {
+  async signInWithGoogle(): Promise<{
+    email: string;
+    fullName?: string;
+    idToken?: string;
+    accessToken?: string;
+  }> {
     const webClientId = this.getWebClientId();
     if (!webClientId) {
       throw new GoogleSignInNotConfiguredError();
@@ -61,7 +66,10 @@ export class GoogleSignInService {
     const fullName =
       fromParts || result.profile.name?.trim() || undefined;
 
-    return { email, fullName };
+    const idToken = result.idToken?.trim() || undefined;
+    const accessToken = result.accessToken?.token?.trim() || undefined;
+
+    return { email, fullName, idToken, accessToken };
   }
 
   private ensureNativePluginInitialized(webClientId: string): Promise<void> {
@@ -142,7 +150,12 @@ export class GoogleSignInService {
 
   private signInWithGoogleWeb(
     clientId: string,
-  ): Promise<{ email: string; fullName?: string }> {
+  ): Promise<{
+    email: string;
+    fullName?: string;
+    idToken?: string;
+    accessToken?: string;
+  }> {
     return this.loadGoogleIdentityScript().then(
       () =>
         new Promise((resolve, reject) => {
@@ -229,7 +242,9 @@ export class GoogleSignInService {
                       .trim();
                     const fullName =
                       fromParts || data.name?.trim() || undefined;
-                    finish(() => resolve({ email, fullName }));
+                    finish(() =>
+                      resolve({ email, fullName, accessToken }),
+                    );
                   })
                   .catch((e: unknown) =>
                     finish(() =>

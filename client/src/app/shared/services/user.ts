@@ -48,4 +48,8 @@ export class User {
       {},
     );
   }
+
+  deleteMyAccount(): Observable<unknown> {
+    return this.http.delete(`${this.baseUrl}/me`);
+  }
 }

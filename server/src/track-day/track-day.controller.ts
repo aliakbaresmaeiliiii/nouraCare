@@ -3,14 +3,16 @@ import {
   Post,
   Get,
   Put,
-  Delete,
   Body,
   Param,
   Query,
+  Req,
   BadRequestException,
 } from '@nestjs/common';
+import type { Request } from 'express';
 import { TrackDayService } from './track-day.service';
 import { CreateTrackDayDto, UpdateTrackDayDto } from './dto/track-day.dto';
+import { assertUserOwnership } from '../auth/utils/assert-user-ownership.util';
 
 @Controller('track-day')
 export class TrackDayController {
@@ -18,30 +20,22 @@ export class TrackDayController {
 
   @Post(':userId')
   async createTrackDay(
+    @Req() req: Request,
     @Param('userId') userId: string,
     @Body() createTrackDayDto: CreateTrackDayDto,
   ) {
-    const userIdNumber = parseInt(userId, 10);
-    if (isNaN(userIdNumber)) {
-      throw new BadRequestException('Invalid user ID');
-    }
-
+    const userIdNumber = assertUserOwnership(req, userId);
     return this.trackDayService.createTrackDay(userIdNumber, createTrackDayDto);
   }
 
-  /**
-   * Must be registered before `GET :userId/:date` so `track-days` is not parsed as a calendar date.
-   */
   @Get(':userId/track-days')
   async getTrackDaysByUser(
+    @Req() req: Request,
     @Param('userId') userId: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
-    const userIdNumber = parseInt(userId, 10);
-    if (isNaN(userIdNumber)) {
-      throw new BadRequestException('Invalid user ID');
-    }
+    const userIdNumber = assertUserOwnership(req, userId);
     return this.trackDayService.getTrackDaysByUser(
       userIdNumber,
       startDate,
@@ -51,30 +45,22 @@ export class TrackDayController {
 
   @Get(':userId/:date')
   async getTrackDay(
+    @Req() req: Request,
     @Param('userId') userId: string,
     @Param('date') date: string,
   ) {
-    console.log('GET /track-day', { userIdRaw: userId, dateRaw: date });
-
-    const userIdNumber = parseInt(userId, 10);
-    console.log('userIdNumber', userIdNumber);
-    if (isNaN(userIdNumber)) {
-      throw new BadRequestException('Invalid user ID');
-    }
+    const userIdNumber = assertUserOwnership(req, userId);
     return this.trackDayService.getTrackDay(userIdNumber, date);
   }
 
   @Put(':userId/:trackDayId')
   async updateTrackDay(
+    @Req() req: Request,
     @Param('userId') userId: string,
     @Param('trackDayId') trackDayId: string,
     @Body() updateTrackDayDto: UpdateTrackDayDto,
   ) {
-    const userIdNumber = parseInt(userId, 10);
-    if (isNaN(userIdNumber)) {
-      throw new BadRequestException('Invalid user ID');
-    }
-
+    const userIdNumber = assertUserOwnership(req, userId);
     return this.trackDayService.updateTrackDay(
       userIdNumber,
       trackDayId,

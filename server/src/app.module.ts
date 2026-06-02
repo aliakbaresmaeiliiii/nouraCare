@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -15,9 +17,17 @@ import { ReproductiveModule } from './reproductive/reproductive.module';
 import { HealthEngagementModule } from './health-engagement/health-engagement.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { GrowthModule } from './growth/growth.module';
+import { GlobalJwtAuthGuard } from './auth/guards/global-jwt-auth.guard';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: 'default',
+        ttl: 60_000,
+        limit: 120,
+      },
+    ]),
     ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
@@ -34,6 +44,10 @@ import { GrowthModule } from './growth/growth.module';
     GrowthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: GlobalJwtAuthGuard },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

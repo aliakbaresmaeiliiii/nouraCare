@@ -4,13 +4,13 @@ import { AppModule } from './app.module';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
+import { env } from './auth/config/env';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.use(
     helmet({
-      // Strict CSP is enforced on the Angular host (many CDNs/scripts); API stays JSON-first.
       contentSecurityPolicy: false,
       crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
@@ -18,10 +18,10 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: false,
+      whitelist: true,
       transform: true,
-      forbidNonWhitelisted: false,
-      skipMissingProperties: true,
+      forbidNonWhitelisted: true,
+      skipMissingProperties: false,
     }),
   );
 
@@ -29,17 +29,23 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
+  const corsOrigin =
+    env.CORS_ORIGINS.length > 0
+      ? env.CORS_ORIGINS
+      : env.NODE_ENV === 'production'
+        ? false
+        : true;
+
   app.enableCors({
-    origin: '*',
+    origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    // allowedHeaders: ['Content-Type', 'Authorization'],
-    allowedHeaders: ['Content-Type', 'Authorization'] 
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.setGlobalPrefix('api/v1');
 
-  const port = process.env.PORT || 3000;
-  const host = process.env.HOST || '0.0.0.0';
+  const port = env.PORT;
+  const host = env.HOST;
 
   await app.listen(port, host);
 

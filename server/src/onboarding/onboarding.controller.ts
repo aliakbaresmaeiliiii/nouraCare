@@ -3,6 +3,7 @@ import { OnboardingService } from './onboarding.service';
 import { OnboardingDataDto } from './dto/onboarding.dto';
 import { InitializeOnboardingDto } from './dto/initialize-onboarding.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from '../auth/decorators/public.decorator';
 import type { Request } from 'express';
 
 @Controller('onboarding')
@@ -21,6 +22,7 @@ export class OnboardingController {
     return this.onboardingService.initializeOnboarding(user.id, payload);
   }
 
+  @Public()
   @Post('save')
   async saveOnboardingData(@Body() onboardingData: OnboardingDataDto) {
     this.logger.log('Received onboarding data request');
@@ -42,6 +44,7 @@ export class OnboardingController {
     }
   }
 
+  @Public()
   @Get(':sessionId')
   async getOnboardingData(@Param('sessionId') sessionId: string) {
     this.logger.log(`Retrieving onboarding data for session: ${sessionId}`);
@@ -61,6 +64,7 @@ export class OnboardingController {
     }
   }
 
+  @Public()
   @Post(':sessionId/complete')
   async completeOnboarding(
     @Param('sessionId') sessionId: string,

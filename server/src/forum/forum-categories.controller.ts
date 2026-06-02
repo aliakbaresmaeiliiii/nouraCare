@@ -12,6 +12,7 @@ import {
 import { ForumCategoriesService } from './forum-categories.service';
 import { CreateForumCategoryDto } from './dto/create-forum-category.dto';
 import { UpdateForumCategoryDto } from './dto/update-forum-category.dto';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('forum-categories')
 export class ForumCategoriesController {
@@ -31,6 +32,7 @@ export class ForumCategoriesController {
     };
   }
 
+  @Public()
   @Get()
   async findAll() {
     const categories = await this.forumCategoriesService.findAll();
@@ -40,6 +42,7 @@ export class ForumCategoriesController {
     };
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const category = await this.forumCategoriesService.findOne(id);
@@ -49,6 +52,7 @@ export class ForumCategoriesController {
     };
   }
 
+  @Public()
   @Get('name/:name')
   async findByName(@Param('name') name: string) {
     const category = await this.forumCategoriesService.findByName(name);
@@ -94,6 +98,7 @@ export class ForumCategoriesController {
     };
   }
 
+  @Public()
   @Get(':id/stats')
   async getCategoryStats(@Param('id') id: string) {
     const categoryWithStats =

@@ -13,6 +13,18 @@ export class UserService {
   async getUserById(userId: number) {
     const user = await this.prismaService.user.findUnique({
       where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        phoneNumber: true,
+        fullName: true,
+        role: true,
+        status: true,
+        isVerified: true,
+        dateOfBirth: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     if (!user) {

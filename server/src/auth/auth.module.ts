@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RefreshTokenService } from './refresh-token.service';
+import { SocialTokenService } from './services/social-token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { jwtConfig } from './config/jwt.config';
@@ -25,6 +26,7 @@ import { GrowthModule } from '../growth/growth.module';
   providers: [
     AuthService,
     RefreshTokenService,
+    SocialTokenService,
     JwtStrategy,
     RefreshTokenStrategy,
   ],

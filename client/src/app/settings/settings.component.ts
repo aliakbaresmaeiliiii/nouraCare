@@ -879,23 +879,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 
   async deleteAccount() {
-
     const confirmed = await this.confirm(
-
       this.t('settings.delete.title'),
-
       this.t('settings.deleteConfirm'),
-
       this.t('settings.delete.title'),
-
     );
 
-    if (confirmed) {
-
-      await this.showErrorAlert(this.t('settings.deleteRequested'));
-
+    if (!confirmed) {
+      return;
     }
 
+    try {
+      await firstValueFrom(this.userService.deleteMyAccount());
+      this.authService.logout();
+      void this.router.navigate(['/auth/sign-in']);
+    } catch {
+      await this.showErrorAlert(this.t('settings.deleteRequested'));
+    }
   }
 
 

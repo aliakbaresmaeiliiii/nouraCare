@@ -79,11 +79,19 @@ export class JwtInterceptor implements HttpInterceptor {
 
       return this.authService.refreshToken().pipe(
         switchMap((tokenResponse) => {
+          const newToken = tokenResponse.data.accessToken;
+          if (!newToken) {
+            return throwError(
+              () =>
+                new HttpErrorResponse({
+                  status: 401,
+                  statusText: 'Token refresh returned no access token',
+                }),
+            );
+          }
           this.isRefreshing = false;
-          this.refreshTokenSubject.next(tokenResponse.data.accessToken);
-          
-          // Retry the original request with new token
-          return next.handle(this.addToken(request, tokenResponse.data.accessToken));
+          this.refreshTokenSubject.next(newToken);
+          return next.handle(this.addToken(request, newToken));
         }),
         catchError((error) => {
           this.isRefreshing = false;

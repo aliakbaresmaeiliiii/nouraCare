@@ -71,15 +71,33 @@
               }
             </div>
 
+            @if (loginOtpStep) {
+            <div class="form-group">
+              <label class="form-label" for="login-otp">Sign-in code</label>
+              <input
+                id="login-otp"
+                type="text"
+                formControlName="otp"
+                placeholder="6-digit code"
+                class="form-input"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+              />
+            </div>
+            }
+
             <app-button
               type="submit"
-              [disabled]="loginForm.invalid"
+              [disabled]="isLoginDisabled()"
               [loading]="isLoading"
             >
               {{
                 isLoading
                   ? ("auth.signingIn" | translate)
-                  : ("auth.signIn" | translate)
+                  : loginOtpStep
+                    ? "Verify code"
+                    : ("auth.signIn" | translate)
               }}
             </app-button>
 

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { ForumCommentsService } from './forum-comments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('forum-comments')
 export class ForumCommentsController {
@@ -30,6 +31,7 @@ export class ForumCommentsController {
     };
   }
 
+  @Public()
   @Get('post/:postId')
   findByPost(
     @Param('postId') postId: string,
@@ -43,6 +45,7 @@ export class ForumCommentsController {
     );
   }
 
+  @Public()
   @Get('comment/:commentId/replies')
   findReplies(
     @Param('commentId') commentId: string,
@@ -56,6 +59,7 @@ export class ForumCommentsController {
     );
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.forumCommentsService.findOne(id);

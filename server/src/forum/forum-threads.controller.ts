@@ -14,6 +14,7 @@ import { ForumThreadsService } from './forum-threads.service';
 import { CreateForumThreadDto } from './dto/create-forum-thread.dto';
 import { UpdateForumThreadDto } from './dto/update-forum-thread.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('forum-threads')
 export class ForumThreadsController {
@@ -39,6 +40,7 @@ export class ForumThreadsController {
     };
   }
 
+  @Public()
   @Get()
   async findAll(
     @Query('categoryId') categoryId?: string,
@@ -75,6 +77,7 @@ export class ForumThreadsController {
     };
   }
 
+  @Public()
   @Get('search')
   async search(
     @Query('q') query: string,
@@ -107,6 +110,7 @@ export class ForumThreadsController {
     };
   }
 
+  @Public()
   @Get(':id')
   async findOne(
     @Param('id') id: string,
@@ -124,6 +128,7 @@ export class ForumThreadsController {
     };
   }
 
+  @Public()
   @Get('category/:categoryId')
   async findByCategory(
     @Param('categoryId') categoryId: string,

@@ -1,14 +1,12 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { DoctorsService } from './doctors.service';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('doctors')
 export class DoctorsController {
   constructor(private readonly doctorsService: DoctorsService) {}
 
-  /**
-   * Paginated list with optional filters (search, specialty, consultationType).
-   * Query: page (default 1), limit (default 12, max 50).
-   */
+  @Public()
   @Get()
   findPage(
     @Query('page') pageStr?: string,
@@ -29,6 +27,7 @@ export class DoctorsController {
     });
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.doctorsService.findOne(id);

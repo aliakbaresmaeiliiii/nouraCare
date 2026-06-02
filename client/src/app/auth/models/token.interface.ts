@@ -1,15 +1,18 @@
 export interface TokenResponse {
   code: number;
   data: {
-    user: {
+    user?: {
       id: number;
       email: string;
       phone?: string;
       isVerified?: boolean;
       [key: string]: any;
     };
-    accessToken: string;
-    refreshToken: string;
+    accessToken?: string;
+    refreshToken?: string;
+    /** Step 1 email sign-in: code sent, no tokens yet. */
+    otpSent?: boolean;
+    requiresVerification?: boolean;
   };
   isSuccess: boolean;
   message: string;

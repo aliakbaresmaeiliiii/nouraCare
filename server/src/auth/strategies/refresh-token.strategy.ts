@@ -4,7 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
 import { RefreshTokenService } from '../refresh-token.service';
 import { PrismaService } from '../../prisma/services/prisma.service';
-import { userIdFromJwtSub } from '../utils/jwt-user-id.util';
+import { parseRefreshToken } from '../services/social-token.service';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') {
@@ -16,27 +16,27 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') 
   }
 
   async validate(req: Request): Promise<any> {
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = req.body?.refreshToken;
 
-    if (!refreshToken) {
+    if (!refreshToken || typeof refreshToken !== 'string') {
       throw new UnauthorizedException('Refresh token is required');
     }
 
-    // Decode the refresh token to get user ID (without verification)
-    const decoded = this.decodeToken(refreshToken);
-    if (!decoded || !decoded.sub) {
-      throw new UnauthorizedException('Invalid refresh token');
+    const parsed = parseRefreshToken(refreshToken);
+    if (!parsed) {
+      throw new UnauthorizedException('Invalid refresh token format');
     }
 
-    const userId = userIdFromJwtSub(decoded.sub);
+    const userId = parsed.userId;
 
-    // Validate the refresh token against the database
-    const isValid = await this.refreshTokenService.validateRefreshToken(refreshToken, userId);
+    const isValid = await this.refreshTokenService.validateRefreshToken(
+      refreshToken,
+      userId,
+    );
     if (!isValid) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    // Get user data
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -58,21 +58,5 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') 
     }
 
     return { ...user, refreshToken };
-  }
-
-  private decodeToken(token: string): any {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join(''),
-      );
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      return null;
-    }
   }
 }

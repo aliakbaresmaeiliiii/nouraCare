@@ -58,7 +58,7 @@ export class VerifyEmailComponent implements OnInit {
   ngOnInit() {
     this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     this.form = this.fb.group({
-      otpCode: ['', [Validators.required, Validators.minLength(4)]],
+      otpCode: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
     });
     this.startTimer();
   }
@@ -78,7 +78,7 @@ export class VerifyEmailComponent implements OnInit {
 
   onOtpChange(event: any) {
     const otp = event.detail.value;
-    if (otp && otp.length === 4) {
+    if (otp && otp.length === 6) {
       this.verifyOrp(otp);
     }
   }
@@ -102,19 +102,25 @@ export class VerifyEmailComponent implements OnInit {
       this.success.set(false);
       return;
     }
+    const email =
+      this.userInfo?.data?.user?.email ??
+      this.userInfo?.user?.email ??
+      this.userInfo?.email;
     const payload = {
-      email: this.userInfo.data.user.email,
+      email,
       code: otp,
     };
     this.service.verifyEmail(payload).subscribe({
       next: (res: any) => {
-        console.log('Response:', res);
-        // Now we can rely on the interceptor to provide consistent success flag
-        if (res.code === 200 || res.data.code == '200') {
+        if (res.code === 200 || res.data?.code == '200' || res.data?.accessToken) {
+          if (res.data?.accessToken) {
+            this.service.setUserInfoFromSocialResponse(res);
+            localStorage.setItem('userInfo', JSON.stringify(res.data));
+          }
           this.showToast = true;
           this.message = 'Email verified successfully!';
           this.success.set(true);
-           this.router.navigate(['/tabs/home']);
+          this.router.navigate(['/tabs/home']);
         } else {
           this.showToast = true;
           this.message = 'Invalid OTP, please try again.';

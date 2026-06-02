@@ -75,9 +75,17 @@ export class AuthService {
    * Login with mobile and OTP
    */
   login(data: LoginRequest): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.baseUrl}/sign-in`, data).pipe(
+    const body: { email: string; otp?: string } = {
+      email: data.email,
+    };
+    if (data.otp?.trim()) {
+      body.otp = data.otp.trim();
+    }
+    return this.http.post<TokenResponse>(`${this.baseUrl}/sign-in`, body).pipe(
       tap((response: TokenResponse) => {
-        this.handleTokenResponse(response);
+        if (response?.data?.accessToken) {
+          this.handleTokenResponse(response);
+        }
       }),
     );
   }
@@ -87,22 +95,39 @@ export class AuthService {
    */
   socialLogin(
     provider: 'google' | 'apple',
-    email: string,
-    fullName?: string,
+    options: {
+      email?: string;
+      fullName?: string;
+      idToken?: string;
+      accessToken?: string;
+    },
   ): Observable<TokenResponse> {
     const payload: {
       provider: 'google' | 'apple';
-      email: string;
+      email?: string;
       fullName?: string;
-    } = { provider, email };
-    if (fullName?.trim()) {
-      payload.fullName = fullName.trim();
+      idToken?: string;
+      accessToken?: string;
+      inviteCode?: string;
+    } = { provider };
+
+    if (options.email?.trim()) {
+      payload.email = options.email.trim();
+    }
+    if (options.fullName?.trim()) {
+      payload.fullName = options.fullName.trim();
+    }
+    if (options.idToken?.trim()) {
+      payload.idToken = options.idToken.trim();
+    }
+    if (options.accessToken?.trim()) {
+      payload.accessToken = options.accessToken.trim();
     }
 
     if (typeof sessionStorage !== 'undefined') {
       const inv = sessionStorage.getItem(PENDING_INVITE_CODE_KEY)?.trim();
       if (inv) {
-        (payload as { inviteCode?: string }).inviteCode = inv;
+        payload.inviteCode = inv;
       }
     }
 
@@ -146,21 +171,30 @@ export class AuthService {
    * Handle successful token response
    */
   private handleTokenResponse(response: TokenResponse): void {
-    // Store access token in memory (sessionStorage for persistence across page reloads)
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('accessToken', response.data.accessToken);
+    const accessToken = response.data.accessToken;
+    if (!accessToken) {
+      return;
     }
-    this.accessTokenSubject.next(response.data.accessToken);
 
-    // Store refresh token in secure storage (localStorage for now)
     if (typeof window !== 'undefined') {
-      localStorage.setItem('accessToken', response.data.accessToken);
+      sessionStorage.setItem('accessToken', accessToken);
     }
-    // Set authentication state
+    this.accessTokenSubject.next(accessToken);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('accessToken', accessToken);
+      const existing = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      localStorage.setItem(
+        'userInfo',
+        JSON.stringify({
+          ...existing,
+          ...response.data,
+          refreshToken: response.data.refreshToken,
+        }),
+      );
+    }
     this.isAuthenticatedSubject.next(true);
-
-    // Extract and set user info from token
-    this.setUserInfoFromToken(response.data.accessToken);
+    this.setUserInfoFromToken(accessToken);
   }
 
   /**
