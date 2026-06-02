@@ -3,6 +3,8 @@ import type { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { EngagementService } from './engagement.service';
 import { HabitNotificationService } from './habit-notification.service';
+import { RecordOpenDto } from './dto/record-open.dto';
+import { NotificationFeedbackDto } from './dto/notification-feedback.dto';
 
 @Controller('me/engagement')
 @UseGuards(JwtAuthGuard)
@@ -14,7 +16,7 @@ export class HealthEngagementController {
 
   /** Call on app foreground — records open, refreshes score, may enqueue same-day digest try. */
   @Post('open')
-  async recordOpen(@Req() req: Request, @Body() body: { localHour?: number }) {
+  async recordOpen(@Req() req: Request, @Body() body: RecordOpenDto) {
     const user = req.user as { id: number };
     await this.engagement.recordAppOpen(user.id, body?.localHour);
     const metrics = await this.engagement.refreshEngagementMetrics(user.id);
@@ -30,7 +32,10 @@ export class HealthEngagementController {
 
   /** Client: user dismissed notification without opening app. */
   @Post('notification-feedback')
-  async notificationFeedback(@Req() req: Request, @Body() body: { ignored?: boolean }) {
+  async notificationFeedback(
+    @Req() req: Request,
+    @Body() body: NotificationFeedbackDto,
+  ) {
     const user = req.user as { id: number };
     if (body?.ignored) {
       await this.habit.markNotificationIgnored(user.id);

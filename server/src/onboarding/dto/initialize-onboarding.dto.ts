@@ -1,6 +1,17 @@
-import { IsDateString, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class InitializeOnboardingDto {
+  @IsNotEmpty()
   @IsIn(['cycle', 'planning', 'pregnant', 'postpartum'])
   state: 'cycle' | 'planning' | 'pregnant' | 'postpartum';
 
@@ -18,6 +29,7 @@ export class InitializeOnboardingDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   notes?: string;
 
   @IsOptional()

@@ -1,4 +1,14 @@
-import { IsOptional, IsString, IsInt, Min, Max, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsInt,
+  Min,
+  Max,
+  Matches,
+  MaxLength,
+} from 'class-validator';
 
 export class OnboardingDataDto {
   @IsOptional()
@@ -50,10 +60,13 @@ export class OnboardingDataDto {
 }
 
 export class CompleteOnboardingDto {
-  @IsString()
+  @IsEmail()
+  @IsNotEmpty()
   email: string;
 
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(32)
   phone: string;
 }
 

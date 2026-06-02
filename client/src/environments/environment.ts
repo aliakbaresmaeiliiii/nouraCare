@@ -67,6 +67,15 @@ export const environment = {
   /** iOS OAuth client ID; only needed for native iOS builds. */
   googleIOSClientId: '',
 
+  /** Capacitor appId — iOS Sign in with Apple. */
+  appleBundleId: 'com.tecknnycs.nouracare',
+  /** Apple Services ID (Android / web). Create in Apple Developer. */
+  appleServiceId: 'com.tecknnycs.nouracare.signin',
+  /** Apple redirect URL for web/Android (must match Apple Developer config). */
+  appleRedirectUrl: 'https://api.nouracare.com/auth/apple/callback',
+
+  privacyPolicyUrl: 'https://nouracare.com/privacy',
+
   // Firebase (optional — uncomment in environment.prod.ts when needed)
   firebaseConfig: {
     apiKey: 'AIzaSyBaQzqPdV4Z5hHmN_GTZHbaSkXWhKAlbIA',

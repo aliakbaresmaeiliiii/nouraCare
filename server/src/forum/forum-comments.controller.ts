@@ -13,6 +13,8 @@ import {
 import { ForumCommentsService } from './forum-comments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Public } from '../auth/decorators/public.decorator';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('forum-comments')
 export class ForumCommentsController {
@@ -20,7 +22,7 @@ export class ForumCommentsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  async create(@Body() createCommentDto: any, @Request() req) {
+  async create(@Body() createCommentDto: CreateCommentDto, @Request() req) {
     const comment = await this.forumCommentsService.create(
       createCommentDto,
       req.user.id,
@@ -69,7 +71,7 @@ export class ForumCommentsController {
   @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
-    @Body() updateCommentDto: any,
+    @Body() updateCommentDto: UpdateCommentDto,
     @Request() req,
   ) {
     const data = await this.forumCommentsService.update(

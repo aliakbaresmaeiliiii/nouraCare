@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 import { environment } from '../../../environments/environment';
+import { SocialLoginInitService } from './social-login-init.service';
 
 export class GoogleSignInNotConfiguredError extends Error {
   readonly code = 'GOOGLE_NOT_CONFIGURED';
@@ -14,7 +15,7 @@ const GIS_SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
 
 @Injectable({ providedIn: 'root' })
 export class GoogleSignInService {
-  private nativeInitPromise: Promise<void> | null = null;
+  private readonly socialInit = inject(SocialLoginInitService);
   private gisScriptPromise: Promise<void> | null = null;
 
   private getWebClientId(): string {
@@ -41,7 +42,7 @@ export class GoogleSignInService {
       return this.signInWithGoogleWeb(webClientId);
     }
 
-    await this.ensureNativePluginInitialized(webClientId);
+    await this.socialInit.ensureInitialized();
 
     const { result } = await SocialLogin.login({
       provider: 'google',
@@ -70,28 +71,6 @@ export class GoogleSignInService {
     const accessToken = result.accessToken?.token?.trim() || undefined;
 
     return { email, fullName, idToken, accessToken };
-  }
-
-  private ensureNativePluginInitialized(webClientId: string): Promise<void> {
-    if (this.nativeInitPromise) {
-      return this.nativeInitPromise;
-    }
-
-    this.nativeInitPromise = SocialLogin.initialize({
-      google: {
-        webClientId,
-        mode: 'online',
-        ...(Capacitor.getPlatform() === 'ios' &&
-        environment.googleIOSClientId?.trim()
-          ? {
-              iOSClientId: environment.googleIOSClientId.trim(),
-              iOSServerClientId: webClientId,
-            }
-          : {}),
-      },
-    });
-
-    return this.nativeInitPromise;
   }
 
   private loadGoogleIdentityScript(): Promise<void> {

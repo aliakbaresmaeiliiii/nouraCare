@@ -54,6 +54,10 @@
 
     "cap:sync": "npx cap sync android",
 
+    "build:prod": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build --configuration=production",
+
+    "cap:sync:prod": "npx cap sync android --config capacitor.config.prod.ts",
+
     "cap:sync:url": "node scripts/cap-sync-url.mjs",
 
     "cap:android": "npx cap open android",

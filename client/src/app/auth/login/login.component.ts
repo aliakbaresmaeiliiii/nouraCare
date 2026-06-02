@@ -31,6 +31,10 @@ import {
   GoogleSignInNotConfiguredError,
   GoogleSignInService,
 } from '../services/google-sign-in.service';
+import {
+  AppleSignInNotConfiguredError,
+  AppleSignInService,
+} from '../services/apple-sign-in.service';
 import { PENDING_INVITE_CODE_KEY } from '../../shared/constants/growth.constants';
 
 @Component({  
@@ -54,7 +58,7 @@ export class LoginComponent {
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: [''],
-    otp: ['', [Validators.minLength(6), Validators.maxLength(6)]],
+    otp: ['', [Validators.minLength(4), Validators.maxLength(8)]],
   });
 
   /** After email submit, user enters the code sent to their inbox. */
@@ -72,6 +76,7 @@ export class LoginComponent {
 
   service = inject(AuthService);
   private googleSignIn = inject(GoogleSignInService);
+  private appleSignIn = inject(AppleSignInService);
   private onboardingStateService = inject(OnboardingService);
   selectedRole: string = '';
   private destroy$ = new Subject<void>();
@@ -285,61 +290,62 @@ export class LoginComponent {
       return;
     }
 
-    const activeForm = this.activeTab === 'login' ? this.loginForm : this.registerForm;
-    const formEmail = (activeForm.value.email || '').trim();
-    const promptEmail = this.requestAppleEmail();
-    const email = (promptEmail || formEmail).trim();
+    await this.completeAppleSocialLogin();
+  }
 
-    if (!email || !this.isValidEmail(email)) {
-      this.message = 'A valid email is required for social login.';
-      this.success = false;
-      this.showToast = true;
-      return;
+  private finishSocialLogin(res: {
+    data?: { accessToken?: string; user?: { isVerified?: boolean } };
+  }): void {
+    this.message = 'Login successful!';
+    this.success = true;
+    this.showToast = true;
+
+    if (res?.data?.accessToken) {
+      this.service.setUserInfoFromSocialResponse(res as any);
     }
 
+    if (res?.data) {
+      localStorage.setItem('userInfo', JSON.stringify(res.data));
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
+    }
+
+    if (!res?.data?.user?.isVerified) {
+      this.router.navigate(['/auth/verify-email']);
+    } else {
+      this.router.navigate(['/tabs/home']);
+    }
+  }
+
+  private async completeAppleSocialLogin(): Promise<void> {
     this.isSocialLoading = true;
     this.cdr.detectChanges();
 
-    this.service
-      .socialLogin(provider, { email })
-      .pipe(
-        finalize(() => {
-          this.isSocialLoading = false;
-          this.cdr.detectChanges();
-        }),
-      )
-      .subscribe({
-        next: (res) => {
-          this.message = 'Apple login successful!';
-          this.success = true;
-          this.showToast = true;
-
-          if (res?.data?.accessToken) {
-            this.service.setUserInfoFromSocialResponse(res);
-          }
-
-          // Persist user info for the rest of the app (e.g. symptoms pages)
-          if (res?.data) {
-            localStorage.setItem('userInfo', JSON.stringify(res.data));
-          }
-          if (typeof sessionStorage !== 'undefined') {
-            sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
-          }
-
-          const isEmailVerified = !!res?.data?.user?.isVerified;
-          if (!isEmailVerified) {
-            this.router.navigate(['/auth/verify-email']);
-          } else {
-            this.router.navigate(['/tabs/home']);
-          }
-        },
-        error: (err) => {
-          this.message =
-            err?.error?.message || 'Apple login is currently unavailable.';
-          this.success = false;
-          this.showToast = true;
-        },
-      });
+    try {
+      const { email, fullName, idToken } =
+        await this.appleSignIn.signInWithApple();
+      const res = await firstValueFrom(
+        this.service.socialLogin('apple', { email, fullName, idToken }),
+      );
+      this.finishSocialLogin(res);
+    } catch (err: unknown) {
+      if (err instanceof AppleSignInNotConfiguredError) {
+        this.message =
+          'Apple Sign-In is not configured. Set appleBundleId and appleServiceId in environment.';
+      } else {
+        const httpLike = err as { error?: { message?: string } };
+        this.message =
+          httpLike?.error?.message ||
+          (err instanceof Error ? err.message : '') ||
+          'Apple sign-in was cancelled or is unavailable.';
+      }
+      this.success = false;
+      this.showToast = true;
+    } finally {
+      this.isSocialLoading = false;
+      this.cdr.detectChanges();
+    }
   }
 
   private async completeGoogleSocialLogin(): Promise<void> {
@@ -358,28 +364,7 @@ export class LoginComponent {
         }),
       );
 
-      this.message = 'Google login successful!';
-      this.success = true;
-      this.showToast = true;
-
-      if (res?.data?.accessToken) {
-        this.service.setUserInfoFromSocialResponse(res);
-      }
-
-      // Persist user info for the rest of the app (e.g. symptoms pages)
-      if (res?.data) {
-        localStorage.setItem('userInfo', JSON.stringify(res.data));
-      }
-      if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
-      }
-
-      const isEmailVerified = !!res?.data?.user?.isVerified;
-      if (!isEmailVerified) {
-        this.router.navigate(['/auth/verify-email']);
-      } else {
-        this.router.navigate(['/tabs/home']);
-      }
+      this.finishSocialLogin(res);
     } catch (err: unknown) {
       if (err instanceof GoogleSignInNotConfiguredError) {
         this.message =
@@ -397,19 +382,6 @@ export class LoginComponent {
       this.isSocialLoading = false;
       this.cdr.detectChanges();
     }
-  }
-
-  /** Apple sign-in still uses email from the form or a browser prompt as a fallback. */
-  private requestAppleEmail(): string {
-    const activeForm = this.activeTab === 'login' ? this.loginForm : this.registerForm;
-    const existingEmail = (activeForm.value.email || '').trim();
-    if (this.isValidEmail(existingEmail)) {
-      return existingEmail;
-    }
-
-    return (
-      window.prompt('Enter your Apple account email:', '') || ''
-    ).trim();
   }
 
   private isValidEmail(email: string): boolean {

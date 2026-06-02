@@ -1,8 +1,19 @@
-import { IsDateString, IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { REPRODUCTIVE_STATES } from '../types/reproductive-state.type';
 
 export class UpdateReproductiveStateDto {
+  @IsNotEmpty()
   @IsIn(REPRODUCTIVE_STATES)
   state: 'cycle' | 'planning' | 'pregnant' | 'postpartum';
 
@@ -22,6 +33,7 @@ export class UpdateReproductiveStateDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   notes?: string;
 
   @IsOptional()

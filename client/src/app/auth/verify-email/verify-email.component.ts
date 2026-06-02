@@ -1,12 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormGroup,
-  ValidationErrors,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   interval,
@@ -16,16 +10,6 @@ import {
 import { AuthService } from '../services/auth';
 import { OnboardingService } from '../../shared/services/onboarding.service'  ;
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
-
-function otpRequiredLength(length: number) {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const value = control.value;
-    if (!value || value.toString().length !== length) {
-      return { otpLength: true };
-    }
-    return null;
-  };
-}
 
 @Component({
   selector: 'app-verify-email',
@@ -58,7 +42,10 @@ export class VerifyEmailComponent implements OnInit {
   ngOnInit() {
     this.userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     this.form = this.fb.group({
-      otpCode: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+      otpCode: [
+        '',
+        [Validators.required, Validators.minLength(4), Validators.maxLength(4)],
+      ],
     });
     this.startTimer();
   }
@@ -78,7 +65,7 @@ export class VerifyEmailComponent implements OnInit {
 
   onOtpChange(event: any) {
     const otp = event.detail.value;
-    if (otp && otp.length === 6) {
+    if (otp && otp.length === 4) {
       this.verifyOrp(otp);
     }
   }

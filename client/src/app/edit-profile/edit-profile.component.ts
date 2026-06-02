@@ -211,8 +211,8 @@ export class EditProfileComponent implements OnInit {
   form: FormGroup = this.fb.group({
     profileImage: [''],
     status: [null],
-    fullName: [''],
-    email: ['', Validators.email],
+    fullName: ['', Validators.maxLength(120)],
+    email: ['', [Validators.email, Validators.maxLength(254)]],
     dateOfBirth: [''],
   });
 

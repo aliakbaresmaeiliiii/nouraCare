@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Get, Param, Logger, Req, UseGuards } from '@nestjs/common';
 import { OnboardingService } from './onboarding.service';
-import { OnboardingDataDto } from './dto/onboarding.dto';
+import { CompleteOnboardingDto, OnboardingDataDto } from './dto/onboarding.dto';
 import { InitializeOnboardingDto } from './dto/initialize-onboarding.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Public } from '../auth/decorators/public.decorator';
@@ -68,7 +68,7 @@ export class OnboardingController {
   @Post(':sessionId/complete')
   async completeOnboarding(
     @Param('sessionId') sessionId: string,
-    @Body() body: { email: string; phone: string },
+    @Body() body: CompleteOnboardingDto,
   ) {
     this.logger.log(`Completing onboarding for session: ${sessionId}`);
     this.logger.debug(`Registration data: ${JSON.stringify(body, null, 2)}`);

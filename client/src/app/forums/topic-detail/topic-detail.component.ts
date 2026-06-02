@@ -47,7 +47,7 @@ import { TranslationService } from '../../shared/services/translation.service';
 import { ForumCategoryMapperService } from '../../shared/services/forum-category-mapper.service';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 
-// Strongly typed interfaces
+const MAX_COMMENT_LENGTH = 5000;
 
 @Component({
   selector: 'app-topic-detail',
@@ -336,8 +336,18 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   submitComment() {
-    if (!this.newComment.trim()) {
+    const text = this.newComment.trim();
+    if (!text) {
       this.showToast(this.t('forums.topic.toast.writeComment'), 'warning');
+      return;
+    }
+    if (text.length > MAX_COMMENT_LENGTH) {
+      this.showToast(
+        this.tParams('forums.createPost.error.contentMaxLength', {
+          max: MAX_COMMENT_LENGTH,
+        }),
+        'warning',
+      );
       return;
     }
 
@@ -350,7 +360,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     const topicId = this.topicId();
 
     const createComment: CreateCommentDto = {
-      content: this.newComment.trim(),
+      content: text,
       postId: topicId!,
       parentId: this.categoryId(),
     };
@@ -547,6 +557,15 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     const id = this.topicId();
     if (!replyText) {
       this.showToast(this.t('forums.topic.toast.writeReply'), 'warning');
+      return;
+    }
+    if (replyText.length > MAX_COMMENT_LENGTH) {
+      this.showToast(
+        this.tParams('forums.createPost.error.contentMaxLength', {
+          max: MAX_COMMENT_LENGTH,
+        }),
+        'warning',
+      );
       return;
     }
 

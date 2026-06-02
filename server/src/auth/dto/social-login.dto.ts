@@ -1,6 +1,14 @@
-import { IsEmail, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class SocialLoginDto {
+  @IsNotEmpty()
   @IsIn(['google', 'apple'])
   provider: 'google' | 'apple';
 

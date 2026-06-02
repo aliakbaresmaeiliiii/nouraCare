@@ -14,6 +14,7 @@ import { LoginDto } from './dto/login.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
+import { LogoutDto } from './dto/logout.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
@@ -62,10 +63,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout(@Req() req: any, @Body() body: { refreshToken: string }) {
-    if (!body.refreshToken) {
-      throw new BadRequestException('Refresh token is required');
-    }
+  async logout(@Req() req: any, @Body() body: LogoutDto) {
     await this.authService.logout(body.refreshToken, req.user.id);
     return ApiResponseHelper.success(null, 'Logged out successfully');
   }

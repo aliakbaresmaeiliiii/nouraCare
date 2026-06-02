@@ -29,6 +29,7 @@ export class CreatePostModalComponent implements OnInit {
   isSubmitting = false;
   characterCount = 0;
   maxCharacters = 2000;
+  minCharacters = 10;
 
   ngOnInit() { }
 
@@ -62,8 +63,14 @@ export class CreatePostModalComponent implements OnInit {
 
   // Form validation
   canPost(): boolean {
-    return (this.postContent.trim().length > 0 || this.selectedImages.length > 0) &&
-      this.characterCount <= this.maxCharacters;
+    const trimmed = this.postContent.trim();
+    const hasText =
+      trimmed.length >= this.minCharacters ||
+      (trimmed.length > 0 && this.selectedImages.length > 0);
+    return (
+      (hasText || this.selectedImages.length > 0) &&
+      this.characterCount <= this.maxCharacters
+    );
   }
 
   // Submit post
