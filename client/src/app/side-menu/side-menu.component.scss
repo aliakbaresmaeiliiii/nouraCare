@@ -1,5 +1,7 @@
 // Custom Menu Styles
 .custom-menu {
+  --ion-font-family: var(--font-primary);
+  font-family: var(--font-primary);
   --background: var(--app-gradient-header);
   --color: var(--brand-text);
   --width: 320px;
@@ -98,6 +100,7 @@
 }
 
 .user-name {
+  font-family: inherit;
   margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 600;
@@ -151,6 +154,7 @@
 }
 
 .section-title {
+  font-family: inherit;
   margin: 0 0 16px 0;
   font-size: 14px;
   font-weight: 600;
@@ -172,6 +176,7 @@
   --padding-start: 12px;
   --padding-end: 12px;
   --min-height: 48px;
+  font-family: inherit;
   margin: 0;
   border-radius: var(--app-radius-md);
   transition: all var(--app-duration-fast) var(--app-ease-standard);
@@ -194,6 +199,7 @@
 }
 
 .menu-label {
+  font-family: inherit;
   font-size: 15px;
   font-weight: 500;
   color: var(--brand-text);
@@ -569,4 +575,21 @@
 .social-btn:focus-visible {
   outline: 2px solid rgba(var(--brand-primary-rgb), 0.55);
   outline-offset: 2px;
+}
+
+:host-context(html[dir='rtl']),
+:host-context(html[lang='fa']) {
+  .custom-menu {
+    --ion-font-family: var(--font-persian);
+    font-family: var(--font-persian);
+  }
+
+  .user-name,
+  .section-title,
+  .menu-label,
+  .progress-text,
+  .menu-soon,
+  .theme-hint {
+    font-family: var(--font-persian);
+  }
 }

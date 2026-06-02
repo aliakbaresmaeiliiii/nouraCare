@@ -1,353 +1,518 @@
 <ion-header class="ion-no-border">
+
   <ion-toolbar color="primary" class="forums-header">
+
     <ion-buttons slot="start">
+
       <ion-back-button
+
         defaultHref="/tabs/home"
+
         class="back-button"
+
         (click)="goBack()"
+
       ></ion-back-button>
+
     </ion-buttons>
+
     <div class="header-content">
-      <ion-title class="header-title">Community Forums</ion-title>
-      <span class="public-forum-badge">Public</span>
+
+      <ion-title class="header-title">{{ 'forums.pageTitle' | translate }}</ion-title>
+
+      <span class="public-forum-badge">{{ 'forums.publicBadge' | translate }}</span>
+
     </div>
+
     <ion-buttons slot="end">
+
       <ion-button fill="clear" class="create-button" (click)="createNewTopic()">
+
         <ion-icon name="add-outline"></ion-icon>
+
       </ion-button>
+
     </ion-buttons>
+
   </ion-toolbar>
+
 </ion-header>
 
-<ion-content class="forums-content">
-  <ion-refresher slot="fixed" (ionRefresh)="onForumsPullRefresh($event)">
-    <ion-refresher-content
-      pullingText="Pull to refresh"
-      refreshingText="Refreshing…"
-    ></ion-refresher-content>
-  </ion-refresher>
-  <div class="container">
-    <div class="community-summary">
-      <div class="summary-card">
-        <ion-icon name="albums-outline" class="summary-icon"></ion-icon>
-        <div class="summary-copy">
-          <span class="summary-value">{{ categories().length | localNum }}</span>
-          <span class="summary-label">Categories</span>
-        </div>
-      </div>
-      <div class="summary-card">
-        <ion-icon name="chatbubbles-outline" class="summary-icon"></ion-icon>
-        <div class="summary-copy">
-          <span class="summary-value">{{ topics().length | localNum }}</span>
-          <span class="summary-label">Topics</span>
-        </div>
-      </div>
-      <div class="summary-card">
-        <ion-icon name="sparkles-outline" class="summary-icon"></ion-icon>
-        <div class="summary-copy">
-          <span class="summary-value">{{ selectedCategoryName() }}</span>
-          <span class="summary-label">Current view</span>
-        </div>
-      </div>
-    </div>
 
-    <!-- Search Bar -->
+
+<ion-content class="forums-content">
+
+  <ion-refresher slot="fixed" (ionRefresh)="onForumsPullRefresh($event)">
+
+    <ion-refresher-content
+
+      [pullingText]="'common.pullToRefresh' | translate"
+
+      [refreshingText]="'common.refreshing' | translate"
+
+    ></ion-refresher-content>
+
+  </ion-refresher>
+
+  <div class="container">
+
     <div class="search-section">
       <ion-searchbar
-        placeholder="Search forums..."
+        [placeholder]="'forums.searchPlaceholder' | translate"
         [value]="searchQuery()"
         (ionInput)="onSearchChange($event)"
         class="search-bar"
-      >
-      </ion-searchbar>
+      ></ion-searchbar>
     </div>
 
-    <!-- View Mode Toggle -->
-    <div class="view-toggle-section">
-      <ion-segment
-        [value]="viewMode()"
-        (ionChange)="switchViewMode($event.detail.value || 'categories')"
-        class="view-segment"
-      >
-        <ion-segment-button value="categories" class="view-button">
-          <ion-icon name="grid-outline" class="view-icon"></ion-icon>
-          <ion-label class="view-label">Categories</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="topics" class="view-button">
-          <ion-icon name="chatbubbles-outline" class="view-icon"></ion-icon>
-          <ion-label class="view-label">Topics</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    </div>
-
-    <!-- Category Filter (for topics view) -->
-    @if (viewMode() === 'topics') {
-    <div class="category-filter-section">
-      <div class="filter-header">
-        <h3 class="filter-title">Filter by Category</h3>
-        <div class="filter-actions">
-          <ion-button
-            fill="clear"
-            size="small"
-            (click)="clearFilters()"
-            class="clear-button"
-          >
-            <ion-icon name="refresh-outline" slot="start" class="clear-icon"></ion-icon>
-            Clear Filters
-          </ion-button>
-        </div>
-      </div>
-
-      <div class="category-filters">
-        <div
-          class="filter-chip"
-          [class.active]="selectedCategory() === 'all'"
-          (click)="onCategoryChange('all')"
-        >
-          <ion-icon name="grid-outline" class="chip-icon"></ion-icon>
-          <span class="chip-text">All Topics</span>
-        </div>
-
-        @for (category of categories(); track category.id) {
-        <div
-          class="filter-chip"
-          [class.active]="selectedCategory() === category.id"
-          (click)="onCategoryChange(category.id)"
-        >
-          <div
-            class="chip-icon-wrapper"
-            [style.background-color]="category.color"
-          >
-            <ion-icon
-              [name]="getCategoryIcon(category.name)"
-              class="chip-icon"
-            ></ion-icon>
-          </div>
-          <span class="chip-text">{{ category.name }}</span>
-          @if (category.isPopular) {
-          <ion-icon name="star" class="popular-indicator"></ion-icon>
-          }
-        </div>
-        }
-      </div>
+    @if (viewMode() === 'categories') {
+    <div class="browse-actions">
+      <p class="browse-hint">{{ 'forums.browseHint' | translate }}</p>
+      <button type="button" class="view-all-link" (click)="viewAllTopics()">
+        <ion-icon name="chatbubbles-outline"></ion-icon>
+        <span>{{ 'forums.viewAllTopics' | translate }}</span>
+        <ion-icon name="chevron-forward-outline" class="link-chevron"></ion-icon>
+      </button>
     </div>
     }
 
-    <!-- Loading State -->
-    @if (isLoading()) {
-    <div class="forums-skeleton" aria-busy="true" aria-label="Loading forums">
-      @for (row of [1, 2, 3, 4, 5]; track row) {
-      <div class="forums-skeleton-row">
-        <ion-skeleton-text [animated]="true" class="sk-title"></ion-skeleton-text>
-        <ion-skeleton-text [animated]="true" class="sk-line"></ion-skeleton-text>
-        <ion-skeleton-text [animated]="true" class="sk-line sk-line--short"></ion-skeleton-text>
+    @if (viewMode() === 'topics') {
+    <div class="topics-context-bar">
+      <button type="button" class="back-to-categories" (click)="goToCategoriesView()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        <span>{{ 'forums.backToCategories' | translate }}</span>
+      </button>
+
+      <div class="category-picker">
+        <label class="category-picker-label" for="forum-category-select">
+          {{ 'forums.selectCategory' | translate }}
+        </label>
+        <ion-select
+          id="forum-category-select"
+          [value]="selectedCategory()"
+          (ionChange)="onCategoryChange($event.detail.value ?? 'all')"
+          interface="popover"
+          class="category-select"
+          [interfaceOptions]="categorySelectOptions"
+        >
+          <ion-select-option value="all">
+            {{ 'forums.allTopics' | translate }}
+          </ion-select-option>
+          @for (category of categories(); track category.id) {
+          <ion-select-option [value]="category.id">
+            {{ categoryName(category) }}
+          </ion-select-option>
+          }
+        </ion-select>
       </div>
+
+      @if (searchQuery()) {
+      <button type="button" class="clear-search-btn" (click)="clearSearch()">
+        <ion-icon name="close-circle-outline"></ion-icon>
+        {{ 'forums.clearSearch' | translate }}
+      </button>
       }
     </div>
     }
 
-    <!-- Error State -->
-    @if (errorMessage() && !isLoading()) {
-    <div class="error-container">
-      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
-      <p class="error-text">{{ errorMessage() }}</p>
-      <ion-button
-        fill="outline"
-        (click)="loadCategories()"
-        class="retry-button"
-      >
-        <ion-icon name="refresh" slot="start"></ion-icon>
-        Try Again
-      </ion-button>
+
+
+    <!-- Loading State -->
+
+    @if (isLoading()) {
+
+    <div class="forums-skeleton" aria-busy="true" [attr.aria-label]="'forums.loadingAria' | translate">
+
+      @for (row of [1, 2, 3, 4, 5]; track row) {
+
+      <div class="forums-skeleton-row">
+
+        <ion-skeleton-text [animated]="true" class="sk-title"></ion-skeleton-text>
+
+        <ion-skeleton-text [animated]="true" class="sk-line"></ion-skeleton-text>
+
+        <ion-skeleton-text [animated]="true" class="sk-line sk-line--short"></ion-skeleton-text>
+
+      </div>
+
+      }
+
     </div>
+
     }
+
+
+
+    <!-- Error State -->
+
+    @if (errorMessage() && !isLoading()) {
+
+    <div class="error-container">
+
+      <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+
+      <p class="error-text">{{ errorMessage() }}</p>
+
+      <ion-button
+
+        fill="outline"
+
+        (click)="loadCategories()"
+
+        class="retry-button"
+
+      >
+
+        <ion-icon name="refresh" slot="start"></ion-icon>
+
+        {{ 'common.tryAgain' | translate }}
+
+      </ion-button>
+
+    </div>
+
+    }
+
+
 
     <!-- Categories View -->
+
     @if (!isLoading() && !errorMessage() && viewMode() === 'categories') {
+
     <div class="categories-container">
+
       <div class="categories-header">
+
         <h2 class="categories-title">
+
           <ion-icon name="grid-outline" class="section-title-icon"></ion-icon>
-          Forum Categories
+
+          {{ 'forums.forumCategories' | translate }}
+
         </h2>
+
       </div>
+
+
 
       <div class="categories-grid">
+
         @for (category of filteredCategories(); track category.id) {
+
         <div class="category-card" (click)="openCategory(category)">
+
           <div class="category-header">
+
             <div
+
               class="category-icon"
-              [style.background-color]="category.color"
+
+              [style.--category-color]="category.color"
+
             >
+
               <ion-icon
-                [name]="getCategoryIcon(category.name)"
+
+                [name]="getCategoryIcon(category)"
+
                 class="icon"
+
               ></ion-icon>
+
             </div>
+
             @if (category.isPopular) {
+
             <div class="popular-badge">
+
               <ion-icon name="star" class="star-icon"></ion-icon>
-              <span class="popular-text">Popular</span>
+
+              <span class="popular-text">{{ 'forums.popular' | translate }}</span>
+
             </div>
+
             }
+
           </div>
+
+
 
           <div class="category-content">
-            <h3 class="category-name">{{ category.name }}</h3>
-            <p class="category-description">{{ category.description }}</p>
+
+            <h3 class="category-name">{{ categoryName(category) }}</h3>
+
+            <p class="category-description">{{ categoryDescription(category) }}</p>
+
+
 
             <div class="category-stats">
+
               <div class="stat">
+
                 <ion-icon
+
                   name="chatbubbles-outline"
+
                   class="stat-icon"
+
                 ></ion-icon>
-                <!-- <span class="stat-text"
-                  >{{ formatNumber(category.topicsCount) }} topics</span
-                > -->
+
               </div>
+
               <div class="stat">
+
                 <ion-icon name="chatbox-outline" class="stat-icon"></ion-icon>
-                <!-- <span class="stat-text"
-                  >{{ formatNumber(category.postsCount) }} posts</span
-                > -->
+
               </div>
+
             </div>
+
+
 
             <div class="last-activity">
+
               <ion-icon name="time-outline" class="activity-icon"></ion-icon>
+
               <span class="activity-text">{{
+
                 formatRelativeTime(category.lastActivity)
+
               }}</span>
+
             </div>
+
           </div>
+
         </div>
+
         }
+
       </div>
+
     </div>
+
     }
 
+
+
     <!-- Topics View -->
+
     @if (!isLoading() && !errorMessage() && viewMode() === 'topics') {
+
     <div class="topics-container">
+
       <div class="topics-header">
         <h2 class="topics-title">
           <ion-icon
-            [name]="selectedCategory() === 'all' ? 'chatbubbles-outline' : getCategoryIcon(selectedCategoryName())"
+            [name]="selectedCategoryIcon()"
             class="section-title-icon"
           ></ion-icon>
           {{ selectedCategoryName() }}
         </h2>
+        <p class="topics-count">
+          {{ topicsCountLabel() }}
+        </p>
       </div>
+
+
 
       <!-- Empty State for Topics -->
+
       @if (filteredTopics().length === 0) {
+
       <div class="empty-container">
+
         <ion-icon name="chatbubbles-outline" class="empty-icon"></ion-icon>
-        <h2 class="empty-title">No Topics Found</h2>
+
+        <h2 class="empty-title">{{ 'forums.noTopicsFound' | translate }}</h2>
+
         <p class="empty-text">
+
           {{
+
             searchQuery()
-              ? "No topics match your search."
-              : "No topics in this category yet."
+
+              ? ('forums.noTopicsSearch' | translate)
+
+              : ('forums.noTopicsCategory' | translate)
+
           }}
+
         </p>
+
         @if (!searchQuery()) {
+
         <div class="empty-actions">
+
           <ion-button
+
             fill="solid"
+
             (click)="createNewTopic(selectedCategory())"
+
             class="create-topic-button"
+
           >
+
             <ion-icon name="add-outline" slot="start"></ion-icon>
-            Create First Topic in {{ selectedCategoryName() }}
+
+            {{ createFirstTopicLabel(selectedCategoryName()) }}
+
           </ion-button>
+
         </div>
+
         }
+
       </div>
+
       }
 
+
+
       <!-- Topics List -->
+
       @if (filteredTopics().length > 0) {
+
       <ion-list class="topics-list">
+
         @for (topic of filteredTopics(); track topic.id) {
+
         <ion-item class="topic-item" (click)="openTopic(topic)">
+
           <div class="topic-content">
+
             <div class="topic-header">
+
               @if (topic.isPinned) {
+
               <ion-icon name="pin" class="pin-icon"></ion-icon>
+
               } @if (topic.isLocked) {
+
               <ion-icon name="lock-closed" class="lock-icon"></ion-icon>
+
               }
+
               <h3 class="topic-title">{{ topic.title }}</h3>
+
             </div>
+
+
+
 
 
             <div class="topic-meta">
+
               <div class="author-info">
+
                 <ion-avatar class="author-avatar">
+
                   <img
+
                     [src]="topic.authorAvatar || '/assets/images/nurse.png'"
+
                     [alt]="topic.author"
+
                     (error)="onImageError($event)"
+
                   />
+
                 </ion-avatar>
+
                 <span class="author-name"
+
                   >{{ topic.user.fullName }} </span
+
                 >
+
               </div>
+
+
 
               <div class="topic-stats">
+
                 <div class="stat">
+
                   <ion-icon
+
                     name="chatbubbles-outline"
+
                     class="stat-icon"
+
                   ></ion-icon>
+
                   <span class="stat-text">{{ topic.replies }}</span>
+
                 </div>
+
               <div class="stat">
+
                 <ion-icon name="heart-outline" class="stat-icon"></ion-icon>
+
                 <span class="stat-text">{{ topic.likeCount || 0 | localNum }}</span>
+
               </div>
+
                 <div class="stat">
+
                   <ion-icon name="eye-outline" class="stat-icon"></ion-icon>
+
                   <span class="stat-text">{{ topic.viewCount }}</span>
+
                 </div>
+
               </div>
+
+
 
               <div class="topic-tags">
+
                 @for (tag of topic.tags; track tag) {
+
                 <span class="tag">{{ tag }}</span>
+
                 }
+
               </div>
+
             </div>
 
+
+
             <div class="topic-footer">
+
               <span class="category-badge">
+
                 <ion-icon [name]="getCategoryIcon(topic.category)" class="category-badge-icon"></ion-icon>
-                {{ topic.category }}
+
+                {{ topicCategoryLabel(topic) }}
+
               </span>
+
               <span class="time-ago">{{
+
                 formatRelativeTime(topic.lastReply)
+
               }}</span>
+
             </div>
-            <!-- @if (topic.recentComments && topic.recentComments.length > 0) {
-            <div class="topic-recent-comment">
-              <ion-icon name="chatbox-ellipses-outline" class="stat-icon"></ion-icon>
-              <span class="stat-text">{{
-                topic.recentComments[0].comment.length > 70
-                  ? (topic.recentComments[0].comment | slice: 0 : 70) + "..."
-                  : topic.recentComments[0].comment
-              }}</span>
-            </div>
-            } -->
+
           </div>
+
         </ion-item>
+
         }
+
       </ion-list>
+
       }
+
     </div>
+
     }
+
   </div>
+
 </ion-content>
+

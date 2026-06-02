@@ -1,0 +1,37 @@
+.sub-settings-header ion-toolbar {
+  --background: var(--app-gradient-header);
+  --color: var(--brand-text, #0f172a);
+}
+
+:host-context(html.ion-palette-dark) .sub-settings-header ion-toolbar,
+:host-context(ion-app.ion-palette-dark) .sub-settings-header ion-toolbar {
+  --color: #f8fafc;
+}
+
+.sub-settings-content {
+  --padding-top: 1rem;
+  --padding-start: 1rem;
+  --padding-end: 1rem;
+}
+
+.lede {
+  color: var(--brand-text-secondary);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.toggle-list {
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ion-card-background, var(--brand-surface));
+}
+
+.toggle-list ion-label h2 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.toggle-list ion-label p {
+  font-size: 0.85rem;
+  color: var(--brand-text-secondary);
+}

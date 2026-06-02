@@ -114,6 +114,50 @@ export const routes: Routes = [
       import('./settings/settings.component').then((m) => m.SettingsComponent),
   },
   {
+    path: 'privacy-settings',
+    loadComponent: () =>
+      import('./settings/privacy-settings/privacy-settings.component').then(
+        (m) => m.PrivacySettingsComponent,
+      ),
+  },
+  {
+    path: 'data-usage',
+    loadComponent: () =>
+      import('./settings/data-usage/data-usage.component').then(
+        (m) => m.DataUsageComponent,
+      ),
+  },
+  {
+    path: 'help-support',
+    loadComponent: () =>
+      import('./settings/settings-help/settings-help.component').then(
+        (m) => m.SettingsHelpComponent,
+      ),
+  },
+  {
+    path: 'privacy-policy',
+    loadComponent: () =>
+      import('./settings/settings-legal-page/settings-legal-page.component').then(
+        (m) => m.SettingsLegalPageComponent,
+      ),
+    data: {
+      titleKey: 'settings.privacyPolicy.title',
+      subtitleKey: 'settings.privacyPolicy.subtitle',
+      bodyKey: 'settings.privacyPolicy.body',
+      showEffectiveDate: true,
+      heroIcon: 'shield-checkmark',
+      documentType: 'privacy',
+      contactEmail: 'support@nouracare.app',
+    },
+  },
+  {
+    path: 'nouracare-pro',
+    loadComponent: () =>
+      import('./nouracare-pro/nouracare-pro.component').then(
+        (m) => m.NouracareProComponent,
+      ),
+  },
+  {
     path: 'invite-friends',
     loadComponent: () =>
       import('./invite-friends/invite-friends.component').then(

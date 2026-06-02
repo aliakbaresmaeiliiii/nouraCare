@@ -1,9 +1,19 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
+import { Subscription } from 'rxjs';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
 import { DoctorService } from '../shared/services/doctor.service';
 import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 import { addIcons } from 'ionicons';
 import { star } from 'ionicons/icons';
 
@@ -16,22 +26,37 @@ import { star } from 'ionicons/icons';
   schemas:[CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })
-export class ConsultationComponent implements OnInit {
+export class ConsultationComponent implements OnInit, OnDestroy {
+  private readonly router = inject(Router);
+  private readonly alertController = inject(AlertController);
+  private readonly toastController = inject(ToastController);
+  private readonly doctorService = inject(DoctorService);
+  private readonly translation = inject(TranslationService);
+  private readonly languageService = inject(LanguageService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private langChangeSub?: Subscription;
+
   doctors: DoctorDto[] = [];
   isLoading = false;
   searchTerm = '';
 
-  constructor(
-    private router: Router,
-    private alertController: AlertController,
-    private toastController: ToastController,
-    private doctorService: DoctorService
-  ) {
+  constructor() {
     addIcons({ star });
   }
 
   ngOnInit() {
+    this.langChangeSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.markForCheck();
+    });
     this.loadDoctors();
+  }
+
+  ngOnDestroy(): void {
+    this.langChangeSub?.unsubscribe();
+  }
+
+  experienceLabel(years: number): string {
+    return this.tParams('consultation.yearsExperience', { years });
   }
 
   /** Pull-to-refresh on Consultation tab (layout). */
@@ -62,7 +87,7 @@ export class ConsultationComponent implements OnInit {
         this.doctors = [];
         this.isLoading = false;
         const toast = await this.toastController.create({
-          message: 'Could not load doctors. Open Find Doctors to retry.',
+          message: this.t('consultation.toast.loadDoctorsFailed'),
           duration: 3000,
           color: 'warning',
           position: 'bottom',
@@ -97,26 +122,34 @@ export class ConsultationComponent implements OnInit {
   // Book appointment with specific doctor
   async bookWithDoctor(doctor: DoctorDto) {
     const alert = await this.alertController.create({
-      header: `Book with ${doctor.fullName}`,
-      message: `${doctor.specialty}\n\n${doctor.about.substring(0, 100)}...\n\nFee: $${doctor.fee || 'Contact for pricing'}`,
+      header: this.tParams('consultation.alert.bookWith.header', {
+        name: doctor.fullName,
+      }),
+      message: this.tParams('consultation.alert.bookWith.message', {
+        specialty: doctor.specialty,
+        about: `${doctor.about.substring(0, 100)}...`,
+        fee: doctor.fee
+          ? String(doctor.fee)
+          : this.t('consultation.fee.contactForPricing'),
+      }),
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Book Appointment',
+          text: this.t('consultation.alert.bookAppointment'),
           handler: () => {
             this.showBookingOptions(doctor);
-          }
+          },
         },
         {
-          text: 'View Profile',
+          text: this.t('consultation.alert.viewProfile'),
           handler: () => {
             this.viewDoctorProfile(doctor);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -128,31 +161,33 @@ export class ConsultationComponent implements OnInit {
     
     if (doctor.consultationType === ConsultationType.ONLINE || doctor.consultationType === ConsultationType.BOTH) {
       buttons.push({
-        text: '💻 Online Consultation',
+        text: this.t('consultation.alert.onlineConsultation'),
         handler: () => {
           this.bookAppointment(doctor, 'online');
-        }
+        },
       });
     }
     
     if (doctor.consultationType === ConsultationType.IN_PERSON || doctor.consultationType === ConsultationType.BOTH) {
       buttons.push({
-        text: '🏥 In-Person Visit',
+        text: this.t('consultation.alert.inPersonVisit'),
         handler: () => {
           this.bookAppointment(doctor, 'in-person');
-        }
+        },
       });
     }
     
     buttons.push({
-      text: 'Cancel',
-      role: 'cancel'
+      text: this.t('common.cancel'),
+      role: 'cancel',
     });
 
     const alert = await this.alertController.create({
-      header: 'Choose Consultation Type',
-      message: `How would you like to consult with ${doctor.fullName}?`,
-      buttons: buttons
+      header: this.t('consultation.alert.chooseType.header'),
+      message: this.tParams('consultation.alert.chooseType.message', {
+        name: doctor.fullName,
+      }),
+      buttons: buttons,
     });
 
     await alert.present();
@@ -160,48 +195,29 @@ export class ConsultationComponent implements OnInit {
 
   // Book appointment
   async bookAppointment(doctor: DoctorDto, type: string) {
+    const typeLabel =
+      type === 'online'
+        ? this.t('consultation.alert.type.online')
+        : this.t('consultation.alert.type.inPerson');
     const alert = await this.alertController.create({
-      header: 'Select Time Slot',
-      message: `Book ${type} consultation with ${doctor.fullName}`,
-      inputs: [
-        {
-          name: 'timeSlot',
-          type: 'radio',
-          label: 'Today - 2:00 PM',
-          value: 'today_2pm',
-          checked: true
-        },
-        {
-          name: 'timeSlot',
-          type: 'radio',
-          label: 'Today - 4:30 PM',
-          value: 'today_430pm'
-        },
-        {
-          name: 'timeSlot',
-          type: 'radio',
-          label: 'Tomorrow - 10:00 AM',
-          value: 'tomorrow_10am'
-        },
-        {
-          name: 'timeSlot',
-          type: 'radio',
-          label: 'Tomorrow - 2:00 PM',
-          value: 'tomorrow_2pm'
-        }
-      ],
+      header: this.t('consultation.alert.selectTime.header'),
+      message: this.tParams('consultation.alert.selectTime.message', {
+        type: typeLabel,
+        name: doctor.fullName,
+      }),
+      inputs: this.timeSlotInputs(),
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Confirm Booking',
+          text: this.t('consultation.alert.confirmBooking'),
           handler: (data) => {
             this.confirmBooking(doctor, type, data.timeSlot);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -209,41 +225,48 @@ export class ConsultationComponent implements OnInit {
 
   // Confirm booking
   async confirmBooking(doctor: DoctorDto, type: string, timeSlot: string) {
-    const timeLabels: { [key: string]: string } = {
-      'today_2pm': 'Today at 2:00 PM',
-      'today_430pm': 'Today at 4:30 PM',
-      'tomorrow_10am': 'Tomorrow at 10:00 AM',
-      'tomorrow_2pm': 'Tomorrow at 2:00 PM'
-    };
+    const typeText =
+      type === 'online'
+        ? this.t('consultation.alert.bookingConfirmed.typeOnline')
+        : this.t('consultation.alert.bookingConfirmed.typeInPerson');
+    const fee = doctor.fee
+      ? `$${doctor.fee}`
+      : this.t('consultation.fee.contactForPricing');
+    const locationBlock = doctor.location
+      ? `<p><strong>${this.t('consultation.alert.bookingConfirmed.location')}</strong> ${doctor.location}</p>`
+      : '';
 
     const alert = await this.alertController.create({
-      header: '✅ Booking Confirmed!',
+      header: this.t('consultation.alert.bookingConfirmed.header'),
       message: `
         <div style="text-align: left;">
-          <p><strong>Doctor:</strong> ${doctor.fullName}</p>
-          <p><strong>Specialty:</strong> ${doctor.specialty}</p>
-          <p><strong>Type:</strong> ${type === 'online' ? 'Online Consultation' : 'In-Person Visit'}</p>
-          <p><strong>Time:</strong> ${timeLabels[timeSlot]}</p>
-          <p><strong>Fee:</strong> $${doctor.fee || 'Contact for pricing'}</p>
-          ${doctor.location ? `<p><strong>Location:</strong> ${doctor.location}</p>` : ''}
+          <p><strong>${this.t('consultation.alert.bookingConfirmed.doctor')}</strong> ${doctor.fullName}</p>
+          <p><strong>${this.t('consultation.alert.bookingConfirmed.specialty')}</strong> ${doctor.specialty}</p>
+          <p><strong>${this.t('consultation.alert.bookingConfirmed.type')}</strong> ${typeText}</p>
+          <p><strong>${this.t('consultation.alert.bookingConfirmed.time')}</strong> ${this.timeSlotLabel(timeSlot)}</p>
+          <p><strong>${this.t('consultation.alert.bookingConfirmed.fee')}</strong> ${fee}</p>
+          ${locationBlock}
         </div>
       `,
       buttons: [
         {
-          text: 'Add to Calendar',
+          text: this.t('consultation.alert.addToCalendar'),
           handler: () => {
-            this.showToast('Appointment added to calendar!', 'success');
-          }
+            void this.showToast(this.t('consultation.toast.addedToCalendar'), 'success');
+          },
         },
         {
-          text: 'Done',
-          role: 'cancel'
-        }
-      ]
+          text: this.t('consultation.alert.done'),
+          role: 'cancel',
+        },
+      ],
     });
 
     await alert.present();
-    await this.showToast(`Appointment booked with ${doctor.fullName}!`, 'success');
+    await this.showToast(
+      this.tParams('consultation.toast.appointmentBooked', { name: doctor.fullName }),
+      'success',
+    );
   }
 
   // View doctor profile
@@ -293,31 +316,33 @@ export class ConsultationComponent implements OnInit {
     
     if (doctor.contactEmail) {
       buttons.push({
-        text: '📧 Email',
+        text: this.t('consultation.alert.email'),
         handler: () => {
           window.open(`mailto:${doctor.contactEmail}`, '_blank');
-        }
+        },
       });
     }
     
     if (doctor.contactPhone) {
       buttons.push({
-        text: '📞 Phone',
+        text: this.t('consultation.alert.phone'),
         handler: () => {
           window.open(`tel:${doctor.contactPhone}`, '_blank');
-        }
+        },
       });
     }
     
     buttons.push({
-      text: 'Cancel',
-      role: 'cancel'
+      text: this.t('common.cancel'),
+      role: 'cancel',
     });
 
     const alert = await this.alertController.create({
-      header: `Contact ${doctor.fullName}`,
-      message: 'How would you like to contact this doctor?',
-      buttons: buttons
+      header: this.tParams('consultation.alert.contact.header', {
+        name: doctor.fullName,
+      }),
+      message: this.t('consultation.alert.contact.message'),
+      buttons: buttons,
     });
 
     await alert.present();
@@ -327,54 +352,57 @@ export class ConsultationComponent implements OnInit {
   getConsultationTypeLabel(type: ConsultationType): string {
     switch (type) {
       case ConsultationType.ONLINE:
-        return 'Online Only';
+        return this.t('consultation.type.onlineOnly');
       case ConsultationType.IN_PERSON:
-        return 'In-Person Only';
+        return this.t('consultation.type.inPersonOnly');
       case ConsultationType.BOTH:
-        return 'Online & In-Person';
+        return this.t('consultation.type.both');
       default:
-        return 'Contact for details';
+        return this.t('consultation.type.contactForDetails');
     }
   }
 
   // Quick Booking Methods
   async bookDoctorAppointment() {
     const alert = await this.alertController.create({
-      header: '👩‍⚕️ Book Doctor Appointment',
-      message: 'Choose your preferred appointment type:',
+      header: this.t('consultation.alert.bookDoctor.header'),
+      message: this.t('consultation.alert.bookDoctor.message'),
       inputs: [
         {
           name: 'appointmentType',
           type: 'radio',
-          label: 'Prenatal Checkup',
+          label: this.t('consultation.appointmentType.prenatal'),
           value: 'prenatal',
-          checked: true
+          checked: true,
         },
         {
           name: 'appointmentType',
           type: 'radio',
-          label: 'Ultrasound',
-          value: 'ultrasound'
+          label: this.t('consultation.appointmentType.ultrasound'),
+          value: 'ultrasound',
         },
         {
           name: 'appointmentType',
           type: 'radio',
-          label: 'Emergency Consultation',
-          value: 'emergency'
-        }
+          label: this.t('consultation.appointmentType.emergency'),
+          value: 'emergency',
+        },
       ],
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Continue',
+          text: this.t('consultation.alert.continue'),
           handler: (data) => {
-            this.showBookingConfirmation('Doctor Appointment', data.appointmentType);
-          }
-        }
-      ]
+            this.showBookingConfirmation(
+              this.t('consultation.booking.doctorAppointment'),
+              data.appointmentType,
+            );
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -382,41 +410,44 @@ export class ConsultationComponent implements OnInit {
 
   async bookNutritionConsultation() {
     const alert = await this.alertController.create({
-      header: '🥗 Nutrition Consultation',
-      message: 'What would you like to focus on?',
+      header: this.t('consultation.alert.nutrition.header'),
+      message: this.t('consultation.alert.nutrition.message'),
       inputs: [
         {
           name: 'nutritionFocus',
           type: 'radio',
-          label: 'Pregnancy Diet Plan',
+          label: this.t('consultation.nutrition.pregnancyDiet'),
           value: 'pregnancy_diet',
-          checked: true
+          checked: true,
         },
         {
           name: 'nutritionFocus',
           type: 'radio',
-          label: 'Supplements & Vitamins',
-          value: 'supplements'
+          label: this.t('consultation.nutrition.supplements'),
+          value: 'supplements',
         },
         {
           name: 'nutritionFocus',
           type: 'radio',
-          label: 'Weight Management',
-          value: 'weight_management'
-        }
+          label: this.t('consultation.nutrition.weightManagement'),
+          value: 'weight_management',
+        },
       ],
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Book Now',
+          text: this.t('consultation.alert.bookNow'),
           handler: (data) => {
-            this.showBookingConfirmation('Nutrition Consultation', data.nutritionFocus);
-          }
-        }
-      ]
+            this.showBookingConfirmation(
+              this.t('consultation.booking.nutritionConsultation'),
+              data.nutritionFocus,
+            );
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -424,41 +455,44 @@ export class ConsultationComponent implements OnInit {
 
   async bookFitnessConsultation() {
     const alert = await this.alertController.create({
-      header: '🏃‍♀️ Fitness Consultation',
-      message: 'Choose your fitness focus:',
+      header: this.t('consultation.alert.fitness.header'),
+      message: this.t('consultation.alert.fitness.message'),
       inputs: [
         {
           name: 'fitnessFocus',
           type: 'radio',
-          label: 'Prenatal Yoga',
+          label: this.t('consultation.fitness.prenatalYoga'),
           value: 'prenatal_yoga',
-          checked: true
+          checked: true,
         },
         {
           name: 'fitnessFocus',
           type: 'radio',
-          label: 'Safe Exercises',
-          value: 'safe_exercises'
+          label: this.t('consultation.fitness.safeExercises'),
+          value: 'safe_exercises',
         },
         {
           name: 'fitnessFocus',
           type: 'radio',
-          label: 'Postpartum Recovery',
-          value: 'postpartum'
-        }
+          label: this.t('consultation.fitness.postpartum'),
+          value: 'postpartum',
+        },
       ],
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Book Now',
+          text: this.t('consultation.alert.bookNow'),
           handler: (data) => {
-            this.showBookingConfirmation('Fitness Consultation', data.fitnessFocus);
-          }
-        }
-      ]
+            this.showBookingConfirmation(
+              this.t('consultation.booking.fitnessConsultation'),
+              data.fitnessFocus,
+            );
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -466,41 +500,44 @@ export class ConsultationComponent implements OnInit {
 
   async bookMentalHealthSupport() {
     const alert = await this.alertController.create({
-      header: '💙 Mental Health Support',
-      message: 'What type of support do you need?',
+      header: this.t('consultation.alert.mentalHealth.header'),
+      message: this.t('consultation.alert.mentalHealth.message'),
       inputs: [
         {
           name: 'mentalHealthType',
           type: 'radio',
-          label: 'Pregnancy Anxiety',
+          label: this.t('consultation.mentalHealth.anxiety'),
           value: 'anxiety',
-          checked: true
+          checked: true,
         },
         {
           name: 'mentalHealthType',
           type: 'radio',
-          label: 'Depression Support',
-          value: 'depression'
+          label: this.t('consultation.mentalHealth.depression'),
+          value: 'depression',
         },
         {
           name: 'mentalHealthType',
           type: 'radio',
-          label: 'Stress Management',
-          value: 'stress'
-        }
+          label: this.t('consultation.mentalHealth.stress'),
+          value: 'stress',
+        },
       ],
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Book Now',
+          text: this.t('consultation.alert.bookNow'),
           handler: (data) => {
-            this.showBookingConfirmation('Mental Health Support', data.mentalHealthType);
-          }
-        }
-      ]
+            this.showBookingConfirmation(
+              this.t('consultation.booking.mentalHealthSupport'),
+              data.mentalHealthType,
+            );
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -518,41 +555,28 @@ export class ConsultationComponent implements OnInit {
     const specialist = specialists[specialistId as keyof typeof specialists];
     
     const alert = await this.alertController.create({
-      header: `Book with ${specialist.name}`,
-      message: `${specialist.specialty}\n\nChoose your preferred time:`,
-      inputs: [
-        {
-          name: 'appointmentTime',
-          type: 'radio',
-          label: 'Today - 2:00 PM',
-          value: 'today_2pm',
-          checked: true
-        },
-        {
-          name: 'appointmentTime',
-          type: 'radio',
-          label: 'Today - 4:30 PM',
-          value: 'today_430pm'
-        },
-        {
-          name: 'appointmentTime',
-          type: 'radio',
-          label: 'Tomorrow - 10:00 AM',
-          value: 'tomorrow_10am'
-        }
-      ],
+      header: this.tParams('consultation.alert.bookSpecialist.header', {
+        name: specialist.name,
+      }),
+      message: this.tParams('consultation.alert.bookSpecialist.message', {
+        specialty: specialist.specialty,
+      }),
+      inputs: this.timeSlotInputs().slice(0, 3).map((input) => ({
+        ...input,
+        name: 'appointmentTime',
+      })),
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Confirm Booking',
+          text: this.t('consultation.alert.confirmBooking'),
           handler: (data) => {
             this.showBookingConfirmation(specialist.name, data.appointmentTime);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -561,29 +585,48 @@ export class ConsultationComponent implements OnInit {
   // Consultation Type Selection
   async selectConsultationType(type: string) {
     const types = {
-      'prenatal': { name: 'Prenatal Care', price: '$150', duration: '30-45 min' },
-      'nutrition': { name: 'Nutrition Planning', price: '$120', duration: '45-60 min' },
-      'fitness': { name: 'Exercise Guidance', price: '$100', duration: '30-40 min' },
-      'mental': { name: 'Mental Health', price: '$180', duration: '50-60 min' }
+      prenatal: {
+        nameKey: 'consultation.typeSelection.prenatal',
+        price: '$150',
+        duration: '30-45 min',
+      },
+      nutrition: {
+        nameKey: 'consultation.typeSelection.nutrition',
+        price: '$120',
+        duration: '45-60 min',
+      },
+      fitness: {
+        nameKey: 'consultation.typeSelection.fitness',
+        price: '$100',
+        duration: '30-40 min',
+      },
+      mental: {
+        nameKey: 'consultation.typeSelection.mental',
+        price: '$180',
+        duration: '50-60 min',
+      },
     };
 
     const consultationType = types[type as keyof typeof types];
     
     const alert = await this.alertController.create({
-      header: consultationType.name,
-      message: `Duration: ${consultationType.duration}\nPrice: ${consultationType.price}\n\nWould you like to book this consultation?`,
+      header: this.t(consultationType.nameKey),
+      message: this.tParams('consultation.alert.typeSelection.message', {
+        duration: consultationType.duration,
+        price: consultationType.price,
+      }),
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Book Now',
+          text: this.t('consultation.alert.bookNow'),
           handler: () => {
-            this.showBookingConfirmation(consultationType.name, 'standard');
-          }
-        }
-      ]
+            this.showBookingConfirmation(this.t(consultationType.nameKey), 'standard');
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -592,89 +635,91 @@ export class ConsultationComponent implements OnInit {
   // Appointment Management
   async viewAppointment(appointmentId: string) {
     const alert = await this.alertController.create({
-      header: 'Appointment Details',
-      message: 'View your appointment details and manage your booking.',
+      header: this.t('consultation.alert.appointmentDetails.header'),
+      message: this.t('consultation.alert.appointmentDetails.message'),
       buttons: [
         {
-          text: 'View Details',
+          text: this.t('consultation.alert.viewDetails'),
           handler: () => {
-            this.showToast('Opening appointment details...', 'success');
-          }
+            void this.showToast(this.t('consultation.toast.openingAppointment'), 'success');
+          },
         },
         {
-          text: 'Cancel Appointment',
+          text: this.t('consultation.alert.cancelAppointment'),
           handler: () => {
             this.cancelAppointment(appointmentId);
-          }
+          },
         },
         {
-          text: 'Close',
-          role: 'cancel'
-        }
-      ]
+          text: this.t('consultation.alert.close'),
+          role: 'cancel',
+        },
+      ],
     });
 
     await alert.present();
   }
 
   async rescheduleAppointment(appointmentId: string) {
+    void appointmentId;
     const alert = await this.alertController.create({
-      header: 'Reschedule Appointment',
-      message: 'Choose a new time for your appointment:',
+      header: this.t('consultation.alert.reschedule.header'),
+      message: this.t('consultation.alert.reschedule.message'),
       inputs: [
         {
           name: 'newTime',
           type: 'radio',
-          label: 'Tomorrow - 9:00 AM',
+          label: this.t('consultation.time.tomorrow9am'),
           value: 'tomorrow_9am',
-          checked: true
+          checked: true,
         },
         {
           name: 'newTime',
           type: 'radio',
-          label: 'Tomorrow - 2:00 PM',
-          value: 'tomorrow_2pm'
+          label: this.t('consultation.time.tomorrow2pm'),
+          value: 'tomorrow_2pm',
         },
         {
           name: 'newTime',
           type: 'radio',
-          label: 'Friday - 10:00 AM',
-          value: 'friday_10am'
-        }
+          label: this.t('consultation.time.friday10am'),
+          value: 'friday_10am',
+        },
       ],
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Reschedule',
-          handler: (data) => {
-            this.showToast('Appointment rescheduled successfully!', 'success');
-          }
-        }
-      ]
+          text: this.t('consultation.alert.reschedule'),
+          handler: () => {
+            void this.showToast(this.t('consultation.toast.rescheduled'), 'success');
+          },
+        },
+      ],
     });
 
     await alert.present();
   }
 
   async cancelAppointment(appointmentId: string) {
+    void appointmentId;
     const alert = await this.alertController.create({
-      header: 'Cancel Appointment',
-      message: 'Are you sure you want to cancel this appointment?',
+      header: this.t('consultation.alert.cancel.header'),
+      message: this.t('consultation.alert.cancel.message'),
       buttons: [
         {
-          text: 'No, Keep It',
-          role: 'cancel'
+          text: this.t('consultation.alert.keepAppointment'),
+          role: 'cancel',
         },
         {
-          text: 'Yes, Cancel',
+          text: this.t('consultation.alert.yesCancel'),
           handler: () => {
-            this.showToast('Appointment cancelled successfully!', 'success');
-          }
-        }
-      ]
+            void this.showToast(this.t('consultation.toast.cancelled'), 'success');
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -683,22 +728,20 @@ export class ConsultationComponent implements OnInit {
   // Emergency Contact
   async callEmergency() {
     const alert = await this.alertController.create({
-      header: 'Emergency Contact',
-      message: 'This will call emergency services (911). Are you sure?',
+      header: this.t('consultation.alert.emergency.header'),
+      message: this.t('consultation.alert.emergency.message'),
       buttons: [
         {
-          text: 'Cancel',
-          role: 'cancel'
+          text: this.t('common.cancel'),
+          role: 'cancel',
         },
         {
-          text: 'Call Emergency',
+          text: this.t('consultation.alert.callEmergency'),
           handler: () => {
-            this.showToast('Calling emergency services...', 'warning');
-            // In a real app, you would use the device's call functionality
-            // window.location.href = 'tel:911';
-          }
-        }
-      ]
+            void this.showToast(this.t('consultation.toast.callingEmergency'), 'warning');
+          },
+        },
+      ],
     });
 
     await alert.present();
@@ -707,31 +750,31 @@ export class ConsultationComponent implements OnInit {
   // Quick Menu
   async openQuickMenu() {
     const actionSheet = await this.alertController.create({
-      header: 'Quick Actions',
+      header: this.t('consultation.alert.quickActions.header'),
       buttons: [
         {
-          text: '📝 Book New Appointment',
+          text: this.t('consultation.alert.quickActions.bookNew'),
           handler: () => {
             this.bookDoctorAppointment();
-          }
+          },
         },
         {
-          text: '📅 View Calendar',
+          text: this.t('consultation.alert.quickActions.calendar'),
           handler: () => {
-            this.showToast('Opening calendar...', 'success');
-          }
+            void this.showToast(this.t('consultation.toast.openingCalendar'), 'success');
+          },
         },
         {
-          text: '📞 Contact Support',
+          text: this.t('consultation.alert.quickActions.support'),
           handler: () => {
-            this.showToast('Opening support chat...', 'success');
-          }
+            void this.showToast(this.t('consultation.toast.openingSupport'), 'success');
+          },
         },
         {
-          text: '❌ Cancel',
-          role: 'cancel'
-        }
-      ]
+          text: this.t('common.cancel'),
+          role: 'cancel',
+        },
+      ],
     });
 
     await actionSheet.present();
@@ -740,20 +783,20 @@ export class ConsultationComponent implements OnInit {
   // Notifications
   async openNotifications() {
     const alert = await this.alertController.create({
-      header: 'Notifications',
-      message: 'You have 2 new notifications:\n\n• Appointment reminder tomorrow at 10:00 AM\n• New message from Dr. Sarah Johnson',
+      header: this.t('consultation.alert.notifications.header'),
+      message: this.t('consultation.alert.notifications.message'),
       buttons: [
         {
-          text: 'View All',
+          text: this.t('consultation.alert.viewAll'),
           handler: () => {
-            this.showToast('Opening notifications...', 'success');
-          }
+            void this.showToast(this.t('consultation.toast.openingNotifications'), 'success');
+          },
         },
         {
-          text: 'Close',
-          role: 'cancel'
-        }
-      ]
+          text: this.t('consultation.alert.close'),
+          role: 'cancel',
+        },
+      ],
     });
 
     await alert.present();
@@ -762,24 +805,84 @@ export class ConsultationComponent implements OnInit {
   // Utility Methods
   async showBookingConfirmation(type: string, details: string) {
     const alert = await this.alertController.create({
-      header: '✅ Booking Confirmed!',
-      message: `Your ${type} appointment has been scheduled successfully.\n\nDetails: ${details}\n\nYou will receive a confirmation email shortly.`,
+      header: this.t('consultation.alert.bookingConfirmedSimple.header'),
+      message: this.tParams('consultation.alert.bookingConfirmedSimple.message', {
+        type,
+        details,
+      }),
       buttons: [
         {
-          text: 'View Appointment',
+          text: this.t('consultation.alert.viewAppointment'),
           handler: () => {
-            this.showToast('Opening appointment details...', 'success');
-          }
+            void this.showToast(this.t('consultation.toast.openingAppointment'), 'success');
+          },
         },
         {
-          text: 'Done',
-          role: 'cancel'
-        }
-      ]
+          text: this.t('consultation.alert.done'),
+          role: 'cancel',
+        },
+      ],
     });
 
     await alert.present();
-    await this.showToast('Appointment booked successfully!', 'success');
+    await this.showToast(this.t('consultation.toast.bookedSuccessfully'), 'success');
+  }
+
+  private timeSlotInputs(): {
+    name: string;
+    type: 'radio';
+    label: string;
+    value: string;
+    checked?: boolean;
+  }[] {
+    return [
+      {
+        name: 'timeSlot',
+        type: 'radio',
+        label: this.t('consultation.time.today2pm'),
+        value: 'today_2pm',
+        checked: true,
+      },
+      {
+        name: 'timeSlot',
+        type: 'radio',
+        label: this.t('consultation.time.today430pm'),
+        value: 'today_430pm',
+      },
+      {
+        name: 'timeSlot',
+        type: 'radio',
+        label: this.t('consultation.time.tomorrow10am'),
+        value: 'tomorrow_10am',
+      },
+      {
+        name: 'timeSlot',
+        type: 'radio',
+        label: this.t('consultation.time.tomorrow2pm'),
+        value: 'tomorrow_2pm',
+      },
+    ];
+  }
+
+  private timeSlotLabel(slot: string): string {
+    const keys: Record<string, string> = {
+      today_2pm: 'consultation.time.todayAt2pm',
+      today_430pm: 'consultation.time.todayAt430pm',
+      tomorrow_10am: 'consultation.time.tomorrowAt10am',
+      tomorrow_2pm: 'consultation.time.tomorrowAt2pm',
+    };
+    return this.t(keys[slot] ?? 'consultation.time.todayAt2pm');
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  private tParams(
+    key: string,
+    params: Record<string, string | number>,
+  ): string {
+    return this.translation.translateParams(key, params);
   }
 
   async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {

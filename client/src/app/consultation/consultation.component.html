@@ -1,28 +1,28 @@
 <ion-content class="tab-page-content" [fullscreen]="false">
   <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
     <ion-refresher-content
-      pullingText="Pull to refresh"
-      refreshingText="Refreshing…"
+      [pullingText]="'common.pullToRefresh' | translate"
+      [refreshingText]="'common.refreshing' | translate"
     ></ion-refresher-content>
   </ion-refresher>
 <div class="consultation-content">
   <!-- Hero Section -->
   <div class="consultation-hero">
     <div class="hero-content">
-      <h1 class="hero-title">Talk to a specialist</h1>
-      <p class="hero-subtitle">Book online or in person. Same trusted care, fewer steps.</p>
+      <h1 class="hero-title">{{ 'consultation.hero.title' | translate }}</h1>
+      <p class="hero-subtitle">{{ 'consultation.hero.subtitle' | translate }}</p>
       <div class="hero-stats">
         <div class="stat">
           <span class="stat-number">50+</span>
-          <span class="stat-label">Specialists</span>
+          <span class="stat-label">{{ 'consultation.hero.statSpecialists' | translate }}</span>
         </div>
         <div class="stat">
           <span class="stat-number">24/7</span>
-          <span class="stat-label">Support</span>
+          <span class="stat-label">{{ 'consultation.hero.statSupport' | translate }}</span>
         </div>
         <div class="stat">
           <span class="stat-number">4.9★</span>
-          <span class="stat-label">Rating</span>
+          <span class="stat-label">{{ 'consultation.hero.statRating' | translate }}</span>
         </div>
       </div>
     </div>
@@ -33,13 +33,13 @@
   <!-- Available Specialists -->
   <div class="specialists-section">
     <div class="section-header">
-      <h2 class="section-title">Available specialists</h2>
-      <p class="section-subtitle">Tap a card to book, or open a full profile first.</p>
+      <h2 class="section-title">{{ 'consultation.specialists.title' | translate }}</h2>
+      <p class="section-subtitle">{{ 'consultation.specialists.subtitle' | translate }}</p>
     </div>
     
     <!-- Loading State -->
     @if (isLoading) {
-      <div class="doctors-skeleton" aria-busy="true" aria-label="Loading specialists">
+      <div class="doctors-skeleton" aria-busy="true" [attr.aria-label]="'consultation.loadingAria' | translate">
         @for (row of [1, 2, 3]; track row) {
         <div class="doctors-skeleton-card">
           <ion-skeleton-text [animated]="true" class="sk-avatar"></ion-skeleton-text>
@@ -72,14 +72,14 @@
                 {{ doctor.rating | localNum }}/{{ 5 | localNum }}
               </span>
             }
-            <span class="experience">{{ doctor.experienceYears | localNum }}+ years experience</span>
+            <span class="experience">{{ experienceLabel(doctor.experienceYears) }}</span>
           </div>
           <div class="specialist-availability">
             @if (doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH') {
-              <span class="available">Available Online</span>
+              <span class="available">{{ 'consultation.availableOnline' | translate }}</span>
             }
             @if (doctor.consultationType === 'IN_PERSON' || doctor.consultationType === 'BOTH') {
-              <span class="available">In-Person Available</span>
+              <span class="available">{{ 'consultation.inPersonAvailable' | translate }}</span>
             }
             @if (doctor.fee) {
               <span class="fee">${{ doctor.fee | localNum }}</span>
@@ -105,10 +105,10 @@
         </div>
         <div class="specialist-actions">
           <ion-button fill="solid" size="small" class="book-btn" (click)="bookWithDoctor(doctor); $event.stopPropagation()">
-            Book
+            {{ 'consultation.book' | translate }}
           </ion-button>
           <ion-button fill="outline" size="small" (click)="viewDoctorProfile(doctor); $event.stopPropagation()">
-            Profile
+            {{ 'consultation.profile' | translate }}
           </ion-button>
         </div>
           </div>
@@ -121,10 +121,10 @@
       <div class="show-more-section">
       <ion-button expand="block" fill="outline" class="show-more-btn" (click)="showAllDoctors()">
         <ion-icon name="chevron-down" slot="start"></ion-icon>
-        View All Doctors
+        {{ 'consultation.viewAllDoctors' | translate }}
         <ion-icon name="arrow-forward" slot="end"></ion-icon>
       </ion-button>
-      <p class="show-more-text">See more specialists and their availability</p>
+      <p class="show-more-text">{{ 'consultation.viewAllHint' | translate }}</p>
       </div>
     }
 
@@ -132,16 +132,16 @@
     @if (!isLoading && doctors.length === 0) {
       <div class="no-doctors">
       <ion-icon name="medical-outline"></ion-icon>
-      <h3>No Doctors Found</h3>
+      <h3>{{ 'consultation.noDoctors.title' | translate }}</h3>
       @if (searchTerm) {
-        <p>No doctors match your search criteria. Try adjusting your search terms.</p>
+        <p>{{ 'consultation.noDoctors.searchMessage' | translate }}</p>
       }
       @if (!searchTerm) {
-        <p>No doctors are currently available. Please check back later or contact support.</p>
+        <p>{{ 'consultation.noDoctors.emptyMessage' | translate }}</p>
       }
       <ion-button fill="solid" (click)="loadDoctors()">
         <ion-icon name="refresh" slot="start"></ion-icon>
-        Refresh
+        {{ 'consultation.refresh' | translate }}
       </ion-button>
       </div>
     }
@@ -149,15 +149,15 @@
 
   <!-- Quick Booking -->
   <div class="quick-booking">
-    <h2 class="section-title">Quick booking</h2>
+    <h2 class="section-title">{{ 'consultation.quickBooking.title' | translate }}</h2>
     <div class="booking-options">
       <ion-button expand="block" fill="solid" class="booking-btn primary" (click)="bookDoctorAppointment()">
         <ion-icon name="medical" slot="start"></ion-icon>
-        Book a doctor visit
+        {{ 'consultation.bookDoctorVisit' | translate }}
       </ion-button>
       <ion-button expand="block" fill="outline" class="booking-btn" (click)="bookNutritionConsultation()">
         <ion-icon name="nutrition" slot="start"></ion-icon>
-        Nutrition consult
+        {{ 'consultation.nutritionConsult' | translate }}
       </ion-button>
     </div>
   </div>
@@ -169,11 +169,11 @@
         <ion-icon name="warning"></ion-icon>
       </div>
       <div class="emergency-content">
-        <h3 class="emergency-title">Emergency</h3>
-        <p class="emergency-description">Life-threatening emergency? Call your local number (e.g. 911).</p>
+        <h3 class="emergency-title">{{ 'consultation.emergency.title' | translate }}</h3>
+        <p class="emergency-description">{{ 'consultation.emergency.description' | translate }}</p>
         <ion-button fill="solid" color="danger" expand="block">
           <ion-icon name="call" slot="start"></ion-icon>
-          Call 911
+          {{ 'consultation.emergency.call' | translate }}
         </ion-button>
       </div>
     </div>

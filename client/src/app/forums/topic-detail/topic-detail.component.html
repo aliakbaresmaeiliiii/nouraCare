@@ -7,7 +7,7 @@
         (click)="goBack()"
       ></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Topic Discussion</ion-title>
+    <ion-title class="header-title">{{ 'forums.topic.pageTitle' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" class="share-button" (click)="shareTopic()">
         <ion-icon name="share-outline"></ion-icon>
@@ -23,7 +23,7 @@
   <div class="container">
     <!-- Loading State -->
     @if (isLoading()) {
-    <app-logo-loading message="Loading topic..." />
+    <app-logo-loading [message]="'forums.topic.loading' | translate" />
     }
 
     <!-- Error State -->
@@ -33,7 +33,7 @@
       <p class="error-text">{{ errorMessage }}</p>
       <ion-button fill="outline" (click)="goBack()" class="back-button">
         <ion-icon name="arrow-back" slot="start"></ion-icon>
-        Go Back
+        {{ 'forums.topic.goBack' | translate }}
       </ion-button>
     </div>
     }
@@ -80,11 +80,11 @@
             }}</span>
           </div>
           <div class="topic-meta">
-            <span class="category-badge">{{ topic.category }}</span>
+            <span class="category-badge">{{ topicCategoryLabel() }}</span>
             @if (topic.isPinned) {
             <ion-badge color="warning" class="pin-badge">
               <ion-icon name="pin" class="badge-icon"></ion-icon>
-              Pinned
+              {{ 'forums.topic.pinned' | translate }}
             </ion-badge>
             }
           </div>
@@ -97,13 +97,13 @@
         <div class="edit-post-container">
           <ion-input
             [(ngModel)]="editPostTitle"
-            placeholder="Post title..."
+            [placeholder]="'forums.topic.postTitlePlaceholder' | translate"
             class="edit-post-title"
           >
           </ion-input>
           <ion-textarea
             [(ngModel)]="editPostContent"
-            placeholder="Edit your post content..."
+            [placeholder]="'forums.topic.editPostPlaceholder' | translate"
             class="edit-post-content"
             rows="6"
             autoGrow="true"
@@ -115,7 +115,7 @@
               class="cancel-edit-post-btn"
               (click)="cancelEditPost()"
             >
-              Cancel
+              {{ 'common.cancel' | translate }}
             </ion-button>
             <ion-button
               [disabled]="
@@ -124,7 +124,7 @@
               class="save-edit-post-btn"
               (click)="submitEditPost()"
             >
-              Save
+              {{ 'common.save' | translate }}
             </ion-button>
           </div>
         </div>
@@ -135,7 +135,7 @@
         <div class="topic-tags">
           @for (category of categories(); track category.id) {
           <ion-chip class="tag-chip">
-            <ion-label>{{ category.name }}</ion-label>
+            <ion-label>{{ categoryName(category) }}</ion-label>
           </ion-chip>
           }
         </div>
@@ -143,11 +143,11 @@
         <div class="topic-stats">
           <div class="stat">
             <ion-icon name="chatbubbles-outline" class="stat-icon"></ion-icon>
-            <span class="stat-text">{{ topic.replies }} comments</span>
+            <span class="stat-text">{{ commentsCountLabel(topic.replies) }}</span>
           </div>
           <div class="stat">
             <ion-icon name="eye-outline" class="stat-icon"></ion-icon>
-            <span class="stat-text">{{ topic.viewCount }} views</span>
+            <span class="stat-text">{{ viewsCountLabel(topic.viewCount) }}</span>
           </div>
 
           <!-- Edit/Delete buttons for post (only show if user has permission) -->
@@ -169,15 +169,15 @@
     @if (topic && !isLoading()) {
     <div class="comments-section">
       <div class="comments-header">
-        <h2 class="comments-title">Comments ({{ comments().length }})</h2>
+        <h2 class="comments-title">{{ commentsTitle() }}</h2>
       </div>
 
       <!-- Empty Comments State -->
       @if (comments().length === 0) {
       <div class="empty-comments">
         <ion-icon name="chatbubbles-outline" class="empty-icon"></ion-icon>
-        <h3 class="empty-title">No Comments Yet</h3>
-        <p class="empty-text">Be the first to share your thoughts!</p>
+        <h3 class="empty-title">{{ 'forums.topic.noCommentsTitle' | translate }}</h3>
+        <p class="empty-text">{{ 'forums.topic.noCommentsText' | translate }}</p>
       </div>
       }
 
@@ -205,7 +205,7 @@
                 @if (isPinnedComment(comment.id)) {
                 <span class="comment-pinned-badge">
                   <ion-icon name="pin"></ion-icon>
-                  Pinned
+                  {{ 'forums.topic.pinned' | translate }}
                 </span>
                 }
               </div>
@@ -216,7 +216,7 @@
             <div class="edit-input-container">
               <ion-textarea
                 [(ngModel)]="editTexts[comment.id]"
-                placeholder="Edit your comment..."
+                [placeholder]="'forums.topic.editCommentPlaceholder' | translate"
                 class="edit-input"
                 rows="3"
                 autoGrow="true"
@@ -228,14 +228,14 @@
                   class="cancel-edit-btn"
                   (click)="cancelEdit()"
                 >
-                  Cancel
+                  {{ 'common.cancel' | translate }}
                 </ion-button>
                 <ion-button
                   [disabled]="!editTexts[comment.id].trim()"
                   class="save-edit-btn"
                   (click)="submitEdit(comment)"
                 >
-                  Save
+                  {{ 'common.save' | translate }}
                 </ion-button>
               </div>
             </div>
@@ -264,7 +264,7 @@
                 (click)="toggleReplyInput(comment.id)"
               >
                 <ion-icon name="arrow-undo-outline"></ion-icon>
-                <span class="reply-text">Reply</span>
+                <span class="reply-text">{{ 'forums.topic.reply' | translate }}</span>
               </ion-button>
 
               <!-- Edit/Delete buttons (only show if user has permission) -->
@@ -286,7 +286,7 @@
             <div class="reply-input-container">
               <ion-input
                 [(ngModel)]="replyTexts[comment.id]"
-                placeholder="Write a reply..."
+                [placeholder]="'forums.topic.writeReplyPlaceholder' | translate"
                 class="reply-input"
                 [disabled]="isSubmittingReply"
               >
@@ -297,7 +297,7 @@
                   class="cancel-reply-btn"
                   (click)="cancelReply()"
                 >
-                  Cancel
+                  {{ 'common.cancel' | translate }}
                 </ion-button>
                 <ion-button
                   [disabled]="
@@ -342,7 +342,7 @@
                 <div class="edit-input-container">
                   <ion-textarea
                     [(ngModel)]="editTexts[reply.id]"
-                    placeholder="Edit your reply..."
+                    [placeholder]="'forums.topic.editReplyPlaceholder' | translate"
                     class="edit-input"
                     rows="3"
                     autoGrow="true"
@@ -354,14 +354,14 @@
                       class="cancel-edit-btn"
                       (click)="cancelEdit()"
                     >
-                      Cancel
+                      {{ 'common.cancel' | translate }}
                     </ion-button>
                     <ion-button
                       [disabled]="!editTexts[reply.id].trim()"
                       class="save-edit-btn"
                       (click)="submitEdit(reply)"
                     >
-                      Save
+                      {{ 'common.save' | translate }}
                     </ion-button>
                   </div>
                 </div>
@@ -413,7 +413,7 @@
   <div class="comment-input-container">
     <ion-input
       [(ngModel)]="newComment"
-      placeholder="Write a comment..."
+      [placeholder]="'forums.topic.writeCommentPlaceholder' | translate"
       class="comment-input"
       [disabled]="isSubmittingComment"
     >

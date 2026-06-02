@@ -1,0 +1,358 @@
+.pro-header ion-toolbar {
+  --background: transparent;
+  --border-width: 0;
+}
+
+.pro-content {
+  --background: var(--brand-bg, #f8fafc);
+}
+
+.pro-page {
+  padding: 0 1rem 2.5rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.pro-hero {
+  position: relative;
+  margin: 0 -1rem 1.5rem;
+  padding: 2rem 1.25rem 1.75rem;
+  text-align: center;
+  overflow: hidden;
+  background: linear-gradient(
+    145deg,
+    #312e81 0%,
+    #4f46e5 38%,
+    #6366f1 62%,
+    #0d9488 100%
+  );
+  border-radius: 0 0 2rem 2rem;
+  color: #fff;
+}
+
+.pro-hero-glow {
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 220px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.pro-hero-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  margin-bottom: 1rem;
+
+  ion-icon {
+    font-size: 1rem;
+  }
+}
+
+.pro-hero-title {
+  position: relative;
+  margin: 0 0 0.5rem;
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.pro-hero-subtitle {
+  position: relative;
+  margin: 0 auto 1.1rem;
+  max-width: 20rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  opacity: 0.92;
+}
+
+.pro-status-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.22);
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  &--active {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.pro-section-title {
+  margin: 0 0 0.85rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--brand-text, #0f172a);
+}
+
+.pro-features {
+  margin-bottom: 1.75rem;
+}
+
+.pro-feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.pro-feature-card {
+  padding: 0.95rem;
+  border-radius: 1rem;
+  background: var(--brand-surface, #fff);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+
+  h3 {
+    margin: 0.55rem 0 0.25rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--brand-text, #0f172a);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--brand-text-secondary, #64748b);
+  }
+}
+
+.pro-feature-icon {
+  width: 2.1rem;
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.65rem;
+  background: linear-gradient(135deg, #eef2ff, #ccfbf1);
+  color: var(--brand-primary, #6366f1);
+
+  ion-icon {
+    font-size: 1.15rem;
+  }
+}
+
+.pro-pricing-intro {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--brand-text-secondary, #64748b);
+}
+
+.pro-plan-card {
+  padding: 1.15rem;
+  border-radius: 1.25rem;
+  background: var(--brand-surface, #fff);
+  border: 1px solid rgba(99, 102, 241, 0.14);
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.1);
+}
+
+.pro-billing-segment {
+  margin-bottom: 1rem;
+  --background: var(--brand-bg, #f1f5f9);
+}
+
+.pro-price-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pro-price-main {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--brand-text, #0f172a);
+}
+
+.pro-save-badge {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.pro-plan-perks {
+  list-style: none;
+  margin: 0 0 1.1rem;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    margin-bottom: 0.45rem;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--brand-text-secondary, #475569);
+
+    ion-icon {
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      color: var(--brand-secondary, #14b8a6);
+      font-size: 1rem;
+    }
+  }
+}
+
+.pro-cta {
+  margin-top: 0.25rem;
+  font-weight: 700;
+
+  &--secondary {
+    margin-top: 0.75rem;
+  }
+}
+
+.pro-trial-note {
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--brand-text-secondary, #64748b);
+}
+
+.pro-active-card {
+  padding: 1.5rem 1.15rem;
+  border-radius: 1.25rem;
+  text-align: center;
+  background: linear-gradient(135deg, #eef2ff 0%, #ecfdf5 100%);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+
+  h2 {
+    margin: 0.75rem 0 0.35rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 0 0 0.5rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--brand-text-secondary, #64748b);
+  }
+}
+
+.pro-active-icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #6366f1, #14b8a6);
+  color: #fff;
+
+  ion-icon {
+    font-size: 1.6rem;
+  }
+}
+
+.pro-footnote {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--brand-text-secondary, #94a3b8);
+}
+
+.pro-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 50vh;
+  padding: 2rem 1.5rem;
+  text-align: center;
+
+  ion-icon {
+    font-size: 2.5rem;
+    color: var(--ion-color-medium);
+  }
+
+  p {
+    margin: 0;
+    color: var(--brand-text-secondary, #64748b);
+  }
+}
+
+.pro-state--warn {
+  min-height: auto;
+  margin: 1rem 0 0.5rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  text-align: start;
+
+  ion-icon {
+    font-size: 1.25rem;
+    color: #ea580c;
+    flex-shrink: 0;
+  }
+
+  p {
+    flex: 1 1 12rem;
+    font-size: 0.85rem;
+    color: #9a3412;
+  }
+}
+
+:host-context(.ion-palette-dark) {
+  .pro-content {
+    --background: var(--navy-shell-950, #050a1a);
+  }
+
+  .pro-feature-card,
+  .pro-plan-card {
+    background: var(--navy-shell-900, #191e2c);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .pro-section-title,
+  .pro-feature-card h3,
+  .pro-price-main {
+    color: #f8fafc;
+  }
+
+  .pro-feature-card p,
+  .pro-pricing-intro,
+  .pro-plan-perks li,
+  .pro-trial-note,
+  .pro-active-card p {
+    color: #94a3b8;
+  }
+
+  .pro-active-card {
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.18) 0%,
+      rgba(20, 184, 166, 0.12) 100%
+    );
+  }
+}
+
+@media (max-width: 380px) {
+  .pro-feature-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -3,9 +3,13 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>About NouraCare</ion-title>
+    <ion-title>{{ 'menu.aboutNouracare' | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="clear" aria-label="More actions" (click)="openQuickMenu()">
+      <ion-button
+        fill="clear"
+        [attr.aria-label]="'about.a11y.moreActions' | translate"
+        (click)="openQuickMenu()"
+      >
         <ion-icon name="ellipsis-vertical"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,241 +17,137 @@
 </ion-header>
 
 <ion-content class="about-content">
-  <!-- Hero Section -->
   <div class="about-hero">
     <div class="hero-content">
       <div class="app-logo">
         <ion-icon name="heart" class="logo-icon"></ion-icon>
       </div>
       <h1 class="hero-title">NouraCare</h1>
-      <p class="hero-subtitle">Empowering women through their pregnancy journey</p>
+      <p class="hero-subtitle">{{ 'about.hero.subtitle' | translate }}</p>
       <div class="app-version">
-        <span class="version-text">Version 2.1.0</span>
-        <span class="build-date">Updated: March 2024</span>
+        <span class="version-text">{{ versionLabel }}</span>
+        <span class="build-date">{{ updatedLabel }}</span>
       </div>
     </div>
   </div>
 
-  <!-- Mission Section -->
   <div class="mission-section">
-    <h2 class="section-title">Our Mission</h2>
+    <h2 class="section-title">{{ 'about.section.mission' | translate }}</h2>
     <div class="mission-card">
       <div class="mission-icon">
         <ion-icon name="heart-circle"></ion-icon>
       </div>
       <div class="mission-content">
-        <h3 class="mission-title">Supporting Every Mother's Journey</h3>
-        <p class="mission-description">
-          At NouraCare, we believe every woman deserves comprehensive support during her pregnancy journey. 
-          Our mission is to provide evidence-based information, expert guidance, and a supportive community 
-          that empowers mothers to make informed decisions about their health and their baby's well-being.
-        </p>
+        <h3 class="mission-title">{{ 'about.mission.title' | translate }}</h3>
+        <p class="mission-description">{{ 'about.mission.description' | translate }}</p>
       </div>
     </div>
   </div>
 
-  <!-- App Features -->
   <div class="features-section">
-    <h2 class="section-title">What We Offer</h2>
-    
+    <h2 class="section-title">{{ 'about.section.features' | translate }}</h2>
+
     <div class="features-grid">
-      <div class="feature-card" (click)="learnMoreFeature('tracking')">
-        <div class="feature-icon">
-          <ion-icon name="analytics"></ion-icon>
+      @for (feature of features; track feature.id) {
+        <div class="feature-card" (click)="learnMoreFeature(feature.id)">
+          <div class="feature-icon">
+            <ion-icon [name]="feature.icon"></ion-icon>
+          </div>
+          <h3 class="feature-title">{{ feature.titleKey | translate }}</h3>
+          <p class="feature-description">{{ feature.descriptionKey | translate }}</p>
         </div>
-        <h3 class="feature-title">Cycle & Symptom Tracking</h3>
-        <p class="feature-description">Advanced tracking tools with detailed analytics</p>
-      </div>
-
-      <div class="feature-card" (click)="learnMoreFeature('consultation')">
-        <div class="feature-icon">
-          <ion-icon name="medical"></ion-icon>
-        </div>
-        <h3 class="feature-title">Expert Consultations</h3>
-        <p class="feature-description">Connect with certified healthcare professionals</p>
-      </div>
-
-      <div class="feature-card" (click)="learnMoreFeature('education')">
-        <div class="feature-icon">
-          <ion-icon name="school"></ion-icon>
-        </div>
-        <h3 class="feature-title">Comprehensive Education</h3>
-        <p class="feature-description">Expert-led courses and resources</p>
-      </div>
-
-      <div class="feature-card" (click)="learnMoreFeature('community')">
-        <div class="feature-icon">
-          <ion-icon name="people"></ion-icon>
-        </div>
-        <h3 class="feature-title">Supportive Community</h3>
-        <p class="feature-description">Connect with other mothers and families</p>
-      </div>
+      }
     </div>
   </div>
 
-  <!-- Team Section -->
   <div class="team-section">
-    <h2 class="section-title">Meet Our Team</h2>
-    
+    <h2 class="section-title">{{ 'about.section.team' | translate }}</h2>
+
     <div class="team-grid">
-      <div class="team-card" (click)="viewTeamMember('dr-sarah')">
-        <div class="team-avatar">
-          <img src="assets/images/doctor.jpg" alt="Dr. Sarah Johnson">
+      @for (member of teamMembers; track member.id) {
+        <div class="team-card" (click)="viewTeamMember(member.id)">
+          <div class="team-avatar">
+            <img [src]="member.imageSrc" [alt]="member.altKey | translate" />
+          </div>
+          <div class="team-info">
+            <h3 class="team-name">{{ member.nameKey | translate }}</h3>
+            <p class="team-role">{{ member.roleKey | translate }}</p>
+            <p class="team-bio">{{ member.bioKey | translate }}</p>
+          </div>
         </div>
-        <div class="team-info">
-          <h3 class="team-name">Dr. Sarah Johnson</h3>
-          <p class="team-role">Chief Medical Officer</p>
-          <p class="team-bio">Leading our medical team with 15+ years of experience in women's health.</p>
-        </div>
-      </div>
-
-      <div class="team-card" (click)="viewTeamMember('dr-michael')">
-        <div class="team-avatar">
-          <img src="assets/images/nurse.png" alt="Dr. Michael Chen">
-        </div>
-        <div class="team-info">
-          <h3 class="team-name">Dr. Michael Chen</h3>
-          <p class="team-role">Head of Nutrition</p>
-          <p class="team-bio">Specialized in pregnancy nutrition with a focus on personalized meal planning.</p>
-        </div>
-      </div>
-
-      <div class="team-card" (click)="viewTeamMember('dr-emily')">
-        <div class="team-avatar">
-          <img src="assets/images/doctor.jpg" alt="Dr. Emily Rodriguez">
-        </div>
-        <div class="team-info">
-          <h3 class="team-name">Dr. Emily Rodriguez</h3>
-          <p class="team-role">Fitness Director</p>
-          <p class="team-bio">Expert in prenatal fitness and safe exercise programs for expecting mothers.</p>
-        </div>
-      </div>
-
-      <div class="team-card" (click)="viewTeamMember('maria')">
-        <div class="team-avatar">
-          <img src="assets/images/nurse.png" alt="Maria Garcia">
-        </div>
-        <div class="team-info">
-          <h3 class="team-name">Maria Garcia</h3>
-          <p class="team-role">Community Manager</p>
-          <p class="team-bio">Building and nurturing our supportive community of mothers and families.</p>
-        </div>
-      </div>
+      }
     </div>
   </div>
 
-  <!-- Stats Section -->
   <div class="stats-section">
-    <h2 class="section-title">Our Impact</h2>
-    
+    <h2 class="section-title">{{ 'about.section.impact' | translate }}</h2>
+
     <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-number">50,000+</div>
-        <div class="stat-label">Active Users</div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-number">24</div>
-        <div class="stat-label">Expert Courses</div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-number">15</div>
-        <div class="stat-label">Healthcare Partners</div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-number">4.9★</div>
-        <div class="stat-label">User Rating</div>
-      </div>
+      @for (stat of stats; track stat.labelKey) {
+        <div class="stat-card">
+          <div class="stat-number">{{ stat.valueKey | translate }}</div>
+          <div class="stat-label">{{ stat.labelKey | translate }}</div>
+        </div>
+      }
     </div>
   </div>
 
-  <!-- Social Media -->
   <div class="social-section">
-    <h2 class="section-title">Follow Us</h2>
-    
+    <h2 class="section-title">{{ 'about.section.followUs' | translate }}</h2>
+
     <div class="social-grid">
-      <div class="social-card" (click)="followSocialMedia('instagram')">
-        <div class="social-icon instagram">
-          <ion-icon name="logo-instagram"></ion-icon>
+      @for (platform of socialPlatforms; track platform.id) {
+        <div class="social-card" (click)="followSocialMedia(platform.id)">
+          <div class="social-icon" [class]="platform.cssClass">
+            <ion-icon [name]="platform.icon"></ion-icon>
+          </div>
+          <h3 class="social-name">{{ platform.nameKey | translate }}</h3>
+          <p class="social-handle">{{ platform.handle }}</p>
         </div>
-        <h3 class="social-name">Instagram</h3>
-        <p class="social-handle">@nouracare</p>
-      </div>
-
-      <div class="social-card" (click)="followSocialMedia('facebook')">
-        <div class="social-icon facebook">
-          <ion-icon name="logo-facebook"></ion-icon>
-        </div>
-        <h3 class="social-name">Facebook</h3>
-        <p class="social-handle">@nouracare</p>
-      </div>
-
-      <div class="social-card" (click)="followSocialMedia('twitter')">
-        <div class="social-icon twitter">
-          <ion-icon name="logo-twitter"></ion-icon>
-        </div>
-        <h3 class="social-name">Twitter</h3>
-        <p class="social-handle">@nouracare</p>
-      </div>
-
-      <div class="social-card" (click)="followSocialMedia('youtube')">
-        <div class="social-icon youtube">
-          <ion-icon name="logo-youtube"></ion-icon>
-        </div>
-        <h3 class="social-name">YouTube</h3>
-        <p class="social-handle">@nouracare</p>
-      </div>
+      }
     </div>
   </div>
 
-  <!-- Contact Section -->
   <div class="contact-section">
-    <h2 class="section-title">Get in Touch</h2>
-    
+    <h2 class="section-title">{{ 'about.section.contact' | translate }}</h2>
+
     <div class="contact-card" (click)="contactSupport()">
       <div class="contact-icon">
         <ion-icon name="headset"></ion-icon>
       </div>
       <div class="contact-content">
-        <h3 class="contact-title">Need Help?</h3>
-        <p class="contact-description">Our support team is here to help you 24/7</p>
+        <h3 class="contact-title">{{ 'about.contact.title' | translate }}</h3>
+        <p class="contact-description">{{ 'about.contact.description' | translate }}</p>
         <ion-button fill="outline" class="contact-btn">
-          Contact Support
+          {{ 'about.contact.button' | translate }}
         </ion-button>
       </div>
     </div>
   </div>
 
-  <!-- Legal Section -->
   <div class="legal-section">
-    <h2 class="section-title">Legal Information</h2>
-    
+    <h2 class="section-title">{{ 'about.section.legal' | translate }}</h2>
+
     <div class="legal-links">
       <div class="legal-link" (click)="viewPrivacyPolicy()">
         <ion-icon name="shield-checkmark"></ion-icon>
-        <span>Privacy Policy</span>
-      </div>
-      
-      <div class="legal-link" (click)="viewTermsOfService()">
-        <ion-icon name="document-text"></ion-icon>
-        <span>Terms of Service</span>
+        <span>{{ 'settings.privacyPolicy.title' | translate }}</span>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
   <div class="footer-section">
     <div class="footer-content">
-      <p class="footer-text">© 2024 NouraCare. All rights reserved.</p>
-      <p class="footer-subtext">Empowering women through technology and care</p>
+      <p class="footer-text">{{ 'about.footer.copyright' | translate }}</p>
+      <p class="footer-subtext">{{ 'about.footer.tagline' | translate }}</p>
     </div>
   </div>
 
-  <!-- Floating Action Button -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button aria-label="Quick actions" (click)="openQuickMenu()">
+    <ion-fab-button
+      [attr.aria-label]="'about.a11y.quickActions' | translate"
+      (click)="openQuickMenu()"
+    >
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>

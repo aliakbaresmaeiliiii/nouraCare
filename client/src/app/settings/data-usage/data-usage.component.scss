@@ -1,0 +1,26 @@
+@import '../privacy-settings/privacy-settings.component.scss';
+
+.stat-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--ion-card-background, var(--brand-surface));
+  margin-bottom: 1rem;
+}
+
+.stat-label {
+  font-weight: 600;
+}
+
+.stat-value {
+  color: var(--brand-text-secondary);
+  font-size: 0.9rem;
+}
+
+.hint {
+  color: var(--brand-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}

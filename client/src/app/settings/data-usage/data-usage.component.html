@@ -1,0 +1,23 @@
+<ion-header class="sub-settings-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'settings.dataUsage.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="sub-settings-content">
+  <p class="lede">{{ 'settings.dataUsage.body' | translate }}</p>
+
+  <div class="stat-card">
+    <span class="stat-label">{{ 'settings.autoSync.title' | translate }}</span>
+    <span class="stat-value">
+      {{ (autoSyncEnabled ? 'settings.autoSyncEnabled' : 'settings.autoSyncDisabled') | translate }}
+    </span>
+  </div>
+
+  <p class="hint">{{ 'settings.dataUsage.hint' | translate }}</p>
+</ion-content>

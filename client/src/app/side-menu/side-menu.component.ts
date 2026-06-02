@@ -3,11 +3,27 @@ import { ViewWillEnter } from '@ionic/angular';
 import { ActionSheetController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
+  bagOutline,
+  banOutline,
+  bookmarkOutline,
+  chatbubblesOutline,
+  createOutline,
+  diamondOutline,
+  documentTextOutline,
+  heartOutline,
+  informationCircleOutline,
+  lockClosedOutline,
+  logOutOutline,
   logoInstagram,
   mailOutline,
   moonOutline,
+  notificationsOutline,
   paperPlaneOutline,
+  peopleOutline,
+  personAddOutline,
   phonePortraitOutline,
+  refreshOutline,
+  settingsOutline,
   sunnyOutline,
 } from 'ionicons/icons';
 import { merge, Subscription } from 'rxjs';
@@ -29,6 +45,8 @@ interface MenuItem {
   badge?: string;
   /** When true, row is non-interactive and shows the “coming soon” hint. */
   disabled?: boolean;
+  route?: string;
+  action?: 'logout' | 'contact';
 }
 
 @Component({
@@ -78,23 +96,41 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   ];
 
   menuItemsBottom: MenuItem[] = [
-    { icon: 'settings-outline', label: 'menu.settings' },
-    { icon: 'refresh-outline', label: 'menu.checkUpdates' },
-    { icon: 'person-add-outline', label: 'menu.inviteFriends' },
-    { icon: 'notifications-outline', label: 'menu.notifications' },
-    { icon: 'mail-outline', label: 'menu.contactUs' },
-    { icon: 'information-circle-outline', label: 'menu.aboutNouracare' },
-    { icon: 'log-out-outline', label: 'menu.logOut' },
+    { icon: 'settings-outline', label: 'menu.settings', route: '/settings' },
+    { icon: 'refresh-outline', label: 'menu.checkUpdates', route: '/check-version' },
+    { icon: 'person-add-outline', label: 'menu.inviteFriends', route: '/invite-friends' },
+    { icon: 'notifications-outline', label: 'menu.notifications', route: '/notifications' },
+    { icon: 'mail-outline', label: 'menu.contactUs', action: 'contact' },
+    { icon: 'document-text-outline', label: 'menu.termsOfService', route: '/terms' },
+    { icon: 'lock-closed-outline', label: 'menu.privacyPolicy', route: '/privacy-policy' },
+    { icon: 'information-circle-outline', label: 'menu.aboutNouracare', route: '/tabs/about' },
+    { icon: 'log-out-outline', label: 'menu.logOut', action: 'logout' },
   ];
 
   constructor() {
     addIcons({
+      bagOutline,
+      banOutline,
+      bookmarkOutline,
+      chatbubblesOutline,
+      createOutline,
+      diamondOutline,
+      documentTextOutline,
+      heartOutline,
+      informationCircleOutline,
+      lockClosedOutline,
+      logOutOutline,
       logoInstagram,
       mailOutline,
-      paperPlaneOutline,
-      sunnyOutline,
       moonOutline,
+      notificationsOutline,
+      paperPlaneOutline,
+      peopleOutline,
+      personAddOutline,
       phonePortraitOutline,
+      refreshOutline,
+      settingsOutline,
+      sunnyOutline,
     });
   }
 
@@ -135,7 +171,9 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.activeIndexTop = index;
 
     // Add navigation logic for specific menu items
-    if (item.label === 'menu.myFavorites') {
+    if (item.label === 'menu.nouracarePro') {
+      await this.router.navigate(['/nouracare-pro']);
+    } else if (item.label === 'menu.myFavorites') {
       await this.router.navigate(['/my-favorites']);
     } else if (item.label === 'menu.savedInformation') {
       await this.router.navigate(['/saved-information']);
@@ -149,20 +187,16 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   async setActiveBottom(item: MenuItem, index: number) {
     this.activeIndexBottom = index;
-    if (item.label === 'menu.logOut') {
+    if (item.action === 'logout') {
       this.logout();
-    } else if (item.label === 'menu.aboutNouracare') {
-      await this.router.navigate(['/tabs/about']);
-    } else if (item.label === 'menu.checkUpdates') {
-      await this.router.navigate(['/check-version']);
-    } else if (item.label === 'menu.settings') {
-      await this.router.navigate(['/settings']);
-    } else if (item.label === 'menu.inviteFriends') {
-      await this.router.navigate(['/invite-friends']);
-    } else if (item.label === 'menu.notifications') {
-      await this.router.navigate(['/notifications']);
-    } else if (item.label === 'menu.contactUs') {
+      return;
+    }
+    if (item.action === 'contact') {
       await this.presentContactUs();
+      return;
+    }
+    if (item.route) {
+      await this.router.navigate([item.route]);
     }
   }
 

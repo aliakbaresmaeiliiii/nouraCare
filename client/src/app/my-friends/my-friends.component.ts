@@ -21,6 +21,7 @@ import {
   AlertController,
   ToastController,
 } from '@ionic/angular/standalone';
+import { TranslationService } from '../shared/services/translation.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 interface Friend {
@@ -49,6 +50,7 @@ export class MyFriendsComponent implements OnInit {
   private readonly toastController = inject(ToastController);
   private readonly alertController = inject(AlertController);
   private readonly actionSheetCtrl = inject(ActionSheetController);
+  private readonly translation = inject(TranslationService);
 
   friends: Friend[] = [];
   isLoading = false;
@@ -57,10 +59,18 @@ export class MyFriendsComponent implements OnInit {
   selectedFilter = 'all';
 
   readonly filters = [
-    { value: 'all', label: 'All', icon: 'people-outline' },
-    { value: 'online', label: 'Online', icon: 'radio-button-on-outline' },
-    { value: 'favorites', label: 'Favorites', icon: 'heart-outline' },
-    { value: 'recent', label: 'Recent', icon: 'time-outline' },
+    { value: 'all', labelKey: 'myFriends.filter.all', icon: 'people-outline' },
+    {
+      value: 'online',
+      labelKey: 'myFriends.filter.online',
+      icon: 'radio-button-on-outline',
+    },
+    {
+      value: 'favorites',
+      labelKey: 'myFriends.filter.favorites',
+      icon: 'heart-outline',
+    },
+    { value: 'recent', labelKey: 'myFriends.filter.recent', icon: 'time-outline' },
   ];
 
   constructor() {
@@ -151,8 +161,7 @@ export class MyFriendsComponent implements OnInit {
         },
       ];
     } catch {
-      this.errorMessage =
-        'We could not load your friends list. Check your connection and try again.';
+      this.errorMessage = this.t('myFriends.loadFailed');
     } finally {
       this.isLoading = false;
     }
@@ -171,7 +180,9 @@ export class MyFriendsComponent implements OnInit {
     if (friend) {
       friend.isFavorite = !friend.isFavorite;
       void this.showToast(
-        friend.isFavorite ? 'Added to favorites' : 'Removed from favorites',
+        friend.isFavorite
+          ? this.t('myFriends.toast.addedFavorite')
+          : this.t('myFriends.toast.removedFavorite'),
       );
     }
   }
@@ -187,32 +198,36 @@ export class MyFriendsComponent implements OnInit {
           : bioPreview || undefined,
       buttons: [
         {
-          text: 'View profile',
+          text: this.t('myFriends.action.viewProfile'),
           handler: () => {
             this.openFriendProfile(friend);
           },
         },
         {
-          text: friend.isFavorite ? 'Remove from favorites' : 'Add to favorites',
+          text: friend.isFavorite
+            ? this.t('myFriends.action.removeFavorite')
+            : this.t('myFriends.action.addFavorite'),
           handler: () => {
             this.applyFavoriteToggle(friend.id);
           },
         },
         {
-          text: friend.isBlocked ? 'Unblock' : 'Block',
+          text: friend.isBlocked
+            ? this.t('myFriends.action.unblock')
+            : this.t('myFriends.action.block'),
           role: friend.isBlocked ? undefined : 'destructive',
           handler: () => {
             void this.promptBlockToggle(friend);
           },
         },
         {
-          text: 'Remove friend',
+          text: this.t('myFriends.action.removeFriend'),
           role: 'destructive',
           handler: () => {
             void this.promptRemoveFriend(friend);
           },
         },
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t('common.cancel'), role: 'cancel' },
       ],
     });
     await sheet.present();
@@ -221,20 +236,20 @@ export class MyFriendsComponent implements OnInit {
   private async promptBlockToggle(friend: Friend): Promise<void> {
     if (friend.isBlocked) {
       friend.isBlocked = false;
-      await this.showToast('Unblocked');
+      await this.showToast(this.t('myFriends.toast.unblocked'));
       return;
     }
     const alert = await this.alertController.create({
-      header: 'Block this person?',
-      message: `You will not see activity from ${friend.name} until you unblock them.`,
+      header: this.t('myFriends.alert.blockTitle'),
+      message: this.tParams('myFriends.alert.blockMessage', { name: friend.name }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t('common.cancel'), role: 'cancel' },
         {
-          text: 'Block',
+          text: this.t('myFriends.action.block'),
           role: 'destructive',
           handler: () => {
             friend.isBlocked = true;
-            void this.showToast('Blocked');
+            void this.showToast(this.t('myFriends.toast.blocked'));
           },
         },
       ],
@@ -244,16 +259,16 @@ export class MyFriendsComponent implements OnInit {
 
   private async promptRemoveFriend(friend: Friend): Promise<void> {
     const alert = await this.alertController.create({
-      header: 'Remove friend?',
-      message: `${friend.name} will be removed from this list.`,
+      header: this.t('myFriends.alert.removeTitle'),
+      message: this.tParams('myFriends.alert.removeMessage', { name: friend.name }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t('common.cancel'), role: 'cancel' },
         {
-          text: 'Remove',
+          text: this.t('myFriends.action.remove'),
           role: 'destructive',
           handler: () => {
             this.friends = this.friends.filter((f) => f.id !== friend.id);
-            void this.showToast('Removed from friends');
+            void this.showToast(this.t('myFriends.toast.removedFriend'));
           },
         },
       ],
@@ -319,15 +334,17 @@ export class MyFriendsComponent implements OnInit {
   getStatusText(status: string, lastSeen?: string): string {
     switch (status) {
       case 'online':
-        return 'Online';
+        return this.t('myFriends.status.online');
       case 'away':
-        return 'Away';
+        return this.t('myFriends.status.away');
       case 'offline':
         return lastSeen
-          ? `Last seen ${this.formatRelativeTime(lastSeen)}`
-          : 'Offline';
+          ? this.tParams('myFriends.status.lastSeen', {
+              time: this.formatRelativeTime(lastSeen),
+            })
+          : this.t('myFriends.status.offline');
       default:
-        return 'Unknown';
+        return this.t('myFriends.status.unknown');
     }
   }
 
@@ -340,16 +357,30 @@ export class MyFriendsComponent implements OnInit {
       const diffDays = Math.floor(diffHours / 24);
 
       if (diffDays > 0) {
-        return diffDays === 1 ? 'yesterday' : `${diffDays} days ago`;
+        return diffDays === 1
+          ? this.t('forums.time.yesterday')
+          : this.tParams('forums.time.daysAgo', { days: diffDays });
       }
       if (diffHours > 0) {
-        return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+        return diffHours === 1
+          ? this.t('forums.time.oneHourAgo')
+          : this.tParams('forums.time.hoursAgo', { hours: diffHours });
       }
       const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      return diffMinutes < 1 ? 'just now' : `${diffMinutes} minutes ago`;
+      return diffMinutes < 1
+        ? this.t('forums.time.justNow')
+        : this.tParams('forums.time.minutesAgo', { minutes: diffMinutes });
     } catch {
-      return 'recently';
+      return this.t('forums.time.recently');
     }
+  }
+
+  t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  tParams(key: string, params: Record<string, string | number>): string {
+    return this.translation.translateParams(key, params);
   }
 
   onImageError(event: Event): void {

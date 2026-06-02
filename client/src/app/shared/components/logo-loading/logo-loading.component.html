@@ -5,17 +5,7 @@
   [attr.aria-label]="ariaLabel()"
   aria-live="polite"
 >
-  <div class="app-logo-loading__halo" aria-hidden="true"></div>
-  <div class="app-logo-loading__logo">
-    <img
-      [src]="logoSrc()"
-      width="96"
-      height="96"
-      alt=""
-      class="app-logo-loading__img"
-      decoding="async"
-    />
-  </div>
+  <ion-spinner name="crescent"></ion-spinner>
   @if (message(); as text) {
     <p class="app-logo-loading__msg">{{ text }}</p>
   }

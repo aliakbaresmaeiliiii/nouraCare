@@ -45,7 +45,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
-    color: #f8fafc;
+    color: var(--brand-text, #0f172a);
 
     .header-title,
     .header-subtitle {
@@ -53,13 +53,13 @@
     }
 
     .back-btn {
-      --color: #f8fafc;
+      --color: var(--brand-text, #0f172a);
       flex-shrink: 0;
       padding: 0.5rem;
 
       ion-icon {
         font-size: 1.5rem;
-        color: #f8fafc;
+        color: var(--brand-text, #0f172a);
       }
     }
 
@@ -76,12 +76,13 @@
         font-size: 2rem;
         font-weight: 800;
         margin: 0 0 0.25rem 0;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-shadow: none;
       }
 
       .header-subtitle {
         font-size: 0.875rem;
-        opacity: 0.9;
+        color: var(--brand-text-secondary, #334155);
+        opacity: 1;
         margin: 0;
         font-weight: 500;
       }
@@ -404,14 +405,6 @@
       );
     }
 
-    &.icon-terms {
-      background: linear-gradient(
-        135deg,
-        var(--ion-color-medium-shade),
-        var(--ion-color-medium-tint)
-      );
-    }
-
     &.icon-privacy-policy {
       background: linear-gradient(
         135deg,
@@ -641,6 +634,23 @@
     .header-pattern {
       background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    }
+
+    .header-content {
+      color: #f8fafc;
+
+      .back-btn {
+        --color: #f8fafc;
+
+        ion-icon {
+          color: #f8fafc;
+        }
+      }
+
+      .header-info .header-subtitle {
+        color: inherit;
+        opacity: 0.9;
+      }
     }
   }
 

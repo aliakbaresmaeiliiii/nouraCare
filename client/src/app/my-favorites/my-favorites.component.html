@@ -5,7 +5,7 @@
         <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="header-title">My Favorites</ion-title>
+    <ion-title class="header-title">{{ 'menu.myFavorites' | translate }}</ion-title>
     <ion-buttons slot="end">
       @if (favoriteStats.totalFavorites > 0) {
       <ion-button (click)="clearAllFavorites()" fill="clear" class="clear-btn">
@@ -29,26 +29,26 @@
       <div class="hero-icon">
         <ion-icon name="heart"></ion-icon>
       </div>
-      <h1 class="hero-title">Your Favorites</h1>
-      <p class="hero-subtitle">All your saved content in one place</p>
+      <h1 class="hero-title">{{ 'myFavorites.heroTitle' | translate }}</h1>
+      <p class="hero-subtitle">{{ 'myFavorites.heroSubtitle' | translate }}</p>
       
       <!-- Stats Cards -->
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-number">{{ favoriteStats.totalFavorites | localNum }}</div>
-          <div class="stat-label">Total</div>
+          <div class="stat-label">{{ 'myFavorites.statTotal' | translate }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-number">{{ favoriteStats.articleCount | localNum }}</div>
-          <div class="stat-label">Articles</div>
+          <div class="stat-label">{{ 'myFavorites.statArticles' | translate }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-number">{{ favoriteStats.doctorCount | localNum }}</div>
-          <div class="stat-label">Doctors</div>
+          <div class="stat-label">{{ 'myFavorites.statDoctors' | translate }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-number">{{ (favoriteStats.toolCount + favoriteStats.tipCount) | localNum }}</div>
-          <div class="stat-label">Others</div>
+          <div class="stat-label">{{ 'myFavorites.statOthers' | translate }}</div>
         </div>
       </div>
     </div>
@@ -60,7 +60,7 @@
     <!-- Search Bar -->
     <div class="search-container">
       <ion-searchbar
-        placeholder="Search your favorites..."
+        [placeholder]="'myFavorites.searchPlaceholder' | translate"
         (ionInput)="onSearchChange($event)"
         [value]="searchTerm"
         class="modern-search">
@@ -76,7 +76,7 @@
           [class.active]="selectedCategory === category.value"
           (click)="onCategoryChange(category.value)">
           <ion-icon [name]="category.icon"></ion-icon>
-          <span>{{ category.label }}</span>
+          <span>{{ category.labelKey | translate }}</span>
         </div>
         }
       </div>
@@ -88,18 +88,18 @@
         [value]="selectedSort"
         (ionChange)="onSortChange($event)"
         interface="popover"
-        placeholder="Sort by"
+        [placeholder]="'myFavorites.sortPlaceholder' | translate"
         class="sort-select">
         @for (option of sortOptions; track option.value) {
         <ion-select-option [value]="option.value">
-          {{ option.label }}
+          {{ option.labelKey | translate }}
         </ion-select-option>
         }
       </ion-select>
       
       <div class="results-count">
         <span class="count">{{ filteredFavorites.length | localNum }}</span>
-        <span class="label">{{ filteredFavorites.length === 1 ? 'item' : 'items' }}</span>
+        <span class="label">{{ (filteredFavorites.length === 1 ? 'myFavorites.item' : 'myFavorites.items') | translate }}</span>
       </div>
     </div>
   </div>
@@ -107,7 +107,7 @@
 
   <!-- Loading State -->
   @if (isLoading) {
-  <app-logo-loading message="Loading your favorites..." />
+  <app-logo-loading [message]="'myFavorites.loading' | translate" />
   }
 
   <!-- Empty State -->
@@ -117,16 +117,16 @@
       <div class="empty-icon">
         <ion-icon name="heart-outline"></ion-icon>
       </div>
-      <h2>No Favorites Yet</h2>
-      <p>Start adding items to your favorites by tapping the heart icon on articles, doctors, and tools you love.</p>
+      <h2>{{ 'myFavorites.emptyTitle' | translate }}</h2>
+      <p>{{ 'myFavorites.emptyDescription' | translate }}</p>
       <div class="empty-actions">
         <ion-button expand="block" fill="solid" class="explore-btn" (click)="router.navigate(['/tabs/insights'])">
           <ion-icon name="compass-outline" slot="start"></ion-icon>
-          Explore Content
+          {{ 'myFavorites.exploreContent' | translate }}
         </ion-button>
         <ion-button expand="block" fill="outline" class="doctors-btn" (click)="router.navigate(['/doctors'])">
           <ion-icon name="medical-outline" slot="start"></ion-icon>
-          Find Doctors
+          {{ 'myFavorites.findDoctors' | translate }}
         </ion-button>
       </div>
     </div>
@@ -138,16 +138,16 @@
   <div class="no-results">
     <div class="no-results-content">
       <ion-icon name="search-outline"></ion-icon>
-      <h3>No Results Found</h3>
+      <h3>{{ 'myFavorites.noResultsTitle' | translate }}</h3>
       @if (searchTerm) {
-      <p>No favorites match "{{ searchTerm }}"</p>
+      <p>{{ getNoResultsSearchMessage() }}</p>
       }
       @if (!searchTerm && selectedCategory !== 'all') {
-      <p>No {{ selectedCategory }}s in your favorites</p>
+      <p>{{ getNoResultsCategoryMessage() }}</p>
       }
       <ion-button fill="outline" (click)="searchTerm = ''; selectedCategory = 'all'; applyFilters()">
         <ion-icon name="refresh" slot="start"></ion-icon>
-        Show All
+        {{ 'myFavorites.showAll' | translate }}
       </ion-button>
     </div>
   </div>
@@ -173,7 +173,7 @@
         <div class="card-header">
           <div class="type-badge" [style.background-color]="getTypeColor(favorite.type)">
             <ion-icon [name]="getTypeIcon(favorite.type)"></ion-icon>
-            <span>{{ favorite.type | titlecase }}</span>
+            <span>{{ getTypeLabel(favorite.type) }}</span>
           </div>
           <ion-button 
             fill="clear" 
@@ -215,7 +215,7 @@
             class="open-btn"
             (click)="openFavoriteItem(favorite); $event.stopPropagation()">
             <ion-icon name="arrow-forward" slot="end"></ion-icon>
-            Open
+            {{ 'myFavorites.open' | translate }}
           </ion-button>
         </div>
       </div>

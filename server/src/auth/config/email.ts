@@ -60,13 +60,29 @@ export class EmailProvider {
    * Sends an email
    */
   public async send(to: string | string[], subject: string, template: string) {
+    return this.sendMail({
+      to,
+      subject,
+      html: template,
+    });
+  }
+
+  public async sendMail(options: {
+    to: string | string[];
+    subject: string;
+    html: string;
+    attachments?: nodemailer.Attachment[];
+  }) {
     try {
-      const recipient = Array.isArray(to) ? to.join(', ') : to;
+      const recipient = Array.isArray(options.to)
+        ? options.to.join(', ')
+        : options.to;
       const mailOptions: nodemailer.SendMailOptions = {
         from: `${APP_NAME} <${MAIL_USERNAME}>`,
         to: recipient,
-        subject,
-        html: template,
+        subject: options.subject,
+        html: options.html,
+        attachments: options.attachments,
       };
 
       const info = await this.transporter.sendMail(mailOptions);

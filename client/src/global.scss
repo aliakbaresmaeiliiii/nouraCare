@@ -529,10 +529,10 @@ ion-toolbar ion-back-button {
   outline-offset: 2px;
 }
 
-// Persian language specific fonts
+// Persian language specific fonts (exclude ion-icon so menu/toolbar glyphs stay visible)
 [lang="fa"],
 [dir="rtl"] {
-  * {
+  *:not(ion-icon) {
     font-family: var(--font-persian);
   }
 
@@ -561,6 +561,12 @@ ion-toolbar ion-back-button {
   ion-card {
     font-family: var(--font-persian);
   }
+
+  ion-menu,
+  ion-menu.custom-menu {
+    --ion-font-family: var(--font-persian);
+    font-family: var(--font-persian);
+  }
 }
 
 /* Core CSS required for Ionic components to work properly */
@@ -578,6 +584,39 @@ ion-toolbar ion-back-button {
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
+
+/* Ionic overlays (e.g. ion-menu) use --ion-font-family; set after typography import */
+:root,
+ion-app {
+  --ion-font-family: var(--font-primary);
+}
+
+html[dir='rtl'],
+html[lang='fa'] {
+  --ion-font-family: var(--font-persian);
+}
+
+ion-menu,
+ion-menu.custom-menu {
+  font-family: var(--ion-font-family);
+}
+
+ion-menu ion-content,
+ion-menu ion-toolbar,
+ion-menu ion-title,
+ion-menu ion-item,
+ion-menu ion-label,
+ion-menu ion-segment,
+ion-menu ion-segment-button,
+ion-menu ion-badge,
+ion-menu ion-button {
+  font-family: var(--ion-font-family);
+}
+
+ion-menu ion-icon,
+ion-menu .menu-icon {
+  font-family: inherit;
+}
 
 /* App Container System for Consistent Layout */
 :root {
@@ -894,6 +933,17 @@ ion-button[fill='clear'] ion-icon {
 
 ion-menu .menu-icon {
   color: var(--app-icon-muted, inherit);
+}
+
+ion-menu .menu-label,
+ion-menu .section-title,
+ion-menu .user-name,
+ion-menu .progress-text,
+ion-menu .theme-hint,
+ion-menu .menu-soon,
+ion-menu .social-label,
+ion-menu .version-text {
+  font-family: var(--ion-font-family);
 }
 
 /* Custom Modal Styles */
@@ -1629,25 +1679,6 @@ ion-modal.instagram-crop-modal .insta-zoom-range {
   --knob-size: 18px;
   --knob-background: #ffffff;
   --pin-background: #ffffff;
-}
-
-/* Branded logo loader (shared + imperative overlays) */
-@keyframes app-brand-logo-pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.035);
-  }
-}
-
-@keyframes app-brand-logo-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 /* =============================================================================

@@ -43,6 +43,8 @@ import {
   ForumTopic,
 } from '../../shared/models/forum';
 import { ForumService } from '../../shared/services/forum.service';
+import { TranslationService } from '../../shared/services/translation.service';
+import { ForumCategoryMapperService } from '../../shared/services/forum-category-mapper.service';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 
 // Strongly typed interfaces
@@ -62,6 +64,8 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   private forumService = inject(ForumService);
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
+  private readonly translation = inject(TranslationService);
+  private readonly categoryMapper = inject(ForumCategoryMapperService);
 
   // Component state
   topic: ForumTopic | null = null;
@@ -141,7 +145,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
         content: item.comment || '',
         author: {
           id: authorId,
-          name: 'Community member',
+          name: this.t('forums.topic.communityMember'),
           profileImage: null,
         },
         authorId,
@@ -182,7 +186,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
           }
         : {
             id: authorId,
-            name: 'Community member',
+            name: this.t('forums.topic.communityMember'),
             profileImage: null,
           },
       authorId,
@@ -202,15 +206,15 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     const normalizedViews = Number(rawViews);
     return {
       id: topic.id,
-      title: topic.title || 'Untitled',
+      title: topic.title || this.t('forums.untitled'),
       comment: topic.comment || topic.content || '',
-      author: topic.author || topic.user?.fullName || 'Anonymous',
+      author: topic.author || topic.user?.fullName || this.t('forums.anonymous'),
       authorAvatar:
         topic.authorAvatar ||
         topic.user?.profileImage ||
         topic.user?.user_profile?.avatarUrl ||
         '/assets/images/nurse.png',
-      category: topic.category || 'General Discussion',
+      category: topic.category || this.t('forums.generalDiscussion'),
       categoryId: topic.categoryId,
       replies: topic.replies ?? topic.commentCount ?? 0,
       viewCount: Number.isFinite(normalizedViews) ? normalizedViews : 0,
@@ -222,7 +226,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       tags: topic.tags || [],
       user: topic.user || {
         id: 0,
-        fullName: topic.author || 'Anonymous',
+        fullName: topic.author || this.t('forums.anonymous'),
         profileImage: '',
       },
       createdAt: topic.createdAt || new Date().toISOString(),
@@ -298,7 +302,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     const threadId = this.route.snapshot.paramMap.get('id');
     this.topicId.set(threadId);
     if (!threadId) {
-      this.errorMessage = 'Topic not found';
+      this.errorMessage = this.t('forums.topic.notFound');
       return;
     }
 
@@ -483,12 +487,12 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   submitComment() {
     if (!this.newComment.trim()) {
-      this.showToast('Please write a comment', 'warning');
+      this.showToast(this.t('forums.topic.toast.writeComment'), 'warning');
       return;
     }
 
     if (!this.topic) {
-      this.showToast('Topic not found', 'danger');
+      this.showToast(this.t('forums.topic.notFound'), 'danger');
       return;
     }
 
@@ -511,7 +515,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       content: this.newComment.trim(),
       author: {
         id: currentUser?.id || 0,
-        name: currentUser?.name || 'You',
+        name: currentUser?.name || this.t('forums.topic.you'),
         profileImage: currentUser?.profileImage || null,
       },
       authorId: currentUser?.id || 0,
@@ -540,7 +544,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
             const mapped = this.mapApiCommentToDetailComment(response.data);
             mapped.author = {
               id: currentUser?.id ?? mapped.authorId,
-              name: currentUser?.name || currentUser?.fullName || 'You',
+              name: currentUser?.name || currentUser?.fullName || this.t('forums.topic.you'),
               profileImage:
                 currentUser?.profileImage ?? mapped.author.profileImage,
             };
@@ -550,15 +554,17 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
                 comment.id === optimisticComment.id ? mapped : comment
               )
             );
-            this.showToast('Comment posted successfully!', 'success');
+            this.showToast(this.t('forums.topic.toast.commentPosted'), 'success');
+            this.forumService.emitPostCreated();
           } else {
             // Remove optimistic comment on failure
             this.comments.update((comments) =>
               comments.filter((comment) => comment.id !== optimisticComment.id)
             );
             this.showToast(
-              'Failed to post comment: ' +
-                (response?.message || 'Unknown error'),
+              this.tParams('forums.topic.toast.commentPostFailed', {
+                error: response?.message || this.t('forums.topic.error.unknown'),
+              }),
               'danger'
             );
           }
@@ -569,8 +575,12 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
             comments.filter((comment) => comment.id !== optimisticComment.id)
           );
           this.showToast(
-            'Failed to post comment: ' +
-              (error.error?.message || error.message || 'Network error'),
+            this.tParams('forums.topic.toast.commentPostFailed', {
+              error:
+                error.error?.message ||
+                error.message ||
+                this.t('forums.topic.error.network'),
+            }),
             'danger'
           );
           return of(null);
@@ -643,17 +653,19 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
                 : previousLikes + (isLike ? 1 : -1)
             );
             this.showToast(
-              isLike ? 'Comment liked!' : 'Comment disliked!',
+              isLike
+                ? this.t('forums.topic.toast.liked')
+                : this.t('forums.topic.toast.disliked'),
               'success'
             );
           } else {
             applyLikeState(previousLiked, previousLikes);
-            this.showToast('Failed to update like status', 'danger');
+            this.showToast(this.t('forums.topic.toast.likeFailed'), 'danger');
           }
         }),
         catchError((error: any) => {
           applyLikeState(previousLiked, previousLikes);
-          this.showToast('Failed to update like status', 'danger');
+          this.showToast(this.t('forums.topic.toast.likeFailed'), 'danger');
           return of(null);
         })
       )
@@ -684,12 +696,12 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     const forumId = this.topic?.id || '';
     const id = this.topicId();
     if (!replyText) {
-      this.showToast('Please write a reply', 'warning');
+      this.showToast(this.t('forums.topic.toast.writeReply'), 'warning');
       return;
     }
 
     if (!this.topic) {
-      this.showToast('Topic not found', 'danger');
+      this.showToast(this.t('forums.topic.notFound'), 'danger');
       return;
     }
 
@@ -719,7 +731,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
               const currentUser = userInfo ? JSON.parse(userInfo) : null;
               mapped.author = {
                 id: currentUser?.id ?? mapped.authorId,
-                name: currentUser?.name || currentUser?.fullName || 'You',
+                name: currentUser?.name || currentUser?.fullName || this.t('forums.topic.you'),
                 profileImage:
                   currentUser?.profileImage ?? mapped.author.profileImage,
               };
@@ -731,18 +743,25 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
             this.replyTexts[commentId] = '';
             this.showReplyInput = null;
-            this.showToast('Reply posted successfully!', 'success');
+            this.showToast(this.t('forums.topic.toast.replyPosted'), 'success');
+            this.forumService.emitPostCreated();
           } else {
             this.showToast(
-              'Failed to post reply: ' + (response?.message || 'Unknown error'),
+              this.tParams('forums.topic.toast.replyPostFailed', {
+                error: response?.message || this.t('forums.topic.error.unknown'),
+              }),
               'danger'
             );
           }
         }),
         catchError((error: any) => {
           this.showToast(
-            'Failed to post reply: ' +
-              (error.error?.message || error.message || 'Network error'),
+            this.tParams('forums.topic.toast.replyPostFailed', {
+              error:
+                error.error?.message ||
+                error.message ||
+                this.t('forums.topic.error.network'),
+            }),
             'danger'
           );
           return of(null);
@@ -763,20 +782,25 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            this.showToast('Forum thread created successfully!', 'success');
+            this.showToast(this.t('forums.topic.toast.threadCreated'), 'success');
             // Optionally navigate to the new thread or refresh the list
           } else {
             this.showToast(
-              'Failed to create forum thread: ' +
-                (response?.message || 'Unknown error'),
+              this.tParams('forums.topic.toast.threadCreateFailed', {
+                error: response?.message || this.t('forums.topic.error.unknown'),
+              }),
               'danger'
             );
           }
         }),
         catchError((error: any) => {
           this.showToast(
-            'Failed to create forum thread: ' +
-              (error.error?.message || error.message || 'Network error'),
+            this.tParams('forums.topic.toast.threadCreateFailed', {
+              error:
+                error.error?.message ||
+                error.message ||
+                this.t('forums.topic.error.network'),
+            }),
             'danger'
           );
           return of(null);
@@ -850,16 +874,51 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       const diffDays = Math.floor(diffHours / 24);
 
       if (diffDays > 0) {
-        return diffDays === 1 ? 'yesterday' : `${diffDays} days ago`;
-      } else if (diffHours > 0) {
-        return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
-      } else {
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        return diffMinutes < 1 ? 'just now' : `${diffMinutes} minutes ago`;
+        return diffDays === 1
+          ? this.t('forums.time.yesterday')
+          : this.tParams('forums.time.daysAgo', { days: diffDays });
       }
-    } catch (error) {
-      return 'recently';
+      if (diffHours > 0) {
+        return diffHours === 1
+          ? this.t('forums.time.oneHourAgo')
+          : this.tParams('forums.time.hoursAgo', { hours: diffHours });
+      }
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return diffMinutes < 1
+        ? this.t('forums.time.justNow')
+        : this.tParams('forums.time.minutesAgo', { minutes: diffMinutes });
+    } catch {
+      return this.t('forums.time.recently');
     }
+  }
+
+  topicCategoryLabel(): string {
+    if (!this.topic) return '';
+    if (this.topic.categoryId) {
+      const match = this.categories().find((c) => c.id === this.topic!.categoryId);
+      if (match) {
+        return this.categoryMapper.translateName(match);
+      }
+    }
+    return this.categoryMapper.translateName(this.topic.category);
+  }
+
+  categoryName(category: ForumCategory): string {
+    return this.categoryMapper.translateName(category);
+  }
+
+  commentsTitle(): string {
+    return this.tParams('forums.topic.commentsTitle', {
+      count: this.comments().length,
+    });
+  }
+
+  commentsCountLabel(count: number): string {
+    return this.tParams('forums.topic.commentsCount', { count });
+  }
+
+  viewsCountLabel(count: number): string {
+    return this.tParams('forums.topic.viewsCount', { count });
   }
 
   formatLikeCount(count: number): string {
@@ -881,7 +940,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   async shareTopic() {
     if (!this.topic) {
-      await this.showToast('Topic not available for sharing', 'warning');
+      await this.showToast(this.t('forums.topic.toast.shareUnavailable'), 'warning');
       return;
     }
 
@@ -894,18 +953,15 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
       if (navigator.share) {
         await navigator.share(shareData);
-        await this.showToast('Topic shared successfully!', 'success');
+        await this.showToast(this.t('forums.topic.toast.shared'), 'success');
         return;
       }
 
       await Share.share(shareData);
-      await this.showToast('Topic shared successfully!', 'success');
+      await this.showToast(this.t('forums.topic.toast.shared'), 'success');
     } catch (error) {
       console.error('Error sharing topic:', error);
-      await this.showToast(
-        'Failed to share topic. Please try again.',
-        'danger'
-      );
+      await this.showToast(this.t('forums.topic.toast.shareFailed'), 'danger');
     }
   }
 
@@ -918,7 +974,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   // Edit functionality
   startEditComment(comment: Comment) {
     if (!this.canEditOrDelete(comment)) {
-      this.showToast('You can only edit your own comments', 'danger');
+      this.showToast(this.t('forums.topic.toast.editOwnOnly'), 'danger');
       return;
     }
     this.isEditingComment = comment.id;
@@ -934,14 +990,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   async submitEdit(comment: Comment) {
     if (!this.canEditOrDelete(comment)) {
-      await this.showToast('You can only edit your own comments', 'danger');
+      await this.showToast(this.t('forums.topic.toast.editOwnOnly'), 'danger');
       this.cancelEdit();
       return;
     }
 
     const editText = this.editTexts[comment.id]?.trim();
     if (!editText) {
-      await this.showToast('Please write something to edit', 'warning');
+      await this.showToast(this.t('forums.topic.toast.writeToEdit'), 'warning');
       return;
     }
 
@@ -967,13 +1023,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
                 ? row.updatedAt
                 : row.updatedAt?.toISOString?.() || comment.updatedAt;
             this.comments.update((arr) => [...arr]);
-            this.showToast('Comment updated successfully!', 'success');
+            this.showToast(this.t('forums.topic.toast.commentUpdated'), 'success');
           } else {
             // Revert optimistic update on failure
             comment.content = originalContent;
             this.showToast(
-              'Failed to update comment: ' +
-                (response?.message || 'Unknown error'),
+              this.tParams('forums.topic.toast.commentUpdateFailed', {
+                error: response?.message || this.t('forums.topic.error.unknown'),
+              }),
               'danger'
             );
           }
@@ -983,14 +1040,15 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
           comment.content = originalContent;
 
           if (error.status === 403) {
-            this.showToast(
-              'You do not have permission to edit this comment',
-              'danger'
-            );
+            this.showToast(this.t('forums.topic.toast.noEditPermission'), 'danger');
           } else {
             this.showToast(
-              'Failed to update comment: ' +
-                (error.error?.message || error.message || 'Network error'),
+              this.tParams('forums.topic.toast.commentUpdateFailed', {
+                error:
+                  error.error?.message ||
+                  error.message ||
+                  this.t('forums.topic.error.network'),
+              }),
               'danger'
             );
           }
@@ -1006,22 +1064,21 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
   // Delete functionality
   async deleteComment(comment: Comment) {
     if (!this.canEditOrDelete(comment)) {
-      await this.showToast('You can only delete your own comments', 'danger');
+      await this.showToast(this.t('forums.topic.toast.deleteOwnOnly'), 'danger');
       return;
     }
 
     const alert = await this.alertController.create({
-      header: 'Delete Comment',
-      message:
-        'Are you sure you want to delete this comment? This action cannot be undone.',
+      header: this.t('forums.topic.alert.deleteCommentHeader'),
+      message: this.t('forums.topic.alert.deleteCommentMessage'),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.t('common.cancel'),
           role: 'cancel',
           cssClass: 'secondary',
         },
         {
-          text: 'Delete',
+          text: this.t('common.delete'),
           role: 'destructive',
           handler: () => {
             this.confirmDeleteComment(comment);
@@ -1037,16 +1094,16 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     if (!this.topic) return;
 
     const dialog = await this.alertController.create({
-      header: 'Post actions',
+      header: this.t('forums.topic.alert.postActionsHeader'),
       cssClass: 'liquid-glass-dialog',
       translucent: true,
       buttons: [
         {
-          text: '✏️ Edit',
+          text: this.t('forums.topic.action.edit'),
           handler: () => this.startEditPost(),
         },
         {
-          text: '🗑️ Delete',
+          text: this.t('forums.topic.action.delete'),
           role: 'destructive',
           handler: () => this.deletePost(),
         },
@@ -1064,7 +1121,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       handler?: () => void;
     }> = [
       {
-        text: '✏️ Edit',
+        text: this.t('forums.topic.action.edit'),
         handler: () => this.startEditComment(comment),
       },
     ];
@@ -1072,21 +1129,23 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     if (!comment.parentId) {
       const isPinned = this.pinnedCommentId() === comment.id;
       buttons.push({
-        text: isPinned ? '📌 Unpin comment' : '📌 Pin comment',
+        text: isPinned
+          ? this.t('forums.topic.action.unpinComment')
+          : this.t('forums.topic.action.pinComment'),
         handler: () => this.togglePinComment(comment.id),
       });
     }
 
     buttons.push(
       {
-        text: '🗑️ Delete',
+        text: this.t('forums.topic.action.delete'),
         role: 'destructive',
         handler: () => this.deleteComment(comment),
       },
     );
 
     const dialog = await this.alertController.create({
-      header: 'Comment actions',
+      header: this.t('forums.topic.alert.commentActionsHeader'),
       cssClass: 'liquid-glass-dialog',
       translucent: true,
       buttons,
@@ -1116,7 +1175,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   private confirmDeleteComment(comment: Comment) {
     if (!this.canEditOrDelete(comment)) {
-      this.showToast('You can only delete your own comments', 'danger');
+      this.showToast(this.t('forums.topic.toast.deleteOwnOnly'), 'danger');
       return;
     }
 
@@ -1157,13 +1216,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            this.showToast('Comment deleted successfully!', 'success');
+            this.showToast(this.t('forums.topic.toast.commentDeleted'), 'success');
           } else {
             // Revert optimistic update on failure
             this.revertCommentDeletion(originalComment, commentIndex);
             this.showToast(
-              'Failed to delete comment: ' +
-                (response?.message || 'Unknown error'),
+              this.tParams('forums.topic.toast.commentDeleteFailed', {
+                error: response?.message || this.t('forums.topic.error.unknown'),
+              }),
               'danger'
             );
           }
@@ -1173,14 +1233,15 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
           this.revertCommentDeletion(originalComment, commentIndex);
 
           if (error.status === 403) {
-            this.showToast(
-              'You do not have permission to delete this comment',
-              'danger'
-            );
+            this.showToast(this.t('forums.topic.toast.noDeletePermission'), 'danger');
           } else {
             this.showToast(
-              'Failed to delete comment: ' +
-                (error.error?.message || error.message || 'Network error'),
+              this.tParams('forums.topic.toast.commentDeleteFailed', {
+                error:
+                  error.error?.message ||
+                  error.message ||
+                  this.t('forums.topic.error.network'),
+              }),
               'danger'
             );
           }
@@ -1234,8 +1295,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       .pipe(
         catchError((error: any) => {
           this.showToast(
-            'Failed to refresh topic: ' +
-              (error?.message || 'Network error'),
+            this.tParams('forums.topic.toast.refreshFailed', {
+              error: error?.message || this.t('forums.topic.error.network'),
+            }),
             'danger'
           );
           return of(null);
@@ -1265,7 +1327,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     const content = this.editPostContent.trim();
 
     if (!title || !content) {
-      await this.showToast('Please provide both title and content', 'warning');
+      await this.showToast(this.t('forums.topic.toast.titleContentRequired'), 'warning');
       return;
     }
 
@@ -1290,7 +1352,7 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       .pipe(
         tap((response: any) => {
           if (response && response.success) {
-            this.showToast('Post updated successfully!', 'success');
+            this.showToast(this.t('forums.topic.toast.postUpdated'), 'success');
           } else {
             // Revert optimistic update on failure
             this.topic!.title = originalTitle;
@@ -1299,8 +1361,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
             this.editPostTitle = submittedTitle;
             this.editPostContent = submittedContent;
             this.showToast(
-              'Failed to update post: ' +
-                (response?.message || 'Unknown error'),
+              this.tParams('forums.topic.toast.postUpdateFailed', {
+                error: response?.message || this.t('forums.topic.error.unknown'),
+              }),
               'danger'
             );
           }
@@ -1314,14 +1377,15 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
           this.editPostContent = submittedContent;
 
           if (error.status === 403) {
-            this.showToast(
-              'You do not have permission to edit this post',
-              'danger'
-            );
+            this.showToast(this.t('forums.topic.toast.noEditPostPermission'), 'danger');
           } else {
             this.showToast(
-              'Failed to update post: ' +
-                (error.error?.message || error.message || 'Network error'),
+              this.tParams('forums.topic.toast.postUpdateFailed', {
+                error:
+                  error.error?.message ||
+                  error.message ||
+                  this.t('forums.topic.error.network'),
+              }),
               'danger'
             );
           }
@@ -1338,17 +1402,16 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
     if (!this.topic) return;
 
     const alert = await this.alertController.create({
-      header: 'Delete Post',
-      message:
-        'Are you sure you want to delete this post? This action cannot be undone and will delete all comments as well.',
+      header: this.t('forums.topic.alert.deletePostHeader'),
+      message: this.t('forums.topic.alert.deletePostMessage'),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.t('common.cancel'),
           role: 'cancel',
           cssClass: 'secondary',
         },
         {
-          text: 'Delete',
+          text: this.t('common.delete'),
           role: 'destructive',
           handler: () => {
             this.confirmDeletePost();
@@ -1374,17 +1437,25 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
         if (response && response.ok) {
           // Emit event to notify forums component to refresh the list
           this.forumService.emitPostDeleted(this.topicId());
-          this.showToast('Post deleted successfully!', 'success');
+          this.showToast(this.t('forums.topic.toast.postDeleted'), 'success');
         }
       },
       error: (error: any) => {
         if (error.status === 403) {
-          this.showToast(
-            'You do not have permission to delete this post',
-            'danger'
-          );
+          this.showToast(this.t('forums.topic.toast.noDeletePostPermission'), 'danger');
         }
       },
     });
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  private tParams(
+    key: string,
+    params: Record<string, string | number>,
+  ): string {
+    return this.translation.translateParams(key, params);
   }
 }

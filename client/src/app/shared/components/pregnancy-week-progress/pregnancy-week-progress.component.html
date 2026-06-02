@@ -33,7 +33,7 @@
       <span class="pwp-zone pwp-zone--t3"></span>
     </div>
 
-    <div class="pwp-fill-glow" [style.width.%]="fillPercent"></div>
+    <div class="pwp-fill-glow" [style.width.%]="fillPercent()"></div>
 
     <div class="pwp-segments" role="group">
       @for (w of weeks(); track w) {

@@ -1,286 +1,675 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { IonicModule, AlertController, ToastController } from '@ionic/angular';
+
 import { Router } from '@angular/router';
+
 import { Subject, takeUntil } from 'rxjs';
+
+import { AlertController, ToastController } from '@ionic/angular';
+
 import { FavoritesService, FavoriteItem, FavoriteStats } from '../shared/services/favorites.service';
-import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
-import { LocalizedNumberPipe } from '../shared/pipes/localized-number.pipe';
+
+import { TranslationService } from '../shared/services/translation.service';
+
+import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+
+import { formatRecordedAtDate } from '../shared/utils/locale-date-format.util';
+
+import { LanguageService } from '../shared/services/language.service';
+
+
 
 @Component({
+
   selector: 'app-my-favorites',
+
   templateUrl: './my-favorites.component.html',
+
   styleUrls: ['./my-favorites.component.scss'],
+
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, LogoLoadingComponent, LocalizedNumberPipe],
+  imports: [...SHARED_STANDALONE_IMPORTS],
+  host: { class: 'ion-page' },
 })
+
 export class MyFavoritesComponent implements OnInit, OnDestroy {
+
   private destroy$ = new Subject<void>();
-  
+
+
+
   favorites: FavoriteItem[] = [];
+
   filteredFavorites: FavoriteItem[] = [];
+
   favoriteStats: FavoriteStats = {
+
     totalFavorites: 0,
+
     articleCount: 0,
+
     doctorCount: 0,
+
     toolCount: 0,
-    tipCount: 0
+
+    tipCount: 0,
+
   };
 
-  // UI State
+
+
   isLoading = false;
+
   searchTerm = '';
+
   selectedCategory = 'all';
+
   selectedSort = 'recent';
+
   showEmptyState = false;
 
-  // Filter options
+
+
   categories = [
-    { value: 'all', label: 'All Items', icon: 'apps' },
-    { value: 'article', label: 'Articles', icon: 'document-text' },
-    { value: 'doctor', label: 'Doctors', icon: 'medical' },
-    { value: 'tool', label: 'Tools', icon: 'construct' },
-    { value: 'tip', label: 'Tips', icon: 'bulb' }
+
+    { value: 'all', labelKey: 'myFavorites.categoryAll', icon: 'apps' },
+
+    { value: 'article', labelKey: 'myFavorites.categoryArticle', icon: 'document-text' },
+
+    { value: 'doctor', labelKey: 'myFavorites.categoryDoctor', icon: 'medical' },
+
+    { value: 'tool', labelKey: 'myFavorites.categoryTool', icon: 'construct' },
+
+    { value: 'tip', labelKey: 'myFavorites.categoryTip', icon: 'bulb' },
+
   ];
+
+
 
   sortOptions = [
-    { value: 'recent', label: 'Most Recent' },
-    { value: 'oldest', label: 'Oldest First' },
-    { value: 'alphabetical', label: 'A-Z' },
-    { value: 'type', label: 'By Type' }
+
+    { value: 'recent', labelKey: 'myFavorites.sortRecent' },
+
+    { value: 'oldest', labelKey: 'myFavorites.sortOldest' },
+
+    { value: 'alphabetical', labelKey: 'myFavorites.sortAlphabetical' },
+
+    { value: 'type', labelKey: 'myFavorites.sortType' },
+
   ];
 
-  private favoritesService = inject(FavoritesService);
-  private alertController = inject(AlertController);
-  private toastController = inject(ToastController);
-  public router = inject(Router);
+
+
+  private readonly favoritesService = inject(FavoritesService);
+
+  private readonly alertController = inject(AlertController);
+
+  private readonly toastController = inject(ToastController);
+
+  private readonly translation = inject(TranslationService);
+
+  private readonly languageService = inject(LanguageService);
+
+  public readonly router = inject(Router);
+
+
+
+  private readonly noResultsCategoryKeys: Record<string, string> = {
+
+    article: 'myFavorites.noResultsArticles',
+
+    doctor: 'myFavorites.noResultsDoctors',
+
+    tool: 'myFavorites.noResultsTools',
+
+    tip: 'myFavorites.noResultsTips',
+
+  };
+
+
+
+  private readonly typeLabelKeys: Record<FavoriteItem['type'], string> = {
+
+    article: 'myFavorites.typeArticle',
+
+    doctor: 'myFavorites.typeDoctor',
+
+    tool: 'myFavorites.typeTool',
+
+    tip: 'myFavorites.typeTip',
+
+  };
+
+
 
   ngOnInit() {
+
     this.loadFavorites();
+
     this.loadStats();
+
   }
+
+
 
   ngOnDestroy() {
+
     this.destroy$.next();
+
     this.destroy$.complete();
+
   }
+
+
 
   loadFavorites() {
+
     this.isLoading = true;
-    this.favoritesService.getFavorites()
+
+    this.favoritesService
+
+      .getFavorites()
+
       .pipe(takeUntil(this.destroy$))
+
       .subscribe({
+
         next: (favorites) => {
+
           this.favorites = favorites;
+
           this.applyFilters();
+
           this.showEmptyState = favorites.length === 0;
+
           this.isLoading = false;
+
         },
+
         error: (error) => {
+
           console.error('Error loading favorites:', error);
-          this.showToast('Failed to load favorites', 'danger');
+
+          this.showToast(this.t('myFavorites.loadFailed'), 'danger');
+
           this.isLoading = false;
-        }
+
+        },
+
       });
+
   }
+
+
 
   loadStats() {
-    this.favoritesService.getFavoriteStats()
+
+    this.favoritesService
+
+      .getFavoriteStats()
+
       .pipe(takeUntil(this.destroy$))
-      .subscribe(stats => {
+
+      .subscribe((stats) => {
+
         this.favoriteStats = stats;
+
       });
+
   }
+
+
 
   applyFilters() {
+
     let filtered = [...this.favorites];
 
-    // Apply search filter
+
+
     if (this.searchTerm.trim()) {
-      filtered = filtered.filter(item =>
-        item.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        (item.description && item.description.toLowerCase().includes(this.searchTerm.toLowerCase()))
+
+      filtered = filtered.filter(
+
+        (item) =>
+
+          item.title.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+
+          (item.description &&
+
+            item.description.toLowerCase().includes(this.searchTerm.toLowerCase())),
+
       );
+
     }
 
-    // Apply category filter
+
+
     if (this.selectedCategory !== 'all') {
-      filtered = filtered.filter(item => item.type === this.selectedCategory);
+
+      filtered = filtered.filter((item) => item.type === this.selectedCategory);
+
     }
 
-    // Apply sorting
+
+
     switch (this.selectedSort) {
+
       case 'recent':
-        filtered.sort((a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime());
+
+        filtered.sort(
+
+          (a, b) => new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime(),
+
+        );
+
         break;
+
       case 'oldest':
-        filtered.sort((a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime());
+
+        filtered.sort(
+
+          (a, b) => new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime(),
+
+        );
+
         break;
+
       case 'alphabetical':
+
         filtered.sort((a, b) => a.title.localeCompare(b.title));
+
         break;
+
       case 'type':
+
         filtered.sort((a, b) => a.type.localeCompare(b.type));
+
         break;
+
     }
+
+
 
     this.filteredFavorites = filtered;
+
   }
 
-  onSearchChange(event: any) {
-    this.searchTerm = event.detail.value;
+
+
+  onSearchChange(event: Event) {
+
+    const customEvent = event as CustomEvent<{ value?: string }>;
+
+    this.searchTerm = customEvent.detail?.value ?? '';
+
     this.applyFilters();
+
   }
+
+
 
   onCategoryChange(category: string) {
+
     this.selectedCategory = category;
+
     this.applyFilters();
+
   }
 
-  onSortChange(event: any) {
-    this.selectedSort = event.detail.value;
+
+
+  onSortChange(event: Event) {
+
+    const customEvent = event as CustomEvent<{ value?: string }>;
+
+    this.selectedSort = customEvent.detail?.value ?? 'recent';
+
     this.applyFilters();
+
+  }
+
+
+
+  getNoResultsCategoryMessage(): string | null {
+    const key = this.noResultsCategoryKeys[this.selectedCategory];
+    return key ? this.t(key) : null;
+  }
+
+  getNoResultsSearchMessage(): string {
+    return this.tParams('myFavorites.noResultsSearch', { searchTerm: this.searchTerm });
   }
 
   async removeFavorite(item: FavoriteItem, event?: Event) {
+
     if (event) {
+
       event.stopPropagation();
+
     }
 
+
+
     const alert = await this.alertController.create({
-      header: 'Remove Favorite',
-      message: `Remove "${item.title}" from your favorites?`,
+
+      header: this.t('myFavorites.removeHeader'),
+
+      message: this.tParams('myFavorites.removeMessage', { title: item.title }),
+
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+
+        { text: this.t('common.cancel'), role: 'cancel' },
+
         {
-          text: 'Remove',
+
+          text: this.t('myFavorites.remove'),
+
           role: 'destructive',
+
           handler: () => {
+
             this.favoritesService.removeFromFavorites(item.id);
-            this.showToast('Removed from favorites', 'success');
-          }
-        }
-      ]
+
+            this.showToast(this.t('myFavorites.removedToast'), 'success');
+
+          },
+
+        },
+
+      ],
+
     });
 
+
+
     await alert.present();
+
   }
+
+
 
   async clearAllFavorites() {
+
     const alert = await this.alertController.create({
-      header: 'Clear All Favorites',
-      message: 'Are you sure you want to remove all favorites? This action cannot be undone.',
+
+      header: this.t('myFavorites.clearAllHeader'),
+
+      message: this.t('myFavorites.clearAllMessage'),
+
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+
+        { text: this.t('common.cancel'), role: 'cancel' },
+
         {
-          text: 'Clear All',
+
+          text: this.t('myFavorites.clearAll'),
+
           role: 'destructive',
+
           handler: () => {
+
             this.favoritesService.clearAllFavorites();
-            this.showToast('All favorites cleared', 'success');
-          }
-        }
-      ]
+
+            this.showToast(this.t('myFavorites.clearedToast'), 'success');
+
+          },
+
+        },
+
+      ],
+
     });
+
+
 
     await alert.present();
+
   }
+
+
 
   async openFavoriteItem(item: FavoriteItem) {
+
     try {
+
       switch (item.type) {
+
         case 'article':
-          // Navigate to article detail page
+
           await this.router.navigate(['/article', item.id]);
-          this.showToast(`Opening article: ${item.title}`, 'success');
+
+          this.showToast(
+
+            this.tParams('myFavorites.openArticle', { title: item.title }),
+
+            'success',
+
+          );
+
           break;
-          
+
+
+
         case 'doctor':
-          // Navigate to doctor profile page
+
           if (item.data?.id) {
+
             await this.router.navigate(['/doctor', item.data.id]);
-            this.showToast(`Opening doctor profile: ${item.title}`, 'success');
+
+            this.showToast(
+
+              this.tParams('myFavorites.openDoctor', { title: item.title }),
+
+              'success',
+
+            );
+
           } else {
-            // Fallback to doctors list
+
             await this.router.navigate(['/doctors']);
-            this.showToast('Opening doctors list', 'success');
+
+            this.showToast(this.t('myFavorites.openDoctorsList'), 'success');
+
           }
+
           break;
-          
+
+
+
         case 'tool':
-          // Navigate to insights page with specific tool query
-          await this.router.navigate(['/tabs/insights'], { 
-            queryParams: { openTool: item.id } 
+
+          await this.router.navigate(['/tabs/insights'], {
+
+            queryParams: { openTool: item.id },
+
           });
-          this.showToast(`Opening tool: ${item.title}`, 'success');
+
+          this.showToast(
+
+            this.tParams('myFavorites.openTool', { title: item.title }),
+
+            'success',
+
+          );
+
           break;
-          
+
+
+
         case 'tip':
-          // Navigate to home page where tips are displayed
+
           await this.router.navigate(['/tabs/home']);
-          this.showToast(`Opening tip: ${item.title}`, 'success');
+
+          this.showToast(
+
+            this.tParams('myFavorites.openTip', { title: item.title }),
+
+            'success',
+
+          );
+
           break;
-          
+
+
+
         default:
-          // Generic fallback - go to home
+
           await this.router.navigate(['/tabs/home']);
-          this.showToast('Opening content...', 'success');
+
+          this.showToast(this.t('myFavorites.openingContent'), 'success');
+
           break;
+
       }
+
     } catch (error) {
+
       console.error('Error opening favorite item:', error);
-      this.showToast('Failed to open item. Please try again.', 'danger');
+
+      this.showToast(this.t('myFavorites.openFailed'), 'danger');
+
     }
+
   }
+
+
 
   getTypeIcon(type: FavoriteItem['type']): string {
+
     const icons = {
+
       article: 'document-text',
+
       doctor: 'medical',
+
       tool: 'construct',
-      tip: 'bulb'
+
+      tip: 'bulb',
+
     };
+
     return icons[type] || 'heart';
+
   }
+
+
 
   getTypeColor(type: FavoriteItem['type']): string {
+
     const colors = {
+
       article: '#3b82f6',
+
       doctor: '#10b981',
+
       tool: '#ffd700',
-      tip: '#8b5cf6'
+
+      tip: '#8b5cf6',
+
     };
+
     return colors[type] || '#6b7280';
+
   }
+
+
+
+  getTypeLabel(type: FavoriteItem['type']): string {
+
+    const key = this.typeLabelKeys[type];
+
+    return key ? this.t(key) : type;
+
+  }
+
+
 
   formatDate(date: Date): string {
+
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
-    
+
+    const diffInHours = Math.floor(
+
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60),
+
+    );
+
+
+
     if (diffInHours < 1) {
-      return 'Just now';
-    } else if (diffInHours < 24) {
-      return `${diffInHours}h ago`;
-    } else if (diffInHours < 168) {
-      const days = Math.floor(diffInHours / 24);
-      return `${days}d ago`;
-    } else {
-      return date.toLocaleDateString();
+
+      return this.t('myFavorites.dateJustNow');
+
     }
+
+    if (diffInHours < 24) {
+
+      return this.tParams('myFavorites.dateHoursAgo', { hours: diffInHours });
+
+    }
+
+    if (diffInHours < 168) {
+
+      const days = Math.floor(diffInHours / 24);
+
+      return this.tParams('myFavorites.dateDaysAgo', { days });
+
+    }
+
+
+
+    return formatRecordedAtDate(date, this.languageService.getCurrentLanguage());
+
   }
 
-  async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+
+
+  async showToast(
+
+    message: string,
+
+    color: 'success' | 'danger' | 'warning' = 'success',
+
+  ) {
+
     const toast = await this.toastController.create({
+
       message,
+
       duration: 3000,
+
       color,
-      position: 'bottom'
+
+      position: 'bottom',
+
     });
+
     await toast.present();
+
   }
+
+
 
   goBack() {
+
     this.router.navigate(['/tabs/home']);
+
   }
+
+
+
+  private t(key: string): string {
+
+    return this.translation.translate(key);
+
+  }
+
+
+
+  private tParams(key: string, params: Record<string, string | number>): string {
+
+    return this.translation.translateParams(key, params);
+
+  }
+
 }
+
+

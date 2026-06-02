@@ -5,13 +5,13 @@
         <ion-icon name="chevron-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="header-title">Article</ion-title>
+    <ion-title class="header-title">{{ 'article.toolbarTitle' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="toggleFavorite()" fill="clear" class="favorite-btn">
         <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" 
                   [class.favorited]="isFavorite"></ion-icon>
       </ion-button>
-      <ion-button (click)="shareArticle()" fill="clear" class="share-btn" aria-label="Share article">
+      <ion-button (click)="shareArticle()" fill="clear" class="share-btn" [attr.aria-label]="'article.shareAria' | translate">
         <ion-icon name="share-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -22,7 +22,7 @@
 
   <!-- Loading State -->
   @if (isLoading) {
-  <app-logo-loading message="Loading article..." />
+  <app-logo-loading [message]="loadingMessage" [ariaLabel]="loadingMessage" />
   }
 
   <!-- Article Not Found -->
@@ -30,11 +30,11 @@
   <div class="not-found-container">
     <div class="not-found-content">
       <ion-icon name="document-outline"></ion-icon>
-      <h2>Article Not Found</h2>
-      <p>The article you're looking for doesn't exist or has been removed.</p>
+      <h2>{{ 'article.notFoundTitle' | translate }}</h2>
+      <p>{{ 'article.notFoundMessage' | translate }}</p>
       <ion-button expand="block" fill="solid" (click)="goBack()">
         <ion-icon name="arrow-back" slot="start"></ion-icon>
-        Back to Articles
+        {{ 'article.backToArticles' | translate }}
       </ion-button>
     </div>
   </div>
@@ -108,7 +108,7 @@
 
         @if (section.type === 'image') {
         <div class="content-image">
-          <img [src]="section.content" [alt]="'Article image'" loading="lazy">
+          <img [src]="section.content" [alt]="'article.imageAlt' | translate" loading="lazy">
         </div>
         }
 
@@ -121,7 +121,7 @@
       
       <!-- Tags -->
       <div class="article-tags">
-        <h4>Tags</h4>
+        <h4>{{ 'article.tags' | translate }}</h4>
         <div class="tags-container">
           @for (tag of article.tags; track tag) {
           <span class="tag">{{ tag }}</span>
@@ -137,7 +137,7 @@
           class="favorite-action-btn"
           (click)="toggleFavorite()">
           <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'" slot="start"></ion-icon>
-          {{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}
+          {{ isFavorite ? ('article.removeFavorite' | translate) : ('article.addFavorite' | translate) }}
         </ion-button>
         
         <ion-button 
@@ -146,14 +146,14 @@
           class="share-action-btn"
           (click)="shareArticle()">
           <ion-icon name="share-outline" slot="start"></ion-icon>
-          Share Article
+          {{ 'article.share' | translate }}
         </ion-button>
       </div>
 
       <!-- Related Articles -->
       @if (article.relatedArticles && article.relatedArticles.length > 0) {
       <div class="related-articles">
-        <h4>You might also like</h4>
+        <h4>{{ 'article.relatedTitle' | translate }}</h4>
         <div class="related-grid">
           @for (relatedId of article.relatedArticles; track relatedId) {
           <div 
@@ -163,8 +163,8 @@
               <ion-icon name="document-text"></ion-icon>
             </div>
             <div class="related-content">
-              <h5>Related Article</h5>
-              <p>Discover more helpful content</p>
+              <h5>{{ relatedArticleTitle(relatedId) }}</h5>
+              <p>{{ 'article.relatedHint' | translate }}</p>
             </div>
             <ion-icon name="chevron-forward" class="related-arrow"></ion-icon>
           </div>
@@ -179,4 +179,3 @@
   }
 
 </ion-content>
-

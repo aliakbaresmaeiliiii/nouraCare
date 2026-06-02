@@ -269,8 +269,8 @@
     direction: rtl;
   }
   
-  // Ensure Persian text uses proper font
-  * {
+  // Ensure Persian text uses proper font (keep ion-icon glyphs visible)
+  *:not(ion-icon) {
     font-family: var(--font-persian);
   }
 }

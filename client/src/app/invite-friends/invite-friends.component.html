@@ -3,20 +3,28 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Invite Friends</ion-title>
+    <ion-title class="header-title">{{ 'menu.inviteFriends' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         fill="clear"
         class="history-button"
         [attr.aria-pressed]="showInviteHistory"
-        [attr.aria-label]="showInviteHistory ? 'Back to invite options' : 'How referrals work'"
+        [attr.aria-label]="
+          showInviteHistory
+            ? ('inviteFriends.a11y.backToOptions' | translate)
+            : ('inviteFriends.a11y.howItWorksButton' | translate)
+        "
         (click)="toggleInviteHistory()"
       >
         <ion-icon
           slot="start"
           [name]="showInviteHistory ? 'close-circle-outline' : 'information-circle-outline'"
         ></ion-icon>
-        <span class="history-button-label">{{ showInviteHistory ? 'Done' : 'How it works' }}</span>
+        <span class="history-button-label">{{
+          showInviteHistory
+            ? ('inviteFriends.done' | translate)
+            : ('inviteFriends.howItWorks' | translate)
+        }}</span>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -25,44 +33,43 @@
 <ion-content class="invite-content">
   <ion-refresher
     slot="fixed"
-    aria-label="Pull down to refresh invite info"
+    [attr.aria-label]="'inviteFriends.a11y.pullRefresh' | translate"
     (ionRefresh)="onRefresh($event)"
   >
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
   <div class="page-inner">
-    <!-- Loading State -->
     @if (isLoading) {
-      <app-logo-loading message="Loading…" />
+      <app-logo-loading [message]="'inviteFriends.loading' | translate" />
     }
 
-    <!-- Error State -->
     @if (errorMessage) {
       <div class="error-state">
         <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
         <p>{{ errorMessage }}</p>
-        <ion-button fill="outline" (click)="loadGrowth()">Retry</ion-button>
+        <ion-button fill="outline" (click)="loadGrowth()">{{
+          'inviteFriends.retry' | translate
+        }}</ion-button>
       </div>
     }
 
-    <!-- Main Content -->
     @if (!isLoading && !errorMessage) {
-      <!-- Invite Methods -->
       @if (!showInviteHistory) {
         <div class="invite-section">
           <div class="section-header">
-            <h2 class="section-title">Invite Your Friends</h2>
+            <h2 class="section-title">{{ 'inviteFriends.sectionTitle' | translate }}</h2>
             <p class="section-subtitle">
-              Share your link — when a friend creates an account with your code, you both earn
-              {{ 50 | localNum }} bonus growth points.
+              {{
+                tParams('inviteFriends.sectionSubtitle', { points: referralBonusPoints })
+              }}
             </p>
           </div>
 
           @if (referralCode) {
             <ion-card class="code-card">
               <ion-card-content>
-                <p class="code-label">Your invite code</p>
+                <p class="code-label">{{ 'inviteFriends.codeLabel' | translate }}</p>
                 <div class="code-row">
                   <span class="code-value">{{ referralCode }}</span>
                   <ion-button
@@ -71,10 +78,10 @@
                     fill="outline"
                     (click)="copyCodeOnly()"
                   >
-                    Copy
+                    {{ 'inviteFriends.copy' | translate }}
                   </ion-button>
                 </div>
-                <p class="code-hint">Friends can paste this at sign-up or open your link below.</p>
+                <p class="code-hint">{{ 'inviteFriends.codeHint' | translate }}</p>
               </ion-card-content>
             </ion-card>
           }
@@ -85,15 +92,17 @@
                 button
                 (click)="onInviteMethodClick(method)"
                 [class]="'method-card method-accent-' + method.accent"
-                [attr.aria-label]="method.title + '. ' + method.subtitle"
+                [attr.aria-label]="
+                  (method.titleKey | translate) + '. ' + (method.subtitleKey | translate)
+                "
               >
                 <ion-card-content class="method-content">
                   <div class="method-icon" aria-hidden="true">
                     <ion-icon [name]="method.icon"></ion-icon>
                   </div>
                   <div class="method-info">
-                    <h3 class="method-title">{{ method.title }}</h3>
-                    <p class="method-subtitle">{{ method.subtitle }}</p>
+                    <h3 class="method-title">{{ method.titleKey | translate }}</h3>
+                    <p class="method-subtitle">{{ method.subtitleKey | translate }}</p>
                   </div>
                   <ion-icon name="chevron-forward-outline" class="chevron-icon" aria-hidden="true"></ion-icon>
                 </ion-card-content>
@@ -101,23 +110,22 @@
             }
           </div>
 
-          <!-- Invite Stats -->
           <div class="stats-section">
             <ion-card class="stats-card">
               <ion-card-content class="stats-content">
                 <div class="stat-item">
                   <div class="stat-number">{{ successfulReferrals | localNum }}</div>
-                  <div class="stat-label">Friends joined</div>
+                  <div class="stat-label">{{ 'inviteFriends.stats.friendsJoined' | translate }}</div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
                   <div class="stat-number">{{ growthPoints | localNum }}</div>
-                  <div class="stat-label">Growth points</div>
+                  <div class="stat-label">{{ 'inviteFriends.stats.growthPoints' | translate }}</div>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat-item">
-                  <div class="stat-number">+{{ 50 | localNum }}</div>
-                  <div class="stat-label">Each reward</div>
+                  <div class="stat-number">+{{ referralBonusPoints | localNum }}</div>
+                  <div class="stat-label">{{ 'inviteFriends.stats.eachReward' | translate }}</div>
                 </div>
               </ion-card-content>
             </ion-card>
@@ -125,25 +133,21 @@
         </div>
       }
 
-      <!-- Invite History -->
       @if (showInviteHistory) {
         <div class="history-section">
           <div class="section-header">
-            <h2 class="section-title">How referrals work</h2>
-            <p class="section-subtitle">Organic growth, no paid ads</p>
+            <h2 class="section-title">{{ 'inviteFriends.history.title' | translate }}</h2>
+            <p class="section-subtitle">{{ 'inviteFriends.history.subtitle' | translate }}</p>
           </div>
 
           <ion-card>
             <ion-card-content>
               <p>
-                Share your personal link or code. When someone <strong>creates a new account</strong> with it,
-                NouraCare credits <strong>50 growth points</strong> to both of you. Points stack with
-                daily check-ins on Home.
+                {{
+                  tParams('inviteFriends.history.body1', { points: referralBonusPoints })
+                }}
               </p>
-              <p class="muted">
-                For privacy we do not list friends by name here — your "Friends joined" count updates
-                automatically after they register.
-              </p>
+              <p class="muted">{{ 'inviteFriends.history.body2' | translate }}</p>
             </ion-card-content>
           </ion-card>
         </div>

@@ -121,3 +121,40 @@ export function weekStripWeekdayShort(date: Date, languageCode: string): string 
   const idx = dow === 0 ? 6 : dow - 1;
   return letter[idx];
 }
+
+/** Legal pages: locale-aware date (Jalali + Persian digits when language is `fa`). */
+export function formatLegalEffectiveDate(
+  isoDate: string,
+  languageCode: string,
+): string {
+  const normalized = isoDate.includes('T') ? isoDate.slice(0, 10) : isoDate;
+  const date = new Date(`${normalized}T12:00:00`);
+  if (Number.isNaN(date.getTime())) {
+    return normalized;
+  }
+  if (isPersianAppLanguage(languageCode)) {
+    return format(date, 'd MMMM yyyy', FA).replace(
+      /\d/g,
+      (d) => PERSIAN_DIGITS[+d],
+    );
+  }
+  if (languageCode === 'zh' || languageCode.startsWith('zh-')) {
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+  if (languageCode === 'ms' || languageCode.startsWith('ms-')) {
+    return date.toLocaleDateString('ms-MY', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}

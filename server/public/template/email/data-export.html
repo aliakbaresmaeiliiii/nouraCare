@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Your Data Export</title>
+  </head>
+  <body style="margin: 0; padding: 24px; font-family: Arial, sans-serif; background: #f9f9f9; color: #222;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden;">
+      <tr>
+        <td style="background: #00cdcf; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; color: #ffffff; font-size: 22px;">{{APP_NAME}}</h1>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 32px 24px;">
+          <p style="font-size: 16px; line-height: 1.6; margin: 0 0 16px;">Hi {{FULL_NAME}},</p>
+          <p style="font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
+            Your personal data export from {{APP_NAME}} is attached to this email as a JSON file.
+          </p>
+          <p style="font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
+            Export date: <strong>{{EXPORT_DATE}}</strong>
+          </p>
+          <p style="font-size: 14px; line-height: 1.6; margin: 0; color: #666;">
+            Keep this file in a safe place. If you did not request this export, please contact support.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 16px 24px; background: #f0f4f8; text-align: center; font-size: 12px; color: #666;">
+          © {{APP_NAME}}
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

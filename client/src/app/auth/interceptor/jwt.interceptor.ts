@@ -13,11 +13,13 @@ import { Router } from '@angular/router';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
+  private static readonly REFRESH_FAILED = '__jwt_refresh_failed__';
+
   private authService = inject(AuthService);
   private router = inject(Router);
-  
+
   private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
   intercept(
     req: HttpRequest<any>,
@@ -85,24 +87,32 @@ export class JwtInterceptor implements HttpInterceptor {
         }),
         catchError((error) => {
           this.isRefreshing = false;
-          
+          this.refreshTokenSubject.next(JwtInterceptor.REFRESH_FAILED);
+
           // Refresh token failed, redirect to login
           this.authService.logout();
           this.router.navigate(['/auth/sign-in']);
-          
+
           return throwError(() => error);
-        })
-      );
-    } else {
-      // If refresh is already in progress, wait for it to complete
-      return this.refreshTokenSubject.pipe(
-        filter(token => token !== null),
-        take(1),
-        switchMap(token => {
-          // Retry the original request with new token
-          return next.handle(this.addToken(request, token));
-        })
+        }),
       );
     }
+
+    return this.refreshTokenSubject.pipe(
+      filter((token) => token !== null),
+      take(1),
+      switchMap((token) => {
+        if (token === JwtInterceptor.REFRESH_FAILED) {
+          return throwError(
+            () =>
+              new HttpErrorResponse({
+                status: 401,
+                statusText: 'Session expired',
+              }),
+          );
+        }
+        return next.handle(this.addToken(request, token));
+      }),
+    );
   }
 }

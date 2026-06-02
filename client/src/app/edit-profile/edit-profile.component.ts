@@ -43,10 +43,10 @@ import {
   OnboardingService,
   ReproductiveStatus,
 } from '../shared/services/onboarding.service';
-import { AlertController, ModalController } from '@ionic/angular/standalone';
+import { AlertController, LoadingController, ModalController } from '@ionic/angular/standalone';
 import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
 import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { HomeDataService } from '../home/services/home-data.service';
 import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
 import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
@@ -106,6 +106,7 @@ export class EditProfileComponent implements OnInit {
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private modalController = inject(ModalController);
   private alertController = inject(AlertController);
+  private loadingController = inject(LoadingController);
   private profileCompletionService = inject(ProfileCompletionService);
 
   /** True while PUT /user/:id/edit is in flight from the personal details form. */
@@ -835,8 +836,6 @@ export class EditProfileComponent implements OnInit {
     const shouldGoHomeAfterSave =
       reproductiveState === 'pregnant' && reproductivePayload !== null;
 
-    this.showLoadingAlert('Saving profile...');
-
     try {
       this.userSession.mergeIntoStoredUser({
         fullName: String(this.form.get('fullName')?.value ?? '').trim(),
@@ -858,10 +857,16 @@ export class EditProfileComponent implements OnInit {
         ? this.userService.updateUserInfo(String(id), payload as any)
         : of(null);
 
+    const loading = await this.loadingController.create({
+      message: 'Saving profile...',
+      spinner: 'crescent',
+    });
+    await loading.present();
+
     forkJoin({
       profile: profileReq,
       reproductive: reproductiveReq,
-    }).subscribe({
+    }).pipe(finalize(() => loading.dismiss())).subscribe({
       next: (result: { profile: unknown; reproductive: DashboardResponse | null }) => {
         const dashboard = result.reproductive;
         if (dashboard && typeof dashboard === 'object' && 'state' in dashboard) {
@@ -1230,59 +1235,6 @@ export class EditProfileComponent implements OnInit {
   getSelectedReproductiveStatusLabel(): string {
     const opt = this.getSelectedReproductiveOption();
     return opt?.label ?? 'Not selected yet';
-  }
-
-  showLoadingAlert(message: string): void {
-    const loadingDialog = document.createElement('div');
-    loadingDialog.style.cssText = `
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.45);
-      backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      font-family: var(--font-primary, system-ui, sans-serif);
-    `;
-    const card = document.createElement('div');
-    card.style.cssText = `
-      background: var(--brand-surface, #ffffff);
-      padding: 28px 32px;
-      border-radius: 20px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
-      max-width: 90vw;
-    `;
-    const logo = document.createElement('img');
-    logo.src = 'assets/branding/AppIcon-welcome.png';
-    logo.alt = '';
-    logo.width = 80;
-    logo.height = 80;
-    logo.style.cssText = `
-      display: block;
-      margin: 0 auto 16px;
-      border-radius: 18px;
-      object-fit: cover;
-      box-shadow: 0 8px 28px rgba(99, 102, 241, 0.25);
-      animation: app-brand-logo-pulse 1.6s ease-in-out infinite;
-    `;
-    const msg = document.createElement('p');
-    msg.textContent = message;
-    msg.style.cssText = `
-      margin: 0;
-      color: #64748b;
-      font-weight: 600;
-      font-size: 15px;
-      line-height: 1.45;
-    `;
-    card.appendChild(logo);
-    card.appendChild(msg);
-    loadingDialog.appendChild(card);
-    document.body.appendChild(loadingDialog);
-    setTimeout(() => {
-      loadingDialog.remove();
-    }, 3000);
   }
 
   showSuccessAlert(message: string): void {

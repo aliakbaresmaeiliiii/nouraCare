@@ -43,6 +43,40 @@ class SendMail {
     }
   }
 
+  public async sendDataExport(
+    email: string,
+    fullName: string,
+    jsonPayload: string,
+    filename: string,
+  ) {
+    try {
+      const htmlToSend = await this.loadTemplate('data-export', {
+        APP_NAME: APP_NAME || 'NouraCare',
+        FULL_NAME: fullName,
+        EXPORT_DATE: new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+      });
+      await this.emailProvider.sendMail({
+        to: email,
+        subject: `${APP_NAME || 'NouraCare'} – Your Data Export`,
+        html: htmlToSend,
+        attachments: [
+          {
+            filename,
+            content: jsonPayload,
+            contentType: 'application/json',
+          },
+        ],
+      });
+    } catch (error) {
+      console.error('Error sending data export email:', error);
+      throw new BadGatewayException('Failed to send data export email');
+    }
+  }
+
   // public static async AccountRegister(formData: any) {
   //   try {
   //     const { email, verify_code: TOKEN } = formData;

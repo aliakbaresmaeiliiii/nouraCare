@@ -1,5 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { addIcons } from 'ionicons';
 import {
   alarmOutline,
@@ -30,6 +37,9 @@ import type { RefresherCustomEvent } from '@ionic/core';
 import { AlertController, ToastController } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { NotificationUnreadService } from '../shared/services/notification-unread.service';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
+import { formatRecordedAtDate } from '../shared/utils/locale-date-format.util';
 import { NOTIFICATIONS_SEED, type Notification } from './notifications.seed';
 
 @Component({
@@ -40,25 +50,49 @@ import { NOTIFICATIONS_SEED, type Notification } from './notifications.seed';
   imports: [...SHARED_STANDALONE_IMPORTS],
   host: { class: 'ion-page' },
 })
-export class NotificationsComponent implements OnInit {
+export class NotificationsComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly alertController = inject(AlertController);
   private readonly toastController = inject(ToastController);
   private readonly notificationUnread = inject(NotificationUnreadService);
+  private readonly translation = inject(TranslationService);
+  private readonly languageService = inject(LanguageService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private langChangeSub?: Subscription;
 
   isLoading = false;
-  errorMessage = '';
+  private errorKey = '';
   selectedFilter = 'all';
 
   notifications: Notification[] = NOTIFICATIONS_SEED.map((n) => ({ ...n }));
 
-  readonly filters: { value: string; label: string; icon: string }[] = [
-    { value: 'all', label: 'All', icon: 'list-outline' },
-    { value: 'unread', label: 'Unread', icon: 'mail-unread-outline' },
-    { value: 'health', label: 'Health', icon: 'medical-outline' },
-    { value: 'social', label: 'Social', icon: 'people-outline' },
-    { value: 'reminder', label: 'Reminders', icon: 'alarm-outline' },
-    { value: 'update', label: 'Updates', icon: 'refresh-outline' },
+  readonly filters: { value: string; labelKey: string; icon: string }[] = [
+    { value: 'all', labelKey: 'notifications.filter.all', icon: 'list-outline' },
+    {
+      value: 'unread',
+      labelKey: 'notifications.filter.unread',
+      icon: 'mail-unread-outline',
+    },
+    {
+      value: 'health',
+      labelKey: 'notifications.filter.health',
+      icon: 'medical-outline',
+    },
+    {
+      value: 'social',
+      labelKey: 'notifications.filter.social',
+      icon: 'people-outline',
+    },
+    {
+      value: 'reminder',
+      labelKey: 'notifications.filter.reminder',
+      icon: 'alarm-outline',
+    },
+    {
+      value: 'update',
+      labelKey: 'notifications.filter.update',
+      icon: 'refresh-outline',
+    },
   ];
 
   constructor() {
@@ -90,38 +124,55 @@ export class NotificationsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.langChangeSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.markForCheck();
+    });
     this.syncHeaderUnread();
     void this.loadNotifications().finally(() => this.syncHeaderUnread());
+  }
+
+  ngOnDestroy(): void {
+    this.langChangeSub?.unsubscribe();
+  }
+
+  get errorMessage(): string {
+    return this.errorKey ? this.t(this.errorKey) : '';
+  }
+
+  get unreadSummary(): string {
+    return this.tParams('notifications.summaryUnread', {
+      count: this.unreadCount,
+    });
   }
 
   private syncHeaderUnread(): void {
     this.notificationUnread.syncFromList(this.notifications);
   }
 
-  get emptyFilterHint(): string {
+  get emptyFilterHintKey(): string {
     switch (this.selectedFilter) {
       case 'unread':
-        return 'You have no unread notifications. Open “All” or pick another category.';
+        return 'notifications.emptyFilter.unread';
       case 'health':
-        return 'No health notifications match this filter.';
+        return 'notifications.emptyFilter.health';
       case 'social':
-        return 'No social notifications match this filter.';
+        return 'notifications.emptyFilter.social';
       case 'reminder':
-        return 'No reminders in this list right now.';
+        return 'notifications.emptyFilter.reminder';
       case 'update':
-        return 'No app or content updates here yet.';
+        return 'notifications.emptyFilter.update';
       default:
-        return 'Try another filter.';
+        return 'notifications.emptyFilter.default';
     }
   }
 
   async loadNotifications(): Promise<void> {
     this.isLoading = true;
-    this.errorMessage = '';
+    this.errorKey = '';
     try {
       await new Promise((r) => setTimeout(r, 350));
     } catch {
-      this.errorMessage = 'Could not load notifications. Check your connection and try again.';
+      this.errorKey = 'notifications.loadFailed';
     } finally {
       this.isLoading = false;
     }
@@ -141,7 +192,7 @@ export class NotificationsComponent implements OnInit {
     if (notification) {
       notification.isRead = true;
       this.syncHeaderUnread();
-      await this.showToast('Marked as read');
+      await this.showToast(this.t('notifications.toast.markedRead'));
     }
   }
 
@@ -153,14 +204,14 @@ export class NotificationsComponent implements OnInit {
       n.isRead = true;
     });
     this.syncHeaderUnread();
-    await this.showToast('All notifications marked as read');
+    await this.showToast(this.t('notifications.toast.allMarkedRead'));
   }
 
   async deleteNotification(notificationId: number, ev: Event): Promise<void> {
     ev.stopPropagation();
     this.notifications = this.notifications.filter((n) => n.id !== notificationId);
     this.syncHeaderUnread();
-    await this.showToast('Notification removed');
+    await this.showToast(this.t('notifications.toast.removed'));
   }
 
   async clearAllNotifications(): Promise<void> {
@@ -168,17 +219,17 @@ export class NotificationsComponent implements OnInit {
       return;
     }
     const alert = await this.alertController.create({
-      header: 'Clear all notifications?',
-      message: 'This removes every item from your list. You cannot undo this.',
+      header: this.t('notifications.clearAll.header'),
+      message: this.t('notifications.clearAll.message'),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t('common.cancel'), role: 'cancel' },
         {
-          text: 'Clear all',
+          text: this.t('notifications.clearAll.confirm'),
           role: 'destructive',
           handler: () => {
             this.notifications = [];
             this.syncHeaderUnread();
-            void this.showToast('All notifications cleared');
+            void this.showToast(this.t('notifications.toast.allCleared'));
           },
         },
       ],
@@ -247,25 +298,40 @@ export class NotificationsComponent implements OnInit {
       const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
       if (diffInMinutes < 1) {
-        return 'Just now';
+        return this.t('notifications.time.justNow');
       }
       if (diffInMinutes < 60) {
-        return `${diffInMinutes}m ago`;
+        return this.tParams('notifications.time.minutesAgo', {
+          minutes: diffInMinutes,
+        });
       }
       if (diffInHours < 24) {
-        return `${diffInHours}h ago`;
+        return this.tParams('notifications.time.hoursAgo', {
+          hours: diffInHours,
+        });
       }
       if (diffInDays < 7) {
-        return `${diffInDays}d ago`;
+        return this.tParams('notifications.time.daysAgo', { days: diffInDays });
       }
 
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      });
+      return formatRecordedAtDate(
+        date,
+        this.languageService.getCurrentLanguage(),
+      );
     } catch {
-      return 'Unknown time';
+      return this.t('notifications.time.unknown');
     }
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  private tParams(
+    key: string,
+    params: Record<string, string | number>,
+  ): string {
+    return this.translation.translateParams(key, params);
   }
 
   private async showToast(message: string): Promise<void> {

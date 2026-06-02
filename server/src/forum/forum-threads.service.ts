@@ -460,4 +460,90 @@ export class ForumThreadsService {
       },
     };
   }
+
+  async getUserActivity(userId: number, page = 1, limit = 20) {
+    const skip = (page - 1) * limit;
+
+    const [questionsCount, answersCount, questions, answers] =
+      await Promise.all([
+        this.prismaService.forum_threads.count({
+          where: { authorId: userId },
+        }),
+        this.prismaService.forum_comments.count({
+          where: { authorId: userId, isDeleted: false },
+        }),
+        this.prismaService.forum_threads.findMany({
+          where: { authorId: userId },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            createdAt: true,
+            viewCount: true,
+            likeCount: true,
+          },
+        }),
+        this.prismaService.forum_comments.findMany({
+          where: { authorId: userId, isDeleted: false },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+          select: {
+            id: true,
+            comment: true,
+            createdAt: true,
+            postId: true,
+          },
+        }),
+      ]);
+
+    const postIds = [...new Set(answers.map((answer) => answer.postId))];
+    const posts =
+      postIds.length > 0
+        ? await this.prismaService.forum_posts.findMany({
+            where: { id: { in: postIds } },
+            select: { id: true, threadId: true },
+          })
+        : [];
+    const threadIds = [...new Set(posts.map((post) => post.threadId))];
+    const threads =
+      threadIds.length > 0
+        ? await this.prismaService.forum_threads.findMany({
+            where: { id: { in: threadIds } },
+            select: { id: true, title: true },
+          })
+        : [];
+
+    const postToThreadId = new Map(posts.map((post) => [post.id, post.threadId]));
+    const threadById = new Map(threads.map((thread) => [thread.id, thread]));
+
+    const mappedAnswers = answers.map((answer) => {
+      const threadId = postToThreadId.get(answer.postId) ?? null;
+      const thread = threadId ? threadById.get(threadId) : undefined;
+
+      return {
+        id: answer.id,
+        content: answer.comment,
+        createdAt: answer.createdAt,
+        threadId: thread?.id ?? threadId,
+        threadTitle: thread?.title ?? null,
+      };
+    });
+
+    return {
+      stats: {
+        questions: questionsCount,
+        answers: answersCount,
+      },
+      questions,
+      answers: mappedAnswers,
+      pagination: {
+        page,
+        limit,
+      },
+    };
+  }
 }

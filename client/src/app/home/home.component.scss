@@ -3,6 +3,13 @@
   width: 100%;
 }
 
+.hello-world {
+  margin: 1rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
 .home-content {
   display: block;
   box-sizing: border-box;
@@ -474,9 +481,38 @@
 }
 
 .cycle-hero-sky {
+  --cycle-hero-pink: #f9a8d4;
+  --cycle-hero-pink-deep: #db2777;
+  /* Match home-content--cycle-today gradient end so the chart fades out smoothly */
+  --cycle-hero-fade-stop: #f8fafc;
+  --cycle-hero-fade-rgb: 248, 250, 252;
+
   position: relative;
   z-index: 2;
+  margin-inline: calc(-1 * var(--app-side-padding, 1rem));
+  padding: 0 0 clamp(1.25rem, 3.5vw, 2.25rem);
   text-align: center;
+  overflow: visible;
+  background: transparent;
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  ::ng-deep .cycle-chart-container {
+    --cycle-bottom-curve-fill: var(--cycle-hero-fade-stop);
+    --cycle-bottom-curve-fill-rgb: var(--cycle-hero-fade-rgb);
+  }
+
+  .cycle-ring-shell--hero {
+    margin-bottom: 0;
+  }
+}
+
+.cycle-today-shell > .cycle-hero-sky + .cycle-daily-insights {
+  margin-top: clamp(-0.45rem, -1.4vw, -0.15rem);
+  padding-top: clamp(0.75rem, 2.4vw, 1.1rem);
 }
 
 .cycle-day-desc {
@@ -704,40 +740,6 @@
     }
   }
 }
-
-.cycle-compact-section {
-  --cycle-hero-pink: #f9a8d4;
-  --cycle-hero-pink-deep: #db2777;
-  /* Hero + insights share one page tone; gradient uses this so the ring fades out smoothly */
-  --cycle-hero-fade-stop: var(--ion-background-color, #fffdfb);
-
-  position: relative;
-  z-index: 0;
-  margin: 0 calc(-1 * var(--app-side-padding));
-  /* No horizontal padding: week strip is full-bleed; insights block adds its own inset */
-  padding: 0 0 2.25rem;
-  background: var(--cycle-hero-fade-stop);
-
-  > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Soft handoff: chart area → same background as the rest of the home (no hard “card” cut) */
- 
-
-  > .pregnancy-daily-insights {
-    margin-top: clamp(-0.55rem, -1.6vw, -0.2rem);
-    padding: clamp(1rem, 2.8vw, 1.35rem) var(--app-side-padding) 0.35rem;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    position: relative;
-    z-index: 3;
-  }
-}
-
 
 .cycle-ring-shell--hero {
   /* Full width for week strip; ring stays capped via ::ng-deep .chart-wrapper */
@@ -1361,10 +1363,11 @@
     }
   }
 
-  .cycle-compact-section {
+  .cycle-hero-sky {
     --cycle-hero-pink: #f472b6;
     --cycle-hero-pink-deep: #fbcfe8;
-    --cycle-hero-fade-stop: var(--ion-background-color);
+    --cycle-hero-fade-stop: #121820;
+    --cycle-hero-fade-rgb: 18, 24, 32;
   }
 
   .home-content.home-content--cycle-today {

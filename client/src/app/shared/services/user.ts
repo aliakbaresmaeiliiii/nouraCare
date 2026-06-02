@@ -41,4 +41,11 @@ export class User {
   createAddress(userId: string, payload: any): Observable<any> {
     return this.http.post<any>(`${environment.apiEndPoint}geo/users/${userId}/addresses`, payload);
   }
+
+  requestDataExport(): Observable<{ data?: { email?: string } }> {
+    return this.http.post<{ data?: { email?: string } }>(
+      `${this.baseUrl}/me/export-data`,
+      {},
+    );
+  }
 }

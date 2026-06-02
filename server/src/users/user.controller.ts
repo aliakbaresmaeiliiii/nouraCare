@@ -22,6 +22,7 @@ import { existsSync, mkdirSync } from 'fs';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/user.dto';
 import { OnboardingService } from './onboarding.service';
+import { DataExportService } from './data-export.service';
 import { OnboardingDataDto } from './dto/onboarding.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -31,6 +32,7 @@ export class UserController {
   constructor(
     private userService: UserService,
     private onboardingService: OnboardingService,
+    private dataExportService: DataExportService,
   ) {}
 
   @Get('me/onboarding')
@@ -61,6 +63,17 @@ export class UserController {
     return ApiResponseHelper.updated(
       result,
       'Onboarding data updated successfully',
+    );
+  }
+
+  @Post('me/export-data')
+  @UseGuards(JwtAuthGuard)
+  async exportMyData(@Req() req: Request) {
+    const user = req.user as { id: number };
+    const result = await this.dataExportService.exportAndEmailUserData(user.id);
+    return ApiResponseHelper.success(
+      result,
+      'Your data export has been sent to your registered email',
     );
   }
 

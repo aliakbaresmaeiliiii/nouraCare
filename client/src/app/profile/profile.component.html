@@ -191,10 +191,50 @@
     <div class="tab-content">
       @switch (selectedTab) {
         @case ('first') {
-          <div class="empty-state">{{ "profile.noQuestions" | translate }}</div>
+          @if (isLoadingForumActivity()) {
+            <div class="empty-state">{{ "forums.loadingAria" | translate }}</div>
+          } @else if (userQuestions().length === 0) {
+            <div class="empty-state">{{ "profile.noQuestions" | translate }}</div>
+          } @else {
+            <div class="activity-list">
+              @for (question of userQuestions(); track question.id) {
+                <button
+                  type="button"
+                  class="activity-item"
+                  (click)="openForumTopic(question.id)"
+                >
+                  <h4 class="activity-item-title">{{ question.title }}</h4>
+                  <p class="activity-item-preview">
+                    {{ truncateText(question.content) }}
+                  </p>
+                </button>
+              }
+            </div>
+          }
         }
         @case ('second') {
-          <div class="empty-state">{{ "profile.noAnswers" | translate }}</div>
+          @if (isLoadingForumActivity()) {
+            <div class="empty-state">{{ "forums.loadingAria" | translate }}</div>
+          } @else if (userAnswers().length === 0) {
+            <div class="empty-state">{{ "profile.noAnswers" | translate }}</div>
+          } @else {
+            <div class="activity-list">
+              @for (answer of userAnswers(); track answer.id) {
+                <button
+                  type="button"
+                  class="activity-item"
+                  (click)="openForumTopic(answer.threadId)"
+                >
+                  @if (answer.threadTitle) {
+                    <h4 class="activity-item-title">{{ answer.threadTitle }}</h4>
+                  }
+                  <p class="activity-item-preview">
+                    {{ truncateText(answer.content) }}
+                  </p>
+                </button>
+              }
+            </div>
+          }
         }
         @case ('third') {
           <div class="empty-state">

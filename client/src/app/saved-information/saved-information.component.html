@@ -3,12 +3,12 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Saved information</ion-title>
+    <ion-title class="header-title">{{ 'menu.savedInformation' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         fill="clear"
         class="search-button"
-        aria-label="Focus search"
+        [attr.aria-label]="'savedInformation.searchAriaLabel' | translate"
         (click)="focusSearch()"
       >
         <ion-icon name="search-outline"></ion-icon>
@@ -26,7 +26,7 @@
     <div class="search-section">
       <ion-searchbar
         #savedSearch
-        placeholder="Search by title, description, or author…"
+        [placeholder]="'savedInformation.searchPlaceholder' | translate"
         [(ngModel)]="searchQuery"
         [debounce]="250"
         (ionInput)="onSearchChange($event)"
@@ -47,14 +47,14 @@
         @for (category of categories; track category.value) {
           <ion-segment-button [value]="category.value" class="category-button">
             <ion-icon [name]="category.icon" class="category-icon"></ion-icon>
-            <ion-label class="category-label">{{ category.label }}</ion-label>
+            <ion-label class="category-label">{{ category.labelKey | translate }}</ion-label>
           </ion-segment-button>
         }
       </ion-segment>
     </div>
 
     @if (isLoading) {
-      <app-logo-loading message="Loading saved items…" />
+      <app-logo-loading [message]="'savedInformation.loading' | translate" />
     }
 
     @if (errorMessage && !isLoading) {
@@ -63,7 +63,7 @@
         <p class="error-text">{{ errorMessage }}</p>
         <ion-button fill="outline" (click)="loadSavedItems()" class="retry-button">
           <ion-icon name="refresh-outline" slot="start"></ion-icon>
-          Try again
+          {{ 'common.tryAgain' | translate }}
         </ion-button>
       </div>
     }
@@ -71,18 +71,18 @@
     @if (!isLoading && !errorMessage && filteredItems.length === 0) {
       <div class="empty-container">
         <ion-icon name="bookmark-outline" class="empty-icon"></ion-icon>
-        <h2 class="empty-title">Nothing saved yet</h2>
+        <h2 class="empty-title">{{ 'savedInformation.emptyTitle' | translate }}</h2>
         <p class="empty-text">
           {{
             searchQuery.trim()
-              ? 'No saved items match your search. Try different words or clear the filter.'
-              : 'Save articles, tips, and resources from around the app — they will appear here for quick access.'
+              ? ('savedInformation.emptySearchDescription' | translate)
+              : ('savedInformation.emptyDescription' | translate)
           }}
         </p>
         @if (!searchQuery.trim()) {
           <ion-button fill="outline" (click)="goBrowse()" class="browse-button">
             <ion-icon name="library-outline" slot="start"></ion-icon>
-            Browse content
+            {{ 'savedInformation.browseContent' | translate }}
           </ion-button>
         }
       </div>
@@ -93,7 +93,12 @@
         <div class="items-header">
           <h2 class="items-title">
             {{ filteredItems.length | localNum }}
-            saved {{ filteredItems.length === 1 ? 'item' : 'items' }}
+            {{
+              (filteredItems.length === 1
+                ? 'savedInformation.item'
+                : 'savedInformation.items') | translate
+            }}
+            {{ 'savedInformation.savedLabel' | translate }}
           </h2>
         </div>
 
@@ -118,7 +123,7 @@
                   <ion-button
                     fill="clear"
                     class="remove-button"
-                    aria-label="Remove from saved"
+                    [attr.aria-label]="'savedInformation.removeAriaLabel' | translate"
                     (click)="confirmRemoveSavedItem(item, $event)"
                   >
                     <ion-icon name="close-outline" class="remove-icon"></ion-icon>
@@ -143,7 +148,7 @@
                   @if (item.readTime) {
                     <div class="read-time">
                       <ion-icon name="time-outline" class="meta-icon"></ion-icon>
-                      <span class="meta-text">{{ item.readTime | localNum }} min read</span>
+                      <span class="meta-text">{{ minReadLabel(item.readTime) }}</span>
                     </div>
                   }
                   <div class="saved-date">

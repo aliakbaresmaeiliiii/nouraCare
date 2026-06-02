@@ -106,6 +106,7 @@ export interface ForumCategory {
   id: string;
   name: string;
   description: string;
+  slug?: string;
   icon: string;
   color: string;
   topicsCount: number;
@@ -190,5 +191,38 @@ export interface Comment {
   _count: {
     likes: number;
     replies: number;
+  };
+}
+
+export interface UserForumQuestion {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  viewCount: number;
+  likeCount: number;
+}
+
+export interface UserForumAnswer {
+  id: string;
+  content: string;
+  createdAt: string;
+  threadId: string | null;
+  threadTitle: string | null;
+}
+
+export interface UserForumActivityResponse {
+  success: boolean;
+  data: {
+    stats: {
+      questions: number;
+      answers: number;
+    };
+    questions: UserForumQuestion[];
+    answers: UserForumAnswer[];
+    pagination: {
+      page: number;
+      limit: number;
+    };
   };
 }

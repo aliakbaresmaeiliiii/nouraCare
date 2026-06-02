@@ -11,6 +11,7 @@ import {
   LikeResponse,
   PostResponse,
   ThreadDetailResponse,
+  UserForumActivityResponse,
 } from '../models/forum';
 import { environment } from '../../../environments/environment';
 
@@ -68,6 +69,12 @@ export class ForumService {
   getAllThreads(page: number = 1, limit: number = 20) {
     return this.http.get<ThreadsResponse>(
       `${this.forumThreadsBaseUrl}?page=${page}&limit=${limit}`,
+    );
+  }
+
+  getUserForumActivity(page: number = 1, limit: number = 20) {
+    return this.http.get<UserForumActivityResponse>(
+      `${this.forumThreadsBaseUrl}/me/activity?page=${page}&limit=${limit}`,
     );
   }
 

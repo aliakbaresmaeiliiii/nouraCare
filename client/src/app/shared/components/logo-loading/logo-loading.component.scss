@@ -12,63 +12,25 @@
   box-sizing: border-box;
   padding: 2rem 1.25rem;
   min-height: min(70dvh, 560px);
-  position: relative;
+
+  ion-spinner {
+    --color: var(--ion-color-primary, var(--brand-primary));
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 }
 
 .app-logo-loading--embedded {
   min-height: auto;
   padding: 1.25rem 1rem;
 
-  .app-logo-loading__img {
-    width: 72px;
-    height: 72px;
+  ion-spinner {
+    width: 2rem;
+    height: 2rem;
   }
-
-  .app-logo-loading__halo {
-    width: 104px;
-    height: 104px;
-  }
-}
-
-.app-logo-loading__halo {
-  position: absolute;
-  width: 132px;
-  height: 132px;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    rgba(var(--brand-primary-rgb), 0.35),
-    rgba(var(--brand-secondary-rgb), 0.45),
-    rgba(var(--brand-accent-rgb), 0.3),
-    rgba(var(--brand-primary-rgb), 0.35)
-  );
-  animation: app-brand-logo-spin 2.8s linear infinite;
-  filter: blur(0.5px);
-  opacity: 0.85;
-  pointer-events: none;
-}
-
-.app-logo-loading__logo {
-  position: relative;
-  z-index: 1;
-  border-radius: 22px;
-  padding: 6px;
-  background: var(--brand-surface);
-  box-shadow: var(--app-shadow-card-hover);
-}
-
-.app-logo-loading__img {
-  display: block;
-  width: 96px;
-  height: 96px;
-  border-radius: 18px;
-  object-fit: cover;
-  animation: app-brand-logo-pulse 1.8s ease-in-out infinite;
 }
 
 .app-logo-loading__msg {
-  position: relative;
-  z-index: 1;
   margin: 1.25rem 0 0;
   font-size: 0.95rem;
   font-weight: 600;

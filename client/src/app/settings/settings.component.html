@@ -1,228 +1,437 @@
+
 <ion-content class="beautiful-settings">
+
   <!-- Beautiful Header -->
+
   <div class="settings-header">
+
     <div class="header-background">
+
       <div class="header-pattern"></div>
+
     </div>
+
     <div class="header-content">
+
       <ion-button fill="clear" class="back-btn" (click)="goBack()">
+
         <ion-icon name="arrow-back"></ion-icon>
+
       </ion-button>
+
       <div class="header-info">
-        <h1 class="header-title">Settings</h1>
-        <p class="header-subtitle">Customize your experience</p>
+
+        <h1 class="header-title">{{ 'common.settings' | translate }}</h1>
       </div>
+
       <div class="header-end-spacer" aria-hidden="true"></div>
+
     </div>
+
   </div>
+
+
 
   <!-- User Profile Card -->
+
   <div class="user-profile-card">
+
     <div class="profile-avatar">
+
       @if (hasUserAvatar) {
+
       <img [src]="avatarSrc" [alt]="displayName" />
+
       } @else {
+
       <ion-icon name="person-circle" aria-hidden="true"></ion-icon>
+
       }
+
       @if (showVerifiedBadge) {
+
       <div class="avatar-badge">
+
         <ion-icon name="checkmark" aria-hidden="true"></ion-icon>
+
       </div>
+
       }
+
     </div>
+
     <div class="profile-info">
+
       <h3 class="profile-name">{{ displayName }}</h3>
+
       @if (displayEmail) {
+
       <p class="profile-email">{{ displayEmail }}</p>
+
       }
+
       <div class="profile-status">
+
         <div class="status-indicator"></div>
+
         <span class="status-text">{{ accountStatusLabel }}</span>
+
       </div>
+
     </div>
+
     <ion-button
+
       fill="clear"
+
       class="edit-profile-btn"
+
       [routerLink]="['/edit-profile']"
+
       [attr.aria-label]="'profile.editProfile' | translate"
+
     >
+
       <ion-icon name="create" aria-hidden="true"></ion-icon>
+
     </ion-button>
+
   </div>
+
+
 
   <!-- Quick Actions -->
+
   <div class="quick-actions">
+
     <div class="action-card" (click)="onSettingClick(accountSettings[0])">
+
       <div class="action-icon profile-icon">
+
         <ion-icon name="person"></ion-icon>
+
       </div>
-      <span class="action-label">Profile</span>
+
+      <span class="action-label">{{ 'settings.quickProfile' | translate }}</span>
+
     </div>
+
     <div class="action-card" (click)="onSettingClick(appSettings[0])">
+
       <div class="action-icon language-icon">
+
         <ion-icon name="language"></ion-icon>
+
       </div>
-      <span class="action-label">Language</span>
+
+      <span class="action-label">{{ 'common.language' | translate }}</span>
+
     </div>
+
     <div class="action-card" (click)="onSettingClick(accountSettings[1])">
+
       <div class="action-icon security-icon">
+
         <ion-icon name="shield"></ion-icon>
+
       </div>
-      <span class="action-label">Security</span>
+
+      <span class="action-label">{{ 'settings.quickSecurity' | translate }}</span>
+
     </div>
+
     <div class="action-card" (click)="onSettingClick(accountSettings[2])">
+
       <div class="action-icon notification-icon">
+
         <ion-icon name="notifications"></ion-icon>
+
       </div>
-      <span class="action-label">Notifications</span>
+
+      <span class="action-label">{{ 'settings.notifications.title' | translate }}</span>
+
     </div>
+
   </div>
+
+
 
   <!-- Settings Sections -->
+
   <div class="settings-sections">
+
     <!-- Personal Settings -->
+
     <div class="settings-group">
+
       <div class="group-header">
-        <h2 class="group-title">Personal</h2>
+
+        <h2 class="group-title">{{ 'settings.sectionPersonal' | translate }}</h2>
+
         <div class="group-decoration"></div>
+
       </div>
+
       <div class="settings-cards">
+
         @for (setting of accountSettings; track setting.id) {
+
         <div class="setting-card" (click)="onSettingClick(setting)">
+
           <div class="card-icon" [class]="'icon-' + setting.id">
+
             <ion-icon [name]="setting.icon"></ion-icon>
+
           </div>
+
           <div class="card-content">
-            <h3 class="card-title">{{ setting.title }}</h3>
-            <p class="card-subtitle">{{ setting.subtitle }}</p>
+
+            <h3 class="card-title">{{ setting.titleKey | translate }}</h3>
+
+            <p class="card-subtitle">{{ getSettingSubtitle(setting) }}</p>
+
           </div>
+
           <div class="card-action">
+
             <ion-icon name="chevron-forward"></ion-icon>
+
           </div>
+
         </div>
+
         }
+
       </div>
+
     </div>
+
+
 
     <!-- App Preferences -->
+
     <div class="settings-group">
+
       <div class="group-header">
-        <h2 class="group-title">Preferences</h2>
+
+        <h2 class="group-title">{{ 'settings.sectionPreferences' | translate }}</h2>
+
         <div class="group-decoration"></div>
+
       </div>
+
       <div class="settings-cards">
+
         @for (setting of appSettings; track setting.id) {
+
         @if (setting.id === 'autoSync') {
+
         <div class="setting-card setting-card--toggle">
+
           <div class="card-icon icon-autoSync">
+
             <ion-icon [name]="setting.icon"></ion-icon>
+
           </div>
+
           <div class="card-content">
-            <h3 class="card-title">{{ setting.title }}</h3>
-            <p class="card-subtitle">{{ setting.subtitle }}</p>
+
+            <h3 class="card-title">{{ setting.titleKey | translate }}</h3>
+
+            <p class="card-subtitle">{{ getSettingSubtitle(setting) }}</p>
+
           </div>
+
           <div class="card-action">
+
             <ion-toggle
+
               class="beautiful-toggle"
+
               [checked]="autoSyncEnabled"
+
               (ionChange)="onAutoSyncIonChange($event)"
+
               (click)="$event.stopPropagation()"
-              [attr.aria-label]="setting.title">
+
+              [attr.aria-label]="setting.titleKey | translate">
+
             </ion-toggle>
+
           </div>
+
         </div>
+
         } @else {
+
         <div class="setting-card" (click)="onSettingClick(setting)">
+
           <div class="card-icon" [class]="'icon-' + setting.id">
+
             <ion-icon [name]="setting.icon"></ion-icon>
+
           </div>
+
           <div class="card-content">
-            <h3 class="card-title">{{ setting.title }}</h3>
-            <p class="card-subtitle">{{ setting.subtitle }}</p>
+
+            <h3 class="card-title">{{ setting.titleKey | translate }}</h3>
+
+            <p class="card-subtitle">{{ getSettingSubtitle(setting) }}</p>
+
           </div>
+
           <div class="card-action">
+
             <ion-icon name="chevron-forward"></ion-icon>
+
           </div>
+
         </div>
+
         }
+
         }
+
       </div>
+
     </div>
+
+
 
     <!-- Support & Help -->
+
     <div class="settings-group">
+
       <div class="group-header">
-        <h2 class="group-title">Support</h2>
+
+        <h2 class="group-title">{{ 'settings.sectionSupport' | translate }}</h2>
+
         <div class="group-decoration"></div>
+
       </div>
+
       <div class="settings-cards">
+
         @for (setting of supportSettings; track setting.id) {
+
         <div class="setting-card" (click)="onSettingClick(setting)">
+
           <div class="card-icon" [class]="'icon-' + setting.id">
+
             <ion-icon [name]="setting.icon"></ion-icon>
+
           </div>
+
           <div class="card-content">
-            <h3 class="card-title">{{ setting.title }}</h3>
-            <p class="card-subtitle">{{ setting.subtitle }}</p>
+
+            <h3 class="card-title">{{ setting.titleKey | translate }}</h3>
+
+            <p class="card-subtitle">{{ getSettingSubtitle(setting) }}</p>
+
           </div>
+
           <div class="card-action">
+
             <ion-icon name="chevron-forward"></ion-icon>
+
           </div>
+
         </div>
+
         }
+
       </div>
+
     </div>
+
+
 
     <!-- Account Management -->
+
     <div class="settings-group">
+
       <div class="group-header">
-        <h2 class="group-title">Account</h2>
+
+        <h2 class="group-title">{{ 'settings.sectionAccount' | translate }}</h2>
+
         <div class="group-decoration"></div>
+
       </div>
+
       <div class="settings-cards">
+
         @for (setting of accountActions; track setting.id) {
+
         <div class="setting-card" [class]="'danger-card'" (click)="onSettingClick(setting)">
+
           <div class="card-icon" [class]="'icon-' + setting.id">
+
             <ion-icon [name]="setting.icon"></ion-icon>
+
           </div>
+
           <div class="card-content">
-            <h3 class="card-title">{{ setting.title }}</h3>
-            <p class="card-subtitle">{{ setting.subtitle }}</p>
+
+            <h3 class="card-title">{{ setting.titleKey | translate }}</h3>
+
+            <p class="card-subtitle">{{ getSettingSubtitle(setting) }}</p>
+
           </div>
+
           <div class="card-action">
+
             <ion-icon name="chevron-forward"></ion-icon>
+
           </div>
+
         </div>
+
         }
+
       </div>
+
     </div>
+
   </div>
+
+
 
   <!-- Logout Section -->
+
   <div class="logout-section">
+
     <ion-button expand="block" fill="outline" class="logout-button" (click)="logout()">
+
       <ion-icon name="log-out" slot="start"></ion-icon>
-      Sign Out
+
+      {{ 'menu.logOut' | translate }}
+
     </ion-button>
+
   </div>
 
-  <!-- Loading Overlay -->
-  @if (isLoading) {
-  <div class="loading-overlay">
-    <div class="loading-content">
-      <app-logo-loading layout="embedded" message="Loading settings..." />
-    </div>
-  </div>
-  }
+
 
   <!-- Error State -->
+
   @if (errorMessage) {
+
   <div class="error-overlay">
+
     <div class="error-content">
+
       <ion-icon name="alert-circle" class="error-icon"></ion-icon>
+
       <p class="error-text">{{ errorMessage }}</p>
-      <ion-button fill="solid" (click)="loadSettings()">Try Again</ion-button>
+
+      <ion-button fill="solid" (click)="loadSavedSettings()">{{ 'common.tryAgain' | translate }}</ion-button>
+
     </div>
+
   </div>
+
   }
+
 </ion-content>
+
+

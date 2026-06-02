@@ -1,6 +1,6 @@
-import { Pipe, PipeTransform, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Pipe, PipeTransform, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-  import { TranslationService } from '../services/translation.service';
+import { TranslationService } from '../services/translation.service';
 import { LanguageService } from '../services/language.service';
 
 @Pipe({
@@ -13,11 +13,11 @@ export class TranslatePipe implements PipeTransform, OnDestroy {
 
   constructor(
     private translationService: TranslationService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private cdr: ChangeDetectorRef,
   ) {
-    // Subscribe to language changes to trigger pipe updates
     this.languageSubscription = this.languageService.currentLanguage$.subscribe(() => {
-      // This subscription ensures the pipe updates when language changes
+      this.cdr.markForCheck();
     });
   }
 

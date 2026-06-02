@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Notifications</ion-title>
+    <ion-title class="header-title">{{ 'menu.notifications' | translate }}</ion-title>
     <ion-buttons slot="end">
       @if (unreadCount > 0) {
         <ion-badge class="header-unread-badge" color="light">{{ unreadCount | localNum }}</ion-badge>
@@ -13,7 +13,7 @@
         class="header-action-btn"
         [disabled]="unreadCount === 0"
         (click)="markAllAsRead()"
-        aria-label="Mark all as read"
+        [attr.aria-label]="'notifications.a11y.markAllRead' | translate"
       >
         <ion-icon name="checkmark-done-outline"></ion-icon>
       </ion-button>
@@ -22,7 +22,7 @@
         class="header-action-btn"
         [disabled]="notifications.length === 0"
         (click)="clearAllNotifications()"
-        aria-label="Clear all notifications"
+        [attr.aria-label]="'notifications.a11y.clearAll' | translate"
       >
         <ion-icon name="trash-outline"></ion-icon>
       </ion-button>
@@ -37,7 +37,7 @@
 
   <div class="page-inner">
     @if (unreadCount > 0 && selectedFilter === 'all') {
-      <p class="summary-line">{{ unreadCount | localNum }} unread</p>
+      <p class="summary-line">{{ unreadSummary }}</p>
     }
 
     <ion-segment
@@ -49,7 +49,7 @@
       @for (f of filters; track f.value) {
         <ion-segment-button [value]="f.value">
           <ion-icon [name]="f.icon"></ion-icon>
-          <ion-label>{{ f.label }}</ion-label>
+          <ion-label>{{ f.labelKey | translate }}</ion-label>
         </ion-segment-button>
       }
     </ion-segment>
@@ -57,7 +57,7 @@
     @if (isLoading) {
       <div class="state-center">
         <ion-spinner name="crescent"></ion-spinner>
-        <p class="state-caption">Loading notifications…</p>
+        <p class="state-caption">{{ 'notifications.loading' | translate }}</p>
       </div>
     }
 
@@ -65,7 +65,7 @@
       <div class="state-center state-error">
         <ion-icon name="cloud-offline-outline" class="state-icon"></ion-icon>
         <p>{{ errorMessage }}</p>
-        <ion-button fill="outline" (click)="retryLoad()">Try again</ion-button>
+        <ion-button fill="outline" (click)="retryLoad()">{{ 'common.tryAgain' | translate }}</ion-button>
       </div>
     }
 
@@ -73,14 +73,14 @@
       @if (notifications.length === 0) {
         <div class="empty-state">
           <ion-icon name="notifications-off-outline" class="empty-icon"></ion-icon>
-          <h3>No notifications yet</h3>
-          <p>When there is something new about your health, reminders, or the community, it will show up here.</p>
+          <h3>{{ 'notifications.empty.title' | translate }}</h3>
+          <p>{{ 'notifications.empty.body' | translate }}</p>
         </div>
       } @else if (filteredNotifications.length === 0) {
         <div class="empty-state">
           <ion-icon name="funnel-outline" class="empty-icon"></ion-icon>
-          <h3>Nothing to show</h3>
-          <p>{{ emptyFilterHint }}</p>
+          <h3>{{ 'notifications.emptyFilter.title' | translate }}</h3>
+          <p>{{ emptyFilterHintKey | translate }}</p>
         </div>
       } @else {
         <ion-list class="notifications-list" lines="none">
@@ -98,8 +98,8 @@
               </div>
 
               <ion-label class="notification-content">
-                <h3 class="notification-title">{{ notification.title }}</h3>
-                <p class="notification-message">{{ notification.message }}</p>
+                <h3 class="notification-title">{{ notification.titleKey | translate }}</h3>
+                <p class="notification-message">{{ notification.messageKey | translate }}</p>
                 <span class="notification-time">{{ formatRelativeTime(notification.timestamp) }}</span>
               </ion-label>
 
@@ -108,7 +108,7 @@
                   <ion-button
                     fill="clear"
                     size="small"
-                    aria-label="Mark as read"
+                    [attr.aria-label]="'notifications.a11y.markRead' | translate"
                     (click)="markAsRead(notification.id, $event)"
                   >
                     <ion-icon name="checkmark-outline"></ion-icon>
@@ -118,7 +118,7 @@
                   fill="clear"
                   size="small"
                   color="danger"
-                  aria-label="Remove notification"
+                  [attr.aria-label]="'notifications.a11y.remove' | translate"
                   (click)="deleteNotification(notification.id, $event)"
                 >
                   <ion-icon name="close-outline"></ion-icon>

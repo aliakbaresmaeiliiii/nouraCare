@@ -1,0 +1,64 @@
+<ion-header class="sub-settings-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'settings.privacy.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="sub-settings-content">
+  <p class="lede">{{ 'settings.privacy.subtitle' | translate }}</p>
+
+  <ion-list lines="full" class="toggle-list">
+    <ion-item>
+      <ion-label>
+        <h2>{{ 'settings.privacy.hideSensitive' | translate }}</h2>
+        <p>{{ 'settings.privacy.hideSensitiveHint' | translate }}</p>
+      </ion-label>
+      <ion-toggle
+        slot="end"
+        [checked]="settings.hideSensitiveNotifications"
+        (ionChange)="onToggleChange('hideSensitiveNotifications', $event.detail.checked)"
+      />
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2>{{ 'settings.privacy.appLock' | translate }}</h2>
+        <p>{{ 'settings.privacy.appLockHint' | translate }}</p>
+      </ion-label>
+      <ion-toggle
+        slot="end"
+        [checked]="settings.appLockEnabled"
+        (ionChange)="onToggleChange('appLockEnabled', $event.detail.checked)"
+      />
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2>{{ 'settings.privacy.previewContent' | translate }}</h2>
+        <p>{{ 'settings.privacy.previewContentHint' | translate }}</p>
+      </ion-label>
+      <ion-toggle
+        slot="end"
+        [checked]="settings.showAppPreviewContent"
+        (ionChange)="onToggleChange('showAppPreviewContent', $event.detail.checked)"
+      />
+    </ion-item>
+
+    <ion-item>
+      <ion-label>
+        <h2>{{ 'settings.privacy.dataSharing' | translate }}</h2>
+        <p>{{ 'settings.privacy.dataSharingHint' | translate }}</p>
+      </ion-label>
+      <ion-toggle
+        slot="end"
+        [checked]="settings.allowDataSharing"
+        (ionChange)="onToggleChange('allowDataSharing', $event.detail.checked)"
+      />
+    </ion-item>
+  </ion-list>
+</ion-content>

@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
@@ -23,7 +30,11 @@ import {
   IonSearchbar,
   ToastController,
 } from '@ionic/angular/standalone';
+import { Subscription } from 'rxjs';
+import { LanguageService } from '../shared/services/language.service';
+import { TranslationService } from '../shared/services/translation.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { formatRecordedAtDate } from '../shared/utils/locale-date-format.util';
 
 interface SavedItem {
   id: number;
@@ -47,13 +58,18 @@ interface SavedItem {
   imports: [...SHARED_STANDALONE_IMPORTS],
   host: { class: 'ion-page' },
 })
-export class SavedInformationComponent implements OnInit {
+export class SavedInformationComponent implements OnInit, OnDestroy {
   @ViewChild('savedSearch', { read: IonSearchbar })
   private savedSearch?: IonSearchbar;
 
   private readonly router = inject(Router);
   private readonly toastController = inject(ToastController);
   private readonly alertController = inject(AlertController);
+  private readonly translation = inject(TranslationService);
+  private readonly languageService = inject(LanguageService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  private languageSub?: Subscription;
 
   savedItems: SavedItem[] = [];
   isLoading = false;
@@ -62,11 +78,19 @@ export class SavedInformationComponent implements OnInit {
   searchQuery = '';
 
   readonly categories = [
-    { value: 'all', label: 'All', icon: 'grid-outline' },
-    { value: 'article', label: 'Articles', icon: 'document-text-outline' },
-    { value: 'tip', label: 'Tips', icon: 'bulb-outline' },
-    { value: 'resource', label: 'Resources', icon: 'library-outline' },
-    { value: 'video', label: 'Videos', icon: 'play-circle-outline' },
+    { value: 'all', labelKey: 'savedInformation.categoryAll', icon: 'grid-outline' },
+    {
+      value: 'article',
+      labelKey: 'savedInformation.categoryArticle',
+      icon: 'document-text-outline',
+    },
+    { value: 'tip', labelKey: 'savedInformation.categoryTip', icon: 'bulb-outline' },
+    {
+      value: 'resource',
+      labelKey: 'savedInformation.categoryResource',
+      icon: 'library-outline',
+    },
+    { value: 'video', labelKey: 'savedInformation.categoryVideo', icon: 'play-circle-outline' },
   ];
 
   constructor() {
@@ -89,7 +113,14 @@ export class SavedInformationComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.languageSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.markForCheck();
+    });
     void this.loadSavedItems();
+  }
+
+  ngOnDestroy(): void {
+    this.languageSub?.unsubscribe();
   }
 
   async loadSavedItems(): Promise<void> {
@@ -153,8 +184,7 @@ export class SavedInformationComponent implements OnInit {
         },
       ];
     } catch {
-      this.errorMessage =
-        'We could not load your saved items. Check your connection and try again.';
+      this.errorMessage = this.t('savedInformation.loadFailed');
     } finally {
       this.isLoading = false;
     }
@@ -175,16 +205,16 @@ export class SavedInformationComponent implements OnInit {
   async confirmRemoveSavedItem(item: SavedItem, ev: Event): Promise<void> {
     ev.stopPropagation();
     const alert = await this.alertController.create({
-      header: 'Remove from saved?',
-      message: `"${item.title}" will disappear from this list.`,
+      header: this.t('savedInformation.removeHeader'),
+      message: this.tParams('savedInformation.removeMessage', { title: item.title }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t('common.cancel'), role: 'cancel' },
         {
-          text: 'Remove',
+          text: this.t('savedInformation.remove'),
           role: 'destructive',
           handler: () => {
             this.savedItems = this.savedItems.filter((i) => i.id !== item.id);
-            void this.showToast('Removed from saved');
+            void this.showToast(this.t('savedInformation.removedToast'));
           },
         },
       ],
@@ -196,7 +226,7 @@ export class SavedInformationComponent implements OnInit {
     const articleId = item.articleRouteId ?? String(item.id);
     const ok = await this.router.navigate(['/article', articleId]);
     if (!ok) {
-      await this.showToast('Could not open this item. Try again from the home screen.');
+      await this.showToast(this.t('savedInformation.openFailed'));
     }
   }
 
@@ -229,16 +259,16 @@ export class SavedInformationComponent implements OnInit {
     try {
       const date = new Date(dateString);
       if (Number.isNaN(date.getTime())) {
-        return 'Unknown date';
+        return this.t('savedInformation.unknownDate');
       }
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
+      return formatRecordedAtDate(date, this.languageService.getCurrentLanguage());
     } catch {
-      return 'Unknown date';
+      return this.t('savedInformation.unknownDate');
     }
+  }
+
+  minReadLabel(minutes: number): string {
+    return this.tParams('savedInformation.minRead', { minutes });
   }
 
   goBrowse(): void {
@@ -250,6 +280,14 @@ export class SavedInformationComponent implements OnInit {
     if (target) {
       target.src = 'assets/images/bg-01.png';
     }
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  private tParams(key: string, vars: Record<string, string | number>): string {
+    return this.translation.translateParams(key, vars);
   }
 
   private async showToast(message: string): Promise<void> {

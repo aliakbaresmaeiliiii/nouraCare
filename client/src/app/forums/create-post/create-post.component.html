@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Create New Post</ion-title>
+    <ion-title>{{ 'forums.createPost.pageTitle' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         (click)="showPreview()"
@@ -20,97 +20,68 @@
 
 <ion-content [fullscreen]="true" class="create-post-content">
   <div class="create-post-shell">
-    <section class="hero-section">
-      <div class="hero-copy">
-        <span class="eyebrow">Community Post</span>
-        <h1 class="page-title">Create a post people can understand quickly</h1>
-        <p class="page-subtitle">
-          Choose the right forum, write a clear title, and share enough detail
-          for helpful replies.
-        </p>
-      </div>
-
-      <div class="hero-tips">
-        <div class="tip-chip">
-          <ion-icon name="folder-open-outline"></ion-icon>
-          <span>Pick the best forum</span>
-        </div>
-        <div class="tip-chip">
-          <ion-icon name="create-outline"></ion-icon>
-          <span>Use a short clear title</span>
-        </div>
-        <div class="tip-chip">
-          <ion-icon name="chatbox-ellipses-outline"></ion-icon>
-          <span>Add enough context</span>
-        </div>
-      </div>
+    <section class="page-intro">
+      <h1 class="page-title">{{ 'forums.createPost.heroTitle' | translate }}</h1>
+      <p class="page-subtitle">
+        {{ 'forums.createPost.heroSubtitle' | translate }}
+      </p>
     </section>
 
     <form [formGroup]="postForm" (ngSubmit)="submitPost()" class="post-form">
-      <section class="surface-card intro-card">
-        <div class="section-heading">
-          <div>
-            <span class="section-kicker">Before you post</span>
-            <h2>Make it easy for others to help</h2>
-          </div>
-          <span class="status-pill">{{ selectedTags.length }}/10 tags</span>
-        </div>
-        <p class="section-description">
-          A good post usually has a relevant forum, a title that explains the
-          topic, and a message with enough detail to avoid back-and-forth.
-        </p>
-      </section>
-
       <section class="surface-card form-section">
         <div class="section-heading compact">
           <div>
-            <span class="section-kicker">Step 1</span>
-            <h2>Choose a forum</h2>
+            <span class="section-kicker">{{ 'forums.createPost.step1' | translate }}</span>
+            <h2>{{ 'forums.createPost.chooseForum' | translate }}</h2>
           </div>
         </div>
 
-        <ion-item class="form-item" lines="none">
-          <ion-label position="stacked" class="form-label">
-            <ion-icon name="folder-outline" class="label-icon"></ion-icon>
-            Forum
-            <span class="required">*</span>
-          </ion-label>
-          <ion-select
-            formControlName="forumId"
-            interface="action-sheet"
-            placeholder="Select the forum that matches your topic"
-            class="forum-select"
-            [disabled]="isLoading"
-            (ionChange)="onForumSelect($event)"
+        <p class="field-hint category-picker-hint">{{ 'forums.createPost.pickCategoryHint' | translate }}</p>
+
+        @if (isLoading) {
+        <div class="category-picker-skeleton" aria-hidden="true">
+          @for (row of [1, 2, 3, 4]; track row) {
+          <div class="category-option-skeleton"></div>
+          }
+        </div>
+        } @else {
+        <div class="category-picker-grid" role="listbox" [attr.aria-label]="'forums.createPost.forumLabel' | translate">
+          @for (category of categories(); track category.id) {
+          @if (category.id && category.name) {
+          <button
+            type="button"
+            class="category-option"
+            role="option"
+            [class.selected]="postForm.get('forumId')?.value === category.id"
+            [attr.aria-selected]="postForm.get('forumId')?.value === category.id"
+            (click)="selectCategory(category)"
           >
-            @for (category of categories(); track category.id) { @if
-            (category.id && category.name) {
-            <ion-select-option [value]="category.id">
-              <div class="forum-option">
-                <ion-icon
-                  [name]="category.icon"
-                  [style.color]="category.color"
-                ></ion-icon>
-                <div class="forum-info">
-                  <span class="forum-name">{{ category.name }}</span>
-                </div>
-              </div>
-            </ion-select-option>
-            } }
-          </ion-select>
-        </ion-item>
-        <p class="field-hint">Choose the forum that best matches your topic.</p>
-        @if (postForm.get('forumId')?.invalid &&
-        postForm.get('forumId')?.touched) {
-        <div class="error-message">Please select a forum</div>
+            <div
+              class="category-option-icon"
+              [style.--category-color]="category.color"
+            >
+              <ion-icon [name]="getCategoryIcon(category)"></ion-icon>
+            </div>
+            <span class="category-option-name">{{ categoryName(category) }}</span>
+            @if (postForm.get('forumId')?.value === category.id) {
+            <ion-icon name="checkmark-circle" class="category-option-check"></ion-icon>
+            }
+          </button>
+          }
+          }
+        </div>
+        }
+
+        @if (postForm.get('forumId')?.invalid && postForm.get('forumId')?.touched) {
+        <div class="error-message">{{ 'forums.createPost.forumRequired' | translate }}</div>
         }
       </section>
 
       <section class="surface-card form-section">
         <div class="section-heading compact">
           <div>
-            <span class="section-kicker">Step 2</span>
-            <h2>Write your post</h2>
+            <span class="section-kicker">{{ 'forums.createPost.step2' | translate }}</span>
+            <h2>{{ 'forums.createPost.writePost' | translate }}</h2>
           </div>
         </div>
 
@@ -118,13 +89,13 @@
           <ion-item class="form-item" lines="none">
             <ion-label position="stacked" class="form-label">
               <ion-icon name="pricetag-outline" class="label-icon"></ion-icon>
-              Post title
+              {{ 'forums.createPost.titleLabel' | translate }}
               <span class="required">*</span>
             </ion-label>
             <ion-input
               formControlName="title"
               type="text"
-              placeholder="Example: Is this normal in early pregnancy?"
+              [placeholder]="'forums.createPost.titlePlaceholder' | translate"
               class="title-input"
               maxlength="200"
               clearInput="true"
@@ -132,7 +103,7 @@
             </ion-input>
           </ion-item>
           <div class="input-helpers">
-            <span class="field-hint">Keep it short and specific.</span>
+            <span class="field-hint">{{ 'forums.createPost.titleHint' | translate }}</span>
             <span class="char-count"
               >{{ postForm.get("title")?.value?.length || 0 }}/200</span
             >
@@ -140,11 +111,11 @@
           @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
           <div class="error-message">
             @if (postForm.get('title')?.errors?.['required']) {
-            <span>Title is required</span>
+            <span>{{ 'forums.createPost.titleRequired' | translate }}</span>
             } @if (postForm.get('title')?.errors?.['minlength']) {
-            <span>Title must be at least 5 characters</span>
+            <span>{{ 'forums.createPost.titleMinLength' | translate }}</span>
             } @if (postForm.get('title')?.errors?.['maxlength']) {
-            <span>Title must be less than 200 characters</span>
+            <span>{{ 'forums.createPost.titleMaxLength' | translate }}</span>
             }
           </div>
           }
@@ -157,12 +128,12 @@
                 name="document-text-outline"
                 class="label-icon"
               ></ion-icon>
-              Post content
+              {{ 'forums.createPost.contentLabel' | translate }}
               <span class="required">*</span>
             </ion-label>
             <ion-textarea
               formControlName="content"
-              placeholder="Describe what is happening, what you tried, and what kind of help you need."
+              [placeholder]="'forums.createPost.contentPlaceholder' | translate"
               rows="8"
               autoGrow="true"
               class="content-textarea"
@@ -170,9 +141,7 @@
             </ion-textarea>
           </ion-item>
           <div class="content-meta">
-            <span class="field-hint"
-              >Include enough context so others can give useful replies.</span
-            >
+            <span class="field-hint">{{ 'forums.createPost.contentHint' | translate }}</span>
             <span class="char-count"
               >{{ characterCount | localNum }}/{{ maxContentLength | localNum }}</span
             >
@@ -187,11 +156,11 @@
           postForm.get('content')?.touched) {
           <div class="error-message">
             @if (postForm.get('content')?.errors?.['required']) {
-            <span>Content is required</span>
+            <span>{{ 'forums.createPost.contentRequired' | translate }}</span>
             } @if (postForm.get('content')?.errors?.['minlength']) {
-            <span>Content must be at least 10 characters</span>
+            <span>{{ 'forums.createPost.contentMinLength' | translate }}</span>
             } @if (postForm.get('content')?.errors?.['maxlength']) {
-            <span>Content is too long</span>
+            <span>{{ 'forums.createPost.contentTooLong' | translate }}</span>
             }
           </div>
           }
@@ -201,10 +170,10 @@
       <section class="surface-card form-section">
         <div class="section-heading compact">
           <div>
-            <span class="section-kicker">Step 3</span>
-            <h2>Add tags</h2>
+            <span class="section-kicker">{{ 'forums.createPost.step3' | translate }}</span>
+            <h2>{{ 'forums.createPost.addTags' | translate }}</h2>
           </div>
-          <span class="optional">Optional but recommended</span>
+          <span class="optional">{{ tagsCountLabel() }}</span>
         </div>
 
         @if (selectedTags.length > 0) {
@@ -216,7 +185,7 @@
               type="button"
               class="tag-remove"
               (click)="removeTag(tag)"
-              aria-label="Remove tag"
+              [attr.aria-label]="'forums.createPost.removeTagAria' | translate"
             >
               <ion-icon name="close"></ion-icon>
             </button>
@@ -226,7 +195,7 @@
         } @else {
         <div class="empty-tags-state">
           <ion-icon name="pricetags-outline"></ion-icon>
-          <p>No tags added yet. Tags help more people find your post.</p>
+          <p>{{ 'forums.createPost.noTagsYet' | translate }}</p>
         </div>
         }
 
@@ -240,7 +209,7 @@
               (keydown)="onTagInputKeyDown($event)"
               (focus)="showSuggestions = true"
               (blur)="onTagInputBlur()"
-              placeholder="Type a tag and press Enter"
+              [placeholder]="'forums.createPost.tagPlaceholder' | translate"
               class="tag-input-field"
               maxlength="30"
             />
@@ -278,7 +247,7 @@
 
           <div class="tag-input-helpers">
             <span class="tag-input-hint">
-              Press Enter or use the + button to add a tag.
+              {{ 'forums.createPost.tagHint' | translate }}
             </span>
           </div>
         </div>
@@ -287,7 +256,7 @@
         <div class="popular-tags-section">
           <div class="popular-tags-header">
             <ion-icon name="sparkles-outline" class="trending-icon"></ion-icon>
-            <span class="popular-tags-title">Suggested tags</span>
+            <span class="popular-tags-title">{{ 'forums.createPost.suggestedTags' | translate }}</span>
           </div>
           <div class="popular-tags-grid">
             @for (tag of popularTags; track tag) {
@@ -314,8 +283,8 @@
 
       <section class="surface-card action-panel">
         <div class="action-copy">
-          <h3>Ready to post?</h3>
-          <p>You can preview your post first or publish it now.</p>
+          <h3>{{ 'forums.createPost.readyToPost' | translate }}</h3>
+          <p>{{ 'forums.createPost.readySubtitle' | translate }}</p>
         </div>
 
         <div class="action-buttons">
@@ -326,7 +295,7 @@
             [disabled]="postForm.invalid"
             [loading]="isSubmitting"
           >
-            Create Post
+            {{ 'forums.createPost.submit' | translate }}
           </app-button>
 
           <ion-button
@@ -339,7 +308,7 @@
             class="clear-button"
           >
             <ion-icon name="refresh-outline" slot="start"></ion-icon>
-            Start Over
+            {{ 'forums.createPost.startOver' | translate }}
           </ion-button>
         </div>
       </section>
@@ -347,7 +316,7 @@
 
     <!-- Loading State -->
     @if (isLoading) {
-    <app-logo-loading message="Loading categories…" />
+    <app-logo-loading [message]="'forums.createPost.loadingCategories' | translate" />
     }
 
     <!-- Error Message -->
@@ -372,7 +341,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Post Preview</ion-title>
+        <ion-title>{{ 'forums.createPost.previewTitle' | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" (click)="closePreview()">
             <ion-icon slot="icon-only" name="close-outline"></ion-icon>
@@ -390,7 +359,7 @@
               <ion-label>{{ getSelectedForumName() }}</ion-label>
             </ion-chip>
             @if (selectedTags.length > 0) {
-            <span class="preview-tag-count">{{ selectedTags.length }} tags</span>
+            <span class="preview-tag-count">{{ previewTagsCountLabel() }}</span>
             }
           </div>
 
@@ -414,14 +383,14 @@
       <ion-toolbar>
         <div class="preview-actions">
           <ion-button fill="outline" color="medium" (click)="closePreview()">
-            Edit Post
+            {{ 'forums.createPost.editPost' | translate }}
           </ion-button>
           <app-button
             (buttonClick)="closePreview()"
             [disabled]="postForm.invalid"
             size="default"
           >
-            Looks Good
+            {{ 'forums.createPost.looksGood' | translate }}
           </app-button>
         </div>
       </ion-toolbar>

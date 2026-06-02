@@ -1,25 +1,22 @@
 <ion-content class="tab-page-content school-page" [fullscreen]="false">
   <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
     <ion-refresher-content
-      pullingText="Pull to refresh"
-      refreshingText="Refreshing…"
+      [pullingText]="'common.pullToRefresh' | translate"
+      [refreshingText]="'common.refreshing' | translate"
     ></ion-refresher-content>
   </ion-refresher>
 
   @if (isPregnant) {
     <div class="baby-development-content">
       <header class="page-intro">
-        <h1 class="page-title">Baby development</h1>
-        <p class="page-subtitle">
-          See how big baby is this week, what is changing, and slide to peek at other weeks.
-        </p>
+        <h1 class="page-title">{{ 'school.page.title' | translate }}</h1>
+        <p class="page-subtitle">{{ 'school.page.subtitle' | translate }}</p>
       </header>
 
       @if (isExploringOtherWeek) {
         <div class="explore-banner" role="status">
           <span class="explore-banner-text">
-            You are viewing <strong>week {{ pregnancyWeek | localNum }}</strong>. Your pregnancy is
-            <strong>week {{ actualPregnancyWeek | localNum }}</strong>.
+            {{ exploreBannerText }}
           </span>
           <ion-button
             size="small"
@@ -27,7 +24,7 @@
             class="explore-reset-btn"
             (click)="resetToProfileWeek()"
           >
-            Go to my week
+            {{ 'school.explore.goToMyWeek' | translate }}
           </ion-button>
         </div>
       }
@@ -39,15 +36,15 @@
             fill="outline"
             (click)="previousWeek()"
             [disabled]="pregnancyWeek <= 4"
-            aria-label="Previous week"
+            [attr.aria-label]="'school.week.previousAria' | translate"
           >
             <ion-icon name="chevron-back" slot="icon-only"></ion-icon>
           </ion-button>
 
           <div class="week-card-center" id="week-heading">
-            <span class="week-kicker">Pregnancy</span>
-            <p class="week-big">Week {{ pregnancyWeek | localNum }}</p>
-            <p class="week-of">of 40</p>
+            <span class="week-kicker">{{ 'school.week.kicker' | translate }}</span>
+            <p class="week-big">{{ weekLabel }}</p>
+            <p class="week-of">{{ 'school.week.of' | translate }}</p>
           </div>
 
           <ion-button
@@ -55,7 +52,7 @@
             fill="outline"
             (click)="nextWeek()"
             [disabled]="pregnancyWeek >= 40"
-            aria-label="Next week"
+            [attr.aria-label]="'school.week.nextAria' | translate"
           >
             <ion-icon name="chevron-forward" slot="icon-only"></ion-icon>
           </ion-button>
@@ -72,24 +69,22 @@
       </section>
 
       <section class="surface-card baby-card" aria-labelledby="size-heading">
-        <p class="eyebrow" id="size-heading">About this size</p>
-        <h2 class="baby-size-title">{{ currentBaby?.size || 'Growing' }}</h2>
-        <p class="baby-size-desc">
-          {{ currentBaby?.description || 'Your baby is growing beautifully.' }}
-        </p>
+        <p class="eyebrow" id="size-heading">{{ 'school.size.about' | translate }}</p>
+        <h2 class="baby-size-title">{{ displayBabySize() }}</h2>
+        <p class="baby-size-desc">{{ displayBabyDescription() }}</p>
 
         <div class="stat-row">
           <div class="stat-pill">
             <ion-icon name="scale-outline" aria-hidden="true"></ion-icon>
             <div>
-              <span class="stat-label">Weight</span>
+              <span class="stat-label">{{ 'school.stat.weight' | translate }}</span>
               <span class="stat-value">{{ currentBaby?.weight || '—' }}</span>
             </div>
           </div>
           <div class="stat-pill">
             <ion-icon name="resize-outline" aria-hidden="true"></ion-icon>
             <div>
-              <span class="stat-label">Length</span>
+              <span class="stat-label">{{ 'school.stat.length' | translate }}</span>
               <span class="stat-value">{{ getBabyLength() }}</span>
             </div>
           </div>
@@ -99,7 +94,7 @@
       <section class="surface-card read-card" aria-labelledby="dev-heading">
         <div class="read-card-head">
           <ion-icon name="flask-outline" class="read-icon dev" aria-hidden="true"></ion-icon>
-          <h3 class="read-title" id="dev-heading">This week’s development</h3>
+          <h3 class="read-title" id="dev-heading">{{ 'school.section.development' | translate }}</h3>
         </div>
         <p class="read-body">{{ getBabyDevelopmentFacts(pregnancyWeek) }}</p>
       </section>
@@ -107,7 +102,7 @@
       <section class="surface-card read-card read-card--accent" aria-labelledby="fun-heading">
         <div class="read-card-head">
           <ion-icon name="sparkles-outline" class="read-icon fun" aria-hidden="true"></ion-icon>
-          <h3 class="read-title" id="fun-heading">Did you know?</h3>
+          <h3 class="read-title" id="fun-heading">{{ 'school.section.didYouKnow' | translate }}</h3>
         </div>
         <p class="read-body">{{ getFunFacts(pregnancyWeek) }}</p>
       </section>
@@ -119,12 +114,9 @@
     <div class="not-pregnant-content">
       <div class="surface-card empty-state">
         <div class="empty-icon" aria-hidden="true">🤰</div>
-        <h2>No active pregnancy</h2>
-        <p>
-          When you mark pregnancy in the app, this tab shows week-by-week growth, size, and
-          simple explanations you can read in a minute.
-        </p>
-        <ion-button expand="block" (click)="goToHome()">Go to home</ion-button>
+        <h2>{{ 'school.empty.title' | translate }}</h2>
+        <p>{{ 'school.empty.message' | translate }}</p>
+        <ion-button expand="block" (click)="goToHome()">{{ 'school.empty.goHome' | translate }}</ion-button>
       </div>
     </div>
   }

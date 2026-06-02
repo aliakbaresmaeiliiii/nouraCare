@@ -14,12 +14,13 @@ import type { RefresherCustomEvent } from '@ionic/core';
 import { ToastController } from '@ionic/angular/standalone';
 import { catchError, finalize, of } from 'rxjs';
 import { GrowthService } from '../shared/services/growth.service';
+import { TranslationService } from '../shared/services/translation.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 interface InviteMethod {
   id: string;
-  title: string;
-  subtitle: string;
+  titleKey: string;
+  subtitleKey: string;
   icon: string;
   /** Ionic color name — used for icon well accents only (cards stay surface-based). */
   accent: 'primary' | 'secondary' | 'success' | 'warning';
@@ -37,6 +38,9 @@ interface InviteMethod {
 export class InviteFriendsComponent implements OnInit {
   private readonly growth = inject(GrowthService);
   private readonly toastController = inject(ToastController);
+  private readonly translation = inject(TranslationService);
+
+  readonly referralBonusPoints = 50;
 
   isLoading = false;
   errorMessage = '';
@@ -66,32 +70,32 @@ export class InviteFriendsComponent implements OnInit {
     this.inviteMethods = [
       {
         id: 'share',
-        title: 'Share app link',
-        subtitle: 'Use your device share sheet',
+        titleKey: 'inviteFriends.method.share.title',
+        subtitleKey: 'inviteFriends.method.share.subtitle',
         icon: 'share-outline',
         accent: 'primary',
         action: () => this.shareApp(),
       },
       {
         id: 'email',
-        title: 'Send email',
-        subtitle: 'Pre-filled message you can edit',
+        titleKey: 'inviteFriends.method.email.title',
+        subtitleKey: 'inviteFriends.method.email.subtitle',
         icon: 'mail-outline',
         accent: 'secondary',
         action: () => this.inviteViaEmail(),
       },
       {
         id: 'sms',
-        title: 'Send SMS',
-        subtitle: 'Opens your messaging app',
+        titleKey: 'inviteFriends.method.sms.title',
+        subtitleKey: 'inviteFriends.method.sms.subtitle',
         icon: 'chatbubble-ellipses-outline',
         accent: 'success',
         action: () => this.inviteViaSMS(),
       },
       {
         id: 'copy',
-        title: 'Copy link',
-        subtitle: 'Put the invite URL on the clipboard',
+        titleKey: 'inviteFriends.method.copy.title',
+        subtitleKey: 'inviteFriends.method.copy.subtitle',
         icon: 'copy-outline',
         accent: 'warning',
         action: () => this.copyInviteLink(),
@@ -107,8 +111,7 @@ export class InviteFriendsComponent implements OnInit {
       .getSummary()
       .pipe(
         catchError(() => {
-          this.errorMessage =
-            'Could not load your invite code. Pull down to refresh or try again later.';
+          this.errorMessage = this.t('inviteFriends.loadFailed');
           return of(null);
         }),
         finalize(() => {
@@ -138,15 +141,15 @@ export class InviteFriendsComponent implements OnInit {
   }
 
   shareApp(): void {
-    const text = `Join me on NouraCare — smarter cycle & pregnancy support.\n\n${this.inviteLink}`;
+    const text = this.tParams('inviteFriends.share.text', { link: this.inviteLink });
     if (navigator.share) {
       void navigator
         .share({
-          title: 'Join me on NouraCare',
+          title: this.t('inviteFriends.share.title'),
           text,
           url: this.inviteLink,
         })
-        .then(() => void this.showToast('Shared'))
+        .then(() => void this.showToast(this.t('inviteFriends.toast.shared')))
         .catch(() => this.copyInviteLink());
     } else {
       this.copyInviteLink();
@@ -154,35 +157,35 @@ export class InviteFriendsComponent implements OnInit {
   }
 
   inviteViaEmail(): void {
-    const subject = encodeURIComponent('Join me on NouraCare!');
+    const subject = encodeURIComponent(this.t('inviteFriends.email.subject'));
     const body = encodeURIComponent(
-      `Hi!\n\nI'm using NouraCare for cycle insights and daily check-ins. When you sign up with my link, we both earn reward points in the app.\n\n${this.inviteLink}\n\n`,
+      this.tParams('inviteFriends.email.body', { link: this.inviteLink }),
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
-    void this.showToast('Email composer opened');
+    void this.showToast(this.t('inviteFriends.toast.emailOpened'));
   }
 
   inviteViaSMS(): void {
     const message = encodeURIComponent(
-      `Join me on NouraCare — we both get bonus points if you use my link: ${this.inviteLink}`,
+      this.tParams('inviteFriends.sms.body', { link: this.inviteLink }),
     );
     window.open(`sms:?body=${message}`);
-    void this.showToast('Messages opened');
+    void this.showToast(this.t('inviteFriends.toast.messagesOpened'));
   }
 
   copyInviteLink(): void {
     const text = this.inviteLink || this.referralCode;
     if (!text) {
-      void this.showToast('Invite link is not ready yet.');
+      void this.showToast(this.t('inviteFriends.toast.linkNotReady'));
       return;
     }
     if (navigator.clipboard?.writeText) {
       void navigator.clipboard.writeText(text).then(
-        () => void this.showToast('Invitation link copied'),
-        () => this.fallbackCopyTextToClipboard(text),
+        () => void this.showToast(this.t('inviteFriends.toast.linkCopied')),
+        () => this.fallbackCopyTextToClipboard(text, 'inviteFriends.toast.linkCopied'),
       );
     } else {
-      this.fallbackCopyTextToClipboard(text);
+      this.fallbackCopyTextToClipboard(text, 'inviteFriends.toast.linkCopied');
     }
   }
 
@@ -192,15 +195,15 @@ export class InviteFriendsComponent implements OnInit {
     }
     if (navigator.clipboard?.writeText) {
       void navigator.clipboard.writeText(this.referralCode).then(
-        () => void this.showToast('Code copied'),
-        () => this.fallbackCopyTextToClipboard(this.referralCode),
+        () => void this.showToast(this.t('inviteFriends.toast.codeCopied')),
+        () => this.fallbackCopyTextToClipboard(this.referralCode, 'inviteFriends.toast.codeCopied'),
       );
     } else {
-      this.fallbackCopyTextToClipboard(this.referralCode);
+      this.fallbackCopyTextToClipboard(this.referralCode, 'inviteFriends.toast.codeCopied');
     }
   }
 
-  fallbackCopyTextToClipboard(text: string): void {
+  fallbackCopyTextToClipboard(text: string, successKey: string): void {
     const textArea = document.createElement('textarea');
     textArea.value = text;
     textArea.style.position = 'fixed';
@@ -211,15 +214,23 @@ export class InviteFriendsComponent implements OnInit {
     textArea.select();
     try {
       document.execCommand('copy');
-      void this.showToast('Copied to clipboard');
+      void this.showToast(this.t(successKey));
     } catch {
-      void this.showToast('Could not copy automatically.');
+      void this.showToast(this.t('inviteFriends.toast.copyFailed'));
     }
     document.body.removeChild(textArea);
   }
 
   toggleInviteHistory(): void {
     this.showInviteHistory = !this.showInviteHistory;
+  }
+
+  t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  tParams(key: string, params: Record<string, string | number>): string {
+    return this.translation.translateParams(key, params);
   }
 
   private async showToast(message: string): Promise<void> {

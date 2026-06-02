@@ -25,14 +25,18 @@ import {
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { ForumService } from '../../shared/services/forum.service';
+import { TranslationService } from '../../shared/services/translation.service';
+import { ForumCategoryMapperService } from '../../shared/services/forum-category-mapper.service';
 import { LogoLoadingComponent } from '../../shared/components/logo-loading/logo-loading.component';
 import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
 import { LocalizedNumberPipe } from '../../shared/pipes/localized-number.pipe';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 interface ForumCategory {
   id: string;
   name: string;
   description: string;
+  slug?: string;
   icon: string;
   color: string;
   forums: Forum[];
@@ -65,6 +69,7 @@ interface CreatePostForm {
     LogoLoadingComponent,
     AppButtonComponent,
     LocalizedNumberPipe,
+    TranslatePipe,
   ],
 })
 export class CreatePostComponent implements OnInit {
@@ -76,6 +81,8 @@ export class CreatePostComponent implements OnInit {
   private toastController = inject(ToastController);
   private alertController = inject(AlertController);
   private fb = inject(FormBuilder);
+  private readonly translation = inject(TranslationService);
+  private readonly categoryMapper = inject(ForumCategoryMapperService);
 
   // Component state
   categories = signal<ForumCategory[]>([]);
@@ -139,8 +146,11 @@ export class CreatePostComponent implements OnInit {
     this.route.queryParams.subscribe((params) => {
       const forumId = params['category'];
       if (forumId) {
-        // Keep query-param compatibility while patching the actual form control.
         this.postForm.patchValue({ forumId });
+        const category = this.categories().find((c) => c.id === forumId);
+        if (category) {
+          this.selectedCategory = category;
+        }
       }
     });
   }
@@ -151,6 +161,13 @@ export class CreatePostComponent implements OnInit {
       next: (response: any) => {
         if (response.success === true) {
           this.categories.set(response.data);
+          const forumId = this.postForm.get('forumId')?.value;
+          if (forumId) {
+            const category = response.data.find((c: ForumCategory) => c.id === forumId);
+            if (category) {
+              this.selectedCategory = category;
+            }
+          }
         }
         // if (response && response.success) {
         //   // Simple approach - just process the data as is
@@ -187,7 +204,7 @@ export class CreatePostComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error loading categories:', error);
-        this.errorMessage = 'Failed to load categories';
+        this.errorMessage = this.t('forums.createPost.error.loadCategories');
         this.isLoading = false;
       },
     });
@@ -205,19 +222,15 @@ export class CreatePostComponent implements OnInit {
   onForumSelect(event: any) {
     const selectedId = event.detail.value;
     const category = this.categories().find((c) => c.id === selectedId);
-    // Find the selected forum and its parent category
     this.selectedForum = null;
     this.selectedCategory = category;
+  }
 
-    // this.categories().forEach((category) => {
-    //   const foundForum = category.forums.find(
-    //     (forum) => forum.categoryId === selectedForumId
-    //   );
-    //   if (foundForum) {
-    //     this.selectedForum = foundForum;
-    //     this.selectedCategory = category;
-    //   }
-    // });
+  selectCategory(category: ForumCategory): void {
+    this.postForm.patchValue({ forumId: category.id });
+    this.postForm.get('forumId')?.markAsTouched();
+    this.selectedCategory = category;
+    this.selectedForum = null;
   }
 
   submitPost() {
@@ -235,12 +248,11 @@ export class CreatePostComponent implements OnInit {
     const formValue = this.postForm.value;
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) {
-      this.showToast('You must be logged in to create a post', 'danger');
+      this.showToast(this.t('forums.createPost.error.loginRequired'), 'danger');
       this.isSubmitting = false;
       return;
     }
     const id = JSON.parse(userInfo).user.id;
-    this.categories.apply(id);
     const threadData = {
       title: formValue.title.trim(),
       description: formValue.content.trim(),
@@ -256,8 +268,12 @@ export class CreatePostComponent implements OnInit {
         catchError((error: any) => {
           console.error('Error creating post:', error);
           this.showToast(
-            'Failed to create post: ' +
-              (error.error?.message || error.message || 'Network error'),
+            this.tParams('forums.createPost.error.createFailed', {
+              error:
+                error.error?.message ||
+                error.message ||
+                this.t('forums.topic.error.network'),
+            }),
             'danger'
           );
           return of(null);
@@ -268,14 +284,16 @@ export class CreatePostComponent implements OnInit {
       )
       .subscribe((response: any) => {
         if (response && response.success) {
-          this.showToast('Post created successfully!', 'success');
+          this.showToast(this.t('forums.createPost.success.created'), 'success');
           // Navigate back to forums with the selected category
           this.router.navigate(['/forums']),
             this.forumService.emitPostCreated();
           this.clearForm();
         } else {
           this.showToast(
-            'Failed to create post: ' + (response?.message || 'Unknown error'),
+            this.tParams('forums.createPost.error.createFailed', {
+              error: response?.message || this.t('forums.topic.error.unknown'),
+            }),
             'danger'
           );
         }
@@ -286,32 +304,34 @@ export class CreatePostComponent implements OnInit {
     const errors = [];
 
     if (this.postForm.get('title')?.errors?.['required']) {
-      errors.push('Title is required');
+      errors.push(this.t('forums.createPost.titleRequired'));
     } else if (this.postForm.get('title')?.errors?.['minlength']) {
-      errors.push('Title must be at least 5 characters long');
+      errors.push(this.t('forums.createPost.error.titleRequiredLong'));
     } else if (this.postForm.get('title')?.errors?.['maxlength']) {
-      errors.push('Title must be less than 200 characters');
+      errors.push(this.t('forums.createPost.titleMaxLength'));
     }
 
     if (this.postForm.get('content')?.errors?.['required']) {
-      errors.push('Content is required');
+      errors.push(this.t('forums.createPost.contentRequired'));
     } else if (this.postForm.get('content')?.errors?.['minlength']) {
-      errors.push('Content must be at least 10 characters long');
+      errors.push(this.t('forums.createPost.error.contentRequiredLong'));
     } else if (this.postForm.get('content')?.errors?.['maxlength']) {
       errors.push(
-        `Content must be less than ${this.maxContentLength} characters`
+        this.tParams('forums.createPost.error.contentMaxLength', {
+          max: this.maxContentLength,
+        })
       );
     }
 
     if (this.postForm.get('forumId')?.errors?.['required']) {
-      errors.push('Please select a forum');
+      errors.push(this.t('forums.createPost.forumRequired'));
     }
 
     if (errors.length > 0) {
       const alert = await this.alertController.create({
-        header: 'Please fix the following issues',
+        header: this.t('forums.createPost.error.fixIssuesHeader'),
         message: errors.join('<br>'),
-        buttons: ['OK'],
+        buttons: [this.t('common.ok')],
       });
       await alert.present();
     }
@@ -320,17 +340,16 @@ export class CreatePostComponent implements OnInit {
   private async showTagConfirmation(): Promise<boolean> {
     return new Promise(async (resolve) => {
       const alert = await this.alertController.create({
-        header: 'No Tags Added',
-        message:
-          'Adding tags helps others find your post. Are you sure you want to continue without tags?',
+        header: this.t('forums.createPost.alert.noTagsHeader'),
+        message: this.t('forums.createPost.alert.noTagsMessage'),
         buttons: [
           {
-            text: 'Add Tags',
+            text: this.t('forums.createPost.alert.addTags'),
             role: 'cancel',
             handler: () => resolve(false),
           },
           {
-            text: 'Continue Anyway',
+            text: this.t('forums.createPost.alert.continueAnyway'),
             handler: () => resolve(true),
           },
         ],
@@ -382,15 +401,13 @@ export class CreatePostComponent implements OnInit {
     this.postForm.reset();
     this.selectedTags = [];
     this.characterCount = 0;
+    this.selectedCategory = null;
   }
 
   async showPreview() {
     const formValue = this.postForm.value;
     if (!formValue.title || !formValue.content) {
-      await this.showToast(
-        'Please add title and content to preview',
-        'warning'
-      );
+      await this.showToast(this.t('forums.createPost.toast.previewRequired'), 'warning');
       return;
     }
     this.isPreviewOpen = true;
@@ -403,11 +420,44 @@ export class CreatePostComponent implements OnInit {
   getSelectedForumName(): string {
     const selectedForumId = this.postForm.get('forumId')?.value;
     if (!selectedForumId) {
-      return 'No forum selected';
+      return this.t('forums.createPost.noForumSelected');
     }
 
     const selected = this.categories().find((category) => category.id === selectedForumId);
-    return selected?.name ?? 'Selected forum';
+    return selected
+      ? this.categoryMapper.translateName(selected)
+      : this.categoryMapper.translateName(selectedForumId);
+  }
+
+  categoryName(category: ForumCategory): string {
+    return this.categoryMapper.translateName(category);
+  }
+
+  getCategoryIcon(category: ForumCategory): string {
+    return this.categoryMapper.getIcon(category);
+  }
+
+  tagsCountLabel(): string {
+    return this.tParams('forums.createPost.tagsCount', {
+      count: this.selectedTags.length,
+    });
+  }
+
+  previewTagsCountLabel(): string {
+    return this.tParams('forums.createPost.previewTagsCount', {
+      count: this.selectedTags.length,
+    });
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  private tParams(
+    key: string,
+    params: Record<string, string | number>,
+  ): string {
+    return this.translation.translateParams(key, params);
   }
 
   // Modern tag functionality

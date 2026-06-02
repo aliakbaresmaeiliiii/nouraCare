@@ -8,6 +8,8 @@ import {
 
   inject,
 
+  OnDestroy,
+
   OnInit,
 
   signal,
@@ -58,6 +60,15 @@ import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui
 
 import { normalizeLmpInput } from '../shared/utils/pregnancy-lmp.util';
 
+import { ForumService } from '../shared/services/forum.service';
+
+import type {
+  UserForumAnswer,
+  UserForumQuestion,
+} from '../shared/models/forum';
+
+import { Subscription } from 'rxjs';
+
 import {
 
   CycleSetupSheetResult,
@@ -100,7 +111,7 @@ declare global {
 
 })
 
-export class ProfileComponent implements OnInit, ViewWillEnter {
+export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
   private router = inject(Router);
 
@@ -130,6 +141,10 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   private userInfoService = inject(UserInfoService);
 
+  private forumService = inject(ForumService);
+
+  private forumActivitySub?: Subscription;
+
   userInfoStore: any = {};
 
 
@@ -152,15 +167,21 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
   userActivity = signal([
 
-    { key: 'friends', value: 20, labelKey: 'profile.statFriends' },
+    { key: 'friends', value: 0, labelKey: 'profile.statFriends' },
 
-    { key: 'questions', value: 50, labelKey: 'profile.statQuestions' },
+    { key: 'questions', value: 0, labelKey: 'profile.statQuestions' },
 
-    { key: 'answers', value: 30, labelKey: 'profile.statAnswers' },
+    { key: 'answers', value: 0, labelKey: 'profile.statAnswers' },
 
-    { key: 'benefits', value: 40, labelKey: 'profile.statBenefits' },
+    { key: 'benefits', value: 0, labelKey: 'profile.statBenefits' },
 
   ]);
+
+  userQuestions = signal<UserForumQuestion[]>([]);
+
+  userAnswers = signal<UserForumAnswer[]>([]);
+
+  isLoadingForumActivity = signal(false);
 
 
 
@@ -230,6 +251,22 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
 
     this.userId.set(this.userInfoStore?.user?.id);
 
+    this.loadForumActivity();
+
+    this.forumActivitySub = this.forumService.postDeleted$.subscribe(() => {
+
+      this.loadForumActivity();
+
+    });
+
+  }
+
+
+
+  ngOnDestroy() {
+
+    this.forumActivitySub?.unsubscribe();
+
   }
 
 
@@ -237,6 +274,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
   ionViewWillEnter() {
 
     this.refreshProfile();
+
+    this.loadForumActivity();
 
   }
 
@@ -265,6 +304,88 @@ export class ProfileComponent implements OnInit, ViewWillEnter {
       },
 
     });
+
+  }
+
+
+
+  loadForumActivity() {
+
+    this.isLoadingForumActivity.set(true);
+
+    this.forumService.getUserForumActivity().subscribe({
+
+      next: (response) => {
+
+        if (!response?.success || !response.data) return;
+
+        const { stats, questions, answers } = response.data;
+
+        this.userQuestions.set(questions ?? []);
+
+        this.userAnswers.set(answers ?? []);
+
+        this.userActivity.update((items) =>
+
+          items.map((item) => {
+
+            if (item.key === 'questions') {
+
+              return { ...item, value: stats?.questions ?? 0 };
+
+            }
+
+            if (item.key === 'answers') {
+
+              return { ...item, value: stats?.answers ?? 0 };
+
+            }
+
+            return item;
+
+          }),
+
+        );
+
+      },
+
+      error: () => {
+
+        this.userQuestions.set([]);
+
+        this.userAnswers.set([]);
+
+      },
+
+      complete: () => {
+
+        this.isLoadingForumActivity.set(false);
+
+      },
+
+    });
+
+  }
+
+
+
+  openForumTopic(threadId: string | null | undefined) {
+
+    if (!threadId) return;
+
+    this.router.navigate(['/forums/topic', threadId]);
+
+  }
+
+
+
+  truncateText(text: string, maxLength = 120): string {
+
+    const normalized = text?.trim() ?? '';
+
+    if (normalized.length <= maxLength) return normalized;
+
+    return `${normalized.slice(0, maxLength).trim()}…`;
 
   }
 

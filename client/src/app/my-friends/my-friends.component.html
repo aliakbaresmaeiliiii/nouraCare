@@ -3,12 +3,12 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">My friends</ion-title>
+    <ion-title class="header-title">{{ 'menu.myFriends' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         fill="clear"
         class="add-button"
-        aria-label="Invite friends"
+        [attr.aria-label]="'myFriends.a11y.inviteFriends' | translate"
         (click)="goInviteFriends()"
       >
         <ion-icon name="person-add-outline"></ion-icon>
@@ -20,7 +20,7 @@
 <ion-content class="friends-content">
   <ion-refresher
     slot="fixed"
-    aria-label="Pull down to refresh your friends list"
+    [attr.aria-label]="'myFriends.a11y.pullRefresh' | translate"
     (ionRefresh)="onRefresh($event)"
   >
     <ion-refresher-content></ion-refresher-content>
@@ -29,7 +29,7 @@
   <div class="page-inner">
     <div class="search-section">
       <ion-searchbar
-        placeholder="Search by name or bio…"
+        [placeholder]="'myFriends.searchPlaceholder' | translate"
         [(ngModel)]="searchQuery"
         name="friendSearch"
         [debounce]="250"
@@ -50,14 +50,14 @@
         @for (filter of filters; track filter.value) {
           <ion-segment-button [value]="filter.value" class="filter-button">
             <ion-icon [name]="filter.icon" class="filter-icon"></ion-icon>
-            <ion-label class="filter-label">{{ filter.label }}</ion-label>
+            <ion-label class="filter-label">{{ filter.labelKey | translate }}</ion-label>
           </ion-segment-button>
         }
       </ion-segment>
     </div>
 
     @if (isLoading) {
-      <app-logo-loading message="Loading friends…" />
+      <app-logo-loading [message]="'myFriends.loading' | translate" />
     }
 
     @if (errorMessage && !isLoading) {
@@ -66,7 +66,7 @@
         <p class="error-text">{{ errorMessage }}</p>
         <ion-button fill="outline" (click)="loadFriends()">
           <ion-icon name="refresh-outline" slot="start"></ion-icon>
-          Try again
+          {{ 'common.tryAgain' | translate }}
         </ion-button>
       </div>
     }
@@ -74,18 +74,18 @@
     @if (!isLoading && !errorMessage && filteredFriends.length === 0) {
       <div class="empty-container">
         <ion-icon name="people-outline" class="empty-icon"></ion-icon>
-        <h2 class="empty-title">No friends here</h2>
+        <h2 class="empty-title">{{ 'myFriends.emptyTitle' | translate }}</h2>
         <p class="empty-text">
           {{
             searchQuery.trim()
-              ? 'No one matches that search. Try different words or switch the filter above.'
-              : 'When you connect with people in the community, they can show up in this list.'
+              ? ('myFriends.emptySearch' | translate)
+              : ('myFriends.emptyDefault' | translate)
           }}
         </p>
         @if (!searchQuery.trim()) {
           <ion-button fill="outline" (click)="goInviteFriends()">
             <ion-icon name="person-add-outline" slot="start"></ion-icon>
-            Invite friends
+            {{ 'menu.inviteFriends' | translate }}
           </ion-button>
         }
       </div>
@@ -96,7 +96,11 @@
         <div class="friends-list-header">
           <h2 class="friends-title">
             {{ filteredFriends.length | localNum }}
-            {{ filteredFriends.length === 1 ? 'friend' : 'friends' }}
+            {{
+              filteredFriends.length === 1
+                ? ('myFriends.friendSingular' | translate)
+                : ('myFriends.friendPlural' | translate)
+            }}
           </h2>
         </div>
 
@@ -122,7 +126,9 @@
                     <ion-icon name="heart" class="favorite-icon" aria-hidden="true"></ion-icon>
                   }
                   @if (friend.isBlocked) {
-                    <span class="blocked-pill" aria-label="Blocked">Blocked</span>
+                    <span class="blocked-pill" [attr.aria-label]="'myFriends.a11y.blocked' | translate">{{
+                      'myFriends.blocked' | translate
+                    }}</span>
                   }
                 </div>
                 @if (friend.bio) {
@@ -133,7 +139,9 @@
                     getStatusText(friend.status, friend.lastSeen)
                   }}</span>
                   <span class="meta-separator" aria-hidden="true">•</span>
-                  <span class="mutual-friends">{{ friend.mutualFriends }} mutual</span>
+                  <span class="mutual-friends">{{
+                    tParams('myFriends.mutual', { count: friend.mutualFriends })
+                  }}</span>
                 </div>
               </ion-label>
 
@@ -141,7 +149,7 @@
                 slot="end"
                 fill="clear"
                 class="action-button action-more"
-                [attr.aria-label]="'More actions for ' + friend.name"
+                [attr.aria-label]="tParams('myFriends.a11y.moreActions', { name: friend.name })"
                 (click)="openFriendActionsSheet(friend, $event)"
               >
                 <ion-icon name="ellipsis-vertical-outline"></ion-icon>

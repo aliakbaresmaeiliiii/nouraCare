@@ -1,0 +1,121 @@
+<ion-header class="legal-header ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ titleKey | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="legal-page-content">
+  <div class="legal-hero">
+    <div class="legal-hero-icon" [class.privacy]="documentType === 'privacy'">
+      <ion-icon [name]="heroIcon"></ion-icon>
+    </div>
+    <h1 class="legal-hero-title">{{ titleKey | translate }}</h1>
+    @if (subtitleKey) {
+    <p class="legal-hero-subtitle">{{ subtitleKey | translate }}</p>
+    }
+    @if (showEffectiveDate && effectiveDateDisplay) {
+    <span class="legal-date-badge">{{ effectiveDateDisplay }}</span>
+    }
+  </div>
+
+  <div class="legal-body">
+    @if (introText) {
+    <div class="legal-intro-card">
+      <p>{{ introText }}</p>
+    </div>
+    }
+
+    @if (highlights.length) {
+    <div class="legal-highlights">
+      <h2 class="legal-block-title">{{ 'settings.privacyPolicy.highlightsTitle' | translate }}</h2>
+      <div class="highlights-grid">
+        @for (item of highlights; track item.titleKey) {
+        <div class="highlight-card">
+          <div class="highlight-icon">
+            <ion-icon [name]="item.icon"></ion-icon>
+          </div>
+          <h3>{{ item.titleKey | translate }}</h3>
+          <p>{{ item.textKey | translate }}</p>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    @if (contentSections.length) {
+    <div class="legal-toc">
+      <button
+        type="button"
+        class="toc-toggle"
+        (click)="toggleToc()"
+        [attr.aria-expanded]="tocExpanded"
+      >
+        <div class="toc-toggle-label">
+          <ion-icon name="list"></ion-icon>
+          <span>{{ 'settings.legal.tocTitle' | translate }}</span>
+        </div>
+        <ion-icon [name]="tocExpanded ? 'chevron-up' : 'chevron-down'"></ion-icon>
+      </button>
+
+      @if (tocExpanded) {
+      <nav class="toc-list" [attr.aria-label]="'settings.legal.tocTitle' | translate">
+        @for (section of contentSections; track section.id) {
+        <button type="button" class="toc-item" (click)="scrollToSection(section.id)">
+          @if (section.number) {
+          <span class="toc-number">{{ section.number }}</span>
+          }
+          <span class="toc-text">{{ section.heading }}</span>
+        </button>
+        }
+      </nav>
+      }
+    </div>
+
+    <div class="legal-sections">
+      @for (section of contentSections; track section.id) {
+      <article class="legal-section-card" [id]="section.id">
+        <header class="section-header">
+          @if (section.number) {
+          <span class="section-number">{{ section.number }}</span>
+          }
+          <h2 class="section-heading">{{ section.heading }}</h2>
+        </header>
+
+        <div class="section-body">
+          @for (block of section.blocks; track $index) {
+          @if (block.type === 'paragraph' && block.text) {
+          <p class="legal-paragraph">{{ block.text }}</p>
+          }
+          @if (block.type === 'list' && block.items?.length) {
+          <ul class="legal-list">
+            @for (item of block.items; track $index) {
+            <li>{{ item }}</li>
+            }
+          </ul>
+          }
+          }
+        </div>
+      </article>
+      }
+    </div>
+    }
+
+    <div class="legal-contact-card">
+      <div class="contact-icon">
+        <ion-icon name="mail"></ion-icon>
+      </div>
+      <div class="contact-content">
+        <h3>{{ 'settings.legal.contactTitle' | translate }}</h3>
+        <p>{{ 'settings.legal.contactText' | translate }}</p>
+        <ion-button fill="outline" size="small" (click)="openContactEmail()">
+          {{ 'settings.legal.contactButton' | translate }}
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>

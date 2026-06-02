@@ -16,6 +16,8 @@ import {
   takeUntil,
 } from 'rxjs';
 import { ForumService } from '../shared/services/forum.service';
+import { TranslationService } from '../shared/services/translation.service';
+import { ForumCategoryMapperService } from '../shared/services/forum-category-mapper.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { ForumCategory, ForumTopic } from '../shared/models/forum';
 
@@ -32,6 +34,8 @@ export class ForumsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private forumsService = inject(ForumService);
+  private readonly translation = inject(TranslationService);
+  private readonly categoryMapper = inject(ForumCategoryMapperService);
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
 
@@ -43,6 +47,11 @@ export class ForumsComponent implements OnInit, OnDestroy {
   searchQuery = signal('');
   selectedCategory = signal('all');
   viewMode = signal<'categories' | 'topics'>('categories');
+
+  readonly categorySelectOptions = {
+    header: '',
+    subHeader: '',
+  };
 
   // Cache for category-specific topics
   private topicsCache = new Map<string, ForumTopic[]>();
@@ -56,7 +65,12 @@ export class ForumsComponent implements OnInit, OnDestroy {
     return categories.filter(
       (category) =>
         category.name.toLowerCase().includes(query) ||
-        category.description.toLowerCase().includes(query)
+        category.description.toLowerCase().includes(query) ||
+        this.categoryMapper.translateName(category).toLowerCase().includes(query) ||
+        this.categoryMapper
+          .translateDescription(category)
+          .toLowerCase()
+          .includes(query)
     );
   });
 
@@ -77,10 +91,26 @@ export class ForumsComponent implements OnInit, OnDestroy {
 
   selectedCategoryName = computed(() => {
     const selectedId = this.selectedCategory();
-    if (selectedId === 'all') return 'All Topics';
+    if (selectedId === 'all') return this.t('forums.allTopics');
 
     const category = this.categories().find((c) => c.id === selectedId);
-    return category?.name || selectedId;
+    return category
+      ? this.categoryMapper.translateName(category)
+      : this.categoryMapper.translateName(selectedId);
+  });
+
+  selectedCategoryObject = computed(() => {
+    const selectedId = this.selectedCategory();
+    if (selectedId === 'all') return null;
+    return this.categories().find((c) => c.id === selectedId) ?? null;
+  });
+
+  selectedCategoryIcon = computed(() => {
+    if (this.selectedCategory() === 'all') {
+      return 'chatbubbles-outline';
+    }
+    const category = this.selectedCategoryObject();
+    return category ? this.categoryMapper.getIcon(category) : 'chatbubbles-outline';
   });
 
   constructor() {
@@ -89,6 +119,8 @@ export class ForumsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.categorySelectOptions.header = this.t('forums.selectCategory');
+    this.categorySelectOptions.subHeader = this.t('forums.selectCategoryHint');
     this.fetchDataCategories();
     // this.loadTopics();
     this.handleQueryParams();
@@ -108,10 +140,10 @@ export class ForumsComponent implements OnInit, OnDestroy {
       id: topicData.id,
       title: topicData.title,
       comment: topicData.description,
-      author: topicData.author?.name || 'Anonymous',
+      author: topicData.author?.name || this.t('forums.anonymous'),
       authorAvatar:
         topicData.author?.profileImage || '/assets/images/nurse.png',
-      category: topicData.category?.name || 'General Discussion',
+      category: topicData.category?.name || this.t('forums.generalDiscussion'),
       replies: 0,
       viewCount: 0,
       lastReply: topicData.createdAt,
@@ -131,7 +163,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
     this.topicsCache.clear();
 
     // Show notification
-    this.showSuccessAlert('New post created!');
+    this.showSuccessAlert(this.t('forums.success.newPost'));
   }
 
   private mapThreadToTopic(thread: any): ForumTopic {
@@ -139,14 +171,14 @@ export class ForumsComponent implements OnInit, OnDestroy {
     const recentComments = Array.isArray(thread.comments) ? thread.comments : [];
     return {
       id: thread.id,
-      title: thread.title || 'Untitled',
+      title: thread.title || this.t('forums.untitled'),
       comment: thread.content || thread.description || '',
-      author: user.fullName || 'Anonymous',
+      author: user.fullName || this.t('forums.anonymous'),
       authorAvatar:
         user?.user_profile?.avatarUrl ||
         user.profileImage ||
         '/assets/images/nurse.png',
-      category: thread.category?.name || 'General Discussion',
+      category: thread.category?.name || this.t('forums.generalDiscussion'),
       categoryId: thread.categoryId,
       replies: thread.commentCount ?? thread.repliesCount ?? 0,
       viewCount: thread.viewCount ?? thread.viewCount ?? 0,
@@ -157,7 +189,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       tags: thread.tags || [],
       user: {
         id: user.id || 0,
-        fullName: user.fullName || 'Anonymous',
+        fullName: user.fullName || this.t('forums.anonymous'),
         profileImage:
           user?.user_profile?.avatarUrl || user.profileImage || '',
       },
@@ -208,6 +240,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
         id: category.id,
         name: category.name,
         description: category.description,
+        slug: category.slug,
         icon: category.icon,
         color: category.color,
         topicsCount: category.forums?.length || 0,
@@ -232,7 +265,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.isLoading.set(false);
-        this.errorMessage.set('Failed to load categories');
+        this.errorMessage.set(this.t('forums.error.loadCategories'));
       },
     });
   }
@@ -252,7 +285,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
         await this.refreshTopicsForCurrentViewSilent();
       }
     } catch {
-      this.errorMessage.set('Failed to refresh');
+      this.errorMessage.set(this.t('forums.error.refresh'));
     } finally {
       target.complete();
     }
@@ -322,7 +355,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('Error loading topics:', error);
         this.isLoading.set(false);
-        this.errorMessage.set('Failed to load topics');
+        this.errorMessage.set(this.t('forums.error.loadTopics'));
       },
     });
   }
@@ -352,6 +385,26 @@ export class ForumsComponent implements OnInit, OnDestroy {
         this.loadTopicsByCategory(this.selectedCategory());
       }
     }
+  }
+
+  viewAllTopics(): void {
+    this.selectedCategory.set('all');
+    this.viewMode.set('topics');
+    this.loadTopics();
+  }
+
+  goToCategoriesView(): void {
+    this.viewMode.set('categories');
+    this.searchQuery.set('');
+  }
+
+  clearSearch(): void {
+    this.searchQuery.set('');
+  }
+
+  topicsCountLabel(): string {
+    const count = this.filteredTopics().length;
+    return this.tParams('forums.topicsCount', { count });
   }
 
   openCategory(category: ForumCategory) {
@@ -400,7 +453,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
           this.topicsCache.set(categoryId, []);
           this.errorMessage.set('');
         } else {
-          this.errorMessage.set('Failed to load topics for this category');
+          this.errorMessage.set(this.t('forums.error.loadCategoryTopics'));
         }
       },
     });
@@ -456,16 +509,37 @@ export class ForumsComponent implements OnInit, OnDestroy {
       const diffDays = Math.floor(diffHours / 24);
 
       if (diffDays > 0) {
-        return diffDays === 1 ? 'yesterday' : `${diffDays} days ago`;
-      } else if (diffHours > 0) {
-        return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
-      } else {
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        return diffMinutes < 1 ? 'just now' : `${diffMinutes} minutes ago`;
+        return diffDays === 1
+          ? this.t('forums.time.yesterday')
+          : this.tParams('forums.time.daysAgo', { days: diffDays });
       }
-    } catch (error) {
-      return 'recently';
+      if (diffHours > 0) {
+        return diffHours === 1
+          ? this.t('forums.time.oneHourAgo')
+          : this.tParams('forums.time.hoursAgo', { hours: diffHours });
+      }
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      return diffMinutes < 1
+        ? this.t('forums.time.justNow')
+        : this.tParams('forums.time.minutesAgo', { minutes: diffMinutes });
+    } catch {
+      return this.t('forums.time.recently');
     }
+  }
+
+  createFirstTopicLabel(category: string): string {
+    return this.tParams('forums.createFirstTopic', { category });
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  private tParams(
+    key: string,
+    params: Record<string, string | number>,
+  ): string {
+    return this.translation.translateParams(key, params);
   }
 
   formatNumber(num: number): string {
@@ -486,31 +560,26 @@ export class ForumsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getCategoryIcon(categoryName: string): string {
-    const iconMap: { [key: string]: string } = {
-      'General Discussion': 'chatbubbles-outline',
-      'Pregnancy & Fertility': 'heart-outline',
-      'Mental Health': 'happy-outline',
-      'Health & Wellness': 'fitness-outline',
-      Relationships: 'people-outline',
-      Nutrition: 'nutrition-outline',
-      Exercise: 'barbell-outline',
-      Parenting: 'people-circle-outline',
-      'Medical Questions': 'medical-outline',
-      'Support Groups': 'people-circle-outline',
-      'Trying to conceive': 'heart-outline',
-      'Pregnancy tests': 'flask-outline',
-      Ovulation: 'calendar-outline',
-      Pregnancy: 'female-outline',
-      '1st trimester': 'leaf-outline',
-      '2nd trimester': 'flower-outline',
-      '3rd trimester': 'rose-outline',
-      Parenthood: 'baby-carriage-outline',
-      Postpartum: 'refresh-outline',
-    };
+  getCategoryIcon(category: ForumCategory | string): string {
+    return this.categoryMapper.getIcon(category);
+  }
 
-    // Return the mapped icon or a default icon
-    return iconMap[categoryName] || 'help-circle-outline';
+  categoryName(category: ForumCategory): string {
+    return this.categoryMapper.translateName(category);
+  }
+
+  categoryDescription(category: ForumCategory): string {
+    return this.categoryMapper.translateDescription(category);
+  }
+
+  topicCategoryLabel(topic: ForumTopic): string {
+    if (topic.categoryId) {
+      const match = this.categories().find((c) => c.id === topic.categoryId);
+      if (match) {
+        return this.categoryMapper.translateName(match);
+      }
+    }
+    return this.categoryMapper.translateName(topic.category);
   }
 
   clearFilters(): void {

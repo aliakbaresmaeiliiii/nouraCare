@@ -1,0 +1,136 @@
+<ion-header class="ion-no-border pro-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'proPage.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="pro-content">
+  @if (isLoading) {
+  <app-logo-loading [message]="'proPage.loading' | translate" />
+  } @else {
+  <div class="pro-page">
+    @if (loadWarning) {
+    <div class="pro-state pro-state--warn">
+      <ion-icon name="flash-outline" aria-hidden="true"></ion-icon>
+      <p>{{ loadWarning }}</p>
+      <ion-button fill="outline" size="small" (click)="loadSummary()">
+        {{ 'proPage.retry' | translate }}
+      </ion-button>
+    </div>
+    }
+    <section class="pro-hero">
+      <div class="pro-hero-glow" aria-hidden="true"></div>
+      <div class="pro-hero-badge">
+        <ion-icon name="diamond-outline" aria-hidden="true"></ion-icon>
+        <span>PRO</span>
+      </div>
+      <h1 class="pro-hero-title">{{ 'proPage.heroTitle' | translate }}</h1>
+      <p class="pro-hero-subtitle">{{ 'proPage.heroSubtitle' | translate }}</p>
+      @if (summary) {
+      <div class="pro-status-pill" [class.pro-status-pill--active]="hasPremium">
+        @if (hasPremium) {
+        <ion-icon name="lock-open-outline" aria-hidden="true"></ion-icon>
+        } @else {
+        <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
+        }
+        <span>{{ statusLabel() }}</span>
+      </div>
+      }
+    </section>
+
+    <section class="pro-features">
+      <h2 class="pro-section-title">{{ 'proPage.featuresTitle' | translate }}</h2>
+      <div class="pro-feature-grid">
+        @for (feature of features; track feature.titleKey) {
+        <article class="pro-feature-card">
+          <div class="pro-feature-icon">
+            <ion-icon [name]="feature.icon" aria-hidden="true"></ion-icon>
+          </div>
+          <h3>{{ feature.titleKey | translate }}</h3>
+          <p>{{ feature.textKey | translate }}</p>
+        </article>
+        }
+      </div>
+    </section>
+
+    @if (!hasPremium || isTrial) {
+    <section class="pro-pricing">
+      <h2 class="pro-section-title">{{ 'proPage.pricingTitle' | translate }}</h2>
+      <p class="pro-pricing-intro">{{ 'proPage.pricingIntro' | translate }}</p>
+
+      <div class="pro-plan-card">
+        <ion-segment
+          class="pro-billing-segment"
+          [value]="billingInterval"
+          (ionChange)="onBillingChange($event)"
+        >
+          <ion-segment-button value="MONTH">
+            <ion-label>{{ 'proPage.billingMonthly' | translate }}</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="YEAR">
+            <ion-label>{{ 'proPage.billingYearly' | translate }}</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <div class="pro-price-block">
+          <p class="pro-price-main">{{ formatPriceLine() }}</p>
+          @if (billingInterval === 'YEAR') {
+          <span class="pro-save-badge">{{ saveBadgeLabel() }}</span>
+          }
+        </div>
+
+        <ul class="pro-plan-perks">
+          <li>
+            <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
+            <span>{{ 'proPage.perk1' | translate }}</span>
+          </li>
+          <li>
+            <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
+            <span>{{ 'proPage.perk2' | translate }}</span>
+          </li>
+          <li>
+            <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
+            <span>{{ 'proPage.perk3' | translate }}</span>
+          </li>
+        </ul>
+
+        <ion-button
+          expand="block"
+          class="pro-cta"
+          [disabled]="isSubmitting"
+          (click)="onPrimaryAction()"
+        >
+          @if (isSubmitting) {
+          {{ 'proPage.processing' | translate }}
+          } @else {
+          {{ primaryCtaLabel() }}
+          }
+        </ion-button>
+
+        @if (summary?.trialEligible && !hasPremium) {
+        <p class="pro-trial-note">{{ 'proPage.trialNote' | translate }}</p>
+        } @else if (isTrial) {
+        <p class="pro-trial-note">{{ 'proPage.trialActiveNote' | translate }}</p>
+        }
+      </div>
+    </section>
+    } @else {
+    <section class="pro-active-card">
+      <div class="pro-active-icon">
+        <ion-icon name="diamond-outline" aria-hidden="true"></ion-icon>
+      </div>
+      <h2>{{ 'proPage.activeTitle' | translate }}</h2>
+      <p>{{ 'proPage.activeSubtitle' | translate }}</p>
+      <ion-button expand="block" class="pro-cta pro-cta--secondary" routerLink="/tabs/insights">
+        {{ 'proPage.exploreInsights' | translate }}
+      </ion-button>
+    </section>
+    }
+
+    <p class="pro-footnote">{{ 'proPage.footnote' | translate }}</p>
+  </div>
+  }
+</ion-content>

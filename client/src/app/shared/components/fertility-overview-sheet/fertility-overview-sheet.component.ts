@@ -400,4 +400,6 @@ export class FertilityOverviewSheetComponent implements OnInit, AfterViewInit {
     return this.translation.translateParams('fertilitySheet.cycleDay', {
       day: this.overview.currentCycleDay,
       len: this.overview.cycleLength,
-    }
+    });
+  }
+}
