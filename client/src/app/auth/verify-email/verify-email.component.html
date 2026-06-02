@@ -1,77 +1,92 @@
-<ion-content class="verify-page">
+<div class="verify-page">
   <div class="verify-shell">
-    <div class="verify-card">
-      <div class="verify-header">
-        <div class="icon-container">
-          <ion-icon name="mail-check" class="hero-icon"></ion-icon>
+    <main class="verify-panel">
+      <div class="auth-container">
+        <div class="verify-header">
+          <div class="icon-wrap">
+            <ion-icon name="mail-open-outline" class="hero-icon" aria-hidden="true"></ion-icon>
+          </div>
+          <h1 class="form-title">{{ 'auth.verifyEmailTitle' | translate }}</h1>
+          <p class="form-subtitle">{{ 'auth.verifyEmailSubtitle' | translate }}</p>
+          @if (userEmail) {
+            <p class="email-badge">{{ userEmail }}</p>
+          }
         </div>
-        <h1 class="hero-title">Verify Your Email</h1>
-        <p class="hero-subtitle">Enter the verification code sent to your email address</p>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="verify-form">
+          <div class="otp-container">
+            <ion-input-otp
+              type="text"
+              class="custom-otp"
+              separators="all"
+              formControlName="otpCode"
+              (ionInput)="onOtpChange($event)"
+              maxlength="4"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+            ></ion-input-otp>
+            <p class="otp-hint">{{ 'auth.verifyEmailHint' | translate }}</p>
+          </div>
+
+          @if (!isExpired) {
+            <div class="timer-section">
+              <ion-icon name="time-outline" class="timer-icon" aria-hidden="true"></ion-icon>
+              <span>{{ 'auth.codeExpiresIn' | translate }}</span>
+              <strong class="timer-countdown">{{ timer | localNum }}s</strong>
+            </div>
+          }
+
+          @if (isExpired) {
+            <div class="expired-message">
+              <ion-icon name="alert-circle-outline" class="expired-icon" aria-hidden="true"></ion-icon>
+              <span>{{ 'auth.codeExpired' | translate }}</span>
+            </div>
+          }
+
+          <div class="action-buttons">
+            <app-button
+              type="submit"
+              [disabled]="form.invalid || isLoading"
+              [loading]="isLoading"
+            >
+              {{
+                isLoading
+                  ? ('auth.verifying' | translate)
+                  : ('auth.verifyEmail' | translate)
+              }}
+            </app-button>
+
+            <ion-button
+              fill="clear"
+              class="resend-button"
+              [disabled]="!isExpired && timer > 0"
+              expand="block"
+              type="button"
+              (click)="resendCode()"
+            >
+              @if (isExpired || timer === 0) {
+                {{ 'auth.resendCode' | translate }}
+              } @else {
+                {{ 'auth.resendIn' | translate }} {{ timer | localNum }}s
+              }
+            </ion-button>
+          </div>
+
+          <div class="help-section">
+            <span>{{ 'auth.checkSpamFolder' | translate }}</span>
+          </div>
+
+          <div class="form-footer">
+            <a routerLink="/auth/sign-in" class="back-link">
+              <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+              {{ 'auth.backToSignIn' | translate }}
+            </a>
+          </div>
+        </form>
       </div>
-
-      <form [formGroup]="form" class="verify-form">
-        <div class="otp-container">
-          <ion-input-otp
-            type="text"
-            class="custom-otp"
-            separators="all"
-            formControlName="otpCode"
-            (ionInput)="onOtpChange($event)"
-            maxlength="4"
-          >
-          </ion-input-otp>
-
-          <p class="otp-hint">Enter your code to continue</p>
-        </div>
-
-        @if (!isExpired) {
-          <div class="timer-section">
-            <ion-icon name="time-outline" class="timer-icon"></ion-icon>
-            <span>Code expires in</span>
-            <strong class="timer-countdown">{{ timer | localNum }}s</strong>
-          </div>
-        }
-
-        @if (isExpired) {
-          <div class="expired-message">
-            <ion-icon name="alert-circle-outline" class="expired-icon"></ion-icon>
-            <span>Verification code has expired</span>
-          </div>
-        }
-
-        <div class="action-buttons">
-          <ion-button
-            type="submit"
-            class="verify-button"
-            [disabled]="form.invalid || isLoading"
-            expand="block"
-            (click)="onSubmit()"
-          >
-            @if (isLoading) {
-              <ion-spinner name="crescent"></ion-spinner>
-            }
-            {{ isLoading ? 'Verifying...' : 'Verify Email' }}
-          </ion-button>
-
-          <ion-button
-            fill="clear"
-            class="resend-button"
-            [disabled]="!isExpired && timer > 0"
-            expand="block"
-            (click)="resendCode()"
-          >
-            {{ isExpired || timer === 0 ? 'Resend Code' : 'Resend in ' + timer + 's' }}
-          </ion-button>
-        </div>
-
-        <div class="help-section">
-          <span>Check your spam folder if the email is missing.</span>
-        </div>
-      </form>
-    </div>
+    </main>
   </div>
 
-  <!-- Toast for notifications -->
   <ion-toast
     [isOpen]="showToast"
     [message]="message"
@@ -79,6 +94,5 @@
     (didDismiss)="showToast = false"
     [buttons]="['OK']"
     [color]="success() ? 'success' : 'danger'"
-  >
-  </ion-toast>
-</ion-content>
+  ></ion-toast>
+</div>

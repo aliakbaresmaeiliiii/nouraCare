@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   OnDestroy,
@@ -29,6 +30,7 @@ import { ForumCategory, ForumTopic } from '../shared/models/forum';
   imports: [...SHARED_STANDALONE_IMPORTS],
   host: { class: 'ion-page' },
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ForumsComponent implements OnInit, OnDestroy {
   private router = inject(Router);

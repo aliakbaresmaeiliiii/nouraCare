@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DestroyRef,
@@ -9,14 +10,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  Chart,
-  registerables,
-  type ChartConfiguration,
-  type Plugin,
-} from 'chart.js';
-
-Chart.register(...registerables);
+import type { ChartConfiguration, Plugin } from 'chart.js';
 import { ModalController } from '@ionic/angular';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 import { CycleSettingsService } from '../../services/cycle-settings.service';
@@ -48,12 +42,15 @@ const LEGEND_PHASE_COLORS: Record<FertilityChartPhase, string> = {
   luteal: '#a78bfa',
 };
 
+type ChartJsModule = typeof import('chart.js');
+
 @Component({
   selector: 'app-fertility-overview-sheet',
   standalone: true,
   imports: [...SHARED_STANDALONE_IMPORTS],
   templateUrl: './fertility-overview-sheet.component.html',
   styleUrls: ['./fertility-overview-sheet.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FertilityOverviewSheetComponent implements OnInit, AfterViewInit {
   private modalCtrl = inject(ModalController);
@@ -69,8 +66,9 @@ export class FertilityOverviewSheetComponent implements OnInit, AfterViewInit {
   hasData = false;
   overview: FertilityOverviewData | null = null;
 
-  private fertilityChart: Chart | null = null;
+  private fertilityChart: InstanceType<ChartJsModule['Chart']> | null = null;
   private chartReady = false;
+  private chartJsPromise: Promise<ChartJsModule> | null = null;
 
   readonly legendPhases: FertilityChartPhase[] = [
     'period',
@@ -86,7 +84,7 @@ export class FertilityOverviewSheetComponent implements OnInit, AfterViewInit {
       .subscribe(() => {
         this.loadOverview();
         this.cdr.markForCheck();
-        queueMicrotask(() => this.renderChart());
+        queueMicrotask(() => void this.renderChart());
       });
 
     this.destroyRef.onDestroy(() => this.destroyChart());
@@ -94,7 +92,7 @@ export class FertilityOverviewSheetComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.chartReady = true;
-    this.renderChart();
+    void this.renderChart();
   }
 
   legendLabel(phase: FertilityChartPhase): string {
@@ -130,7 +128,17 @@ export class FertilityOverviewSheetComponent implements OnInit, AfterViewInit {
       this.languageService.getCurrentLanguage(),
     );
     this.hasData = true;
-    queueMicrotask(() => this.renderChart());
+    queueMicrotask(() => void this.renderChart());
+  }
+
+  private loadChartJs(): Promise<ChartJsModule> {
+    if (!this.chartJsPromise) {
+      this.chartJsPromise = import('chart.js').then((mod) => {
+        mod.Chart.register(...mod.registerables);
+        return mod;
+      });
+    }
+    return this.chartJsPromise;
   }
 
   private destroyChart(): void {
@@ -138,11 +146,12 @@ export class FertilityOverviewSheetComponent implements OnInit, AfterViewInit {
     this.fertilityChart = null;
   }
 
-  private renderChart(): void {
+  private async renderChart(): Promise<void> {
     if (!this.chartReady || !this.overview || !this.chartCanvas?.nativeElement) {
       return;
     }
 
+    const { Chart } = await this.loadChartJs();
     const canvas = this.chartCanvas.nativeElement;
     const o = this.overview;
     const lang = this.languageService.getCurrentLanguage();
@@ -334,6 +343,7 @@ export class FertilityOverviewSheetComponent implements OnInit, AfterViewInit {
 
     this.destroyChart();
     this.fertilityChart = new Chart(canvas, config);
+    this.cdr.markForCheck();
   }
 
   dismiss(): void {

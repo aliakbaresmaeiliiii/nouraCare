@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Post,
   Req,
   UseGuards,
@@ -18,6 +19,7 @@ import { LogoutDto } from './dto/logout.dto';
 import { ApiResponseHelper } from 'src/core/helpers/api-response.helper';
 import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
+import { resolveRequestLocale } from './utils/resolve-request-locale.util';
 
 @Controller('auth')
 export class AuthController {
@@ -26,19 +28,34 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('register')
-  async register(@Body() registerDto: RegisterDto) {
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Headers('accept-language') acceptLanguage?: string,
+    @Headers('x-app-language') appLanguage?: string,
+  ) {
     if (!registerDto.email) {
       throw new BadRequestException('Email is required!');
     }
-    const result = await this.authService.register(registerDto);
+    const result = await this.authService.register(
+      registerDto,
+      resolveRequestLocale(acceptLanguage, appLanguage),
+    );
     return ApiResponseHelper.success(result, 'User registered successfully');
   }
 
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('sign-in')
-  async signIn(@Body() loginDto: LoginDto) {
-    const result = await this.authService.login(loginDto.email, loginDto.otp);
+  async signIn(
+    @Body() loginDto: LoginDto,
+    @Headers('accept-language') acceptLanguage?: string,
+    @Headers('x-app-language') appLanguage?: string,
+  ) {
+    const result = await this.authService.login(
+      loginDto.email,
+      loginDto.otp,
+      resolveRequestLocale(acceptLanguage, appLanguage),
+    );
     if ('otpSent' in result && result.otpSent) {
       return ApiResponseHelper.success(result, result.message);
     }
@@ -94,9 +111,14 @@ export class AuthController {
   @Public()
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @Post('resend-verification')
-  async resendVerification(@Body() resendVerificationDto: ResendVerificationDto) {
+  async resendVerification(
+    @Body() resendVerificationDto: ResendVerificationDto,
+    @Headers('accept-language') acceptLanguage?: string,
+    @Headers('x-app-language') appLanguage?: string,
+  ) {
     const result = await this.authService.resendVerificationCode(
       resendVerificationDto.email,
+      resolveRequestLocale(acceptLanguage, appLanguage),
     );
     return ApiResponseHelper.success(result, 'Verification code sent successfully');
   }

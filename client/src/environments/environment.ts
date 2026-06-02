@@ -1,14 +1,9 @@
-import { LogLevel } from 'angular-auth-oidc-client';
-
 /**
  * Local development config (`ng serve`).
  *
  * To use a different machine/network for the API, change ACTIVE_BACKEND below.
  * Production builds swap this file for `environment.prod.ts` (see angular.json).
  */
-
-/** Log level for OIDC client if you wire it up later. */
-export const oidcLogLevel = LogLevel.Debug;
 
 // ---------------------------------------------------------------------------
 // Backend — pick one profile (host only; port and paths stay the same)
@@ -20,7 +15,7 @@ const BACKEND_PROFILES = {
   /** Phone hotspot — use your laptop IP as seen on the hotspot */
   phone: '10.42.66.237',
   /** Another network (e.g. café) */
-  coffee: '192.168.1.7',
+  coffee: '192.168.1.13',
   /** phone pedar (e.g. café) */
   phonePedar: '10.209.157.237',
 } as const;

@@ -29,17 +29,28 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
+  const devOrigins = [
+    'http://localhost:4200',
+    'http://127.0.0.1:4200',
+    'http://localhost:8100',
+    'http://127.0.0.1:8100',
+    'capacitor://localhost',
+    'ionic://localhost',
+    'https://localhost',
+  ];
+
   const corsOrigin =
-    env.CORS_ORIGINS.length > 0
-      ? env.CORS_ORIGINS
-      : env.NODE_ENV === 'production'
-        ? false
-        : true;
+    env.NODE_ENV !== 'production'
+      ? env.CORS_ORIGINS.length > 0
+        ? [...new Set([...env.CORS_ORIGINS, ...devOrigins])]
+        : true
+      : env.CORS_ORIGINS.length > 0
+        ? env.CORS_ORIGINS
+        : false;
 
   app.enableCors({
     origin: corsOrigin,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   });
 
   app.setGlobalPrefix('api/v1');

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 export interface TrackDayData {
@@ -23,6 +24,14 @@ export class TrackDataService {
   public trackData$ = this.trackDataSubject.asObservable();
 
   private readonly STORAGE_KEY = 'trackData';
+
+  /** Avoid refetching 120-day symptom history on every home tab enter. */
+  private trackDaysRangeCache: {
+    key: string;
+    fetchedAt: number;
+    rows: unknown[];
+  } | null = null;
+  private readonly trackDaysRangeTtlMs = 180_000;
 
   constructor(private httpClient: HttpClient) {
     this.loadFromStorage();
@@ -168,6 +177,26 @@ export class TrackDataService {
     startDate?: string,
     endDate?: string,
   ): Observable<any[]> {
+    return this.getTrackDaysForUserCached(userId, startDate, endDate);
+  }
+
+  getTrackDaysForUserCached(
+    userId: number,
+    startDate?: string,
+    endDate?: string,
+    force = false,
+  ): Observable<any[]> {
+    const key = `${userId}:${startDate ?? ''}:${endDate ?? ''}`;
+    const hit = this.trackDaysRangeCache;
+    if (
+      !force &&
+      hit &&
+      hit.key === key &&
+      Date.now() - hit.fetchedAt < this.trackDaysRangeTtlMs
+    ) {
+      return of(hit.rows as any[]);
+    }
+
     let params = new HttpParams();
     if (startDate) {
       params = params.set('startDate', startDate);
@@ -175,20 +204,39 @@ export class TrackDataService {
     if (endDate) {
       params = params.set('endDate', endDate);
     }
-    // Prevent conditional GET / 304 responses from leaving UI with no body.
-    // Backend should ignore unknown query params.
     params = params.set('_cb', Date.now().toString());
-    return this.httpClient.get<any[]>(
-      `${environment.apiEndPoint}track-day/${userId}/track-days`,
-      { params },
-    );
+    return this.httpClient
+      .get<any[]>(
+        `${environment.apiEndPoint}track-day/${userId}/track-days`,
+        { params },
+      )
+      .pipe(
+        tap((rows) => {
+          this.trackDaysRangeCache = {
+            key,
+            fetchedAt: Date.now(),
+            rows: Array.isArray(rows) ? rows : [],
+          };
+        }),
+      );
+  }
+
+  invalidateTrackDaysRangeCache(): void {
+    this.trackDaysRangeCache = null;
   }
 
   createSymptoms(userId: any, symptomsData: any): Observable<any> {
-    return this.httpClient.post<any>(`${environment.apiEndPoint}track-day/${userId}`, symptomsData);
+    return this.httpClient
+      .post<any>(`${environment.apiEndPoint}track-day/${userId}`, symptomsData)
+      .pipe(tap(() => this.invalidateTrackDaysRangeCache()));
   }
 
   updateSymptoms(userId: any, date: string, symptomsData: any): Observable<any> {
-    return this.httpClient.put<any>(`${environment.apiEndPoint}track-day/${userId}/${date}`, symptomsData);
+    return this.httpClient
+      .put<any>(
+        `${environment.apiEndPoint}track-day/${userId}/${date}`,
+        symptomsData,
+      )
+      .pipe(tap(() => this.invalidateTrackDaysRangeCache()));
   }
 }

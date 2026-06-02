@@ -3,8 +3,12 @@ import path from 'path';
 import fs from 'fs/promises';
 import { BadGatewayException, UnauthorizedException } from '@nestjs/common';
 import { EmailProvider } from 'src/auth/config/email';
-
-const { APP_NAME } = process.env;
+import {
+  getOtpEmailContent,
+  normalizeEmailLocale,
+  OtpEmailPurpose,
+} from './email-translations';
+import { APP_BRAND_NAME } from '../constants/app-brand.constants';
 
 class SendMail {
   private emailProvider: EmailProvider;
@@ -12,9 +16,10 @@ class SendMail {
   constructor(emailProvider: EmailProvider) {
     this.emailProvider = emailProvider;
   }
+
   private async loadTemplate(
     templateName: string,
-    data: object,
+    data: Record<string, string | number>,
   ): Promise<string> {
     try {
       const templatePath = path.resolve(
@@ -30,13 +35,45 @@ class SendMail {
     }
   }
 
-  public async sendAccountRegister(email: string, verifyCode: string) {
+  public async sendAccountRegister(
+    email: string,
+    verifyCode: string,
+    options?: {
+      locale?: string | null;
+      purpose?: OtpEmailPurpose;
+    },
+  ) {
     try {
-      const htmlToSend = await this.loadTemplate('emailverify', {
-        APP_NAME,
-        TOKEN: verifyCode,
+      const appName = APP_BRAND_NAME;
+      const locale = normalizeEmailLocale(options?.locale);
+      const purpose = options?.purpose ?? 'verification';
+      const content = getOtpEmailContent(locale, purpose, {
+        appName,
+        token: verifyCode,
+        year: new Date().getFullYear(),
       });
-      await this.emailProvider.send(email, 'Ali  Registration', htmlToSend);
+      const textAlign = content.dir === 'rtl' ? 'right' : 'left';
+
+      const htmlToSend = await this.loadTemplate('emailverify', {
+        LANG: content.lang,
+        DIR: content.dir,
+        TEXT_ALIGN: textAlign,
+        APP_NAME: appName,
+        TOKEN: verifyCode,
+        PREHEADER: content.preheader,
+        BADGE: content.badge,
+        HEADLINE: content.headline,
+        GREETING: content.greeting,
+        BODY: content.body,
+        CODE_LABEL: content.codeLabel,
+        EXPIRY: content.expiry,
+        CLOSING: content.closing,
+        TEAM_NAME: content.teamName,
+        FOOTER_NOTE: content.footerNote,
+        COPYRIGHT: content.copyright,
+      });
+
+      await this.emailProvider.send(email, content.subject, htmlToSend);
     } catch (error) {
       console.error('Error sending registration email:', error);
       throw new UnauthorizedException('Failed to send email');
@@ -51,7 +88,7 @@ class SendMail {
   ) {
     try {
       const htmlToSend = await this.loadTemplate('data-export', {
-        APP_NAME: APP_NAME || 'NouraCare',
+        APP_NAME: APP_BRAND_NAME,
         FULL_NAME: fullName,
         EXPORT_DATE: new Date().toLocaleDateString('en-US', {
           year: 'numeric',
@@ -61,7 +98,7 @@ class SendMail {
       });
       await this.emailProvider.sendMail({
         to: email,
-        subject: `${APP_NAME || 'NouraCare'} – Your Data Export`,
+        subject: `${APP_BRAND_NAME} – Your Data Export`,
         html: htmlToSend,
         attachments: [
           {

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, Injector, computed, inject, signal } from '@angular/core';
+import { DashboardCacheService } from '../../shared/services/dashboard-cache.service';
 import { Router } from '@angular/router';
 import { OnboardingDataDto } from '../../shared/services/onboarding.service';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
@@ -16,6 +17,7 @@ import { JwtPayload, TokenResponse } from '../models/token.interface';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private injector = inject(Injector);
   private baseUrl = environment.apiEndPoint + 'auth';
 
   // Store Access Token in memory using BehaviorSubject
@@ -34,20 +36,12 @@ export class AuthService {
   // Computed signal for current user
   currentUser = computed(() => this.userInfo());
 
-  constructor() {
-    // Initialize tokens from storage on service creation
-    this.initializeTokens();
+  private lastSessionVerifyAt = 0;
+  private visibilityListenerAttached = false;
 
-    // Set up periodic user existence check (every 5 minutes)
-    // Only if we're in a browser environment and user is authenticated
-    if (typeof window !== 'undefined' && this.isAuthenticated()) {
-      setInterval(
-        () => {
-          this.verifyUserExistence();
-        },
-        5 * 60 * 1000,
-      ); // 5 minutes
-    }
+  constructor() {
+    this.initializeTokens();
+    this.attachSessionVerifyOnAppVisible();
   }
 
   /**
@@ -60,9 +54,9 @@ export class AuthService {
       if (accessToken) {
         // Check if access token is still valid
         if (this.isTokenValid(accessToken)) {
-          // Set authentication state to true
           this.isAuthenticatedSubject.next(true);
           this.accessTokenSubject.next(accessToken);
+          this.attachSessionVerifyOnAppVisible();
         } else {
           // Access token expired, clear everything
           this.clearTokens();
@@ -81,7 +75,12 @@ export class AuthService {
     if (data.otp?.trim()) {
       body.otp = data.otp.trim();
     }
-    return this.http.post<TokenResponse>(`${this.baseUrl}/sign-in`, body).pipe(
+
+    const options = data.otp?.trim() ? {} : this.languageHttpOptions();
+
+    return this.http
+      .post<TokenResponse>(`${this.baseUrl}/sign-in`, body, options)
+      .pipe(
       tap((response: TokenResponse) => {
         if (response?.data?.accessToken) {
           this.handleTokenResponse(response);
@@ -195,6 +194,7 @@ export class AuthService {
     }
     this.isAuthenticatedSubject.next(true);
     this.setUserInfoFromToken(accessToken);
+    this.attachSessionVerifyOnAppVisible();
   }
 
   /**
@@ -320,6 +320,11 @@ export class AuthService {
     // Reset authentication state
     this.isAuthenticatedSubject.next(false);
     this.userInfo.set(null);
+    try {
+      this.injector.get(DashboardCacheService).invalidate();
+    } catch {
+      /* non-fatal */
+    }
   }
 
   /**
@@ -375,7 +380,7 @@ export class AuthService {
       }
     }
 
-    return this.http.post(`${this.baseUrl}/register`, payload);
+    return this.http.post(`${this.baseUrl}/register`, payload, this.languageHttpOptions());
   }
 
   forgotPassword(email: string): Observable<any> {
@@ -394,44 +399,59 @@ export class AuthService {
   }
 
   resendOtp(data: { email: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/resend-otp`, data);
+    return this.http.post(
+      `${this.baseUrl}/resend-verification`,
+      data,
+      this.languageHttpOptions(),
+    );
+  }
+
+  private languageHttpOptions(): { headers: { 'Accept-Language': string } } {
+    return {
+      headers: {
+        'Accept-Language': this.getClientLocale(),
+      },
+    };
+  }
+
+  private getClientLocale(): string {
+    if (typeof localStorage === 'undefined') {
+      return 'en';
+    }
+    return localStorage.getItem('selectedLanguage') || 'en';
   }
 
   /**
-   * Verify that the user still exists in the database
-   * This is called periodically to check if user data was deleted
+   * When the app returns to foreground, verify the session with a lightweight GET
+   * (not refresh-token rotation, which was running every 5 minutes before).
    */
-  private verifyUserExistence(): void {
-    if (!this.isAuthenticated()) {
+  private attachSessionVerifyOnAppVisible(): void {
+    if (
+      this.visibilityListenerAttached ||
+      typeof document === 'undefined' ||
+      !this.isAuthenticated()
+    ) {
       return;
     }
-
-    const accessToken = this.getAccessToken();
-    if (!accessToken) {
-      return;
-    }
-
-    try {
-      const payload: JwtPayload = this.decodeToken(accessToken);
-      const userId = parseInt(payload.sub) || 0;
-
-      if (userId > 0) {
-        // Make a lightweight API call to verify user existence
-        // This could be a simple endpoint like /auth/verify-user or /users/{id}/exists
-        // For now, we'll use the refresh token endpoint as it requires authentication
-        this.refreshToken().subscribe({
-          next: () => {
-            // User still exists and token is valid
-          },
-          error: () => {
-            // User doesn't exist or token is invalid
-            this.logout();
-          },
-        });
+    this.visibilityListenerAttached = true;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        this.verifyUserExistenceIfDue();
       }
-    } catch (error) {
-      // If we can't decode the token, log out
-      this.logout();
+    });
+  }
+
+  private verifyUserExistenceIfDue(): void {
+    if (!this.isAuthenticated() || !this.getAccessToken()) {
+      return;
     }
+    const now = Date.now();
+    if (now - this.lastSessionVerifyAt < 5 * 60 * 1000) {
+      return;
+    }
+    this.lastSessionVerifyAt = now;
+    this.http.get(`${this.baseUrl}/verify-user-exists`).subscribe({
+      error: () => this.logout(),
+    });
   }
 }

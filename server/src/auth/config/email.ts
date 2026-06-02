@@ -2,11 +2,11 @@ import _ from 'lodash';
 import nodemailer from 'nodemailer';
 import mg from 'nodemailer-mailgun-transport';
 import dotenv from 'dotenv';
+import { APP_BRAND_NAME } from '../../constants/app-brand.constants';
 
 dotenv.config(); // Load environment variables
 
 const {
-  APP_NAME,
   MAIL_DRIVER,
   MAIL_HOST,
   MAIL_PORT,
@@ -78,7 +78,7 @@ export class EmailProvider {
         ? options.to.join(', ')
         : options.to;
       const mailOptions: nodemailer.SendMailOptions = {
-        from: `${APP_NAME} <${MAIL_USERNAME}>`,
+        from: `${APP_BRAND_NAME} <${MAIL_USERNAME}>`,
         to: recipient,
         subject: options.subject,
         html: options.html,

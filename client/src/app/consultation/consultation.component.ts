@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -25,6 +26,7 @@ import { star } from 'ionicons/icons';
   imports:[...SHARED_STANDALONE_IMPORTS],
   schemas:[CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConsultationComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);

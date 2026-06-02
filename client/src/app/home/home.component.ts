@@ -19,7 +19,7 @@ import {
   ToastController,
   ViewWillEnter,
 } from '@ionic/angular';
-import { firstValueFrom, forkJoin, of, Subscription } from 'rxjs';
+import { firstValueFrom, of, Subscription } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { AuthService } from '../auth/services/auth';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
@@ -59,6 +59,10 @@ import { PeriodCycleStateService } from '../shared/services/period-cycle-state.s
 import { TrackDataService } from '../shared/services/track-data.service';
 import { TranslationService } from '../shared/services/translation.service';
 import { UserInfoService } from '../shared/services/user-info.service';
+import {
+  HomeFacadeService,
+  HomeUnauthenticatedError,
+} from './services/home-facade.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { pregnancyDashboardInsightFromWeek } from '../shared/utils/pregnancy-dashboard-insight.util';
 import {
@@ -106,6 +110,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   private cycleSettings = inject(CycleSettingsService);
   private babyDevelopmentService = inject(BabyDevelopmentService);
   private userInfoService = inject(UserInfoService);
+  private homeFacade = inject(HomeFacadeService);
   private authService = inject(AuthService);
   private onboardingService = inject(OnboardingService);
   private homeReproUi = inject(HomeReproductiveUiService);
@@ -476,7 +481,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
    */
   ionViewWillEnter() {
     this.syncDashboardFromServerAndRefreshChart();
-    this.loadRecentSymptomsDays();
+    this.homeFacade.loadRecentSymptomsHistory();
     this.loadTodaySymptoms();
     if (this.isPregnant()) {
       this.clearPregnancyCalendarSelectionIfInvalid();
@@ -504,7 +509,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.generateMessages();
     this.refreshDailyMessage();
     this.loadTodaySymptoms();
-    this.loadRecentSymptomsDays();
+    this.homeFacade.loadRecentSymptomsHistory(true);
     this.initializeHealthTip();
 
     if (!this.authService.getAccessToken()) {
@@ -522,41 +527,21 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
    * Skips one fetch when profile/week-detail already pushed fresh dashboard via the journey bridge.
    */
   private fetchDashboardAndApplyToView(forceRemote = false): void {
-    if (!this.authService.getAccessToken()) {
-      this.loadPersistedData();
-      this.runPeriodChartRefresh();
-      this.cdr.markForCheck();
-      return;
-    }
-
-    if (this.homeJourneyBridge.takeSkipNextRemoteDashboardFetch()) {
-      this.homeJourneyBridge.applySavedJourneyIfPending((state) => {
-        this.applyJourneyStateToView(state);
-      });
-      // Journey may already have been applied in the constructor effect before the chart existed.
-      this.runPeriodChartRefresh();
-      this.cdr.markForCheck();
-      return;
-    }
-
-    forkJoin({
-      dashboard: this.onboardingService.getDashboard(
-        forceRemote ? { force: true } : undefined,
-      ),
-      journey: this.userInfoService
-        .getUserOnboardingData(undefined, forceRemote ? { force: true } : undefined)
-        .pipe(catchError(() => of<UserInfo | null>(null))),
-    }).subscribe({
-      next: ({ dashboard, journey }) => {
-        const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
-          dashboard,
-          journey,
-        );
-        this.applyJourneyStateToView(state);
+    this.homeFacade.syncDashboardJourney(forceRemote).subscribe({
+      next: (state) => {
+        if (state) {
+          this.applyJourneyStateToView(state);
+        }
         this.runPeriodChartRefresh();
         this.cdr.markForCheck();
       },
       error: (err) => {
+        if (err instanceof HomeUnauthenticatedError) {
+          this.loadPersistedData();
+          this.runPeriodChartRefresh();
+          this.cdr.markForCheck();
+          return;
+        }
         console.error('Home dashboard sync failed:', err);
         this.loadPersistedData();
         this.runPeriodChartRefresh();
@@ -1468,33 +1453,13 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   // Symptoms History Methods
-  recentSymptomsDays: any[] = [];
-
-  getRecentSymptomsDays(): any[] {
-    return this.recentSymptomsDays;
+  getRecentSymptomsDays() {
+    return this.homeFacade.recentSymptomsDays();
   }
 
-  loadRecentSymptomsDays(): void {
-    this.recentSymptomsDays = [];
-    const userId = this.homeData.getCurrentUserId();
-    if (!this.authService.getAccessToken() || userId <= 0) {
-      this.cdr.markForCheck();
-      return;
-    }
-    const end = new Date();
-    const start = new Date();
-    start.setDate(start.getDate() - 120);
-    const startDate = start.toISOString().split('T')[0];
-    const endDate = end.toISOString().split('T')[0];
-    this.trackDataService
-      .getTrackDaysForUser(userId, startDate, endDate)
-      .pipe(
-        catchError(() => of([])),
-        finalize(() => this.cdr.markForCheck())
-      )
-      .subscribe((rows) => {
-        this.recentSymptomsDays = Array.isArray(rows) ? rows : [];
-      });
+  loadRecentSymptomsDays(force = false): void {
+    this.homeFacade.loadRecentSymptomsHistory(force);
+    this.cdr.markForCheck();
   }
 
   /** Calendar day key from API / Prisma date field. */
@@ -1584,7 +1549,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   private buildSymptomLogInsightTopic(
     scope: 'cycle' | 'pregnancy'
   ): DailyInsightTopic {
-    const last = this.recentSymptomsDays[0];
+    const last = this.homeFacade.recentSymptomsDays()[0];
     if (!last) {
       return {
         id: `${scope}-symptom-log`,
@@ -1654,7 +1619,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       detailLines.push(this.tr('home.symptomLog.lineNotes', { notes }));
     }
 
-    const recentLines = this.recentSymptomsDays.slice(0, 6).map((row) => {
+    const recentLines = this.homeFacade.recentSymptomsDays().slice(0, 6).map((row) => {
       const dk = this.isoDateFromTrackRow(row.date);
       const label = dk ? this.formatDate(`${dk}T12:00:00`) : '';
       const { moodText: m, symptomNames: sn } = this.describeSymptomLogRow(row);
@@ -4048,7 +4013,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
         ? this.tr('home.pregSummary.teaserMulti', { count: strip.length })
         : this.tr('home.pregSummary.teaserEmpty');
 
-    const last = this.recentSymptomsDays[0];
+    const last = this.homeFacade.recentSymptomsDays()[0];
     let snapshotBody = this.tr('home.pregSummary.bodyBase', {
       days: daysAlong,
       week: w,
@@ -4148,7 +4113,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   }
 
   private getLatestMoodKey(): string | null {
-    const last = this.recentSymptomsDays[0];
+    const last = this.homeFacade.recentSymptomsDays()[0];
     if (!last) {
       return null;
     }
@@ -4166,7 +4131,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   }
 
   private getLatestMoodLabel(): string {
-    const last = this.recentSymptomsDays[0];
+    const last = this.homeFacade.recentSymptomsDays()[0];
     if (!last) {
       return '';
     }
@@ -4453,7 +4418,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
         ? this.tr('home.cycleSummary.teaserMulti', { count: strip.length })
         : this.tr('home.cycleSummary.teaserEmpty');
 
-    const last = this.recentSymptomsDays[0];
+    const last = this.homeFacade.recentSymptomsDays()[0];
     let snapshotBody =
       this.dashboardCycleInsight?.trim() ||
       this.tr('home.cycleSummary.bodyBase', {

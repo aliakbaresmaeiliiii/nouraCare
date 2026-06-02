@@ -1,4 +1,13 @@
-import { Component, OnInit, inject, OnDestroy, signal, computed, ChangeDetectorRef } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ToastController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -24,6 +33,7 @@ interface ArticleCard {
   standalone: true,
   imports: [IonicModule, CommonModule, TranslatePipe],
   host: { class: 'ion-page' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InsightsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

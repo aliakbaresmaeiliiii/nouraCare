@@ -2,7 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, ReplaySubject, share, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { Injector } from '@angular/core';
 import { UserInfoService } from './user-info.service';
+import { DashboardCacheService } from './dashboard-cache.service';
 import { UserSessionService } from './user-session.service';
 
 export interface DashboardRequestOptions {
@@ -139,6 +141,7 @@ export class OnboardingService {
   private http = inject(HttpClient);
   private userSession = inject(UserSessionService);
   private userInfoService = inject(UserInfoService);
+  private injector = inject(Injector);
   private baseUrl = environment.apiEndPoint + 'onboarding';
   private meBaseUrl = environment.apiEndPoint + 'me';
   /** Coalesces concurrent GET /me/dashboard subscribers into one HTTP call. */
@@ -253,6 +256,7 @@ export class OnboardingService {
         tap(() => {
           this.invalidateDashboardCache();
           this.userInfoService.invalidateOnboardingCache();
+          this.injector.get(DashboardCacheService).invalidate();
         }),
       );
   }

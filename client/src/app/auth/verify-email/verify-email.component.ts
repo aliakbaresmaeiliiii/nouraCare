@@ -31,6 +31,15 @@ export class VerifyEmailComponent implements OnInit {
   timerSub!: Subscription;
   isExpired: boolean = false;
 
+  get userEmail(): string {
+    return (
+      this.userInfo?.data?.user?.email ??
+      this.userInfo?.user?.email ??
+      this.userInfo?.email ??
+      ''
+    );
+  }
+
   constructor(
     private fb: FormBuilder,
     private httpClient: HttpClient,
@@ -135,10 +144,17 @@ export class VerifyEmailComponent implements OnInit {
   }
 
   resendCode() {
+    const email = this.userEmail;
+    if (!email) {
+      this.showToast = true;
+      this.message = 'Email not found. Please sign in again.';
+      this.success.set(false);
+      return;
+    }
+
     this.startTimer();
-    const email = this.userInfo.data.email;
     const payload = {
-      email: email,
+      email,
     };
     this.service.resendOtp(payload).subscribe((res) => {
       console.log('newCOde', res);

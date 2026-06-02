@@ -110,8 +110,6 @@
 
     "@tailwindcss/postcss": "^4.2.1",
 
-    "angular-auth-oidc-client": "^21.0.1",
-
     "chart.js": "^4.5.1",
 
     "date-fns-jalali": "^4.1.0-0",
@@ -135,8 +133,6 @@
     "swiper": "^12.1.2",
 
     "tailwindcss": "^4.1.12",
-
-    "three": "^0.180.0",
 
     "tslib": "^2.8.1",
 
@@ -175,8 +171,6 @@
     "@types/jalaali-js": "^1.2.0",
 
     "@types/jasmine": "~6.0.0",
-
-    "@types/three": "^0.183.1",
 
     "@typescript-eslint/eslint-plugin": "^8.57.0",
 

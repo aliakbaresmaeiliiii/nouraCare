@@ -49,7 +49,7 @@ export class AuthService {
     this.sendMail = new SendMail(this.emailProvider);
   }
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto, locale?: string) {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email },
     });
@@ -79,7 +79,10 @@ export class AuthService {
     });
 
     try {
-      await this.sendMail.sendAccountRegister(user.email, verificationCode);
+      await this.sendMail.sendAccountRegister(user.email, verificationCode, {
+        locale,
+        purpose: 'verification',
+      });
     } catch (error) {
       console.error('Failed to send verification email:', error);
     }
@@ -151,7 +154,7 @@ export class AuthService {
     };
   }
 
-  async resendVerificationCode(email: string) {
+  async resendVerificationCode(email: string, locale?: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (!user) {
@@ -174,7 +177,10 @@ export class AuthService {
     });
 
     try {
-      await this.sendMail.sendAccountRegister(user.email, verificationCode);
+      await this.sendMail.sendAccountRegister(user.email, verificationCode, {
+        locale,
+        purpose: 'verification',
+      });
     } catch (error) {
       console.error('Failed to send verification email:', error);
       throw new BadRequestException('Failed to send verification email');
@@ -183,7 +189,7 @@ export class AuthService {
     return { message: 'Verification code sent successfully' };
   }
 
-  async login(email: string, otp?: string) {
+  async login(email: string, otp?: string, locale?: string) {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
@@ -221,7 +227,10 @@ export class AuthService {
       });
 
       try {
-        await this.sendMail.sendAccountRegister(user.email, loginCode);
+        await this.sendMail.sendAccountRegister(user.email, loginCode, {
+          locale,
+          purpose: 'sign-in',
+        });
       } catch (error) {
         console.error('Failed to send sign-in code:', error);
         throw new BadRequestException('Failed to send sign-in code');
