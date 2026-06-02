@@ -6,14 +6,14 @@
     <ion-title class="header-title">
       <div class="title-content">
         <ion-icon name="chatbubble-ellipses" class="bot-icon" aria-hidden="true"></ion-icon>
-        <span>NouraCare Assistant</span>
+        <span>{{ 'chatbot.title' | translate }}</span>
       </div>
     </ion-title>
     <ion-buttons slot="end">
       <ion-button
         fill="clear"
         class="header-action-btn"
-        aria-label="Clear chat"
+        [attr.aria-label]="'chatbot.clearChatAria' | translate"
         [disabled]="messages.length <= 1"
         (click)="clearChat()"
       >
@@ -103,7 +103,7 @@
               <ion-icon name="chatbubble-ellipses"></ion-icon>
             </div>
             <div class="message-content message-content-typing">
-              <div class="typing-indicator" aria-live="polite" aria-label="Assistant is typing">
+              <div class="typing-indicator" aria-live="polite" [attr.aria-label]="'chatbot.typingAria' | translate">
                 <div class="typing-dot"></div>
                 <div class="typing-dot"></div>
                 <div class="typing-dot"></div>
@@ -116,8 +116,8 @@
 
     @if (messages.length === 1) {
       <div class="quick-reply-suggestions">
-        <h3 class="suggestions-title">Quick start</h3>
-        <p class="suggestions-hint">Tap a topic or type your own question below.</p>
+        <h3 class="suggestions-title">{{ 'chatbot.quickStart' | translate }}</h3>
+        <p class="suggestions-hint">{{ 'chatbot.quickStartHint' | translate }}</p>
         <div class="suggestions-grid">
           @for (quickReply of quickReplies; track quickReply.action) {
             <ion-button
@@ -137,7 +137,7 @@
       <div class="input-container">
         <ion-input
           [(ngModel)]="newMessage"
-          placeholder="Ask about periods, pregnancy, wellness…"
+          [placeholder]="'chatbot.inputPlaceholder' | translate"
           class="message-input"
           inputmode="text"
           enterkeyhint="send"
@@ -147,7 +147,7 @@
         <ion-button
           fill="clear"
           class="send-button"
-          aria-label="Send message"
+          [attr.aria-label]="'chatbot.sendAria' | translate"
           (click)="sendMessage()"
           [disabled]="!newMessage.trim() || isTyping"
         >
@@ -158,7 +158,7 @@
   </div>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="chat-tools-fab">
-    <ion-fab-button aria-label="Open tools" (click)="openQuickActions()">
+    <ion-fab-button [attr.aria-label]="'chatbot.toolsFabAria' | translate" (click)="openQuickActions()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>

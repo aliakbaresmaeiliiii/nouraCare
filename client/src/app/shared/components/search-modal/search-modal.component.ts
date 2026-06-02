@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 
 export interface SearchItem {
   text: string;
@@ -10,7 +11,8 @@ export interface SearchItem {
   selector: 'app-search-modal',
   templateUrl: './search-modal.component.html',
   styleUrls: ['./search-modal.component.scss'],
-  standalone: true
+  standalone: true,
+  imports: [...SHARED_STANDALONE_IMPORTS],
 })
 export class SearchModalComponent implements OnInit {
   private _items: SearchItem[] = [];

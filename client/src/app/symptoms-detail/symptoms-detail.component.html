@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/symptoms-tracker"></ion-back-button>
     </ion-buttons>
-    <ion-title>Symptoms Details</ion-title>
+    <ion-title>{{ 'symptomsDetail.title' | translate }}</ion-title>
     <ion-buttons slot="end">
       @if (dayData) {
       <ion-button fill="clear" (click)="editDay()">
@@ -19,7 +19,7 @@
 
     <!-- Loading State -->
     @if (loading) {
-    <div class="loading-state" aria-label="Loading symptoms data" role="status">
+    <div class="loading-state" [attr.aria-label]="'symptomsDetail.loadingAria' | translate" role="status">
       <ion-spinner name="crescent"></ion-spinner>
     </div>
     }
@@ -28,11 +28,11 @@
     @if (!loading && !dayData) {
     <div class="no-data-state">
       <ion-icon name="calendar-outline" class="no-data-icon"></ion-icon>
-      <h2>No Data Found</h2>
-      <p>No symptoms data found for {{ formatDate(selectedDate) }}</p>
+      <h2>{{ 'symptomsDetail.emptyTitle' | translate }}</h2>
+      <p>{{ emptyDescLabel }}</p>
       <ion-button fill="solid" (click)="editDay()">
         <ion-icon name="add-outline" slot="start"></ion-icon>
-        Track Symptoms
+        {{ 'symptomsDetail.trackSymptoms' | translate }}
       </ion-button>
     </div>
     }
@@ -52,7 +52,7 @@
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="heart-outline" class="card-icon"></ion-icon>
-            Daily Summary
+            {{ 'symptomsDetail.dailySummary' | translate }}
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
@@ -63,7 +63,7 @@
 
               </div>
               <div class="summary-content">
-                <h3>Mood</h3>
+                <h3>{{ 'symptomsDetail.mood' | translate }}</h3>
                 <p class="summary-value">{{ dayData.mood | titlecase }}</p>
               </div>
             </div>
@@ -73,7 +73,7 @@
                 <ion-icon [name]="getEnergyIcon(dayData.energy)" class="energy-icon"></ion-icon>
               </div>
               <div class="summary-content">
-                <h3>Energy Level</h3>
+                <h3>{{ 'symptomsDetail.energyLevel' | translate }}</h3>
                 <p class="summary-value">{{ dayData.energy | titlecase }}</p>
               </div>
             </div>
@@ -87,7 +87,7 @@
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="medical-outline" class="card-icon"></ion-icon>
-            Symptoms ({{ dayData.symptoms.length | localNum }})
+            {{ symptomsTitleLabel }}
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
@@ -134,8 +134,8 @@
         <ion-card-content>
           <div class="no-symptoms-content">
             <ion-icon name="checkmark-circle-outline" class="no-symptoms-icon"></ion-icon>
-            <h3>No Symptoms Recorded</h3>
-            <p>You had a symptom-free day!</p>
+            <h3>{{ 'symptomsDetail.noSymptomsTitle' | translate }}</h3>
+            <p>{{ 'symptomsDetail.noSymptomsDesc' | translate }}</p>
           </div>
         </ion-card-content>
       </ion-card>
@@ -147,7 +147,7 @@
         <ion-card-header>
           <ion-card-title>
             <ion-icon name="document-text-outline" class="card-icon"></ion-icon>
-            Daily Notes
+            {{ 'symptomsDetail.dailyNotes' | translate }}
           </ion-card-title>
         </ion-card-header>
         <ion-card-content>
@@ -162,7 +162,7 @@
       <div class="action-buttons">
         <ion-button fill="outline" expand="block" (click)="editDay()">
           <ion-icon name="create-outline" slot="start"></ion-icon>
-          Edit This Day
+          {{ 'symptomsDetail.editThisDay' | translate }}
         </ion-button>
       </div>
 

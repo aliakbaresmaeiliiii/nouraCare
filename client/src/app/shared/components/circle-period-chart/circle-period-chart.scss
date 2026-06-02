@@ -2,7 +2,7 @@
 .cycle-chart-container {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: visible;
   background: transparent;
   --cycle-ambient-rgb: var(--brand-primary-rgb);
   --cycle-drift-wave-1: radial-gradient(
@@ -56,31 +56,45 @@
   /* Full-component drift waves (week strip + ring); sits behind all chart UI */
   > .cycle-chart-drift {
     position: absolute;
-    inset: 0;
+    inset: -6% -3% -2%;
     z-index: 0;
-    overflow: hidden;
+    overflow: visible;
     pointer-events: none;
     background:
       var(--cycle-transition-blob-2), var(--cycle-transition-blob-3),
       var(--cycle-transition-blob-1);
     transition: background 320ms ease;
+    mask-image: radial-gradient(
+      ellipse 96% 92% at 50% 44%,
+      #000 52%,
+      rgba(0, 0, 0, 0.55) 72%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 96% 92% at 50% 44%,
+      #000 52%,
+      rgba(0, 0, 0, 0.55) 72%,
+      transparent 100%
+    );
 
-    /* Fade out the drifting background at the bottom to avoid hard cutoff */
+    /* Soft bottom blend into page surface — no hard horizontal cut */
     &::after {
       content: "";
       position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: clamp(4.5rem, 15vw, 8.5rem);
+      left: -4%;
+      right: -4%;
+      bottom: -2%;
+      height: clamp(5.5rem, 18vw, 10rem);
       pointer-events: none;
       z-index: 2;
       background: linear-gradient(
         180deg,
         rgba(var(--cycle-bottom-curve-fill-rgb), 0) 0%,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0.2) 55%,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0.45) 82%,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0.72) 100%
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0.06) 28%,
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0.18) 52%,
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0.38) 72%,
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0.58) 86%,
+        rgba(var(--cycle-bottom-curve-fill-rgb), 0.76) 100%
       );
     }
 
@@ -177,16 +191,36 @@
     }
 
     &.today-mark--ring-cap {
-      circle {
-        filter: drop-shadow(0 0 6px rgba(var(--brand-secondary-rgb), 0.55))
-          drop-shadow(0 0 10px rgba(var(--brand-primary-rgb), 0.45))
-          drop-shadow(0 2px 4px rgba(var(--brand-accent-rgb), 0.35));
+      circle.today-mark__core {
+        filter: drop-shadow(0 0 8px rgba(var(--brand-secondary-rgb), 0.5))
+          drop-shadow(0 0 14px rgba(var(--brand-primary-rgb), 0.35))
+          drop-shadow(0 3px 6px rgba(var(--brand-accent-rgb), 0.25));
       }
 
-      text {
+      .today-mark__num {
+        fill: var(--brand-text);
+        font-size: 15px;
+        font-weight: 800;
         paint-order: stroke fill;
         stroke: rgba(var(--brand-surface-rgb), 0.92);
         stroke-width: 2.5px;
+      }
+
+      .today-mark__pulse {
+        fill: none;
+        stroke: var(--brand-primary);
+        stroke-width: 1.5px;
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+
+      .today-mark__pulse--outer {
+        animation: today-ring-pulse 2.8s ease-out infinite;
+      }
+
+      .today-mark__pulse--inner {
+        animation: today-ring-pulse 2.8s ease-out 0.9s infinite;
       }
     }
 
@@ -218,15 +252,14 @@
   &::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: -4% -2% 0;
     z-index: 1;
     pointer-events: none;
-    background: linear-gradient(
-      180deg,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.1) 0%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.04) 38%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.1) 72%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.22) 100%
+    background: radial-gradient(
+      ellipse 88% 80% at 50% 40%,
+      rgba(var(--cycle-ambient-rgb), 0.1) 0%,
+      rgba(var(--cycle-ambient-rgb), 0.04) 42%,
+      transparent 74%
     );
   }
 }
@@ -348,13 +381,11 @@
 
   /* Dark mode: extend + soften bottom blend to remove visible seam */
   .cycle-chart-container::before {
-    background: linear-gradient(
-      180deg,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.14) 0%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.08) 40%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.18) 72%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.34) 92%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.44) 100%
+    background: radial-gradient(
+      ellipse 88% 80% at 50% 40%,
+      rgba(var(--cycle-ambient-rgb), 0.08) 0%,
+      rgba(var(--cycle-ambient-rgb), 0.03) 42%,
+      transparent 74%
     );
   }
 
@@ -481,24 +512,47 @@
   width: 100%;
   height: 350px;
   overflow: visible;
-  padding: 20px;
+  padding: 20px 12px;
   box-sizing: border-box;
 }
 
 .cycle-chart {
   --cycle-chart-font: var(--ion-font-family, var(--font-primary));
+  --cycle-glass-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --cycle-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
 
   width: 100%;
   max-width: 650px;
   height: auto;
   max-height: 650px;
-  filter: drop-shadow(0 8px 28px rgba(var(--brand-primary-rgb), 0.09))
-    drop-shadow(0 2px 10px rgba(var(--brand-text-rgb), 0.04));
+  overflow: visible;
 
   text,
   tspan {
     font-family: var(--cycle-chart-font);
   }
+}
+
+.chart-aura {
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+}
+
+.chart-aura--one {
+  animation: chart-aura-drift 14s ease-in-out infinite;
+}
+
+.chart-aura--two {
+  animation: chart-aura-drift 18s ease-in-out infinite reverse;
+  opacity: 0.42;
+}
+
+.cycle-progress-arc {
+  opacity: 0.85;
+  filter: drop-shadow(0 0 8px rgba(var(--brand-secondary-rgb), 0.35));
+  transition: stroke-dasharray 0.65s var(--cycle-glass-ease);
+  animation: cycle-progress-glow 3.5s ease-in-out infinite;
 }
 
 /* Full-width “Track cycle” — inherits --cycle-hero-pink* from Home when embedded there */
@@ -621,43 +675,129 @@
 
 // SVG disk / track / center — soft brand tint on edges (reads friendlier than flat gray)
 .chart-bg-disk {
-  stroke: rgba(var(--brand-primary-rgb), 0.14);
+  stroke: none;
+  opacity: 0.78;
+  filter: blur(0.3px);
+  transition: opacity 0.55s var(--cycle-glass-ease, ease);
 }
 
 .cycle-chart.cycle-chart--disk-period .chart-bg-disk {
-  stroke: rgba(253, 164, 175, 0.28);
+  opacity: 0.82;
 }
 
 .cycle-chart.cycle-chart--disk-fertile .chart-bg-disk,
 .cycle-chart.cycle-chart--disk-ovulation .chart-bg-disk {
-  stroke: rgba(13, 148, 136, 0.22);
+  opacity: 0.8;
 }
 
 .chart-track-ring {
-  stroke: rgba(251, 113, 133, 0.1);
+  stroke: url(#trackRingGradient);
+  opacity: 0.95;
+  filter: drop-shadow(inset 0 2px 4px rgba(255, 255, 255, 0.5));
+}
+
+.center-glow-ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1;
+  opacity: 0.7;
+  animation: center-glow-breathe 4.5s ease-in-out infinite;
 }
 
 .chart-center-disk {
-  fill: #fffbfc;
-  stroke: rgba(251, 113, 133, 0.12);
+  fill: rgba(var(--brand-surface-rgb), 0.35);
+  stroke: rgba(255, 255, 255, 0.65);
+  transition:
+    fill 0.6s var(--cycle-glass-ease),
+    stroke 0.6s var(--cycle-glass-ease);
 }
 
 .chart-center-disk--period {
-  fill: #fff5f7;
-  stroke: rgba(244, 63, 94, 0.18);
+  fill: rgba(255, 251, 252, 0.92);
+  stroke: rgba(244, 63, 94, 0.14);
 }
 
 .chart-center-disk--fertile {
-  fill: #f6fffe;
-  stroke: rgba(45, 212, 191, 0.22);
+  fill: rgba(246, 255, 254, 0.92);
+  stroke: rgba(45, 212, 191, 0.18);
 }
 
 .chart-center-disk--ovulation {
-  fill: #f0fdfa;
-  stroke: rgba(20, 184, 166, 0.26);
+  fill: rgba(240, 253, 250, 0.92);
+  stroke: rgba(20, 184, 166, 0.22);
 }
 
 :host-context(html.ion-palette-dark) {
+  .center-glass {
+    background: linear-gradient(
+      155deg,
+      rgba(30, 41, 59, 0.82) 0%,
+      rgba(15, 23, 42, 0.72) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 12px 40px rgba(0, 0, 0, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    &--period {
+      background: linear-gradient(
+        155deg,
+        rgba(74, 36, 48, 0.88) 0%,
+        rgba(127, 29, 29, 0.45) 100%
+      );
+      border-color: rgba(212, 132, 158, 0.28);
+    }
+
+    &--fertile,
+    &--ovulation {
+      background: linear-gradient(
+        155deg,
+        rgba(19, 78, 74, 0.85) 0%,
+        rgba(6, 95, 70, 0.45) 100%
+      );
+      border-color: rgba(94, 234, 212, 0.22);
+    }
+
+    &__day {
+      background: linear-gradient(145deg, #f8fafc 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    &--period &__day {
+      background: linear-gradient(145deg, #fecdd3 0%, #fb7185 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    &--fertile &__day,
+    &--ovulation &__day {
+      background: linear-gradient(145deg, #ccfbf1 0%, #5eead4 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+
+    &__caption,
+    &__milestone {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    &__date {
+      color: rgba(255, 255, 255, 0.58);
+    }
+  }
+
+  .cycle-length-marker {
+    &__halo {
+      fill: rgba(var(--brand-secondary-rgb), 0.22);
+    }
+
+    &__value,
+    &__label {
+      fill: #ffffff;
+    }
+  }
+
   .chart-center-disk--period {
     fill: color-mix(
       in srgb,
@@ -688,9 +828,12 @@
 
 // SVG ring segments — soft Flo-style tints
 .cycle-segment {
-  opacity: 0.96;
-  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.06));
-  transition: opacity 0.2s ease;
+  opacity: 0.98;
+  filter: drop-shadow(0 2px 8px rgba(15, 23, 42, 0.08));
+  transition:
+    opacity 0.45s var(--cycle-glass-ease),
+    filter 0.45s var(--cycle-glass-ease),
+    stroke 0.45s var(--cycle-glass-ease);
 }
 
 .cycle-segment--period {
@@ -724,22 +867,32 @@
       font-weight: 700;
     }
   }
+}
 
-  .period-day-number {
-    fill: var(--brand-text);
-    stroke: rgba(var(--brand-surface-rgb), 0.92);
-    stroke-width: 2.5px;
-    paint-order: stroke fill;
-    font-weight: 700;
-    opacity: 1;
+.period-day-marker {
+  pointer-events: none;
 
-    &:hover {
-      fill: var(--brand-text);
-      stroke: var(--brand-surface);
-      opacity: 0.92;
-    }
+  .period-day-number__disk {
+    fill: rgba(255, 251, 252, 0.92);
+    stroke: rgba(251, 113, 133, 0.38);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 2px 6px rgba(244, 63, 94, 0.14));
   }
 
+  .period-day-number {
+    fill: #be123c;
+    stroke: rgba(255, 255, 255, 0.9);
+    stroke-width: 2px;
+    paint-order: stroke fill;
+    font-size: clamp(10px, 2.7vw, 13px);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    opacity: 1;
+  }
+}
+
+.outer-number-marker {
   .last-day-number {
     fill: var(--brand-secondary);
     stroke: rgba(var(--brand-surface-rgb), 0.92);
@@ -753,6 +906,50 @@
     &:hover {
       opacity: 0.88;
     }
+  }
+}
+
+.cycle-length-marker {
+  pointer-events: none;
+
+  &__halo {
+    fill: rgba(var(--brand-secondary-rgb), 0.2);
+    filter: blur(4px);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: cycle-badge-halo 3s ease-in-out infinite;
+  }
+
+  &__ring {
+    fill: none;
+    stroke: url(#cycleLengthBadgeRingGradient);
+    stroke-width: 2.5px;
+    filter: drop-shadow(0 6px 16px rgba(13, 148, 136, 0.28));
+  }
+
+  &__bg {
+    fill: url(#cycleLengthBadgeGradient);
+    filter: drop-shadow(0 4px 12px rgba(13, 148, 136, 0.32));
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: cycle-badge-float 5s ease-in-out infinite;
+  }
+
+  &__value {
+    fill: #ffffff;
+    font-size: clamp(18px, 4.8vw, 22px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    filter: url(#textSoftShadow);
+  }
+
+  &__label {
+    fill: rgba(255, 255, 255, 0.94);
+    font-size: clamp(7.5px, 2vw, 9px);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
   }
 }
 
@@ -785,6 +982,10 @@
 
 .period-mark {
   animation-delay: 0s;
+}
+
+.today-mark.phase-mark {
+  animation: none;
 }
 
 .fertile-mark {
@@ -822,7 +1023,277 @@
   animation: legend-heart-beat 3s ease-in-out infinite;
 }
 
-// Clean Center Content
+// Flo-style frosted center panel (foreignObject)
+.center-fo {
+  overflow: visible;
+  pointer-events: none;
+}
+
+.center-glass {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.1rem 0.85rem;
+  font-family: var(--cycle-chart-font);
+  background: linear-gradient(
+    155deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(255, 255, 255, 0.58) 48%,
+    rgba(248, 250, 252, 0.72) 100%
+  );
+  backdrop-filter: blur(20px) saturate(1.45);
+  -webkit-backdrop-filter: blur(20px) saturate(1.45);
+  border: 1.5px solid rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 10px 40px rgba(var(--brand-text-rgb), 0.07),
+    0 2px 8px rgba(var(--brand-primary-rgb), 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -8px 24px rgba(var(--brand-primary-rgb), 0.04);
+  transition:
+    background 0.65s var(--cycle-glass-ease),
+    border-color 0.65s var(--cycle-glass-ease),
+    box-shadow 0.65s var(--cycle-glass-ease);
+
+  &--period {
+    background: linear-gradient(
+      155deg,
+      rgba(255, 251, 252, 0.9) 0%,
+      rgba(255, 228, 230, 0.72) 52%,
+      rgba(254, 205, 211, 0.55) 100%
+    );
+    border-color: rgba(253, 164, 175, 0.55);
+    box-shadow:
+      0 12px 44px rgba(244, 63, 94, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -10px 28px rgba(244, 63, 94, 0.06);
+  }
+
+  &--fertile {
+    background: linear-gradient(
+      155deg,
+      rgba(247, 254, 252, 0.9) 0%,
+      rgba(204, 251, 241, 0.68) 52%,
+      rgba(153, 246, 228, 0.48) 100%
+    );
+    border-color: rgba(45, 212, 191, 0.5);
+    box-shadow:
+      0 12px 44px rgba(13, 148, 136, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -10px 28px rgba(20, 184, 166, 0.06);
+  }
+
+  &--ovulation {
+    background: linear-gradient(
+      155deg,
+      rgba(240, 253, 250, 0.92) 0%,
+      rgba(167, 243, 208, 0.7) 45%,
+      rgba(94, 234, 212, 0.55) 100%
+    );
+    border-color: rgba(20, 184, 166, 0.55);
+    box-shadow:
+      0 14px 48px rgba(13, 148, 136, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -10px 28px rgba(45, 212, 191, 0.08);
+  }
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    width: 100%;
+    text-align: center;
+    min-height: 0;
+  }
+
+  &__date {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brand-text-secondary);
+    opacity: 0.82;
+    line-height: 1.2;
+  }
+
+  &__insight {
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #0d9488;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(20, 184, 166, 0.12);
+    border: 1px solid rgba(13, 148, 136, 0.18);
+    animation: insight-fade-in 0.4s var(--cycle-glass-ease) both;
+  }
+
+  &__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.12rem;
+    margin: 0.15rem 0 0.05rem;
+  }
+
+  &__hero .center-glass__day {
+    animation: center-day-pop 0.5s var(--cycle-spring) both;
+  }
+
+  &__day {
+    font-size: clamp(2.85rem, 11.5vw, 3.65rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.06em;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(145deg, #0f172a 8%, #475569 92%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  &--period &__day {
+    background: linear-gradient(145deg, #881337 0%, #e11d48 52%, #fb7185 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  &--fertile &__day,
+  &--ovulation &__day {
+    background: linear-gradient(145deg, #115e59 0%, #0d9488 48%, #2dd4bf 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  &__caption {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--brand-text-secondary);
+    letter-spacing: 0.01em;
+    opacity: 0.9;
+  }
+
+  &__empty {
+    margin: 0.35rem 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--brand-text);
+    padding: 0 0.35rem;
+  }
+
+  &__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.2rem;
+    padding: 0.38rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    border: 1px solid transparent;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition:
+      background 0.45s var(--cycle-glass-ease),
+      color 0.45s var(--cycle-glass-ease),
+      border-color 0.45s var(--cycle-glass-ease),
+      transform 0.35s var(--cycle-spring);
+    animation: pill-slide-up 0.45s var(--cycle-glass-ease) 0.08s both;
+  }
+
+  &__pill-dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: pill-dot-pulse 2.4s ease-in-out infinite;
+  }
+
+  &__pill--rose {
+    color: #be123c;
+    background: rgba(244, 63, 94, 0.14);
+    border-color: rgba(244, 63, 94, 0.22);
+
+    .center-glass__pill-dot {
+      background: #f43f5e;
+      box-shadow: 0 0 8px rgba(244, 63, 94, 0.55);
+    }
+  }
+
+  &__pill--amber {
+    color: #b45309;
+    background: rgba(251, 191, 36, 0.16);
+    border-color: rgba(217, 119, 6, 0.22);
+
+    .center-glass__pill-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+    }
+  }
+
+  &__pill--mint,
+  &__pill--emerald {
+    color: #0f766e;
+    background: rgba(45, 212, 191, 0.16);
+    border-color: rgba(13, 148, 136, 0.24);
+
+    .center-glass__pill-dot {
+      background: #14b8a6;
+      box-shadow: 0 0 8px rgba(20, 184, 166, 0.5);
+    }
+  }
+
+  &__pill--violet {
+    color: #6d28d9;
+    background: rgba(167, 139, 250, 0.16);
+    border-color: rgba(124, 58, 237, 0.22);
+
+    .center-glass__pill-dot {
+      background: #8b5cf6;
+      box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+    }
+  }
+
+  &__pill--pink {
+    color: #9d174d;
+    background: rgba(251, 207, 232, 0.35);
+    border-color: rgba(219, 39, 119, 0.2);
+
+    .center-glass__pill-dot {
+      background: #ec4899;
+    }
+  }
+
+  &__pill--slate {
+    color: #475569;
+    background: rgba(100, 116, 139, 0.12);
+    border-color: rgba(100, 116, 139, 0.2);
+
+    .center-glass__pill-dot {
+      background: #64748b;
+    }
+  }
+
+  &__milestone {
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--brand-text-secondary);
+    opacity: 0.78;
+    max-width: 13.5rem;
+    margin-top: 0.05rem;
+    animation: milestone-fade 0.5s var(--cycle-glass-ease) 0.12s both;
+  }
+}
+
 .center-content {
   .graceful-ring {
     animation: graceful-flow 6s ease-in-out infinite;
@@ -830,123 +1301,6 @@
     stroke-dashoffset: 596.9;
   }
 
-  .elegant-circles {
-    .elegant-circle-1 {
-      animation: circle-pulse-1 3s ease-in-out infinite;
-    }
-
-    .elegant-circle-2 {
-      animation: circle-pulse-2 4s ease-in-out infinite;
-    }
-
-    .elegant-circle-3 {
-      animation: circle-pulse-3 3.5s ease-in-out infinite;
-    }
-
-    .elegant-circle-4 {
-      animation: circle-pulse-4 5s ease-in-out infinite;
-    }
-
-    .elegant-circle-5 {
-      animation: circle-pulse-5 2.5s ease-in-out infinite;
-    }
-
-    .elegant-circle-6 {
-      animation: circle-pulse-6 4.5s ease-in-out infinite;
-    }
-  }
-
-  .center-day-large {
-    font-family: var(--cycle-chart-font);
-    letter-spacing: -0.05em;
-  }
-
-  .center-phase-desc {
-    font-family: var(--cycle-chart-font);
-    letter-spacing: 0.025em;
-  }
-
-  .center-current-date {
-    font-family: var(--cycle-chart-font);
-    font-size: clamp(18px, 4.8vw, 22px);
-    font-weight: 650;
-    letter-spacing: 0.02em;
-    paint-order: stroke fill;
-    stroke: rgba(var(--brand-surface-rgb), 0.55);
-    stroke-width: 3px;
-    text-rendering: geometricPrecision;
-  }
-
-  .cycle-center-context-fo {
-    pointer-events: none;
-    overflow: visible;
-  }
-
-  .cycle-center-context-inner {
-    box-sizing: border-box;
-    width: 100%;
-    min-height: 100%;
-    padding: 0 6px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    font-size: clamp(11.5px, 3.1vw, 13px);
-    font-weight: 600;
-    line-height: 1.42;
-    letter-spacing: 0.015em;
-    color: var(--brand-text-secondary);
-    white-space: pre-line;
-    font-family: inherit;
-    -webkit-font-smoothing: antialiased;
-    direction: inherit;
-  }
-
-  .center-ovulation-insight {
-    font-family: var(--cycle-chart-font);
-    font-size: clamp(13px, 3.3vw, 15px);
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    paint-order: stroke fill;
-    stroke: rgba(var(--brand-surface-rgb), 0.45);
-    stroke-width: 2px;
-  }
-
-  // Fertility Status Styling
-  .cycle-day-title {
-    font-family: var(--cycle-chart-font);
-    font-size: clamp(16px, 4.1vw, 20px);
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    paint-order: stroke fill;
-    stroke: rgba(var(--brand-surface-rgb), 0.4);
-    stroke-width: 2px;
-  }
-
-  .fertility-status {
-    circle {
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    }
-
-    .fertility-status__label {
-      font-family: var(--cycle-chart-font);
-      font-size: clamp(16px, 4.1vw, 19px);
-      font-weight: 700;
-      letter-spacing: 0.03em;
-    }
-  }
-
-  .milestone-text {
-    font-family: var(--cycle-chart-font);
-    font-size: clamp(12px, 3.2vw, 14px);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    line-height: 1.35;
-    opacity: 0.96;
-  }
-
-  // Original Edit Button
   .edit-button-container {
     cursor: pointer;
     transition: all 0.2s ease;
@@ -985,6 +1339,29 @@
     .edit-button-text {
       cursor: not-allowed;
     }
+  }
+}
+
+:host-context(html:lang(fa)) {
+  .center-content {
+    .center-date-eyebrow,
+    .center-current-date {
+      letter-spacing: 0;
+      text-transform: none;
+      font-size: clamp(12px, 3vw, 14px);
+    }
+  }
+
+  .center-glass__date {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: 0.74rem;
+  }
+
+  .cycle-length-marker__label {
+    letter-spacing: 0;
+    text-transform: none;
+    font-size: clamp(9px, 2.4vw, 11px);
   }
 }
 
@@ -2280,6 +2657,151 @@ ion-modal ion-toolbar {
 }
 
 // Phase Mark Animation
+@keyframes chart-aura-drift {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+    opacity: 0.42;
+  }
+  50% {
+    transform: rotate(8deg) scale(1.04);
+    opacity: 0.58;
+  }
+}
+
+@keyframes cycle-progress-glow {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes center-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    stroke-width: 1;
+  }
+  50% {
+    opacity: 0.85;
+    stroke-width: 1.5;
+  }
+}
+
+@keyframes cycle-badge-float {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes cycle-badge-halo {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes today-ring-pulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.88);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+}
+
+@keyframes center-day-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pill-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pill-dot-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.75;
+  }
+}
+
+@keyframes insight-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes milestone-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.78;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-aura,
+  .cycle-progress-arc,
+  .center-glow-ring,
+  .cycle-length-marker,
+  .cycle-length-marker__bg,
+  .cycle-length-marker__halo,
+  .today-mark__pulse,
+  .center-glass__pill-dot,
+  .center-glass__hero .center-glass__day,
+  .center-glass__pill,
+  .center-glass__milestone,
+  .center-glass__insight {
+    animation: none !important;
+  }
+
+  .cycle-progress-arc,
+  .cycle-segment,
+  .center-glass,
+  .chart-center-disk {
+    transition: none !important;
+  }
+}
+
 @keyframes phase-mark-pulse {
   0%,
   100% {

@@ -24,6 +24,8 @@ import {
 } from 'ionicons/icons';
 import { AlertController } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 
 interface ChatMessage {
   id: number;
@@ -58,19 +60,14 @@ export class ChatbotComponent implements OnInit {
 
   private readonly router = inject(Router);
   private readonly alertController = inject(AlertController);
+  private readonly translation = inject(TranslationService);
+  private readonly languageService = inject(LanguageService);
 
   isTyping = false;
   newMessage = '';
 
   messages: ChatMessage[] = [];
-  quickReplies: QuickReply[] = [
-    { text: 'Period tracking help', action: 'period_tracking' },
-    { text: 'Health tips', action: 'health_tips' },
-    { text: 'Pregnancy support', action: 'pregnancy_support' },
-    { text: 'Mental wellness', action: 'mental_wellness' },
-    { text: 'Nutrition advice', action: 'nutrition_advice' },
-    { text: 'Exercise tips', action: 'exercise_tips' },
-  ];
+  quickReplies: QuickReply[] = [];
 
   suggestions: string[] = [
     'How to track my menstrual cycle?',
@@ -100,17 +97,40 @@ export class ChatbotComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.refreshQuickReplies();
+    this.languageService.currentLanguage$.subscribe(() => {
+      this.refreshQuickReplies();
+      if (this.messages.length <= 1) {
+        this.initializeChat();
+      }
+    });
     this.initializeChat();
   }
 
+  private refreshQuickReplies(): void {
+    this.quickReplies = [
+      { text: this.t('chatbot.quickReply.periodTracking'), action: 'period_tracking' },
+      { text: this.t('chatbot.quickReply.healthTips'), action: 'health_tips' },
+      { text: this.t('chatbot.quickReply.pregnancySupport'), action: 'pregnancy_support' },
+      { text: this.t('chatbot.quickReply.mentalWellness'), action: 'mental_wellness' },
+      { text: this.t('chatbot.quickReply.nutritionAdvice'), action: 'nutrition_advice' },
+      { text: this.t('chatbot.quickReply.exerciseTips'), action: 'exercise_tips' },
+    ];
+  }
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
+
   initializeChat(): void {
+    this.messages = [];
     this.addBotMessage(
-      "Hello! I'm the NouraCare assistant. I can help with menstrual health, pregnancy, wellness, and how to use the app. How can I help today?",
+      this.t('chatbot.welcome'),
       'text',
       undefined,
       undefined,
       {
-        text: 'Learn more about NouraCare',
+        text: this.t('chatbot.welcomeLink'),
         url: '/about',
       },
     );
@@ -324,12 +344,12 @@ export class ChatbotComponent implements OnInit {
       return;
     }
     const alert = await this.alertController.create({
-      header: 'Clear chat?',
-      message: 'Your messages on this screen will be removed and the welcome message will appear again.',
+      header: this.translation.translate('chatbot.toast.clearChatTitle'),
+      message: this.translation.translate('chatbot.toast.clearChatConfirm'),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.translation.translate('common.cancel'), role: 'cancel' },
         {
-          text: 'Clear',
+          text: this.translation.translate('common.delete'),
           role: 'destructive',
           handler: () => {
             this.messages = [];

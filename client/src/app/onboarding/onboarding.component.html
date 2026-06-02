@@ -23,7 +23,7 @@
         <div class="welcome-brand-wrap">
           <img
             src="assets/branding/AppIcon-welcome.png"
-            alt="NouraCare app icon"
+            [attr.alt]="'onboarding.welcome.brandAlt' | translate"
             width="84"
             height="84"
             class="welcome-brand-icon"
@@ -38,9 +38,9 @@
           [disabled]="isFinishing"
           (buttonClick)="startFromWelcome()"
         >
-          Get started
+          {{ 'onboarding.welcome.getStarted' | translate }}
         </app-button>
-        <p class="welcome-footnote">Takes about a minute · Private on this device until you sign in</p>
+        <p class="welcome-footnote">{{ 'onboarding.welcome.footnote' | translate }}</p>
       </div>
     } @else if (!isPersonalizedResultStep) {
       <div class="step-header" [class.step-header--journey]="currentStepData.id === 'pregnancy_status'">
@@ -71,7 +71,7 @@
                 [attr.aria-checked]="answers[currentStepData.id] === option.value"
                 role="radio"
               >
-                <span class="journey-card__label">{{ option.label }}</span>
+                <span class="journey-card__label">{{ getOptionLabel(option) }}</span>
                 @if (option.imageSrc) {
                   <span class="journey-card__badge">
                     <img [src]="option.imageSrc" alt="" width="56" height="56" class="journey-card__img" decoding="async" />
@@ -80,7 +80,7 @@
               </button>
             }
           </div>
-          <p class="journey-footnote">Your choice only shapes what we show first—not a diagnosis.</p>
+          <p class="journey-footnote">{{ 'onboarding.pregnancyStatus.footnote' | translate }}</p>
         }
 
         @if (currentStepData.type === 'radio' && currentStepData.id !== 'welcome' && currentStepData.id !== 'pregnancy_status') {
@@ -96,7 +96,7 @@
                 @if (option.icon) {
                   <span class="option-icon" aria-hidden="true">{{ option.icon }}</span>
                 }
-                <span class="option-label">{{ option.label }}</span>
+                <span class="option-label">{{ getOptionLabel(option) }}</span>
                 @if (answers[currentStepData.id] === option.value) {
                   <ion-icon name="checkmark-circle" class="check-icon" aria-hidden="true"></ion-icon>
                 }
@@ -108,20 +108,20 @@
         @if (currentStepData.type === 'notify') {
           <div class="notify-step">
             <ion-item lines="none" class="notify-toggle-item">
-              <ion-label class="notify-label">Cycle and health reminders</ion-label>
+              <ion-label class="notify-label">{{ 'onboarding.notifications.toggleLabel' | translate }}</ion-label>
               <ion-toggle
                 slot="end"
                 [checked]="answers['notifications'] === 'yes'"
                 (ionChange)="onNotificationToggle($event.detail.checked === true)"
               ></ion-toggle>
             </ion-item>
-            <p class="notify-hint">You can change this anytime in Settings.</p>
+            <p class="notify-hint">{{ 'onboarding.notifications.hint' | translate }}</p>
           </div>
         }
 
         @if (currentStepData.type === 'date') {
           <div class="input-container">
-            <p class="date-picker-hint">Tap below to open the calendar.</p>
+            <p class="date-picker-hint">{{ 'onboarding.datePicker.hint' | translate }}</p>
             @if (currentStepData.id === 'last_period') {
               <ion-datetime-button datetime="onboarding-last-period"></ion-datetime-button>
               <ion-modal [keepContentsMounted]="true">
@@ -139,11 +139,11 @@
               <p class="date-picker-cycle-legend">
                 <span class="date-picker-cycle-legend__item">
                   <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--period"></span>
-                  Pink dashed — estimated bleeding days
+                  {{ 'onboarding.datePicker.legend.period' | translate }}
                 </span>
                 <span class="date-picker-cycle-legend__item">
                   <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--ovu"></span>
-                  Solid green — estimated ovulation day (Ov)
+                  {{ 'onboarding.datePicker.legend.ovulation' | translate }}
                 </span>
               </p>
             } @else if (currentStepData.id === 'baby_birth_date') {
@@ -171,7 +171,7 @@
                 <ion-icon name="warning-outline"></ion-icon>
                 {{
                   getLastPeriodValidationMessage() ||
-                    'Please adjust the date so it is valid.'
+                    ('onboarding.validation.adjustDate' | translate)
                 }}
               </div>
             }
@@ -185,7 +185,7 @@
                 <ion-icon name="warning-outline"></ion-icon>
                 {{
                   getBabyBirthValidationMessage() ||
-                    'Please adjust the date so it is valid.'
+                    ('onboarding.validation.adjustDate' | translate)
                 }}
               </div>
             }
@@ -197,11 +197,11 @@
             <ion-select
               [value]="answers[currentStepData.id]"
               (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
-              [placeholder]="currentStepData.placeholder || 'Select an option'"
+              [placeholder]="currentStepData.placeholder || ('onboarding.datePicker.selectOption' | translate)"
             >
               @for (option of currentStepData.options; track option.value) {
                 <ion-select-option [value]="option.value">{{
-                  option.label
+                  getOptionLabel(option)
                 }}</ion-select-option>
               }
             </ion-select>
@@ -252,13 +252,13 @@
             [disabled]="currentStep === 0 || isFinishing"
           >
             <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
-            Back
+            {{ 'onboarding.nav.back' | translate }}
           </ion-button>
 
           <div class="nav-right">
             @if (!currentStepData.required && currentStep < totalSteps - 1) {
               <ion-button fill="clear" (click)="skipStep()" [disabled]="isFinishing">
-                Skip for now
+                {{ 'onboarding.nav.skipForNow' | translate }}
               </ion-button>
             }
 
@@ -268,18 +268,18 @@
               (buttonClick)="nextStep()"
             >
               @if (isFinishing) {
-                Saving…
+                {{ 'onboarding.nav.saving' | translate }}
               } @else if (currentStepData.id === 'personalized_result') {
                 @if (authService.getAccessToken()) {
-                  Go to home
+                  {{ 'onboarding.nav.goToHome' | translate }}
                 } @else {
-                  Create account
+                  {{ 'onboarding.nav.createAccount' | translate }}
                 }
               } @else {
                 @if (currentStepData.id === 'pregnancy_status') {
-                  Next
+                  {{ 'onboarding.nav.next' | translate }}
                 } @else {
-                  Continue
+                  {{ 'onboarding.nav.continue' | translate }}
                 }
                 @if (currentStep < totalSteps - 1) {
                   <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>

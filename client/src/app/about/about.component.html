@@ -129,6 +129,10 @@
     <h2 class="section-title">{{ 'about.section.legal' | translate }}</h2>
 
     <div class="legal-links">
+      <div class="legal-link" (click)="viewTermsOfService()">
+        <ion-icon name="document-text"></ion-icon>
+        <span>{{ 'settings.terms.title' | translate }}</span>
+      </div>
       <div class="legal-link" (click)="viewPrivacyPolicy()">
         <ion-icon name="shield-checkmark"></ion-icon>
         <span>{{ 'settings.privacyPolicy.title' | translate }}</span>
@@ -140,6 +144,7 @@
     <div class="footer-content">
       <p class="footer-text">{{ 'about.footer.copyright' | translate }}</p>
       <p class="footer-subtext">{{ 'about.footer.tagline' | translate }}</p>
+      <p class="footer-disclaimer">{{ 'app.medicalDisclaimer' | translate }}</p>
     </div>
   </div>
 

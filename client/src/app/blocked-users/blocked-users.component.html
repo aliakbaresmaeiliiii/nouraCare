@@ -3,70 +3,66 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" class="back-button" (click)="goBack()"></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Blocked Users</ion-title>
+    <ion-title class="header-title">{{ 'blockedUsers.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="blocked-content">
   <div class="container">
-    <!-- Loading State -->
     @if (isLoading) {
-    <app-logo-loading message="Loading blocked users..." />
+    <app-logo-loading [message]="'blockedUsers.loading' | translate" />
     }
 
-    <!-- Error State -->
     @if (errorMessage && !isLoading) {
     <div class="error-container">
       <ion-icon name="alert-circle" class="error-icon"></ion-icon>
       <p class="error-text">{{ errorMessage }}</p>
       <ion-button fill="outline" (click)="loadBlockedUsers()" class="retry-button">
         <ion-icon name="refresh" slot="start"></ion-icon>
-        Try Again
+        {{ 'common.tryAgain' | translate }}
       </ion-button>
     </div>
     }
 
-    <!-- Empty State -->
     @if (!isLoading && !errorMessage && blockedUsers.length === 0) {
     <div class="empty-container">
       <ion-icon name="people-outline" class="empty-icon"></ion-icon>
-      <h2 class="empty-title">No Blocked Users</h2>
-      <p class="empty-text">You haven't blocked any users yet.</p>
+      <h2 class="empty-title">{{ 'blockedUsers.emptyTitle' | translate }}</h2>
+      <p class="empty-text">{{ 'blockedUsers.emptyText' | translate }}</p>
     </div>
     }
 
-    <!-- Blocked Users List -->
     @if (!isLoading && !errorMessage && blockedUsers.length > 0) {
     <div class="users-container">
       <div class="list-header">
-        <h2 class="list-title">Blocked Users ({{ blockedUsers.length | localNum }})</h2>
-        <p class="list-subtitle">Users you've blocked from contacting you</p>
+        <h2 class="list-title">{{ listTitle }}</h2>
+        <p class="list-subtitle">{{ 'blockedUsers.listSubtitle' | translate }}</p>
       </div>
 
       <ion-list class="users-list">
         @for (user of blockedUsers; track user.id) {
         <ion-item class="user-item">
           <ion-avatar slot="start" class="user-avatar">
-                         <img [src]="user.profileImage || 'assets/images/nurse.png'" 
-                  [alt]="user.name"
-                  class="avatar-image"
-                  (error)="onImageError($event)">
+            <img [src]="user.profileImage || 'assets/images/nurse.png'"
+                 [alt]="user.name"
+                 class="avatar-image"
+                 (error)="onImageError($event)">
           </ion-avatar>
-          
+
           <ion-label class="user-info">
             <h3 class="user-name">{{ user.name }}</h3>
             <p class="user-email">{{ user.email }}</p>
-            <p class="blocked-date">Blocked on {{ formatDate(user.blockedAt) }}</p>
+            <p class="blocked-date">{{ blockedOnLabel(user.blockedAt) }}</p>
           </ion-label>
 
-          <ion-button slot="end" 
-                     fill="outline" 
-                     color="danger" 
+          <ion-button slot="end"
+                     fill="outline"
+                     color="danger"
                      size="small"
                      (click)="unblockUser(user.id)"
                      class="unblock-button">
             <ion-icon name="unlock" slot="start"></ion-icon>
-            Unblock
+            {{ 'blockedUsers.unblock' | translate }}
           </ion-button>
         </ion-item>
         }

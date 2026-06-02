@@ -13,6 +13,8 @@ import {
 import type { RefresherCustomEvent } from '@ionic/core';
 import { ToastController } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 
 interface VersionInfo {
   currentVersion: string;
@@ -33,11 +35,15 @@ interface VersionInfo {
 })
 export class CheckVersionComponent implements OnInit {
   private readonly toastController = inject(ToastController);
+  private readonly translation = inject(TranslationService);
+  private readonly languageService = inject(LanguageService);
 
   isLoading = false;
   errorMessage = '';
   versionInfo: VersionInfo | null = null;
   lastChecked = '';
+  releasedLabel = '';
+  lastCheckedLabel = '';
 
   constructor() {
     addIcons({
@@ -53,7 +59,21 @@ export class CheckVersionComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.languageService.currentLanguage$.subscribe(() => this.refreshLabels());
     void this.loadVersionInfo();
+  }
+
+  private refreshLabels(): void {
+    if (this.versionInfo?.releaseDate) {
+      this.releasedLabel = this.translation.translateParams('checkVersion.released', {
+        date: this.formatDate(this.versionInfo.releaseDate),
+      });
+    }
+    if (this.lastChecked) {
+      this.lastCheckedLabel = this.translation.translateParams('checkVersion.lastChecked', {
+        time: this.lastChecked,
+      });
+    }
   }
 
   async loadVersionInfo(): Promise<void> {
@@ -78,9 +98,9 @@ export class CheckVersionComponent implements OnInit {
           'https://play.google.com/store/apps/details?id=com.tecknnycs.nouracare',
       };
       this.lastChecked = new Date().toLocaleString();
+      this.refreshLabels();
     } catch {
-      this.errorMessage =
-        'We could not reach the update service. Check your connection and try again.';
+      this.errorMessage = this.translation.translate('editProfile.saveFailed');
       this.versionInfo = null;
     } finally {
       this.isLoading = false;
@@ -94,11 +114,11 @@ export class CheckVersionComponent implements OnInit {
   async downloadUpdate(): Promise<void> {
     const url = this.versionInfo?.downloadUrl;
     if (!url) {
-      await this.showToast('No download link is configured yet.');
+      await this.showToast(this.translation.translate('checkVersion.toast.noDownloadLink'));
       return;
     }
     window.open(url, '_blank', 'noopener,noreferrer');
-    await this.showToast('Opened the store in a new tab.');
+    await this.showToast(this.translation.translate('checkVersion.toast.storeOpened'));
   }
 
   formatDate(dateString: string): string {

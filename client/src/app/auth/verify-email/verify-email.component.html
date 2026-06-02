@@ -16,12 +16,12 @@
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="verify-form">
           <div class="otp-container">
             <ion-input-otp
-              type="text"
+              type="number"
               class="custom-otp"
+              [length]="otpLength"
               separators="all"
               formControlName="otpCode"
               (ionInput)="onOtpChange($event)"
-              maxlength="4"
               inputmode="numeric"
               autocomplete="one-time-code"
             ></ion-input-otp>
@@ -32,7 +32,7 @@
             <div class="timer-section">
               <ion-icon name="time-outline" class="timer-icon" aria-hidden="true"></ion-icon>
               <span>{{ 'auth.codeExpiresIn' | translate }}</span>
-              <strong class="timer-countdown">{{ timer | localNum }}s</strong>
+              <strong class="timer-countdown">{{ timerDisplay }}</strong>
             </div>
           }
 
@@ -46,7 +46,7 @@
           <div class="action-buttons">
             <app-button
               type="submit"
-              [disabled]="form.invalid || isLoading"
+              [disabled]="!canVerify"
               [loading]="isLoading"
             >
               {{
@@ -59,15 +59,17 @@
             <ion-button
               fill="clear"
               class="resend-button"
-              [disabled]="!isExpired && timer > 0"
+              [disabled]="!canResend"
               expand="block"
               type="button"
               (click)="resendCode()"
             >
-              @if (isExpired || timer === 0) {
+              @if (isResending) {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else if (isExpired || resendCooldown <= 0) {
                 {{ 'auth.resendCode' | translate }}
               } @else {
-                {{ 'auth.resendIn' | translate }} {{ timer | localNum }}s
+                {{ 'auth.resendIn' | translate }} {{ resendCooldownDisplay }}
               }
             </ion-button>
           </div>

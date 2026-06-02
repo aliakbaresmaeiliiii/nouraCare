@@ -57,8 +57,9 @@ export class SettingsLegalPageComponent implements OnInit, OnDestroy {
   showEffectiveDate = false;
   effectiveDateDisplay = '';
   heroIcon = 'shield-checkmark';
-  documentType: 'privacy' = 'privacy';
+  documentType: 'privacy' | 'terms' = 'privacy';
   contactEmail = 'support@nouracare.app';
+  contactTextKey = 'settings.legal.privacyContactText';
   tocExpanded = false;
 
   readonly privacyHighlights: LegalHighlight[] = [
@@ -79,6 +80,24 @@ export class SettingsLegalPageComponent implements OnInit, OnDestroy {
     },
   ];
 
+  readonly termsHighlights: LegalHighlight[] = [
+    {
+      icon: 'document-text',
+      titleKey: 'settings.terms.highlight1Title',
+      textKey: 'settings.terms.highlight1Text',
+    },
+    {
+      icon: 'medical',
+      titleKey: 'settings.terms.highlight2Title',
+      textKey: 'settings.terms.highlight2Text',
+    },
+    {
+      icon: 'scale',
+      titleKey: 'settings.terms.highlight3Title',
+      textKey: 'settings.terms.highlight3Text',
+    },
+  ];
+
   ngOnInit(): void {
     const data = this.route.snapshot.data as {
       titleKey?: string;
@@ -86,8 +105,9 @@ export class SettingsLegalPageComponent implements OnInit, OnDestroy {
       bodyKey?: string;
       showEffectiveDate?: boolean;
       heroIcon?: string;
-      documentType?: 'privacy';
+      documentType?: 'privacy' | 'terms';
       contactEmail?: string;
+      contactTextKey?: string;
     };
 
     if (data.titleKey) {
@@ -109,6 +129,9 @@ export class SettingsLegalPageComponent implements OnInit, OnDestroy {
     if (data.contactEmail) {
       this.contactEmail = data.contactEmail;
     }
+    if (data.contactTextKey) {
+      this.contactTextKey = data.contactTextKey;
+    }
 
     this.refreshEffectiveDateDisplay();
     this.languageSub = this.languageService.currentLanguage$.subscribe(() => {
@@ -122,7 +145,15 @@ export class SettingsLegalPageComponent implements OnInit, OnDestroy {
   }
 
   get highlights(): LegalHighlight[] {
-    return this.privacyHighlights;
+    return this.documentType === 'terms'
+      ? this.termsHighlights
+      : this.privacyHighlights;
+  }
+
+  get highlightsTitleKey(): string {
+    return this.documentType === 'terms'
+      ? 'settings.terms.highlightsTitle'
+      : 'settings.privacyPolicy.highlightsTitle';
   }
 
   get introText(): string | null {

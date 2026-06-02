@@ -2,14 +2,14 @@
   <!-- Simple Header -->
   <div class="permission-header">
     <div class="header-icon">🔔</div>
-    <h2 class="header-title">Enable Notifications?</h2>
-    <p class="header-subtitle">Get helpful reminders and health updates</p>
+    <h2 class="header-title">{{ 'notificationPermission.title' | translate }}</h2>
+    <p class="header-subtitle">{{ 'notificationPermission.subtitle' | translate }}</p>
   </div>
 
   <!-- Simple Toggle -->
   <div class="toggle-section">
     <ion-item lines="none" class="toggle-item">
-      <ion-label>Receive notifications</ion-label>
+      <ion-label>{{ 'notificationPermission.toggleLabel' | translate }}</ion-label>
       <ion-toggle 
         [(ngModel)]="enableNotifications"
         (ionChange)="onToggleChange()">
@@ -24,7 +24,7 @@
       size="large"
       (click)="savePreference()"
       class="permission-button">
-      Continue
+      {{ 'notificationPermission.continue' | translate }}
     </ion-button>
   </div>
 </div>

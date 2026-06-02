@@ -6,7 +6,7 @@
         class="back-button"
       ></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Pregnancy Planning</ion-title>
+    <ion-title class="header-title">{{ 'pregnancyPlanning.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -17,7 +17,7 @@
     <div class="pregnancy-image-container">
       <img
         src="assets/images/women-pragnent.jpg"
-        alt="Pregnant woman"
+        [alt]="'pregnancyPlanning.imageAlt' | translate"
         class="pregnancy-image"
       />
     </div>
@@ -25,11 +25,10 @@
     <!-- Welcome Text -->
     <div class="welcome-text">
       <h1 class="welcome-title">
-        Welcome to your journey to becoming a mother
+        {{ 'pregnancyPlanning.welcomeTitle' | translate }}
       </h1>
       <p class="welcome-subtitle">
-        Follow week by week physical and emotional changes during your pregnancy
-        journey
+        {{ 'pregnancyPlanning.welcomeSubtitle' | translate }}
       </p>
     </div>
   </div>
@@ -41,25 +40,24 @@
       <ion-card-header>
         <ion-card-title class="form-title">
           <ion-icon name="calendar-outline" slot="start"></ion-icon>
-          Track Your Menstrual Cycle
+          {{ 'pregnancyPlanning.cycleCardTitle' | translate }}
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
         <p class="form-description">
-          Enter your cycle information to track ovulation and maximize your
-          chances of conception.
+          {{ 'pregnancyPlanning.cycleCardDesc' | translate }}
         </p>
 
         <!-- Last Period Start Date -->
         <ion-item class="form-item" button (click)="openDatePicker()">
           <ion-label position="stacked" class="form-label">
-            When did your last period start?
+            {{ 'pregnancyPlanning.lastPeriodLabel' | translate }}
             <span class="required-indicator">*</span>
           </ion-label>
           <ion-input
             readonly
             [value]="cycleForm.get('lastPeriodDate')?.value ? formatMonthYearDate(cycleForm.get('lastPeriodDate')?.value) : ''"
-            placeholder="Select date"
+            [placeholder]="'pregnancyPlanning.selectDate' | translate"
             class="date-input"
           ></ion-input>
           <ion-icon
@@ -72,13 +70,13 @@
         <!-- Average Cycle Length -->
         <ion-item class="form-item" button (click)="openCycleLengthPicker()">
           <ion-label position="stacked" class="form-label">
-            How long is your menstrual cycle usually?
+            {{ 'pregnancyPlanning.cycleLengthLabel' | translate }}
             <span class="required-indicator">*</span>
           </ion-label>
           <ion-input
             readonly
-            [value]="cycleForm.get('averageCycleLength')?.value ? cycleForm.get('averageCycleLength')?.value + ' days' : '28'"
-            placeholder="Select cycle length"
+            [value]="cycleForm.get('averageCycleLength')?.value ? cycleForm.get('averageCycleLength')?.value + ' ' + ('pregnancyPlanning.daysUnit' | translate) : '28'"
+            [placeholder]="'pregnancyPlanning.selectCycleLength' | translate"
             class="cycle-length-input"
           ></ion-input>
           <ion-icon
@@ -88,19 +86,19 @@
           ></ion-icon>
         </ion-item>
         <ion-note class="helper-text">
-          Number of days from the first day of one period to the next.
+          {{ 'pregnancyPlanning.cycleLengthHelper' | translate }}
         </ion-note>
 
         <!-- Average Period Duration -->
         <ion-item class="form-item" button (click)="openPeriodDurationPicker()">
           <ion-label position="stacked" class="form-label">
-            How many days does your period usually last?
+            {{ 'pregnancyPlanning.periodDurationLabel' | translate }}
             <span class="required-indicator">*</span>
           </ion-label>
           <ion-input
             readonly
-            [value]="cycleForm.get('averagePeriodDuration')?.value ? cycleForm.get('averagePeriodDuration')?.value + ' days' : '5'"
-            placeholder="Select period duration"
+            [value]="cycleForm.get('averagePeriodDuration')?.value ? cycleForm.get('averagePeriodDuration')?.value + ' ' + ('pregnancyPlanning.daysUnit' | translate) : '5'"
+            [placeholder]="'pregnancyPlanning.selectPeriodDuration' | translate"
             class="period-duration-input"
           ></ion-input>
           <ion-icon
@@ -116,7 +114,7 @@
         <div class="save-section">
           <app-button (buttonClick)="saveCycleData()">
             <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-            Save Cycle Information
+            {{ 'pregnancyPlanning.saveCycleInfo' | translate }}
           </app-button>
         </div>
 
@@ -125,7 +123,7 @@
         <div class="confirmation-message">
           <ion-icon name="checkmark-circle" class="success-icon"></ion-icon>
           <span class="success-text"
-            >Your cycle information has been saved successfully.</span
+            >{{ 'pregnancyPlanning.cycleSavedSuccess' | translate }}</span
           >
         </div>
         }
@@ -138,28 +136,28 @@
       <ion-card-header>
         <ion-card-title class="lifestyle-title">
           <ion-icon name="heart-outline" slot="start"></ion-icon>
-          Pregnancy Preparation Goals
+          {{ 'pregnancyPlanning.lifestyleCardTitle' | translate }}
         </ion-card-title>
       </ion-card-header>
       <ion-card-content>
         <ion-item class="form-item">
-          <ion-label position="stacked">Lifestyle Goals</ion-label>
+          <ion-label position="stacked">{{ 'pregnancyPlanning.lifestyleGoalsLabel' | translate }}</ion-label>
           <ion-input
             [value]="cycleForm.get('lifestyleGoals')?.value"
             (ionInput)="
               cycleForm.get('lifestyleGoals')?.setValue($event.detail.value)
             "
-            placeholder="e.g., Exercise routine, diet changes, supplements, etc."
+            [placeholder]="'pregnancyPlanning.lifestyleGoalsPlaceholder' | translate"
             class="text-input"
           ></ion-input>
         </ion-item>
 
         <ion-item class="form-item">
-          <ion-label position="stacked">Additional Notes</ion-label>
+          <ion-label position="stacked">{{ 'pregnancyPlanning.additionalNotesLabel' | translate }}</ion-label>
           <ion-input
             [value]="cycleForm.get('notes')?.value"
             (ionInput)="cycleForm.get('notes')?.setValue($event.detail.value)"
-            placeholder="Any additional information or concerns"
+            [placeholder]="'pregnancyPlanning.additionalNotesPlaceholder' | translate"
             class="text-input"
           ></ion-input>
         </ion-item>
@@ -169,7 +167,7 @@
           [disabled]="cycleForm.get('lastPeriodDate')?.invalid ?? false"
         >
           <ion-icon name="heart-outline" slot="start"></ion-icon>
-          Create Pregnancy Plan
+          {{ 'pregnancyPlanning.createPlan' | translate }}
         </app-button>
       </ion-card-content>
     </ion-card>
@@ -179,10 +177,10 @@
   <div class="next-step-section">
     <app-button (buttonClick)="goToNextStep()">
       <ion-icon name="arrow-forward" slot="end"></ion-icon>
-      Next Step
+      {{ 'pregnancyPlanning.nextStep' | translate }}
     </app-button>
     <p class="next-step-note">
-      Continue to track your pregnancy journey and get personalized insights
+      {{ 'pregnancyPlanning.nextStepNote' | translate }}
     </p>
   </div>
 </ion-content>

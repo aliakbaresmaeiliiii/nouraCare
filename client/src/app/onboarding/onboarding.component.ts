@@ -32,6 +32,8 @@ import {
   buildCycleLmpDatetimeHighlights,
   ionDatetimeTodayHighlight,
 } from '../shared/utils/ion-datetime-today-highlight.util';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 
 type JourneyCardTone = 'mint' | 'lavender' | 'cream';
 
@@ -42,7 +44,7 @@ interface OnboardingStep {
   question: string;
   type: 'radio' | 'date' | 'number' | 'select' | 'notify' | 'result';
   options?: {
-    label: string;
+    labelKey: string;
     value: any;
     icon?: string;
     imageSrc?: string;
@@ -85,6 +87,8 @@ export class OnboardingComponent implements OnInit {
   private firstWeekPlan = inject(FirstWeekPlanService);
   private homeReproUi = inject(HomeReproductiveUiService);
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
+  private translation = inject(TranslationService);
+  private languageService = inject(LanguageService);
 
   currentStep = 0;
   answers: { [key: string]: any } = {};
@@ -103,7 +107,7 @@ export class OnboardingComponent implements OnInit {
       question:
         'In a few quick steps we will personalize your calendar, reminders, and insights. Nothing here replaces care from your clinician.',
       type: 'radio',
-      options: [{ label: 'Continue', value: 'start', icon: '✨' }],
+      options: [{ labelKey: 'onboarding.nav.continue', value: 'start', icon: '✨' }],
       required: true,
     },
     pregnancy_status: {
@@ -115,19 +119,19 @@ export class OnboardingComponent implements OnInit {
       type: 'radio',
       options: [
         {
-          label: 'Trying to conceive',
+          labelKey: 'onboarding.pregnancyStatus.option.trying',
           value: 'trying',
           imageSrc: 'assets/images/onboarding/becomePregnent.jpg',
           cardTone: 'mint',
         },
         {
-          label: "I'm pregnant",
+          labelKey: 'onboarding.pregnancyStatus.option.pregnant',
           value: 'pregnant',
           imageSrc: 'assets/images/onboarding/Pregnent.jpg',
           cardTone: 'lavender',
         },
         {
-          label: 'I have a child',
+          labelKey: 'onboarding.pregnancyStatus.option.postpartum',
           value: 'postpartum',
           imageSrc: 'assets/images/onboarding/IHavaeKid.jpg',
           cardTone: 'cream',
@@ -222,24 +226,52 @@ export class OnboardingComponent implements OnInit {
     return this.currentStepData.id === 'personalized_result';
   }
 
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
+
+  private tParams(key: string, params: Record<string, string | number>): string {
+    return this.translation.translateParams(key, params);
+  }
+
+  private stepKeyPrefix(id: string): string {
+    const map: Record<string, string> = {
+      welcome: 'onboarding.welcome',
+      pregnancy_status: 'onboarding.pregnancyStatus',
+      last_period: 'onboarding.lastPeriod',
+      pregnancy_week: 'onboarding.pregnancyWeek',
+      baby_birth_date: 'onboarding.babyBirthDate',
+      notifications: 'onboarding.notifications',
+      personalized_result: 'onboarding.personalizedResult',
+    };
+    return map[id] ?? 'onboarding.welcome';
+  }
+
+  getOptionLabel(option: { labelKey: string }): string {
+    return this.t(option.labelKey);
+  }
+
   getStepTitle(): string {
-    return this.currentStepData.title;
+    return this.t(`${this.stepKeyPrefix(this.currentStepData.id)}.title`);
   }
 
   getStepSubtitle(): string {
     const s = this.currentStepData;
     if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'trying') {
-      return 'Used for fertile days and next-period estimates';
+      return this.t('onboarding.lastPeriod.subtitleTrying');
     }
-    return s.subtitle;
+    return this.t(`${this.stepKeyPrefix(s.id)}.subtitle`);
   }
 
   getStepQuestion(): string {
     const s = this.currentStepData;
     if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'trying') {
-      return 'If you are not sure, your best estimate is enough—you can adjust your calendar anytime.';
+      return this.t('onboarding.lastPeriod.questionTrying');
     }
-    return s.question;
+    if (s.id === 'last_period') {
+      return this.t('onboarding.lastPeriod.questionDefault');
+    }
+    return this.t(`${this.stepKeyPrefix(s.id)}.question`);
   }
 
   getLastPeriodValidationMessage(): string {
@@ -249,7 +281,7 @@ export class OnboardingComponent implements OnInit {
       return '';
     }
     if (!isCalendarDateNotAfterToday(iso)) {
-      return 'The start date of your last menstrual period cannot be in the future.';
+      return this.t('onboarding.validation.lastPeriodFuture');
     }
     return '';
   }
@@ -258,20 +290,28 @@ export class OnboardingComponent implements OnInit {
     const iso = normalizeLmpInput(this.answers['baby_birth_date']);
     if (!iso) return '';
     if (!isCalendarDateNotAfterToday(iso)) {
-      return 'Birth date cannot be in the future.';
+      return this.t('onboarding.validation.birthFuture');
     }
     const min = this.getBabyBirthMinIso();
     if (iso < min) {
-      return 'Please pick a date within the last couple of years, or adjust later in your profile.';
+      return this.t('onboarding.validation.birthTooOld');
     }
     return '';
+  }
+
+  private dateLocale(): string {
+    const lang = this.languageService.getCurrentLanguage();
+    if (lang === 'fa') return 'fa-IR';
+    if (lang === 'zh') return 'zh-CN';
+    if (lang === 'ms') return 'ms-MY';
+    return 'en-US';
   }
 
   formatMediumDate(iso: string | null | undefined): string {
     const d = isoDateOnly(typeof iso === 'string' ? iso : '');
     if (!d) return '';
     const parsed = new Date(`${d}T12:00:00`);
-    return parsed.toLocaleDateString(undefined, {
+    return parsed.toLocaleDateString(this.dateLocale(), {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -303,26 +343,28 @@ export class OnboardingComponent implements OnInit {
     const status = this.answers['pregnancy_status'];
     if (status === 'pregnant') {
       const w = Number(this.answers['pregnancy_week']) || 0;
-      return w > 0 ? `About week ${w}` : 'Pregnancy';
+      return w > 0
+        ? this.tParams('onboarding.result.headline.pregnant', { week: w })
+        : this.t('onboarding.result.headline.pregnantFallback');
     }
     if (status === 'trying') {
-      return 'Fertility snapshot';
+      return this.t('onboarding.result.headline.trying');
     }
     if (status === 'postpartum') {
-      return 'Postpartum';
+      return this.t('onboarding.result.headline.postpartum');
     }
-    return 'Cycle snapshot';
+    return this.t('onboarding.result.headline.cycle');
   }
 
   getResultSubcopy(): string {
     const status = this.answers['pregnancy_status'];
     if (status === 'pregnant') {
-      return 'Estimated from the week you entered. Your clinician may use ultrasound-based dating.';
+      return this.t('onboarding.result.subcopy.pregnant');
     }
     if (status === 'postpartum') {
-      return 'We will focus on recovery-friendly tips. Add cycle details later when it feels right.';
+      return this.t('onboarding.result.subcopy.postpartum');
     }
-    return 'Based on a typical 28-day cycle. You can fine-tune length later in the app.';
+    return this.t('onboarding.result.subcopy.default');
   }
 
   getResultBullets(): { label: string; value: string }[] {
@@ -336,8 +378,14 @@ export class OnboardingComponent implements OnInit {
       }
       const weeks = this.weeksSinceBirthApprox(birth);
       return [
-        { label: "Baby's birth date", value: this.formatMediumDate(birth) },
-        { label: 'Time since birth (approx.)', value: `${weeks} wk` },
+        {
+          label: this.t('onboarding.result.bullet.babyBirthDate'),
+          value: this.formatMediumDate(birth),
+        },
+        {
+          label: this.t('onboarding.result.bullet.timeSinceBirth'),
+          value: `${weeks} wk`,
+        },
       ];
     }
     if (!lmp) {
@@ -346,9 +394,12 @@ export class OnboardingComponent implements OnInit {
     if (status === 'pregnant') {
       const edd = addCalendarDaysIso(lmp, 280);
       return [
-        { label: 'Estimated last period (for dating)', value: this.formatMediumDate(lmp) },
         {
-          label: 'Rough due date',
+          label: this.t('onboarding.result.bullet.estimatedLmp'),
+          value: this.formatMediumDate(lmp),
+        },
+        {
+          label: this.t('onboarding.result.bullet.roughDueDate'),
           value: this.formatMediumDate(edd),
         },
       ];
@@ -359,9 +410,12 @@ export class OnboardingComponent implements OnInit {
     const startIso = fw.start.toISOString().slice(0, 10);
     const endIso = fw.end.toISOString().slice(0, 10);
     return [
-      { label: 'Next period (estimate)', value: this.formatMediumDate(nextIso) },
       {
-        label: 'Fertile window (estimate)',
+        label: this.t('onboarding.result.bullet.nextPeriod'),
+        value: this.formatMediumDate(nextIso),
+      },
+      {
+        label: this.t('onboarding.result.bullet.fertileWindow'),
         value: `${this.formatMediumDate(startIso)} – ${this.formatMediumDate(endIso)}`,
       },
     ];
@@ -379,15 +433,16 @@ export class OnboardingComponent implements OnInit {
   getStepProgressLabel(stepIndex: number = this.currentStep): string {
     const id = this.stepOrder()[stepIndex];
     const labels: Record<string, string> = {
-      welcome: 'Quick intro',
-      pregnancy_status: 'Your goal',
-      last_period: 'Cycle date',
-      pregnancy_week: 'Pregnancy week',
-      baby_birth_date: 'Birth date',
-      notifications: 'Reminders',
-      personalized_result: 'Your snapshot',
+      welcome: 'onboarding.progress.quickIntro',
+      pregnancy_status: 'onboarding.progress.yourGoal',
+      last_period: 'onboarding.progress.cycleDate',
+      pregnancy_week: 'onboarding.progress.pregnancyWeek',
+      baby_birth_date: 'onboarding.progress.birthDate',
+      notifications: 'onboarding.progress.reminders',
+      personalized_result: 'onboarding.progress.yourSnapshot',
     };
-    return labels[id ?? ''] ?? `Step ${stepIndex + 1}`;
+    const key = labels[id ?? ''];
+    return key ? this.t(key) : `Step ${stepIndex + 1}`;
   }
 
   /** One tap from welcome: no separate “select card then Continue”. */
@@ -552,11 +607,11 @@ export class OnboardingComponent implements OnInit {
   private async showDateValidationError() {
     const msg =
       this.getLastPeriodValidationMessage() ||
-      'The start date of your last menstrual period cannot be in the future. Please select a valid date.';
+      this.t('onboarding.alert.invalidDateFallback');
     const alert = await this.alertController.create({
-      header: 'Invalid Date',
+      header: this.t('onboarding.alert.invalidDateHeader'),
       message: msg,
-      buttons: ['OK'],
+      buttons: [this.t('common.ok')],
     });
 
     await alert.present();
@@ -565,11 +620,11 @@ export class OnboardingComponent implements OnInit {
   private async showBabyBirthValidationError() {
     const msg =
       this.getBabyBirthValidationMessage() ||
-      'Please choose your baby’s birth date (not in the future).';
+      this.t('onboarding.alert.invalidBirthFallback');
     const alert = await this.alertController.create({
-      header: 'Invalid date',
+      header: this.t('onboarding.alert.invalidBirthHeader'),
       message: msg,
-      buttons: ['OK'],
+      buttons: [this.t('common.ok')],
     });
     await alert.present();
   }

@@ -1,16 +1,16 @@
 <ion-header>
   <ion-toolbar>
     <ion-icon name="close" aria-hidden="true" (click)="cancel()"></ion-icon>
-    <ion-title>End Pregnancy</ion-title>
+    <ion-title>{{ 'pregnancyEnd.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <div class="dialog-content">
     <form>
-      <h3>When did your pregnancy end?</h3>
+      <h3>{{ 'pregnancyEnd.whenEnded' | translate }}</h3>
       <p class="subtitle">
-        This will help us provide you with appropriate support and resources.
+        {{ 'pregnancyEnd.subtitle' | translate }}
       </p>
 
       <div
@@ -19,7 +19,7 @@
         [class.personal-info-card--dob-missing]="!pregnancyEndDate"
       >
         <label class="field-label" for="inp-dob">{{
-          "End Date" | translate
+          'pregnancyEnd.endDateLabel' | translate
         }}</label>
         <ion-item lines="none" class="field-item field-item--date">
           <ion-input
@@ -36,10 +36,10 @@
       </div>
 
       <ion-item>
-        <ion-label position="stacked">Notes (Optional)</ion-label>
+        <ion-label position="stacked">{{ 'pregnancyEnd.notesOptional' | translate }}</ion-label>
         <ion-input
           [formField]="pregnancyForm.notes"
-          placeholder="Any additional notes..."
+          [placeholder]="'pregnancyEnd.notesPlaceholder' | translate"
           type="text"
         ></ion-input>
       </ion-item>
@@ -47,13 +47,12 @@
       <div class="info-section">
         <ion-icon name="information-circle-outline"></ion-icon>
         <p>
-          Your privacy is important. This information is only used to provide
-          you with personalized support.
+          {{ 'pregnancyEnd.privacyNote' | translate }}
         </p>
       </div>
 
       <app-button type="submit" (buttonClick)="confirm($event)">
-        {{ "Save" | translate }}
+        {{ 'pregnancyEnd.save' | translate }}
       </app-button>
     </form>
   </div>

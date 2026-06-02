@@ -5,7 +5,7 @@
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="pm-title">Pregnancy Mode</ion-title>
+    <ion-title class="pm-title">{{ 'pregnancyMode.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -13,7 +13,7 @@
   <ion-accordion-group class="pm-list" value="gestational-age">
     <ion-accordion value="gestational-age" class="pm-accordion">
       <div class="pm-row" slot="header">
-        <span class="pm-label">Gestational age</span>
+        <span class="pm-label">{{ 'pregnancyMode.gestationalAge' | translate }}</span>
         <span class="pm-value">{{ gestationalAge | localNum }}</span>
       </div>
       <div class="pm-accordion-content pm-accordion-content--gestational" slot="content">
@@ -21,7 +21,7 @@
           <div class="pm-custom-picker-highlight" aria-hidden="true"></div>
 
           <div class="pm-custom-picker-col pm-custom-picker-col--label" aria-hidden="true">
-            <span class="pm-custom-picker-label">Weeks</span>
+            <span class="pm-custom-picker-label">{{ 'pregnancyMode.weeks' | translate }}</span>
           </div>
 
           <div
@@ -43,7 +43,7 @@
           </div>
 
           <div class="pm-custom-picker-col pm-custom-picker-col--label" aria-hidden="true">
-            <span class="pm-custom-picker-label">day</span>
+            <span class="pm-custom-picker-label">{{ 'pregnancyMode.day' | translate }}</span>
           </div>
 
           <div
@@ -69,7 +69,7 @@
 
     <ion-accordion value="due-date" class="pm-accordion">
       <div class="pm-row" slot="header">
-        <span class="pm-label">Due date</span>
+        <span class="pm-label">{{ 'pregnancyMode.dueDate' | translate }}</span>
         <span class="pm-value">{{ dueDate | localNum }}</span>
       </div>
       <div class="pm-accordion-content" slot="content">
@@ -87,7 +87,7 @@
 
     <ion-accordion value="multiple-babies" class="pm-accordion">
       <div class="pm-row" slot="header">
-        <span class="pm-label">Are you having more than one baby?</span>
+        <span class="pm-label">{{ 'pregnancyMode.multipleBabies' | translate }}</span>
         <span class="pm-value">{{ multipleBabies | localNum }}</span>
       </div>
       <div class="pm-accordion-content" slot="content">
@@ -101,7 +101,7 @@
   </ion-accordion-group>
 
   <button type="button" class="pm-remove-btn" (click)="openDeletePregnancyDialog()">
-    Remove pregnancy information
+    {{ 'pregnancyMode.removePregnancy' | translate }}
   </button>
 </ion-content>
 
@@ -113,7 +113,7 @@
       [loading]="isSaving"
       (buttonClick)="save()"
     >
-      Save
+      {{ 'pregnancyMode.save' | translate }}
     </app-button>
   </div>
 </ion-footer>

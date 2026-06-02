@@ -14,6 +14,7 @@ import {
 } from '@ionic/angular';
 import { SecretChatsService } from './services/secret-chat.service';
 import { SecretChat, CreateSecretChatDto } from './secret.chats.dto';
+import { TranslationService } from '../shared/services/translation.service';
 
 // All data structures are now defined in secret.chats.dto.ts
 
@@ -32,6 +33,13 @@ export class SecretChatsComponent implements OnInit {
   private actionSheetController = inject(ActionSheetController);
   private modalController = inject(ModalController);
   private secretChatsService = inject(SecretChatsService);
+  private translation = inject(TranslationService);
+
+  private t(key: string, params?: Record<string, string | number>): string {
+    return params
+      ? this.translation.translateParams(key, params)
+      : this.translation.translate(key);
+  }
 
   // UI State
   unreadNotifications = 3;
@@ -58,7 +66,7 @@ export class SecretChatsComponent implements OnInit {
 
   // Essential methods for the template
   openNotifications() {
-    this.showToast('Opening notifications...', 'primary');
+    this.showToast(this.t('secretChats.toast.openingNotifications'), 'primary');
   }
 
   async createNewPost() {
@@ -66,10 +74,7 @@ export class SecretChatsComponent implements OnInit {
 
     // Check if user has access to create posts
     if (!this.canUserCreatePosts()) {
-      this.showToast(
-        'You need to be a member of a chat to create posts',
-        'warning'
-      );
+      this.showToast(this.t('secretChats.toast.needChatMember'), 'warning');
       this.showNoChatsDialog();
       return;
     }
@@ -143,7 +148,7 @@ export class SecretChatsComponent implements OnInit {
       },
       error: (error) => {
         console.error('❌ Failed to load user chats:', error);
-        this.showToast('Failed to load chats', 'danger');
+        this.showToast(this.t('secretChats.toast.loadFailed'), 'danger');
         this.showNoChatsDialog();
       },
     });
@@ -151,7 +156,7 @@ export class SecretChatsComponent implements OnInit {
 
   private addNewPostToFeed(postData: any) {
     console.log('✅ Post created successfully:', postData);
-    this.showToast('Post created successfully! 🎉', 'success');
+    this.showToast(this.t('secretChats.toast.postCreated'), 'success');
 
     // Reload posts from API to get the latest data
     this.loadPosts(1);
@@ -159,15 +164,15 @@ export class SecretChatsComponent implements OnInit {
 
   // Action methods - implement as needed
   startDiscussion() {
-    this.showToast('Feature coming soon!', 'warning');
+    this.showToast(this.t('secretChats.toast.featureComingSoon'), 'warning');
   }
 
   shareStory() {
-    this.showToast('Feature coming soon!', 'warning');
+    this.showToast(this.t('secretChats.toast.featureComingSoon'), 'warning');
   }
 
   findGroups() {
-    this.showToast('Feature coming soon!', 'warning');
+    this.showToast(this.t('secretChats.toast.featureComingSoon'), 'warning');
   }
 
   askExpert() {
@@ -176,12 +181,12 @@ export class SecretChatsComponent implements OnInit {
 
   filterByTopic(topic: string) {
     this.activeTopic = topic;
-    this.showToast(`Filtering by ${topic}`, 'primary');
+    this.showToast(this.t('secretChats.toast.filteringBy', { topic }), 'primary');
   }
 
   setFilter(filter: 'popular' | 'myposts' | 'following' | 'saved') {
     this.feedFilter = filter;
-    this.showToast(`Showing ${filter} posts`, 'primary');
+    this.showToast(this.t('secretChats.toast.showingFilter', { filter }), 'primary');
   }
 
   private async showToast(message: string, color: string = 'primary') {
@@ -223,50 +228,50 @@ export class SecretChatsComponent implements OnInit {
         post.isLiked = wasLiked;
         post._count.likes = (post._count?.likes || 0) + (wasLiked ? 1 : -1);
         
-        this.showToast('Failed to toggle like', 'danger');
+        this.showToast(this.t('secretChats.toast.likeFailed'), 'danger');
       },
     });
   }
 
   openComments(post: any, event: Event) {
     event.stopPropagation();
-    this.showToast('Opening comments...', 'primary');
+    this.showToast(this.t('secretChats.toast.openingComments'), 'primary');
   }
 
   bookmarkPost(post: any, event: Event) {
     event.stopPropagation();
-    this.showToast('Bookmark toggled!', 'success');
+    this.showToast(this.t('secretChats.toast.bookmarkToggled'), 'success');
   }
 
   voteOnPoll(post: any, index: number, event: Event) {
     event.stopPropagation();
-    this.showToast('Vote recorded!', 'success');
+    this.showToast(this.t('secretChats.toast.voteRecorded'), 'success');
   }
 
   openPost(post: any) {
-    this.showToast('Opening post...', 'primary');
+    this.showToast(this.t('menu.comingSoon'), 'primary');
   }
 
   openPostMenu(post: any, event: Event) {
     event.stopPropagation();
-    this.showToast('Opening menu...', 'primary');
+    this.showToast(this.t('secretChats.toast.openingMenu'), 'primary');
   }
 
   viewImage(url: string, event: Event) {
     event.stopPropagation();
-    this.showToast('Viewing image...', 'primary');
+    this.showToast(this.t('secretChats.toast.viewingImage'), 'primary');
   }
 
   readFullStory(story: any) {
-    this.showToast('Reading story...', 'primary');
+    this.showToast(this.t('secretChats.toast.readingStory'), 'primary');
   }
 
   likeStory(story: any) {
-    this.showToast('Story liked!', 'success');
+    this.showToast(this.t('secretChats.toast.storyLiked'), 'success');
   }
 
   shareStoryExternal(story: any) {
-    this.showToast('Feature coming soon!', 'warning');
+    this.showToast(this.t('secretChats.toast.featureComingSoon'), 'warning');
   }
 
   loadMorePosts() {
@@ -286,17 +291,17 @@ export class SecretChatsComponent implements OnInit {
           if (Array.isArray(newPosts) && newPosts.length > 0) {
             this.secretChats = [...this.secretChats, ...newPosts];
             this.filteredSecretChats = [...this.secretChats];
-            this.showToast(`${newPosts.length} more posts loaded`, 'success');
+            this.showToast(this.t('secretChats.toast.morePostsLoaded', { count: newPosts.length }), 'success');
           } else {
             this.hasMorePosts = false;
-            this.showToast('No more posts', 'warning');
+            this.showToast(this.t('secretChats.toast.noMorePosts'), 'warning');
           }
 
           this.isLoadingPosts = false;
         },
         error: (error) => {
           this.isLoadingPosts = false;
-          this.showToast('Failed to load more posts', 'danger');
+          this.showToast(this.t('secretChats.toast.loadMoreFailed'), 'danger');
         },
       });
   }
@@ -355,7 +360,7 @@ export class SecretChatsComponent implements OnInit {
     post.stopPropagation();
     console.log('📤 Share post:', post.id);
     // TODO: Implement share functionality
-    this.showToast('Share feature coming soon!', 'primary');
+    this.showToast(this.t('secretChats.toast.shareComingSoon'), 'primary');
   }
 
   // Membership validation methods
@@ -446,7 +451,7 @@ export class SecretChatsComponent implements OnInit {
               );
               return true;
             } else {
-              this.showToast('Please enter a chat name', 'warning');
+              this.showToast(this.t('secretChats.toast.enterChatName'), 'warning');
               return false;
             }
           },
@@ -461,7 +466,7 @@ export class SecretChatsComponent implements OnInit {
     // Check authentication first
     const token = localStorage.getItem('accessToken');
     if (!token) {
-      this.showToast('Please log in to create chats', 'danger');
+      this.showToast(this.t('secretChats.toast.loginRequired'), 'danger');
       return;
     }
 
@@ -473,7 +478,7 @@ export class SecretChatsComponent implements OnInit {
 
     this.secretChatsService.createChat(createChatDto).subscribe({
       next: (newChat) => {
-        this.showToast(`Chat "${name}" created successfully! 🎉`, 'success');
+        this.showToast(this.t('secretChats.toast.chatCreated', { name }), 'success');
 
         // Add to available chats and select it
         this.availableChats.push(newChat);
@@ -484,14 +489,14 @@ export class SecretChatsComponent implements OnInit {
       },
       error: (error) => {
         if (error.status === 401) {
-          this.showToast('Please log in to create chats', 'danger');
+          this.showToast(this.t('secretChats.toast.loginRequired'), 'danger');
         } else if (error.status === 403) {
           this.showToast(
-            'You do not have permission to create chats',
+            this.t('secretChats.toast.createChatFailed'),
             'danger'
           );
         } else {
-          this.showToast('Failed to create chat. Please try again.', 'danger');
+          this.showToast(this.t('secretChats.toast.createChatFailed'), 'danger');
         }
       },
     });
@@ -499,7 +504,7 @@ export class SecretChatsComponent implements OnInit {
 
   private loadPosts(page: number = 1) {
     if (!this.selectedChatId) {
-      this.showToast('No chat selected', 'danger');
+      this.showToast(this.t('secretChats.toast.noChatSelected'), 'danger');
       return;
     }
 
@@ -526,7 +531,7 @@ export class SecretChatsComponent implements OnInit {
           this.filteredSecretChats = [...this.secretChats];
 
           this.isLoadingPosts = false;
-          this.showToast(`${this.secretChats.length} posts loaded`, 'success');
+          this.showToast(this.t('secretChats.toast.postsLoaded', { count: this.secretChats.length }), 'success');
         },
         error: (error) => {
           this.isLoadingPosts = false;
@@ -534,7 +539,7 @@ export class SecretChatsComponent implements OnInit {
           // اگر API کار نکرد، پست‌های تست نشون بده
           this.secretChats = [];
           this.filteredSecretChats = [];
-          this.showToast('Failed to load posts', 'danger');
+          this.showToast(this.t('secretChats.toast.loadPostsFailed'), 'danger');
         },
       });
   }

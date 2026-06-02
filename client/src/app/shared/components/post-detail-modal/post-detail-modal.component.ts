@@ -2,6 +2,8 @@ import { Component, OnInit, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { TranslationService } from '../../services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 export interface PostComment {
   id: string;
@@ -27,12 +29,17 @@ export interface PostReply {
   templateUrl: './post-detail-modal.component.html',
   styleUrls: ['./post-detail-modal.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe]
 })
 export class PostDetailModalComponent implements OnInit {
 
   private modalController = inject(ModalController);
   private toastController = inject(ToastController);
+  private translation = inject(TranslationService);
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
 
   // Post data
   @Input() postData: any = null;
@@ -72,7 +79,7 @@ export class PostDetailModalComponent implements OnInit {
   // Comment methods
   async submitComment() {
     if (!this.newComment.trim()) {
-      await this.showToast('Please write a comment', 'warning');
+      await this.showToast(this.t('postDetail.toast.writeComment'), 'warning');
       return;
     }
 
@@ -95,11 +102,11 @@ export class PostDetailModalComponent implements OnInit {
       this.comments.unshift(comment);
       this.newComment = '';
       
-      await this.showToast('Comment posted successfully!', 'success');
+      await this.showToast(this.t('postDetail.toast.commentPosted'), 'success');
 
     } catch (error) {
       console.error('Error posting comment:', error);
-      await this.showToast('Failed to post comment. Please try again.', 'danger');
+      await this.showToast(this.t('postDetail.toast.commentFailed'), 'danger');
     } finally {
       this.isSubmittingComment = false;
     }
@@ -110,7 +117,7 @@ export class PostDetailModalComponent implements OnInit {
     const comment = this.comments.find(c => c.id === commentId);
     if (comment) {
       comment.likes++;
-      await this.showToast('Liked!', 'success');
+      await this.showToast(this.t('postDetail.toast.liked'), 'success');
     }
   }
 
@@ -118,7 +125,7 @@ export class PostDetailModalComponent implements OnInit {
   async submitReply(commentId: string) {
     const replyText = this.newReply[commentId];
     if (!replyText?.trim()) {
-      await this.showToast('Please write a reply', 'warning');
+      await this.showToast(this.t('postDetail.toast.writeReply'), 'warning');
       return;
     }
 
@@ -142,11 +149,11 @@ export class PostDetailModalComponent implements OnInit {
         this.newReply[commentId] = '';
       }
       
-      await this.showToast('Reply posted successfully!', 'success');
+      await this.showToast(this.t('postDetail.toast.replyPosted'), 'success');
 
     } catch (error) {
       console.error('Error posting reply:', error);
-      await this.showToast('Failed to post reply. Please try again.', 'danger');
+      await this.showToast(this.t('postDetail.toast.replyFailed'), 'danger');
     } finally {
       this.isSubmittingReply[commentId] = false;
     }
@@ -159,7 +166,7 @@ export class PostDetailModalComponent implements OnInit {
       const reply = comment.replies.find(r => r.id === replyId);
       if (reply) {
         reply.likes++;
-        await this.showToast('Liked!', 'success');
+        await this.showToast(this.t('postDetail.toast.liked'), 'success');
       }
     }
   }

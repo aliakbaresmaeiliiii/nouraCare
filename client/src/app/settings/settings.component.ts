@@ -882,7 +882,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const confirmed = await this.confirm(
       this.t('settings.delete.title'),
       this.t('settings.deleteConfirm'),
-      this.t('settings.delete.title'),
+      this.t('settings.delete.confirm'),
     );
 
     if (!confirmed) {

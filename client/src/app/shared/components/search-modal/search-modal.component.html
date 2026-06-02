@@ -1,15 +1,15 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="cancelChanges()">Cancel</ion-button>
+      <ion-button (click)="cancelChanges()">{{ 'searchModal.cancel' | translate }}</ion-button>
     </ion-buttons>
     <ion-title>{{ title }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="confirmChanges()">Done</ion-button>
+      <ion-button (click)="confirmChanges()">{{ 'searchModal.done' | translate }}</ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
-    <ion-searchbar (ionInput)="searchbarInput($event)" placeholder="Search..."></ion-searchbar>
+    <ion-searchbar (ionInput)="searchbarInput($event)" [placeholder]="'searchModal.searchPlaceholder' | translate"></ion-searchbar>
   </ion-toolbar>
 </ion-header>
 
@@ -27,8 +27,8 @@
     } @else {
       <ion-item>
         <ion-label class="ion-text-center">
-          <p>No items available</p>
-          <p class="text-sm text-gray-500">Try selecting a different option or contact support</p>
+          <p>{{ 'searchModal.noItems' | translate }}</p>
+          <p class="text-sm text-gray-500">{{ 'searchModal.noItemsHint' | translate }}</p>
         </ion-label>
       </ion-item>
     }

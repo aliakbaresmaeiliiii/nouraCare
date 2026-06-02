@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Health Tools</ion-title>
+    <ion-title>{{ 'tools.title' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openSettings()">
         <ion-icon name="settings-outline"></ion-icon>
@@ -16,26 +16,26 @@
   <!-- Hero Section -->
   <div class="tools-hero">
     <div class="hero-content">
-      <h1 class="hero-title">Your Health Toolkit</h1>
-      <p class="hero-subtitle">Essential tools for tracking your journey to motherhood</p>
+      <h1 class="hero-title">{{ 'tools.heroTitle' | translate }}</h1>
+      <p class="hero-subtitle">{{ 'tools.heroSubtitle' | translate }}</p>
     </div>
   </div>
 
   <!-- Quick Access Tools -->
   <div class="quick-tools-section">
     <div class="section-header">
-      <h2 class="section-title">Quick Access</h2>
-      <p class="section-subtitle">Most used tools</p>
+      <h2 class="section-title">{{ 'tools.quickAccess' | translate }}</h2>
+      <p class="section-subtitle">{{ 'tools.quickAccessSubtitle' | translate }}</p>
     </div>
     <div class="quick-tools-grid">
       <div class="tool-card primary" (click)="openFertilityCalculator()">
         <div class="tool-icon">
           <ion-icon name="calculator-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Fertility Calculator</h3>
-        <p class="tool-description">Calculate your fertile days</p>
+        <h3 class="tool-title">{{ 'tools.fertilityCalculator' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.fertilityDesc' | translate }}</p>
         <div class="tool-status">
-          <ion-badge color="success">Ready</ion-badge>
+          <ion-badge color="success">{{ 'tools.badgeReady' | translate }}</ion-badge>
         </div>
       </div>
 
@@ -43,10 +43,10 @@
         <div class="tool-icon">
           <ion-icon name="medical-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Symptom Tracker</h3>
-        <p class="tool-description">Log daily symptoms & mood</p>
+        <h3 class="tool-title">{{ 'tools.symptomTracker' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.symptomDesc' | translate }}</p>
         <div class="tool-status">
-          <ion-badge color="warning">2 entries today</ion-badge>
+          <ion-badge color="warning">{{ badgeEntriesToday() }}</ion-badge>
         </div>
       </div>
 
@@ -54,10 +54,10 @@
         <div class="tool-icon">
           <ion-icon name="calendar-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Cycle Tracker</h3>
-        <p class="tool-description">Track your menstrual cycle</p>
+        <h3 class="tool-title">{{ 'tools.cycleTracker' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.cycleDesc' | translate }}</p>
         <div class="tool-status">
-          <ion-badge color="primary">Day 14</ion-badge>
+          <ion-badge color="primary">{{ badgeDay() }}</ion-badge>
         </div>
       </div>
 
@@ -65,10 +65,10 @@
         <div class="tool-icon">
           <ion-icon name="heart-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Pregnancy Status</h3>
-        <p class="tool-description">Edit your pregnancy status & week</p>
+        <h3 class="tool-title">{{ 'tools.pregnancyStatus' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.pregnancyDesc' | translate }}</p>
         <div class="tool-status">
-          <ion-badge color="success">Edit</ion-badge>
+          <ion-badge color="success">{{ 'tools.badgeEdit' | translate }}</ion-badge>
         </div>
       </div>
 
@@ -76,10 +76,10 @@
         <div class="tool-icon">
           <ion-icon name="nutrition-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Nutrition Tracker</h3>
-        <p class="tool-description">Monitor daily nutrition</p>
+        <h3 class="tool-title">{{ 'tools.nutritionTracker' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.nutritionDesc' | translate }}</p>
         <div class="tool-status">
-          <ion-badge color="success">85% complete</ion-badge>
+          <ion-badge color="success">{{ badgeComplete() }}</ion-badge>
         </div>
       </div>
     </div>
@@ -88,18 +88,18 @@
   <!-- Health Monitoring Tools -->
   <div class="health-tools-section">
     <div class="section-header">
-      <h2 class="section-title">Health Monitoring</h2>
-      <p class="section-subtitle">Track your vital signs and health metrics</p>
+      <h2 class="section-title">{{ 'tools.healthMonitoring' | translate }}</h2>
+      <p class="section-subtitle">{{ 'tools.healthMonitoringSubtitle' | translate }}</p>
     </div>
     <div class="tools-grid">
       <div class="tool-card" (click)="openWeightTracker()">
         <div class="tool-icon">
           <ion-icon name="scale-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Weight Tracker</h3>
-        <p class="tool-description">Monitor weight changes during pregnancy</p>
+        <h3 class="tool-title">{{ 'tools.weightTracker' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.weightDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Track Today
+          {{ 'tools.trackToday' | translate }}
         </ion-button>
       </div>
 
@@ -107,10 +107,10 @@
         <div class="tool-icon">
           <ion-icon name="heart-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Blood Pressure</h3>
-        <p class="tool-description">Monitor BP readings</p>
+        <h3 class="tool-title">{{ 'tools.bloodPressure' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.bloodPressureDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Track Today
+          {{ 'tools.trackToday' | translate }}
         </ion-button>
       </div>
 
@@ -118,10 +118,10 @@
         <div class="tool-icon">
           <ion-icon name="moon-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Sleep Tracker</h3>
-        <p class="tool-description">Monitor sleep quality & duration</p>
+        <h3 class="tool-title">{{ 'tools.sleepTracker' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.sleepDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Track Today
+          {{ 'tools.trackToday' | translate }}
         </ion-button>
       </div>
 
@@ -129,10 +129,10 @@
         <div class="tool-icon">
           <ion-icon name="water-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Water Intake</h3>
-        <p class="tool-description">Track daily water consumption</p>
+        <h3 class="tool-title">{{ 'tools.waterIntake' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.waterDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Track Today
+          {{ 'tools.trackToday' | translate }}
         </ion-button>
       </div>
     </div>
@@ -141,18 +141,18 @@
   <!-- Pregnancy Specific Tools -->
   <div class="pregnancy-tools-section">
     <div class="section-header">
-      <h2 class="section-title">Pregnancy Tools</h2>
-      <p class="section-subtitle">Specialized tools for expecting mothers</p>
+      <h2 class="section-title">{{ 'tools.pregnancyTools' | translate }}</h2>
+      <p class="section-subtitle">{{ 'tools.pregnancyToolsSubtitle' | translate }}</p>
     </div>
     <div class="tools-grid">
       <div class="tool-card" (click)="openKickCounter()">
         <div class="tool-icon">
           <ion-icon name="football-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Kick Counter</h3>
-        <p class="tool-description">Count baby movements</p>
+        <h3 class="tool-title">{{ 'tools.kickCounter' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.kickCounterDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Start Counting
+          {{ 'tools.startCounting' | translate }}
         </ion-button>
       </div>
 
@@ -160,10 +160,10 @@
         <div class="tool-icon">
           <ion-icon name="timer-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Contraction Timer</h3>
-        <p class="tool-description">Time contractions during labor</p>
+        <h3 class="tool-title">{{ 'tools.contractionTimer' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.contractionDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Start Timer
+          {{ 'tools.startTimer' | translate }}
         </ion-button>
       </div>
 
@@ -171,10 +171,10 @@
         <div class="tool-icon">
           <ion-icon name="calendar-number-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Due Date Calculator</h3>
-        <p class="tool-description">Calculate pregnancy due date</p>
+        <h3 class="tool-title">{{ 'tools.dueDateCalculator' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.dueDateDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Calculate
+          {{ 'tools.calculate' | translate }}
         </ion-button>
       </div>
 
@@ -182,10 +182,10 @@
         <div class="tool-icon">
           <ion-icon name="trending-up-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Week Tracker</h3>
-        <p class="tool-description">Track pregnancy progress by week</p>
+        <h3 class="tool-title">{{ 'tools.weekTracker' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.weekTrackerDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          View Progress
+          {{ 'tools.viewProgress' | translate }}
         </ion-button>
       </div>
     </div>
@@ -194,18 +194,18 @@
   <!-- Wellness Tools -->
   <div class="wellness-tools-section">
     <div class="section-header">
-      <h2 class="section-title">Wellness & Lifestyle</h2>
-      <p class="section-subtitle">Tools for mental and physical well-being</p>
+      <h2 class="section-title">{{ 'tools.wellness' | translate }}</h2>
+      <p class="section-subtitle">{{ 'tools.wellnessSubtitle' | translate }}</p>
     </div>
     <div class="tools-grid">
       <div class="tool-card" (click)="openExercisePlanner()">
         <div class="tool-icon">
           <ion-icon name="fitness-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Exercise Planner</h3>
-        <p class="tool-description">Safe exercises for each trimester</p>
+        <h3 class="tool-title">{{ 'tools.exercisePlanner' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.exerciseDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          View Exercises
+          {{ 'tools.viewExercises' | translate }}
         </ion-button>
       </div>
 
@@ -213,10 +213,10 @@
         <div class="tool-icon">
           <ion-icon name="leaf-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Meditation Timer</h3>
-        <p class="tool-description">Guided meditation sessions</p>
+        <h3 class="tool-title">{{ 'tools.meditationTimer' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.meditationDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Start Session
+          {{ 'tools.startSession' | translate }}
         </ion-button>
       </div>
 
@@ -224,10 +224,10 @@
         <div class="tool-icon">
           <ion-icon name="happy-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Mood Tracker</h3>
-        <p class="tool-description">Track emotional well-being</p>
+        <h3 class="tool-title">{{ 'tools.moodTracker' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.moodDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Track Today
+          {{ 'tools.trackToday' | translate }}
         </ion-button>
       </div>
 
@@ -235,10 +235,10 @@
         <div class="tool-icon">
           <ion-icon name="heart-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Gratitude Journal</h3>
-        <p class="tool-description">Daily gratitude practice</p>
+        <h3 class="tool-title">{{ 'tools.gratitudeJournal' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.gratitudeDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Write Today
+          {{ 'tools.writeToday' | translate }}
         </ion-button>
       </div>
     </div>
@@ -247,18 +247,18 @@
   <!-- Medication & Reminders -->
   <div class="medication-section">
     <div class="section-header">
-      <h2 class="section-title">Medications & Reminders</h2>
-      <p class="section-subtitle">Never miss important medications</p>
+      <h2 class="section-title">{{ 'tools.medications' | translate }}</h2>
+      <p class="section-subtitle">{{ 'tools.medicationsSubtitle' | translate }}</p>
     </div>
     <div class="tools-grid">
       <div class="tool-card" (click)="openMedicationReminder()">
         <div class="tool-icon">
           <ion-icon name="medkit-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Medication Reminder</h3>
-        <p class="tool-description">Set reminders for medications</p>
+        <h3 class="tool-title">{{ 'tools.medicationReminder' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.medicationDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Set Reminders
+          {{ 'tools.setReminders' | translate }}
         </ion-button>
       </div>
 
@@ -266,10 +266,10 @@
         <div class="tool-icon">
           <ion-icon name="medical-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Vitamin Tracker</h3>
-        <p class="tool-description">Track prenatal vitamins</p>
+        <h3 class="tool-title">{{ 'tools.vitaminTracker' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.vitaminDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Track Today
+          {{ 'tools.trackToday' | translate }}
         </ion-button>
       </div>
 
@@ -277,10 +277,10 @@
         <div class="tool-icon">
           <ion-icon name="alarm-outline"></ion-icon>
         </div>
-        <h3 class="tool-title">Appointment Reminders</h3>
-        <p class="tool-description">Never miss doctor visits</p>
+        <h3 class="tool-title">{{ 'tools.appointmentReminders' | translate }}</h3>
+        <p class="tool-description">{{ 'tools.appointmentDesc' | translate }}</p>
         <ion-button fill="clear" size="small" class="tool-action">
-          Set Reminders
+          {{ 'tools.setReminders' | translate }}
         </ion-button>
       </div>
     </div>
@@ -289,8 +289,8 @@
   <!-- Progress & Reports -->
   <div class="progress-section">
     <div class="section-header">
-      <h2 class="section-title">Progress & Reports</h2>
-      <p class="section-subtitle">View your health journey progress</p>
+      <h2 class="section-title">{{ 'tools.progress' | translate }}</h2>
+      <p class="section-subtitle">{{ 'tools.progressSubtitle' | translate }}</p>
     </div>
     <div class="progress-cards">
       <div class="progress-card" (click)="openHealthReport()">
@@ -298,12 +298,12 @@
           <ion-icon name="analytics-outline"></ion-icon>
         </div>
         <div class="progress-content">
-          <h3 class="progress-title">Health Report</h3>
-          <p class="progress-description">Comprehensive health summary</p>
+          <h3 class="progress-title">{{ 'tools.healthReport' | translate }}</h3>
+          <p class="progress-description">{{ 'tools.healthReportDesc' | translate }}</p>
           <div class="progress-bar">
             <div class="progress-fill" style="width: 75%"></div>
           </div>
-          <p class="progress-text">75% complete this month</p>
+          <p class="progress-text">{{ progressCompleteLabel() }}</p>
         </div>
       </div>
 
@@ -312,12 +312,12 @@
           <ion-icon name="trending-up-outline"></ion-icon>
         </div>
         <div class="progress-content">
-          <h3 class="progress-title">Trends Analysis</h3>
-          <p class="progress-description">View patterns over time</p>
+          <h3 class="progress-title">{{ 'tools.trendsAnalysis' | translate }}</h3>
+          <p class="progress-description">{{ 'tools.trendsDesc' | translate }}</p>
           <div class="progress-bar">
             <div class="progress-fill" style="width: 60%"></div>
           </div>
-          <p class="progress-text">60% of data analyzed</p>
+          <p class="progress-text">{{ progressAnalyzedLabel() }}</p>
         </div>
       </div>
     </div>
@@ -330,6 +330,3 @@
     </ion-fab-button>
   </ion-fab>
 </ion-content>
-
-
-

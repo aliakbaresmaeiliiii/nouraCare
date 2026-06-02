@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { SHARED_STANDALONE_IMPORTS } from '../../../shared/shared-standalone';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular/standalone';
 import {
@@ -18,7 +18,7 @@ export type ReproductiveStatusOption =
 @Component({
   selector: 'app-reproductive-status',
   standalone: true,
-  imports: [CommonModule],
+  imports: [...SHARED_STANDALONE_IMPORTS],
   templateUrl: './reproductive-status.component.html',
   styleUrls: ['./reproductive-status.component.scss'],
 })
@@ -33,26 +33,26 @@ export class ReproductiveStatusComponent {
     {
       id: 'period' as ReproductiveStatusOption,
       icon: '🩸',
-      label: "I'm on my period",
-      description: 'Track your menstrual cycle',
+      labelKey: 'reproductiveStatusPicker.option.period.label',
+      descriptionKey: 'reproductiveStatusPicker.option.period.description',
     },
     {
       id: 'pregnant' as ReproductiveStatusOption,
       icon: '🤰',
-      label: "I'm pregnant",
-      description: 'Monitor your pregnancy journey',
+      labelKey: 'reproductiveStatusPicker.option.pregnant.label',
+      descriptionKey: 'reproductiveStatusPicker.option.pregnant.description',
     },
     {
       id: 'planning' as ReproductiveStatusOption,
       icon: '🕊',
-      label: "I'm planning to get pregnant",
-      description: 'Plan for conception',
+      labelKey: 'reproductiveStatusPicker.option.planning.label',
+      descriptionKey: 'reproductiveStatusPicker.option.planning.description',
     },
     {
       id: 'postpartum' as ReproductiveStatusOption,
       icon: '👶',
-      label: "I've given birth",
-      description: 'Postpartum care and tracking',
+      labelKey: 'reproductiveStatusPicker.option.postpartum.label',
+      descriptionKey: 'reproductiveStatusPicker.option.postpartum.description',
     },
   ];
 

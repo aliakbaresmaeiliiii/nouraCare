@@ -6,7 +6,7 @@
       <ion-icon name="close"></ion-icon>
     </ion-button>
 
-    <h2 class="modal-title">New post</h2>
+    <h2 class="modal-title">{{ 'createPost.title' | translate }}</h2>
 
     <!-- Empty space for centering -->
     <div class="header-spacer"></div>
@@ -25,7 +25,7 @@
     <!-- Post Input Area -->
     <div class="post-input-section">
       <textarea id="post-content" [(ngModel)]="postContent" (ngModelChange)="onContentChange()"
-        (ionFocus)="focusTextarea()" class="post-textarea" placeholder="What's on your mind?" rows="12"
+        (ionFocus)="focusTextarea()" class="post-textarea" [placeholder]="'createPost.placeholder' | translate" rows="12"
         maxlength="{{maxCharacters}}">
       </textarea>
     </div>
@@ -79,7 +79,7 @@
       [loading]="isSubmitting"
       (buttonClick)="submitPost()"
     >
-      Post
+      {{ 'createPost.postButton' | translate }}
     </app-button>
 
   </div>

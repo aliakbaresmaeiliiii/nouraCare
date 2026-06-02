@@ -32,6 +32,7 @@ import {
   IonCol,
   IonNote,
   PickerController,
+  ToastController,
 } from '@ionic/angular/standalone';
 import {
   ReproductiveStatusService,
@@ -52,6 +53,8 @@ import {
 } from 'ionicons/icons';
 import { HomeDataService } from '../home/services/home-data.service';
 import { AppButtonComponent } from '../shared/components/app-button/app-button.component';
+import { TranslatePipe } from '../shared/pipes/translate.pipe';
+import { TranslationService } from '../shared/services/translation.service';
 
 interface CycleFormData {
   lastPeriodDate: string;
@@ -85,6 +88,7 @@ interface CycleFormData {
     IonIcon,
     IonNote,
     AppButtonComponent,
+    TranslatePipe,
   ],
 })
 export class PregnancyPlanningComponent implements OnInit {
@@ -93,6 +97,8 @@ export class PregnancyPlanningComponent implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private pickerCtrl = inject(PickerController);
+  private toastController = inject(ToastController);
+  private translation = inject(TranslationService);
 
   // Reactive Form
   cycleForm: FormGroup;
@@ -380,7 +386,7 @@ export class PregnancyPlanningComponent implements OnInit {
 
   saveCycleData(): void {
     if (this.cycleForm.invalid) {
-      this.showToast('Please fill in all required fields correctly');
+      this.showToast(this.translation.translate('pregnancyPlanning.toast.fillRequired'));
       return;
     }
 
@@ -410,7 +416,7 @@ export class PregnancyPlanningComponent implements OnInit {
 
   updatePregnancyPlan() {
     if (this.cycleForm.get('lastPeriodDate')?.invalid) {
-      this.showToast('Please select your last period date');
+      this.showToast(this.translation.translate('pregnancyPlanning.toast.selectLastPeriod'));
       return;
     }
 
@@ -431,12 +437,12 @@ export class PregnancyPlanningComponent implements OnInit {
           console.log('Pregnancy plan created successfully:', response);
           this.hasCycleData.set(true);
           this.isLoading.set(false);
-          this.showToast('Pregnancy plan created successfully!');
+          this.showToast(this.translation.translate('pregnancyPlanning.toast.planCreated'));
         },
         error: (error) => {
           console.error('Error creating pregnancy plan:', error);
           this.isLoading.set(false);
-          this.showToast('Error creating pregnancy plan. Please try again.');
+          this.showToast(this.translation.translate('pregnancyPlanning.toast.planFailed'));
         },
       });
   }
@@ -452,34 +458,17 @@ export class PregnancyPlanningComponent implements OnInit {
 
   goToNextStep(): void {
     this.router.navigate(['/tabs/home']);
-    this.showToast('Welcome to your pregnancy journey!');
+    this.showToast(this.translation.translate('pregnancyPlanning.toast.welcomeJourney'));
   }
 
   // Form control getters for template
 
-  private showToast(message: string) {
-    const toast = document.createElement('div');
-    toast.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--ion-color-dark);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 300px;
-      text-align: center;
-    `;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      if (toast.parentNode) {
-        toast.remove();
-      }
-    }, 3000);
+  private async showToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 }

@@ -873,7 +873,7 @@ export class EditProfileComponent implements OnInit {
           this.pushHomeJourneyFromDashboard(dashboard as DashboardResponse);
         }
         this.updateUserInfoService(formValues);
-        this.showSuccessAlert('Profile updated successfully!');
+        this.showSuccessAlert(this.loc('editProfile.toast.profileUpdated'));
         if (shouldGoHomeAfterSave) {
           this.router.navigate(['/tabs/home'], { replaceUrl: true });
           return;
@@ -884,7 +884,7 @@ export class EditProfileComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Error updating profile:', error);
-        this.showErrorAlert('Failed to update profile. Please try again.');
+        this.showErrorAlert(this.loc('editProfile.toast.updateFailed'));
       },
     });
   }
@@ -1151,13 +1151,13 @@ export class EditProfileComponent implements OnInit {
       this.currentReproductiveStatus ??
       (this.form.get('status')?.value as string | null);
     if (!selected) {
-      this.showErrorAlert('Please choose an option first.');
+      this.showErrorAlert(this.loc('editProfile.toast.chooseOptionFirst'));
       return;
     }
 
     const apiStatus = this.mapUiReproductiveToApiPregnancyStatus(selected);
     if (!apiStatus) {
-      this.showErrorAlert('Invalid reproductive status selected.');
+      this.showErrorAlert(this.loc('editProfile.toast.invalidReproductiveStatus'));
       return;
     }
 
@@ -1175,23 +1175,21 @@ export class EditProfileComponent implements OnInit {
               ? Math.min(40, Math.max(4, Math.round(Number(w))))
               : 12;
           this.router.navigate(['/week-detail'], { queryParams: { week } });
-          this.showSuccessAlert('Opening your pregnancy week…');
+          this.showSuccessAlert(this.loc('editProfile.toast.openingPregnancyWeek'));
           return;
         }
 
         if (selected === 'PLANNING_PREGNANCY') {
-          this.showSuccessAlert('Saved. Next, set up your planning details.');
+          this.showSuccessAlert(this.loc('editProfile.toast.savedSetupPlanning'));
           this.router.navigate(['/pregnancy-planning']);
           return;
         }
 
-        this.showSuccessAlert('Reproductive status updated successfully!');
+        this.showSuccessAlert(this.loc('editProfile.toast.reproductiveUpdated'));
       },
       error: (error: any) => {
         console.error('Error updating reproductive status:', error);
-        this.showErrorAlert(
-          'Failed to update reproductive status. Please try again.',
-        );
+        this.showErrorAlert(this.loc('editProfile.toast.reproductiveUpdateFailed'));
       },
     });
   }

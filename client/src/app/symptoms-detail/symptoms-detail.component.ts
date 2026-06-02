@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SymptomsDto } from '../shared/models/symptoms.dto';
 import { TrackDataService } from '../shared/services/track-data.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 
 @Component({
   selector: 'app-symptoms-detail',
@@ -15,17 +17,32 @@ export class SymptomsDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private trackDataService = inject(TrackDataService);
+  private translation = inject(TranslationService);
+  private languageService = inject(LanguageService);
 
   selectedDate: string = '';
   dayData: SymptomsDto = {} as SymptomsDto;
   loading: boolean = true;
+  emptyDescLabel = '';
+  symptomsTitleLabel = '';
 
   ngOnInit() {
+    this.languageService.currentLanguage$.subscribe(() => this.refreshLabels());
     this.route.queryParams.subscribe(params => {
       this.selectedDate = params['date'];
       if (this.selectedDate) {
         this.loadDayData();
       }
+    });
+  }
+
+  private refreshLabels(): void {
+    this.emptyDescLabel = this.translation.translateParams('symptomsDetail.emptyDesc', {
+      date: this.formatDate(this.selectedDate),
+    });
+    const count = this.dayData?.symptoms?.length ?? 0;
+    this.symptomsTitleLabel = this.translation.translateParams('symptomsDetail.symptomsTitle', {
+      count,
     });
   }
 
@@ -36,6 +53,7 @@ export class SymptomsDetailComponent implements OnInit {
       next: (data) => {
         console.log('🔍 Recent symptoms days:', data);
         this.dayData = data[0];
+        this.refreshLabels();
         this.loading = false;
       },
       error: (error) => {

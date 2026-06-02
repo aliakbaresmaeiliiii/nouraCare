@@ -3,6 +3,10 @@
   width: 100%;
 }
 
+:host ion-content.tab-page-content {
+  --background: transparent;
+}
+
 .hello-world {
   margin: 1rem;
   text-align: center;
@@ -13,6 +17,7 @@
 .home-content {
   display: block;
   box-sizing: border-box;
+  min-height: 100%;
   // Room for fixed FAB only (tab bar sits outside ion-content; no extra safe-area stack here).
   // padding-bottom: var(--app-tab-fab-clearance, 72px);
   padding-left: 0;
@@ -27,6 +32,46 @@
   overflow-x: hidden;
   position: relative;
   z-index: 1;
+}
+
+@keyframes home-aurora-shift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.88;
+  }
+
+  33% {
+    transform: translate3d(2.5%, -1.5%, 0) scale(1.05);
+    opacity: 1;
+  }
+
+  66% {
+    transform: translate3d(-2%, 2%, 0) scale(0.97);
+    opacity: 0.92;
+  }
+}
+
+@keyframes home-blob-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(10px, -14px, 0);
+  }
+}
+
+@keyframes home-shine-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 0.92;
+  }
 }
 
 // Compact first-screen readability tweaks
@@ -264,8 +309,33 @@
 
 // Compact cycle overview (Flo-style “Today” home)
 .home-content.home-content--cycle-today {
-  background: linear-gradient(165deg, #fff5f9 0%, #fdf2f8 38%, #f8fafc 100%);
+  --home-surface-warm: #fffbf7;
+  --home-surface-warm-rgb: 255, 251, 247;
   --background: transparent;
+  background:
+    radial-gradient(
+      ellipse 110% 68% at 50% -10%,
+      rgba(255, 160, 190, 0.42) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 82% 48% at 94% 6%,
+      rgba(255, 198, 170, 0.3) 0%,
+      transparent 54%
+    ),
+    radial-gradient(
+      ellipse 72% 44% at 4% 18%,
+      rgba(216, 180, 254, 0.24) 0%,
+      transparent 50%
+    ),
+    linear-gradient(
+      180deg,
+      #ffeef5 0%,
+      #fce7f3 14%,
+      #fdf2f8 36%,
+      #fef7fb 66%,
+      var(--home-surface-warm) 100%
+    );
 }
 
 .cycle-today-shell {
@@ -284,36 +354,89 @@
   z-index: 0;
 }
 
+.cycle-today-aurora {
+  position: absolute;
+  inset: -18% -12% 35% -12%;
+  background:
+    radial-gradient(
+      ellipse 68% 58% at 28% 28%,
+      rgba(255, 130, 170, 0.52) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 58% 52% at 76% 18%,
+      rgba(255, 190, 140, 0.38) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 48% 44% at 52% 62%,
+      rgba(196, 160, 255, 0.32) 0%,
+      transparent 56%
+    );
+  filter: blur(32px);
+  animation: home-aurora-shift 16s ease-in-out infinite;
+}
+
+.cycle-today-shine {
+  position: absolute;
+  top: -4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, 96vw);
+  height: min(300px, 48vw);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(255, 255, 255, 0.22) 44%,
+    transparent 72%
+  );
+  animation: home-shine-pulse 9s ease-in-out infinite;
+}
+
 .cycle-today-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(48px);
-  opacity: 0.55;
+  filter: blur(52px);
+  opacity: 0.68;
+  animation: home-blob-float 11s ease-in-out infinite;
 }
 
 .cycle-today-blob--1 {
-  width: 220px;
-  height: 220px;
-  background: #fbcfe8;
-  top: -4%;
-  right: -10%;
+  width: 240px;
+  height: 240px;
+  background: #f9a8d4;
+  top: -6%;
+  right: -12%;
+  animation-delay: 0s;
 }
 
 .cycle-today-blob--2 {
-  width: 260px;
-  height: 260px;
-  background: #ccfbf1;
-  bottom: 22%;
-  left: -18%;
+  width: 280px;
+  height: 280px;
+  background: #fda4af;
+  bottom: 20%;
+  left: -20%;
+  animation-delay: -3.5s;
 }
 
 .cycle-today-blob--3 {
-  width: 150px;
-  height: 150px;
-  background: #e9d5ff;
-  opacity: 0.35;
-  top: 38%;
-  left: 58%;
+  width: 170px;
+  height: 170px;
+  background: #c4b5fd;
+  opacity: 0.5;
+  top: 36%;
+  left: 56%;
+  animation-delay: -7s;
+}
+
+.cycle-today-blob--4 {
+  width: 200px;
+  height: 200px;
+  background: #fecdd3;
+  opacity: 0.45;
+  top: 12%;
+  left: 8%;
+  animation-delay: -5s;
 }
 
 .cycle-onboard-card {
@@ -484,8 +607,8 @@
   --cycle-hero-pink: #f9a8d4;
   --cycle-hero-pink-deep: #db2777;
   /* Match home-content--cycle-today gradient end so the chart fades out smoothly */
-  --cycle-hero-fade-stop: #f8fafc;
-  --cycle-hero-fade-rgb: 248, 250, 252;
+  --cycle-hero-fade-stop: var(--home-surface-warm, #fffbf7);
+  --cycle-hero-fade-rgb: var(--home-surface-warm-rgb, 255, 251, 247);
 
   position: relative;
   z-index: 2;
@@ -495,6 +618,30 @@
   overflow: visible;
   background: transparent;
 
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -8% 0 28%;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        ellipse 90% 70% at 50% 0%,
+        rgba(255, 180, 200, 0.35) 0%,
+        transparent 68%
+      ),
+      radial-gradient(
+        ellipse 55% 45% at 18% 22%,
+        rgba(255, 210, 230, 0.22) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        ellipse 50% 42% at 82% 18%,
+        rgba(255, 200, 170, 0.18) 0%,
+        transparent 55%
+      );
+  }
+
   > * {
     position: relative;
     z-index: 1;
@@ -503,6 +650,49 @@
   ::ng-deep .cycle-chart-container {
     --cycle-bottom-curve-fill: var(--cycle-hero-fade-stop);
     --cycle-bottom-curve-fill-rgb: var(--cycle-hero-fade-rgb);
+    overflow: visible;
+    background: transparent;
+
+    &::before {
+      display: none;
+    }
+
+    > .cycle-chart-drift {
+      inset: -8% -5% -4%;
+      mask-image: radial-gradient(
+        ellipse 100% 94% at 50% 42%,
+        #000 48%,
+        rgba(0, 0, 0, 0.45) 70%,
+        transparent 100%
+      );
+      -webkit-mask-image: radial-gradient(
+        ellipse 100% 94% at 50% 42%,
+        #000 48%,
+        rgba(0, 0, 0, 0.45) 70%,
+        transparent 100%
+      );
+
+      &::after {
+        left: -8%;
+        right: -8%;
+        bottom: -4%;
+        height: clamp(6.5rem, 22vw, 11.5rem);
+        background: linear-gradient(
+          180deg,
+          rgba(var(--cycle-bottom-curve-fill-rgb), 0) 0%,
+          rgba(var(--cycle-bottom-curve-fill-rgb), 0.05) 22%,
+          rgba(var(--cycle-bottom-curve-fill-rgb), 0.14) 42%,
+          rgba(var(--cycle-bottom-curve-fill-rgb), 0.32) 62%,
+          rgba(var(--cycle-bottom-curve-fill-rgb), 0.52) 78%,
+          rgba(var(--cycle-bottom-curve-fill-rgb), 0.72) 90%,
+          rgba(var(--cycle-bottom-curve-fill-rgb), 0.88) 100%
+        );
+      }
+    }
+
+    .chart-bg-disk {
+      opacity: 0.62;
+    }
   }
 
   .cycle-ring-shell--hero {
@@ -542,9 +732,13 @@
   min-height: 5.5rem;
   padding: 0.65rem 0.45rem;
   border-radius: 16px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 8px 24px rgba(219, 39, 119, 0.07),
+    0 1px 0 rgba(255, 255, 255, 0.9) inset;
 
   &__icon {
     width: 2rem;
@@ -1366,17 +1560,64 @@
   .cycle-hero-sky {
     --cycle-hero-pink: #f472b6;
     --cycle-hero-pink-deep: #fbcfe8;
-    --cycle-hero-fade-stop: #121820;
-    --cycle-hero-fade-rgb: 18, 24, 32;
+    --cycle-hero-fade-stop: var(--home-surface-warm, #121820);
+    --cycle-hero-fade-rgb: var(--home-surface-warm-rgb, 18, 24, 32);
+
+    &::before {
+      opacity: 0.45;
+    }
   }
 
   .home-content.home-content--cycle-today {
-    background: linear-gradient(
-      165deg,
-      #1a1520 0%,
-      #151820 42%,
-      #121820 100%
+    --home-surface-warm: #121820;
+    --home-surface-warm-rgb: 18, 24, 32;
+    background:
+      radial-gradient(
+        ellipse 100% 60% at 50% -8%,
+        rgba(244, 114, 182, 0.22) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        ellipse 70% 45% at 90% 10%,
+        rgba(251, 146, 60, 0.12) 0%,
+        transparent 52%
+      ),
+      linear-gradient(
+        165deg,
+        #1f1524 0%,
+        #171520 38%,
+        #121820 100%
+      );
+  }
+
+  .cycle-today-aurora {
+    opacity: 0.55;
+    filter: blur(40px);
+  }
+
+  .cycle-today-shine {
+    opacity: 0.35;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(255, 255, 255, 0.14) 0%,
+      transparent 72%
     );
+  }
+
+  .cycle-today-blob--1 {
+    background: rgba(244, 114, 182, 0.55);
+  }
+
+  .cycle-today-blob--2 {
+    background: rgba(251, 113, 133, 0.4);
+  }
+
+  .cycle-today-blob--3 {
+    background: rgba(167, 139, 250, 0.38);
+  }
+
+  .cycle-today-blob--4 {
+    background: rgba(251, 207, 232, 0.28);
   }
 
   .cycle-greeting__name {
@@ -1671,5 +1912,14 @@
   }
 }
 
-
+@media (prefers-reduced-motion: reduce) {
+  .cycle-today-aurora,
+  .cycle-today-shine,
+  .cycle-today-blob,
+  .pregnancy-today-aurora,
+  .pregnancy-today-shine,
+  .pregnancy-today-blob {
+    animation: none;
+  }
+}
 

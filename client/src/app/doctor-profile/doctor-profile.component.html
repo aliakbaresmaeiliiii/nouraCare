@@ -47,7 +47,7 @@
             <div class="doctor-stats">
               <div class="stat-item">
                 <div class="stat-value">{{ doctor.rating | localNum }}/{{ 5 | localNum }}</div>
-                <div class="stat-label">Rating</div>
+                <div class="stat-label">{{ 'doctorProfile.rating' | translate }}</div>
                 <div class="stars">
                   @for (_ of getStars(doctor.rating || 0); track $index) {
                     <ion-icon name="star"></ion-icon>
@@ -57,12 +57,12 @@
               <div class="stat-divider"></div>
               <div class="stat-item">
                 <div class="stat-value">{{ doctor.experienceYears | localNum }}+</div>
-                <div class="stat-label">Years Experience</div>
+                <div class="stat-label">{{ 'doctorProfile.yearsExperience' | translate }}</div>
               </div>
               <div class="stat-divider"></div>
               <div class="stat-item">
                 <div class="stat-value">{{ 500 | localNum }}+</div>
-                <div class="stat-label">Patients</div>
+                <div class="stat-label">{{ 'doctorProfile.patients' | translate }}</div>
               </div>
             </div>
           </div>
@@ -75,7 +75,7 @@
           </div>
           <div class="consultation-fee">
             <span class="fee-amount">${{ doctor.fee | localNum }}</span>
-            <span class="fee-label">per consultation</span>
+            <span class="fee-label">{{ 'doctorProfile.perConsultation' | translate }}</span>
           </div>
         </div>
       </div>
@@ -148,9 +148,9 @@
               </h3>
               <div class="specializations">
                 <div class="spec-tag">{{ doctor.specialty }}</div>
-                <div class="spec-tag">High-Risk Pregnancy</div>
-                <div class="spec-tag">Fertility Treatment</div>
-                <div class="spec-tag">Prenatal Care</div>
+                <div class="spec-tag">{{ 'doctorProfile.specHighRisk' | translate }}</div>
+                <div class="spec-tag">{{ 'doctorProfile.specFertility' | translate }}</div>
+                <div class="spec-tag">{{ 'doctorProfile.specPrenatal' | translate }}</div>
               </div>
             </div>
           </div>
@@ -200,7 +200,7 @@
                     @if (review.verified) {
                       <div class="verified-badge">
                         <ion-icon name="checkmark-circle"></ion-icon>
-                        <span>Verified</span>
+                        <span>{{ 'doctorProfile.verified' | translate }}</span>
                       </div>
                     }
                   </div>
@@ -217,8 +217,8 @@
         <div class="tab-panel">
           <div class="schedule-section">
             <div class="schedule-header">
-              <h3>Available Time Slots</h3>
-              <p>Select your preferred appointment time</p>
+              <h3>{{ 'doctorProfile.slotsTitle' | translate }}</h3>
+              <p>{{ 'doctorProfile.slotsSubtitle' | translate }}</p>
             </div>
 
             <div class="time-slots">
@@ -230,7 +230,7 @@
                   <div class="slot-time">{{ slot.time }}</div>
                   @if (slot.available) {
                     <div class="slot-status">
-                      <span class="available-text">Available</span>
+                      <span class="available-text">{{ 'doctorProfile.available' | translate }}</span>
                       @if (slot.price) {
                         <span class="slot-price">${{ slot.price }}</span>
                       }

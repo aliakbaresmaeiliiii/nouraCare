@@ -21,6 +21,7 @@ import { ToolsService,
          AppointmentReminder,
          HealthReport } from '../shared/services/tools.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { TranslationService } from '../shared/services/translation.service';
 
 @Component({
   selector: 'app-tools',
@@ -33,6 +34,27 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 export class ToolsComponent implements OnInit {
   private cycleSettings = inject(CycleSettingsService);
   private route = inject(ActivatedRoute);
+  private translation = inject(TranslationService);
+
+  badgeEntriesToday(): string {
+    return this.translation.translateParams('tools.badgeEntriesToday', { count: 2 });
+  }
+
+  badgeDay(): string {
+    return this.translation.translateParams('tools.badgeDay', { day: 14 });
+  }
+
+  badgeComplete(): string {
+    return this.translation.translateParams('tools.badgeComplete', { percent: 85 });
+  }
+
+  progressCompleteLabel(): string {
+    return this.translation.translateParams('tools.progressComplete', { percent: 75 });
+  }
+
+  progressAnalyzedLabel(): string {
+    return this.translation.translateParams('tools.progressAnalyzed', { percent: 60 });
+  }
 
   // User data
   currentUserId: number = 1; // This should come from auth service
@@ -98,7 +120,7 @@ export class ToolsComponent implements OnInit {
       this.isLoading = true;
     } catch (error) {
       console.error('Error loading today stats:', error);
-      await this.showToast('Failed to load today\'s statistics', 'danger');
+      await this.toast('loadStatsFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -263,18 +285,18 @@ export class ToolsComponent implements OnInit {
           this.cycleSettings.setPregnancyProgress(progress);
         }
         
-        await this.showToast('Pregnancy status updated successfully!', 'success');
+        await this.toast('pregnancyStatusUpdated', 'success');
       } else {
         // Update to trying to conceive
         this.cycleSettings.setUserStatus('Trying to Conceive');
         this.cycleSettings.setPostpartumStatus(false);
         
-        await this.showToast('Status updated to "Trying to Conceive"', 'success');
+        await this.toast('statusTryingToConceive', 'success');
       }
       
     } catch (error) {
       console.error('Error updating pregnancy status:', error);
-      await this.showToast('Failed to update status', 'danger');
+      await this.toast('statusUpdateFailed', 'danger');
     }
   }
 
@@ -989,7 +1011,7 @@ export class ToolsComponent implements OnInit {
 
   // Utility Methods
   async openSettings() {
-    await this.showToast('Settings opened', 'success');
+    await this.toast('settingsOpened', 'success');
   }
 
   async openQuickAdd() {
@@ -1036,11 +1058,11 @@ export class ToolsComponent implements OnInit {
           buttons: ['OK']
         });
         await alert.present();
-        await this.showToast('Fertile days calculated successfully!', 'success');
+        await this.toast('fertileDaysCalculated', 'success');
       }
     } catch (error) {
       console.error('Error calculating fertile days:', error);
-      await this.showToast('Failed to calculate fertile days', 'danger');
+      await this.toast('fertileDaysFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1059,7 +1081,7 @@ export class ToolsComponent implements OnInit {
       
       // Validate pregnancy week (should be between 4-40 weeks)
       if (pregnancyWeek < 4 || pregnancyWeek > 40) {
-        await this.showToast('Invalid date. Please enter a valid LMP date.', 'warning');
+        await this.toast('invalidLmpDate', 'warning');
         return;
       }
       
@@ -1089,11 +1111,11 @@ export class ToolsComponent implements OnInit {
       });
       
       await alert.present();
-      await this.showToast(`Pregnancy week ${pregnancyWeek} calculated successfully!`, 'success');
+      await this.toast('pregnancyWeekCalculated', 'success', { week: pregnancyWeek });
       
     } catch (error) {
       console.error('Error calculating pregnancy week:', error);
-      await this.showToast('Failed to calculate pregnancy week', 'danger');
+      await this.toast('pregnancyWeekFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1111,12 +1133,12 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackSymptoms(entry).toPromise();
       if (result) {
-        await this.showToast(`Symptoms tracked: ${mood}`, 'success');
+        await this.toast('symptomsTracked', 'success', { mood });
         await this.loadTodayStats(); // Refresh stats
       }
     } catch (error) {
       console.error('Error tracking symptoms:', error);
-      await this.showToast('Failed to track symptoms', 'danger');
+      await this.toast('symptomsFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1133,11 +1155,11 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackCycle(entry).toPromise();
       if (result) {
-        await this.showToast('Cycle tracked successfully!', 'success');
+        await this.toast('cycleTracked', 'success');
       }
     } catch (error) {
       console.error('Error tracking cycle:', error);
-      await this.showToast('Failed to track cycle', 'danger');
+      await this.toast('cycleFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1147,10 +1169,10 @@ export class ToolsComponent implements OnInit {
     try {
       this.isLoading = true;
       // For nutrition tracking, you might want to create a separate service
-      await this.showToast(`${meal} nutrition tracked!`, 'success');
+      await this.toast('nutritionTracked', 'success', { meal });
     } catch (error) {
       console.error('Error tracking nutrition:', error);
-      await this.showToast('Failed to track nutrition', 'danger');
+      await this.toast('nutritionFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1168,12 +1190,12 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackWeight(entry).toPromise();
       if (result) {
-        await this.showToast(`Weight tracked: ${weight}kg`, 'success');
+        await this.toast('weightTracked', 'success', { weight });
         await this.loadTodayStats(); // Refresh stats
       }
     } catch (error) {
       console.error('Error tracking weight:', error);
-      await this.showToast('Failed to track weight', 'danger');
+      await this.toast('weightFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1191,12 +1213,12 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackBloodPressure(entry).toPromise();
       if (result) {
-        await this.showToast(`BP tracked: ${systolic}/${diastolic}`, 'success');
+        await this.toast('bpTracked', 'success', { systolic, diastolic });
         await this.loadTodayStats(); // Refresh stats
       }
     } catch (error) {
       console.error('Error tracking blood pressure:', error);
-      await this.showToast('Failed to track blood pressure', 'danger');
+      await this.toast('bpFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1214,12 +1236,12 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackSleep(entry).toPromise();
       if (result) {
-        await this.showToast(`Sleep tracked: ${hours}h, ${quality} quality`, 'success');
+        await this.toast('sleepTracked', 'success', { hours, quality });
         await this.loadTodayStats(); // Refresh stats
       }
     } catch (error) {
       console.error('Error tracking sleep:', error);
-      await this.showToast('Failed to track sleep', 'danger');
+      await this.toast('sleepFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1236,12 +1258,12 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackWaterIntake(entry).toPromise();
       if (result) {
-        await this.showToast(`Water intake tracked: ${amount}ml`, 'success');
+        await this.toast('waterTracked', 'success', { amount });
         await this.loadTodayStats(); // Refresh stats
       }
     } catch (error) {
       console.error('Error tracking water intake:', error);
-      await this.showToast('Failed to track water intake', 'danger');
+      await this.toast('waterFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1253,11 +1275,11 @@ export class ToolsComponent implements OnInit {
       const result = await this.toolsService.startKickCounter(this.currentUserId).toPromise();
       if (result) {
         this.currentKickSession = result.sessionId;
-        await this.showToast('Kick counter started!', 'success');
+        await this.toast('kickStarted', 'success');
       }
     } catch (error) {
       console.error('Error starting kick counter:', error);
-      await this.showToast('Failed to start kick counter', 'danger');
+      await this.toast('kickStartFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1270,12 +1292,12 @@ export class ToolsComponent implements OnInit {
         const result = await this.toolsService.recordKickCount(this.currentKickSession, 0).toPromise();
         if (result) {
           this.currentKickSession = null;
-          await this.showToast('Kick counter stopped!', 'success');
+          await this.toast('kickStopped', 'success');
         }
       }
     } catch (error) {
       console.error('Error stopping kick counter:', error);
-      await this.showToast('Failed to stop kick counter', 'danger');
+      await this.toast('kickStopFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1287,11 +1309,11 @@ export class ToolsComponent implements OnInit {
       const result = await this.toolsService.startContractionTimer(this.currentUserId).toPromise();
       if (result) {
         this.currentContractionSession = result.sessionId;
-        await this.showToast('Contraction timer started!', 'success');
+        await this.toast('contractionStarted', 'success');
       }
     } catch (error) {
       console.error('Error starting contraction timer:', error);
-      await this.showToast('Failed to start contraction timer', 'danger');
+      await this.toast('contractionStartFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1304,12 +1326,12 @@ export class ToolsComponent implements OnInit {
         const result = await this.toolsService.stopContractionTimer(this.currentContractionSession).toPromise();
         if (result) {
           this.currentContractionSession = null;
-          await this.showToast('Contraction timer stopped!', 'success');
+          await this.toast('contractionStopped', 'success');
         }
       }
     } catch (error) {
       console.error('Error stopping contraction timer:', error);
-      await this.showToast('Failed to stop contraction timer', 'danger');
+      await this.toast('contractionStopFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1326,11 +1348,11 @@ export class ToolsComponent implements OnInit {
           buttons: ['OK']
         });
         await alert.present();
-        await this.showToast('Due date calculated successfully!', 'success');
+        await this.toast('dueDateCalculated', 'success');
       }
     } catch (error) {
       console.error('Error calculating due date:', error);
-      await this.showToast('Failed to calculate due date', 'danger');
+      await this.toast('dueDateFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1347,11 +1369,11 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackPregnancyProgress(entry).toPromise();
       if (result) {
-        await this.showToast(`Pregnancy week ${week} tracked!`, 'success');
+        await this.toast('pregnancyWeekTracked', 'success', { week });
       }
     } catch (error) {
       console.error('Error tracking pregnancy week:', error);
-      await this.showToast('Failed to track pregnancy week', 'danger');
+      await this.toast('pregnancyWeekTrackFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1368,11 +1390,11 @@ export class ToolsComponent implements OnInit {
           buttons: ['OK']
         });
         await alert.present();
-        await this.showToast(`${trimester} trimester exercises loaded!`, 'success');
+        await this.toast('exercisesLoaded', 'success', { trimester });
       }
     } catch (error) {
       console.error('Error getting exercise plan:', error);
-      await this.showToast('Failed to load exercise plan', 'danger');
+      await this.toast('exercisesFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1384,7 +1406,7 @@ export class ToolsComponent implements OnInit {
       const result = await this.toolsService.startMeditationSession(this.currentUserId, duration).toPromise();
       if (result) {
         this.currentMeditationSession = result.sessionId;
-        await this.showToast(`Meditation session started: ${duration} minutes`, 'success');
+        await this.toast('meditationStarted', 'success', { duration });
         
         // Set a timer to complete the session
         setTimeout(async () => {
@@ -1393,7 +1415,7 @@ export class ToolsComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error starting meditation session:', error);
-      await this.showToast('Failed to start meditation session', 'danger');
+      await this.toast('meditationStartFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1404,7 +1426,7 @@ export class ToolsComponent implements OnInit {
       const result = await this.toolsService.completeMeditationSession(sessionId).toPromise();
       if (result) {
         this.currentMeditationSession = null;
-        await this.showToast('Meditation session completed!', 'success');
+        await this.toast('meditationCompleted', 'success');
       }
     } catch (error) {
       console.error('Error completing meditation session:', error);
@@ -1422,12 +1444,12 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackMood(entry).toPromise();
       if (result) {
-        await this.showToast(`Mood tracked: ${mood}`, 'success');
+        await this.toast('moodTracked', 'success', { mood });
         await this.loadTodayStats(); // Refresh stats
       }
     } catch (error) {
       console.error('Error tracking mood:', error);
-      await this.showToast('Failed to track mood', 'danger');
+      await this.toast('moodFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1444,11 +1466,11 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.saveGratitudeEntry(gratitudeEntry).toPromise();
       if (result) {
-        await this.showToast('Gratitude entry saved!', 'success');
+        await this.toast('gratitudeSaved', 'success');
       }
     } catch (error) {
       console.error('Error saving gratitude entry:', error);
-      await this.showToast('Failed to save gratitude entry', 'danger');
+      await this.toast('gratitudeFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1467,11 +1489,11 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.setMedicationReminder(reminder).toPromise();
       if (result) {
-        await this.showToast(`Reminder set for ${medication} at ${time}`, 'success');
+        await this.toast('medicationReminder', 'success', { medication, time });
       }
     } catch (error) {
       console.error('Error setting medication reminder:', error);
-      await this.showToast('Failed to set medication reminder', 'danger');
+      await this.toast('medicationReminderFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1489,12 +1511,12 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.trackVitamin(entry).toPromise();
       if (result) {
-        await this.showToast(`${vitamin} tracked!`, 'success');
+        await this.toast('vitaminTracked', 'success', { vitamin });
         await this.loadTodayStats(); // Refresh stats
       }
     } catch (error) {
       console.error('Error tracking vitamin:', error);
-      await this.showToast('Failed to track vitamin', 'danger');
+      await this.toast('vitaminFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1513,11 +1535,11 @@ export class ToolsComponent implements OnInit {
       
       const result = await this.toolsService.setAppointmentReminder(reminder).toPromise();
       if (result) {
-        await this.showToast(`Reminder set for ${appointment} on ${date} at ${time}`, 'success');
+        await this.toast('appointmentReminder', 'success', { appointment, date, time });
       }
     } catch (error) {
       console.error('Error setting appointment reminder:', error);
-      await this.showToast('Failed to set appointment reminder', 'danger');
+      await this.toast('appointmentReminderFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1540,11 +1562,11 @@ export class ToolsComponent implements OnInit {
           buttons: ['OK']
         });
         await alert.present();
-        await this.showToast('Health report generated!', 'success');
+        await this.toast('healthReportGenerated', 'success');
       }
     } catch (error) {
       console.error('Error generating health report:', error);
-      await this.showToast('Failed to generate health report', 'danger');
+      await this.toast('healthReportFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
@@ -1562,14 +1584,29 @@ export class ToolsComponent implements OnInit {
           buttons: ['OK']
         });
         await alert.present();
-        await this.showToast('Trends analysis loaded!', 'success');
+        await this.toast('trendsLoaded', 'success');
       }
     } catch (error) {
       console.error('Error analyzing trends:', error);
-      await this.showToast('Failed to load trends analysis', 'danger');
+      await this.toast('trendsFailed', 'danger');
     } finally {
       this.isLoading = false;
     }
+  }
+
+  private t(key: string, params?: Record<string, string | number>): string {
+    const fullKey = key.startsWith('tools.toast.') ? key : `tools.toast.${key}`;
+    return params
+      ? this.translation.translateParams(fullKey, params)
+      : this.translation.translate(fullKey);
+  }
+
+  private async toast(
+    key: string,
+    color: 'success' | 'danger' | 'warning' = 'success',
+    params?: Record<string, string | number>,
+  ): Promise<void> {
+    await this.showToast(this.t(key, params), color);
   }
 
   // Utility method to show toast messages

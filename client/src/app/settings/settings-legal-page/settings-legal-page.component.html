@@ -11,7 +11,11 @@
 
 <ion-content class="legal-page-content">
   <div class="legal-hero">
-    <div class="legal-hero-icon" [class.privacy]="documentType === 'privacy'">
+    <div
+      class="legal-hero-icon"
+      [class.privacy]="documentType === 'privacy'"
+      [class.terms]="documentType === 'terms'"
+    >
       <ion-icon [name]="heroIcon"></ion-icon>
     </div>
     <h1 class="legal-hero-title">{{ titleKey | translate }}</h1>
@@ -32,7 +36,7 @@
 
     @if (highlights.length) {
     <div class="legal-highlights">
-      <h2 class="legal-block-title">{{ 'settings.privacyPolicy.highlightsTitle' | translate }}</h2>
+      <h2 class="legal-block-title">{{ highlightsTitleKey | translate }}</h2>
       <div class="highlights-grid">
         @for (item of highlights; track item.titleKey) {
         <div class="highlight-card">
@@ -111,7 +115,7 @@
       </div>
       <div class="contact-content">
         <h3>{{ 'settings.legal.contactTitle' | translate }}</h3>
-        <p>{{ 'settings.legal.contactText' | translate }}</p>
+        <p>{{ contactTextKey | translate }}</p>
         <ion-button fill="outline" size="small" (click)="openContactEmail()">
           {{ 'settings.legal.contactButton' | translate }}
         </ion-button>

@@ -5,6 +5,7 @@ import { ToastController, AlertController } from '@ionic/angular';
 import { DoctorService } from '../shared/services/doctor.service';
 import { ConsultationType, CreateDoctorDto } from '../shared/models/doctor.dto';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { TranslationService } from '../shared/services/translation.service';
 
 @Component({
   selector: 'app-create-doctor',
@@ -24,7 +25,8 @@ export class CreateDoctorComponent implements OnInit {
     private doctorService: DoctorService,
     private router: Router,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private translation: TranslationService
   ) {}
 
   ngOnInit() {
@@ -91,12 +93,12 @@ export class CreateDoctorComponent implements OnInit {
         
       } catch (error) {
         console.error('Error creating doctor:', error);
-        await this.showToast('Failed to create doctor profile. Please try again.', 'danger');
+        await this.showToast(this.translation.translate('createDoctor.toast.createFailed'), 'danger');
       } finally {
         this.isLoading = false;
       }
     } else {
-      await this.showToast('Please fill in all required fields correctly.', 'warning');
+      await this.showToast(this.translation.translate('createDoctor.toast.fillRequired'), 'warning');
       this.markFormGroupTouched();
     }
   }
@@ -128,17 +130,17 @@ export class CreateDoctorComponent implements OnInit {
   // Show success alert
   private async showSuccessAlert() {
     const alert = await this.alertController.create({
-      header: '✅ Success!',
-      message: 'Doctor profile has been created successfully. Patients can now find and book consultations with this doctor.',
+      header: this.translation.translate('createDoctor.toast.profileCreatedTitle'),
+      message: this.translation.translate('createDoctor.toast.profileCreated'),
       buttons: [
         {
-          text: 'View All Doctors',
+          text: this.translation.translate('createDoctor.toast.viewAllDoctors'),
           handler: () => {
             this.router.navigate(['/tabs/consultation']);
           }
         },
         {
-          text: 'Create Another',
+          text: this.translation.translate('createDoctor.toast.createAnother'),
           handler: () => {
             this.resetForm();
           }

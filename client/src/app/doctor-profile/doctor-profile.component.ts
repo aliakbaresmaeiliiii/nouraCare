@@ -7,6 +7,8 @@ import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
 import { Share } from '@capacitor/share';
 import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
 import { LocalizedNumberPipe } from '../shared/pipes/localized-number.pipe';
+import { TranslatePipe } from '../shared/pipes/translate.pipe';
+import { TranslationService } from '../shared/services/translation.service';
 
 // Extend Window interface to include Capacitor
 declare global {
@@ -22,7 +24,7 @@ declare global {
   templateUrl: './doctor-profile.component.html',
   styleUrls: ['./doctor-profile.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, LogoLoadingComponent, LocalizedNumberPipe],
+  imports: [IonicModule, CommonModule, LogoLoadingComponent, LocalizedNumberPipe, TranslatePipe],
 })
 export class DoctorProfileComponent implements OnInit {
   private readonly avatarWomenPath = 'assets/images/avatarWomen.png';
@@ -63,6 +65,7 @@ export class DoctorProfileComponent implements OnInit {
   private doctorService = inject(DoctorService);
   private alertController = inject(AlertController);
   private toastController = inject(ToastController);
+  private translation = inject(TranslationService);
 
   ngOnInit() {
     const doctorId = this.route.snapshot.paramMap.get('id');
@@ -84,7 +87,7 @@ export class DoctorProfileComponent implements OnInit {
         this.isLoading = false;
         this.doctor = null;
         const toast = await this.toastController.create({
-          message: 'Doctor not found or could not be loaded.',
+          message: this.translation.translate('doctorProfile.toast.notFound'),
           duration: 2500,
           color: 'danger',
           position: 'bottom',
@@ -135,7 +138,7 @@ export class DoctorProfileComponent implements OnInit {
 
   async bookAppointment(value?:any) {
     const toast = await this.toastController.create({
-      message: 'Appointment booked successfully!',
+      message: this.translation.translate('doctorProfile.toast.appointmentBooked'),
       duration: 3000,
       color: 'success',
       position: 'bottom'

@@ -1,7 +1,32 @@
 // Pregnancy “Today” home (calendar + radial hero + insight cards) — split for style budget
 .home-content.home-content--pregnancy-today {
-  background: linear-gradient(165deg, #fdf5f0 0%, #f8ebe4 42%, #f5f0eb 100%);
+  --home-surface-warm: #fff9f5;
+  --home-surface-warm-rgb: 255, 249, 245;
   --background: transparent;
+  background:
+    radial-gradient(
+      ellipse 108% 66% at 50% -10%,
+      rgba(255, 180, 150, 0.4) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 80% 46% at 92% 8%,
+      rgba(255, 210, 180, 0.28) 0%,
+      transparent 54%
+    ),
+    radial-gradient(
+      ellipse 72% 42% at 6% 22%,
+      rgba(230, 200, 255, 0.2) 0%,
+      transparent 50%
+    ),
+    linear-gradient(
+      180deg,
+      #fff3eb 0%,
+      #fceee6 16%,
+      #f8ebe4 40%,
+      #faf5f0 68%,
+      var(--home-surface-warm) 100%
+    );
 }
 
 .pregnancy-today-shell {
@@ -40,36 +65,89 @@
   z-index: 0;
 }
 
+.pregnancy-today-aurora {
+  position: absolute;
+  inset: -18% -12% 35% -12%;
+  background:
+    radial-gradient(
+      ellipse 68% 58% at 30% 26%,
+      rgba(255, 160, 130, 0.48) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 58% 52% at 74% 20%,
+      rgba(255, 200, 170, 0.36) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 48% 44% at 50% 64%,
+      rgba(210, 180, 240, 0.28) 0%,
+      transparent 56%
+    );
+  filter: blur(32px);
+  animation: home-aurora-shift 17s ease-in-out infinite;
+}
+
+.pregnancy-today-shine {
+  position: absolute;
+  top: -4%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, 96vw);
+  height: min(300px, 48vw);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.76) 0%,
+    rgba(255, 255, 255, 0.2) 44%,
+    transparent 72%
+  );
+  animation: home-shine-pulse 9s ease-in-out infinite;
+}
+
 .pregnancy-today-blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(48px);
-  opacity: 0.55;
+  filter: blur(52px);
+  opacity: 0.68;
+  animation: home-blob-float 12s ease-in-out infinite;
 }
 
 .pregnancy-today-blob--1 {
-  width: 220px;
-  height: 220px;
-  background: #ffd8c8;
-  top: -4%;
-  right: -12%;
+  width: 240px;
+  height: 240px;
+  background: #ffb899;
+  top: -6%;
+  right: -14%;
+  animation-delay: -1s;
 }
 
 .pregnancy-today-blob--2 {
-  width: 280px;
-  height: 280px;
-  background: #f5e6dc;
-  bottom: 18%;
-  left: -20%;
+  width: 290px;
+  height: 290px;
+  background: #f5c4a8;
+  bottom: 16%;
+  left: -22%;
+  animation-delay: -4s;
 }
 
 .pregnancy-today-blob--3 {
-  width: 160px;
-  height: 160px;
-  background: #e8ddf5;
-  top: 36%;
-  left: 55%;
-  opacity: 0.35;
+  width: 170px;
+  height: 170px;
+  background: #d8c4f0;
+  opacity: 0.48;
+  top: 34%;
+  left: 54%;
+  animation-delay: -8s;
+}
+
+.pregnancy-today-blob--4 {
+  width: 195px;
+  height: 195px;
+  background: #ffd4c2;
+  opacity: 0.42;
+  top: 10%;
+  left: 6%;
+  animation-delay: -6s;
 }
 
 .pregnancy-calendar-swiper {
@@ -1510,12 +1588,29 @@
 
 :host-context(html.ion-palette-dark) {
   .home-content.home-content--pregnancy-today {
-    background: linear-gradient(
-      165deg,
-      var(--ion-background-color-step-50) 0%,
-      var(--ion-background-color) 100%
-    );
+    --home-surface-warm: var(--ion-background-color);
+    --home-surface-warm-rgb: var(--ion-background-color-rgb);
+    background:
+      radial-gradient(
+        ellipse 100% 58% at 50% -8%,
+        rgba(255, 140, 110, 0.18) 0%,
+        transparent 58%
+      ),
+      linear-gradient(
+        165deg,
+        var(--ion-background-color-step-50) 0%,
+        var(--ion-background-color) 100%
+      );
     --background: transparent;
+  }
+
+  .pregnancy-today-aurora {
+    opacity: 0.5;
+    filter: blur(40px);
+  }
+
+  .pregnancy-today-shine {
+    opacity: 0.3;
   }
 
   .pregnancy-today-blob--1 {
@@ -1529,6 +1624,11 @@
   .pregnancy-today-blob--3 {
     background: rgba(170, 150, 210, 0.16);
     opacity: 0.22;
+  }
+
+  .pregnancy-today-blob--4 {
+    background: rgba(255, 180, 150, 0.14);
+    opacity: 0.2;
   }
 
   /* Week calendar strip: crisp type on a dark glass bar */

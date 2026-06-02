@@ -1,7 +1,7 @@
 <div class="reproductive-status-container">
   <div class="header">
-    <h1 class="title">Reproductive Status</h1>
-    <p class="subtitle">Please select your current reproductive stage</p>
+    <h1 class="title">{{ 'reproductiveStatusPicker.title' | translate }}</h1>
+    <p class="subtitle">{{ 'reproductiveStatusPicker.subtitle' | translate }}</p>
   </div>
 
   <div class="options-grid">
@@ -13,8 +13,8 @@
     >
       <div class="option-icon">{{ option.icon }}</div>
       <div class="option-content">
-        <h3 class="option-label">{{ option.label }}</h3>
-        <p class="option-description">{{ option.description }}</p>
+        <h3 class="option-label">{{ option.labelKey | translate }}</h3>
+        <p class="option-description">{{ option.descriptionKey | translate }}</p>
       </div>
     </div>
     }

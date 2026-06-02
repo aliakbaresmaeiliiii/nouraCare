@@ -19,8 +19,8 @@
       <div class="pregnancy-icon">
         <ion-icon name="heart"></ion-icon>
       </div>
-      <h2 class="modal-title">Pregnancy Journey</h2>
-      <p class="header-subtitle">Share your beautiful moments</p>
+      <h2 class="modal-title">{{ 'postDetail.title' | translate }}</h2>
+      <p class="header-subtitle">{{ 'postDetail.subtitle' | translate }}</p>
     </div>
     
     <ion-button fill="clear" class="notification-btn">
@@ -46,7 +46,7 @@
           <div class="post-category">
             <ion-chip class="pregnancy-chip">
               <ion-icon name="heart"></ion-icon>
-              <ion-label>{{ postData?.category?.name || 'Pregnancy Journey' }}</ion-label>
+              <ion-label>{{ postData?.category?.name || ('postDetail.defaultCategory' | translate) }}</ion-label>
             </ion-chip>
           </div>
         </div>
@@ -78,26 +78,26 @@
       [class.active]="selectedFilter === 'top'"
       class="filter-btn"
       (click)="selectFilter('top')">
-      Top
+      {{ 'postDetail.filterTop' | translate }}
     </ion-button>
     <ion-button 
       [class.active]="selectedFilter === 'newest'"
       class="filter-btn"
       (click)="selectFilter('newest')">
-      Newest
+      {{ 'postDetail.filterNewest' | translate }}
     </ion-button>
     <ion-button 
       [class.active]="selectedFilter === 'my'"
       class="filter-btn"
       (click)="selectFilter('my')">
-      My
+      {{ 'postDetail.filterMy' | translate }}
     </ion-button>
   </div>
 
   <!-- Disclaimer -->
   <div class="disclaimer">
     <ion-icon name="information-circle-outline" class="info-icon"></ion-icon>
-    <span class="disclaimer-text">Replies aren't medically verified</span>
+    <span class="disclaimer-text">{{ 'postDetail.disclaimer' | translate }}</span>
   </div>
 
   <!-- Beautiful Empty State -->
@@ -120,8 +120,8 @@
     </div>
     
     <div class="empty-message">
-      <h3 class="empty-title">Share Your Journey!</h3>
-      <p class="empty-subtitle">Connect with other expecting mothers and share your beautiful pregnancy moments.</p>
+      <h3 class="empty-title">{{ 'postDetail.emptyTitle' | translate }}</h3>
+      <p class="empty-subtitle">{{ 'postDetail.emptySubtitle' | translate }}</p>
     </div>
   </div>
   }
@@ -137,12 +137,12 @@
       <div class="comment-content">
         <div class="comment-header">
           <span class="comment-author">{{ comment.author }}</span>
-          <span class="comment-time">Just now</span>
+          <span class="comment-time">{{ 'postDetail.justNow' | translate }}</span>
         </div>
         <div class="comment-actions">
           <ion-button fill="clear" class="like-btn" (click)="likeComment(comment.id)">
             <ion-icon name="heart-outline"></ion-icon>
-            <span class="like-text">Like</span>
+            <span class="like-text">{{ 'postDetail.like' | translate }}</span>
           </ion-button>
         </div>
         <p class="comment-text">{{ comment.content }}</p>
@@ -151,7 +151,7 @@
         <div class="reply-input-section">
           <ion-input 
             [(ngModel)]="newReply[comment.id]"
-            placeholder="Write a reply..."
+            [placeholder]="'postDetail.replyPlaceholder' | translate"
             class="reply-input">
           </ion-input>
           <ion-button 
@@ -182,7 +182,7 @@
               <div class="reply-actions">
                 <ion-button fill="clear" class="reply-like-btn" (click)="likeReply(comment.id, reply.id)">
                   <ion-icon name="heart-outline"></ion-icon>
-                  <span class="reply-like-text">Like</span>
+                  <span class="reply-like-text">{{ 'postDetail.like' | translate }}</span>
                 </ion-button>
               </div>
               <p class="reply-text">{{ reply.content }}</p>
@@ -207,7 +207,7 @@
         
         <ion-input 
           [(ngModel)]="newComment"
-          placeholder="Share your pregnancy experience..."
+          [placeholder]="'postDetail.commentPlaceholder' | translate"
           class="pregnancy-input">
         </ion-input>
         

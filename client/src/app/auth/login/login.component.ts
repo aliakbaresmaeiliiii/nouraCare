@@ -14,6 +14,7 @@ import {
 import { RegisterRequest } from './model/register-request-interface';
 import { LoginRequest } from './model/login-request-interface';
 import { AuthService } from '../services/auth';
+import { markEmailVerificationSent } from '../constants/email-verification.constants';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import {
   BehaviorSubject,
@@ -58,7 +59,7 @@ export class LoginComponent {
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: [''],
-    otp: ['', [Validators.minLength(4), Validators.maxLength(8)]],
+    otp: ['', [Validators.minLength(6), Validators.maxLength(6)]],
   });
 
   /** After email submit, user enters the code sent to their inbox. */
@@ -258,6 +259,7 @@ export class LoginComponent {
             sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
           }
 
+          markEmailVerificationSent();
           this.router.navigate(['auth/verify-email']);
         },
         error: (err) => {
@@ -276,7 +278,8 @@ export class LoginComponent {
       return emailInvalid;
     }
     const otpInvalid = !!this.loginForm.get('otp')?.invalid;
-    const otpEmpty = !(this.loginForm.get('otp')?.value || '').trim();
+    const otp = (this.loginForm.get('otp')?.value || '').trim();
+    const otpEmpty = otp.length < 6;
     return emailInvalid || otpInvalid || otpEmpty;
   }
 
@@ -312,6 +315,7 @@ export class LoginComponent {
     }
 
     if (!res?.data?.user?.isVerified) {
+      markEmailVerificationSent();
       this.router.navigate(['/auth/verify-email']);
     } else {
       this.router.navigate(['/tabs/home']);
@@ -409,5 +413,10 @@ export class LoginComponent {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  viewLicenseAgreement(event: Event): void {
+    event.preventDefault();
+    void this.router.navigate(['/terms']);
   }
 }

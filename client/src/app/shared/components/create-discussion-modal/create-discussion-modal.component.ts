@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { TranslationService } from '../../services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 interface DiscussionCategory {
   id: string;
@@ -23,12 +25,17 @@ interface DiscussionTemplate {
   templateUrl: './create-discussion-modal.component.html',
   styleUrls: ['./create-discussion-modal.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule]
+  imports: [IonicModule, CommonModule, FormsModule, TranslatePipe]
 })
 export class CreateDiscussionModalComponent implements OnInit {
 
   private modalController = inject(ModalController);
   private toastController = inject(ToastController);
+  private translation = inject(TranslationService);
+
+  private t(key: string): string {
+    return this.translation.translate(key);
+  }
 
   // Form data
   discussionTitle = '';
@@ -227,7 +234,7 @@ export class CreateDiscussionModalComponent implements OnInit {
   // Submit discussion
   async submitDiscussion() {
     if (!this.canSubmit()) {
-      await this.showToast('Please fill in all required fields', 'warning');
+      await this.showToast(this.t('createDiscussion.toast.fillRequired'), 'warning');
       return;
     }
 
@@ -250,11 +257,11 @@ export class CreateDiscussionModalComponent implements OnInit {
 
       // Close modal with success data
       await this.modalController.dismiss(discussionData, 'success');
-      await this.showToast('Discussion posted successfully! 🎉', 'success');
+      await this.showToast(this.t('createDiscussion.toast.posted'), 'success');
 
     } catch (error) {
       console.error('Error creating discussion:', error);
-      await this.showToast('Failed to post discussion. Please try again.', 'danger');
+      await this.showToast(this.t('createDiscussion.toast.postFailed'), 'danger');
     } finally {
       this.isSubmitting = false;
     }
@@ -281,17 +288,17 @@ export class CreateDiscussionModalComponent implements OnInit {
   private async confirmClose(): Promise<boolean> {
     return new Promise(async (resolve) => {
       const toast = await this.toastController.create({
-        message: 'You have unsaved changes. Are you sure you want to close?',
+        message: this.t('createDiscussion.toast.unsavedChanges'),
         duration: 4000,
         position: 'top',
         color: 'warning',
         buttons: [
           {
-            text: 'Keep Writing',
+            text: this.t('createDiscussion.toast.keepWriting'),
             handler: () => resolve(false)
           },
           {
-            text: 'Discard',
+            text: this.t('createDiscussion.toast.discard'),
             handler: () => resolve(true)
           }
         ]

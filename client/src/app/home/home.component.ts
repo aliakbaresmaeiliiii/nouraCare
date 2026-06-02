@@ -891,7 +891,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
    */
   refreshDailyMessage() {
     this.dailyMessage = this.messageService.generateDailyMessage();
-    this.showToast('New daily message generated! ✨');
+    this.showToast(this.tr('home.toast.dailyMessageRefreshed'));
   }
 
   /**
@@ -899,7 +899,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
    */
   generateMoodMessage(mood: string) {
     const moodMessage = this.messageService.generateMoodBasedMessage(mood);
-    this.showToast(moodMessage);
+    this.showToast(this.tr('home.toast.moodMessage', { message: moodMessage }));
   }
 
   // Hero Section Actions
@@ -1378,18 +1378,18 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   // Open symptoms tracking
   openSymptomsTracking() {
     this.router.navigate(['/symptoms-tracker']);
-    this.showToast('Opening symptom tracker...');
+    this.showToast(this.tr('home.toast.openingSymptomTracker'));
   }
 
   // Navigate to school (baby development)
   navigateToSchool() {
     this.router.navigate(['/tabs/school']);
-    this.showToast('Opening baby development...');
+    this.showToast(this.tr('home.toast.openingBabyDevelopment'));
   }
 
   // Open nutrition guide
   openNutritionGuide() {
-    this.showToast('Nutrition guide coming soon...');
+    this.showToast(this.tr('home.toast.nutritionGuideSoon'));
   }
 
   // Symptoms Summary Methods

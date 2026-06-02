@@ -1,6 +1,6 @@
 <div class="modal-glass pregnancy-results-modal">
   <div class="modal-header">
-    <h2>🤰 Pregnancy Week Calculator</h2>
+    <h2>🤰 {{ 'pregnancyResults.modalTitle' | translate }}</h2>
     <button class="close-button" (click)="dismiss()">
       <ion-icon name="close"></ion-icon>
     </button>
@@ -14,11 +14,11 @@
       <div class="pregnancy-icon">
         <div class="week-badge">
           <span class="week-number">{{ results.pregnancyWeek | localNum }}</span>
-          <span class="week-label">weeks</span>
+          <span class="week-label">{{ 'pregnancyResults.weeksLabel' | translate }}</span>
         </div>
       </div>
       <h2>{{ getTrimesterName() }}</h2>
-      <p>You're {{ results.progressPercentage | localNum }}% through your pregnancy journey!</p>
+      <p>{{ progressThroughLabel }}</p>
     </div>
 
     <!-- Progress Bar -->
@@ -31,8 +31,8 @@
           </div>
         </div>
         <div class="progress-labels">
-          <span>0 weeks</span>
-          <span>40 weeks</span>
+          <span>{{ 'pregnancyResults.weeksRange0' | translate }}</span>
+          <span>{{ 'pregnancyResults.weeksRange40' | translate }}</span>
         </div>
       </div>
     </div>
@@ -43,7 +43,7 @@
         <div class="size-visual">
           <div class="fruit-emoji">{{ getBabySize().emoji }}</div>
           <div class="size-comparison">
-            <h3>Size of a {{ getBabySize().fruit }}</h3>
+            <h3>{{ sizeOfLabel }}</h3>
             <p>{{ getBabySize().description }}</p>
           </div>
         </div>
@@ -57,9 +57,9 @@
           <ion-icon name="calendar" color="primary"></ion-icon>
         </div>
         <div class="info-content">
-          <h4>Due Date</h4>
+          <h4>{{ 'pregnancyResults.dueDate' | translate }}</h4>
           <p class="info-value">{{ results.dueDate | localNum }}</p>
-          <span class="info-subtitle">Estimated delivery</span>
+          <span class="info-subtitle">{{ 'pregnancyResults.estimatedDelivery' | translate }}</span>
         </div>
       </div>
 
@@ -68,9 +68,9 @@
           <ion-icon name="time" color="tertiary"></ion-icon>
         </div>
         <div class="info-content">
-          <h4>Weeks Left</h4>
+          <h4>{{ 'pregnancyResults.weeksLeft' | translate }}</h4>
           <p class="info-value">{{ results.remainingWeeks | localNum }}</p>
-          <span class="info-subtitle">Until due date</span>
+          <span class="info-subtitle">{{ 'pregnancyResults.untilDueDate' | translate }}</span>
         </div>
       </div>
 
@@ -79,9 +79,9 @@
           <ion-icon name="fitness" color="success"></ion-icon>
         </div>
         <div class="info-content">
-          <h4>Trimester</h4>
+          <h4>{{ 'pregnancyResults.trimester' | translate }}</h4>
           <p class="info-value">{{ results.trimester | localNum }}</p>
-          <span class="info-subtitle">of 3</span>
+          <span class="info-subtitle">{{ 'pregnancyResults.ofThree' | translate }}</span>
         </div>
       </div>
 
@@ -90,9 +90,9 @@
           <ion-icon name="heart" color="danger"></ion-icon>
         </div>
         <div class="info-content">
-          <h4>Days Since</h4>
+          <h4>{{ 'pregnancyResults.daysSince' | translate }}</h4>
           <p class="info-value">{{ results.daysSinceConception | localNum }}</p>
-          <span class="info-subtitle">Conception</span>
+          <span class="info-subtitle">{{ 'pregnancyResults.conception' | translate }}</span>
         </div>
       </div>
     </div>
@@ -102,36 +102,10 @@
       <div class="milestone-card">
         <ion-icon name="checkmark-circle" color="success"></ion-icon>
         <div class="milestone-content">
-          <h4>🎯 This Week's Milestones</h4>
+          <h4>🎯 {{ 'pregnancyResults.milestonesTitle' | translate }}</h4>
           <ul>
-            @if (results.pregnancyWeek >= 8) {
-              <li>Baby's heart is beating regularly</li>
-
-            }
-            @if (results.pregnancyWeek >= 12) {
-              <li>Risk of miscarriage significantly decreases</li>
-            }
-
-            @if (results.pregnancyWeek >= 16) {
-              <li>You might start feeling baby's movements</li>
-            }
-            @if (results.pregnancyWeek >= 20) {
-              <li>Anatomy scan can reveal baby's gender</li>
-            }
-            @if (results.pregnancyWeek >= 24) {
-              <li>Baby's hearing is developing</li>
-            }
-            @if (results.pregnancyWeek >= 28) {
-              <li>Baby's eyes can open and close</li>
-            }
-            @if (results.pregnancyWeek >= 32) {
-              <li>Baby is gaining weight rapidly</li>
-            }
-            @if (results.pregnancyWeek >= 37) {
-              <li>Baby is considered full-term</li>
-            }
-            @if (results.pregnancyWeek < 8) {
-              <li>Your baby's major organs are forming</li>
+            @for (key of getMilestoneKeys(); track key) {
+              <li>{{ key | translate }}</li>
             }
           </ul>
         </div>
@@ -143,13 +117,11 @@
       <div class="tip-card">
         <ion-icon name="medical" color="tertiary"></ion-icon>
         <div class="tip-content">
-          <h4>💡 Health Tips for Week {{ results.pregnancyWeek | localNum }}</h4>
+          <h4>💡 {{ healthTipsTitleLabel }}</h4>
           <ul>
-            <li>Take prenatal vitamins daily</li>
-            <li>Stay hydrated - aim for 8-10 glasses of water</li>
-            <li>Get adequate rest and sleep</li>
-            <li>Maintain regular prenatal appointments</li>
-            <li>Track your symptoms and baby's movements</li>
+            @for (key of getHealthTipKeys(); track key) {
+              <li>{{ key | translate }}</li>
+            }
           </ul>
         </div>
       </div>
@@ -158,7 +130,7 @@
     <!-- Disclaimer -->
     <div class="disclaimer">
       <ion-icon name="information-circle-outline" color="medium"></ion-icon>
-      <p>This calculation is based on your last menstrual period (LMP). Due dates can vary by ±2 weeks. Always consult your healthcare provider for accurate pregnancy dating and personalized care.</p>
+      <p>{{ 'pregnancyResults.disclaimer' | translate }}</p>
     </div>
 
     </div>
@@ -167,17 +139,17 @@
   <div class="modal-footer">
     <button class="glass-button primary" (click)="updateProfile()">
       <ion-icon name="person"></ion-icon>
-      Update My Profile
+      {{ 'pregnancyResults.updateProfile' | translate }}
     </button>
     
     <button class="glass-button secondary" (click)="trackSymptoms()">
       <ion-icon name="medical"></ion-icon>
-      Track Symptoms
+      {{ 'pregnancyResults.trackSymptoms' | translate }}
     </button>
     
     <button class="glass-button secondary" (click)="setAppointment()">
       <ion-icon name="calendar"></ion-icon>
-      Book Appointment
+      {{ 'pregnancyResults.bookAppointment' | translate }}
     </button>
   </div>
 </div>

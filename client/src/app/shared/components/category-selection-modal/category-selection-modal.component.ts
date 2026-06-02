@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 export interface PostCategory {
   id: string;
@@ -14,7 +15,7 @@ export interface PostCategory {
   templateUrl: './category-selection-modal.component.html',
   styleUrls: ['./category-selection-modal.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule, TranslatePipe]
 })
 export class CategorySelectionModalComponent implements OnInit {
 

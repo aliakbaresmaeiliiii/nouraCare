@@ -13,9 +13,12 @@
     @if (!isPregnant()) {
     <div class="cycle-today-shell">
       <div class="cycle-today-bg" aria-hidden="true">
+        <div class="cycle-today-aurora"></div>
+        <div class="cycle-today-shine"></div>
         <div class="cycle-today-blob cycle-today-blob--1"></div>
         <div class="cycle-today-blob cycle-today-blob--2"></div>
         <div class="cycle-today-blob cycle-today-blob--3"></div>
+        <div class="cycle-today-blob cycle-today-blob--4"></div>
       </div>
 
       @if (showStartTrackingOnboarding()) {
@@ -328,9 +331,12 @@
     @if (isPregnant()) {
     <div class="pregnancy-today-shell">
       <div class="pregnancy-today-bg" aria-hidden="true">
+        <div class="pregnancy-today-aurora"></div>
+        <div class="pregnancy-today-shine"></div>
         <div class="pregnancy-today-blob pregnancy-today-blob--1"></div>
         <div class="pregnancy-today-blob pregnancy-today-blob--2"></div>
         <div class="pregnancy-today-blob pregnancy-today-blob--3"></div>
+        <div class="pregnancy-today-blob pregnancy-today-blob--4"></div>
       </div>
 
       @if (needsPregnancyInput) {
@@ -574,7 +580,7 @@
           {{ getPregnancyInsightsHeading() }}
         </h2>
         @let pdsStoryTopics = getPregnancyDailyInsightStripTopics();
-        <div class="pds-strip" role="list" aria-label="Daily insight stories">
+        <div class="pds-strip" role="list" [attr.aria-label]="'home.a11y.dailyInsightStories' | translate">
           <div class="pds-card pds-card--summary" role="listitem">
             <div class="pds-summary-stack" aria-hidden="true">
               <span class="pds-summary-orb pds-summary-orb--a">
@@ -593,13 +599,13 @@
               (click)="
                 openDailyInsightStory(getPregnancyDailyInsightSummaryTopic())
               "
-              aria-label="Open daily insights summary"
+              [attr.aria-label]="'home.a11y.openDailyInsightsSummary' | translate"
             ></button>
             <button
               type="button"
               class="pds-summary-plus"
               (click)="openSymptomsTracking()"
-              aria-label="Track symptoms"
+              [attr.aria-label]="'home.a11y.trackSymptoms' | translate"
             >
               <ion-icon name="add" aria-hidden="true"></ion-icon>
             </button>

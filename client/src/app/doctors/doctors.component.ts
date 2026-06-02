@@ -9,6 +9,7 @@ import { ActionSheetController, AlertController, ToastController } from '@ionic/
 import { DoctorService } from '../shared/services/doctor.service';
 import { DoctorDto } from '../shared/models/doctor.dto';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { TranslationService } from '../shared/services/translation.service';
 import { finalize } from 'rxjs/operators';
 
 @Component({
@@ -67,6 +68,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     private actionSheetController: ActionSheetController,
     private toastController: ToastController,
     private doctorService: DoctorService,
+    private translation: TranslationService,
   ) {}
 
   ngOnInit() {
@@ -140,7 +142,7 @@ export class DoctorsComponent implements OnInit, OnDestroy {
           this.filteredDoctors = this.doctors;
         },
         error: async () => {
-          await this.showToast('Could not load doctors. Check your connection and API.', 'danger');
+          await this.showToast(this.translation.translate('doctors.toast.loadFailed'), 'danger');
         },
       });
   }
@@ -269,7 +271,10 @@ export class DoctorsComponent implements OnInit, OnDestroy {
       buttons: ['OK'],
     });
     await alert.present();
-    await this.showToast(`Appointment booked with ${doctor.fullName}!`, 'success');
+    await this.showToast(
+      this.translation.translateParams('doctors.toast.appointmentBooked', { name: doctor.fullName }),
+      'success',
+    );
   }
 
   viewDoctorProfile(doctor: DoctorDto) {

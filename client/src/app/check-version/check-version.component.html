@@ -3,14 +3,14 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title class="header-title">Check for updates</ion-title>
+    <ion-title class="header-title">{{ 'checkVersion.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="version-content">
   <ion-refresher
     slot="fixed"
-    aria-label="Pull down to check for updates again"
+    [attr.aria-label]="'checkVersion.refreshAria' | translate"
     (ionRefresh)="onRefresh($event)"
   >
     <ion-refresher-content></ion-refresher-content>
@@ -18,7 +18,7 @@
 
   <div class="page-inner">
     @if (isLoading) {
-      <app-logo-loading message="Checking for updates…" />
+      <app-logo-loading [message]="'checkVersion.checking' | translate" />
     }
 
     @if (errorMessage && !isLoading) {
@@ -27,7 +27,7 @@
         <p class="error-text">{{ errorMessage }}</p>
         <ion-button fill="outline" (click)="loadVersionInfo()">
           <ion-icon name="refresh-outline" slot="start"></ion-icon>
-          Try again
+          {{ 'common.tryAgain' | translate }}
         </ion-button>
       </div>
     }
@@ -37,30 +37,30 @@
         <div class="version-card current-version">
           <div class="card-header">
             <ion-icon name="phone-portrait-outline" class="card-icon"></ion-icon>
-            <h2 class="card-title">Current version</h2>
+            <h2 class="card-title">{{ 'checkVersion.currentVersion' | translate }}</h2>
           </div>
           <div class="version-number">{{ versionInfo.currentVersion }}</div>
-          <p class="version-label">Installed on this device</p>
+          <p class="version-label">{{ 'checkVersion.installedLabel' | translate }}</p>
         </div>
 
         @if (versionInfo.isUpdateAvailable) {
           <div class="update-available">
             <div class="update-badge">
               <ion-icon name="arrow-up-circle-outline" class="update-icon"></ion-icon>
-              <span class="update-text">Update available</span>
+              <span class="update-text">{{ 'checkVersion.updateAvailable' | translate }}</span>
             </div>
 
             <div class="version-card latest-version">
               <div class="card-header">
                 <ion-icon name="star-outline" class="card-icon"></ion-icon>
-                <h2 class="card-title">Latest version</h2>
+                <h2 class="card-title">{{ 'checkVersion.latestVersion' | translate }}</h2>
               </div>
               <div class="version-number">{{ versionInfo.latestVersion }}</div>
-              <p class="version-label">Released {{ formatDate(versionInfo.releaseDate) }}</p>
+              <p class="version-label">{{ releasedLabel }}</p>
             </div>
 
             <div class="release-notes">
-              <h3 class="notes-title">What is new</h3>
+              <h3 class="notes-title">{{ 'checkVersion.whatsNew' | translate }}</h3>
               <ion-list class="notes-list" lines="none">
                 @for (note of versionInfo.releaseNotes; track $index) {
                   <ion-item class="note-item">
@@ -73,7 +73,7 @@
 
             <app-button size="large" (buttonClick)="downloadUpdate()">
               <ion-icon name="download-outline" slot="start"></ion-icon>
-              Get the update
+              {{ 'checkVersion.getUpdate' | translate }}
             </app-button>
           </div>
         }
@@ -82,20 +82,20 @@
           <div class="no-update">
             <div class="no-update-badge">
               <ion-icon name="checkmark-circle-outline" class="no-update-icon"></ion-icon>
-              <span class="no-update-text">You are up to date</span>
+              <span class="no-update-text">{{ 'checkVersion.upToDate' | translate }}</span>
             </div>
-            <p class="no-update-message">You already have the latest NouraCare version for this device.</p>
+            <p class="no-update-message">{{ 'checkVersion.upToDateMessage' | translate }}</p>
           </div>
         }
 
         <div class="last-checked">
           <ion-icon name="time-outline" class="time-icon"></ion-icon>
-          <span class="time-text">Last checked: {{ lastChecked }}</span>
+          <span class="time-text">{{ lastCheckedLabel }}</span>
         </div>
 
         <ion-button expand="block" fill="outline" color="medium" (click)="loadVersionInfo()" class="check-again-button">
           <ion-icon name="refresh-outline" slot="start"></ion-icon>
-          Check again
+          {{ 'checkVersion.checkAgain' | translate }}
         </ion-button>
       </div>
     }

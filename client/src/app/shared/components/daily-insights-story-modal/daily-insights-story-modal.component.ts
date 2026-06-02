@@ -16,11 +16,12 @@ import { ModalController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { close } from 'ionicons/icons';
 import type { DailyInsightSlide, DailyInsightTopic } from '../../models/daily-insight-topic.model';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-daily-insights-story-modal',
   standalone: true,
-  imports: [CommonModule, IonContent, IonIcon],
+  imports: [CommonModule, IonContent, IonIcon, TranslatePipe],
   templateUrl: './daily-insights-story-modal.component.html',
   styleUrl: './daily-insights-story-modal.component.scss',
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

@@ -66,30 +66,34 @@
     >
       <!-- Background gradient -->
       <defs>
-        <radialGradient id="centerGradient" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="var(--brand-surface)" stop-opacity="1" />
-          <stop offset="72%" stop-color="var(--brand-surface)" stop-opacity="1" />
-          <stop offset="100%" stop-color="var(--brand-bg)" stop-opacity="1" />
+        <radialGradient id="centerGradient" cx="50%" cy="50%" r="68%">
+          <stop offset="0%" stop-color="var(--brand-surface)" stop-opacity="0.95" />
+          <stop offset="55%" stop-color="var(--brand-surface)" stop-opacity="0.72" />
+          <stop offset="82%" stop-color="var(--brand-bg)" stop-opacity="0.28" />
+          <stop offset="100%" stop-color="var(--brand-bg)" stop-opacity="0" />
         </radialGradient>
 
         <!-- Phase-tinted outer disk — soft blush / mint washes -->
-        <radialGradient id="centerGradientPeriod" cx="44%" cy="38%" r="62%">
-          <stop offset="0%" stop-color="#fffafb" stop-opacity="1" />
-          <stop offset="38%" stop-color="#ffe4ec" stop-opacity="1" />
-          <stop offset="72%" stop-color="#fecdd3" stop-opacity="0.72" />
-          <stop offset="100%" stop-color="#fda4af" stop-opacity="0.22" />
+        <radialGradient id="centerGradientPeriod" cx="44%" cy="38%" r="72%">
+          <stop offset="0%" stop-color="#fffafb" stop-opacity="0.98" />
+          <stop offset="38%" stop-color="#ffe4ec" stop-opacity="0.88" />
+          <stop offset="68%" stop-color="#fecdd3" stop-opacity="0.45" />
+          <stop offset="88%" stop-color="#fda4af" stop-opacity="0.12" />
+          <stop offset="100%" stop-color="#fda4af" stop-opacity="0" />
         </radialGradient>
-        <radialGradient id="centerGradientFertile" cx="44%" cy="38%" r="62%">
-          <stop offset="0%" stop-color="#fafffe" stop-opacity="1" />
-          <stop offset="40%" stop-color="#ecfdf5" stop-opacity="1" />
-          <stop offset="72%" stop-color="#a7f3d0" stop-opacity="0.62" />
-          <stop offset="100%" stop-color="#5eead4" stop-opacity="0.2" />
+        <radialGradient id="centerGradientFertile" cx="44%" cy="38%" r="72%">
+          <stop offset="0%" stop-color="#fafffe" stop-opacity="0.98" />
+          <stop offset="40%" stop-color="#ecfdf5" stop-opacity="0.88" />
+          <stop offset="68%" stop-color="#a7f3d0" stop-opacity="0.42" />
+          <stop offset="88%" stop-color="#5eead4" stop-opacity="0.1" />
+          <stop offset="100%" stop-color="#5eead4" stop-opacity="0" />
         </radialGradient>
-        <radialGradient id="centerGradientOvulationPeak" cx="44%" cy="38%" r="62%">
-          <stop offset="0%" stop-color="#f0fdfa" stop-opacity="1" />
-          <stop offset="42%" stop-color="#ccfbf1" stop-opacity="1" />
-          <stop offset="74%" stop-color="#5eead4" stop-opacity="0.58" />
-          <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0.24" />
+        <radialGradient id="centerGradientOvulationPeak" cx="44%" cy="38%" r="72%">
+          <stop offset="0%" stop-color="#f0fdfa" stop-opacity="0.98" />
+          <stop offset="42%" stop-color="#ccfbf1" stop-opacity="0.88" />
+          <stop offset="70%" stop-color="#5eead4" stop-opacity="0.4" />
+          <stop offset="88%" stop-color="#2dd4bf" stop-opacity="0.1" />
+          <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0" />
         </radialGradient>
 
         <!-- Ring segment gradients -->
@@ -138,6 +142,44 @@
             flood-color="rgb(var(--brand-primary-rgb))"
             flood-opacity="0.1"
           />
+        </filter>
+
+        <filter id="textSoftShadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow
+            dx="0"
+            dy="1"
+            stdDeviation="2.5"
+            flood-color="rgb(var(--brand-text-rgb))"
+            flood-opacity="0.14"
+          />
+        </filter>
+
+        <linearGradient id="cycleLengthBadgeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#99f6e4" />
+          <stop offset="52%" stop-color="#14b8a6" />
+          <stop offset="100%" stop-color="#0d9488" />
+        </linearGradient>
+
+        <linearGradient id="cycleLengthBadgeRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="rgba(255, 255, 255, 0.95)" />
+          <stop offset="100%" stop-color="rgba(153, 246, 228, 0.55)" />
+        </linearGradient>
+
+        <linearGradient id="cycleProgressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="rgba(var(--brand-primary-rgb), 0.15)" />
+          <stop offset="55%" stop-color="rgba(var(--brand-secondary-rgb), 0.55)" />
+          <stop offset="100%" stop-color="rgba(var(--brand-secondary-rgb), 0.85)" />
+        </linearGradient>
+
+        <linearGradient id="trackRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="rgba(251, 113, 133, 0.08)" />
+          <stop offset="50%" stop-color="rgba(255, 255, 255, 0.35)" />
+          <stop offset="100%" stop-color="rgba(167, 139, 250, 0.1)" />
+        </linearGradient>
+
+        <filter id="centerGlassShadow" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="rgb(var(--brand-text-rgb))" flood-opacity="0.08" />
+          <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgb(var(--brand-primary-rgb))" flood-opacity="0.06" />
         </filter>
 
         <!-- 3D Shadow effect -->
@@ -206,8 +248,7 @@
         <circle
           r="240"
           [attr.fill]="cycleDiskBackgroundFill"
-          stroke-width="1"
-          filter="url(#shadow)"
+          stroke-width="0"
           class="background-3d chart-bg-disk"
         ></circle>
 
@@ -215,12 +256,39 @@
         <circle
           r="210"
           fill="none"
+          stroke="url(#trackRingGradient)"
           stroke-width="28"
           class="chart-track-ring"
         ></circle>
 
-        <!-- Animated Aura Circles around the ring content -->
+        <!-- Soft ambient glow behind segments -->
+        <circle
+          r="224"
+          fill="url(#auraGradient1)"
+          filter="url(#auraBlur)"
+          class="chart-aura chart-aura--one"
+        />
+        <circle
+          r="216"
+          fill="url(#auraGradient2)"
+          filter="url(#auraBlur)"
+          class="chart-aura chart-aura--two"
+        />
 
+        <!-- Cycle progress arc (Flo-style completion sweep) -->
+        @if (startDate && viewCycleDay >= 1) {
+          <circle
+            r="198"
+            fill="none"
+            stroke="url(#cycleProgressGradient)"
+            stroke-width="5"
+            stroke-linecap="round"
+            transform="rotate(-90)"
+            class="cycle-progress-arc"
+            [attr.stroke-dasharray]="getCycleProgressDash()"
+            stroke-dashoffset="0"
+          />
+        }
 
         <!-- Cycle segments -->
         @for (s of segments; track $index) {
@@ -242,77 +310,55 @@
         }
 
 
-       <!-- Period days outside the circle (hidden)  -->
-        @for (day of periodDayNumbers; track $index) {
-        <g class="outer-number-marker">
-          <text [attr.x]="getOuterNumberX($index, cycleLength)" [attr.y]="getOuterNumberY($index, cycleLength)"
-            text-anchor="middle" alignment-baseline="middle" font-size="20" font-weight="700"
-            class="outer-number period-day-number">
-            {{ day | localNum }}
-          </text>
-        </g>
+        <!-- Period day labels on the period arc (centered in each day slice) -->
+        @for (day of periodDayNumbers; track day) {
+          @if (!(showTodayRingCap() && day === viewCycleDay)) {
+            <g
+              class="outer-number-marker period-day-marker"
+              [attr.transform]="
+                'translate(' +
+                getCycleDayLabelX(day) +
+                ',' +
+                getCycleDayLabelY(day) +
+                ')'
+              "
+            >
+              <circle class="period-day-number__disk" r="12" />
+              <text
+                class="outer-number period-day-number"
+                text-anchor="middle"
+                dominant-baseline="central"
+                y="0.5"
+              >
+                {{ day | localNum }}
+              </text>
+            </g>
+          }
         }
 
         <!-- Last day of cycle -->
-        <g class="outer-number-marker">
-          <text [attr.x]="getOuterNumberX(cycleLength - 1, cycleLength)"
-            [attr.y]="getOuterNumberY(cycleLength - 1, cycleLength)" text-anchor="middle" alignment-baseline="middle"
-            class="outer-number last-day-number">
+        <g
+          class="cycle-length-marker"
+          [attr.transform]="
+            'translate(' +
+            getCycleDayLabelX(cycleLength) +
+            ',' +
+            getCycleDayLabelY(cycleLength) +
+            ')'
+          "
+        >
+          <circle class="cycle-length-marker__halo" r="30" />
+          <circle class="cycle-length-marker__ring" r="26" />
+          <circle class="cycle-length-marker__bg" r="22" />
+          <text class="cycle-length-marker__value" text-anchor="middle" y="2">
             {{ cycleLength | localNum }}
           </text>
-        </g>
-
-        <!-- Cycle Phase Marks -->
-        <!-- Period Mark - Dynamic based on current cycle day -->
-        @if (isInPeriod) {
-        <g class="phase-mark period-mark">
-          <circle r="12" fill="#f43f5e" opacity="0.94" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
-            [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
-          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
-            [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)" [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)">
-            {{ viewCycleDay | localNum }}
+          <text class="cycle-length-marker__label" text-anchor="middle" y="18">
+            {{ 'cycleChart.center.cycleLengthLabel' | translate }}
           </text>
         </g>
-        }
 
-        <!-- Fertile Window Mark - Dynamic -->
-        @if (isInFertileWindow && !isInPeriod && !isOvulationDay) {
-        <g class="phase-mark fertile-mark">
-          <circle r="12" fill="#2dd4bf" opacity="0.94" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
-            [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
-          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="700" fill="white"
-            [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
-            [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)">
-            F
-          </text>
-        </g>
-        }
-
-        <!-- Ovulation Mark - Dynamic -->
-        @if (isOvulationDay && !isInPeriod) {
-        <g class="phase-mark ovulation-mark">
-          <circle r="12" fill="#0d9488" stroke="#99f6e4" stroke-width="1.5"
-            opacity="0.96" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
-            [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
-          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="800" fill="#ffffff"
-            [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)" [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)">
-            O
-          </text>
-        </g>
-        }
-
-        <!-- PMS Mark - Dynamic -->
-        @if (isInPMS && !isInPeriod) {
-        <g class="phase-mark pms-mark">
-          <circle r="11" fill="#a78bfa" opacity="0.94" [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
-            [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"></circle>
-          <text text-anchor="middle" alignment-baseline="middle" font-size="14" font-weight="800" fill="white"
-            [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
-            [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)">
-            P
-          </text>
-        </g>
-        }
+        <!-- Cycle Phase Marks (legacy position markers removed — today ring cap is the single focus indicator) -->
 
         <!-- Ovulation Day Heart -->
         @if (ovulationDay > 0) {
@@ -327,68 +373,59 @@
         </g>
         }
 
-        <!-- Center content area — cycle status lives here (not under the week strip) -->
+        <!-- Center content — frosted glass panel (Flo-style) -->
         <g class="center-content" role="status" aria-live="polite">
-          <!-- Center background circle -->
+          <circle r="168" class="center-glow-ring" />
           <circle
             r="160"
-            stroke-width="2"
+            stroke-width="1.5"
             class="chart-center-disk"
+            filter="url(#centerGlassShadow)"
             [class.chart-center-disk--period]="cycleDiskPhase === 'period'"
             [class.chart-center-disk--fertile]="cycleDiskPhase === 'fertile'"
             [class.chart-center-disk--ovulation]="cycleDiskPhase === 'ovulation'"
           ></circle>
 
-          <!-- Calendar date in focus (today, or the day you tapped in the strip) -->
-          <text class="center-current-date" text-anchor="middle" y="-112" fill="var(--brand-text)">
-            {{ formatStripCenterDate() }}
-          </text>
-
-          @if (startDate && weekStripSelectionOvulationInsight) {
-            <text
-              class="center-ovulation-insight"
-              text-anchor="middle"
-              y="-52"
-              fill="#0d9488"
+          <foreignObject x="-132" y="-132" width="264" height="264" class="center-fo">
+            <div
+              xmlns="http://www.w3.org/1999/xhtml"
+              class="center-glass"
+              [class.center-glass--period]="cycleDiskPhase === 'period'"
+              [class.center-glass--fertile]="cycleDiskPhase === 'fertile'"
+              [class.center-glass--ovulation]="cycleDiskPhase === 'ovulation'"
+              [class.center-glass--none]="cycleDiskPhase === 'none'"
             >
-              {{ weekStripSelectionOvulationInsight }}
-            </text>
-          }
+              <div class="center-glass__inner">
+                <span class="center-glass__date">{{ formatStripCenterDate() }}</span>
 
-          <!-- Cycle Day Display -->
-          <text
-            class="cycle-day-title"
-            text-anchor="middle"
-            [attr.y]="startDate && weekStripSelectionOvulationInsight ? -32 : -48"
-            fill="var(--brand-text)"
-          >
-            {{ getCenterCycleHeading() }}
-          </text>
+                @if (startDate && weekStripSelectionOvulationInsight) {
+                  <span class="center-glass__insight">{{
+                    weekStripSelectionOvulationInsight
+                  }}</span>
+                }
 
-          <!-- Fertility Status -->
-          <g class="fertility-status">
-            <text
-              text-anchor="middle"
-              alignment-baseline="middle"
-              class="fertility-status__label"
-              x="0"
-              [attr.y]="startDate && weekStripSelectionOvulationInsight ? 18 : 4"
-              [attr.fill]="getFertilityStatus().color"
-            >
-              {{ getFertilityStatus().status }}
-            </text>
-          </g>
+                @if (showCenterHeroDay()) {
+                  <div class="center-glass__hero" [attr.data-day]="viewCycleDay">
+                    <span class="center-glass__day">{{ viewCycleDay | localNum }}</span>
+                    <span class="center-glass__caption">{{ getCenterHeroCaption() }}</span>
+                  </div>
+                } @else {
+                  <p class="center-glass__empty">{{ getCenterCycleHeading() }}</p>
+                }
 
-          <!-- Detailed Milestone -->
-          <text
-            class="milestone-text"
-            text-anchor="middle"
-            [attr.y]="startDate && weekStripSelectionOvulationInsight ? 62 : 52"
-            fill="var(--brand-secondary)"
-          >
-            {{ getDetailedMilestone() }}
-          </text>
+                <span
+                  [class]="'center-glass__pill center-glass__pill--' + getFertilityStatus().tone"
+                >
+                  <span class="center-glass__pill-dot" aria-hidden="true"></span>
+                  {{ getFertilityStatus().status }}
+                </span>
 
+                @if (getDetailedMilestone()) {
+                  <span class="center-glass__milestone">{{ getDetailedMilestone() }}</span>
+                }
+              </div>
+            </div>
+          </foreignObject>
         </g>
 
         <!-- Ovulation heart icon -->
@@ -411,26 +448,39 @@
         }
 
         <!-- Focus day on ring (today by default, or the strip day you selected) -->
-        @if (viewCycleDay >= 1) {
+        @if (showTodayRingCap()) {
         <g
           class="phase-mark today-mark today-mark--ring-cap"
           [class.today-mark--preview]="!viewingCalendarToday()"
           pointer-events="none"
         >
           <circle
+            class="today-mark__pulse today-mark__pulse--outer"
+            r="28"
+            fill="none"
+            [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
+            [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"
+          />
+          <circle
+            class="today-mark__pulse today-mark__pulse--inner"
+            r="23"
+            fill="none"
+            [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
+            [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"
+          />
+          <circle
             r="19"
             fill="rgba(var(--brand-primary-rgb), 0.18)"
             stroke="var(--brand-primary)"
             stroke-width="2"
+            class="today-mark__core"
             [attr.cx]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.cy]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"
           />
           <text
             text-anchor="middle"
             alignment-baseline="middle"
-            font-size="15"
-            font-weight="800"
-            fill="var(--brand-text)"
+            class="today-mark__num"
             [attr.x]="getPhaseMarkX(viewCycleDay - 1, cycleLength)"
             [attr.y]="getPhaseMarkY(viewCycleDay - 1, cycleLength)"
           >{{ viewCycleDay | localNum }}</text>

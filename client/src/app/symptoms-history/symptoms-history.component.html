@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button (click)="goBack()"></ion-back-button>
     </ion-buttons>
-    <ion-title>Symptoms History</ion-title>
+    <ion-title>{{ 'symptomsHistory.title' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="trackNewSymptoms()">
         <ion-icon name="add-outline" slot="icon-only"></ion-icon>
@@ -17,7 +17,7 @@
     
     <!-- Loading State -->
     @if (loading) {
-    <div class="loading-state" aria-label="Loading symptoms history" role="status">
+    <div class="loading-state" [attr.aria-label]="'symptomsHistory.loadingAria' | translate" role="status">
       <ion-spinner name="crescent"></ion-spinner>
     </div>
     }
@@ -26,11 +26,11 @@
     @if (!loading && symptomsHistory.length === 0) {
     <div class="no-data-state">
       <ion-icon name="calendar-outline" class="no-data-icon"></ion-icon>
-      <h2>No History Found</h2>
-      <p>You haven't tracked any symptoms yet. Start tracking to see your history here.</p>
+      <h2>{{ 'symptomsHistory.emptyTitle' | translate }}</h2>
+      <p>{{ 'symptomsHistory.emptyDesc' | translate }}</p>
       <ion-button fill="solid" (click)="trackNewSymptoms()">
         <ion-icon name="add-outline" slot="start"></ion-icon>
-        Start Tracking
+        {{ 'symptomsHistory.startTracking' | translate }}
       </ion-button>
     </div>
     }
@@ -41,8 +41,8 @@
       
       <!-- Header -->
       <div class="history-header">
-        <h2>Your Symptoms History</h2>
-        <p>{{ symptomsHistory.length | localNum }} days tracked</p>
+        <h2>{{ 'symptomsHistory.headerTitle' | translate }}</h2>
+        <p>{{ daysTrackedLabel }}</p>
       </div>
 
       <!-- History Items -->
@@ -75,7 +75,7 @@
           }
           @if (day.symptoms.length > 3) {
           <div class="more-symptoms">
-            +{{ (day.symptoms.length - 3) | localNum }} more
+            {{ moreSymptomsLabel(day.symptoms.length - 3) }}
           </div>
           }
         </div>
@@ -84,7 +84,7 @@
         @if (!day.symptoms || day.symptoms.length === 0) {
         <div class="no-symptoms-preview">
           <ion-icon name="checkmark-circle-outline" class="no-symptoms-icon"></ion-icon>
-          <span class="no-symptoms-text">No symptoms</span>
+          <span class="no-symptoms-text">{{ 'symptomsHistory.noSymptoms' | translate }}</span>
         </div>
         }
         

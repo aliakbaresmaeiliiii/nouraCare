@@ -315,6 +315,10 @@ export class AboutComponent implements OnInit, OnDestroy {
     void this.router.navigate(['/privacy-policy']);
   }
 
+  viewTermsOfService(): void {
+    void this.router.navigate(['/terms']);
+  }
+
   async openQuickMenu(): Promise<void> {
     const sheet = await this.actionSheetController.create({
       header: this.t('about.quickMenu.header'),

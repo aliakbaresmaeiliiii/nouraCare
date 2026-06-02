@@ -1,7 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { IonIcon } from '@ionic/angular/standalone';
 import { LocalizedNumberPipe } from '../../pipes/localized-number.pipe';
+import { TranslatePipe } from '../../pipes/translate.pipe';
+import { TranslationService } from '../../services/translation.service';
+import { LanguageService } from '../../services/language.service';
 
 export interface PregnancyResults {
   pregnancyWeek: number;
@@ -18,12 +21,87 @@ export interface PregnancyResults {
   templateUrl: './pregnancy-results-modal.component.html',
   styleUrls: ['./pregnancy-results-modal.component.scss'],
   standalone: true,
-  imports: [IonIcon, LocalizedNumberPipe],
+  imports: [IonIcon, LocalizedNumberPipe, TranslatePipe],
 })
-export class PregnancyResultsModalComponent {
+export class PregnancyResultsModalComponent implements OnInit, OnChanges {
   @Input() results!: PregnancyResults;
 
-  constructor(private modalController: ModalController) {}
+  private modalController = inject(ModalController);
+  private translation = inject(TranslationService);
+  private languageService = inject(LanguageService);
+
+  progressThroughLabel = '';
+  sizeOfLabel = '';
+  healthTipsTitleLabel = '';
+
+  ngOnInit(): void {
+    this.languageService.currentLanguage$.subscribe(() => this.refreshLabels());
+    this.refreshLabels();
+  }
+
+  ngOnChanges(): void {
+    this.refreshLabels();
+  }
+
+  private refreshLabels(): void {
+    if (!this.results) {
+      return;
+    }
+    this.progressThroughLabel = this.translation.translateParams(
+      'pregnancyResults.progressThrough',
+      { percent: this.results.progressPercentage },
+    );
+    this.sizeOfLabel = this.translation.translateParams('pregnancyResults.sizeOf', {
+      fruit: this.getBabySize().fruit,
+    });
+    this.healthTipsTitleLabel = this.translation.translateParams(
+      'pregnancyResults.healthTipsTitle',
+      { week: this.results.pregnancyWeek },
+    );
+  }
+
+  getMilestoneKeys(): string[] {
+    const week = this.results.pregnancyWeek;
+    const keys: string[] = [];
+    if (week < 8) {
+      keys.push('pregnancyResults.milestone.organsForming');
+    }
+    if (week >= 8) {
+      keys.push('pregnancyResults.milestone.heartBeating');
+    }
+    if (week >= 12) {
+      keys.push('pregnancyResults.milestone.miscarriageRisk');
+    }
+    if (week >= 16) {
+      keys.push('pregnancyResults.milestone.movements');
+    }
+    if (week >= 20) {
+      keys.push('pregnancyResults.milestone.anatomyScan');
+    }
+    if (week >= 24) {
+      keys.push('pregnancyResults.milestone.hearing');
+    }
+    if (week >= 28) {
+      keys.push('pregnancyResults.milestone.eyes');
+    }
+    if (week >= 32) {
+      keys.push('pregnancyResults.milestone.weightGain');
+    }
+    if (week >= 37) {
+      keys.push('pregnancyResults.milestone.fullTerm');
+    }
+    return keys;
+  }
+
+  getHealthTipKeys(): string[] {
+    return [
+      'pregnancyResults.tip.prenatalVitamins',
+      'pregnancyResults.tip.hydration',
+      'pregnancyResults.tip.rest',
+      'pregnancyResults.tip.appointments',
+      'pregnancyResults.tip.trackSymptoms',
+    ];
+  }
 
   dismiss() {
     this.modalController.dismiss();

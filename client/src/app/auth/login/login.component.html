@@ -35,6 +35,7 @@
         <div class="form-container">
           <div class="form-header">
             <h2 class="form-title">{{ "auth.signIn" | translate }}</h2>
+            <p class="form-subtitle">{{ "auth.trustText" | translate }}</p>
           </div>
 
           <form
@@ -73,12 +74,12 @@
 
             @if (loginOtpStep) {
             <div class="form-group">
-              <label class="form-label" for="login-otp">Sign-in code</label>
+              <label class="form-label" for="login-otp">{{ 'auth.signInCode' | translate }}</label>
               <input
                 id="login-otp"
                 type="text"
                 formControlName="otp"
-                placeholder="6-digit code"
+                [placeholder]="'auth.otpPlaceholder' | translate"
                 class="form-input"
                 inputmode="numeric"
                 autocomplete="one-time-code"
@@ -130,9 +131,12 @@
             </div>
 
             <div class="form-footer">
-              <a href="#" class="forgot-link">{{
-                "auth.licenseAgreement" | translate
-              }}</a>
+              <a
+                href="/terms"
+                class="forgot-link"
+                (click)="viewLicenseAgreement($event)"
+                >{{ "auth.licenseAgreement" | translate }}</a
+              >
             </div>
           </form>
         </div>
@@ -235,9 +239,12 @@
             </div>
 
             <div class="form-footer">
-              <a href="#" class="forgot-link">{{
-                "auth.licenseAgreement" | translate
-              }}</a>
+              <a
+                href="/terms"
+                class="forgot-link"
+                (click)="viewLicenseAgreement($event)"
+                >{{ "auth.licenseAgreement" | translate }}</a
+              >
             </div>
           </form>
         </div>

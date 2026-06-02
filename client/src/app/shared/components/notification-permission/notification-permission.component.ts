@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-notification-permission',
   templateUrl: './notification-permission.component.html',
   styleUrls: ['./notification-permission.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule]
+  imports: [CommonModule, FormsModule, IonicModule, TranslatePipe]
 })
 export class NotificationPermissionComponent implements OnInit {
   enableNotifications: boolean = false;

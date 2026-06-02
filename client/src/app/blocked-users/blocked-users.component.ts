@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { User } from '../shared/services/user';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 
 @Component({
   selector: 'app-blocked-users',
@@ -13,33 +15,40 @@ import { User } from '../shared/services/user';
 export class BlockedUsersComponent implements OnInit {
   private userService = inject(User);
   private router = inject(Router);
-  
+  private translation = inject(TranslationService);
+  private languageService = inject(LanguageService);
+
   blockedUsers: any[] = [];
   isLoading = false;
   errorMessage = '';
-
-  constructor() { }
+  listTitle = '';
 
   ngOnInit() {
+    this.languageService.currentLanguage$.subscribe(() => {
+      this.refreshLabels();
+    });
     this.loadBlockedUsers();
+  }
+
+  private refreshLabels(): void {
+    this.listTitle = this.translation.translateParams('blockedUsers.listTitle', {
+      count: this.blockedUsers.length,
+    });
   }
 
   loadBlockedUsers() {
     this.isLoading = true;
     this.errorMessage = '';
-    
-    // Get user ID from localStorage
+
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     const userId = userInfo?.user?.id;
-    
+
     if (!userId) {
-      this.errorMessage = 'User not found. Please login again.';
+      this.errorMessage = this.translation.translate('blockedUsers.userNotFound');
       this.isLoading = false;
       return;
     }
 
-    // TODO: Replace with actual API call when backend is ready
-    // Mock data for now
     setTimeout(() => {
       this.blockedUsers = [
         {
@@ -47,45 +56,54 @@ export class BlockedUsersComponent implements OnInit {
           name: 'Jane Doe',
           email: 'jane.doe@example.com',
           profileImage: null,
-          blockedAt: '2024-01-15T10:30:00Z'
+          blockedAt: '2024-01-15T10:30:00Z',
         },
         {
           id: 2,
           name: 'John Smith',
           email: 'john.smith@example.com',
           profileImage: null,
-          blockedAt: '2024-01-10T14:20:00Z'
-        }
+          blockedAt: '2024-01-10T14:20:00Z',
+        },
       ];
       this.isLoading = false;
+      this.refreshLabels();
     }, 1000);
   }
 
   unblockUser(userId: number) {
-    // TODO: Replace with actual API call when backend is ready
-    // Mock unblock for now
-    this.blockedUsers = this.blockedUsers.filter(user => user.id !== userId);
-    this.showSuccessAlert('User unblocked successfully!');
+    this.blockedUsers = this.blockedUsers.filter((user) => user.id !== userId);
+    this.refreshLabels();
+    this.showSuccessAlert(this.translation.translate('blockedUsers.unblockedSuccess'));
   }
 
   goBack() {
     this.router.navigate(['/tabs']);
   }
 
+  blockedOnLabel(dateString: string): string {
+    return this.translation.translateParams('blockedUsers.blockedOn', {
+      date: this.formatDate(dateString),
+    });
+  }
+
   formatDate(dateString: string): string {
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Unknown date';
-      
-      return date.toLocaleDateString('en-US', {
+      if (isNaN(date.getTime())) {
+        return this.translation.translate('blockedUsers.unknownDate');
+      }
+
+      const locale = this.languageService.getCurrentLanguage();
+      return date.toLocaleDateString(locale === 'fa' ? 'fa-IR' : locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       });
-    } catch (error) {
-      return 'Unknown date';
+    } catch {
+      return this.translation.translate('blockedUsers.unknownDate');
     }
   }
 
@@ -137,48 +155,5 @@ export class BlockedUsersComponent implements OnInit {
         successDialog.remove();
       }
     }, 3000);
-  }
-
-  private showErrorAlert(message: string): void {
-    const errorDialog = document.createElement('div');
-    errorDialog.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #c21e56;
-      color: white;
-      padding: 16px 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      z-index: 10000;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 300px;
-      animation: slideIn 0.3s ease-out;
-    `;
-
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    const messageElement = document.createElement('div');
-    messageElement.textContent = `❌ ${message}`;
-    messageElement.style.cssText = `
-      font-size: 14px;
-      font-weight: 500;
-    `;
-
-    errorDialog.appendChild(messageElement);
-    document.body.appendChild(errorDialog);
-
-    setTimeout(() => {
-      if (errorDialog.parentNode) {
-        errorDialog.remove();
-      }
-    }, 5000);
   }
 }

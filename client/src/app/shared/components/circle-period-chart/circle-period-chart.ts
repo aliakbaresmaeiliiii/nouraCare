@@ -131,6 +131,29 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     return this.t('cycleChart.heading.dayOfCycle', { day: d });
   }
 
+  /** Short caption under the large center cycle-day numeral. */
+  getCenterHeroCaption(): string {
+    if (!this.startDate || this.viewCycleDay < 1) {
+      return this.t('cycleChart.heading.logPeriodToBegin');
+    }
+    if (this.viewCycleDay <= this.periodLength) {
+      return this.t('cycleChart.center.periodCaption');
+    }
+    return this.t('cycleChart.center.cycleCaption');
+  }
+
+  showCenterHeroDay(): boolean {
+    return !!this.startDate && this.viewCycleDay >= 1;
+  }
+
+  /** Ring cap for the focused day — skip last day; cycle-length badge owns that spot. */
+  showTodayRingCap(): boolean {
+    return (
+      this.viewCycleDay >= 1 &&
+      this.viewCycleDay < Math.max(1, this.cycleLength)
+    );
+  }
+
   // Period status (driven by **view** day so taps update the ring + center)
   get isInPeriod(): boolean {
     return this.viewCycleDay >= 1 && this.viewCycleDay <= this.periodLength;
@@ -398,6 +421,20 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     // start is in "days" relative to cycleLength
     return `${(start / this.cycleLength) * this.circumference}`;
   }
+
+  /** Flo-style inner progress sweep (day 1 → focused day). */
+  getCycleProgressDash(): string {
+    const circ = 2 * Math.PI * 198;
+    if (!this.startDate || this.viewCycleDay < 1) {
+      return `0 ${circ}`;
+    }
+    const progress = Math.min(
+      1,
+      this.viewCycleDay / Math.max(1, this.cycleLength),
+    );
+    const filled = progress * circ;
+    return `${filled} ${circ}`;
+  }
   getDayX(index: number, total: number) {
     const angle = (2 * Math.PI * index) / total - Math.PI / 2;
     return this.R * Math.cos(angle);
@@ -409,15 +446,40 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
   }
 
   getOuterNumberX(index: number, total: number) {
-    const angle = (2 * Math.PI * index) / total - Math.PI / 2;
-    const outerRadius = this.R + 25; // 25px outside the main circle
-    return outerRadius * Math.cos(angle);
+    return this.getCycleDayLabelX(index + 1, total);
   }
 
   getOuterNumberY(index: number, total: number) {
-    const angle = (2 * Math.PI * index) / total - Math.PI / 2;
-    const outerRadius = this.R + 25; // 25px outside the main circle
-    return outerRadius * Math.sin(angle);
+    return this.getCycleDayLabelY(index + 1, total);
+  }
+
+  /** Period / ring day labels — centered in each day slice, just outside the track. */
+  getCycleDayLabelX(cycleDay: number, total: number = this.cycleLength): number {
+    return (
+      this.ringDayLabelRadius *
+      Math.cos(this.cycleDayAngleRad(cycleDay, total))
+    );
+  }
+
+  getCycleDayLabelY(cycleDay: number, total: number = this.cycleLength): number {
+    return (
+      this.ringDayLabelRadius *
+      Math.sin(this.cycleDayAngleRad(cycleDay, total))
+    );
+  }
+
+  private readonly ringTrackRadius = 210;
+  private readonly ringTrackStroke = 22;
+
+  private get ringDayLabelRadius(): number {
+    return this.ringTrackRadius + this.ringTrackStroke / 2 + 14;
+  }
+
+  /** 1-based cycle day → angle at the center of that day's wedge (12 o'clock = day 1). */
+  private cycleDayAngleRad(cycleDay1Based: number, totalDays: number): number {
+    const total = Math.max(1, totalDays);
+    const day = Math.max(1, Math.min(total, Math.floor(cycleDay1Based)));
+    return ((day - 0.5) / total) * 2 * Math.PI - Math.PI / 2;
   }
 
   getPhaseMarkX(dayIndex: number, total: number) {

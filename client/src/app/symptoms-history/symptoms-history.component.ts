@@ -6,6 +6,8 @@ import { TrackDataService } from '../shared/services/track-data.service';
 import { UserSessionService } from '../shared/services/user-session.service';
 import { SymptomsUIService } from '../symptoms-tracker/services/symptoms-ui.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
 
 @Component({
   selector: 'app-symptoms-history',
@@ -19,12 +21,26 @@ export class SymptomsHistoryComponent implements OnInit {
   private trackDataService = inject(TrackDataService);
   private userSession = inject(UserSessionService);
   private symptomsUIService = inject(SymptomsUIService);
+  private translation = inject(TranslationService);
+  private languageService = inject(LanguageService);
 
   symptomsHistory: any[] = [];
   loading: boolean = true;
+  daysTrackedLabel = '';
 
   ngOnInit() {
+    this.languageService.currentLanguage$.subscribe(() => this.refreshLabels());
     this.loadSymptomsHistory();
+  }
+
+  private refreshLabels(): void {
+    this.daysTrackedLabel = this.translation.translateParams('symptomsHistory.daysTracked', {
+      count: this.symptomsHistory.length,
+    });
+  }
+
+  moreSymptomsLabel(count: number): string {
+    return this.translation.translateParams('symptomsHistory.moreSymptoms', { count });
   }
 
   loadSymptomsHistory() {
@@ -32,6 +48,7 @@ export class SymptomsHistoryComponent implements OnInit {
     const userId = this.userSession.getCurrentUserId();
     if (userId <= 0) {
       this.symptomsHistory = [];
+      this.refreshLabels();
       this.loading = false;
       return;
     }
@@ -61,6 +78,7 @@ export class SymptomsHistoryComponent implements OnInit {
           const normalized = this.toHistoryRows(rows);
           if (normalized.length > 0) {
             this.symptomsHistory = normalized;
+            this.refreshLabels();
             this.loading = false;
             return;
           }
@@ -77,12 +95,14 @@ export class SymptomsHistoryComponent implements OnInit {
             )
             .subscribe((fallbackRows) => {
               this.symptomsHistory = this.toHistoryRows(fallbackRows);
+              this.refreshLabels();
               this.loading = false;
             });
         },
         error: (err) => {
           console.error('symptoms-history: subscription error', err);
           this.symptomsHistory = [];
+          this.refreshLabels();
           this.loading = false;
         },
       });
@@ -206,12 +226,20 @@ export class SymptomsHistoryComponent implements OnInit {
     return new Date(dateLike);
   }
 
+  private dateLocale(): string {
+    const lang = this.languageService.getCurrentLanguage();
+    if (lang === 'fa') return 'fa-IR';
+    if (lang === 'zh') return 'zh-CN';
+    if (lang === 'ms') return 'ms-MY';
+    return 'en-US';
+  }
+
   formatDate(dateString: string): string {
     const date = this.parseCalendarDay(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(this.dateLocale(), {
       weekday: 'short',
       month: 'short',
-      day: 'numeric'
+      day: 'numeric',
     });
   }
 
@@ -222,12 +250,12 @@ export class SymptomsHistoryComponent implements OnInit {
     yesterday.setDate(today.getDate() - 1);
 
     if (date.toDateString() === today.toDateString()) {
-      return 'Today';
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      return 'Yesterday';
-    } else {
-      return date.toLocaleDateString('en-US', { weekday: 'long' });
+      return this.translation.translate('symptomsHistory.today');
     }
+    if (date.toDateString() === yesterday.toDateString()) {
+      return this.translation.translate('symptomsHistory.yesterday');
+    }
+    return date.toLocaleDateString(this.dateLocale(), { weekday: 'long' });
   }
 
   goBack() {

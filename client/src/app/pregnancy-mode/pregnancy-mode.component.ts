@@ -13,6 +13,7 @@ import { AlertController, ToastController } from '@ionic/angular/standalone';
 import { firstValueFrom } from 'rxjs';
 import { OnboardingService } from '../shared/services/onboarding.service';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
+import { TranslationService } from '../shared/services/translation.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 @Component({
@@ -31,6 +32,7 @@ export class PregnancyModeComponent implements AfterViewInit, OnInit {
   private router = inject(Router);
   private onboardingService = inject(OnboardingService);
   private cycleSettings = inject(CycleSettingsService);
+  private translation = inject(TranslationService);
   @ViewChild('weekScroller') weekScroller?: ElementRef<HTMLDivElement>;
   @ViewChild('dayScroller') dayScroller?: ElementRef<HTMLDivElement>;
 
@@ -193,7 +195,7 @@ export class PregnancyModeComponent implements AfterViewInit, OnInit {
         dueDateIso: this.dueDateIso,
         multipleBabies: this.multipleBabies,
       };
-      await this.presentToast('Pregnancy timeline saved.', 'success');
+      await this.presentToast(this.translation.translate('pregnancyMode.toast.saved'), 'success');
       await this.router.navigate(['/tabs/home']);
     } catch (error: any) {
       const message =
@@ -201,7 +203,7 @@ export class PregnancyModeComponent implements AfterViewInit, OnInit {
           ? error.error.message
           : Array.isArray(error?.error?.message) && typeof error.error.message[0] === 'string'
             ? error.error.message[0]
-            : 'Failed to save pregnancy timeline. Please try again.';
+            : this.translation.translate('pregnancyMode.toast.saveFailed');
       await this.presentToast(message, 'danger');
     } finally {
       this.isSaving = false;

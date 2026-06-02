@@ -6,18 +6,21 @@ import { CategorySelectionModalComponent, PostCategory } from '../category-selec
 import { PostDetailModalComponent } from '../post-detail-modal/post-detail-modal.component';
 import { AppButtonComponent } from '../app-button/app-button.component';
 import { LocalizedNumberPipe } from '../../pipes/localized-number.pipe';
+import { TranslationService } from '../../services/translation.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-create-post-modal',
   templateUrl: './create-post-modal.component.html',
   styleUrls: ['./create-post-modal.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, AppButtonComponent, LocalizedNumberPipe]
+  imports: [IonicModule, CommonModule, FormsModule, AppButtonComponent, LocalizedNumberPipe, TranslatePipe]
 })
 export class CreatePostModalComponent implements OnInit {
 
   private modalController = inject(ModalController);
   private toastController = inject(ToastController);
+  private translation = inject(TranslationService);
 
   // Form data
   postContent = '';
@@ -76,7 +79,7 @@ export class CreatePostModalComponent implements OnInit {
   // Submit post
   submitPost() {
     if (!this.canPost()) {
-      this.showToast('Please add some content to your post', 'warning');
+      this.showToast(this.translation.translate('createPost.toast.addContent'), 'warning');
       return;
     }
     // Show category selection modal first
@@ -132,7 +135,7 @@ export class CreatePostModalComponent implements OnInit {
 
     } catch (error) {
       console.error('Error creating post:', error);
-      await this.showToast('Failed to create post. Please try again.', 'danger');
+      await this.showToast(this.translation.translate('createPost.toast.createFailed'), 'danger');
     } finally {
       this.isSubmitting = false;
     }
@@ -178,17 +181,17 @@ export class CreatePostModalComponent implements OnInit {
   private async confirmClose(): Promise<boolean> {
     return new Promise(async (resolve) => {
       const toast = await this.toastController.create({
-        message: 'Discard post?',
+        message: this.translation.translate('createPost.toast.discardPost'),
         duration: 4000,
         position: 'top',
         color: 'warning',
         buttons: [
           {
-            text: 'Keep editing',
+            text: this.translation.translate('createPost.toast.keepEditing'),
             handler: () => resolve(false)
           },
           {
-            text: 'Discard',
+            text: this.translation.translate('createPost.toast.discard'),
             handler: () => resolve(true)
           }
         ]
