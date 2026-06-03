@@ -193,41 +193,74 @@
     </ion-segment>
 
     <div class="tab-content">
-      @if (isActiveTabLoading()) {
-        <div class="empty-state">{{ "forums.loadingAria" | translate }}</div>
-      } @else if (getActiveActivityItems().length === 0) {
-        <div class="empty-state">{{ getActiveTabEmptyKey() | translate }}</div>
-      } @else {
-        <cdk-virtual-scroll-viewport
-          class="activity-virtual-viewport"
-          [itemSize]="virtualItemSizePx"
-          minBufferPx="280"
-          maxBufferPx="560"
-          #activityViewport
-          (scrolledIndexChange)="onActivityVirtualScroll(activityViewport)"
-        >
-          <button
-            *cdkVirtualFor="
-              let item of getActiveActivityItems();
-              trackBy: trackActivityItem
-            "
-            type="button"
-            class="activity-item activity-virtual-row"
-            (click)="openForumTopic(getActivityThreadId(item))"
-          >
-            @if (getActivityTitle(item)) {
-              <h4 class="activity-item-title">{{ getActivityTitle(item) }}</h4>
-            }
-            <p class="activity-item-preview">
-              {{ truncateText(getActivityContent(item)) }}
-            </p>
-          </button>
-        </cdk-virtual-scroll-viewport>
-
-        @if (isActiveTabLoadingMore()) {
-          <div class="activity-load-more" aria-hidden="true">
-            <ion-spinner name="crescent"></ion-spinner>
-          </div>
+      @switch (selectedTab) {
+        @case ('first') {
+          @if (isActiveTabLoading()) {
+            <div class="empty-state">{{ "forums.loadingAria" | translate }}</div>
+          } @else if (userQuestions().length === 0) {
+            <div class="empty-state">{{ "profile.noQuestions" | translate }}</div>
+          } @else {
+            <div class="activity-list">
+              @for (question of userQuestions(); track question.id) {
+                <button
+                  type="button"
+                  class="activity-item"
+                  (click)="openForumTopic(question.id)"
+                >
+                  <h4 class="activity-item-title">{{ question.title }}</h4>
+                  <p class="activity-item-preview">
+                    {{ truncateText(question.content) }}
+                  </p>
+                </button>
+              }
+            </div>
+          }
+        }
+        @case ('second') {
+          @if (isActiveTabLoading()) {
+            <div class="empty-state">{{ "forums.loadingAria" | translate }}</div>
+          } @else if (userAnswers().length === 0) {
+            <div class="empty-state">{{ "profile.noAnswers" | translate }}</div>
+          } @else {
+            <div class="activity-list">
+              @for (answer of userAnswers(); track answer.id) {
+                <button
+                  type="button"
+                  class="activity-item"
+                  (click)="openForumTopic(answer.threadId)"
+                >
+                  @if (answer.threadTitle) {
+                    <h4 class="activity-item-title">{{ answer.threadTitle }}</h4>
+                  }
+                  <p class="activity-item-preview">
+                    {{ truncateText(answer.content) }}
+                  </p>
+                </button>
+              }
+            </div>
+          }
+        }
+        @case ('third') {
+          @if (isActiveTabLoading()) {
+            <div class="empty-state">{{ "forums.loadingAria" | translate }}</div>
+          } @else if (userExperiences().length === 0) {
+            <div class="empty-state">{{ "profile.noExperiences" | translate }}</div>
+          } @else {
+            <div class="activity-list">
+              @for (experience of userExperiences(); track experience.id) {
+                <button
+                  type="button"
+                  class="activity-item"
+                  (click)="openForumTopic(experience.id)"
+                >
+                  <h4 class="activity-item-title">{{ experience.title }}</h4>
+                  <p class="activity-item-preview">
+                    {{ truncateText(experience.content) }}
+                  </p>
+                </button>
+              }
+            </div>
+          }
         }
       }
     </div>

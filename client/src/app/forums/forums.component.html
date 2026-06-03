@@ -5,13 +5,10 @@
     <ion-buttons slot="start">
 
       <ion-back-button
-
         defaultHref="/tabs/home"
-
         class="back-button"
-
+        [text]="'common.back' | translate"
         (click)="goBack()"
-
       ></ion-back-button>
 
     </ion-buttons>

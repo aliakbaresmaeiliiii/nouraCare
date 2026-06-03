@@ -216,18 +216,9 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     return 'none';
   }
 
-  /** SVG radial fill for the large background disk behind the ring. */
+  /** SVG radial fill for the large background disk behind the ring — neutral; phase tint lives on host. */
   get cycleDiskBackgroundFill(): string {
-    switch (this.cycleDiskPhase) {
-      case 'period':
-        return 'url(#centerGradientPeriod)';
-      case 'ovulation':
-        return 'url(#centerGradientOvulationPeak)';
-      case 'fertile':
-        return 'url(#centerGradientFertile)';
-      default:
-        return 'url(#centerGradient)';
-    }
+    return 'url(#centerGradient)';
   }
 
 

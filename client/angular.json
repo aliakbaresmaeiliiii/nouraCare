@@ -40,7 +40,10 @@
 						"scripts": [],
 					
 						"main": "src/main.ts",
-						"commonChunk": false
+						"commonChunk": false,
+						"allowedCommonJsDependencies": [
+							"jalaali-js"
+						]
 					},
 					"configurations": {
 						"production": {

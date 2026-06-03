@@ -9,8 +9,8 @@
 
 <ion-content class="tp-content">
   <div class="tp-hero">
-    <div class="tp-hero-icon" [style.background]="menuItem?.color ?? 'var(--brand-primary)'">
-      <ion-icon [name]="menuItem?.icon ?? 'construct-outline'"></ion-icon>
+    <div class="tp-hero-icon" [style.background]="menuItem.color ?? 'var(--brand-primary)'">
+      <ion-icon [name]="menuItem.icon"></ion-icon>
     </div>
     <h1 class="tp-hero-title">{{ titleKey | translate }}</h1>
     <p class="tp-hero-desc">{{ descKey | translate }}</p>
@@ -57,8 +57,8 @@
       @case ('tracker') {
         <form class="tp-form" [formGroup]="trackerForm" (ngSubmit)="submitTracker()">
           <ion-item class="tp-field" [class.invalid]="fieldError('tracker', 'value')">
-            <ion-label position="stacked">{{ (trackerConfig?.valueLabelKey ?? 'toolPage.tracker.severity') | translate }}</ion-label>
-            <ion-range formControlName="value" [min]="trackerConfig?.min ?? 1" [max]="trackerConfig?.max ?? 10" [pin]="true" snaps="true" ticks="true"></ion-range>
+            <ion-label position="stacked">{{ trackerConfig.valueLabelKey | translate }}</ion-label>
+            <ion-range formControlName="value" [min]="trackerConfig.min" [max]="trackerConfig.max" [pin]="true" snaps="true" ticks="true"></ion-range>
           </ion-item>
           <ion-item class="tp-field">
             <ion-label position="stacked">{{ 'toolPage.notes' | translate }}</ion-label>

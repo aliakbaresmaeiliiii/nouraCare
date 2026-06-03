@@ -824,6 +824,10 @@ html.ion-palette-dark:has(ion-app.ion-palette-dark) {
   --brand-text-rgb: 248, 250, 252;
   --brand-text-secondary: #94a3b8;
   --brand-text-secondary-rgb: 148, 163, 184;
+  --brand-bg: var(--ion-background-color);
+  --brand-bg-rgb: var(--ion-background-color-rgb);
+  --brand-surface: var(--ion-card-background);
+  --brand-surface-rgb: var(--ion-background-color-rgb);
   --app-icon-toolbar: #f8fafc;
   --app-icon-default: #a8b0bd;
   --app-icon-muted: #94a3b8;
@@ -2019,6 +2023,28 @@ ion-modal.doctor-booking-sheet {
       --padding-bottom: 0;
       --padding-start: 0;
       --padding-end: 0;
+    }
+  }
+}
+
+html.ion-palette-dark ion-modal.cycle-setup-sheet,
+html.ion-palette-dark ion-modal.pregnancy-setup-sheet,
+html.ion-palette-dark ion-modal.fertility-overview-sheet,
+html.ion-palette-dark ion-modal.doctor-booking-sheet,
+html.ion-palette-dark ion-modal:has(app-reproductive-status),
+html.ion-palette-dark ion-modal:has(app-pregnancy-setup-sheet) {
+  --background: var(--ion-background-color);
+  --box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.42);
+
+  &::part(content) {
+    background: var(--ion-background-color);
+  }
+
+  ion-footer.booking-sheet-footer {
+    --background: var(--ion-background-color);
+
+    ion-toolbar {
+      --background: var(--ion-background-color);
     }
   }
 }

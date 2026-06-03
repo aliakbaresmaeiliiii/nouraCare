@@ -28,6 +28,7 @@ import {
   moonOutline,
   flower,
   calendarNumberOutline,
+  calendarOutline,
   chevronBackCircleOutline,
   arrowForwardCircleOutline,
 } from 'ionicons/icons';
@@ -44,6 +45,31 @@ import {
   ReproductiveStatus,
 } from '../shared/services/onboarding.service';
 import { AlertController, LoadingController, ModalController } from '@ionic/angular/standalone';
+import { PickerController } from '@ionic/angular';
+import { LanguageService } from '../shared/services/language.service';
+import {
+  formatJalaliFaFromIso,
+  J_MONTHS,
+  jalaliDaysInMonth,
+  jalaliToIsoDate,
+  toFa,
+} from '../shared/utils/jalali-iranian-calendar.util';
+import {
+  formatHistoryDayDate,
+  isPersianAppLanguage,
+} from '../shared/utils/locale-date-format.util';
+import {
+  attachJalaliPickerLiveValidation,
+  clearJalaliPickerFeedback,
+  showJalaliPickerFeedback,
+} from '../shared/utils/jalali-picker-live-validation.util';
+import {
+  helpKeyForValidationError,
+  maxDateOfBirthIso,
+  minDateOfBirthIso,
+  validateDateOfBirthIso,
+} from '../shared/utils/reproductive-date-validation.util';
+import { addCalendarDaysIso } from '../shared/utils/pregnancy-lmp.util';
 import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -108,9 +134,18 @@ export class EditProfileComponent implements OnInit {
   private alertController = inject(AlertController);
   private loadingController = inject(LoadingController);
   private profileCompletionService = inject(ProfileCompletionService);
+  private pickerCtrl = inject(PickerController);
+  private languageService = inject(LanguageService);
 
   /** True while PUT /user/:id/edit is in flight from the personal details form. */
   isSavingPersonal = false;
+
+  isDobPickerOpen = false;
+  dobPickerIso = '';
+  dobPickerError = '';
+  dobPickerHelp = '';
+  readonly dobMinIso = minDateOfBirthIso();
+  readonly dobMaxIso = maxDateOfBirthIso();
 
   @ViewChild('cropPreviewCanvas')
   cropPreviewCanvas!: ElementRef<HTMLCanvasElement>;
@@ -203,6 +238,7 @@ export class EditProfileComponent implements OnInit {
       moonOutline,
       flower,
       calendarNumberOutline,
+      calendarOutline,
       chevronBackCircleOutline,
       arrowForwardCircleOutline,
     });
@@ -312,6 +348,10 @@ export class EditProfileComponent implements OnInit {
     setTimeout(() => {
       const el = document.getElementById(`edit-focus-${field}`);
       el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (field === 'dateOfBirth') {
+        document.getElementById('inp-dob')?.focus();
+        return;
+      }
       const ionInput = el?.querySelector('ion-input');
       void (ionInput as { setFocus?: () => Promise<void> } | undefined)?.setFocus?.();
     }, 500);
@@ -406,7 +446,6 @@ export class EditProfileComponent implements OnInit {
     const dobForInput = this.toDateOnly(userData?.dateOfBirth ?? '');
     queueMicrotask(() => {
       this.profileImage = nextSrc;
-      // `ion-input` type="date" reliably shows value when set after layout (same tick as patch can miss).
       this.form.get('dateOfBirth')?.setValue(dobForInput, { emitEvent: true });
       this.cdr.detectChanges();
     });
@@ -1082,6 +1121,188 @@ export class EditProfileComponent implements OnInit {
   /** True when birthday is set (YYYY-MM-DD) — used to highlight “complete profile” when missing. */
   get hasDateOfBirth(): boolean {
     return !!this.toDateOnly(this.form.get('dateOfBirth')?.value ?? '').trim();
+  }
+
+  get displayBirthdayDate(): string {
+    const iso = this.toDateOnly(this.form.get('dateOfBirth')?.value ?? '');
+    if (!iso) {
+      return this.loc('reproductiveStatus.chooseDate');
+    }
+    const lang = this.languageService.getCurrentLanguage();
+    if (isPersianAppLanguage(lang)) {
+      return formatJalaliFaFromIso(iso, 'DD MMMM YYYY');
+    }
+    const [y, m, d] = iso.split('-').map((n) => parseInt(n, 10));
+    return formatHistoryDayDate(new Date(y, m - 1, d), lang);
+  }
+
+  get dobPickerRangeHint(): string {
+    return this.translation.translateParams('editProfile.dobPickerRangeHint', {
+      minDate: this.formatBirthdayDisplayDate(this.dobMinIso),
+      maxDate: this.formatBirthdayDisplayDate(this.dobMaxIso),
+    });
+  }
+
+  openBirthdayDatePicker(): void {
+    this.clearDobPickerFeedback();
+    const current = this.toDateOnly(this.form.get('dateOfBirth')?.value ?? '');
+    if (isPersianAppLanguage(this.languageService.getCurrentLanguage())) {
+      void this.openJalaliBirthdayPicker(current || this.defaultBirthdaySeedIso());
+      return;
+    }
+    this.dobPickerIso = current || this.defaultBirthdaySeedIso();
+    this.isDobPickerOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  onDobPickerDismiss(): void {
+    this.isDobPickerOpen = false;
+    this.clearDobPickerFeedback();
+  }
+
+  onDobPickerChange(event: CustomEvent): void {
+    const value = (event.detail as { value?: string }).value;
+    if (!value) return;
+    this.dobPickerIso = value.includes('T') ? value.split('T')[0] : value.slice(0, 10);
+    const check = validateDateOfBirthIso(this.dobPickerIso);
+    this.setDobPickerFeedback(check.valid ? null : check.errorKey);
+    this.cdr.markForCheck();
+  }
+
+  closeDobPicker(role: 'cancel' | 'confirm'): void {
+    if (role === 'confirm') {
+      const check = validateDateOfBirthIso(this.dobPickerIso);
+      if (!check.valid) {
+        this.setDobPickerFeedback(check.errorKey);
+        return;
+      }
+      this.form.get('dateOfBirth')?.setValue(check.iso, { emitEvent: true });
+      this.clearDobPickerFeedback();
+    }
+    this.isDobPickerOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  dobFieldError(): string {
+    const iso = this.toDateOnly(this.form.get('dateOfBirth')?.value ?? '');
+    if (!iso) return '';
+    const check = validateDateOfBirthIso(iso);
+    return check.valid ? '' : this.loc(check.errorKey);
+  }
+
+  dobFieldHelp(): string {
+    const iso = this.toDateOnly(this.form.get('dateOfBirth')?.value ?? '');
+    if (!iso) return '';
+    const check = validateDateOfBirthIso(iso);
+    if (check.valid) return '';
+    const helpKey = helpKeyForValidationError(check.errorKey);
+    return helpKey ? this.loc(helpKey) : '';
+  }
+
+  private defaultBirthdaySeedIso(): string {
+    return addCalendarDaysIso(this.dobMaxIso, -365 * 25);
+  }
+
+  private formatBirthdayDisplayDate(iso: string): string {
+    const lang = this.languageService.getCurrentLanguage();
+    if (isPersianAppLanguage(lang)) {
+      return formatJalaliFaFromIso(iso, 'DD MMMM YYYY');
+    }
+    const [y, m, d] = iso.split('-').map((n) => parseInt(n, 10));
+    return formatHistoryDayDate(new Date(y, m - 1, d), lang);
+  }
+
+  private setDobPickerFeedback(errorKey: string | null): void {
+    if (!errorKey) {
+      this.dobPickerError = '';
+      this.dobPickerHelp = '';
+      return;
+    }
+    this.dobPickerError = this.loc(errorKey);
+    const helpKey = helpKeyForValidationError(errorKey);
+    this.dobPickerHelp = helpKey ? this.loc(helpKey) : '';
+  }
+
+  private clearDobPickerFeedback(): void {
+    this.dobPickerError = '';
+    this.dobPickerHelp = '';
+  }
+
+  private async openJalaliBirthdayPicker(initialIso: string): Promise<void> {
+    const jalaali = await import('jalaali-js');
+    const [gy, gm, gd] = initialIso.split('-').map((n) => parseInt(n, 10));
+    const initial = jalaali.toJalaali(gy, gm, gd);
+
+    const [minGy, minGm, minGd] = this.dobMinIso.split('-').map((n) => parseInt(n, 10));
+    const [maxGy, maxGm, maxGd] = this.dobMaxIso.split('-').map((n) => parseInt(n, 10));
+    const minJ = jalaali.toJalaali(minGy, minGm, minGd);
+    const maxJ = jalaali.toJalaali(maxGy, maxGm, maxGd);
+    const years = Array.from(
+      { length: maxJ.jy - minJ.jy + 1 },
+      (_, i) => minJ.jy + i,
+    );
+
+    const yearCol = {
+      name: 'year',
+      selectedIndex: Math.max(0, years.indexOf(initial.jy)),
+      options: years.map((y) => ({ text: toFa(y), value: y })),
+    };
+
+    const monthCol = {
+      name: 'month',
+      selectedIndex: initial.jm - 1,
+      options: J_MONTHS.map((m, idx) => ({ text: m, value: idx + 1 })),
+    };
+
+    const makeDayCol = (jy: number, jm: number, selectedDay = 1) => {
+      const len = jalaliDaysInMonth(jy, jm);
+      const days = Array.from({ length: len }, (_, i) => i + 1);
+      return {
+        name: 'day',
+        selectedIndex: Math.min(selectedDay, len) - 1,
+        options: days.map((d) => ({ text: toFa(d), value: d })),
+      };
+    };
+
+    const dayCol = makeDayCol(initial.jy, initial.jm, initial.jd);
+
+    const picker = await this.pickerCtrl.create({
+      columns: [dayCol, monthCol, yearCol],
+      buttons: [
+        { text: this.loc('common.cancel'), role: 'cancel' },
+        {
+          text: this.loc('reproductiveStatus.confirm'),
+          handler: (value) => {
+            const iso = jalaliToIsoDate(
+              value.year.value,
+              value.month.value,
+              value.day.value,
+            );
+            const check = validateDateOfBirthIso(iso);
+            if (!check.valid) {
+              showJalaliPickerFeedback(picker, check.errorKey, (key) =>
+                this.loc(key),
+              );
+              this.cdr.detectChanges();
+              return false;
+            }
+            clearJalaliPickerFeedback(picker);
+            this.form.get('dateOfBirth')?.setValue(check.iso, { emitEvent: true });
+            this.clearDobPickerFeedback();
+            this.cdr.detectChanges();
+            return true;
+          },
+        },
+      ],
+    });
+
+    await picker.present();
+
+    attachJalaliPickerLiveValidation(picker, {
+      validate: (iso) => validateDateOfBirthIso(iso),
+      translate: (key) => this.loc(key),
+      rangeHint: this.dobPickerRangeHint,
+    });
   }
 
   /** Normalizes GET /user/:id API wrapper (`data` vs flat) like ProfileCompletionService. */

@@ -14,6 +14,8 @@ export { GESTATION_LENGTH_DAYS } from './pregnancy-lmp.util';
 export const MAX_PREGNANCY_DAYS_FROM_LMP = 320;
 /** Cycle last-period picker: do not accept starts older than this. */
 export const MAX_CYCLE_LAST_PERIOD_DAYS_AGO = 365;
+/** Profile date of birth: earliest calendar year allowed (inclusive). */
+export const MIN_DATE_OF_BIRTH_YEAR_OFFSET = 120;
 
 export type ReproductiveDateValidationResult =
   | { valid: true; iso: string }
@@ -157,6 +159,34 @@ export function minCycleLastPeriodIso(ref: Date = new Date()): string {
   );
 }
 
+export function maxDateOfBirthIso(ref: Date = new Date()): string {
+  return localCalendarIsoDate(ref);
+}
+
+export function minDateOfBirthIso(ref: Date = new Date()): string {
+  const todayIso = localCalendarIsoDate(ref);
+  const year = Number(todayIso.slice(0, 4)) - MIN_DATE_OF_BIRTH_YEAR_OFFSET;
+  return `${year}-01-01`;
+}
+
+/** User profile birthday (not in the future; within a reasonable age range). */
+export function validateDateOfBirthIso(
+  iso: string,
+  ref: Date = new Date(),
+): ReproductiveDateValidationResult {
+  const normalized = isoDateOnly(iso);
+  if (!normalized) {
+    return { valid: false, errorKey: 'editProfile.validation.dobInvalid' };
+  }
+  if (!isCalendarDateNotAfterToday(normalized, ref)) {
+    return { valid: false, errorKey: 'editProfile.validation.dobFuture' };
+  }
+  if (normalized < minDateOfBirthIso(ref)) {
+    return { valid: false, errorKey: 'editProfile.validation.dobTooOld' };
+  }
+  return { valid: true, iso: normalized };
+}
+
 /** Optional UX hint shown under a validation error to guide correction. */
 export const VALIDATION_HELP_BY_ERROR: Record<string, string> = {
   'pregnancySetup.validationInvalidDate': 'pregnancySetup.helpInvalidDate',
@@ -175,6 +205,9 @@ export const VALIDATION_HELP_BY_ERROR: Record<string, string> = {
   'reproductiveStatus.validationCycleLengthRange': 'reproductiveStatus.helpCycleLengthRange',
   'reproductiveStatus.validationBleedingRange': 'reproductiveStatus.helpBleedingRange',
   'reproductiveStatus.validationBleedingTooLong': 'reproductiveStatus.helpBleedingTooLong',
+  'editProfile.validation.dobInvalid': 'editProfile.help.dobInvalid',
+  'editProfile.validation.dobFuture': 'editProfile.help.dobFuture',
+  'editProfile.validation.dobTooOld': 'editProfile.help.dobTooOld',
 };
 
 export function helpKeyForValidationError(errorKey: string): string | null {

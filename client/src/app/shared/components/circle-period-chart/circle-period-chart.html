@@ -49,6 +49,12 @@
 
   <!-- Main Chart -->
   <div class="chart-wrapper">
+    <div class="chart-wave" aria-hidden="true">
+      <div class="chart-wave__ocean">
+        <div class="chart-wave__wave"></div>
+        <div class="chart-wave__wave"></div>
+      </div>
+    </div>
     <svg
       viewBox="50 50 500 500"
       class="cycle-chart"
@@ -240,7 +246,7 @@
         <!-- Outer background circle -->
         <circle
           r="240"
-          [attr.fill]="cycleDiskBackgroundFill"
+          fill="none"
           stroke-width="0"
           class="background-3d chart-bg-disk"
         ></circle>

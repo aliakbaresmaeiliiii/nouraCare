@@ -473,6 +473,18 @@
       transparent 74%
     );
   }
+
+  .chart-wrapper .chart-wave {
+    background: #1a3a42;
+  }
+
+  .chart-wrapper .chart-wave__ocean {
+    background: #013a4a;
+  }
+
+  .chart-wrapper .chart-wave__wave {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 198' preserveAspectRatio='none'%3E%3Cpath fill='%23013a4a' d='M1600,98.4c-74.6,0-146.8-18.3-210.2-53.1C1328,10,1220.5,0,1107.5,0c-74.1,0-145.5,13.4-211.1,37.8C831,61.6,757.4,74,682.3,74C493.6,74,331,38.9,0,0v198h1600V98.4z'/%3E%3C/svg%3E");
+  }
 }
 
 .chart-header {
@@ -514,6 +526,67 @@
   overflow: visible;
   padding: 20px 12px;
   box-sizing: border-box;
+
+  .chart-wave {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 0;
+    width: 96%;
+    max-width: calc(650px * 0.96);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    overflow: hidden;
+    pointer-events: none;
+    background: #b7e8eb;
+  }
+
+  .chart-wave__ocean {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 42%;
+    background: #015871;
+  }
+
+  .chart-wave__wave {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 198' preserveAspectRatio='none'%3E%3Cpath fill='%23015871' d='M1600,98.4c-74.6,0-146.8-18.3-210.2-53.1C1328,10,1220.5,0,1107.5,0c-74.1,0-145.5,13.4-211.1,37.8C831,61.6,757.4,74,682.3,74C493.6,74,331,38.9,0,0v198h1600V98.4z'/%3E%3C/svg%3E")
+      repeat-x;
+    position: absolute;
+    top: -124%;
+    left: 0;
+    width: 6400px;
+    height: 124%;
+    animation: chart-wave-scroll 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+    will-change: transform;
+  }
+
+  .chart-wave__wave:nth-of-type(2) {
+    top: -110%;
+    animation-delay: -0.125s;
+    opacity: 1;
+  }
+
+  .cycle-chart {
+    position: relative;
+    z-index: 1;
+  }
+
+  .cycle-chart .chart-bg-disk {
+    opacity: 0;
+  }
+}
+
+@keyframes chart-wave-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-1600px, 0, 0);
+  }
 }
 
 .cycle-chart {
@@ -1876,6 +1949,7 @@ ion-modal ion-toolbar {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .chart-wave__wave,
   .chart-aura,
   .cycle-progress-arc,
   .center-glow-ring,

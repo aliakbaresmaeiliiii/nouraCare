@@ -18,12 +18,6 @@ import {
 
 } from '@angular/core';
 
-import {
-  CdkFixedSizeVirtualScroll,
-  CdkVirtualForOf,
-  CdkVirtualScrollViewport,
-} from '@angular/cdk/scrolling';
-
 import { Router } from '@angular/router';
 
 import { ToastController, ViewWillEnter } from '@ionic/angular';
@@ -110,12 +104,9 @@ declare global {
 
   templateUrl: './profile.component.html',
 
-  imports: [
-    ...SHARED_STANDALONE_IMPORTS,
-    CdkVirtualScrollViewport,
-    CdkVirtualForOf,
-    CdkFixedSizeVirtualScroll,
-  ],
+  standalone: true,
+
+  imports: [...SHARED_STANDALONE_IMPORTS],
 
   styleUrls: ['./profile.component.scss'],
 
@@ -165,20 +156,15 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
   @ViewChild('profileAvatarInput') avatarInput!: ElementRef<HTMLInputElement>;
 
-  @ViewChild('activityViewport')
-  activityViewport?: CdkVirtualScrollViewport;
-
-
-
   currentReproductiveStatus: string | null = null;
 
   selectedTab = 'first';
 
   /** Page size for profile activity tabs. */
-  readonly activityPageSize = 10;
+  readonly activityPageSize = 20;
 
-  /** Approximate row height for CDK virtual scroll. */
-  readonly virtualItemSizePx = 92;
+  private readonly activeTabLoading = signal(false);
+  private readonly activeTabLoadingMore = signal(false);
 
   private readonly activityTabBySegment: Record<
     string,
@@ -381,13 +367,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
     const state = this.activityFetchState[type];
 
     if (!state.loaded) {
-
       this.loadActivityTab(type, true);
-
     }
-
-    queueMicrotask(() => this.activityViewport?.scrollToIndex(0));
-
   }
 
 
@@ -409,144 +390,12 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
 
   isActiveTabLoading(): boolean {
-
-    return this.activityFetchState[this.getActiveActivityType()].loading;
-
+    return this.activeTabLoading();
   }
-
-
 
   isActiveTabLoadingMore(): boolean {
-
-    return this.activityFetchState[this.getActiveActivityType()].loadingMore;
-
+    return this.activeTabLoadingMore();
   }
-
-
-
-  getActiveActivityItems(): Array<UserForumQuestion | UserForumAnswer> {
-
-    switch (this.getActiveActivityType()) {
-
-      case 'answers':
-
-        return this.userAnswers();
-
-      case 'experiences':
-
-        return this.userExperiences();
-
-      default:
-
-        return this.userQuestions();
-
-    }
-
-  }
-
-
-
-  getActiveTabEmptyKey(): string {
-
-    switch (this.getActiveActivityType()) {
-
-      case 'answers':
-
-        return 'profile.noAnswers';
-
-      case 'experiences':
-
-        return 'profile.noExperiences';
-
-      default:
-
-        return 'profile.noQuestions';
-
-    }
-
-  }
-
-
-
-  trackActivityItem(
-
-    _index: number,
-
-    item: UserForumQuestion | UserForumAnswer,
-
-  ): string {
-
-    return item.id;
-
-  }
-
-
-
-  isAnswersTab(): boolean {
-
-    return this.getActiveActivityType() === 'answers';
-
-  }
-
-
-
-  getActivityThreadId(item: UserForumQuestion | UserForumAnswer): string | null {
-
-    if (this.isAnswersTab()) {
-
-      return (item as UserForumAnswer).threadId;
-
-    }
-
-    return item.id;
-
-  }
-
-
-
-  getActivityTitle(item: UserForumQuestion | UserForumAnswer): string | null {
-
-    if (this.isAnswersTab()) {
-
-      return (item as UserForumAnswer).threadTitle;
-
-    }
-
-    return (item as UserForumQuestion).title ?? null;
-
-  }
-
-
-
-  getActivityContent(item: UserForumQuestion | UserForumAnswer): string {
-
-    return item.content ?? '';
-
-  }
-
-
-
-  onActivityVirtualScroll(viewport: CdkVirtualScrollViewport) {
-
-    const state = this.activityFetchState[this.getActiveActivityType()];
-
-    if (state.loading || state.loadingMore || !state.hasMore) {
-
-      return;
-
-    }
-
-    const { end } = viewport.getRenderedRange();
-
-    if (end >= this.getActiveActivityItems().length - 2) {
-
-      this.loadActivityTab(this.getActiveActivityType(), false);
-
-    }
-
-  }
-
-
 
   private loadActivityTab(type: UserForumActivityType, reset: boolean) {
 
@@ -585,10 +434,9 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
 
     state.loading = reset;
-
     state.loadingMore = !reset;
-
-
+    this.activeTabLoading.set(reset);
+    this.activeTabLoadingMore.set(!reset);
 
     this.forumService
 
@@ -597,11 +445,10 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
       .pipe(
 
         finalize(() => {
-
           state.loading = false;
-
           state.loadingMore = false;
-
+          this.activeTabLoading.set(false);
+          this.activeTabLoadingMore.set(false);
         }),
 
       )

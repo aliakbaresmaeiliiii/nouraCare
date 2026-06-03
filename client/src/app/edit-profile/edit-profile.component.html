@@ -159,10 +159,26 @@
         id="edit-focus-dateOfBirth"
         [class.personal-info-card--dob-missing]="!hasDateOfBirth"
       >
-        <label class="field-label" for="inp-dob">{{ 'editProfile.birthday' | translate }}</label>
+        <label class="field-label" id="inp-dob-label">{{ 'editProfile.birthday' | translate }}</label>
         <ion-item lines="none" class="field-item field-item--date">
-          <ion-input id="inp-dob" formControlName="dateOfBirth" type="date"></ion-input>
+          <button
+            type="button"
+            id="inp-dob"
+            class="dob-picker-btn"
+            [class.dob-picker-btn--placeholder]="!hasDateOfBirth"
+            [attr.aria-labelledby]="'inp-dob-label'"
+            (click)="openBirthdayDatePicker()"
+          >
+            <span class="dob-picker-btn__value">{{ displayBirthdayDate }}</span>
+            <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+          </button>
         </ion-item>
+        @if (dobFieldError()) {
+          <p class="field-error" role="alert">{{ dobFieldError() }}</p>
+          @if (dobFieldHelp()) {
+            <p class="dob-field-help">{{ dobFieldHelp() }}</p>
+          }
+        }
         @if (!hasDateOfBirth) {
           <p class="dob-missing-hint" role="status">{{ 'editProfile.dobMissingHint' | translate }}</p>
         }
@@ -181,4 +197,52 @@
       </app-button>
     </section>
   </form>
+
+  <ion-modal
+    [isOpen]="isDobPickerOpen"
+    (didDismiss)="onDobPickerDismiss()"
+    class="edit-profile-dob-modal"
+  >
+    <ng-template>
+      <div class="edit-profile-dob-sheet">
+        <ion-toolbar>
+          <ion-title>{{ 'editProfile.birthday' | translate }}</ion-title>
+        </ion-toolbar>
+        <p class="edit-profile-dob-range-hint">{{ dobPickerRangeHint }}</p>
+        <ion-datetime
+          class="edit-profile-dob-wheel ltr"
+          presentation="date"
+          [preferWheel]="true"
+          [value]="dobPickerIso"
+          [min]="dobMinIso"
+          [max]="dobMaxIso"
+          (ionChange)="onDobPickerChange($event)"
+        ></ion-datetime>
+        @if (dobPickerError && isDobPickerOpen) {
+          <div class="edit-profile-dob-feedback" role="alert">
+            <p class="edit-profile-dob-feedback__error">{{ dobPickerError }}</p>
+            @if (dobPickerHelp) {
+              <p class="edit-profile-dob-feedback__help">{{ dobPickerHelp }}</p>
+            }
+          </div>
+        }
+        <div class="edit-profile-dob-footer">
+          <button
+            type="button"
+            class="edit-profile-dob-btn edit-profile-dob-btn--secondary"
+            (click)="closeDobPicker('cancel')"
+          >
+            {{ 'common.cancel' | translate }}
+          </button>
+          <button
+            type="button"
+            class="edit-profile-dob-btn edit-profile-dob-btn--primary"
+            (click)="closeDobPicker('confirm')"
+          >
+            {{ 'reproductiveStatus.confirm' | translate }}
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </ion-modal>
 </ion-content>

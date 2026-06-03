@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/services/prisma.service';
 import { randomUUID } from 'crypto';
 import { CreateForumThreadDto } from './dto/create-forum-thread.dto';
 import { UpdateForumThreadDto } from './dto/update-forum-thread.dto';
+import { assertNoProfanity } from '../common/utils/profanity-filter.util';
 
 @Injectable()
 export class ForumThreadsService {
@@ -46,6 +47,8 @@ export class ForumThreadsService {
           'Content must be at least 10 characters long',
         );
       }
+
+      assertNoProfanity(createForumThreadDto.title, normalizedContent);
 
       // Check if category exists and is active
       const category = await this.prismaService.forum_categories.findUnique({

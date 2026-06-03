@@ -15,6 +15,13 @@
 }
 
 .home-content {
+  --home-section-gap: var(--app-space-6);
+  --home-block-gap: var(--app-space-4);
+  --home-title-gap: var(--app-space-3);
+  --home-inline-gap: var(--app-space-3);
+  --home-shell-padding-block-start: var(--app-space-4);
+  --home-shell-padding-block-end: var(--app-space-6);
+
   display: block;
   box-sizing: border-box;
   min-height: 100%;
@@ -341,7 +348,8 @@
 .cycle-today-shell {
   position: relative;
   margin-top: 0;
-  padding: 0.75rem var(--app-side-padding, 1rem) 1.25rem;
+  padding: var(--home-shell-padding-block-start) var(--app-side-padding, 1rem)
+    var(--home-shell-padding-block-end);
   z-index: 1;
 }
 
@@ -444,9 +452,9 @@
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  margin-bottom: 1rem;
-  padding: 1rem 1.05rem;
+  gap: var(--home-block-gap);
+  margin-bottom: var(--home-block-gap);
+  padding: var(--home-block-gap);
   border-radius: 20px;
   background: linear-gradient(145deg, #fff 0%, #fff5f9 100%);
   border: 1px solid rgba(219, 39, 119, 0.18);
@@ -700,11 +708,6 @@
   }
 }
 
-.cycle-today-shell > .cycle-hero-sky + .cycle-daily-insights {
-  margin-top: clamp(-0.45rem, -1.4vw, -0.15rem);
-  padding-top: clamp(0.75rem, 2.4vw, 1.1rem);
-}
-
 .cycle-day-desc {
   margin: 0 0 0.35rem;
   padding: 0 1rem;
@@ -719,8 +722,8 @@
   z-index: 2;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.55rem;
-  margin: 0.85rem 0 0.25rem;
+  gap: var(--home-inline-gap);
+  margin: var(--home-block-gap) 0 0;
 }
 
 .cycle-stat-card {
@@ -784,13 +787,10 @@
 .cycle-daily-insights {
   position: relative;
   z-index: 2;
-  margin-top: 0.85rem;
-  padding-top: 0.35rem;
+}
 
-  .pds-action-grid {
-    margin-top: 0.85rem;
-    padding-inline: 0;
-  }
+.cycle-stats-grid + .pregnancy-daily-insights {
+  margin-top: var(--home-block-gap);
 }
 
 :host-context([dir='rtl']) {
@@ -806,13 +806,12 @@
 .cycle-phase-guide {
   position: relative;
   z-index: 2;
-  margin-top: 1.15rem;
-  padding-top: 0.35rem;
+  margin-top: var(--home-section-gap);
 }
 
 .cycle-phase-guide__header {
-  margin-bottom: 0.75rem;
-  padding-inline: 2px;
+  margin-bottom: var(--home-title-gap);
+  padding-inline: 0;
 }
 
 .cycle-phase-guide__title {
@@ -834,9 +833,9 @@
 
 .cycle-phase-guide__scroll {
   display: flex;
-  gap: 0.65rem;
+  gap: var(--home-inline-gap);
   overflow-x: auto;
-  padding: 0.15rem 2px 0.5rem;
+  padding: 0 0 var(--app-space-2);
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
