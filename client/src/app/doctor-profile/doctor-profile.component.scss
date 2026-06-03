@@ -1,884 +1,551 @@
-// Doctor Profile Modern Design
-.doctor-profile-content {
-  --background: var(--app-gradient-header);
-  background: var(--app-gradient-header);
+:host {
+  display: block;
+  width: 100%;
 }
 
-// Loading State
-.loading-container {
+.doctor-profile-header {
+  ion-toolbar {
+    --background: var(--app-gradient-header);
+    --color: var(--brand-text);
+    --border-width: 0;
+    --padding-start: 8px;
+    --padding-end: 8px;
+  }
+
+  .header-title {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .header-icon-btn {
+    --color: var(--brand-primary-dark);
+    --background: rgba(255, 255, 255, 0.72);
+    --border-radius: 12px;
+    min-width: 42px;
+    min-height: 42px;
+  }
+}
+
+.doctor-profile-content {
+  --background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+.profile-loading {
+  padding: 0 1rem 2rem;
+}
+
+.profile-skeleton {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+
+  .sk-avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+  }
+
+  .sk-line {
+    width: min(280px, 88vw);
+    height: 14px;
+    border-radius: 8px;
+
+    &--title {
+      height: 22px;
+      width: min(220px, 70vw);
+    }
+
+    &--short {
+      width: min(160px, 55vw);
+    }
+  }
+}
+
+.profile-not-found {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100dvh;
-  
-  .loading-spinner {
-    text-align: center;
-    
-    ion-spinner {
-      --color: var(--brand-primary);
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
-    }
-    
-    p {
-      color: var(--brand-text-secondary);
-      font-size: 16px;
-      margin: 0;
-    }
-  }
-}
+  min-height: min(70dvh, 560px);
+  padding: 2rem 1.25rem;
+  text-align: center;
 
-// Profile Container
-.profile-container {
-  min-height: 100dvh;
-  position: relative;
-}
-
-// Header Section
-.profile-header {
-  position: relative;
-  padding: 60px 20px 40px;
-  overflow: hidden;
-  
-  .header-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    
-    .gradient-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-      opacity: 0.3;
-      animation: float 8s ease-in-out infinite;
-      
-      &.orb-1 {
-        width: 300px;
-        height: 300px;
-        background: linear-gradient(45deg, #ff6b6b, #feca57);
-        top: -100px;
-        right: -100px;
-        animation-delay: 0s;
-      }
-      
-      &.orb-2 {
-        width: 200px;
-        height: 200px;
-        background: linear-gradient(45deg, #4ecdc4, #45b7d1);
-        bottom: -50px;
-        left: -50px;
-        animation-delay: 4s;
-      }
-    }
-  }
-  
-  .header-content {
-    position: relative;
-    z-index: 2;
-  }
-  
-  .header-actions {
+  &__icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 20px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    
-    .back-btn {
-      --color: var(--brand-primary-dark);
-      --background: rgba(255, 255, 255, 0.55);
-      --border-radius: 12px;
-      backdrop-filter: blur(10px);
-      
-      ion-icon {
-        font-size: 24px;
-      }
-    }
-    
-    .action-buttons {
-      display: flex;
-      gap: 8px;
-      
-      .action-btn {
-        --color: var(--brand-primary-dark);
-        --background: rgba(255, 255, 255, 0.55);
-        --border-radius: 12px;
-        backdrop-filter: blur(10px);
-        
-        ion-icon {
-          font-size: 20px;
-        }
-      }
-    }
-  }
-  
-  .doctor-main-info {
-    text-align: center;
-    margin-bottom: 30px;
-    
-    .doctor-avatar {
-      position: relative;
-      display: inline-block;
-      margin-bottom: 20px;
-      
-      img {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 4px solid rgba(255, 255, 255, 0.85);
-        position: relative;
-        z-index: 2;
-      }
-      
-      .avatar-ring {
-        position: absolute;
-        top: -8px;
-        left: -8px;
-        width: 136px;
-        height: 136px;
-        border: 2px solid transparent;
-        border-radius: 50%;
-        background: linear-gradient(45deg, #ff6b6b, #feca57, #4ecdc4) border-box;
-        mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-        mask-composite: exclude;
-        animation: rotate 4s linear infinite;
-      }
-      
-      .online-status {
-        position: absolute;
-        bottom: 8px;
-        right: 8px;
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(45deg, #4caf50, #8bc34a);
-        border: 3px solid white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 3;
-        
-        ion-icon {
-          font-size: 16px;
-          color: white;
-        }
-      }
-    }
-    
-    .doctor-details {
-      .doctor-name {
-        font-size: 28px;
-        font-weight: 800;
-        color: var(--brand-text);
-        margin: 0 0 8px 0;
-        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
-      }
-      
-      .doctor-specialty {
-        font-size: 18px;
-        color: var(--brand-text-secondary);
-        margin: 0 0 24px 0;
-        font-weight: 500;
-      }
-      
-      .doctor-stats {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-        
-        .stat-item {
-          text-align: center;
-          
-          .stat-value {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--brand-text);
-            margin-bottom: 4px;
-          }
-          
-          .stat-label {
-            font-size: 12px;
-            color: var(--brand-text-secondary);
-            font-weight: 500;
-          }
-          
-          .stars {
-            display: flex;
-            justify-content: center;
-            gap: 2px;
-            margin-top: 4px;
-            
-            ion-icon {
-              font-size: 14px;
-              color: #ffd700;
-            }
-          }
-        }
-        
-        .stat-divider {
-          width: 1px;
-          height: 40px;
-          background: rgba(var(--brand-text-rgb), 0.12);
-        }
-      }
-    }
-  }
-  
-  .consultation-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(20px);
-    border-radius: 16px;
-    padding: 16px 20px;
-    border: 1px solid rgba(34, 56, 81, 0.1);
-    
-    .consultation-type {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--brand-text);
-      font-weight: 600;
-      
-      ion-icon {
-        font-size: 20px;
-      }
-    }
-    
-    .consultation-fee {
-      text-align: right;
-      
-      .fee-amount {
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--brand-text);
-        display: block;
-      }
-      
-      .fee-label {
-        font-size: 12px;
-        color: var(--brand-text-secondary);
-      }
-    }
-  }
-}
-
-// Tab Navigation
-.tab-navigation {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  padding: 0 20px;
-  border-top-left-radius: 24px;
-  border-top-right-radius: 24px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  
-  .tab-buttons {
-    display: flex;
-    gap: 0;
-    
-    .tab-btn {
-      flex: 1;
-      background: none;
-      border: none;
-      padding: 20px 16px;
-      font-size: 16px;
-      font-weight: 600;
-      color: #475569;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      
-      &.active {
-        color: var(--ion-color-primary);
-        
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 40px;
-          height: 3px;
-          background: var(--app-gradient-header-90);
-          border-radius: 2px;
-        }
-      }
-      
-      &:hover:not(.active) {
-        color: var(--ion-color-primary);
-      }
-    }
-  }
-}
-
-// Tab Content
-.tab-content {
-  background: white;
-  min-height: 60vh;
-  padding: 0;
-}
-
-.tab-panel {
-  padding: 24px 20px 120px;
-}
-
-// About Tab
-.about-section {
-  .section-card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 18px;
-      font-weight: 700;
-      color: #2c3e50;
-      margin: 0 0 16px 0;
-      
-      ion-icon {
-        font-size: 20px;
-        color: var(--ion-color-primary);
-      }
-    }
-    
-    .about-text {
-      color: #334155;
-      line-height: 1.6;
-      font-size: 15px;
-      margin: 0;
-    }
-    
-    .clinic-info {
-      .info-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 12px;
-        color: #334155;
-        font-size: 15px;
-        
-        &:last-child {
-          margin-bottom: 0;
-        }
-        
-        ion-icon {
-          font-size: 18px;
-          color: var(--ion-color-primary);
-          flex-shrink: 0;
-        }
-      }
-    }
-    
-    .specializations {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      
-      .spec-tag {
-        background: rgba(var(--flo-primary-rgb), 0.1);
-        color: var(--ion-color-primary);
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 500;
-        border: 1px solid rgba(var(--flo-primary-rgb), 0.2);
-      }
-    }
-  }
-}
-
-// Reviews Tab
-.reviews-section {
-  .reviews-summary {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    
-    .rating-overview {
-      text-align: center;
-      
-      .overall-rating {
-        margin-bottom: 12px;
-        
-        .rating-number {
-          font-size: 48px;
-          font-weight: 800;
-          color: var(--ion-color-primary);
-          display: block;
-          margin-bottom: 8px;
-        }
-        
-        .rating-stars {
-          display: flex;
-          justify-content: center;
-          gap: 4px;
-          
-          ion-icon {
-            font-size: 20px;
-            color: #ffd700;
-          }
-        }
-      }
-      
-      .rating-details {
-        p {
-          color: #334155;
-          margin: 0;
-          font-size: 14px;
-        }
-      }
-    }
-  }
-  
-  .reviews-list {
-    .review-card {
-      background: white;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      
-      .review-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
-        
-        .reviewer-info {
-          display: flex;
-          gap: 12px;
-          
-          .reviewer-avatar {
-            width: 40px;
-            height: 40px;
-            background: var(--app-gradient-header-45);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--brand-text);
-            font-weight: 600;
-            font-size: 16px;
-          }
-          
-          .reviewer-details {
-            .reviewer-name {
-              font-size: 16px;
-              font-weight: 600;
-              color: #2c3e50;
-              margin: 0 0 4px 0;
-            }
-            
-            .review-meta {
-              display: flex;
-              align-items: center;
-              gap: 8px;
-              
-              .review-stars {
-                display: flex;
-                gap: 2px;
-                
-                ion-icon {
-                  font-size: 14px;
-                  color: #ffd700;
-                }
-              }
-              
-              .review-date {
-                font-size: 12px;
-                color: #475569;
-              }
-            }
-          }
-        }
-        
-        .verified-badge {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          background: rgba(76, 175, 80, 0.1);
-          color: #4caf50;
-          padding: 4px 8px;
-          border-radius: 12px;
-          font-size: 12px;
-          font-weight: 500;
-          
-          ion-icon {
-            font-size: 14px;
-          }
-        }
-      }
-      
-      .review-comment {
-        color: #334155;
-        line-height: 1.5;
-        margin: 0;
-        font-size: 14px;
-      }
-    }
-  }
-}
-
-// Schedule Tab
-.schedule-section {
-  .schedule-header {
-    text-align: center;
-    margin-bottom: 24px;
-    
-    h3 {
-      font-size: 20px;
-      font-weight: 700;
-      color: #2c3e50;
-      margin: 0 0 8px 0;
-    }
-    
-    p {
-      color: #334155;
-      margin: 0;
-      font-size: 14px;
-    }
-  }
-  
-  .time-slots {
-    display: grid;
-    gap: 12px;
-    
-    .time-slot {
-      background: white;
-      border: 2px solid #f0f0f0;
-      border-radius: 12px;
-      padding: 16px 20px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      
-      &:not(.unavailable):hover {
-        border-color: var(--ion-color-primary);
-        background: rgba(var(--flo-primary-rgb), 0.02);
-      }
-      
-      &.unavailable {
-        background: #f8f9fa;
-        border-color: #e9ecef;
-        cursor: not-allowed;
-        opacity: 0.6;
-      }
-      
-      .slot-time {
-        font-size: 16px;
-        font-weight: 600;
-        color: #2c3e50;
-      }
-      
-      .slot-status {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        
-        .available-text {
-          color: #4caf50;
-          font-size: 14px;
-          font-weight: 500;
-        }
-        
-        .slot-price {
-          background: rgba(var(--flo-primary-rgb), 0.1);
-          color: var(--ion-color-primary);
-          padding: 4px 8px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 600;
-        }
-        
-        &.unavailable-text {
-          color: #475569;
-          font-size: 14px;
-        }
-      }
-    }
-  }
-}
-
-// Floating Actions
-.floating-actions {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  z-index: 1000;
-  
-  .book-appointment-btn {
-    --background: var(--app-gradient-header-45);
-    --color: white;
-    --border-radius: 16px;
-    --padding-top: 18px;
-    --padding-bottom: 18px;
-    font-weight: 600;
-    font-size: 16px;
-    box-shadow: 0 8px 32px rgba(var(--flo-primary-rgb), 0.4);
-    margin-bottom: 12px;
-    
-    &:hover {
-      --background: var(--app-gradient-header);
-    }
-  }
-  
-  .contact-buttons {
-    display: flex;
-    gap: 12px;
     justify-content: center;
-    
-    .contact-btn {
-      --border-color: rgba(var(--brand-text-rgb), 0.2);
-      --color: var(--brand-text);
-      --background: rgba(255, 255, 255, 0.55);
+    background: rgba(var(--brand-primary-rgb), 0.1);
+    color: var(--brand-primary);
+    margin-bottom: 1rem;
+
+    ion-icon {
+      font-size: 2rem;
+    }
+  }
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1e293b;
+  }
+
+  p {
+    margin: 0 0 1.25rem;
+    color: #64748b;
+    line-height: 1.5;
+    max-width: 320px;
+  }
+
+  ion-button {
+    max-width: 320px;
+    margin-top: 0.35rem;
+  }
+}
+
+.profile-container {
+  padding: 0 1rem calc(7.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.profile-hero {
+  text-align: center;
+  padding: 1.25rem 0 1.5rem;
+
+  &__avatar-wrap {
+    position: relative;
+    width: 112px;
+    height: 112px;
+    margin: 0 auto 1rem;
+  }
+
+  &__avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    background: #fff;
+  }
+
+  &__verified {
+    position: absolute;
+    inset-inline-end: 4px;
+    bottom: 4px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--ion-color-success);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+
+    ion-icon {
+      font-size: 16px;
+    }
+  }
+
+  &__name {
+    margin: 0 0 0.35rem;
+    font-size: clamp(1.35rem, 4vw, 1.65rem);
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.02em;
+  }
+
+  &__specialty {
+    margin: 0 0 1rem;
+    color: var(--brand-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  &__stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  &__meta {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+.stat-chip {
+  min-width: 92px;
+  padding: 0.65rem 0.75rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: var(--app-shadow-soft, 0 2px 8px rgba(15, 23, 42, 0.06));
+
+  &__value {
+    display: block;
+    font-weight: 800;
+    color: #1e293b;
+    font-size: 1rem;
+    line-height: 1.1;
+  }
+
+  &__label {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.72rem;
+    color: #64748b;
+    font-weight: 600;
+  }
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.15);
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  ion-icon {
+    color: var(--brand-primary);
+    font-size: 1rem;
+  }
+
+  &--fee {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.45rem 0.9rem;
+
+    .fee-value {
+      font-weight: 800;
+      color: var(--brand-primary-dark);
+      font-size: 0.95rem;
+    }
+
+    .fee-label {
+      font-size: 0.68rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+  }
+}
+
+.profile-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  margin-bottom: 1rem;
+}
+
+.profile-tab {
+  border: 0;
+  background: transparent;
+  border-radius: 10px;
+  padding: 0.65rem 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+
+  &.active {
+    background: var(--brand-primary);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(var(--brand-primary-rgb), 0.25);
+  }
+}
+
+.profile-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.panel-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1rem 1rem 1.1rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: var(--app-shadow-soft, 0 2px 8px rgba(15, 23, 42, 0.05));
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 0.65rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #1e293b;
+
+    ion-icon {
+      color: var(--brand-primary);
+      font-size: 1.1rem;
+    }
+  }
+
+  &__subtitle {
+    margin: -0.35rem 0 0.85rem;
+    color: #64748b;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  &__text {
+    margin: 0;
+    color: #475569;
+    line-height: 1.65;
+    font-size: 0.92rem;
+  }
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+
+  &__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    color: #475569;
+    font-size: 0.92rem;
+    line-height: 1.45;
+
+    ion-icon {
+      color: var(--brand-primary);
+      font-size: 1.05rem;
+      margin-top: 0.1rem;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.spec-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.spec-tag {
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(var(--brand-primary-rgb), 0.08);
+  color: var(--brand-primary-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.reviews-summary-card {
+  text-align: center;
+}
+
+.reviews-summary {
+  &__score {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+  }
+
+  &__stars {
+    display: flex;
+    justify-content: center;
+    gap: 0.15rem;
+    margin: 0.35rem 0;
+
+    ion-icon {
+      color: #f59e0b;
+      font-size: 1rem;
+    }
+  }
+
+  p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.85rem;
+  }
+}
+
+.review-card {
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-bottom: 0.65rem;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(var(--brand-primary-rgb), 0.12);
+    color: var(--brand-primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  h4 {
+    margin: 0 0 0.2rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    color: #64748b;
+    font-size: 0.75rem;
+
+    ion-icon {
+      color: #f59e0b;
+      font-size: 0.85rem;
+    }
+  }
+
+  &__verified {
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    color: var(--ion-color-success);
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+
+    ion-icon {
+      font-size: 0.95rem;
+    }
+  }
+
+  &__comment {
+    margin: 0;
+    color: #475569;
+    line-height: 1.6;
+    font-size: 0.9rem;
+  }
+}
+
+.time-slots {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.time-slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.18);
+  border-radius: 12px;
+  background: rgba(var(--brand-primary-rgb), 0.04);
+  padding: 0.75rem 0.9rem;
+  text-align: start;
+  cursor: pointer;
+
+  &__time {
+    font-weight: 800;
+    color: #1e293b;
+    font-size: 0.92rem;
+  }
+
+  &__status {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--ion-color-success);
+
+    &--booked {
+      color: #94a3b8;
+    }
+  }
+
+  &__price {
+    font-weight: 800;
+    color: var(--brand-primary-dark);
+    font-size: 0.85rem;
+  }
+
+  &--disabled {
+    opacity: 0.72;
+    cursor: not-allowed;
+    background: #f8fafc;
+    border-color: rgba(15, 23, 42, 0.08);
+  }
+}
+
+.profile-actions {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+
+  &__book {
+    flex: 1;
+    --border-radius: 12px;
+    font-weight: 700;
+  }
+
+  &__contact {
+    display: flex;
+    gap: 0.35rem;
+
+    ion-button {
       --border-radius: 12px;
-      backdrop-filter: blur(10px);
-      width: 56px;
-      height: 56px;
-      
-      ion-icon {
-        font-size: 24px;
-      }
-      
-      &.phone-btn:hover {
-        --background: rgba(76, 175, 80, 0.2);
-        --border-color: #4caf50;
-      }
-      
-      &.message-btn:hover {
-        --background: rgba(33, 150, 243, 0.2);
-        --border-color: #2196f3;
-      }
+      min-width: 46px;
+      min-height: 46px;
     }
   }
 }
 
-// Animations
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-30px) rotate(120deg); }
-  66% { transform: translateY(-15px) rotate(240deg); }
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-// Responsive Design
-@media (max-width: 768px) {
-  .profile-header {
-    padding: 40px 16px 30px;
-    
-    .doctor-main-info {
-      .doctor-avatar {
-        img {
-          width: 100px;
-          height: 100px;
-        }
-        
-        .avatar-ring {
-          width: 116px;
-          height: 116px;
-          top: -8px;
-          left: -8px;
-        }
-        
-        .online-status {
-          width: 28px;
-          height: 28px;
-          
-          ion-icon {
-            font-size: 14px;
-          }
-        }
-      }
-      
-      .doctor-details {
-        .doctor-name {
-          font-size: 24px;
-        }
-        
-        .doctor-specialty {
-          font-size: 16px;
-        }
-        
-        .doctor-stats {
-          gap: 16px;
-          
-          .stat-item .stat-value {
-            font-size: 18px;
-          }
-        }
-      }
-    }
-    
-    .consultation-info {
-      flex-direction: column;
-      gap: 12px;
-      text-align: center;
-    }
-  }
-  
-  .tab-panel {
-    padding: 20px 16px 120px;
-  }
-  
-  .floating-actions {
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
+:host-context(html[dir='rtl']) {
+  .review-card__verified {
+    margin-inline-start: 0;
+    margin-inline-end: auto;
   }
 }
 
-@media (max-width: 480px) {
-  .profile-header {
-    padding: 30px 12px 20px;
-    
-    .doctor-main-info {
-      .doctor-stats {
-        flex-direction: column;
-        gap: 12px;
-        
-        .stat-divider {
-          display: none;
-        }
-      }
-    }
-  }
-  
-  .tab-navigation {
-    padding: 0 12px;
-    
-    .tab-buttons .tab-btn {
-      padding: 16px 8px;
-      font-size: 14px;
-    }
-  }
-  
-  .tab-panel {
-    padding: 16px 12px 120px;
-  }
-}
-
-:host-context(html.ion-palette-dark) {
-  .doctor-profile-content {
-    --background: var(--app-gradient-header);
-    color: #ffffff;
+@media (min-width: 768px) {
+  .profile-container {
+    max-width: 720px;
+    margin: 0 auto;
   }
 
-  .profile-header {
-    .header-actions {
-      .back-btn,
-      .action-buttons .action-btn {
-        --color: #ffffff;
-        --background: rgba(255, 255, 255, 0.12);
-      }
-    }
-
-    .doctor-main-info .doctor-details {
-      .doctor-name,
-      .doctor-specialty,
-      .doctor-stats .stat-item .stat-value,
-      .doctor-stats .stat-item .stat-label {
-        color: #ffffff;
-      }
-    }
-
-    .consultation-info {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(255, 255, 255, 0.16);
-
-      .consultation-type,
-      .consultation-fee .fee-amount,
-      .consultation-fee .fee-label {
-        color: #ffffff;
-      }
-    }
-  }
-
-  .tab-navigation {
-    background: var(--ion-card-background);
-
-    .tab-buttons .tab-btn {
-      color: #ffffff;
-    }
-  }
-
-  .tab-content {
-    background: transparent;
-  }
-
-  .about-section .section-card,
-  .reviews-section .reviews-summary,
-  .reviews-section .reviews-list .review-card,
-  .schedule-section .time-slots .time-slot {
-    background: var(--ion-card-background);
-    border-color: rgba(255, 255, 255, 0.14);
-  }
-
-  .about-section .section-card {
-    .section-title,
-    .about-text,
-    .clinic-info .info-item {
-      color: #ffffff;
-    }
-  }
-
-  .reviews-section {
-    .reviews-summary .rating-overview .rating-details p,
-    .reviews-list .review-card .review-header .reviewer-info .reviewer-details .reviewer-name,
-    .reviews-list .review-card .review-header .reviewer-info .reviewer-details .review-meta .review-date,
-    .reviews-list .review-card .review-comment {
-      color: #ffffff;
-    }
-  }
-
-  .schedule-section {
-    .schedule-header h3,
-    .schedule-header p {
-      color: #ffffff;
-    }
-
-    .time-slots .time-slot {
-      .slot-time,
-      .slot-status.unavailable-text {
-        color: #ffffff;
-      }
-
-      &.unavailable {
-        background: rgba(255, 255, 255, 0.08);
-      }
-    }
-  }
-
-  .floating-actions {
-    .book-appointment-btn {
-      --color: #ffffff;
-    }
-
-    .contact-buttons .contact-btn {
-      --color: #ffffff;
-      --background: rgba(255, 255, 255, 0.12);
-      --border-color: rgba(255, 255, 255, 0.28);
-    }
+  .profile-actions {
+    max-width: 720px;
+    inset-inline: calc(50% - 360px);
   }
 }

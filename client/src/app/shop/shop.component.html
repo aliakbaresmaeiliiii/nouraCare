@@ -1,0 +1,144 @@
+<ion-header class="ion-no-border shop-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="goBack()" aria-label="Back">
+        <ion-icon name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'shop.title' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="openCart()" class="shop-cart-btn" [attr.aria-label]="'shop.cart' | translate">
+        <ion-icon name="cart-outline"></ion-icon>
+        @if (cartCount > 0) {
+          <span class="shop-cart-badge">{{ cartCount | localNum }}</span>
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="shop-content">
+  <section class="shop-hero">
+    <div class="shop-hero__icon"><ion-icon name="bag-outline"></ion-icon></div>
+    <h1>{{ 'shop.heroTitle' | translate }}</h1>
+    <p>{{ 'shop.heroSubtitle' | translate }}</p>
+  </section>
+
+  <div class="shop-toolbar">
+    <ion-searchbar
+      mode="ios"
+      debounce="250"
+      [placeholder]="'shop.searchPlaceholder' | translate"
+      (ionInput)="onSearch($event)"
+    ></ion-searchbar>
+    <div class="shop-toolbar__actions">
+      <button type="button" class="shop-filter-btn" [class.active]="showFilters || hasActiveFilters()" (click)="toggleFiltersPanel()">
+        <ion-icon name="funnel-outline"></ion-icon>
+        {{ 'shop.filters' | translate }}
+      </button>
+      <button type="button" class="shop-filter-btn" (click)="openSortSheet()">
+        {{ 'shop.sort' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (showFilters) {
+    <div class="shop-filter-panel">
+      <div class="shop-filter-toggles">
+        <ion-chip [class.active]="filters.inStockOnly" (click)="toggleInStock()">
+          {{ 'shop.filterInStock' | translate }}
+        </ion-chip>
+        <ion-chip [class.active]="filters.onSaleOnly" (click)="toggleOnSale()">
+          {{ 'shop.filterOnSale' | translate }}
+        </ion-chip>
+        @if (hasActiveFilters()) {
+          <ion-chip color="medium" (click)="clearFilters()">{{ 'shop.clearFilters' | translate }}</ion-chip>
+        }
+      </div>
+    </div>
+  }
+
+  <div class="shop-categories" role="tablist">
+    @for (cat of categories; track cat.id) {
+      <button
+        type="button"
+        class="shop-cat-chip"
+        [class.active]="filters.category === cat.id"
+        (click)="setCategory(cat.id)"
+        role="tab"
+        [attr.aria-selected]="filters.category === cat.id"
+      >
+        <ion-icon [name]="cat.icon"></ion-icon>
+        <span>{{ cat.labelKey | translate }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="shop-results-meta">
+    <span>{{ resultsLabel() }}</span>
+    @if (hasProducts && productCount > 2) {
+      <span class="shop-results-meta__hint">{{ 'shop.swipeProducts' | translate }}</span>
+    }
+  </div>
+
+  @if (hasProducts) {
+    <div
+      class="shop-grid-scroll"
+      [attr.aria-label]="'shop.productList' | translate"
+      (scroll)="onProductsScroll($event)"
+    >
+      <div class="shop-grid" role="list">
+        @for (product of visibleProducts; track product.id) {
+          <article class="shop-card" role="listitem" (click)="openProduct(product)">
+          <div class="shop-card__media">
+            <img [src]="product.imageUrl" [alt]="product.titleKey | translate" loading="lazy" />
+            @if (product.badgeKey) {
+              <span class="shop-card__badge">{{ product.badgeKey | translate }}</span>
+            }
+            @if (discountPercent(product); as pct) {
+              <span class="shop-card__discount">-{{ pct | localNum }}%</span>
+            }
+            @if (!product.inStock) {
+              <span class="shop-card__oos">{{ 'shop.outOfStock' | translate }}</span>
+            }
+          </div>
+          <div class="shop-card__body">
+            <h3>{{ product.titleKey | translate }}</h3>
+            <div class="shop-card__rating">
+              <ion-icon name="star"></ion-icon>
+              <span>{{ product.rating | localNum }}</span>
+              <span class="shop-card__reviews">({{ product.reviewCount | localNum }})</span>
+            </div>
+            <div class="shop-card__prices">
+              <strong>{{ formatPrice(product) }}</strong>
+              @if (formatOriginalPrice(product); as orig) {
+                <s>{{ orig }}</s>
+              }
+            </div>
+            <ion-button
+              expand="block"
+              size="small"
+              class="shop-card__add"
+              [disabled]="!product.inStock"
+              (click)="addToCart(product, $event)"
+            >
+              {{ 'shop.addToCart' | translate }}
+            </ion-button>
+          </div>
+        </article>
+        }
+      </div>
+      @if (loadingMoreProducts) {
+        <div class="shop-grid-loading" aria-hidden="true">
+          <ion-spinner name="crescent"></ion-spinner>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="shop-empty">
+      <ion-icon name="bag-outline"></ion-icon>
+      <p>{{ 'shop.noProducts' | translate }}</p>
+      <ion-button fill="outline" (click)="clearFilters()">{{ 'shop.clearFilters' | translate }}</ion-button>
+    </div>
+  }
+</ion-content>

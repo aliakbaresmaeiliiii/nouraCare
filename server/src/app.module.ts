@@ -11,6 +11,7 @@ import { GeoModule } from './geo/geo.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { TrackDayModule } from './track-day/track-day.module';
 import { DoctorsModule } from './doctors/doctors.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 import { SecretChatsModule } from './secret-chats/secret-chats.module';
 import { ForumModule } from './forum/forum.module';
 import { ReproductiveModule } from './reproductive/reproductive.module';
@@ -36,6 +37,7 @@ import { GlobalJwtAuthGuard } from './auth/guards/global-jwt-auth.guard';
     OnboardingModule,
     TrackDayModule,
     DoctorsModule,
+    AppointmentsModule,
     SecretChatsModule,
     ForumModule,
     ReproductiveModule,

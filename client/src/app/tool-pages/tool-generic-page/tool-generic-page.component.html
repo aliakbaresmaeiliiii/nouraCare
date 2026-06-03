@@ -1,0 +1,376 @@
+<ion-header class="ion-no-border tp-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tools" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ titleKey | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="tp-content">
+  <div class="tp-hero">
+    <div class="tp-hero-icon" [style.background]="menuItem?.color ?? 'var(--brand-primary)'">
+      <ion-icon [name]="menuItem?.icon ?? 'construct-outline'"></ion-icon>
+    </div>
+    <h1 class="tp-hero-title">{{ titleKey | translate }}</h1>
+    <p class="tp-hero-desc">{{ descKey | translate }}</p>
+  </div>
+
+  <div class="tp-body">
+    @switch (pageType) {
+      @case ('content') {
+        <div class="tp-cards">
+          @for (card of contentList; track card.id) {
+            <article class="tp-content-card">
+              @if (card.tagKey) {
+                <span class="tp-tag">{{ card.tagKey | translate }}</span>
+              }
+              <div class="tp-card-head">
+                @if (card.icon) {
+                  <ion-icon [name]="card.icon"></ion-icon>
+                }
+                <h3>{{ card.titleKey | translate }}</h3>
+              </div>
+              <p>{{ card.bodyKey | translate }}</p>
+            </article>
+          }
+        </div>
+      }
+
+      @case ('checklist') {
+        <div class="tp-progress-card">
+          <div class="tp-progress-ring" [style.--progress]="checklistProgress + '%'">
+            <span>{{ checklistProgress | localNum }}%</span>
+          </div>
+          <p>{{ 'toolPage.checklistProgress' | translate }}</p>
+        </div>
+        <ion-list class="tp-checklist" lines="none">
+          @for (item of checklistList; track item.id) {
+            <ion-item button (click)="toggleChecklist(item.id)" class="tp-check-item" [class.done]="checklistState[item.id]">
+              <ion-checkbox slot="start" [checked]="checklistState[item.id]"></ion-checkbox>
+              <ion-label>{{ item.labelKey | translate }}</ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      }
+
+      @case ('tracker') {
+        <form class="tp-form" [formGroup]="trackerForm" (ngSubmit)="submitTracker()">
+          <ion-item class="tp-field" [class.invalid]="fieldError('tracker', 'value')">
+            <ion-label position="stacked">{{ (trackerConfig?.valueLabelKey ?? 'toolPage.tracker.severity') | translate }}</ion-label>
+            <ion-range formControlName="value" [min]="trackerConfig?.min ?? 1" [max]="trackerConfig?.max ?? 10" [pin]="true" snaps="true" ticks="true"></ion-range>
+          </ion-item>
+          <ion-item class="tp-field">
+            <ion-label position="stacked">{{ 'toolPage.notes' | translate }}</ion-label>
+            <ion-textarea formControlName="notes" rows="3" [placeholder]="'toolPage.notesPlaceholder' | translate"></ion-textarea>
+          </ion-item>
+          <ion-button expand="block" type="submit" class="tp-submit">{{ 'common.save' | translate }}</ion-button>
+        </form>
+        @if (chartBars.length) {
+          <div class="tp-chart">
+            <h3>{{ 'toolPage.chartTitle' | translate }}</h3>
+            <div class="tp-bars">
+              @for (bar of chartBars; track bar.label + bar.value) {
+                <div class="tp-bar-col">
+                  <span class="tp-bar-val">{{ bar.value | localNum }}</span>
+                  <div class="tp-bar-track">
+                    <div class="tp-bar" [style.height.px]="bar.heightPx"></div>
+                  </div>
+                  <span class="tp-bar-lbl">{{ bar.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      @case ('kick-counter') {
+        <div class="tp-kick">
+          <div class="tp-kick-display">
+            <span class="tp-kick-num">{{ kickCount | localNum }}</span>
+            <span class="tp-kick-lbl">{{ 'toolPage.kicks' | translate }}</span>
+          </div>
+          <div class="tp-kick-timer">{{ formatKickTime() }}</div>
+          <div class="tp-kick-actions">
+            @if (!kickTimerRunning) {
+              <ion-button expand="block" (click)="startKickSession()">{{ 'toolPage.startKick' | translate }}</ion-button>
+            } @else {
+              <ion-button expand="block" color="primary" (click)="addKick()">{{ 'toolPage.addKick' | translate }}</ion-button>
+              <ion-button expand="block" fill="outline" color="medium" (click)="stopKickSession()">{{ 'toolPage.stopKick' | translate }}</ion-button>
+            }
+          </div>
+          <p class="tp-hint">{{ 'toolPage.kickHint' | translate }}</p>
+        </div>
+      }
+
+      @case ('pregnancy-chart') {
+        <div class="tp-pregnancy-chart">
+          <div class="tp-week-badge">{{ 'toolPage.week' | translate }} {{ pregnancyWeek | localNum }}</div>
+          <div class="tp-trimester">{{ trimesterLabel }}</div>
+          <div class="tp-progress-track">
+            <div class="tp-progress-fill" [style.width.%]="pregnancyProgress"></div>
+          </div>
+          <p class="tp-progress-text">{{ pregnancyProgress | localNum }}% — {{ 'toolPage.of40Weeks' | translate }}</p>
+          <div class="tp-milestones">
+            <div class="tp-milestone" [class.active]="pregnancyWeek >= 12">
+              <ion-icon name="heart-outline"></ion-icon>
+              <span>{{ 'toolPage.milestone12' | translate }}</span>
+            </div>
+            <div class="tp-milestone" [class.active]="pregnancyWeek >= 20">
+              <ion-icon name="body-outline"></ion-icon>
+              <span>{{ 'toolPage.milestone20' | translate }}</span>
+            </div>
+            <div class="tp-milestone" [class.active]="pregnancyWeek >= 37">
+              <ion-icon name="home-outline"></ion-icon>
+              <span>{{ 'toolPage.milestone37' | translate }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @case ('lullaby') {
+        <audio #activeAudio (ended)="onAudioEnded()"></audio>
+        <div class="tp-lullabies">
+          @for (song of lullabies; track song.id) {
+            <div class="tp-lullaby-card" [class.playing]="playingLullabyId === song.id">
+              <div class="tp-lullaby-info">
+                <ion-icon name="musical-note-outline"></ion-icon>
+                <div>
+                  <h3>{{ song.titleKey | translate }}</h3>
+                  <span>{{ song.durationKey | translate }}</span>
+                </div>
+              </div>
+              <ion-button fill="clear" (click)="playLullaby(song.id, song.audioUrl)">
+                <ion-icon [name]="playingLullabyId === song.id ? 'pause-circle' : 'play-circle'"></ion-icon>
+              </ion-button>
+            </div>
+          }
+        </div>
+        <p class="tp-hint">{{ 'toolPage.lullabyHint' | translate }}</p>
+      }
+
+      @case ('stories') {
+        <div class="tp-stories">
+          @for (story of stories; track story.id) {
+            <article class="tp-story-card" [class.open]="selectedStoryId === story.id">
+              <button type="button" class="tp-story-head" (click)="openStory(story.id)">
+                <ion-icon name="book-outline"></ion-icon>
+                <div>
+                  <h3>{{ story.titleKey | translate }}</h3>
+                  <span>{{ story.durationKey | translate }}</span>
+                </div>
+                <ion-icon [name]="selectedStoryId === story.id ? 'chevron-up' : 'chevron-down'"></ion-icon>
+              </button>
+              @if (selectedStoryId === story.id) {
+                <p class="tp-story-body">{{ story.bodyKey | translate }}</p>
+              }
+            </article>
+          }
+        </div>
+      }
+
+      @case ('memory-album') {
+        <form class="tp-form" [formGroup]="memoryForm" (ngSubmit)="submitMemory()">
+          <div class="tp-emoji-row">
+            @for (em of memoryEmojis; track em) {
+              <button type="button" class="tp-emoji-btn" [class.selected]="memoryForm.value.emoji === em" (click)="memoryForm.patchValue({ emoji: em })">{{ em }}</button>
+            }
+          </div>
+          <ion-item class="tp-field" [class.invalid]="fieldError('memory', 'title')">
+            <ion-label position="stacked">{{ 'toolPage.memoryTitle' | translate }}</ion-label>
+            <ion-input formControlName="title"></ion-input>
+          </ion-item>
+          <ion-item class="tp-field">
+            <ion-label position="stacked">{{ 'toolPage.memoryNote' | translate }}</ion-label>
+            <ion-textarea formControlName="note" rows="3"></ion-textarea>
+          </ion-item>
+          <ion-button expand="block" type="submit" class="tp-submit">{{ 'common.save' | translate }}</ion-button>
+        </form>
+        <div class="tp-memories">
+          @for (mem of memories; track mem.id) {
+            <div class="tp-memory-card">
+              <span class="tp-memory-emoji">{{ mem.emoji }}</span>
+              <div class="tp-memory-body">
+                <h4>{{ mem.title }}</h4>
+                @if (mem.note) { <p>{{ mem.note }}</p> }
+                <span class="tp-memory-date">{{ mem.date }}</span>
+              </div>
+              <ion-button fill="clear" color="danger" (click)="removeMemory(mem.id)">
+                <ion-icon name="trash-outline"></ion-icon>
+              </ion-button>
+            </div>
+          } @empty {
+            <p class="tp-empty">{{ 'toolPage.noMemories' | translate }}</p>
+          }
+        </div>
+      }
+
+      @case ('baby-names') {
+        <ion-searchbar [(ngModel)]="nameSearch" [placeholder]="'toolPage.searchNames' | translate" debounce="300"></ion-searchbar>
+        <ion-segment [value]="nameFilter" (ionChange)="setNameFilter($any($event.detail.value))">
+          <ion-segment-button value="all"><ion-label>{{ 'toolPage.allNames' | translate }}</ion-label></ion-segment-button>
+          <ion-segment-button value="girl"><ion-label>{{ 'toolPage.girlNames' | translate }}</ion-label></ion-segment-button>
+          <ion-segment-button value="boy"><ion-label>{{ 'toolPage.boyNames' | translate }}</ion-label></ion-segment-button>
+        </ion-segment>
+        <div class="tp-names">
+          @for (n of filteredNames; track n.id) {
+            <div class="tp-name-card" [class.fav]="isFavorite(n.name)">
+              <div>
+                <h3>{{ n.name }}</h3>
+                <p>{{ n.meaningKey | translate }}</p>
+              </div>
+              <ion-button fill="clear" (click)="toggleFavoriteName(n.name)">
+                <ion-icon [name]="isFavorite(n.name) ? 'heart' : 'heart-outline'" [color]="isFavorite(n.name) ? 'danger' : 'medium'"></ion-icon>
+              </ion-button>
+            </div>
+          }
+        </div>
+        @if (favoriteNames.length) {
+          <div class="tp-favorites">
+            <h3>{{ 'toolPage.favoriteNames' | translate }}</h3>
+            <div class="tp-fav-chips">
+              @for (name of favoriteNames; track name) {
+                <ion-chip>{{ name }}</ion-chip>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      @case ('recipes') {
+        <div class="tp-recipes">
+          @for (r of recipes; track r.id) {
+            <article class="tp-recipe-card">
+              <div class="tp-recipe-icon"><ion-icon [name]="r.icon"></ion-icon></div>
+              <div>
+                <h3>{{ r.titleKey | translate }}</h3>
+                <p>{{ r.descKey | translate }}</p>
+                <span class="tp-recipe-time"><ion-icon name="time-outline"></ion-icon> {{ r.timeKey | translate }}</span>
+              </div>
+            </article>
+          }
+        </div>
+      }
+
+      @case ('growth-chart') {
+        <form class="tp-form" [formGroup]="growthForm" (ngSubmit)="submitGrowth()">
+          <ion-item class="tp-field" [class.invalid]="fieldError('growth', 'date')">
+            <ion-label position="stacked">{{ 'toolPage.date' | translate }}</ion-label>
+            <ion-input type="date" formControlName="date"></ion-input>
+          </ion-item>
+          <ion-item class="tp-field" [class.invalid]="fieldError('growth', 'weightKg')">
+            <ion-label position="stacked">{{ 'toolPage.weightKg' | translate }}</ion-label>
+            <ion-input type="number" formControlName="weightKg" inputmode="decimal"></ion-input>
+          </ion-item>
+          <ion-item class="tp-field" [class.invalid]="fieldError('growth', 'heightCm')">
+            <ion-label position="stacked">{{ 'toolPage.heightCm' | translate }}</ion-label>
+            <ion-input type="number" formControlName="heightCm" inputmode="decimal"></ion-input>
+          </ion-item>
+          <ion-button expand="block" type="submit" class="tp-submit">{{ 'common.save' | translate }}</ion-button>
+        </form>
+        @if (growthEntries.length) {
+          <div class="tp-chart">
+            <h3>{{ 'toolPage.weightChart' | translate }}</h3>
+            <div class="tp-bars">
+              @for (bar of growthWeightBars; track bar.label + bar.value) {
+                <div class="tp-bar-col">
+                  <span class="tp-bar-val">{{ bar.value | localNum }}</span>
+                  <div class="tp-bar-track">
+                    <div class="tp-bar tp-bar--growth" [style.height.px]="bar.heightPx"></div>
+                  </div>
+                  <span class="tp-bar-lbl">{{ bar.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="tp-chart">
+            <h3>{{ 'toolPage.heightChart' | translate }}</h3>
+            <div class="tp-bars">
+              @for (bar of growthHeightBars; track bar.label + bar.value) {
+                <div class="tp-bar-col">
+                  <span class="tp-bar-val">{{ bar.value | localNum }}</span>
+                  <div class="tp-bar-track">
+                    <div class="tp-bar tp-bar--height" [style.height.px]="bar.heightPx"></div>
+                  </div>
+                  <span class="tp-bar-lbl">{{ bar.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="tp-chart tp-chart--empty">
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            <p>{{ 'toolPage.chartEmpty' | translate }}</p>
+          </div>
+        }
+      }
+
+      @case ('growth-quiz') {
+        @if (!quizFinished) {
+          <div class="tp-quiz">
+            <div class="tp-quiz-progress">{{ quizStep + 1 | localNum }} / {{ quizQuestions.length | localNum }}</div>
+            <h3>{{ quizQuestions[quizStep].questionKey | translate }}</h3>
+            <div class="tp-quiz-options">
+              @for (opt of quizQuestions[quizStep].options; track opt.id) {
+                <button type="button" class="tp-quiz-opt" [class.selected]="quizAnswers[quizQuestions[quizStep].id] === opt.score" (click)="selectQuizOption(quizQuestions[quizStep].id, opt.score)">
+                  {{ opt.labelKey | translate }}
+                </button>
+              }
+            </div>
+            <ion-button expand="block" (click)="nextQuizStep()">
+              {{ quizStep < quizQuestions.length - 1 ? ('toolPage.next' | translate) : ('toolPage.finish' | translate) }}
+            </ion-button>
+          </div>
+        } @else {
+          <div class="tp-quiz-result">
+            <ion-icon name="ribbon-outline"></ion-icon>
+            <h3>{{ quizResultKey | translate }}</h3>
+            <p>{{ 'toolPage.quizScore' | translate }}: {{ quizScore | localNum }} / {{ (quizQuestions.length * 3) | localNum }}</p>
+            <ion-button expand="block" fill="outline" (click)="resetQuiz()">{{ 'toolPage.retake' | translate }}</ion-button>
+          </div>
+        }
+      }
+
+      @case ('cord-blood') {
+        <form class="tp-form" [formGroup]="cordBloodForm" (ngSubmit)="submitCordBlood()">
+          <p class="tp-intro">{{ 'toolPage.cordBloodIntro' | translate }}</p>
+          <ion-item class="tp-field" [class.invalid]="fieldError('cord', 'fullName')">
+            <ion-label position="stacked">{{ 'toolPage.fullName' | translate }}</ion-label>
+            <ion-input formControlName="fullName"></ion-input>
+          </ion-item>
+          <ion-item class="tp-field" [class.invalid]="fieldError('cord', 'phone')">
+            <ion-label position="stacked">{{ 'toolPage.phone' | translate }}</ion-label>
+            <ion-input formControlName="phone" type="tel"></ion-input>
+          </ion-item>
+          <ion-item class="tp-field" [class.invalid]="fieldError('cord', 'hospital')">
+            <ion-label position="stacked">{{ 'toolPage.hospital' | translate }}</ion-label>
+            <ion-input formControlName="hospital"></ion-input>
+          </ion-item>
+          <ion-item class="tp-field" [class.invalid]="fieldError('cord', 'dueDate')">
+            <ion-label position="stacked">{{ 'toolPage.dueDate' | translate }}</ion-label>
+            <ion-input type="date" formControlName="dueDate"></ion-input>
+          </ion-item>
+          <ion-item lines="none" class="tp-consent">
+            <ion-checkbox formControlName="consent" slot="start"></ion-checkbox>
+            <ion-label>{{ 'toolPage.cordConsent' | translate }}</ion-label>
+          </ion-item>
+          <ion-button expand="block" type="submit" class="tp-submit">{{ 'common.save' | translate }}</ion-button>
+        </form>
+      }
+
+      @case ('shop') {
+        <div class="tp-shop-grid">
+          @for (p of shopProducts; track p.id) {
+            <article class="tp-shop-card">
+              <div class="tp-shop-icon"><ion-icon [name]="p.icon"></ion-icon></div>
+              <h3>{{ p.titleKey | translate }}</h3>
+              <span class="tp-shop-price">{{ p.priceKey | translate }}</span>
+              <ion-button expand="block" size="small" fill="outline">{{ 'toolPage.addToCart' | translate }}</ion-button>
+            </article>
+          }
+        </div>
+        <p class="tp-hint">{{ 'toolPage.shopHint' | translate }}</p>
+      }
+    }
+  </div>
+</ion-content>

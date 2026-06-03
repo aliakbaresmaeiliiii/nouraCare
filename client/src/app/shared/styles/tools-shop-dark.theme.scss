@@ -1,0 +1,373 @@
+/**
+ * Dark palette for Tools hub, Tool pages, and Shop.
+ * ThemeService sets `html.ion-palette-dark` (see global.scss).
+ */
+html.ion-palette-dark,
+ion-app.ion-palette-dark {
+  /* ── Shared content shells ── */
+  .tools-hub,
+  .tp-content,
+  .shop-content,
+  .spd-content,
+  .sc-content {
+    --background: var(--app-dark-page-shell-bg, var(--ion-background-color));
+    color: var(--ion-text-color);
+  }
+
+  .shop-header ion-toolbar,
+  .tp-header ion-toolbar,
+  .spd-footer ion-toolbar,
+  .sc-footer ion-toolbar {
+    --background: var(--app-dark-header-shell-bg, var(--ion-toolbar-background));
+    --color: var(--ion-text-color);
+  }
+
+  ion-header ion-back-button,
+  .shop-header ion-button,
+  .tp-header ion-back-button {
+    --color: var(--ion-text-color);
+  }
+
+  /* ── Heroes (replace hardcoded purple gradients) ── */
+  .tools-hub-hero,
+  .shop-hero,
+  .tp-hero {
+    background: var(--app-gradient-header);
+    color: var(--ion-text-color);
+  }
+
+  .tools-hub-hero__icon,
+  .shop-hero__icon,
+  .tp-hero-icon {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* ── Tools hub ── */
+  .tools-hub-search ion-searchbar {
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  .tools-category {
+    background: var(--ion-card-background);
+    box-shadow: var(--app-shadow-card, 0 8px 28px rgba(0, 0, 0, 0.45));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .tools-category__icon {
+    background: rgba(var(--ion-color-primary-rgb), 0.18);
+  }
+
+  .tools-category__text h2 {
+    color: var(--ion-text-color);
+  }
+
+  .tools-category__text p,
+  .tools-category__chevron {
+    color: var(--ion-color-medium);
+  }
+
+  .tools-item {
+    background: var(--ion-background-color-step-50, rgba(255, 255, 255, 0.04));
+
+    &:active {
+      background: var(--ion-background-color-step-100, rgba(255, 255, 255, 0.08));
+    }
+  }
+
+  .tools-item__body h3 {
+    color: var(--ion-text-color);
+  }
+
+  .tools-item__body p,
+  .tools-item__arrow {
+    color: var(--ion-color-medium);
+  }
+
+  .tools-empty {
+    color: var(--ion-color-medium);
+  }
+
+  /* ── Tool generic pages ── */
+  .tp-content-card,
+  .tp-progress-card,
+  .tp-form,
+  .tp-chart,
+  .tp-kick,
+  .tp-pregnancy-chart,
+  .tp-lullaby-card,
+  .tp-story-card,
+  .tp-story-card .tp-story-head h3,
+  .tp-memory-card,
+  .tp-name-card,
+  .tp-recipe-card,
+  .tp-quiz,
+  .tp-quiz-result,
+  .tp-shop-card,
+  .tp-favorites {
+    background: var(--ion-card-background);
+    box-shadow: var(--app-shadow-card, 0 8px 28px rgba(0, 0, 0, 0.45));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .tp-content-card .tp-card-head h3,
+  .tp-progress-card p,
+  .tp-kick-num,
+  .tp-kick-timer,
+  .tp-progress-text,
+  .tp-trimester,
+  .tp-lullaby-info h3,
+  .tp-memory-body h4,
+  .tp-name-card h3,
+  .tp-recipe-card h3,
+  .tp-quiz-result h3,
+  .tp-shop-card h3,
+  .tp-favorites h3,
+  .tp-bar-val {
+    color: var(--ion-text-color);
+  }
+
+  .tp-content-card p,
+  .tp-content-card .tp-tag,
+  .tp-story-body,
+  .tp-memory-body p,
+  .tp-name-card p,
+  .tp-recipe-card p,
+  .tp-desc,
+  .tp-intro,
+  .tp-hint,
+  .tp-empty,
+  .tp-chart h3,
+  .tp-bar-lbl,
+  .tp-kick-lbl,
+  .tp-chart--empty,
+  .tp-milestone span {
+    color: var(--ion-color-medium);
+  }
+
+  .tp-check-item {
+    --background: var(--ion-card-background);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  .tp-field {
+    --background: var(--ion-background-color-step-50, rgba(255, 255, 255, 0.04));
+  }
+
+  .tp-emoji-btn {
+    background: var(--ion-background-color-step-100);
+    border-color: transparent;
+
+    &.selected {
+      border-color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.15);
+    }
+  }
+
+  .tp-quiz-opt {
+    background: var(--ion-background-color-step-50);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--ion-text-color);
+
+    &.selected {
+      border-color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.15);
+    }
+  }
+
+  .tp-lullaby-card.playing {
+    background: rgba(var(--ion-color-primary-rgb), 0.12);
+    border-color: var(--ion-color-primary);
+  }
+
+  .tp-milestone {
+    background: var(--ion-background-color-step-50);
+
+    &.active {
+      background: rgba(var(--ion-color-primary-rgb), 0.12);
+    }
+  }
+
+  .tp-story-head {
+    color: var(--ion-text-color);
+  }
+
+  /* ── Shop listing ── */
+  .shop-toolbar ion-searchbar {
+    --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  }
+
+  .shop-filter-btn {
+    background: var(--ion-card-background);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--ion-color-medium);
+
+    &.active {
+      background: rgba(var(--ion-color-primary-rgb), 0.15);
+      border-color: var(--ion-color-primary);
+      color: var(--ion-color-primary-tint);
+    }
+  }
+
+  .shop-filter-toggles ion-chip {
+    --background: var(--ion-card-background);
+    border-color: rgba(255, 255, 255, 0.1);
+
+    &.active {
+      --background: rgba(var(--ion-color-primary-rgb), 0.15);
+      --color: var(--ion-color-primary-tint);
+      border-color: var(--ion-color-primary);
+    }
+  }
+
+  .shop-cat-chip:not(.active) {
+    background: var(--ion-card-background);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--ion-color-medium);
+  }
+
+  .shop-results-meta,
+  .shop-empty,
+  .shop-card__rating,
+  .shop-card__reviews {
+    color: var(--ion-color-medium);
+  }
+
+  .shop-card {
+    background: var(--ion-card-background);
+    box-shadow: var(--app-shadow-card, 0 8px 28px rgba(0, 0, 0, 0.45));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .shop-card__media {
+    background: var(--ion-background-color-step-100);
+  }
+
+  .shop-card__body h3 {
+    color: var(--ion-text-color);
+  }
+
+  .shop-card__prices strong {
+    color: var(--ion-color-primary-tint);
+  }
+
+  .shop-card__prices s {
+    color: var(--ion-color-medium);
+  }
+
+  .shop-empty ion-icon {
+    color: var(--ion-color-medium-shade);
+  }
+
+  /* ── Shop product detail ── */
+  .spd-gallery {
+    background: var(--ion-background-color-step-100);
+  }
+
+  .spd-body {
+    background: var(--ion-card-background);
+
+    h1 {
+      color: var(--ion-text-color);
+    }
+  }
+
+  .spd-rating,
+  .spd-desc,
+  .spd-empty {
+    color: var(--ion-color-medium);
+  }
+
+  .spd-prices strong {
+    color: var(--ion-color-primary-tint);
+  }
+
+  .spd-prices s {
+    color: var(--ion-color-medium);
+  }
+
+  .spd-qty {
+    background: var(--ion-background-color-step-50);
+
+    span:first-child {
+      color: var(--ion-text-color);
+    }
+  }
+
+  /* ── Shop cart ── */
+  .sc-empty {
+    h2 {
+      color: var(--ion-text-color);
+    }
+
+    p {
+      color: var(--ion-color-medium);
+    }
+
+    ion-icon {
+      color: var(--ion-color-medium-shade);
+    }
+  }
+
+  .sc-item {
+    background: var(--ion-card-background);
+    box-shadow: var(--app-shadow-card, 0 8px 28px rgba(0, 0, 0, 0.45));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    h3 {
+      color: var(--ion-text-color);
+    }
+
+    p {
+      color: var(--ion-color-primary-tint);
+    }
+  }
+
+  .sc-item__end strong {
+    color: var(--ion-text-color);
+  }
+
+  .sc-summary__row {
+    color: var(--ion-color-medium);
+
+    strong {
+      color: var(--ion-color-primary-tint);
+    }
+  }
+
+  /* ── Payment ── */
+  .pay-content,
+  .pay-result-content {
+    --background: var(--app-dark-page-shell-bg, var(--ion-background-color));
+  }
+
+  .pay-header ion-toolbar,
+  .pay-footer ion-toolbar {
+    --background: var(--app-dark-header-shell-bg, var(--ion-toolbar-background));
+    --color: var(--ion-text-color);
+  }
+
+  .pay-card,
+  .pay-method,
+  .pay-result__details,
+  .pay-result__consultation {
+    background: var(--ion-card-background);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .pay-intro,
+  .pay-methods__head p,
+  .pay-method__subtitle,
+  .pay-trust p,
+  .pay-result__subtitle {
+    color: var(--ion-color-medium);
+  }
+
+  .pay-summary__toggle h2,
+  .pay-methods__head h2,
+  .pay-method__title-row strong,
+  .pay-summary__item-body strong,
+  .pay-consultation__body strong,
+  .pay-result h1 {
+    color: var(--ion-text-color);
+  }
+}

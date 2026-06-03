@@ -1,0 +1,65 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="goBack()"><ion-icon name="chevron-back"></ion-icon></ion-button>
+    </ion-buttons>
+    <ion-title>{{ product ? (product.titleKey | translate) : ('shop.title' | translate) }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="openCart()"><ion-icon name="cart-outline"></ion-icon></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="spd-content">
+  @if (product) {
+    <div class="spd-gallery">
+      <img [src]="product.imageUrl" [alt]="product.titleKey | translate" />
+      @if (product.badgeKey) {
+        <span class="spd-badge">{{ product.badgeKey | translate }}</span>
+      }
+    </div>
+    <div class="spd-body">
+      <h1>{{ product.titleKey | translate }}</h1>
+      <div class="spd-rating">
+        <ion-icon name="star"></ion-icon>
+        <span>{{ product.rating | localNum }}</span>
+        <span>({{ product.reviewCount | localNum }} {{ 'shop.reviews' | translate }})</span>
+      </div>
+      <div class="spd-prices">
+        <strong>{{ formatPrice(product) }}</strong>
+        @if (formatOriginalPrice(product); as orig) {
+          <s>{{ orig }}</s>
+        }
+      </div>
+      <p class="spd-desc">{{ product.descKey | translate }}</p>
+      @if (!product.inStock) {
+        <ion-note color="danger">{{ 'shop.outOfStock' | translate }}</ion-note>
+      }
+      <div class="spd-qty">
+        <span>{{ 'shop.quantity' | translate }}</span>
+        <div class="spd-qty-controls">
+          <ion-button fill="outline" size="small" (click)="changeQty(-1)"><ion-icon name="remove-outline"></ion-icon></ion-button>
+          <span>{{ quantity | localNum }}</span>
+          <ion-button fill="outline" size="small" (click)="changeQty(1)"><ion-icon name="add-outline"></ion-icon></ion-button>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="spd-empty">{{ 'shop.productNotFound' | translate }}</div>
+  }
+</ion-content>
+
+@if (product) {
+  <ion-footer class="ion-no-border spd-footer">
+    <ion-toolbar>
+      <div class="spd-actions">
+        <ion-button expand="block" fill="outline" [disabled]="!product.inStock" (click)="addToCart()">
+          {{ 'shop.addToCart' | translate }}
+        </ion-button>
+        <ion-button expand="block" [disabled]="!product.inStock" (click)="buyNow()">
+          {{ 'shop.buyNow' | translate }}
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

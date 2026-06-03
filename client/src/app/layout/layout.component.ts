@@ -11,6 +11,7 @@ import {
   bulb,
   calendar,
   construct,
+  constructOutline,
   home,
   menu,
   notificationsOutline,
@@ -63,6 +64,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     addIcons({
       home,
       construct,
+      constructOutline,
       people,
       calendar,
       school,
@@ -172,6 +174,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
   private updateTitle(url: string) {
     if (url.includes('/tabs/home')) {
       this.selectedTitle = 'common.home';
+    } else if (url.includes('/tabs/tools')) {
+      this.selectedTitle = 'nav.tools';
     } else if (url.includes('/tabs/insights')) {
       this.selectedTitle = 'nav.insights';
     } else if (url.includes('/tabs/SecretChats')) {

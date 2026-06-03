@@ -5,6 +5,34 @@ const FA = { locale: faIR };
 
 const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 
+/** USD → Toman rate (same as shop pricing). */
+export const USD_TO_TOMAN = 420_000;
+
+/** Legacy seed/API values below this are treated as USD and converted to Tomans. */
+const LEGACY_DOCTOR_FEE_USD_THRESHOLD = 10_000;
+
+export function doctorFeeToTomans(fee: number): number {
+  if (fee > 0 && fee < LEGACY_DOCTOR_FEE_USD_THRESHOLD) {
+    return Math.round(fee * USD_TO_TOMAN);
+  }
+  return Math.round(fee);
+}
+
+export function formatTomanPrice(amount: number, languageCode: string): string {
+  const tomans = Math.round(amount);
+  if (isPersianAppLanguage(languageCode)) {
+    return `${tomans.toLocaleString('fa-IR')} تومان`;
+  }
+  if (languageCode === 'zh' || languageCode.startsWith('zh-')) {
+    return `${tomans.toLocaleString('zh-CN')} 土曼`;
+  }
+  return `${tomans.toLocaleString('en-US')} Toman`;
+}
+
+export function formatDoctorFee(fee: number, languageCode: string): string {
+  return formatTomanPrice(doctorFeeToTomans(fee), languageCode);
+}
+
 /** Localized digits for UI numbers (Persian uses Eastern Arabic numerals). */
 export function formatLocalizedNumber(
   value: number | string,

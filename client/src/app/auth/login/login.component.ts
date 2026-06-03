@@ -14,7 +14,10 @@ import {
 import { RegisterRequest } from './model/register-request-interface';
 import { LoginRequest } from './model/login-request-interface';
 import { AuthService } from '../services/auth';
-import { markEmailVerificationSent } from '../constants/email-verification.constants';
+import {
+  EMAIL_OTP_LENGTH,
+  markEmailVerificationSent,
+} from '../constants/email-verification.constants';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import {
   BehaviorSubject,
@@ -51,6 +54,8 @@ import {
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  readonly otpLength = EMAIL_OTP_LENGTH;
+
   isSocialLoading = false;
   onboardingData = signal<OnboardingDataDto | null>(null);
   onboardingService = inject(OnboardingService);
@@ -285,6 +290,18 @@ export class LoginComponent {
 
   onLogin() {
     this.loginClick$.next();
+  }
+
+  onLoginOtpChange(event: { detail: { value?: string | null } }): void {
+    const otp = (event.detail.value ?? '').trim();
+    this.loginForm.patchValue({ otp });
+    if (
+      otp.length === EMAIL_OTP_LENGTH &&
+      this.loginOtpStep &&
+      !this.isLoginDisabled()
+    ) {
+      this.onLogin();
+    }
   }
 
   isLoginDisabled(): boolean {

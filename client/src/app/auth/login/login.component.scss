@@ -194,6 +194,33 @@
   font-size: 1rem;
 }
 
+.otp-group {
+  margin-top: 0.15rem;
+}
+
+.otp-container {
+  text-align: center;
+}
+
+.custom-otp {
+  --background: rgba(var(--brand-surface-rgb), 0.92);
+  --color: var(--brand-text);
+  --border-color: rgba(var(--brand-primary-rgb), 0.18);
+  --border-color-focus: var(--brand-primary);
+  --border-radius: 0.65rem;
+  --width: 2.45rem;
+  --height: 2.85rem;
+  --font-size: 1rem;
+  --font-weight: 700;
+  --margin: 0.15rem;
+}
+
+.otp-hint {
+  margin: 0.55rem 0 0;
+  color: var(--brand-text-secondary);
+  font-size: 0.8125rem;
+}
+
 /* Shared app-button spacing inside login form */
 .auth-form app-button {
   margin-top: 0.25rem;

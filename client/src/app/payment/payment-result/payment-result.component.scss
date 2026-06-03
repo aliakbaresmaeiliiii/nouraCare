@@ -1,0 +1,122 @@
+.pay-result-content {
+  --background: #f5f5f5;
+}
+
+.pay-result {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+.pay-result__icon {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+
+  ion-icon {
+    font-size: 3.5rem;
+  }
+
+  &--success {
+    background: rgba(22, 163, 74, 0.12);
+
+    ion-icon {
+      color: #16a34a;
+    }
+  }
+
+  &--failed {
+    background: rgba(239, 57, 78, 0.12);
+
+    ion-icon {
+      color: #ef394e;
+    }
+  }
+}
+
+.pay-result h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.pay-result__subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+  max-width: 22rem;
+}
+
+.pay-result__consultation {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  color: #1e293b;
+  line-height: 1.5;
+  max-width: 24rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.pay-result__details {
+  width: 100%;
+  max-width: 24rem;
+  background: #fff;
+  border-radius: 0.875rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.pay-result__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  font-size: 0.82rem;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  span {
+    color: #64748b;
+  }
+
+  strong {
+    color: #1e293b;
+    font-weight: 600;
+    text-align: end;
+    word-break: break-all;
+  }
+}
+
+.pay-result__actions {
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  ion-button {
+    --border-radius: 0.65rem;
+    min-height: 2.75rem;
+    font-weight: 600;
+  }
+
+  ion-button:not([fill='outline']) {
+    --background: #ef394e;
+    --background-activated: #d63246;
+  }
+}

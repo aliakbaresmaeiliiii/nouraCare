@@ -1,12 +1,44 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   DoctorDto,
   DoctorListQuery,
   PaginatedDoctorsResponse,
 } from '../models/doctor.dto';
-import { environment } from '../../../environments/environment.prod';
+import { environment } from '../../../environments/environment';
+
+function normalizeDoctorsPage(body: unknown): PaginatedDoctorsResponse {
+  if (Array.isArray(body)) {
+    return {
+      items: body as DoctorDto[],
+      total: body.length,
+      page: 1,
+      limit: body.length,
+      totalPages: 1,
+      hasMore: false,
+    };
+  }
+
+  const envelope = body as Record<string, unknown>;
+  const payload = (envelope?.['data'] ?? envelope) as Partial<PaginatedDoctorsResponse>;
+  const items = Array.isArray(payload.items) ? payload.items : [];
+  const total = payload.total ?? items.length;
+  const limit = payload.limit ?? items.length;
+  const page = payload.page ?? 1;
+  const totalPages =
+    payload.totalPages ?? Math.max(1, Math.ceil(total / Math.max(1, limit)));
+
+  return {
+    items,
+    total,
+    page,
+    limit,
+    totalPages,
+    hasMore: payload.hasMore ?? page < totalPages,
+  };
+}
 
 @Injectable({
   providedIn: 'root',
@@ -32,7 +64,9 @@ export class DoctorService {
     if (query.consultationType != null && query.consultationType !== '') {
       params = params.set('consultationType', query.consultationType);
     }
-    return this.http.get<PaginatedDoctorsResponse>(this.baseUrl, { params });
+    return this.http
+      .get<unknown>(this.baseUrl, { params })
+      .pipe(map((body) => normalizeDoctorsPage(body)));
   }
 
   getDoctorById(id: string): Observable<DoctorDto> {
@@ -48,12 +82,14 @@ export class DoctorService {
   }
 
   getDoctorsBySpecialty(specialty: string): Observable<DoctorDto[]> {
-    return this.http.get<DoctorDto[]>(`${this.baseUrl}/specialty/${encodeURIComponent(specialty)}`);
+    return this.getDoctorsPage({ page: 1, limit: 50, specialty }).pipe(
+      map((res) => res.items),
+    );
   }
 
   searchDoctors(query: string): Observable<DoctorDto[]> {
-    return this.http.get<DoctorDto[]>(`${this.baseUrl}/search`, {
-      params: new HttpParams().set('query', query),
-    });
+    return this.getDoctorsPage({ page: 1, limit: 50, search: query }).pipe(
+      map((res) => res.items),
+    );
   }
 }

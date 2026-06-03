@@ -63,26 +63,48 @@ model district {
 }
 
 model doctors {
-  id               String                   @id
-  fullName         String
-  specialty        String
-  experienceYears  Int
-  about            String                   @db.Text
-  rating           Float                    @default(0)
-  profileImageUrl  String?
-  clinicName       String?
-  location         String?
-  contactEmail     String?
-  contactPhone     String?
-  consultationType doctors_consultationType
-  fee              Float?
-  availableSlots   Json?
-  licenseNumber    String?
-  licenseDocument  String?
-  isVerified       Boolean
-  verifiedAt       DateTime?
-  createdAt        DateTime                 @default(now())
+  id                  String                   @id
+  fullName            String
+  specialty           String
+  experienceYears     Int
+  about               String                   @db.Text
+  rating              Float                    @default(0)
+  profileImageUrl     String?
+  clinicName          String?
+  location            String?
+  contactEmail        String?
+  contactPhone        String?
+  consultationType    doctors_consultationType
+  fee                 Float?
+  availableSlots      Json?
+  licenseNumber       String?
+  licenseDocument     String?
+  isVerified          Boolean
+  verifiedAt          DateTime?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime
+  doctor_appointments doctor_appointment[]
+}
+
+model doctor_appointment {
+  id               String                                @id
+  doctorId         String
+  userId           Int
+  slotKey          String
+  scheduledAt      DateTime
+  consultationType doctor_appointment_consultationType
+  status           doctor_appointment_status             @default(PENDING)
+  feeTomans        Int?
+  createdAt        DateTime                              @default(now())
   updatedAt        DateTime
+  cancelledAt      DateTime?
+
+  doctor doctors @relation(fields: [doctorId], references: [id])
+  user   user    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, scheduledAt])
+  @@index([doctorId, scheduledAt])
+  @@index([userId])
 }
 
 model forum_categories {
@@ -434,6 +456,7 @@ model user {
   user_engagement              user_engagement?
   user_profile                 user_profile?
   user_subscription            user_subscription?
+  doctor_appointments          doctor_appointment[]
 }
 
 /// * Stable invite code per user (for referral links).
@@ -541,4 +564,15 @@ enum reproductive_state_state {
   PLANNING
   PREGNANT
   POSTPARTUM
+}
+
+enum doctor_appointment_status {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum doctor_appointment_consultationType {
+  ONLINE
+  IN_PERSON
 }

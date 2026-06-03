@@ -1,188 +1,90 @@
-<ion-content class="tab-page-content" [fullscreen]="false">
+<ion-content class="tab-page-content consultation-page" [fullscreen]="false">
   <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
     <ion-refresher-content
       [pullingText]="'common.pullToRefresh' | translate"
       [refreshingText]="'common.refreshing' | translate"
     ></ion-refresher-content>
   </ion-refresher>
-<div class="consultation-content">
-  <!-- Hero Section -->
-  <div class="consultation-hero">
-    <div class="hero-content">
+
+  <div class="consultation-content">
+    <header class="consultation-hero">
       <h1 class="hero-title">{{ 'consultation.hero.title' | translate }}</h1>
       <p class="hero-subtitle">{{ 'consultation.hero.subtitle' | translate }}</p>
       <div class="hero-stats">
-        <div class="stat">
-          <span class="stat-number">50+</span>
-          <span class="stat-label">{{ 'consultation.hero.statSpecialists' | translate }}</span>
+        <div class="hero-stat">
+          <span class="hero-stat__value">{{ 500 | localNum }}+</span>
+          <span class="hero-stat__label">{{ 'consultation.hero.statSpecialists' | translate }}</span>
         </div>
-        <div class="stat">
-          <span class="stat-number">24/7</span>
-          <span class="stat-label">{{ 'consultation.hero.statSupport' | translate }}</span>
+        <div class="hero-stat">
+          <span class="hero-stat__value">{{ '24/7' | localNum }}</span>
+          <span class="hero-stat__label">{{ 'consultation.hero.statSupport' | translate }}</span>
         </div>
-        <div class="stat">
-          <span class="stat-number">4.9★</span>
-          <span class="stat-label">{{ 'consultation.hero.statRating' | translate }}</span>
+        <div class="hero-stat">
+          <span class="hero-stat__value">{{ '4.9' | localNum }}★</span>
+          <span class="hero-stat__label">{{ 'consultation.hero.statRating' | translate }}</span>
         </div>
       </div>
-    </div>
-  </div>
+    </header>
 
- 
+    <section class="categories-section">
+      <div class="categories-section__intro">
+        <h2 class="categories-section__title">{{ 'consultation.categories.title' | translate }}</h2>
+        <p class="categories-section__hint">{{ 'consultation.categories.hint' | translate }}</p>
+      </div>
 
-  <!-- Available Specialists -->
-  <div class="specialists-section">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'consultation.specialists.title' | translate }}</h2>
-      <p class="section-subtitle">{{ 'consultation.specialists.subtitle' | translate }}</p>
-    </div>
-    
-    <!-- Loading State -->
-    @if (isLoading) {
-      <div class="doctors-skeleton" aria-busy="true" [attr.aria-label]="'consultation.loadingAria' | translate">
-        @for (row of [1, 2, 3]; track row) {
-        <div class="doctors-skeleton-card">
-          <ion-skeleton-text [animated]="true" class="sk-avatar"></ion-skeleton-text>
-          <div class="doctors-skeleton-text">
-            <ion-skeleton-text [animated]="true" class="sk-title"></ion-skeleton-text>
-            <ion-skeleton-text [animated]="true" class="sk-line"></ion-skeleton-text>
-            <ion-skeleton-text [animated]="true" class="sk-line sk-line--short"></ion-skeleton-text>
-          </div>
-        </div>
+      <div class="category-list">
+        @for (category of categories; track category.id) {
+          <button type="button" class="category-row" (click)="browseCategory(category)">
+            <div
+              class="category-row__icon"
+              [style.background]="categoryGradient(category)"
+            >
+              <ion-icon [name]="category.icon" aria-hidden="true"></ion-icon>
+            </div>
+            <div class="category-row__body">
+              <span class="category-row__title">{{ category.titleKey | translate }}</span>
+              <span class="category-row__desc">{{ category.subtitleKey | translate }}</span>
+              <span class="category-row__count">{{ categoryDoctorCountLabel(category) }}</span>
+            </div>
+            <div class="category-row__action">
+              <span class="category-row__cta">{{ 'consultation.category.browse' | translate }}</span>
+              <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+            </div>
+          </button>
         }
       </div>
-    }
 
-    <!-- Doctors List -->
-    @if (!isLoading && doctors.length > 0) {
-      <div class="doctors-grid">
-        @for (doctor of doctors; track doctor.id) {
-          <div class="specialist-card" (click)="bookWithDoctor(doctor)">
-        <div class="specialist-avatar">
-          <img [src]="doctor.profileImageUrl || 'assets/images/avatarMen.png'" [alt]="doctor.fullName">
-          <div class="online-indicator" [class.offline]="doctor.consultationType === 'IN_PERSON'"></div>
-        </div>
-        <div class="specialist-info">
-          <h3 class="specialist-name">{{ doctor.fullName }}</h3>
-          <p class="specialist-specialty">{{ doctor.specialty }}</p>
-          <div class="specialist-details">
-            @if (doctor.rating) {
-              <span class="rating">
-                <ion-icon name="star" aria-hidden="true"></ion-icon>
-                {{ doctor.rating | localNum }}/{{ 5 | localNum }}
-              </span>
-            }
-            <span class="experience">{{ experienceLabel(doctor.experienceYears) }}</span>
-          </div>
-          <div class="specialist-availability">
-            @if (doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH') {
-              <span class="available">{{ 'consultation.availableOnline' | translate }}</span>
-            }
-            @if (doctor.consultationType === 'IN_PERSON' || doctor.consultationType === 'BOTH') {
-              <span class="available">{{ 'consultation.inPersonAvailable' | translate }}</span>
-            }
-            @if (doctor.fee) {
-              <span class="fee">${{ doctor.fee | localNum }}</span>
-            }
-          </div>
-          @if (doctor.location) {
-            <div class="specialist-location">
-              <ion-icon name="location-outline"></ion-icon>
-              <span>{{ doctor.location }}</span>
-            </div>
-          }
-          @if (doctor.clinicName) {
-            <div class="specialist-clinic">
-              <ion-icon name="business-outline"></ion-icon>
-              <span>{{ doctor.clinicName }}</span>
-            </div>
-          }
-          <div class="consultation-type">
-            <span class="type-badge" [class]="doctor.consultationType.toLowerCase()">
-              {{ getConsultationTypeLabel(doctor.consultationType) }}
-            </span>
-          </div>
-        </div>
-        <div class="specialist-actions">
-          <ion-button fill="solid" size="small" class="book-btn" (click)="bookWithDoctor(doctor); $event.stopPropagation()">
-            {{ 'consultation.book' | translate }}
-          </ion-button>
-          <ion-button fill="outline" size="small" (click)="viewDoctorProfile(doctor); $event.stopPropagation()">
-            {{ 'consultation.profile' | translate }}
-          </ion-button>
-        </div>
-          </div>
-        }
-      </div>
-    }
+      <button type="button" class="browse-all-link" (click)="showAllDoctors()">
+        <ion-icon name="people-outline" aria-hidden="true"></ion-icon>
+        <span>{{ 'consultation.categories.seeAll' | translate }}</span>
+        <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+      </button>
+    </section>
 
-    <!-- Show More Button -->
-    @if (!isLoading && doctors.length > 0) {
-      <div class="show-more-section">
-      <ion-button expand="block" fill="outline" class="show-more-btn" (click)="showAllDoctors()">
-        <ion-icon name="chevron-down" slot="start"></ion-icon>
-        {{ 'consultation.viewAllDoctors' | translate }}
-        <ion-icon name="arrow-forward" slot="end"></ion-icon>
-      </ion-button>
-      <p class="show-more-text">{{ 'consultation.viewAllHint' | translate }}</p>
-      </div>
-    }
-
-    <!-- No Doctors State -->
-    @if (!isLoading && doctors.length === 0) {
-      <div class="no-doctors">
-      <ion-icon name="medical-outline"></ion-icon>
-      <h3>{{ 'consultation.noDoctors.title' | translate }}</h3>
-      @if (searchTerm) {
-        <p>{{ 'consultation.noDoctors.searchMessage' | translate }}</p>
-      }
-      @if (!searchTerm) {
-        <p>{{ 'consultation.noDoctors.emptyMessage' | translate }}</p>
-      }
-      <ion-button fill="solid" (click)="loadDoctors()">
-        <ion-icon name="refresh" slot="start"></ion-icon>
-        {{ 'consultation.refresh' | translate }}
-      </ion-button>
-      </div>
-    }
-  </div>
-
-  <!-- Quick Booking -->
-  <div class="quick-booking">
-    <h2 class="section-title">{{ 'consultation.quickBooking.title' | translate }}</h2>
-    <div class="booking-options">
-      <ion-button expand="block" fill="solid" class="booking-btn primary" (click)="bookDoctorAppointment()">
-        <ion-icon name="medical" slot="start"></ion-icon>
-        {{ 'consultation.bookDoctorVisit' | translate }}
-      </ion-button>
-      <ion-button expand="block" fill="outline" class="booking-btn" (click)="bookNutritionConsultation()">
-        <ion-icon name="nutrition" slot="start"></ion-icon>
-        {{ 'consultation.nutritionConsult' | translate }}
-      </ion-button>
-    </div>
-  </div>
-
-  <!-- Emergency Contact -->
-  <div class="emergency-section">
-    <div class="emergency-card" (click)="callEmergency()">
-      <div class="emergency-icon">
-        <ion-icon name="warning"></ion-icon>
-      </div>
-      <div class="emergency-content">
-        <h3 class="emergency-title">{{ 'consultation.emergency.title' | translate }}</h3>
-        <p class="emergency-description">{{ 'consultation.emergency.description' | translate }}</p>
-        <ion-button fill="solid" color="danger" expand="block">
-          <ion-icon name="call" slot="start"></ion-icon>
-          {{ 'consultation.emergency.call' | translate }}
+    <section class="search-all-section">
+      <h3 class="search-all-section__title">{{ 'consultation.searchAll.title' | translate }}</h3>
+      <div class="search-all-bar">
+        <ion-searchbar
+          [placeholder]="'consultation.search.placeholder' | translate"
+          [value]="searchTerm"
+          (ionInput)="onSearchInput($event)"
+          (keyup.enter)="submitSearch()"
+          debounce="0"
+          class="consultation-search"
+        ></ion-searchbar>
+        <ion-button class="search-all-bar__btn" (click)="submitSearch()">
+          {{ 'consultation.findDoctors' | translate }}
         </ion-button>
       </div>
-    </div>
-  </div>
-</div>
+    </section>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="quick-fab">
-    <ion-fab-button (click)="openQuickMenu()" class="main-fab">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+    <section class="emergency-banner" (click)="callEmergency()" role="button" tabindex="0">
+      <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
+      <div class="emergency-banner__text">
+        <strong>{{ 'consultation.emergency.title' | translate }}</strong>
+        <span>{{ 'consultation.emergency.short' | translate }}</span>
+      </div>
+      <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+    </section>
+  </div>
 </ion-content>

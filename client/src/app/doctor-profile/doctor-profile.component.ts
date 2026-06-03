@@ -1,23 +1,25 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
+import { Location } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController, ToastController } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { DoctorService } from '../shared/services/doctor.service';
+import { DoctorDisplayService } from '../shared/services/doctor-display.service';
+import { DoctorBookingService } from '../shared/services/doctor-booking.service';
 import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
-import { Share } from '@capacitor/share';
 import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
 import { LocalizedNumberPipe } from '../shared/pipes/localized-number.pipe';
 import { TranslatePipe } from '../shared/pipes/translate.pipe';
 import { TranslationService } from '../shared/services/translation.service';
-
-// Extend Window interface to include Capacitor
-declare global {
-  interface Window {
-    Capacitor?: {
-      isNativePlatform(): boolean;
-    };
-  }
-}
+import { LanguageService } from '../shared/services/language.service';
 
 @Component({
   selector: 'app-doctor-profile',
@@ -25,20 +27,24 @@ declare global {
   styleUrls: ['./doctor-profile.component.scss'],
   standalone: true,
   imports: [IonicModule, CommonModule, LogoLoadingComponent, LocalizedNumberPipe, TranslatePipe],
+  host: { class: 'ion-page' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DoctorProfileComponent implements OnInit {
-  private readonly avatarWomenPath = 'assets/images/avatarWomen.png';
-  private readonly avatarMenPath = 'assets/images/avatarMan.png';
+export class DoctorProfileComponent implements OnInit, OnDestroy {
+  readonly doctorDisplay = inject(DoctorDisplayService);
+
   doctor: DoctorDto | null = null;
   isLoading = true;
-  selectedTab = 'about';
-  
+  loadError = false;
+  selectedTab: 'about' | 'reviews' | 'schedule' = 'about';
+  private currentDoctorId = '';
+
   availableSlots = [
-    { time: '09:00 AM', available: true, price: 200 },
-    { time: '10:30 AM', available: true, price: 200 },
+    { time: '09:00 AM', available: true },
+    { time: '10:30 AM', available: true },
     { time: '02:00 PM', available: false },
-    { time: '03:30 PM', available: true, price: 200 },
-    { time: '04:00 PM', available: true, price: 200 }
+    { time: '03:30 PM', available: true },
+    { time: '04:00 PM', available: true },
   ];
 
   reviews = [
@@ -46,9 +52,10 @@ export class DoctorProfileComponent implements OnInit {
       id: '1',
       patientName: 'Sarah M.',
       rating: 5,
-      comment: 'Dr. Johnson was incredibly thorough and made me feel comfortable throughout my entire pregnancy journey.',
+      comment:
+        'Dr. Johnson was incredibly thorough and made me feel comfortable throughout my entire pregnancy journey.',
       date: '2024-01-15',
-      verified: true
+      verified: true,
     },
     {
       id: '2',
@@ -56,140 +63,176 @@ export class DoctorProfileComponent implements OnInit {
       rating: 5,
       comment: 'Excellent care and very knowledgeable. Highly recommend for high-risk pregnancies.',
       date: '2024-01-10',
-      verified: true
-    }
+      verified: true,
+    },
   ];
 
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private doctorService = inject(DoctorService);
-  private alertController = inject(AlertController);
-  private toastController = inject(ToastController);
-  private translation = inject(TranslationService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly location = inject(Location);
+  private readonly doctorService = inject(DoctorService);
+  private readonly toastController = inject(ToastController);
+  private readonly translation = inject(TranslationService);
+  private readonly doctorBooking = inject(DoctorBookingService);
+  private readonly languageService = inject(LanguageService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  private routeParamsSub?: Subscription;
+  private langChangeSub?: Subscription;
+
+  get loadingMessage(): string {
+    return this.translation.translate('doctorProfile.loading');
+  }
 
   ngOnInit() {
-    const doctorId = this.route.snapshot.paramMap.get('id');
-    if (doctorId) {
-      this.loadDoctorProfile(doctorId);
-    } else {
-      this.isLoading = false;
-    }
+    this.langChangeSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.markForCheck();
+    });
+
+    this.routeParamsSub = this.route.paramMap.subscribe((params) => {
+      const id = params.get('id')?.trim();
+      if (!id) {
+        this.isLoading = false;
+        this.loadError = true;
+        this.doctor = null;
+        this.cdr.markForCheck();
+        return;
+      }
+      this.currentDoctorId = id;
+      this.loadDoctorProfile(id);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routeParamsSub?.unsubscribe();
+    this.langChangeSub?.unsubscribe();
   }
 
   loadDoctorProfile(id: string) {
     this.isLoading = true;
+    this.loadError = false;
+    this.doctor = null;
+    this.cdr.markForCheck();
+
     this.doctorService.getDoctorById(id).subscribe({
       next: (d) => {
         this.doctor = d;
         this.isLoading = false;
+        this.loadError = false;
+        this.cdr.markForCheck();
       },
       error: async () => {
         this.isLoading = false;
+        this.loadError = true;
         this.doctor = null;
+        this.cdr.markForCheck();
         const toast = await this.toastController.create({
           message: this.translation.translate('doctorProfile.toast.notFound'),
           duration: 2500,
-          color: 'danger',
+          color: 'warning',
           position: 'bottom',
         });
         await toast.present();
-        void this.router.navigate(['/doctors']);
       },
     });
   }
 
-  selectTab(tab: string) {
-    this.selectedTab = tab;
+  retryLoad() {
+    if (this.currentDoctorId) {
+      this.loadDoctorProfile(this.currentDoctorId);
+    }
   }
 
-  getStars(rating: any): number[] {
+  selectTab(tab: 'about' | 'reviews' | 'schedule') {
+    this.selectedTab = tab;
+    this.cdr.markForCheck();
+  }
+
+  getStars(rating: number): number[] {
     return Array(Math.floor(rating)).fill(0);
   }
 
   getConsultationTypeLabel(type: ConsultationType): string {
-    switch (type) {
-      case ConsultationType.ONLINE: return 'Online Consultation';
-      case ConsultationType.IN_PERSON: return 'In-Person Visit';
-      case ConsultationType.BOTH: return 'Online & In-Person';
-      default: return 'Contact for details';
-    }
+    return this.doctorDisplay.getConsultationTypeLabel(type);
   }
 
   getConsultationIcon(type: ConsultationType): string {
     switch (type) {
-      case ConsultationType.ONLINE: return 'videocam';
-      case ConsultationType.IN_PERSON: return 'business';
-      case ConsultationType.BOTH: return 'globe';
-      default: return 'medical';
+      case ConsultationType.ONLINE:
+        return 'videocam';
+      case ConsultationType.IN_PERSON:
+        return 'business';
+      case ConsultationType.BOTH:
+        return 'globe';
+      default:
+        return 'medical';
     }
+  }
+
+  getReviewsSummaryLabel(): string {
+    return this.translation.translateParams('doctorProfile.reviewsBasedOn', {
+      count: String(this.reviews?.length || 0),
+    });
   }
 
   getDoctorAvatar(doctor: DoctorDto): string {
-    if (doctor.profileImageUrl?.trim()) {
-      return doctor.profileImageUrl;
-    }
-    const seed = `${doctor.id ?? ''}${doctor.fullName ?? ''}`.toLowerCase().trim();
-    if (!seed) {
-      return this.avatarWomenPath;
-    }
-    const codeSum = Array.from(seed).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-    return codeSum % 2 === 0 ? this.avatarWomenPath : this.avatarMenPath;
+    return this.doctorDisplay.getAvatar(doctor);
   }
 
-  async bookAppointment(value?:any) {
-    const toast = await this.toastController.create({
-      message: this.translation.translate('doctorProfile.toast.appointmentBooked'),
-      duration: 3000,
-      color: 'success',
-      position: 'bottom'
-    });
-    await toast.present();
+  getExperienceLabel(years: number): string {
+    return this.doctorDisplay.getExperienceLabel(years);
   }
-  isMobile = false;
+
+  async bookAppointment(slot?: { time: string; available: boolean }) {
+    if (!this.doctor) {
+      return;
+    }
+    if (slot && !slot.available) {
+      return;
+    }
+    await this.doctorBooking.openBooking(this.doctor);
+  }
 
   shareDoctorProfile() {
-    if (!this.doctor || !this.isMobile) return;
+    if (!this.doctor) {
+      return;
+    }
+    const shareText = `${this.doctor.fullName}\n\n${this.doctorDisplay.getAboutText(this.doctor)}\n\n${window.location.href}`;
     if (navigator.share) {
-      navigator.share({
-        title: this.doctor.fullName,
-        text: this.doctor.about,
-        url: window.location.href,
-      }).catch(err => {
-        console.log('Error sharing:', err);
-        // Fallback to clipboard on mobile if share fails
-        this.copyToClipboard();
-      });
+      navigator
+        .share({
+          title: this.doctor.fullName,
+          text: this.doctorDisplay.getAboutText(this.doctor),
+          url: window.location.href,
+        })
+        .catch(() => this.copyToClipboard(shareText));
     } else {
-      // Fallback for mobile devices without Web Share API
-      this.copyToClipboard();
+      this.copyToClipboard(shareText);
     }
   }
 
-  private copyToClipboard() {
-    if (!this.doctor) return;
-    
-    const shareText = `${this.doctor.fullName}\n\n${this.doctor.about}\n\n${window.location.href}`;
-    
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(shareText).then(() => {
-        console.log('Doctor profile link copied to clipboard');
-      }).catch(err => {
-        console.log('Failed to copy to clipboard:', err);
-      });
+  private copyToClipboard(text: string) {
+    if (navigator.clipboard?.writeText) {
+      void navigator.clipboard.writeText(text);
     }
   }
 
   contactDoctor(method: 'phone' | 'email') {
-    if (!this.doctor) return;
-
+    if (!this.doctor) {
+      return;
+    }
     if (method === 'phone' && this.doctor.contactPhone) {
-      window.open(`tel:${this.doctor.contactPhone}`, '_blank');
+      window.open(`tel:${this.doctor.contactPhone}`, '_self');
     } else if (method === 'email' && this.doctor.contactEmail) {
-      window.open(`mailto:${this.doctor.contactEmail}`, '_blank');
+      window.open(`mailto:${this.doctor.contactEmail}`, '_self');
     }
   }
 
   goBack() {
-    this.router.navigate(['/doctors']);
+    if (window.history.length > 1) {
+      this.location.back();
+      return;
+    }
+    void this.router.navigate(['/tabs/consultation']);
   }
 }

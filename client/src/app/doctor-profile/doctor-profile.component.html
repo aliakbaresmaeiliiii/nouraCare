@@ -1,284 +1,267 @@
-<ion-content class="doctor-profile-content">
-  
-  <!-- Loading State -->
+<ion-header class="doctor-profile-header ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button
+        (click)="goBack()"
+        class="header-icon-btn"
+        [attr.aria-label]="'doctorProfile.backAria' | translate"
+      >
+        <ion-icon name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="header-title">{{ 'doctorProfile.toolbarTitle' | translate }}</ion-title>
+    @if (doctor) {
+      <ion-buttons slot="end">
+        <ion-button
+          fill="clear"
+          class="header-icon-btn"
+          (click)="shareDoctorProfile()"
+          [attr.aria-label]="'doctorProfile.shareAria' | translate"
+        >
+          <ion-icon name="share-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="doctor-profile-content" [fullscreen]="true">
   @if (isLoading) {
-    <app-logo-loading message="Loading doctor profile..." />
+    <div class="profile-loading" aria-busy="true" [attr.aria-label]="loadingMessage">
+      <app-logo-loading [message]="loadingMessage" [ariaLabel]="loadingMessage" />
+      <div class="profile-skeleton" aria-hidden="true">
+        <ion-skeleton-text [animated]="true" class="sk-avatar"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="sk-line sk-line--title"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="sk-line"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" class="sk-line sk-line--short"></ion-skeleton-text>
+      </div>
+    </div>
   }
 
-  <!-- Doctor Profile -->
+  @if (!isLoading && loadError) {
+    <div class="profile-not-found">
+      <div class="profile-not-found__icon" aria-hidden="true">
+        <ion-icon name="medical-outline"></ion-icon>
+      </div>
+      <h2>{{ 'doctorProfile.notFoundTitle' | translate }}</h2>
+      <p>{{ 'doctorProfile.notFoundMessage' | translate }}</p>
+      <ion-button expand="block" fill="solid" (click)="retryLoad()">
+        <ion-icon name="refresh-outline" slot="start"></ion-icon>
+        {{ 'doctorProfile.retry' | translate }}
+      </ion-button>
+      <ion-button expand="block" fill="clear" (click)="goBack()">
+        {{ 'doctorProfile.backToList' | translate }}
+      </ion-button>
+    </div>
+  }
+
   @if (!isLoading && doctor) {
     <div class="profile-container">
-    
-    <!-- Header Section -->
-    <div class="profile-header">
-      <div class="header-background">
-        <div class="gradient-orb orb-1"></div>
-        <div class="gradient-orb orb-2"></div>
-      </div>
-      
-      <div class="header-content">
-        <div class="header-actions">
-          <ion-button fill="clear" class="back-btn" (click)="goBack()">
-            <ion-icon name="chevron-back"></ion-icon>
-          </ion-button>
-          <div class="action-buttons">
-            <ion-button fill="clear" class="action-btn" (click)="shareDoctorProfile()">
-              <ion-icon name="share-outline"></ion-icon>
-            </ion-button>
-            <ion-button fill="clear" class="action-btn">
-              <ion-icon name="heart-outline"></ion-icon>
-            </ion-button>
+      <section class="profile-hero">
+        <div class="profile-hero__avatar-wrap">
+          <img
+            class="profile-hero__avatar"
+            [src]="getDoctorAvatar(doctor)"
+            [alt]="doctor.fullName"
+            loading="eager"
+            decoding="async"
+          />
+          <span class="profile-hero__verified" aria-hidden="true">
+            <ion-icon name="checkmark"></ion-icon>
+          </span>
+        </div>
+
+        <h1 class="profile-hero__name">{{ doctor.fullName }}</h1>
+        <p class="profile-hero__specialty">{{ doctorDisplay.getSpecialtyLabel(doctor.specialty) }}</p>
+
+        <div class="profile-hero__stats">
+          <div class="stat-chip">
+            <span class="stat-chip__value">{{ doctor.rating | localNum }}/{{ 5 | localNum }}</span>
+            <span class="stat-chip__label">{{ 'doctorProfile.rating' | translate }}</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip__value">{{ doctor.experienceYears | localNum }}+</span>
+            <span class="stat-chip__label">{{ 'doctorProfile.yearsExperience' | translate }}</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip__value">{{ 500 | localNum }}+</span>
+            <span class="stat-chip__label">{{ 'doctorProfile.patients' | translate }}</span>
           </div>
         </div>
 
-        <div class="doctor-main-info">
-          <div class="doctor-avatar">
-            <img [src]="getDoctorAvatar(doctor)" [alt]="doctor.fullName" />
-            <div class="avatar-ring"></div>
-            <div class="online-status">
-              <ion-icon name="checkmark"></ion-icon>
-            </div>
-          </div>
-          
-          <div class="doctor-details">
-            <h1 class="doctor-name">{{ doctor.fullName }}</h1>
-            <p class="doctor-specialty">{{ doctor.specialty }}</p>
-            
-            <div class="doctor-stats">
-              <div class="stat-item">
-                <div class="stat-value">{{ doctor.rating | localNum }}/{{ 5 | localNum }}</div>
-                <div class="stat-label">{{ 'doctorProfile.rating' | translate }}</div>
-                <div class="stars">
-                  @for (_ of getStars(doctor.rating || 0); track $index) {
-                    <ion-icon name="star"></ion-icon>
-                  }
-                </div>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-item">
-                <div class="stat-value">{{ doctor.experienceYears | localNum }}+</div>
-                <div class="stat-label">{{ 'doctorProfile.yearsExperience' | translate }}</div>
-              </div>
-              <div class="stat-divider"></div>
-              <div class="stat-item">
-                <div class="stat-value">{{ 500 | localNum }}+</div>
-                <div class="stat-label">{{ 'doctorProfile.patients' | translate }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="consultation-info">
-          <div class="consultation-type">
+        <div class="profile-hero__meta">
+          <div class="meta-pill">
             <ion-icon [name]="getConsultationIcon(doctor.consultationType)"></ion-icon>
             <span>{{ getConsultationTypeLabel(doctor.consultationType) }}</span>
           </div>
-          <div class="consultation-fee">
-            <span class="fee-amount">${{ doctor.fee | localNum }}</span>
-            <span class="fee-label">{{ 'doctorProfile.perConsultation' | translate }}</span>
-          </div>
+          @if (doctor.fee) {
+            <div class="meta-pill meta-pill--fee">
+              <span class="fee-value">{{ doctorDisplay.formatFee(doctor.fee) }}</span>
+              <span class="fee-label">{{ 'doctorProfile.perConsultation' | translate }}</span>
+            </div>
+          }
         </div>
-      </div>
-    </div>
+      </section>
 
-    <!-- Tab Navigation -->
-    <div class="tab-navigation">
-      <div class="tab-buttons">
-        <button 
-          class="tab-btn" 
+      <nav class="profile-tabs" [attr.aria-label]="'doctorProfile.tabsAria' | translate">
+        <button
+          type="button"
+          class="profile-tab"
           [class.active]="selectedTab === 'about'"
-          (click)="selectTab('about')">
-          About
+          (click)="selectTab('about')"
+        >
+          {{ 'doctorProfile.tab.about' | translate }}
         </button>
-        <button 
-          class="tab-btn" 
+        <button
+          type="button"
+          class="profile-tab"
           [class.active]="selectedTab === 'reviews'"
-          (click)="selectTab('reviews')">
-          Reviews
+          (click)="selectTab('reviews')"
+        >
+          {{ 'doctorProfile.tab.reviews' | translate }}
         </button>
-        <button 
-          class="tab-btn" 
+        <button
+          type="button"
+          class="profile-tab"
           [class.active]="selectedTab === 'schedule'"
-          (click)="selectTab('schedule')">
-          Schedule
+          (click)="selectTab('schedule')"
+        >
+          {{ 'doctorProfile.tab.schedule' | translate }}
         </button>
-      </div>
-    </div>
+      </nav>
 
-    <!-- Tab Content -->
-    <div class="tab-content">
-      
-      <!-- About Tab -->
-      @if (selectedTab === 'about') {
-        <div class="tab-panel">
-          <div class="about-section">
-            <div class="section-card">
-              <h3 class="section-title">
-                <ion-icon name="person-outline"></ion-icon>
-                About Doctor
-              </h3>
-              <p class="about-text">{{ doctor.about }}</p>
+      <div class="profile-panels">
+        @if (selectedTab === 'about') {
+          <section class="panel-card">
+            <h3 class="panel-card__title">
+              <ion-icon name="person-outline"></ion-icon>
+              {{ 'doctorProfile.aboutTitle' | translate }}
+            </h3>
+            <p class="panel-card__text">{{ doctorDisplay.getAboutText(doctor) }}</p>
+          </section>
+
+          <section class="panel-card">
+            <h3 class="panel-card__title">
+              <ion-icon name="location-outline"></ion-icon>
+              {{ 'doctorProfile.clinicInfoTitle' | translate }}
+            </h3>
+            <div class="info-list">
+              @if (doctor.clinicName) {
+                <div class="info-list__item">
+                  <ion-icon name="business-outline"></ion-icon>
+                  <span>{{ doctorDisplay.getClinicLabel(doctor.clinicName) }}</span>
+                </div>
+              }
+              @if (doctor.location) {
+                <div class="info-list__item">
+                  <ion-icon name="map-outline"></ion-icon>
+                  <span>{{ doctorDisplay.getLocationLabel(doctor.location) }}</span>
+                </div>
+              }
             </div>
+          </section>
 
-            <div class="section-card">
-              <h3 class="section-title">
-                <ion-icon name="location-outline"></ion-icon>
-                Clinic Information
-              </h3>
-              <div class="clinic-info">
-                @if (doctor.clinicName) {
-                  <div class="info-item">
-                    <ion-icon name="business-outline"></ion-icon>
-                    <span>{{ doctor.clinicName }}</span>
-                  </div>
-                }
-                @if (doctor.location) {
-                  <div class="info-item">
-                    <ion-icon name="map-outline"></ion-icon>
-                    <span>{{ doctor.location }}</span>
-                  </div>
-                }
-              </div>
+          <section class="panel-card">
+            <h3 class="panel-card__title">
+              <ion-icon name="school-outline"></ion-icon>
+              {{ 'doctorProfile.specializationsTitle' | translate }}
+            </h3>
+            <div class="spec-tags">
+              <span class="spec-tag">{{ doctorDisplay.getSpecialtyLabel(doctor.specialty) }}</span>
+              <span class="spec-tag">{{ 'doctorProfile.specHighRisk' | translate }}</span>
+              <span class="spec-tag">{{ 'doctorProfile.specFertility' | translate }}</span>
+              <span class="spec-tag">{{ 'doctorProfile.specPrenatal' | translate }}</span>
             </div>
+          </section>
+        }
 
-            <div class="section-card">
-              <h3 class="section-title">
-                <ion-icon name="school-outline"></ion-icon>
-                Specializations
-              </h3>
-              <div class="specializations">
-                <div class="spec-tag">{{ doctor.specialty }}</div>
-                <div class="spec-tag">{{ 'doctorProfile.specHighRisk' | translate }}</div>
-                <div class="spec-tag">{{ 'doctorProfile.specFertility' | translate }}</div>
-                <div class="spec-tag">{{ 'doctorProfile.specPrenatal' | translate }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Reviews Tab -->
-      @if (selectedTab === 'reviews') {
-        <div class="tab-panel">
-          <div class="reviews-section">
+        @if (selectedTab === 'reviews') {
+          <section class="panel-card reviews-summary-card">
             <div class="reviews-summary">
-              <div class="rating-overview">
-                <div class="overall-rating">
-                  <span class="rating-number">{{ doctor.rating | localNum }}</span>
-                  <div class="rating-stars">
-                    @for (_ of getStars(doctor.rating || 0); track $index) {
+              <span class="reviews-summary__score">{{ doctor.rating | localNum }}</span>
+              <div class="reviews-summary__stars">
+                @for (_ of getStars(doctor.rating || 0); track $index) {
+                  <ion-icon name="star"></ion-icon>
+                }
+              </div>
+              <p>{{ getReviewsSummaryLabel() }}</p>
+            </div>
+          </section>
+
+          @for (review of reviews; track review.id) {
+            <article class="panel-card review-card">
+              <div class="review-card__header">
+                <div class="review-card__avatar">{{ review.patientName.charAt(0) }}</div>
+                <div>
+                  <h4>{{ review.patientName }}</h4>
+                  <div class="review-card__meta">
+                    @for (_ of getStars(review.rating || 0); track $index) {
                       <ion-icon name="star"></ion-icon>
                     }
+                    <span>{{ review.date | date: 'mediumDate' }}</span>
                   </div>
                 </div>
-                <div class="rating-details">
-                  <p>Based on {{ reviews.length || 0 | localNum }} verified reviews</p>
-                </div>
+                @if (review.verified) {
+                  <span class="review-card__verified">
+                    <ion-icon name="checkmark-circle"></ion-icon>
+                    {{ 'doctorProfile.verified' | translate }}
+                  </span>
+                }
               </div>
-            </div>
+              <p class="review-card__comment">{{ review.comment }}</p>
+            </article>
+          }
+        }
 
-            <div class="reviews-list">
-              @for (review of reviews || []; track review.id) {
-                <div class="review-card">
-                  <div class="review-header">
-                    <div class="reviewer-info">
-                      <div class="reviewer-avatar">
-                        <span>{{ review.patientName.charAt(0) }}</span>
-                      </div>
-                      <div class="reviewer-details">
-                        <h4 class="reviewer-name">{{ review.patientName }}</h4>
-                        <div class="review-meta">
-                          <div class="review-stars">
-                            @for (_ of getStars(review.rating || 0); track $index) {
-                              <ion-icon name="star"></ion-icon>
-                            }
-                          </div>
-                          <span class="review-date">{{ review.date | date:'MMM d, y' }}</span>
-                        </div>
-                      </div>
-                    </div>
-                    @if (review.verified) {
-                      <div class="verified-badge">
-                        <ion-icon name="checkmark-circle"></ion-icon>
-                        <span>{{ 'doctorProfile.verified' | translate }}</span>
-                      </div>
-                    }
-                  </div>
-                  <p class="review-comment">{{ review.comment }}</p>
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Schedule Tab -->
-      @if (selectedTab === 'schedule') {
-        <div class="tab-panel">
-          <div class="schedule-section">
-            <div class="schedule-header">
-              <h3>{{ 'doctorProfile.slotsTitle' | translate }}</h3>
-              <p>{{ 'doctorProfile.slotsSubtitle' | translate }}</p>
-            </div>
-
+        @if (selectedTab === 'schedule') {
+          <section class="panel-card">
+            <h3 class="panel-card__title">{{ 'doctorProfile.slotsTitle' | translate }}</h3>
+            <p class="panel-card__subtitle">{{ 'doctorProfile.slotsSubtitle' | translate }}</p>
             <div class="time-slots">
               @for (slot of availableSlots; track slot.time) {
-                <div
+                <button
+                  type="button"
                   class="time-slot"
-                  [class.unavailable]="!slot.available"
-                  (click)="slot.available && bookAppointment(slot)">
-                  <div class="slot-time">{{ slot.time }}</div>
+                  [class.time-slot--disabled]="!slot.available"
+                  [disabled]="!slot.available"
+                  (click)="slot.available && bookAppointment(slot)"
+                >
+                  <span class="time-slot__time">{{ slot.time }}</span>
                   @if (slot.available) {
-                    <div class="slot-status">
-                      <span class="available-text">{{ 'doctorProfile.available' | translate }}</span>
-                      @if (slot.price) {
-                        <span class="slot-price">${{ slot.price }}</span>
-                      }
-                    </div>
+                    <span class="time-slot__status">{{ 'doctorProfile.available' | translate }}</span>
+                    @if (doctor.fee) {
+                      <span class="time-slot__price">{{ doctorDisplay.formatFee(doctor.fee) }}</span>
+                    }
+                  } @else {
+                    <span class="time-slot__status time-slot__status--booked">
+                      {{ 'doctorProfile.slotBooked' | translate }}
+                    </span>
                   }
-                  @if (!slot.available) {
-                    <div class="slot-status unavailable-text">
-                      Booked
-                    </div>
-                  }
-                </div>
+                </button>
               }
             </div>
-          </div>
-        </div>
-      }
-    </div>
-
-    <!-- Floating Action Button -->
-    <div class="floating-actions">
-      <ion-button 
-        class="book-appointment-btn" 
-        expand="block" 
-        (click)="bookAppointment()">
-        <ion-icon name="calendar-outline" slot="start"></ion-icon>
-        Book Appointment
-      </ion-button>
-      
-      <div class="contact-buttons">
-        @if (doctor.contactPhone) {
-          <ion-button
-            class="contact-btn phone-btn"
-            fill="outline"
-            (click)="contactDoctor('phone')">
-            <ion-icon name="call-outline"></ion-icon>
-          </ion-button>
-        }
-        @if (doctor.contactEmail) {
-          <ion-button
-            class="contact-btn message-btn"
-            fill="outline"
-            (click)="contactDoctor('email')">
-            <ion-icon name="mail-outline"></ion-icon>
-          </ion-button>
+          </section>
         }
       </div>
-    </div>
-  </div>
-  }
 
+      <div class="profile-actions">
+        <ion-button expand="block" class="profile-actions__book" (click)="bookAppointment()">
+          <ion-icon name="calendar-outline" slot="start"></ion-icon>
+          {{ 'doctorProfile.bookAppointment' | translate }}
+        </ion-button>
+        <div class="profile-actions__contact">
+          @if (doctor.contactPhone) {
+            <ion-button fill="outline" (click)="contactDoctor('phone')" [attr.aria-label]="'doctorProfile.callAria' | translate">
+              <ion-icon name="call-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          }
+          @if (doctor.contactEmail) {
+            <ion-button fill="outline" (click)="contactDoctor('email')" [attr.aria-label]="'doctorProfile.emailAria' | translate">
+              <ion-icon name="mail-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          }
+        </div>
+      </div>
+    </div>
+  }
 </ion-content>

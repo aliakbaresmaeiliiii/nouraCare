@@ -4,6 +4,7 @@ import { initialRouteGuard } from './guards/initial-route.guard';
 import { welcomeRequiresProfileOrSessionGuard } from './guards/welcome-onboarding-data.guard';
 import { LayoutComponent } from './layout/layout.component';
 import { ReactWrapperComponent } from './react-wrapper/react-wrapper.component';
+import { TOOL_PAGE_ROUTES } from './tool-pages/tool-pages.routes';
 
 export const routes: Routes = [
   {
@@ -235,6 +236,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'doctors/category/:categoryId',
+    loadComponent: () =>
+      import('./doctors/doctors.component').then((m) => m.DoctorsComponent),
+  },
+  {
     path: 'doctors',
     loadComponent: () =>
       import('./doctors/doctors.component').then((m) => m.DoctorsComponent),
@@ -252,6 +258,56 @@ export const routes: Routes = [
       import('./my-favorites/my-favorites.component').then(
         (m) => m.MyFavoritesComponent
       ),
+  },
+  {
+    path: 'payment',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./payment/payment-page/payment-page.component').then(
+            (m) => m.PaymentPageComponent,
+          ),
+      },
+      {
+        path: 'result',
+        loadComponent: () =>
+          import('./payment/payment-result/payment-result.component').then(
+            (m) => m.PaymentResultComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'shop',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./shop/shop.component').then((m) => m.ShopComponent),
+      },
+      {
+        path: 'cart',
+        loadComponent: () =>
+          import('./shop/shop-cart/shop-cart.component').then(
+            (m) => m.ShopCartComponent,
+          ),
+      },
+      {
+        path: 'product/:id',
+        loadComponent: () =>
+          import('./shop/shop-product-detail/shop-product-detail.component').then(
+            (m) => m.ShopProductDetailComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'tool-pages',
+    canActivate: [authGuard],
+    children: TOOL_PAGE_ROUTES,
   },
   {
     path: 'cycle-calendar',
@@ -316,6 +372,11 @@ export const routes: Routes = [
         path: 'home',
         loadComponent: () =>
           import('./home/home.component').then((m) => m.HomeComponent),
+      },
+      {
+        path: 'tools',
+        loadComponent: () =>
+          import('./tools/tools.component').then((m) => m.ToolsComponent),
       },
       {
         path: 'insights',

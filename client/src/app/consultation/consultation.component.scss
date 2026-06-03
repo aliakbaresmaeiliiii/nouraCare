@@ -1,1040 +1,315 @@
-// Consultation Page Styles
 :host {
   display: block;
   width: 100%;
 }
 
 .consultation-content {
-  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  background: var(--background);
-  box-sizing: border-box;
-  margin-top: 2.7rem;
-  padding-bottom: var(--app-tab-fab-clearance, 72px);
-
-  :host-context(html.plt-mobile) &,
-  :host-context(html.plt-capacitor) & {
-    margin-top: 0;
-  }
+  padding-bottom: var(--app-tab-fab-clearance, 88px);
+  background: #f1f5f9;
 }
 
-// Hero — same language as home welcome hero (readable, no faux-dark glass)
 .consultation-hero {
-  margin: 0 var(--app-side-padding, 1rem) 1.25rem;
-  padding: 1.75rem var(--app-side-padding, 1rem) 1.5rem;
+  margin: 0;
+  padding: 1.5rem var(--app-side-padding, 1rem) 1.25rem;
   background: var(--app-gradient-header);
-  border-radius: 0 0 28px 28px;
+  border-radius: 0 0 24px 24px;
   box-shadow: var(--app-shadow-header);
-  position: relative;
-  overflow: hidden;
-
-  .hero-content {
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    max-width: 28rem;
-    margin: 0 auto;
-  }
-
-  .hero-title {
-    color: #1e293b;
-    font-size: clamp(1.45rem, 4.5vw, 2rem);
-    font-weight: 800;
-    margin: 0 0 0.5rem;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-  }
-
-  .hero-subtitle {
-    color: #64748b;
-    font-size: 0.95rem;
-    margin: 0 0 1.25rem;
-    font-weight: 500;
-    line-height: 1.5;
-  }
-
-  .hero-stats {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-top: 0.25rem;
-
-    .stat {
-      text-align: center;
-      flex: 1 1 90px;
-      min-width: 88px;
-      max-width: 120px;
-      padding: 0.65rem 0.5rem;
-      background: var(--brand-surface);
-      border-radius: 14px;
-      border: 1px solid rgba(var(--brand-text-rgb), 0.06);
-      box-shadow: var(--app-shadow-soft);
-
-      .stat-number {
-        display: block;
-        color: var(--ion-color-primary);
-        font-size: 1.1rem;
-        font-weight: 800;
-        margin-bottom: 0.2rem;
-        line-height: 1.1;
-      }
-
-      .stat-label {
-        color: #64748b;
-        font-size: 0.72rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-    }
-  }
+  text-align: center;
 }
 
-// Section titles — clear hierarchy, matches insights / home
-.section-title {
+.hero-title {
+  margin: 0 0 0.4rem;
   color: #1e293b;
-  font-size: 1.15rem;
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
   font-weight: 800;
-  margin: 0 0 0.35rem;
-  letter-spacing: -0.01em;
-  position: relative;
-  padding-bottom: 0.5rem;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 36px;
-    height: 3px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, var(--ion-color-primary), var(--ion-color-secondary));
-  }
+  letter-spacing: -0.02em;
 }
 
-// Quick booking — card shell so actions read as one task
-.quick-booking {
-  margin: 0 var(--app-side-padding, 1rem) 1.5rem;
-  padding: 1.25rem 1.1rem 1.35rem;
-  background: var(--brand-surface);
-  border-radius: var(--app-radius-lg, 16px);
-  border: 1px solid rgba(var(--brand-text-rgb), 0.06);
-  box-shadow: var(--app-shadow-card);
-
-  .section-title {
-    margin-bottom: 0.85rem;
-  }
-
-  .booking-options {
-    display: flex;
-    flex-direction: column;
-    gap: 0.65rem;
-  }
-
-  .booking-btn {
-    --border-radius: 12px;
-    --padding-start: 18px;
-    --padding-end: 18px;
-    --padding-top: 14px;
-    --padding-bottom: 14px;
-    font-weight: 600;
-    margin: 0;
-    transition: box-shadow var(--app-duration-normal, 240ms) var(--app-ease-standard, ease);
-
-    &.primary {
-      --background: var(--ion-color-primary);
-      --background-activated: var(--ion-color-primary-shade);
-      --color: var(--ion-color-primary-contrast);
-      --box-shadow: 0 8px 24px rgba(var(--brand-primary-rgb), 0.28);
-    }
-
-    &:not(.primary) {
-      --background: #f8fafc;
-      --color: var(--brand-text);
-      --border-width: 1px;
-      --border-style: solid;
-      --border-color: rgba(var(--brand-primary-rgb), 0.28);
-    }
-
-    ion-icon {
-      font-size: 1.15rem;
-    }
-  }
+.hero-subtitle {
+  margin: 0 auto 1rem;
+  max-width: 22rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
-// Specialists — list layout uses `.doctors-grid` rules below
-.specialists-section {
-  padding: 0 var(--app-side-padding, 1rem) 1.5rem;
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
 }
 
-// Appointments Section
-.appointments-section {
-  padding: 0 20px 30px;
-
-  .appointment-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .appointment-icon {
-      width: 50px;
-      height: 50px;
-      background: var(--app-gradient-header);
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      ion-icon {
-        color: var(--brand-text);
-        font-size: 1.5rem;
-      }
-    }
-
-    .appointment-details {
-      flex: 1;
-
-      .appointment-type {
-        color: var(--brand-text);
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0 0 5px 0;
-      }
-
-      .appointment-specialist {
-        color: var(--brand-text-secondary);
-        font-size: 0.9rem;
-        margin: 0 0 10px 0;
-      }
-
-      .appointment-time,
-      .appointment-location {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--brand-text-secondary);
-        font-size: 0.85rem;
-        margin-bottom: 5px;
-
-        ion-icon {
-          font-size: 1rem;
-          color: rgba(var(--brand-text-secondary-rgb), 0.75);
-        }
-      }
-
-      .appointment-status {
-        margin-top: 8px;
-
-        .status {
-          padding: 4px 10px;
-          border-radius: 12px;
-          font-size: 0.8rem;
-          font-weight: 500;
-
-          &.confirmed {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4caf50;
-          }
-
-          &.pending {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
-          }
-        }
-      }
-    }
-
-    .reschedule-btn {
-      --color: #feca57;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-  }
-
-  .no-appointments {
-    text-align: center;
-    padding: 40px 20px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-
-    ion-icon {
-      font-size: 3rem;
-      color: rgba(var(--brand-text-rgb), 0.35);
-      margin-bottom: 15px;
-    }
-
-    h3 {
-      color: var(--brand-text);
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin: 0 0 10px 0;
-    }
-
-    p {
-      color: var(--brand-text-secondary);
-      font-size: 1rem;
-      margin: 0 0 20px 0;
-    }
-
-    ion-button {
-      --background: var(--app-gradient-header);
-      --color: var(--brand-text);
-      --border-radius: 15px;
-      font-weight: 500;
-    }
-  }
-}
-
-// Consultation Types
-.consultation-types {
-  padding: 0 20px 30px;
-
-  .type-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-  }
-
-  .type-card {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 20px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .type-icon {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, #ff6b6b, #feca57);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 15px;
-
-      ion-icon {
-        color: white;
-        font-size: 1.8rem;
-      }
-    }
-
-    .type-name {
-      color: var(--brand-text);
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-    }
-
-    .type-description {
-      color: var(--brand-text-secondary);
-      font-size: 0.9rem;
-      margin: 0 0 10px 0;
-      line-height: 1.4;
-    }
-
-    .type-duration {
-      background: rgba(var(--brand-primary-rgb), 0.1);
-      color: var(--brand-text);
-      padding: 5px 12px;
-      border-radius: 15px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      display: inline-block;
-      margin-bottom: 8px;
-    }
-
-    .type-price {
-      color: #feca57;
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin: 0;
-    }
-  }
-}
-
-// Emergency Section
-.emergency-section {
-  padding: 0 20px 24px;
-  margin-bottom: 0;
-
-  .emergency-card {
-    background: linear-gradient(135deg, rgba(244, 67, 54, 0.9), rgba(229, 57, 53, 0.9));
-    backdrop-filter: blur(15px);
-    border-radius: 20px;
-    padding: 25px;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 10px 30px rgba(244, 67, 54, 0.3);
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 40px rgba(244, 67, 54, 0.4);
-    }
-
-    .emergency-icon {
-      width: 60px;
-      height: 60px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 15px;
-
-      ion-icon {
-        color: white;
-        font-size: 2rem;
-      }
-    }
-
-    .emergency-title {
-      color: white;
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin: 0 0 8px 0;
-    }
-
-    .emergency-description {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1rem;
-      margin: 0 0 20px 0;
-    }
-
-    ion-button {
-      --background: white;
-      --color: #c21e56;
-      --border-radius: 15px;
-      --padding-start: 20px;
-      --padding-end: 20px;
-      --padding-top: 12px;
-      --padding-bottom: 12px;
-      font-weight: 600;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-  }
-}
-
-// Match home tab FAB: explicit inset + size so it stays fixed and clears the tab bar area
-.quick-fab {
-  right: calc(env(safe-area-inset-right, 0px) + 8px);
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-
-  .main-fab {
-    --background: var(--ion-color-primary);
-    --background-activated: var(--ion-color-primary-shade);
-    --background-hover: var(--ion-color-primary-tint);
-    --color: var(--ion-color-primary-contrast);
-    --border-radius: 50%;
-    width: 54px;
-    height: 54px;
-    box-shadow:
-      0 10px 22px rgba(var(--ion-color-primary-rgb), 0.24),
-      0 2px 6px rgba(15, 23, 42, 0.12);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-    &:hover {
-      transform: translateY(-1px) scale(1.03);
-      box-shadow:
-        0 14px 28px rgba(var(--ion-color-primary-rgb), 0.3),
-        0 4px 10px rgba(15, 23, 42, 0.14);
-    }
-
-    &:active {
-      transform: translateY(0) scale(0.98);
-    }
-
-    ion-icon {
-      font-size: 22px;
-      font-weight: 700;
-    }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .quick-fab .main-fab {
-    transition: none;
-
-    &:hover,
-    &:active {
-      transform: none;
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  .consultation-hero {
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
-    padding: 1.5rem 0.85rem 1.35rem;
-
-    .hero-stats {
-      gap: 0.5rem;
-
-      .stat {
-        min-width: 0;
-        flex: 1 1 calc(33% - 0.5rem);
-      }
-    }
-  }
-
-  .quick-booking {
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
-  }
-
-  .specialists-section {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  .appointments-section,
-  .consultation-types,
-  .emergency-section {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  .type-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .specialist-card {
-    flex-direction: column;
-    text-align: center;
-
-    .specialist-avatar {
-      margin-bottom: 15px;
-    }
-
-    .specialist-info {
-      text-align: center;
-    }
-  }
-}
-
-// Animations
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.consultation-hero,
-.quick-booking,
-.specialists-section,
-.appointments-section,
-.consultation-types,
-.emergency-section {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.specialist-card,
-.appointment-card,
-.type-card {
-  animation: fadeInUp 0.4s ease-out;
-}
-
-.online-indicator {
-  animation: pulse 2s infinite;
-}
-
-// Loading States
-.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-// Success States
-.success {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.1)) !important;
-  border-color: rgba(76, 175, 80, 0.3) !important;
-}
-
-// Error States
-.error {
-  background: linear-gradient(135deg, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.1)) !important;
-  border-color: rgba(244, 67, 54, 0.3) !important;
-}
-
-.search-section {
-  padding: 12px 14px;
-  background: var(--brand-surface);
-  margin: 0 var(--app-side-padding, 1rem) 1rem;
-  border-radius: var(--app-radius-lg, 16px);
+.hero-stat {
+  padding: 0.65rem 0.4rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid rgba(var(--brand-text-rgb), 0.06);
   box-shadow: var(--app-shadow-soft);
 
-  ion-searchbar {
-    --background: #f1f5f9;
-    --color: var(--brand-text);
-    --placeholder-color: var(--brand-text-secondary);
-    --icon-color: var(--ion-color-primary);
-    --border-radius: 12px;
-    margin-bottom: 0;
+  &__value {
+    display: block;
+    color: var(--ion-color-primary);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.1;
   }
-}
 
-.section-header {
-  margin-bottom: 1rem;
-  padding: 0;
-
-  .section-subtitle {
+  &__label {
+    display: block;
+    margin-top: 0.15rem;
     color: #64748b;
-    font-size: 0.875rem;
-    margin: 0.35rem 0 0;
-    line-height: 1.45;
-    font-weight: 500;
-    max-width: 36rem;
-  }
-}
-
-.loading-container {
-  text-align: center;
-  padding: 3rem 1.25rem;
-
-  ion-spinner {
-    --color: var(--ion-color-primary);
-    margin-bottom: 16px;
-    width: 32px;
-    height: 32px;
-  }
-
-  p {
-    color: #64748b;
-    font-size: 15px;
-  }
-}
-
-.doctors-grid {
-  padding: 0;
-  display: grid;
-  gap: 1rem;
-}
-
-// Specialist cards — solid surfaces, tap-friendly actions
-.specialists-section .doctors-grid .specialist-card {
-  background: var(--brand-surface);
-  border-radius: var(--app-radius-lg, 16px);
-  padding: 1rem 1rem 1.05rem;
-  border: 1px solid rgba(var(--brand-text-rgb), 0.06);
-  box-shadow: var(--app-shadow-card);
-  transition: box-shadow var(--app-duration-normal, 240ms) var(--app-ease-standard, ease),
-    transform var(--app-duration-normal, 240ms) var(--app-ease-standard, ease);
-  cursor: pointer;
-  display: block;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--app-shadow-card-hover);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--ion-color-primary);
-    outline-offset: 2px;
-  }
-
-  .specialist-avatar {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    margin-bottom: 0.75rem;
-
-    img {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #e2e8f0;
-      box-shadow: var(--app-shadow-soft);
-    }
-
-    .online-indicator {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 14px;
-      height: 14px;
-      background: var(--ion-color-success);
-      border: 2px solid var(--brand-surface);
-      border-radius: 50%;
-
-      &.offline {
-        background: #94a3b8;
-      }
-    }
-  }
-
-  .specialist-info {
-    .specialist-name {
-      color: #1e293b;
-      font-size: 1.05rem;
-      font-weight: 800;
-      margin: 0 0 0.2rem;
-      line-height: 1.25;
-    }
-
-    .specialist-specialty {
-      color: #64748b;
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin: 0 0 0.65rem;
-      line-height: 1.35;
-    }
-
-    .specialist-details {
-      display: flex;
-      gap: 0.65rem;
-      margin-bottom: 0.5rem;
-      flex-wrap: wrap;
-      align-items: center;
-
-      .rating {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.2rem;
-        color: #b45309;
-        font-size: 0.8125rem;
-        font-weight: 700;
-
-        ion-icon {
-          font-size: 0.95rem;
-          color: #ffd700;
-        }
-      }
-
-      .experience {
-        color: #64748b;
-        font-size: 0.8125rem;
-      }
-    }
-
-    .specialist-availability {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      margin-bottom: 0.45rem;
-      flex-wrap: wrap;
-
-      .available {
-        background: rgba(var(--ion-color-success-rgb), 0.12);
-        color: var(--ion-color-success-shade);
-        padding: 0.25rem 0.5rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-      }
-
-      .fee {
-        color: #0f172a;
-        font-size: 0.8125rem;
-        font-weight: 700;
-        background: #f1f5f9;
-        padding: 0.25rem 0.55rem;
-        border-radius: 999px;
-        border: 1px solid #e2e8f0;
-      }
-    }
-
-    .specialist-location,
-    .specialist-clinic {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.35rem;
-      margin-bottom: 0.35rem;
-
-      ion-icon {
-        font-size: 1rem;
-        color: var(--ion-color-primary);
-        margin-top: 0.1rem;
-        flex-shrink: 0;
-      }
-
-      span {
-        font-size: 0.8125rem;
-        color: #475569;
-        line-height: 1.4;
-      }
-    }
-
-    .consultation-type {
-      margin: 0.65rem 0 0;
-
-      .type-badge {
-        display: inline-block;
-        padding: 0.35rem 0.65rem;
-        border-radius: 999px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-
-        &.online {
-          background: rgba(var(--ion-color-primary-rgb), 0.12);
-          color: var(--ion-color-primary-shade);
-        }
-
-        &.in_person {
-          background: rgba(139, 92, 246, 0.12);
-          color: #6d28d9;
-        }
-
-        &.both {
-          background: rgba(var(--ion-color-secondary-rgb), 0.14);
-          color: var(--ion-color-secondary-shade);
-        }
-      }
-    }
-  }
-
-  .specialist-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-
-    ion-button {
-      --border-radius: 12px;
-      font-weight: 600;
-      flex: 1;
-      min-height: 42px;
-
-      &[fill='solid'] {
-        --background: var(--ion-color-primary);
-        --color: var(--ion-color-primary-contrast);
-        --box-shadow: 0 6px 18px rgba(var(--brand-primary-rgb), 0.25);
-      }
-
-      &[fill='outline'] {
-        --border-color: rgba(var(--brand-primary-rgb), 0.35);
-        --color: var(--brand-primary-dark);
-        --background: transparent;
-      }
-    }
-  }
-}
-
-.show-more-section {
-  padding: 0.5rem 0 0.25rem;
-  text-align: center;
-
-  .show-more-btn {
-    --border-color: rgba(var(--brand-primary-rgb), 0.35);
-    --color: var(--brand-primary-dark);
-    --background: var(--brand-surface);
-    --border-radius: 12px;
-    --padding-top: 14px;
-    --padding-bottom: 14px;
+    font-size: 0.68rem;
     font-weight: 600;
-    font-size: 0.95rem;
-    margin-bottom: 0.5rem;
-    box-shadow: var(--app-shadow-soft);
+  }
+}
 
-    ion-icon {
-      font-size: 1.1rem;
-    }
+.categories-section {
+  padding: 1.15rem var(--app-side-padding, 1rem) 0.5rem;
+
+  &__intro {
+    margin-bottom: 0.85rem;
   }
 
-  .show-more-text {
+  &__title {
+    margin: 0 0 0.25rem;
+    color: #1e293b;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+
+  &__hint {
+    margin: 0;
     color: #64748b;
     font-size: 0.8125rem;
-    margin: 0;
-    font-weight: 500;
-    font-style: normal;
+    line-height: 1.45;
   }
 }
 
-// No Doctors State
-.no-doctors {
-  text-align: center;
-  padding: 60px 20px;
-  
-  ion-icon {
-    font-size: 64px;
-    color: rgba(var(--brand-text-rgb), 0.25);
-    margin-bottom: 20px;
-  }
-  
-  h3 {
-    color: var(--brand-text);
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 12px;
-  }
-  
-  p {
-    color: var(--brand-text-secondary);
-    font-size: 14px;
-    line-height: 1.4;
-    margin-bottom: 20px;
-    max-width: 300px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  ion-button {
-    --background: var(--ion-color-primary);
-    --color: var(--ion-color-primary-contrast);
-    --border-radius: 12px;
-    font-weight: 600;
-    --box-shadow: 0 6px 18px rgba(var(--brand-primary-rgb), 0.22);
-  }
-}
-
-.doctors-skeleton {
+.category-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 8px 0 24px;
+  gap: 0.65rem;
 }
 
-.doctors-skeleton-card {
+.category-row {
   display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  background: var(--brand-surface);
-  border-radius: 16px;
-  padding: 16px;
-  border: 1px solid rgba(var(--brand-text-rgb), 0.06);
-  box-shadow: var(--app-shadow-card);
-}
-
-.doctors-skeleton-card .sk-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.doctors-skeleton-text {
-  flex: 1;
-  min-width: 0;
-}
-
-.doctors-skeleton-text .sk-title {
-  width: 60%;
-  height: 18px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-}
-
-.doctors-skeleton-text .sk-line {
+  align-items: center;
+  gap: 0.75rem;
   width: 100%;
-  height: 14px;
-  margin-bottom: 8px;
-  border-radius: 6px;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgba(var(--brand-text-rgb), 0.07);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: var(--app-shadow-soft);
+  cursor: pointer;
+  text-align: start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+
+    ion-icon {
+      color: #fff;
+      font-size: 1.5rem;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.12rem;
+  }
+
+  &__title {
+    color: #0f172a;
+    font-size: 0.9375rem;
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  &__desc {
+    color: #64748b;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__count {
+    margin-top: 0.15rem;
+    color: var(--ion-color-primary);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  &__action {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+    color: #94a3b8;
+
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+
+  &__cta {
+    color: var(--ion-color-primary);
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
 }
 
-.doctors-skeleton-text .sk-line--short {
-  width: 45%;
+.browse-all-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px dashed rgba(var(--brand-primary-rgb), 0.35);
+  border-radius: 14px;
+  background: rgba(var(--brand-primary-rgb), 0.04);
+  color: var(--ion-color-primary-shade);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.1rem;
+  }
+}
+
+.search-all-section {
+  margin: 1rem var(--app-side-padding, 1rem) 0.75rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid rgba(var(--brand-text-rgb), 0.07);
+  box-shadow: var(--app-shadow-soft);
+
+  &__title {
+    margin: 0 0 0.65rem;
+    color: #1e293b;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+}
+
+.search-all-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+
+  .consultation-search {
+    --background: #f8fafc;
+    --border-radius: 12px;
+    padding: 0;
+  }
+
+  &__btn {
+    margin: 0;
+    --border-radius: 12px;
+    font-weight: 700;
+  }
+}
+
+.emergency-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 var(--app-side-padding, 1rem) 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 1px solid #fecaca;
+  cursor: pointer;
+
+  > ion-icon:first-child {
+    color: #dc2626;
+    font-size: 1.35rem;
+    flex-shrink: 0;
+  }
+
+  > ion-icon:last-child {
+    color: #f87171;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-inline-start: auto;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+
+    strong {
+      color: #991b1b;
+      font-size: 0.8125rem;
+    }
+
+    span {
+      color: #b91c1c;
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+  }
 }
 
 :host-context(html.ion-palette-dark) {
   .consultation-content {
-    --background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+    background: #0f172a;
   }
 
-  .consultation-hero .hero-title,
-  .section-title,
-  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-name,
-  .specialists-section
-    .doctors-grid
-    .specialist-card
-    .specialist-info
-    .specialist-availability
-    .fee {
+  .hero-title,
+  .categories-section__title,
+  .category-row__title,
+  .search-all-section__title {
     color: #f9fafb;
   }
 
-  .consultation-hero .hero-subtitle,
-  .consultation-hero .hero-stats .stat .stat-label,
-  .section-header .section-subtitle,
-  .loading-container p,
-  .show-more-section .show-more-text,
-  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-specialty,
-  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-details .experience,
-  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-location span,
-  .specialists-section .doctors-grid .specialist-card .specialist-info .specialist-clinic span {
+  .hero-subtitle,
+  .categories-section__hint,
+  .category-row__desc {
     color: #9ca3af;
   }
 
-  .consultation-hero .hero-stats .stat,
-  .quick-booking,
-  .search-section,
-  .specialists-section .doctors-grid .specialist-card,
-  .doctors-skeleton-card,
-  .show-more-section .show-more-btn {
+  .hero-stat,
+  .category-row,
+  .search-all-section {
     background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
-  .search-section ion-searchbar {
-    --background: rgba(255, 255, 255, 0.08);
-    --color: #f3f4f6;
-    --placeholder-color: #9ca3af;
+  .browse-all-link {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(196, 181, 253, 0.35);
+    color: #c4b5fd;
   }
+}
 
-  .specialists-section .doctors-grid .specialist-card .specialist-avatar img {
-    border-color: rgba(255, 255, 255, 0.18);
-  }
-
-  .specialists-section
-    .doctors-grid
-    .specialist-card
-    .specialist-info
-    .specialist-availability
-    .fee {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.14);
-  }
-
-  .specialists-section .doctors-grid .specialist-card .specialist-actions ion-button[fill='outline'],
-  .show-more-section .show-more-btn {
-    --color: #c4b5fd;
-    --border-color: rgba(196, 181, 253, 0.45);
-    --background: transparent;
+@media (max-width: 380px) {
+  .category-row__action {
+    display: none;
   }
 }

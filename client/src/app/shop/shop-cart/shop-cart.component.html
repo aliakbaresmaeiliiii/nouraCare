@@ -1,0 +1,67 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="goBack()"><ion-icon name="chevron-back"></ion-icon></ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'shop.cartTitle' | translate }}</ion-title>
+    @if (!isEmpty) {
+      <ion-buttons slot="end">
+        <ion-button fill="clear" color="danger" (click)="clearCart()">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="sc-content">
+  @if (isEmpty) {
+    <div class="sc-empty">
+      <ion-icon name="bag-outline"></ion-icon>
+      <h2>{{ 'shop.cartEmptyTitle' | translate }}</h2>
+      <p>{{ 'shop.cartEmptyDesc' | translate }}</p>
+      <ion-button expand="block" (click)="continueShopping()">{{ 'shop.continueShopping' | translate }}</ion-button>
+    </div>
+  } @else {
+    <div class="sc-list">
+      @for (item of items; track item.product.id) {
+        <article class="sc-item">
+          <img [src]="item.product.imageUrl" [alt]="item.product.titleKey | translate" />
+          <div class="sc-item__body">
+            <h3>{{ item.product.titleKey | translate }}</h3>
+            <p>{{ formatPrice(item.product) }}</p>
+            <div class="sc-item__qty">
+              <ion-button fill="outline" size="small" (click)="changeQty(item.product.id, -1)">
+                <ion-icon name="remove-outline"></ion-icon>
+              </ion-button>
+              <span>{{ item.quantity | localNum }}</span>
+              <ion-button fill="outline" size="small" (click)="changeQty(item.product.id, 1)">
+                <ion-icon name="add-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+          <div class="sc-item__end">
+            <strong>{{ lineTotal(item.product, item.quantity) }}</strong>
+            <ion-button fill="clear" color="danger" size="small" (click)="removeItem(item.product.id)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</ion-content>
+
+@if (!isEmpty) {
+  <ion-footer class="ion-no-border sc-footer">
+    <ion-toolbar>
+      <div class="sc-summary">
+        <div class="sc-summary__row">
+          <span>{{ 'shop.subtotal' | translate }}</span>
+          <strong>{{ subtotalLabel }}</strong>
+        </div>
+        <ion-button expand="block" (click)="checkout()">{{ 'shop.checkout' | translate }}</ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

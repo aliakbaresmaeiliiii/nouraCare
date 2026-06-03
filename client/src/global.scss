@@ -1914,7 +1914,8 @@ ion-content[class^='tpi'] ion-progress-bar {
 // Bottom sheets opened from Profile reproductive flows
 ion-modal.cycle-setup-sheet,
 ion-modal.pregnancy-setup-sheet,
-ion-modal.fertility-overview-sheet {
+ion-modal.fertility-overview-sheet,
+ion-modal.doctor-booking-sheet {
   --border-radius: 24px 24px 0 0;
   --box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.16);
 
@@ -1957,3 +1958,5 @@ ion-modal.fertility-overview-sheet {
   line-height: 1.45;
   color: var(--ion-color-medium-shade, #64748b);
 }
+
+@import 'app/shared/styles/tools-shop-dark.theme';

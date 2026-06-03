@@ -508,22 +508,6 @@
   }
 }
 
-ion-fab {
-  ion-fab-button {
-    --background: var(--app-button-solid-bg);
-    --color: var(--app-button-solid-color);
-    --border-radius: 50%;
-    box-shadow: var(--app-button-solid-shadow);
-    transition: transform var(--app-duration-normal) var(--app-ease-standard),
-      box-shadow var(--app-duration-normal) var(--app-ease-standard);
-
-    &:hover {
-      transform: scale(1.06);
-      box-shadow: var(--app-button-solid-shadow-hover);
-    }
-  }
-}
-
 @media (max-width: 480px) {
   .about-hero {
     padding: 30px 15px 50px;

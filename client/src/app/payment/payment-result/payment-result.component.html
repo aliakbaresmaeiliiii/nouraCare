@@ -1,0 +1,77 @@
+<ion-content class="pay-result-content">
+  <div class="pay-result">
+    <div class="pay-result__icon" [class.pay-result__icon--success]="isSuccess" [class.pay-result__icon--failed]="!isSuccess">
+      @if (isSuccess) {
+        <ion-icon name="checkmark-circle-outline"></ion-icon>
+      } @else {
+        <ion-icon name="close-circle-outline"></ion-icon>
+      }
+    </div>
+
+    <h1>
+      @if (isSuccess) {
+        {{ 'payment.result.successTitle' | translate }}
+      } @else {
+        {{ 'payment.result.failedTitle' | translate }}
+      }
+    </h1>
+
+    <p class="pay-result__subtitle">
+      @if (isSuccess) {
+        {{ 'payment.result.successSubtitle' | translate }}
+      } @else {
+        {{ 'payment.result.failedSubtitle' | translate }}
+      }
+    </p>
+
+    @if (consultationMessage; as msg) {
+      <p class="pay-result__consultation">{{ msg }}</p>
+    }
+
+    @if (result) {
+      <section class="pay-result__details">
+        @if (result.referenceCode) {
+          <div class="pay-result__row">
+            <span>{{ 'payment.result.reference' | translate }}</span>
+            <strong>{{ result.referenceCode | localNum }}</strong>
+          </div>
+        }
+        <div class="pay-result__row">
+          <span>{{ 'payment.result.orderId' | translate }}</span>
+          <strong>{{ result.orderId }}</strong>
+        </div>
+        <div class="pay-result__row">
+          <span>{{ 'payment.result.method' | translate }}</span>
+          <strong>{{ methodLabel }}</strong>
+        </div>
+      </section>
+    }
+
+    <div class="pay-result__actions">
+      @if (isSuccess) {
+        @if (result?.source === 'shop') {
+          <ion-button expand="block" (click)="goShop()">
+            <ion-icon name="storefront-outline" slot="start"></ion-icon>
+            {{ 'payment.result.viewShop' | translate }}
+          </ion-button>
+        } @else {
+          <ion-button expand="block" (click)="goConsultation()">
+            <ion-icon name="medical-outline" slot="start"></ion-icon>
+            {{ 'payment.result.viewDoctors' | translate }}
+          </ion-button>
+        }
+        <ion-button expand="block" fill="outline" (click)="goHome()">
+          <ion-icon name="home-outline" slot="start"></ion-icon>
+          {{ 'payment.result.backHome' | translate }}
+        </ion-button>
+      } @else {
+        <ion-button expand="block" (click)="retry()">
+          {{ 'payment.result.retry' | translate }}
+        </ion-button>
+        <ion-button expand="block" fill="outline" (click)="goHome()">
+          {{ 'payment.result.backHome' | translate }}
+        </ion-button>
+      }
+    </div>
+  </div>
+</ion-content>

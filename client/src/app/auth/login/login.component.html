@@ -73,18 +73,21 @@
             </div>
 
             @if (loginOtpStep) {
-            <div class="form-group">
-              <label class="form-label" for="login-otp">{{ 'auth.signInCode' | translate }}</label>
-              <input
-                id="login-otp"
-                type="text"
-                formControlName="otp"
-                [placeholder]="'auth.otpPlaceholder' | translate"
-                class="form-input"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-                maxlength="6"
-              />
+            <div class="form-group otp-group">
+              <label class="form-label">{{ 'auth.signInCode' | translate }}</label>
+              <div class="otp-container">
+                <ion-input-otp
+                  type="number"
+                  class="custom-otp"
+                  [length]="otpLength"
+                  separators="all"
+                  formControlName="otp"
+                  (ionInput)="onLoginOtpChange($event)"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                ></ion-input-otp>
+                <p class="otp-hint">{{ 'auth.verifyEmailHint' | translate }}</p>
+              </div>
             </div>
             }
 

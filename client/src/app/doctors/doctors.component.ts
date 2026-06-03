@@ -1,35 +1,54 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CdkFixedSizeVirtualScroll,
-  CdkVirtualForOf,
-  CdkVirtualScrollViewport,
-} from '@angular/cdk/scrolling';
-import { Router } from '@angular/router';
-import { ActionSheetController, AlertController, ToastController } from '@ionic/angular';
+  ActionSheetController,
+  InfiniteScrollCustomEvent,
+  ToastController,
+} from '@ionic/angular';
+import {
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+} from '@ionic/angular/standalone';
+import { combineLatest, Subscription } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { DoctorService } from '../shared/services/doctor.service';
+import {
+  DOCTOR_SPECIALTIES,
+  DoctorDisplayService,
+} from '../shared/services/doctor-display.service';
+import { DoctorBookingService } from '../shared/services/doctor-booking.service';
 import { DoctorDto } from '../shared/models/doctor.dto';
+import {
+  ConsultationCategory,
+  ConsultationCategoryId,
+  getConsultationCategory,
+} from '../shared/models/consultation-categories';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { TranslationService } from '../shared/services/translation.service';
-import { finalize } from 'rxjs/operators';
+import { addIcons } from 'ionicons';
+import {
+  chevronBack,
+  closeCircle,
+  medicalOutline,
+  searchOutline,
+  star,
+  swapVertical,
+  videocamOutline,
+} from 'ionicons/icons';
+
+type DoctorSort = 'rating' | 'experience' | 'fee';
 
 @Component({
   selector: 'app-doctors',
   templateUrl: './doctors.component.html',
   styleUrls: ['./doctors.component.scss'],
   standalone: true,
-  imports: [
-    ...SHARED_STANDALONE_IMPORTS,
-    CdkVirtualScrollViewport,
-    CdkVirtualForOf,
-    CdkFixedSizeVirtualScroll,
-  ],
+  imports: [...SHARED_STANDALONE_IMPORTS, IonInfiniteScroll, IonInfiniteScrollContent],
 })
 export class DoctorsComponent implements OnInit, OnDestroy {
-  private readonly avatarWomenPath = 'assets/images/avatarWomen.png';
-  private readonly avatarMenPath = 'assets/images/avatarMan.png';
-  /** Matches approximate card height for CDK virtual scroll. */
-  readonly virtualItemSizePx = 520;
-  /** Page size for API + infinite scroll batches. */
+  readonly doctorDisplay = inject(DoctorDisplayService);
+  private readonly doctorBooking = inject(DoctorBookingService);
+  private readonly cdr = inject(ChangeDetectorRef);
   readonly pageSize = 12;
 
   doctors: DoctorDto[] = [];
@@ -37,50 +56,139 @@ export class DoctorsComponent implements OnInit, OnDestroy {
   totalDoctors = 0;
   isLoading = false;
   loadingMore = false;
+  hasMore = true;
   searchTerm = '';
   selectedSpecialty = 'all';
   selectedConsultationType = 'all';
+  selectedSort: DoctorSort = 'rating';
+  selectedCategoryId: ConsultationCategoryId | null = null;
 
   private currentPage = 0;
   private totalPages = 1;
-  hasMore = true;
   private searchDebounce?: ReturnType<typeof setTimeout>;
+  private routeSub?: Subscription;
 
-  specialties = [
-    'Obstetrics & Gynecology',
-    'Maternal-Fetal Medicine',
-    'Reproductive Endocrinology',
-    'Fertility Specialist',
-    'Prenatal Care',
-    'High-Risk Pregnancy',
-  ];
-
-  consultationTypes = [
-    { value: 'all', label: 'All Types' },
-    { value: 'ONLINE', label: 'Online Only' },
-    { value: 'IN_PERSON', label: 'In-Person Only' },
-    { value: 'BOTH', label: 'Both Available' },
-  ];
+  readonly specialties = [...DOCTOR_SPECIALTIES];
 
   constructor(
     private router: Router,
-    private alertController: AlertController,
+    private route: ActivatedRoute,
     private actionSheetController: ActionSheetController,
     private toastController: ToastController,
     private doctorService: DoctorService,
     private translation: TranslationService,
-  ) {}
+  ) {
+    addIcons({
+      chevronBack,
+      medicalOutline,
+      videocamOutline,
+      swapVertical,
+      closeCircle,
+      searchOutline,
+      star,
+    });
+  }
 
   ngOnInit() {
-    this.reloadFromApi();
+    this.routeSub = combineLatest([
+      this.route.paramMap,
+      this.route.queryParamMap,
+    ]).subscribe(() => {
+      this.applyRouteFilters();
+      this.reloadFromApi();
+    });
   }
 
   ngOnDestroy() {
     clearTimeout(this.searchDebounce);
+    this.routeSub?.unsubscribe();
+  }
+
+  get activeCategory(): ConsultationCategory | undefined {
+    return getConsultationCategory(this.selectedCategoryId ?? undefined);
+  }
+
+  get isCategoryPage(): boolean {
+    return !!this.activeCategory;
+  }
+
+  get pageTitle(): string {
+    if (this.activeCategory) {
+      return this.translation.translate(this.activeCategory.titleKey);
+    }
+    return this.translation.translate('doctors.title');
+  }
+
+  categoryDoctorCountLabel(category: ConsultationCategory): string {
+    return this.translation.translateParams('consultation.category.doctorCount', {
+      count: category.displayCount,
+    });
+  }
+
+  categoryHeroGradient(category: ConsultationCategory): string {
+    return `linear-gradient(135deg, ${category.gradientFrom}, ${category.gradientTo})`;
   }
 
   trackByDoctorId(_index: number, doctor: DoctorDto): string {
     return doctor.id ?? String(_index);
+  }
+
+  specialtyFilterLabel(): string {
+    if (this.selectedSpecialty === 'all') {
+      return this.translation.translate('doctors.filterSpecialty');
+    }
+    return this.doctorDisplay.getSpecialtyLabel(this.selectedSpecialty);
+  }
+
+  consultationFilterLabel(): string {
+    switch (this.selectedConsultationType) {
+      case 'ONLINE':
+        return this.translation.translate('doctors.filter.onlineOnly');
+      case 'IN_PERSON':
+        return this.translation.translate('doctors.filter.inPersonOnly');
+      case 'BOTH':
+        return this.translation.translate('doctors.filter.bothAvailable');
+      default:
+        return this.translation.translate('doctors.filterConsultation');
+    }
+  }
+
+  sortFilterLabel(): string {
+    switch (this.selectedSort) {
+      case 'experience':
+        return this.translation.translate('consultation.filter.sortExperience');
+      case 'fee':
+        return this.translation.translate('consultation.filter.sortFee');
+      default:
+        return this.translation.translate('consultation.filter.sortRating');
+    }
+  }
+
+  resultsSummaryLabel(): string {
+    return this.translation.translateParams('doctors.resultsSummary', {
+      shown: this.filteredDoctors.length,
+      total: this.totalDoctors,
+    });
+  }
+
+  private applyRouteFilters(): void {
+    const pathCategory = this.route.snapshot.paramMap.get('categoryId');
+    const queryCategory = this.route.snapshot.queryParamMap.get('category');
+    const category = getConsultationCategory(pathCategory || queryCategory);
+
+    this.selectedCategoryId = category?.id ?? null;
+    this.selectedSpecialty = category?.apiFilter.specialty ?? 'all';
+
+    const type = this.route.snapshot.queryParamMap.get('type');
+    this.selectedConsultationType =
+      type && ['ONLINE', 'IN_PERSON', 'BOTH'].includes(type) ? type : 'all';
+
+    const sort = this.route.snapshot.queryParamMap.get('sort');
+    this.selectedSort =
+      sort === 'experience' || sort === 'fee' || sort === 'rating' ? sort : 'rating';
+
+    this.searchTerm = this.route.snapshot.queryParamMap.get('q') ?? '';
+    this.cdr.markForCheck();
   }
 
   reloadFromApi() {
@@ -93,68 +201,73 @@ export class DoctorsComponent implements OnInit, OnDestroy {
     void this.fetchPage(true);
   }
 
-  private fetchPage(isInitial: boolean) {
-    if (this.loadingMore) {
-      return;
-    }
-    if (!isInitial && !this.hasMore) {
-      return;
+  loadMore() {
+    void this.fetchPage(false);
+  }
+
+  onInfiniteScroll(event: InfiniteScrollCustomEvent): void {
+    void this.fetchPage(false).finally(() => {
+      void event.target.complete();
+    });
+  }
+
+  private fetchPage(isInitial: boolean): Promise<void> {
+    if (this.loadingMore || (!isInitial && !this.hasMore)) {
+      return Promise.resolve();
     }
 
     const nextPage = isInitial ? 1 : this.currentPage + 1;
     if (!isInitial && nextPage > this.totalPages) {
-      return;
+      this.hasMore = false;
+      this.cdr.markForCheck();
+      return Promise.resolve();
     }
 
     this.loadingMore = true;
     if (isInitial) {
       this.isLoading = true;
     }
+    this.cdr.markForCheck();
 
-    this.doctorService
-      .getDoctorsPage({
-        page: nextPage,
-        limit: this.pageSize,
-        search: this.searchTerm?.trim() || undefined,
-        specialty: this.selectedSpecialty === 'all' ? undefined : this.selectedSpecialty,
-        consultationType:
-          this.selectedConsultationType === 'all' ? undefined : this.selectedConsultationType,
-      })
-      .pipe(
-        finalize(() => {
-          this.loadingMore = false;
-          this.isLoading = false;
-        }),
-      )
-      .subscribe({
-        next: (res) => {
-          this.totalDoctors = res.total;
-          this.totalPages = res.totalPages;
-          this.currentPage = res.page;
-          this.hasMore = res.hasMore;
-          if (isInitial) {
-            this.doctors = res.items;
-          } else {
-            const existing = new Set(this.doctors.map((d) => d.id).filter(Boolean));
-            const appended = res.items.filter((d) => d.id && !existing.has(d.id));
-            this.doctors = [...this.doctors, ...appended];
-          }
-          this.filteredDoctors = this.doctors;
-        },
-        error: async () => {
-          await this.showToast(this.translation.translate('doctors.toast.loadFailed'), 'danger');
-        },
-      });
-  }
-
-  onVirtualScroll(viewport: CdkVirtualScrollViewport) {
-    if (this.loadingMore || !this.hasMore) {
-      return;
-    }
-    const { end } = viewport.getRenderedRange();
-    if (end >= this.filteredDoctors.length - 2) {
-      this.fetchPage(false);
-    }
+    return new Promise((resolve) => {
+      this.doctorService
+        .getDoctorsPage({
+          page: nextPage,
+          limit: this.pageSize,
+          search: this.buildSearchQuery(),
+          specialty: this.selectedSpecialty === 'all' ? undefined : this.selectedSpecialty,
+          consultationType:
+            this.selectedConsultationType === 'all' ? undefined : this.selectedConsultationType,
+        })
+        .pipe(
+          finalize(() => {
+            this.loadingMore = false;
+            this.isLoading = false;
+            this.cdr.markForCheck();
+            resolve();
+          }),
+        )
+        .subscribe({
+          next: (res) => {
+            this.totalDoctors = res.total;
+            this.totalPages = res.totalPages;
+            this.currentPage = res.page;
+            this.hasMore = res.hasMore;
+            const batch = this.sortDoctors(res.items);
+            if (isInitial) {
+              this.doctors = batch;
+            } else {
+              const existing = new Set(this.doctors.map((d) => d.id).filter(Boolean));
+              const appended = batch.filter((d) => d.id && !existing.has(d.id));
+              this.doctors = [...this.doctors, ...appended];
+            }
+            this.filteredDoctors = this.doctors;
+          },
+          error: async () => {
+            await this.showToast(this.translation.translate('doctors.toast.loadFailed'), 'danger');
+          },
+        });
+    });
   }
 
   searchDoctors(event: Event) {
@@ -166,23 +279,23 @@ export class DoctorsComponent implements OnInit, OnDestroy {
 
   async toggleSpecialtyFilter() {
     const sheet = await this.actionSheetController.create({
-      header: 'Specialty',
+      header: this.translation.translate('doctors.filter.specialtyHeader'),
       buttons: [
         {
-          text: 'All specialties',
+          text: this.translation.translate('doctors.filter.allSpecialties'),
           handler: () => {
             this.selectedSpecialty = 'all';
             this.reloadFromApi();
           },
         },
         ...this.specialties.map((s) => ({
-          text: s,
+          text: this.doctorDisplay.getSpecialtyLabel(s),
           handler: () => {
             this.selectedSpecialty = s;
             this.reloadFromApi();
           },
         })),
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.translation.translate('doctors.filter.cancel'), role: 'cancel' },
       ],
     });
     await sheet.present();
@@ -190,16 +303,68 @@ export class DoctorsComponent implements OnInit, OnDestroy {
 
   async toggleConsultationFilter() {
     const sheet = await this.actionSheetController.create({
-      header: 'Consultation type',
+      header: this.translation.translate('doctors.filter.consultationHeader'),
       buttons: [
-        ...this.consultationTypes.map((c) => ({
-          text: c.label,
+        {
+          text: this.translation.translate('doctors.filter.allTypes'),
           handler: () => {
-            this.selectedConsultationType = c.value;
+            this.selectedConsultationType = 'all';
             this.reloadFromApi();
           },
-        })),
-        { text: 'Cancel', role: 'cancel' },
+        },
+        {
+          text: this.translation.translate('doctors.filter.onlineOnly'),
+          handler: () => {
+            this.selectedConsultationType = 'ONLINE';
+            this.reloadFromApi();
+          },
+        },
+        {
+          text: this.translation.translate('doctors.filter.inPersonOnly'),
+          handler: () => {
+            this.selectedConsultationType = 'IN_PERSON';
+            this.reloadFromApi();
+          },
+        },
+        {
+          text: this.translation.translate('doctors.filter.bothAvailable'),
+          handler: () => {
+            this.selectedConsultationType = 'BOTH';
+            this.reloadFromApi();
+          },
+        },
+        { text: this.translation.translate('doctors.filter.cancel'), role: 'cancel' },
+      ],
+    });
+    await sheet.present();
+  }
+
+  async toggleSortFilter() {
+    const sheet = await this.actionSheetController.create({
+      header: this.translation.translate('consultation.filter.sortHeader'),
+      buttons: [
+        {
+          text: this.translation.translate('consultation.filter.sortRating'),
+          handler: () => {
+            this.selectedSort = 'rating';
+            this.applySortToList();
+          },
+        },
+        {
+          text: this.translation.translate('consultation.filter.sortExperience'),
+          handler: () => {
+            this.selectedSort = 'experience';
+            this.applySortToList();
+          },
+        },
+        {
+          text: this.translation.translate('consultation.filter.sortFee'),
+          handler: () => {
+            this.selectedSort = 'fee';
+            this.applySortToList();
+          },
+        },
+        { text: this.translation.translate('doctors.filter.cancel'), role: 'cancel' },
       ],
     });
     await sheet.present();
@@ -207,138 +372,87 @@ export class DoctorsComponent implements OnInit, OnDestroy {
 
   clearFilters() {
     this.searchTerm = '';
-    this.selectedSpecialty = 'all';
     this.selectedConsultationType = 'all';
+    this.selectedSort = 'rating';
+    const category = this.activeCategory;
+    this.selectedSpecialty = category?.apiFilter.specialty ?? 'all';
+    if (!category) {
+      this.selectedCategoryId = null;
+    }
     this.reloadFromApi();
   }
 
-  async bookWithDoctor(doctor: DoctorDto) {
-    const alert = await this.alertController.create({
-      header: `Book with ${doctor.fullName}`,
-      message: `${doctor.specialty}\n\nFee: $${doctor.fee}\n\n${doctor.about.substring(0, 100)}...`,
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Book Appointment',
-          handler: () => {
-            this.showBookingOptions(doctor);
-          },
-        },
-        {
-          text: 'View Profile',
-          handler: () => {
-            this.viewDoctorProfile(doctor);
-          },
-        },
-      ],
-    });
-    await alert.present();
-  }
-
-  async showBookingOptions(doctor: DoctorDto) {
-    const buttons: {
-      text: string;
-      role?: string;
-      handler?: () => void;
-    }[] = [];
-
-    if (doctor.consultationType === 'ONLINE' || doctor.consultationType === 'BOTH') {
-      buttons.push({
-        text: '💻 Online Consultation',
-        handler: () => this.bookAppointment(doctor, 'online'),
-      });
-    }
-    if (doctor.consultationType === 'IN_PERSON' || doctor.consultationType === 'BOTH') {
-      buttons.push({
-        text: '🏥 In-Person Visit',
-        handler: () => this.bookAppointment(doctor, 'in-person'),
-      });
-    }
-    buttons.push({ text: 'Cancel', role: 'cancel' });
-
-    const alert = await this.alertController.create({
-      header: 'Choose Consultation Type',
-      message: `How would you like to consult with ${doctor.fullName}?`,
-      buttons,
-    });
-    await alert.present();
-  }
-
-  async bookAppointment(doctor: DoctorDto, type: string) {
-    const alert = await this.alertController.create({
-      header: '✅ Booking Confirmed!',
-      message: `Your ${type} consultation with ${doctor.fullName} has been scheduled.\n\nYou will receive a confirmation email shortly.`,
-      buttons: ['OK'],
-    });
-    await alert.present();
-    await this.showToast(
-      this.translation.translateParams('doctors.toast.appointmentBooked', { name: doctor.fullName }),
-      'success',
+  hasActiveFilters(): boolean {
+    const categoryDefault = this.activeCategory?.apiFilter.specialty ?? 'all';
+    return (
+      this.searchTerm.length > 0 ||
+      this.selectedSpecialty !== categoryDefault ||
+      this.selectedConsultationType !== 'all' ||
+      this.selectedSort !== 'rating'
     );
+  }
+
+  private buildSearchQuery(): string | undefined {
+    const category = getConsultationCategory(this.selectedCategoryId ?? undefined);
+    const combined = [category?.apiFilter.search, this.searchTerm.trim()]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+    return combined || undefined;
+  }
+
+  private applySortToList(): void {
+    this.doctors = this.sortDoctors(this.doctors);
+    this.filteredDoctors = this.doctors;
+    this.cdr.markForCheck();
+  }
+
+  private sortDoctors(items: DoctorDto[]): DoctorDto[] {
+    const sorted = [...items];
+    switch (this.selectedSort) {
+      case 'experience':
+        return sorted.sort((a, b) => b.experienceYears - a.experienceYears);
+      case 'fee':
+        return sorted.sort(
+          (a, b) => (a.fee ?? Number.MAX_SAFE_INTEGER) - (b.fee ?? Number.MAX_SAFE_INTEGER),
+        );
+      default:
+        return sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    }
+  }
+
+  openDoctorBooking(doctor: DoctorDto) {
+    void this.doctorBooking.openBooking(doctor);
+  }
+
+  bookWithDoctor(doctor: DoctorDto) {
+    this.openDoctorBooking(doctor);
   }
 
   viewDoctorProfile(doctor: DoctorDto) {
     if (!doctor.id) {
       return;
     }
-    this.router.navigate(['/doctor', doctor.id]);
+    void this.router.navigate(['/doctor', doctor.id]);
   }
 
   getConsultationTypeLabel(type: string): string {
-    switch (type) {
-      case 'ONLINE':
-        return 'Online';
-      case 'IN_PERSON':
-        return 'In-Person';
-      case 'BOTH':
-        return 'Hybrid';
-      default:
-        return 'Available';
-    }
-  }
-
-  getConsultationIcon(type: string): string {
-    switch (type) {
-      case 'ONLINE':
-        return 'videocam';
-      case 'IN_PERSON':
-        return 'business';
-      case 'BOTH':
-        return 'globe';
-      default:
-        return 'medical';
-    }
-  }
-
-  getStars(rating: number): number[] {
-    return Array(Math.floor(rating)).fill(0);
+    return this.doctorDisplay.getShortConsultationTypeLabel(type);
   }
 
   getDoctorAvatar(doctor: DoctorDto): string {
-    if (doctor.profileImageUrl?.trim()) {
-      return doctor.profileImageUrl;
-    }
-    const seed = `${doctor.id ?? ''}${doctor.fullName ?? ''}`.toLowerCase().trim();
-    if (!seed) {
-      return this.avatarWomenPath;
-    }
-    const codeSum = Array.from(seed).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-    return codeSum % 2 === 0 ? this.avatarWomenPath : this.avatarMenPath;
-  }
-
-  hasActiveFilters(): boolean {
-    return (
-      this.searchTerm.length > 0 ||
-      this.selectedSpecialty !== 'all' ||
-      this.selectedConsultationType !== 'all'
-    );
+    return this.doctorDisplay.getAvatar(doctor);
   }
 
   goBack() {
-    this.router.navigate(['/tabs/consultation']);
+    void this.router.navigate(['/tabs/consultation']);
   }
 
-  async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
+  goToAllDoctors() {
+    void this.router.navigate(['/doctors']);
+  }
+
+  private async showToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {
     const toast = await this.toastController.create({
       message,
       duration: 3000,

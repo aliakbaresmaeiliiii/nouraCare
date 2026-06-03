@@ -1,0 +1,156 @@
+<ion-header class="ion-no-border pay-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="goBack()" [attr.aria-label]="'common.cancel' | translate">
+        <ion-icon name="chevron-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'payment.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="pay-content">
+  @if (!hasOrder) {
+    <div class="pay-empty">
+      <ion-icon name="card-outline"></ion-icon>
+      <h2>{{ 'payment.emptyOrder' | translate }}</h2>
+      <p>{{ 'payment.emptyOrderDesc' | translate }}</p>
+      <ion-button expand="block" (click)="goToEmptyFallback()">
+        {{ 'payment.backToShop' | translate }}
+      </ion-button>
+    </div>
+  } @else {
+    <div class="pay-page">
+      <p class="pay-intro">{{ 'payment.subtitle' | translate }}</p>
+
+      @if (order!.consultation) {
+        <section class="pay-card pay-consultation">
+          <div class="pay-consultation__avatar">
+            @if (order!.consultation!.avatarUrl) {
+              <img [src]="order!.consultation!.avatarUrl" [alt]="order!.consultation!.doctorName" />
+            } @else {
+              <ion-icon name="person-outline"></ion-icon>
+            }
+          </div>
+          <div class="pay-consultation__body">
+            <span class="pay-consultation__label">{{ 'payment.consultation.doctor' | translate }}</span>
+            <strong>{{ order!.consultation!.doctorName }}</strong>
+            <span class="pay-consultation__meta">{{ order!.consultation!.specialtyLabel }}</span>
+            <div class="pay-consultation__row">
+              <span>{{ 'payment.consultation.time' | translate }}</span>
+              <strong>{{ order!.consultation!.timeLabel }}</strong>
+            </div>
+          </div>
+        </section>
+      }
+
+      <section class="pay-card pay-summary">
+        <button type="button" class="pay-summary__toggle" (click)="toggleSummary()">
+          <div>
+            <h2>{{ 'payment.orderSummary' | translate }}</h2>
+            <span>{{ itemCountLabel }}</span>
+          </div>
+          <ion-icon [name]="summaryExpanded ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+        </button>
+
+        @if (summaryExpanded) {
+          <ul class="pay-summary__items">
+            @for (item of order!.items; track item.id) {
+              <li class="pay-summary__item">
+                @if (item.imageUrl) {
+                  <img [src]="item.imageUrl" [alt]="lineTitle(item)" />
+                }
+                <div class="pay-summary__item-body">
+                  <strong>{{ lineTitle(item) }}</strong>
+                  @if (lineSubtitle(item); as subtitle) {
+                    <span>{{ subtitle }}</span>
+                  }
+                  <span class="pay-summary__qty">{{ item.quantity | localNum }} × {{ formatAmount(item.unitAmountTomans) }}</span>
+                </div>
+                <strong class="pay-summary__item-total">{{ lineTotal(item) }}</strong>
+              </li>
+            }
+          </ul>
+        }
+
+        <div class="pay-summary__rows">
+          <div class="pay-summary__row">
+            <span>{{ 'payment.subtotal' | translate }}</span>
+            <strong>{{ formatAmount(order!.subtotalTomans) }}</strong>
+          </div>
+          @if (order!.discountTomans > 0) {
+            <div class="pay-summary__row pay-summary__row--discount">
+              <span>{{ 'payment.discount' | translate }}</span>
+              <strong>−{{ formatAmount(order!.discountTomans) }}</strong>
+            </div>
+          }
+          <div class="pay-summary__row pay-summary__row--total">
+            <span>{{ 'payment.payable' | translate }}</span>
+            <strong>{{ formatAmount(order!.payableTomans) }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="pay-methods">
+        <div class="pay-methods__head">
+          <h2>{{ 'payment.selectMethod' | translate }}</h2>
+          <p>{{ 'payment.methodHint' | translate }}</p>
+        </div>
+
+        <div class="pay-method-list">
+          @for (method of methods; track method.id) {
+            <button
+              type="button"
+              class="pay-method"
+              [class.pay-method--active]="selectedMethod === method.id"
+              (click)="selectMethod(method.id)"
+            >
+              <span class="pay-method__radio" aria-hidden="true"></span>
+              <span class="pay-method__icon" [style.--method-accent]="method.accent">
+                <ion-icon [name]="method.icon"></ion-icon>
+              </span>
+              <span class="pay-method__body">
+                <span class="pay-method__title-row">
+                  <strong>{{ method.titleKey | translate }}</strong>
+                  @if (method.badgeKey) {
+                    <span class="pay-method__badge">{{ method.badgeKey | translate }}</span>
+                  }
+                </span>
+                <span class="pay-method__subtitle">{{ methodSubtitle(method.id) }}</span>
+              </span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <section class="pay-trust">
+        <div class="pay-trust__badges">
+          <span><ion-icon name="shield-checkmark-outline"></ion-icon>{{ 'payment.shaparakBadge' | translate }}</span>
+          <span><ion-icon name="lock-closed-outline"></ion-icon>{{ 'payment.sslBadge' | translate }}</span>
+        </div>
+        <p>{{ 'payment.secureNote' | translate }}</p>
+      </section>
+    </div>
+  }
+</ion-content>
+
+@if (hasOrder) {
+  <ion-footer class="ion-no-border pay-footer">
+    <ion-toolbar>
+      <div class="pay-footer__inner">
+        <div class="pay-footer__amount">
+          <span>{{ 'payment.payable' | translate }}</span>
+          <strong>{{ formatAmount(order!.payableTomans) }}</strong>
+        </div>
+        <ion-button expand="block" [disabled]="isProcessing" (click)="pay()">
+          @if (isProcessing) {
+            <ion-spinner name="crescent"></ion-spinner>
+            {{ 'payment.processing' | translate }}
+          } @else {
+            {{ tParams('payment.payButton', { amount: formatAmount(order!.payableTomans) }) }}
+          }
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

@@ -1,0 +1,126 @@
+.spd-content {
+  --background: var(--ion-background-color, #f8fafc);
+}
+
+.spd-gallery {
+  position: relative;
+  background: var(--ion-card-background, #fff);
+
+  img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+}
+
+.spd-badge {
+  position: absolute;
+  top: 1rem;
+  inset-inline-start: 1rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #6366f1;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.spd-body {
+  padding: 1.25rem;
+  background: var(--ion-card-background, #fff);
+  border-radius: 1.25rem 1.25rem 0 0;
+  margin-top: -1rem;
+  position: relative;
+
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ion-text-color, #1e293b);
+  }
+}
+
+.spd-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+
+  ion-icon {
+    color: #f59e0b;
+  }
+}
+
+.spd-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+
+  strong {
+    font-size: 1.35rem;
+    color: #6366f1;
+  }
+
+  s {
+    color: #94a3b8;
+  }
+}
+
+.spd-desc {
+  color: #64748b;
+  line-height: 1.7;
+  font-size: 0.95rem;
+  margin: 0 0 1.25rem;
+}
+
+.spd-qty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 0.875rem;
+
+  span:first-child {
+    font-weight: 600;
+    color: #475569;
+  }
+}
+
+.spd-qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  span {
+    min-width: 1.5rem;
+    text-align: center;
+    font-weight: 700;
+  }
+}
+
+.spd-footer ion-toolbar {
+  --background: var(--ion-toolbar-background, #fff);
+  padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
+}
+
+.spd-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.spd-empty {
+  padding: 3rem;
+  text-align: center;
+  color: #94a3b8;
+}
+
+:host-context([dir='rtl']) {
+  ion-button ion-icon[name='chevron-back'] {
+    transform: scaleX(-1);
+  }
+}
