@@ -1227,30 +1227,30 @@
 
         &.featured {
           background: var(--app-gradient-header);
-          color: white;
+          color: var(--brand-text);
 
           .tool-header .tool-icon {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(var(--brand-primary-rgb), 0.12);
 
             ion-icon {
-              color: white;
+              color: var(--ion-color-primary);
             }
           }
 
           .tool-badge {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: rgba(var(--brand-primary-rgb), 0.12);
+            color: var(--brand-text);
           }
 
           .tool-content {
             .tool-title,
             .tool-description {
-              color: white;
+              color: var(--brand-text);
             }
           }
 
           .tool-button {
-            --background: white;
+            --background: var(--brand-surface);
             --color: var(--ion-color-primary);
           }
         }

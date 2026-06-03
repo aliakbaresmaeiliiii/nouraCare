@@ -10,7 +10,7 @@
   padding: 1.25rem 1.25rem 2rem;
   text-align: center;
   background: var(--app-gradient-header, linear-gradient(135deg, #6366f1, #a855f7));
-  color: #fff;
+  color: var(--brand-text);
   border-radius: 0 0 1.75rem 1.75rem;
 }
 
@@ -27,7 +27,8 @@
 
   ion-icon {
     font-size: 2rem;
-    color: #fff;
+    color: var(--brand-text);
+  }
   }
 }
 

@@ -262,7 +262,7 @@
   
   &.active {
     --background: var(--app-gradient-header);
-    --color: #ffffff;
+    --color: var(--brand-text);
   }
 }
 

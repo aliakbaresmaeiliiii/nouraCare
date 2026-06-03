@@ -17,6 +17,8 @@ export type DoctorPublicDto = {
   contactPhone: string | null;
   consultationType: doctors_consultationType;
   fee: number | null;
+  licenseNumber: string | null;
+  isVerified: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -49,6 +51,8 @@ export class DoctorsService {
       contactPhone: row.contactPhone,
       consultationType: row.consultationType,
       fee: row.fee,
+      licenseNumber: row.licenseNumber,
+      isVerified: row.isVerified,
       createdAt: row.createdAt.toISOString(),
       updatedAt: row.updatedAt.toISOString(),
     };
@@ -69,6 +73,7 @@ export class DoctorsService {
           { specialty: { contains: q } },
           { location: { contains: q } },
           { clinicName: { contains: q } },
+          { licenseNumber: { contains: q } },
         ],
       });
     }

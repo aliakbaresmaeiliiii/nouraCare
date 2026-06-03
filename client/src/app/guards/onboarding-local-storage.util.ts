@@ -2,6 +2,55 @@
  * Keys written when the user finishes (or saves) the in-app onboarding questionnaire.
  * Unrelated keys (e.g. language) must not decide between welcome vs onboarding.
  */
+
+/** In-progress questionnaire (step + answers). Not used for routing guards. */
+export const ONBOARDING_PROGRESS_KEY = 'onboarding_progress';
+
+export interface OnboardingProgressSnapshot {
+  currentStep: number;
+  answers: Record<string, unknown>;
+  updatedAt: string;
+}
+
+export function readOnboardingProgress(): OnboardingProgressSnapshot | null {
+  if (typeof localStorage === 'undefined') {
+    return null;
+  }
+  const raw = localStorage.getItem(ONBOARDING_PROGRESS_KEY);
+  if (!raw?.trim()) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(raw) as OnboardingProgressSnapshot;
+    if (
+      !parsed ||
+      typeof parsed !== 'object' ||
+      typeof parsed.currentStep !== 'number' ||
+      !parsed.answers ||
+      typeof parsed.answers !== 'object'
+    ) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export function writeOnboardingProgress(snapshot: OnboardingProgressSnapshot): void {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+  localStorage.setItem(ONBOARDING_PROGRESS_KEY, JSON.stringify(snapshot));
+}
+
+export function clearOnboardingProgress(): void {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+  localStorage.removeItem(ONBOARDING_PROGRESS_KEY);
+}
+
 export function hasLocalNouraCareOnboardingProfile(): boolean {
   if (typeof localStorage === 'undefined') {
     return false;

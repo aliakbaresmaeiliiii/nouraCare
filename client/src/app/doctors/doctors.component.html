@@ -97,7 +97,7 @@
     <div class="doctors-list">
       @for (doctor of filteredDoctors; track trackByDoctorId($index, doctor)) {
         <article class="doctor-item" (click)="bookWithDoctor(doctor)">
-          <img class="doctor-item__avatar" [src]="getDoctorAvatar(doctor)" [alt]="doctor.fullName" loading="lazy" />
+          <app-doctor-avatar class="doctor-item__avatar" [doctor]="doctor" size="list" />
           <div class="doctor-item__main">
             <div class="doctor-item__head">
               <h3 class="doctor-item__name">{{ doctor.fullName }}</h3>
@@ -117,6 +117,7 @@
               }
             </div>
             <div class="doctor-item__tags">
+              <app-doctor-medical-code [doctor]="doctor" variant="chip" />
               <span class="doctor-item__type" [class]="(doctor.consultationType + '').toLowerCase()">
                 {{ getConsultationTypeLabel(doctor.consultationType + '') }}
               </span>

@@ -24,6 +24,8 @@ import {
   getConsultationCategory,
 } from '../shared/models/consultation-categories';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
+import { DoctorAvatarComponent } from '../shared/components/doctor-avatar/doctor-avatar.component';
+import { DoctorMedicalCodeComponent } from '../shared/components/doctor-medical-code/doctor-medical-code.component';
 import { TranslationService } from '../shared/services/translation.service';
 import { addIcons } from 'ionicons';
 import {
@@ -43,7 +45,7 @@ type DoctorSort = 'rating' | 'experience' | 'fee';
   templateUrl: './doctors.component.html',
   styleUrls: ['./doctors.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS, IonInfiniteScroll, IonInfiniteScrollContent],
+  imports: [...SHARED_STANDALONE_IMPORTS, IonInfiniteScroll, IonInfiniteScrollContent, DoctorAvatarComponent, DoctorMedicalCodeComponent],
 })
 export class DoctorsComponent implements OnInit, OnDestroy {
   readonly doctorDisplay = inject(DoctorDisplayService);
@@ -438,10 +440,6 @@ export class DoctorsComponent implements OnInit, OnDestroy {
 
   getConsultationTypeLabel(type: string): string {
     return this.doctorDisplay.getShortConsultationTypeLabel(type);
-  }
-
-  getDoctorAvatar(doctor: DoctorDto): string {
-    return this.doctorDisplay.getAvatar(doctor);
   }
 
   goBack() {

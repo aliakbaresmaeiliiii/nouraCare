@@ -39,6 +39,7 @@ export class CreateDoctorComponent implements OnInit {
       fullName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       specialty: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
       experienceYears: [0, [Validators.required, Validators.min(0), Validators.max(50)]],
+      licenseNumber: ['', [Validators.required, Validators.pattern(/^\d{5,10}$/)]],
       about: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(1000)]],
       rating: [null, [Validators.min(0), Validators.max(5)]],
       profileImageUrl: [''],
@@ -60,6 +61,7 @@ export class CreateDoctorComponent implements OnInit {
   get fullName() { return this.doctorForm.get('fullName'); }
   get specialty() { return this.doctorForm.get('specialty'); }
   get experienceYears() { return this.doctorForm.get('experienceYears'); }
+  get licenseNumber() { return this.doctorForm.get('licenseNumber'); }
   get about() { return this.doctorForm.get('about'); }
   get rating() { return this.doctorForm.get('rating'); }
   get profileImageUrl() { return this.doctorForm.get('profileImageUrl'); }
@@ -177,6 +179,7 @@ export class CreateDoctorComponent implements OnInit {
       if (field.errors['min']) return `${fieldName} must be at least ${field.errors['min'].min}`;
       if (field.errors['max']) return `${fieldName} cannot exceed ${field.errors['max'].max}`;
       if (field.errors['email']) return 'Please enter a valid email address';
+      if (field.errors['pattern']) return this.translation.translate('createDoctor.licenseNumberInvalid');
     }
     return '';
   }

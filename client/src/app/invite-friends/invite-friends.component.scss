@@ -2,22 +2,22 @@
 
 .invite-header {
   --background: var(--app-gradient-header, var(--ion-color-primary));
-  --color: #fff;
+  --color: var(--brand-text);
   --border-width: 0;
   box-shadow: var(--app-shadow-header, 0 2px 12px rgba(0, 0, 0, 0.12));
 
   ion-back-button {
-    --color: #fff;
+    --color: var(--brand-text);
   }
 
   .header-title {
     font-weight: 600;
     font-size: 1.1rem;
-    color: #fff;
+    color: var(--brand-text);
   }
 
   ion-button[fill='clear'] {
-    --color: #fff;
+    --color: var(--brand-text);
   }
 
   .history-button {
@@ -31,7 +31,7 @@
     ion-icon[slot='start'] {
       font-size: 1.15rem;
       margin-inline-end: 6px;
-      color: #fff;
+      color: var(--brand-text);
     }
   }
 

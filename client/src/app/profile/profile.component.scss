@@ -15,7 +15,7 @@
   box-shadow: 0 4px 20px rgba(var(--flo-primary-rgb), 0.3);
 
   .header-title {
-    color: #1e293b;
+    color: var(--brand-text);
     font-weight: 700;
     font-size: 22px;
     letter-spacing: -0.3px;
@@ -23,11 +23,11 @@
   }
 
   ion-back-button {
-    --color: #1e293b;
+    --color: var(--brand-text);
   }
 
   .header-action-btn {
-    --color: #1e293b;
+    --color: var(--brand-text);
     --padding-start: 8px;
     --padding-end: 8px;
     margin: 0;

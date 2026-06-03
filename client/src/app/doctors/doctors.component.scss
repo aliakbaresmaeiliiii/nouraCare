@@ -171,11 +171,7 @@
   cursor: pointer;
 
   &__avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #e2e8f0;
+    display: block;
   }
 
   &__main {

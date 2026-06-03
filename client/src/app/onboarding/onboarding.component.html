@@ -1,39 +1,93 @@
-<ion-content class="onboarding-content" [scrollY]="currentStepData.id !== 'welcome'">
-  <div
-    class="progress-container"
-    [class.progress-welcome]="currentStepData.id === 'welcome'"
-    [class.progress-hidden]="currentStepData.id === 'pregnancy_status'"
-  >
-    <div class="progress-bar" role="progressbar" [attr.aria-valuenow]="currentStep + 1" [attr.aria-valuemin]="1" [attr.aria-valuemax]="totalSteps" [attr.aria-label]="getStepProgressLabel()">
-      <div class="progress-fill" [style.width.%]="progressPercentage"></div>
-    </div>
-    <div class="progress-text">
-      <span class="progress-label">{{ getStepProgressLabel() }}</span>
-      <span class="progress-fraction" aria-hidden="true">{{ (currentStep + 1) | localNum }} / {{ totalSteps | localNum }}</span>
-    </div>
+<ion-content class="onboarding-content" [scrollY]="true">
+  <div class="onboarding-ambient" aria-hidden="true">
+    <span class="onboarding-orb onboarding-orb--primary"></span>
+    <span class="onboarding-orb onboarding-orb--secondary"></span>
+    <span class="onboarding-orb onboarding-orb--accent"></span>
   </div>
 
+  @if (currentStepData.id !== 'welcome') {
+    <header class="onboarding-topbar">
+      <button
+        type="button"
+        class="topbar-back"
+        (click)="previousStep()"
+        [disabled]="currentStep === 0 || isFinishing"
+        [attr.aria-label]="'onboarding.nav.back' | translate"
+      >
+        <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
+      </button>
+
+      <div class="topbar-progress" [attr.aria-label]="getStepProgressLabel()">
+        <div class="step-dots" role="list">
+          @for (i of stepDotIndices; track i) {
+            <span
+              class="step-dot"
+              role="listitem"
+              [class.step-dot--complete]="isStepDotComplete(i)"
+              [class.step-dot--active]="isStepDotActive(i)"
+            ></span>
+          }
+        </div>
+        <p class="topbar-caption">
+          <span class="topbar-caption__label">{{ getStepProgressLabel() }}</span>
+          <span class="topbar-caption__fraction" aria-hidden="true">
+            {{ (currentStep + 1) | localNum }} / {{ totalSteps | localNum }}
+          </span>
+        </p>
+      </div>
+
+      <span class="topbar-spacer" aria-hidden="true"></span>
+    </header>
+  }
+
   <div
-    class="step-container"
-    [class.step-welcome]="currentStepData.id === 'welcome'"
-    [class.step-journey]="currentStepData.id === 'pregnancy_status'"
+    class="onboarding-shell"
+    [class.onboarding-shell--welcome]="currentStepData.id === 'welcome'"
+    [class.onboarding-shell--result]="isPersonalizedResultStep"
+    [attr.data-step]="currentStepData.id"
   >
     @if (currentStepData.id === 'welcome') {
-      <div class="welcome-hero">
-        <div class="welcome-brand-wrap">
+      <section class="welcome-screen">
+        <div class="welcome-glow" aria-hidden="true"></div>
+        <div class="welcome-brand-ring">
           <img
             src="assets/branding/AppIcon-welcome.png"
             [attr.alt]="'onboarding.welcome.brandAlt' | translate"
-            width="84"
-            height="84"
+            width="96"
+            height="96"
             class="welcome-brand-icon"
             decoding="async"
           />
         </div>
+
+        <p class="welcome-eyebrow">NouraCare</p>
         <h1 class="welcome-title">{{ getStepTitle() }}</h1>
         <p class="welcome-lead">{{ getStepSubtitle() }}</p>
         <p class="welcome-body">{{ getStepQuestion() }}</p>
+
+        <ul class="welcome-features" aria-label="Features">
+          <li class="welcome-feature">
+            <span class="welcome-feature__icon" aria-hidden="true">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </span>
+            <span>{{ 'onboarding.welcome.feature1' | translate }}</span>
+          </li>
+          <li class="welcome-feature">
+            <span class="welcome-feature__icon" aria-hidden="true">
+              <ion-icon name="notifications-outline"></ion-icon>
+            </span>
+            <span>{{ 'onboarding.welcome.feature2' | translate }}</span>
+          </li>
+          <li class="welcome-feature">
+            <span class="welcome-feature__icon" aria-hidden="true">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+            </span>
+            <span>{{ 'onboarding.welcome.feature3' | translate }}</span>
+          </li>
+        </ul>
+
         <app-button
+          class="welcome-cta"
           size="large"
           [disabled]="isFinishing"
           (buttonClick)="startFromWelcome()"
@@ -41,254 +95,286 @@
           {{ 'onboarding.welcome.getStarted' | translate }}
         </app-button>
         <p class="welcome-footnote">{{ 'onboarding.welcome.footnote' | translate }}</p>
-      </div>
-    } @else if (!isPersonalizedResultStep) {
-      <div class="step-header" [class.step-header--journey]="currentStepData.id === 'pregnancy_status'">
-        <h1 class="step-title">{{ getStepTitle() }}</h1>
-        <p class="step-subtitle">{{ getStepSubtitle() }}</p>
-      </div>
-    }
-
-    @if (currentStepData.id !== 'welcome') {
-    <div class="step-content">
-      <div class="question-container">
-        @if (!isPersonalizedResultStep && currentStepData.id !== 'welcome' && currentStepData.id !== 'pregnancy_status') {
-          <h2 class="question-text">{{ getStepQuestion() }}</h2>
-        }
-
-        @if (currentStepData.type === 'radio' && currentStepData.id === 'pregnancy_status') {
-          <p class="journey-intro">{{ getStepQuestion() }}</p>
-          <div class="journey-cards" role="radiogroup" [attr.aria-label]="getStepTitle()">
-            @for (option of currentStepData.options; track option.value) {
-              <button
-                type="button"
-                class="journey-card"
-                [class.journey-card--mint]="option.cardTone === 'mint'"
-                [class.journey-card--lavender]="option.cardTone === 'lavender'"
-                [class.journey-card--cream]="option.cardTone === 'cream'"
-                [class.journey-card--selected]="answers[currentStepData.id] === option.value"
-                (click)="selectOption(currentStepData.id, option.value)"
-                [attr.aria-checked]="answers[currentStepData.id] === option.value"
-                role="radio"
-              >
-                <span class="journey-card__label">{{ getOptionLabel(option) }}</span>
-                @if (option.imageSrc) {
-                  <span class="journey-card__badge">
-                    <img [src]="option.imageSrc" alt="" width="56" height="56" class="journey-card__img" decoding="async" />
-                  </span>
-                }
-              </button>
-            }
-          </div>
-          <p class="journey-footnote">{{ 'onboarding.pregnancyStatus.footnote' | translate }}</p>
-        }
-
-        @if (currentStepData.type === 'radio' && currentStepData.id !== 'welcome' && currentStepData.id !== 'pregnancy_status') {
-          <div class="options-container">
-            @for (option of currentStepData.options; track option.value) {
-              <button
-                type="button"
-                class="option-card"
-                [class.selected]="answers[currentStepData.id] === option.value"
-                (click)="selectOption(currentStepData.id, option.value)"
-                [attr.aria-pressed]="answers[currentStepData.id] === option.value"
-              >
-                @if (option.icon) {
-                  <span class="option-icon" aria-hidden="true">{{ option.icon }}</span>
-                }
-                <span class="option-label">{{ getOptionLabel(option) }}</span>
-                @if (answers[currentStepData.id] === option.value) {
-                  <ion-icon name="checkmark-circle" class="check-icon" aria-hidden="true"></ion-icon>
-                }
-              </button>
-            }
-          </div>
-        }
-
-        @if (currentStepData.type === 'notify') {
-          <div class="notify-step">
-            <ion-item lines="none" class="notify-toggle-item">
-              <ion-label class="notify-label">{{ 'onboarding.notifications.toggleLabel' | translate }}</ion-label>
-              <ion-toggle
-                slot="end"
-                [checked]="answers['notifications'] === 'yes'"
-                (ionChange)="onNotificationToggle($event.detail.checked === true)"
-              ></ion-toggle>
-            </ion-item>
-            <p class="notify-hint">{{ 'onboarding.notifications.hint' | translate }}</p>
-          </div>
-        }
-
-        @if (currentStepData.type === 'date') {
-          <div class="input-container">
-            <p class="date-picker-hint">{{ 'onboarding.datePicker.hint' | translate }}</p>
-            @if (currentStepData.id === 'last_period') {
-              <ion-datetime-button datetime="onboarding-last-period"></ion-datetime-button>
-              <ion-modal [keepContentsMounted]="true">
-                <ng-template>
-                  <ion-datetime
-                    id="onboarding-last-period"
-                    presentation="date"
-                    [value]="answers[currentStepData.id]"
-                    [max]="getMaxDate()"
-                    [highlightedDates]="lastPeriodDatetimeHighlights"
-                    (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
-                  ></ion-datetime>
-                </ng-template>
-              </ion-modal>
-              <p class="date-picker-cycle-legend">
-                <span class="date-picker-cycle-legend__item">
-                  <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--period"></span>
-                  {{ 'onboarding.datePicker.legend.period' | translate }}
-                </span>
-                <span class="date-picker-cycle-legend__item">
-                  <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--ovu"></span>
-                  {{ 'onboarding.datePicker.legend.ovulation' | translate }}
-                </span>
-              </p>
-            } @else if (currentStepData.id === 'baby_birth_date') {
-              <ion-datetime-button datetime="onboarding-baby-birth"></ion-datetime-button>
-              <ion-modal [keepContentsMounted]="true">
-                <ng-template>
-                  <ion-datetime
-                    id="onboarding-baby-birth"
-                    presentation="date"
-                    [value]="answers[currentStepData.id]"
-                    [min]="getBabyBirthMinIso()"
-                    [max]="getBabyBirthMaxIso()"
-                    (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
-                  ></ion-datetime>
-                </ng-template>
-              </ion-modal>
-            }
-
-            @if (
-              currentStepData.id === 'last_period' &&
-              answers[currentStepData.id] &&
-              !isValidLastPeriodDate(answers[currentStepData.id])
-            ) {
-              <div class="validation-error">
-                <ion-icon name="warning-outline"></ion-icon>
-                {{
-                  getLastPeriodValidationMessage() ||
-                    ('onboarding.validation.adjustDate' | translate)
-                }}
-              </div>
-            }
-
-            @if (
-              currentStepData.id === 'baby_birth_date' &&
-              answers[currentStepData.id] &&
-              !isValidBabyBirthDate(answers[currentStepData.id])
-            ) {
-              <div class="validation-error">
-                <ion-icon name="warning-outline"></ion-icon>
-                {{
-                  getBabyBirthValidationMessage() ||
-                    ('onboarding.validation.adjustDate' | translate)
-                }}
-              </div>
-            }
-          </div>
-        }
-
-        @if (currentStepData.type === 'select') {
-          <div class="select-container">
-            <ion-select
-              [value]="answers[currentStepData.id]"
-              (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
-              [placeholder]="currentStepData.placeholder || ('onboarding.datePicker.selectOption' | translate)"
-            >
-              @for (option of currentStepData.options; track option.value) {
-                <ion-select-option [value]="option.value">{{
-                  getOptionLabel(option)
-                }}</ion-select-option>
-              }
-            </ion-select>
-          </div>
-        }
-
-        @if (currentStepData.type === 'number') {
-          <div class="input-container">
-            <ion-input
-              type="number"
-              [value]="answers[currentStepData.id]"
-              [placeholder]="currentStepData.placeholder"
-              [min]="currentStepData.min"
-              [max]="currentStepData.max"
-              (ionInput)="selectOption(currentStepData.id, $event.detail.value)"
-            ></ion-input>
-          </div>
-        }
-
-        @if (currentStepData.type === 'result') {
-          <div class="result-panel">
-            <div class="result-success" aria-hidden="true">
-              <ion-icon name="checkmark-circle" class="result-success-icon"></ion-icon>
+      </section>
+    } @else {
+      <section class="step-screen">
+        @if (!isPersonalizedResultStep) {
+          <header class="step-hero">
+            <span class="step-hero__icon" aria-hidden="true">
+              <ion-icon [name]="getStepIcon()"></ion-icon>
+            </span>
+            <div class="step-hero__copy">
+              <h1 class="step-hero__title">{{ getStepTitle() }}</h1>
+              <p class="step-hero__subtitle">{{ getStepSubtitle() }}</p>
             </div>
-            <h1 class="result-screen-title">{{ getStepTitle() }}</h1>
-            <p class="result-headline">{{ getResultHeadline() }}</p>
-            <p class="result-subcopy">{{ getResultSubcopy() }}</p>
-            <ul class="result-list">
-              @for (row of getResultBullets(); track row.label) {
-                <li class="result-row">
-                  <span class="result-label">{{ row.label }}</span>
-                  <span class="result-value">{{ row.value | localNum }}</span>
-                </li>
-              }
-            </ul>
-          </div>
-        }
-      </div>
-    </div>
-    }
-
-    @if (currentStepData.id !== 'welcome') {
-      <div class="navigation-container">
-        <div class="nav-buttons">
-          <ion-button
-            fill="clear"
-            (click)="previousStep()"
-            [disabled]="currentStep === 0 || isFinishing"
-          >
-            <ion-icon name="chevron-back-outline" slot="start"></ion-icon>
-            {{ 'onboarding.nav.back' | translate }}
-          </ion-button>
-
-          <div class="nav-right">
-            @if (!currentStepData.required && currentStep < totalSteps - 1) {
-              <ion-button fill="clear" (click)="skipStep()" [disabled]="isFinishing">
-                {{ 'onboarding.nav.skipForNow' | translate }}
-              </ion-button>
+            @if (!currentStepData.required) {
+              <span class="step-hero__badge">{{ 'onboarding.ui.optionalBadge' | translate }}</span>
             }
+          </header>
+        }
 
-            <app-button
-              color="secondary"
-              [disabled]="!canProceed || isFinishing"
-              (buttonClick)="nextStep()"
-            >
-              @if (isFinishing) {
-                {{ 'onboarding.nav.saving' | translate }}
-              } @else if (currentStepData.id === 'personalized_result') {
-                @if (authService.getAccessToken()) {
-                  {{ 'onboarding.nav.goToHome' | translate }}
-                } @else {
-                  {{ 'onboarding.nav.createAccount' | translate }}
-                }
-              } @else {
-                @if (currentStepData.id === 'pregnancy_status') {
-                  {{ 'onboarding.nav.next' | translate }}
-                } @else {
-                  {{ 'onboarding.nav.continue' | translate }}
-                }
-                @if (currentStep < totalSteps - 1) {
-                  <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-                }
+        <div class="step-panel">
+          @if (currentStepData.type === 'radio' && currentStepData.id === 'pregnancy_status') {
+            <p class="step-lead">{{ getStepQuestion() }}</p>
+            <div class="journey-grid" role="radiogroup" [attr.aria-label]="getStepTitle()">
+              @for (option of currentStepData.options; track option.value) {
+                <button
+                  type="button"
+                  class="journey-tile"
+                  [class.journey-tile--mint]="option.cardTone === 'mint'"
+                  [class.journey-tile--lavender]="option.cardTone === 'lavender'"
+                  [class.journey-tile--cream]="option.cardTone === 'cream'"
+                  [class.journey-tile--selected]="answers[currentStepData.id] === option.value"
+                  (click)="selectOption(currentStepData.id, option.value)"
+                  [attr.aria-checked]="answers[currentStepData.id] === option.value"
+                  role="radio"
+                >
+                  <span class="journey-tile__media" aria-hidden="true">
+                    @if (option.imageSrc) {
+                      <img
+                        [src]="option.imageSrc"
+                        alt=""
+                        width="72"
+                        height="72"
+                        class="journey-tile__img"
+                        decoding="async"
+                      />
+                    }
+                  </span>
+                  <span class="journey-tile__body">
+                    <span class="journey-tile__title">{{ getOptionLabel(option) }}</span>
+                    <span class="journey-tile__desc">{{ getJourneyDescKey(option.value) | translate }}</span>
+                  </span>
+                  <span class="journey-tile__check" aria-hidden="true">
+                    <ion-icon name="checkmark"></ion-icon>
+                  </span>
+                </button>
               }
-            </app-button>
-          </div>
+            </div>
+            <p class="step-footnote">{{ 'onboarding.pregnancyStatus.footnote' | translate }}</p>
+          }
+
+          @if (currentStepData.type === 'date') {
+            <p class="step-lead">{{ getStepQuestion() }}</p>
+            <div class="input-card input-card--date">
+              <div
+                class="date-preview"
+                [class.date-preview--empty]="!getFormattedAnswerDate(currentStepData.id)"
+              >
+                <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
+                <span>
+                  {{
+                    getFormattedAnswerDate(currentStepData.id) ||
+                      ('onboarding.ui.noDateSelected' | translate)
+                  }}
+                </span>
+              </div>
+
+              @if (currentStepData.id === 'last_period') {
+                <ion-datetime-button datetime="onboarding-last-period"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="onboarding-last-period"
+                      presentation="date"
+                      [value]="answers[currentStepData.id]"
+                      [max]="getMaxDate()"
+                      [highlightedDates]="lastPeriodDatetimeHighlights"
+                      (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+                <p class="date-picker-hint">{{ 'onboarding.datePicker.hint' | translate }}</p>
+                <div class="date-picker-cycle-legend">
+                  <span class="date-picker-cycle-legend__item">
+                    <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--period"></span>
+                    {{ 'onboarding.datePicker.legend.period' | translate }}
+                  </span>
+                  <span class="date-picker-cycle-legend__item">
+                    <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--ovu"></span>
+                    {{ 'onboarding.datePicker.legend.ovulation' | translate }}
+                  </span>
+                </div>
+              } @else if (currentStepData.id === 'baby_birth_date') {
+                <ion-datetime-button datetime="onboarding-baby-birth"></ion-datetime-button>
+                <ion-modal [keepContentsMounted]="true">
+                  <ng-template>
+                    <ion-datetime
+                      id="onboarding-baby-birth"
+                      presentation="date"
+                      [value]="answers[currentStepData.id]"
+                      [min]="getBabyBirthMinIso()"
+                      [max]="getBabyBirthMaxIso()"
+                      (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
+                    ></ion-datetime>
+                  </ng-template>
+                </ion-modal>
+                <p class="date-picker-hint">{{ 'onboarding.datePicker.hint' | translate }}</p>
+              }
+
+              @if (
+                currentStepData.id === 'last_period' &&
+                answers[currentStepData.id] &&
+                !isValidLastPeriodDate(answers[currentStepData.id])
+              ) {
+                <div class="validation-error">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  {{
+                    getLastPeriodValidationMessage() ||
+                      ('onboarding.validation.adjustDate' | translate)
+                  }}
+                </div>
+              }
+
+              @if (
+                currentStepData.id === 'baby_birth_date' &&
+                answers[currentStepData.id] &&
+                !isValidBabyBirthDate(answers[currentStepData.id])
+              ) {
+                <div class="validation-error">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  {{
+                    getBabyBirthValidationMessage() ||
+                      ('onboarding.validation.adjustDate' | translate)
+                  }}
+                </div>
+              }
+            </div>
+          }
+
+          @if (currentStepData.type === 'number') {
+            <p class="step-lead">{{ getStepQuestion() }}</p>
+            <div class="input-card input-card--number">
+              <div class="week-stepper" role="group" [attr.aria-label]="getStepTitle()">
+                <button
+                  type="button"
+                  class="week-stepper__btn"
+                  (click)="adjustPregnancyWeek(-1)"
+                  [disabled]="!canDecrementPregnancyWeek()"
+                  aria-label="-1"
+                >
+                  <ion-icon name="remove-outline" aria-hidden="true"></ion-icon>
+                </button>
+                <div class="week-stepper__display">
+                  <span class="week-stepper__value">
+                    {{ answers['pregnancy_week'] ? (answers['pregnancy_week'] | localNum) : '—' }}
+                  </span>
+                  <span class="week-stepper__label">{{ 'onboarding.ui.weeksLabel' | translate }}</span>
+                </div>
+                <button
+                  type="button"
+                  class="week-stepper__btn"
+                  (click)="adjustPregnancyWeek(1)"
+                  [disabled]="!canIncrementPregnancyWeek()"
+                  aria-label="+1"
+                >
+                  <ion-icon name="add-outline" aria-hidden="true"></ion-icon>
+                </button>
+              </div>
+              <ion-input
+                class="week-fallback-input"
+                type="number"
+                inputmode="numeric"
+                [value]="answers[currentStepData.id]"
+                [placeholder]="currentStepData.placeholder"
+                [min]="currentStepData.min"
+                [max]="currentStepData.max"
+                (ionInput)="selectOption(currentStepData.id, $event.detail.value)"
+              ></ion-input>
+            </div>
+          }
+
+          @if (currentStepData.type === 'notify') {
+            <p class="step-lead">{{ getStepQuestion() }}</p>
+            <div class="notify-card">
+              <div class="notify-card__header">
+                <span class="notify-card__icon" aria-hidden="true">
+                  <ion-icon name="notifications-outline"></ion-icon>
+                </span>
+                <div>
+                  <p class="notify-card__title">{{ 'onboarding.notifications.toggleLabel' | translate }}</p>
+                  <p class="notify-card__hint">{{ 'onboarding.notifications.hint' | translate }}</p>
+                </div>
+                <ion-toggle
+                  class="notify-card__toggle"
+                  [checked]="answers['notifications'] === 'yes'"
+                  (ionChange)="onNotificationToggle($event.detail.checked === true)"
+                ></ion-toggle>
+              </div>
+              <ul class="notify-benefits">
+                <li>
+                  <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+                  {{ 'onboarding.notifications.benefit1' | translate }}
+                </li>
+                <li>
+                  <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+                  {{ 'onboarding.notifications.benefit2' | translate }}
+                </li>
+              </ul>
+            </div>
+          }
+
+          @if (currentStepData.type === 'result') {
+            <div class="result-screen">
+              <div class="result-celebration" aria-hidden="true">
+                <span class="result-celebration__ring"></span>
+                <ion-icon name="checkmark-circle" class="result-celebration__icon"></ion-icon>
+              </div>
+              <h1 class="result-screen__title">{{ getStepTitle() }}</h1>
+              <p class="result-screen__subtitle">{{ getStepSubtitle() }}</p>
+              <p class="result-headline">{{ getResultHeadline() }}</p>
+              <p class="result-subcopy">{{ getResultSubcopy() }}</p>
+
+              @if (getResultBullets().length) {
+                <div class="result-stats">
+                  @for (row of getResultBullets(); track row.label) {
+                    <article class="result-stat">
+                      <span class="result-stat__label">{{ row.label }}</span>
+                      <span class="result-stat__value">{{ row.value | localNum }}</span>
+                    </article>
+                  }
+                </div>
+              }
+            </div>
+          }
         </div>
-      </div>
+      </section>
     }
   </div>
+
+  @if (currentStepData.id !== 'welcome') {
+    <footer class="onboarding-dock">
+      <div class="dock-inner">
+        @if (!currentStepData.required && currentStep < totalSteps - 1) {
+          <button type="button" class="dock-skip" (click)="skipStep()" [disabled]="isFinishing">
+            {{ 'onboarding.nav.skipForNow' | translate }}
+          </button>
+        }
+
+        <app-button
+          class="dock-primary"
+          color="secondary"
+          size="large"
+          [disabled]="!canProceed || isFinishing"
+          (buttonClick)="nextStep()"
+        >
+          @if (isFinishing) {
+            {{ 'onboarding.nav.saving' | translate }}
+          } @else if (currentStepData.id === 'personalized_result') {
+            @if (authService.getAccessToken()) {
+              {{ 'onboarding.nav.goToHome' | translate }}
+            } @else {
+              {{ 'onboarding.nav.createAccount' | translate }}
+            }
+          } @else {
+            {{
+              currentStepData.id === 'pregnancy_status'
+                ? ('onboarding.nav.next' | translate)
+                : ('onboarding.nav.continue' | translate)
+            }}
+          }
+        </app-button>
+      </div>
+    </footer>
+  }
 </ion-content>

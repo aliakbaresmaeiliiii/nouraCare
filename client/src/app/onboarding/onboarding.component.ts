@@ -34,6 +34,11 @@ import {
 } from '../shared/utils/ion-datetime-today-highlight.util';
 import { TranslationService } from '../shared/services/translation.service';
 import { LanguageService } from '../shared/services/language.service';
+import {
+  clearOnboardingProgress,
+  readOnboardingProgress,
+  writeOnboardingProgress,
+} from '../guards/onboarding-local-storage.util';
 
 type JourneyCardTone = 'mint' | 'lavender' | 'cream';
 
@@ -205,16 +210,62 @@ export class OnboardingComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.answers = {
-      cycle_length: 28,
-      period_length: 5,
-      notifications: 'no',
-    };
+    this.answers = this.defaultAnswers();
+    this.restoreLocalProgress();
 
     this.sessionId = this.onboardingService.getSessionId();
     if (this.sessionId) {
       this.loadExistingOnboardingData();
     }
+  }
+
+  private defaultAnswers(): { [key: string]: any } {
+    return {
+      cycle_length: 28,
+      period_length: 5,
+      notifications: 'no',
+    };
+  }
+
+  /** Restore step + answers from localStorage (works offline; separate from completed profile). */
+  private restoreLocalProgress(): void {
+    const snapshot = readOnboardingProgress();
+    if (!snapshot) {
+      return;
+    }
+    this.answers = { ...this.defaultAnswers(), ...snapshot.answers };
+    const maxStep = Math.max(0, this.totalSteps - 1);
+    this.currentStep = Math.max(0, Math.min(snapshot.currentStep, maxStep));
+    if (this.answers['pregnancy_status'] === 'pregnant' && this.answers['last_period']) {
+      this.syncPregnancyWeekFromLmp();
+    }
+  }
+
+  private persistLocalProgress(): void {
+    writeOnboardingProgress({
+      currentStep: this.currentStep,
+      answers: { ...this.answers },
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  /** When only server payload exists, pick the first incomplete step. */
+  private inferStepIndexFromAnswers(): number {
+    const order = this.stepOrder();
+    if (!this.answers['welcome']) {
+      return 0;
+    }
+    for (let i = 1; i < order.length; i++) {
+      const stepId = order[i];
+      if (stepId === 'notifications' || stepId === 'personalized_result') {
+        continue;
+      }
+      const value = this.answers[stepId];
+      if (value === undefined || value === null || value === '') {
+        return i;
+      }
+    }
+    return Math.max(0, order.indexOf('notifications'));
   }
 
   get currentStepData(): OnboardingStep {
@@ -423,10 +474,77 @@ export class OnboardingComponent implements OnInit {
 
   onNotificationToggle(enabled: boolean): void {
     this.answers['notifications'] = enabled ? 'yes' : 'no';
+    this.persistLocalProgress();
   }
 
   get progressPercentage(): number {
     return ((this.currentStep + 1) / this.totalSteps) * 100;
+  }
+
+  /** Ionic icon for the active step (visual anchor in the hero). */
+  getStepIcon(stepId: string = this.currentStepData.id): string {
+    const icons: Record<string, string> = {
+      welcome: 'sparkles-outline',
+      pregnancy_status: 'heart-outline',
+      last_period: 'calendar-outline',
+      pregnancy_week: 'body-outline',
+      baby_birth_date: 'happy-outline',
+      notifications: 'notifications-outline',
+      personalized_result: 'checkmark-done-outline',
+    };
+    return icons[stepId] ?? 'ellipse-outline';
+  }
+
+  getJourneyDescKey(value: string): string {
+    return `onboarding.pregnancyStatus.option.${value}.desc`;
+  }
+
+  getFormattedAnswerDate(stepId: string): string | null {
+    const raw = this.answers[stepId];
+    if (!raw) {
+      return null;
+    }
+    const iso = normalizeLmpInput(raw);
+    return iso ? this.formatMediumDate(iso) : null;
+  }
+
+  adjustPregnancyWeek(delta: number): void {
+    const min = this.stepById['pregnancy_week'].min ?? 4;
+    const max = this.stepById['pregnancy_week'].max ?? 40;
+    const current = Number(this.answers['pregnancy_week']);
+    const base = Number.isFinite(current) ? current : min;
+    const next = Math.min(max, Math.max(min, base + delta));
+    this.selectOption('pregnancy_week', next);
+  }
+
+  canDecrementPregnancyWeek(): boolean {
+    const n = Number(this.answers['pregnancy_week']);
+    if (!Number.isFinite(n)) {
+      return false;
+    }
+    return n > (this.stepById['pregnancy_week'].min ?? 4);
+  }
+
+  canIncrementPregnancyWeek(): boolean {
+    const n = Number(this.answers['pregnancy_week']);
+    const max = this.stepById['pregnancy_week'].max ?? 40;
+    if (!Number.isFinite(n)) {
+      return true;
+    }
+    return n < max;
+  }
+
+  /** Indices for segmented progress dots. */
+  get stepDotIndices(): number[] {
+    return Array.from({ length: this.totalSteps }, (_, i) => i);
+  }
+
+  isStepDotComplete(index: number): boolean {
+    return index < this.currentStep;
+  }
+
+  isStepDotActive(index: number): boolean {
+    return index === this.currentStep;
   }
 
   /** Short label for the progress line so steps feel purposeful, not bureaucratic. */
@@ -486,6 +604,7 @@ export class OnboardingComponent implements OnInit {
         delete this.answers['baby_birth_date'];
       }
       this.answers[stepId] = value;
+      this.persistLocalProgress();
       return;
     }
 
@@ -493,6 +612,7 @@ export class OnboardingComponent implements OnInit {
       if (value === '' || value == null) {
         delete this.answers['pregnancy_week'];
         delete this.answers['last_period'];
+        this.persistLocalProgress();
         return;
       }
       const n = Math.floor(Number(value));
@@ -501,27 +621,32 @@ export class OnboardingComponent implements OnInit {
       if (!Number.isFinite(n) || n < min || n > max) {
         delete this.answers['pregnancy_week'];
         delete this.answers['last_period'];
+        this.persistLocalProgress();
         return;
       }
       this.answers['pregnancy_week'] = n;
       const lmp = lmpIsoFromGestationalWeek1Based(n);
       if (!lmp || !this.isValidLastPeriodDate(lmp)) {
         delete this.answers['last_period'];
+        this.persistLocalProgress();
         return;
       }
       this.answers['last_period'] = lmp;
       this.syncPregnancyWeekFromLmp();
+      this.persistLocalProgress();
       return;
     }
 
     if (stepId === 'last_period') {
       if (value == null || value === '') {
         delete this.answers[stepId];
+        this.persistLocalProgress();
         return;
       }
       const normalized = normalizeLmpInput(value);
       if (!normalized) {
         delete this.answers[stepId];
+        this.persistLocalProgress();
         return;
       }
       if (!this.isValidLastPeriodDate(normalized)) {
@@ -529,17 +654,20 @@ export class OnboardingComponent implements OnInit {
         return;
       }
       this.answers[stepId] = normalized;
+      this.persistLocalProgress();
       return;
     }
 
     if (stepId === 'baby_birth_date') {
       if (value == null || value === '') {
         delete this.answers[stepId];
+        this.persistLocalProgress();
         return;
       }
       const normalized = normalizeLmpInput(value);
       if (!normalized) {
         delete this.answers[stepId];
+        this.persistLocalProgress();
         return;
       }
       if (!this.isValidBabyBirthDate(normalized)) {
@@ -547,10 +675,12 @@ export class OnboardingComponent implements OnInit {
         return;
       }
       this.answers[stepId] = normalized;
+      this.persistLocalProgress();
       return;
     }
 
     this.answers[stepId] = value;
+    this.persistLocalProgress();
   }
 
   getMaxDate(): string {
@@ -647,6 +777,7 @@ export class OnboardingComponent implements OnInit {
   previousStep() {
     if (this.currentStep > 0) {
       this.currentStep--;
+      this.persistLocalProgress();
     }
   }
 
@@ -671,27 +802,7 @@ export class OnboardingComponent implements OnInit {
     this.onboardingService.getOnboardingData(this.sessionId).subscribe({
       next: (response) => {
         if (response.data) {
-          let healthGoals: unknown[] = [];
-          try {
-            const parsed = response.data.health_goals
-              ? JSON.parse(response.data.health_goals)
-              : [];
-            healthGoals = Array.isArray(parsed) ? parsed : [];
-          } catch {
-            healthGoals = [];
-          }
-          const lmp = normalizeLmpInput(response.data.lmp_date ?? response.data.last_period);
-          this.answers = {
-            pregnancy_status: response.data.pregnancy_status,
-            last_period: lmp ?? undefined,
-            cycle_length: response.data.cycle_length,
-            period_length: response.data.period_length,
-            health_goals: healthGoals,
-            notifications: response.data.notifications || 'no',
-          };
-          if (this.answers['pregnancy_status'] === 'pregnant' && this.answers['last_period']) {
-            this.syncPregnancyWeekFromLmp();
-          }
+          this.applyServerOnboardingData(response.data);
         }
       },
       error: () => {
@@ -701,22 +812,72 @@ export class OnboardingComponent implements OnInit {
     });
   }
 
+  private applyServerOnboardingData(data: OnboardingDataDto): void {
+    let healthGoals: unknown[] = [];
+    try {
+      const parsed = data.health_goals ? JSON.parse(data.health_goals) : [];
+      healthGoals = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      healthGoals = [];
+    }
+    const lmp = normalizeLmpInput(data.lmp_date ?? data.last_period);
+    const serverAnswers: { [key: string]: unknown } = {
+      pregnancy_status: data.pregnancy_status,
+      last_period: lmp ?? undefined,
+      cycle_length: data.cycle_length,
+      period_length: data.period_length,
+      health_goals: healthGoals,
+      notifications: data.notifications || 'no',
+    };
+    if (data.pregnancy_week != null) {
+      serverAnswers['pregnancy_week'] = data.pregnancy_week;
+    }
+
+    const local = readOnboardingProgress();
+    if (local) {
+      this.answers = {
+        ...this.defaultAnswers(),
+        ...serverAnswers,
+        ...local.answers,
+      };
+      const maxStep = Math.max(0, this.totalSteps - 1);
+      this.currentStep = Math.max(0, Math.min(local.currentStep, maxStep));
+    } else {
+      this.answers = { ...this.defaultAnswers(), ...serverAnswers };
+      if (this.answers['welcome']) {
+        this.currentStep = this.inferStepIndexFromAnswers();
+      }
+      this.persistLocalProgress();
+    }
+
+    if (this.answers['pregnancy_status'] === 'pregnant' && this.answers['last_period']) {
+      this.syncPregnancyWeekFromLmp();
+    }
+  }
+
   private buildOnboardingDto(): OnboardingDataDto {
     const lmp = this.getEffectiveLmpIsoForStorage();
     const pregnant = String(this.answers['pregnancy_status'] ?? '').toLowerCase() === 'pregnant';
+    const pregnancyWeek =
+      pregnant && this.answers['pregnancy_week'] != null
+        ? Number(this.answers['pregnancy_week'])
+        : pregnant && lmp
+          ? gestationalWeekFromLmp(lmp)
+          : undefined;
     return {
       pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
       lmp_date: lmp,
       last_period: lmp,
       cycle_length: this.answers['cycle_length'] || 28,
       period_length: this.answers['period_length'] || 5,
-      pregnancy_week: pregnant ? undefined : this.answers['pregnancy_week'] || undefined,
+      pregnancy_week: pregnancyWeek,
       health_goals: JSON.stringify(this.answers['health_goals'] || []),
       notifications: this.answers['notifications'] || 'no',
     };
   }
 
   private saveOnboardingProgress() {
+    this.persistLocalProgress();
     if (this.isSaving) return;
 
     this.isSaving = true;
@@ -730,7 +891,6 @@ export class OnboardingComponent implements OnInit {
       },
       error: () => {
         this.isSaving = false;
-        this.showErrorAlert('Failed to save your progress. Please try again.');
       },
     });
   }
@@ -743,43 +903,47 @@ export class OnboardingComponent implements OnInit {
     this.saveAnswers();
 
     this.isFinishing = true;
-    const onboardingData = this.buildOnboardingDto();
+    const token = this.authService.getAccessToken();
 
-    this.onboardingService.saveOnboardingData(onboardingData).subscribe({
-      next: (response) => {
-        this.sessionId = response.sessionId;
-        this.onboardingService.saveSessionId(this.sessionId);
-        const token = this.authService.getAccessToken();
-        if (token) {
-          this.onboardingService.initializeReproductiveState(reproductivePayload).subscribe({
-            next: (dashboard) => {
-              const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
-                dashboard,
-                null,
-              );
-              this.homeJourneyBridge.pushJourneyStateFromWeekDetail(state);
-              this.isFinishing = false;
-              this.router.navigate(['/tabs/home']);
-            },
-            error: () => {
-              this.isFinishing = false;
-              this.showErrorAlert(
-                'Failed to initialize your health profile. Please try again.',
-              );
-            },
-          });
-          return;
-        }
-        this.isFinishing = false;
+    const finishLocally = () => {
+      this.isFinishing = false;
+      if (token) {
+        this.router.navigate(['/tabs/home']);
+      } else {
         this.router.navigate(['/auth/sign-in'], {
           queryParams: { tab: 'register' },
         });
+      }
+    };
+
+    this.onboardingService.saveOnboardingData(this.buildOnboardingDto()).subscribe({
+      next: (response) => {
+        this.sessionId = response.sessionId;
+        this.onboardingService.saveSessionId(this.sessionId);
       },
       error: () => {
-        this.isFinishing = false;
-        this.showErrorAlert('Failed to save your profile. Please try again.');
+        /* Local profile already saved in saveAnswers(). */
       },
     });
+
+    if (token) {
+      this.onboardingService.initializeReproductiveState(reproductivePayload).subscribe({
+        next: (dashboard) => {
+          const state = this.homeReproUi.synchronizeFromDashboardAndJourney(
+            dashboard,
+            null,
+          );
+          this.homeJourneyBridge.pushJourneyStateFromWeekDetail(state);
+          finishLocally();
+        },
+        error: () => {
+          finishLocally();
+        },
+      });
+      return;
+    }
+
+    finishLocally();
   }
 
   private toReproductivePayload(): InitializeReproductiveStateDto {
@@ -879,6 +1043,7 @@ export class OnboardingComponent implements OnInit {
     };
     localStorage.setItem('onboarding_data', JSON.stringify(onboardingData));
 
+    clearOnboardingProgress();
     this.onboardingStateService.markOnboardingCompleted();
     this.firstWeekPlan.ensurePlanStarted();
   }

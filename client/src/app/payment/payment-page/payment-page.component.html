@@ -26,16 +26,18 @@
       @if (order!.consultation) {
         <section class="pay-card pay-consultation">
           <div class="pay-consultation__avatar">
-            @if (order!.consultation!.avatarUrl) {
-              <img [src]="order!.consultation!.avatarUrl" [alt]="order!.consultation!.doctorName" />
-            } @else {
-              <ion-icon name="person-outline"></ion-icon>
-            }
+            <img [src]="order!.consultation!.avatarUrl!" [alt]="order!.consultation!.doctorName" />
           </div>
           <div class="pay-consultation__body">
             <span class="pay-consultation__label">{{ 'payment.consultation.doctor' | translate }}</span>
             <strong>{{ order!.consultation!.doctorName }}</strong>
             <span class="pay-consultation__meta">{{ order!.consultation!.specialtyLabel }}</span>
+            @if (order!.consultation!.licenseNumber) {
+              <app-doctor-medical-code
+                [licenseNumber]="order!.consultation!.licenseNumber"
+                variant="chip"
+              />
+            }
             <div class="pay-consultation__row">
               <span>{{ 'payment.consultation.time' | translate }}</span>
               <strong>{{ order!.consultation!.timeLabel }}</strong>

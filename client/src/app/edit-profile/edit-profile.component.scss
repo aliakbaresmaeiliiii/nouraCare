@@ -42,7 +42,7 @@
   overflow: hidden;
   margin-bottom: 1rem;
   text-align: center;
-  color: white;
+  color: var(--brand-text);
 
   .hero-background {
     position: absolute;
@@ -605,8 +605,8 @@
 
 // Header back: circular chevron reads as “premium” navigation, not a dismiss X
 .back-button {
-  --color: #ffffff;
-  --icon-color: #ffffff;
+  --color: var(--brand-text);
+  --icon-color: var(--brand-text);
   --background: transparent;
   --padding-start: 2px;
   --padding-end: 2px;
@@ -631,9 +631,9 @@
   --padding-end: 16px;
   --padding-top: 10px;
   --padding-bottom: 10px;
-  --background: rgba(255, 255, 255, 0.2);
-  --color: white;
-  --border: 1px solid rgba(255, 255, 255, 0.3);
+  --background: rgba(var(--brand-text-rgb), 0.08);
+  --color: var(--brand-text);
+  --border: 1px solid rgba(var(--brand-text-rgb), 0.12);
   font-weight: 600;
   font-size: 14px;
   backdrop-filter: blur(10px);
@@ -660,7 +660,7 @@
     --padding-top: 18px;
     --padding-bottom: 18px;
     --background: var(--app-gradient-header);
-    --color: white;
+    --color: var(--brand-text);
     font-weight: 700;
     font-size: 16px;
     box-shadow: 0 4px 16px rgba(var(--flo-primary-rgb), 0.3);

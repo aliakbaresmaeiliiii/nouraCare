@@ -1,0 +1,7 @@
+@if (visible) {
+  <span [class]="'doctor-medical-code doctor-medical-code--' + variant">
+    <ion-icon name="shield-checkmark-outline" aria-hidden="true"></ion-icon>
+    <span class="doctor-medical-code__label">{{ 'doctorProfile.medicalCouncilCode' | translate }}</span>
+    <strong class="doctor-medical-code__value">{{ code }}</strong>
+  </span>
+}

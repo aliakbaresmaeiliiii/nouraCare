@@ -16,6 +16,8 @@ import { DoctorDisplayService } from '../shared/services/doctor-display.service'
 import { DoctorBookingService } from '../shared/services/doctor-booking.service';
 import { DoctorDto, ConsultationType } from '../shared/models/doctor.dto';
 import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
+import { DoctorAvatarComponent } from '../shared/components/doctor-avatar/doctor-avatar.component';
+import { DoctorMedicalCodeComponent } from '../shared/components/doctor-medical-code/doctor-medical-code.component';
 import { LocalizedNumberPipe } from '../shared/pipes/localized-number.pipe';
 import { TranslatePipe } from '../shared/pipes/translate.pipe';
 import { TranslationService } from '../shared/services/translation.service';
@@ -26,7 +28,7 @@ import { LanguageService } from '../shared/services/language.service';
   templateUrl: './doctor-profile.component.html',
   styleUrls: ['./doctor-profile.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule, LogoLoadingComponent, LocalizedNumberPipe, TranslatePipe],
+  imports: [IonicModule, CommonModule, LogoLoadingComponent, LocalizedNumberPipe, TranslatePipe, DoctorAvatarComponent, DoctorMedicalCodeComponent],
   host: { class: 'ion-page' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -173,10 +175,6 @@ export class DoctorProfileComponent implements OnInit, OnDestroy {
     return this.translation.translateParams('doctorProfile.reviewsBasedOn', {
       count: String(this.reviews?.length || 0),
     });
-  }
-
-  getDoctorAvatar(doctor: DoctorDto): string {
-    return this.doctorDisplay.getAvatar(doctor);
   }
 
   getExperienceLabel(years: number): string {

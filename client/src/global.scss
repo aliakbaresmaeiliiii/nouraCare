@@ -740,6 +740,51 @@ ion-menu .menu-icon {
   }
 }
 
+/*
+ * Page headers / hero bands on --app-gradient-header use theme text tokens.
+ * Avoid hardcoded #fff on the light pastel gradient (unreadable in light mode).
+ */
+ion-header.blocked-header,
+ion-header.saved-header,
+ion-header.friends-header,
+ion-header.invite-header,
+ion-header.version-header,
+ion-header.topic-header {
+  --color: var(--brand-text);
+
+  ion-toolbar {
+    --color: var(--brand-text);
+  }
+
+  ion-back-button,
+  .back-button {
+    --color: var(--brand-text);
+  }
+
+  ion-button[fill='clear'],
+  .share-button {
+    --color: var(--brand-text);
+  }
+
+  .header-title {
+    color: var(--brand-text);
+  }
+}
+
+.tools-hub-hero,
+.shop-hero,
+.tp-hero,
+.form-header,
+.date-header,
+ion-content.onboarding-content {
+  color: var(--brand-text);
+}
+
+html:not(.ion-palette-dark) ion-content.onboarding-content {
+  --color: var(--brand-text);
+  color: var(--brand-text);
+}
+
 
 
 /**
@@ -759,12 +804,21 @@ ion-menu .menu-icon {
 /* -------------------------------------------------------------------------- */
 
 /*
- * Text + toolbar icon tokens must live on `html` when Ionic’s stepped palette is on
- * `html.ion-palette-dark.md` / `.ios` only: `ion-app` often lacks `.md`, so
- * `var(--ion-text-color)` there stayed the light-theme value from `:root` and
- * `--brand-text` in the shell header stayed black.
+ * Dark text tokens apply only when html + ion-app both carry ion-palette-dark.
+ * If main.ts toggles html before <ion-app> mounts, avoid white text on pastel backgrounds.
  */
-html.ion-palette-dark {
+html.ion-palette-dark:not(:has(ion-app.ion-palette-dark)) {
+  color-scheme: light;
+  --brand-text: #0f172a;
+  --brand-text-rgb: 15, 23, 42;
+  --brand-text-secondary: #334155;
+  --brand-text-secondary-rgb: 51, 65, 85;
+  --app-icon-toolbar: #0f172a;
+  --app-icon-default: #334155;
+  --app-icon-muted: #64748b;
+}
+
+html.ion-palette-dark:has(ion-app.ion-palette-dark) {
   color-scheme: dark;
   --brand-text: #f8fafc;
   --brand-text-rgb: 248, 250, 252;
@@ -775,8 +829,8 @@ html.ion-palette-dark {
   --app-icon-muted: #94a3b8;
 }
 
-html.ion-palette-dark.md,
-html.ion-palette-dark.ios {
+html.ion-palette-dark.md:has(ion-app.ion-palette-dark),
+html.ion-palette-dark.ios:has(ion-app.ion-palette-dark) {
   --brand-text: var(--ion-text-color);
   --brand-text-rgb: var(--ion-text-color-rgb);
   --brand-text-secondary: var(--ion-text-color-step-650);
@@ -786,7 +840,7 @@ html.ion-palette-dark.ios {
   --app-icon-muted: var(--ion-text-color-step-650);
 }
 
-html.ion-palette-dark body {
+html.ion-palette-dark:has(ion-app.ion-palette-dark) body {
   background: #121212;
   color: #ffffff;
 }
@@ -1940,6 +1994,33 @@ ion-modal.doctor-booking-sheet {
     border-radius: 24px 24px 0 0;
     overflow: hidden;
   }
+
+  app-doctor-booking-modal,
+  app-doctor-booking-modal.ion-page {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  ion-content.booking-sheet-content {
+    flex: 1;
+    min-height: 0;
+  }
+
+  ion-footer.booking-sheet-footer {
+    --background: #fff;
+    flex-shrink: 0;
+
+    ion-toolbar {
+      --background: #fff;
+      --min-height: auto;
+      --padding-top: 0;
+      --padding-bottom: 0;
+      --padding-start: 0;
+      --padding-end: 0;
+    }
+  }
 }
 
 .jalali-picker-range-hint {
@@ -1977,3 +2058,41 @@ ion-modal.doctor-booking-sheet {
 }
 
 @import 'app/shared/styles/tools-shop-dark.theme';
+
+/* -------------------------------------------------------------------------- */
+/* Light appearance — readable text on pastel surfaces (explicit + desync fix) */
+/* -------------------------------------------------------------------------- */
+html:not(.ion-palette-dark),
+html[data-theme='light'] {
+  color-scheme: light;
+  --brand-text: #0f172a;
+  --brand-text-rgb: 15, 23, 42;
+  --brand-text-secondary: #334155;
+  --brand-text-secondary-rgb: 51, 65, 85;
+  --ion-text-color: #0f172a;
+  --ion-text-color-rgb: 15, 23, 42;
+  --app-icon-toolbar: #0f172a;
+  --app-icon-default: #334155;
+  --app-icon-muted: #64748b;
+}
+
+html:not(.ion-palette-dark) body,
+html[data-theme='light'] body {
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+html:not(.ion-palette-dark) ion-content,
+html[data-theme='light'] ion-content,
+html:not(.ion-palette-dark) app-onboarding,
+html[data-theme='light'] app-onboarding {
+  --color: #0f172a;
+  color: #0f172a;
+}
+
+html:not(.ion-palette-dark) ion-content.onboarding-content,
+html[data-theme='light'] ion-content.onboarding-content {
+  --background: var(--app-gradient-header);
+  --color: #0f172a;
+  color: #0f172a;
+}

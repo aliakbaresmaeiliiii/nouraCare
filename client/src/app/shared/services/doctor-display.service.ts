@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ConsultationType, DoctorDto } from '../models/doctor.dto';
-import { formatDoctorFee } from '../utils/locale-date-format.util';
+import { formatDoctorFee, formatLocalizedNumber } from '../utils/locale-date-format.util';
+import { ImageUrlService } from './image-url.service';
 import { LanguageService } from './language.service';
 import { TranslationService } from './translation.service';
 
@@ -105,20 +106,21 @@ const WELLNESS_CLINIC_PATTERN = /^Wellness Clinic (\d+)$/;
 export class DoctorDisplayService {
   private readonly translation = inject(TranslationService);
   private readonly language = inject(LanguageService);
-  private readonly avatarWomenPath = 'assets/images/avatarWomen.png';
-  private readonly avatarMenPath = 'assets/images/avatarMan.png';
+  private readonly imageUrl = inject(ImageUrlService);
 
-  getAvatar(doctor: DoctorDto): string {
+  getAvatar(doctor: Pick<DoctorDto, 'id' | 'fullName' | 'profileImageUrl'>): string {
     if (this.hasRealProfileImage(doctor.profileImageUrl)) {
-      return doctor.profileImageUrl!.trim();
+      return this.imageUrl.getImageUrl(doctor.profileImageUrl);
     }
 
     const seed = `${doctor.id ?? ''}${doctor.fullName ?? ''}`.toLowerCase().trim();
     if (!seed) {
-      return this.avatarWomenPath;
+      return buildDoctorAvatarSvg('#7c3aed', '#c4b5fd');
     }
     const codeSum = Array.from(seed).reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
-    return codeSum % 2 === 0 ? this.avatarWomenPath : this.avatarMenPath;
+    return codeSum % 2 === 0
+      ? buildDoctorAvatarSvg('#db2777', '#f9a8d4')
+      : buildDoctorAvatarSvg('#2563eb', '#93c5fd');
   }
 
   getSpecialtyLabel(specialty?: string | null): string {
@@ -229,6 +231,22 @@ export class DoctorDisplayService {
     return formatDoctorFee(fee, this.language.getCurrentLanguage());
   }
 
+  getMedicalCouncilCodeLabel(): string {
+    return this.translation.translate('doctorProfile.medicalCouncilCode');
+  }
+
+  formatMedicalCouncilCode(code?: string | null): string {
+    const raw = code?.trim();
+    if (!raw) {
+      return '';
+    }
+    return formatLocalizedNumber(raw, this.language.getCurrentLanguage());
+  }
+
+  hasMedicalCouncilCode(doctor: Pick<DoctorDto, 'licenseNumber'>): boolean {
+    return !!doctor.licenseNumber?.trim();
+  }
+
   private containsPersianScript(text: string): boolean {
     return PERSIAN_SCRIPT.test(text);
   }
@@ -275,4 +293,9 @@ export class DoctorDisplayService {
     }
     return !PLACEHOLDER_IMAGE_FRAGMENTS.some((fragment) => lower.includes(fragment));
   }
+}
+
+function buildDoctorAvatarSvg(accent: string, soft: string): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${soft}"/><stop offset="100%" stop-color="${accent}"/></linearGradient></defs><circle cx="60" cy="60" r="60" fill="url(#g)"/><circle cx="60" cy="46" r="22" fill="rgba(255,255,255,0.92)"/><path d="M24 98c6-18 22-28 36-28s30 10 36 28" fill="rgba(255,255,255,0.92)"/></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }

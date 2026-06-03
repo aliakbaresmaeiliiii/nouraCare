@@ -1,0 +1,83 @@
+:host {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.doctor-medical-code {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+
+  ion-icon {
+    flex-shrink: 0;
+    color: var(--ion-color-success);
+  }
+
+  &__label {
+    color: #64748b;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__value {
+    color: #0f172a;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+  }
+
+  &--chip {
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    font-size: 0.72rem;
+
+    ion-icon {
+      font-size: 0.85rem;
+    }
+  }
+
+  &--hero {
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(var(--brand-primary-rgb), 0.08);
+    border: 1px solid rgba(var(--brand-primary-rgb), 0.16);
+    font-size: 0.78rem;
+
+    ion-icon {
+      font-size: 0.95rem;
+      color: var(--brand-primary);
+    }
+
+    .doctor-medical-code__value {
+      color: var(--brand-primary-dark);
+    }
+  }
+
+  &--inline {
+    font-size: 0.72rem;
+
+    ion-icon {
+      font-size: 0.82rem;
+    }
+  }
+
+  &--row {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0;
+    font-size: 0.84rem;
+
+    .doctor-medical-code__label {
+      color: #64748b;
+    }
+
+    .doctor-medical-code__value {
+      text-align: end;
+    }
+  }
+}

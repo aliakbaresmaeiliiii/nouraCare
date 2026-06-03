@@ -26,6 +26,7 @@ import { LanguageService } from '../../shared/services/language.service';
 import { TranslationService } from '../../shared/services/translation.service';
 import { formatTomanPrice } from '../../shared/utils/locale-date-format.util';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
+import { DoctorMedicalCodeComponent } from '../../shared/components/doctor-medical-code/doctor-medical-code.component';
 import { IRANIAN_PAYMENT_METHODS } from '../data/payment-methods.data';
 import {
   IranianPaymentMethodId,
@@ -40,7 +41,7 @@ import { PaymentGatewayService } from '../services/payment-gateway.service';
   templateUrl: './payment-page.component.html',
   styleUrls: ['./payment-page.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS],
+  imports: [...SHARED_STANDALONE_IMPORTS, DoctorMedicalCodeComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
   changeDetection: ChangeDetectionStrategy.OnPush,

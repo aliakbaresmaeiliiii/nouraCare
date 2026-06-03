@@ -19,6 +19,8 @@ export interface DoctorDto {
   consultationType: ConsultationType;
   fee?: number;
   availableSlots?: any;
+  licenseNumber?: string;
+  isVerified?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -54,6 +56,8 @@ export interface CreateDoctorDto {
   consultationType: ConsultationType;
   fee?: number;
   availableSlots?: any;
+  licenseNumber?: string;
+  isVerified?: boolean;
 }
 
 export interface DoctorAvailableSlot {

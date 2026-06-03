@@ -1,22 +1,22 @@
 // My friends — header matches invite/notifications; surfaces use brand/* (light + ion-app dark palette).
 .friends-header {
   --background: var(--app-gradient-header, var(--ion-color-primary));
-  --color: #fff;
+  --color: var(--brand-text);
   --border-width: 0;
   box-shadow: var(--app-shadow-header, 0 2px 12px rgba(0, 0, 0, 0.12));
 
   ion-back-button {
-    --color: #fff;
+    --color: var(--brand-text);
   }
 
   .header-title {
     font-weight: 600;
     font-size: 1.05rem;
-    color: #fff;
+    color: var(--brand-text);
   }
 
   ion-button[fill='clear'] {
-    --color: #fff;
+    --color: var(--brand-text);
   }
 }
 

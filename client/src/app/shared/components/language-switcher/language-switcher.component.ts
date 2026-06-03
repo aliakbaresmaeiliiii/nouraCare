@@ -138,7 +138,7 @@ import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
 })
 export class LanguageSwitcherComponent implements OnInit {
   languages: Language[] = [];
-  currentLanguage: string = 'en';
+  currentLanguage: string = 'fa';
 
   constructor(private languageService: LanguageService) {
     addIcons({ globeOutline, chevronDownOutline });

@@ -59,13 +59,7 @@
     <div class="profile-container">
       <section class="profile-hero">
         <div class="profile-hero__avatar-wrap">
-          <img
-            class="profile-hero__avatar"
-            [src]="getDoctorAvatar(doctor)"
-            [alt]="doctor.fullName"
-            loading="eager"
-            decoding="async"
-          />
+          <app-doctor-avatar [doctor]="doctor" size="hero" loading="eager" />
           <span class="profile-hero__verified" aria-hidden="true">
             <ion-icon name="checkmark"></ion-icon>
           </span>
@@ -73,6 +67,12 @@
 
         <h1 class="profile-hero__name">{{ doctor.fullName }}</h1>
         <p class="profile-hero__specialty">{{ doctorDisplay.getSpecialtyLabel(doctor.specialty) }}</p>
+
+        @if (doctor.licenseNumber?.trim()) {
+          <div class="profile-hero__medical-code">
+            <app-doctor-medical-code [doctor]="doctor" variant="hero" />
+          </div>
+        }
 
         <div class="profile-hero__stats">
           <div class="stat-chip">
@@ -156,6 +156,11 @@
                 <div class="info-list__item">
                   <ion-icon name="map-outline"></ion-icon>
                   <span>{{ doctorDisplay.getLocationLabel(doctor.location) }}</span>
+                </div>
+              }
+              @if (doctor.licenseNumber?.trim()) {
+                <div class="info-list__item info-list__item--license">
+                  <app-doctor-medical-code [doctor]="doctor" variant="inline" />
                 </div>
               }
             </div>

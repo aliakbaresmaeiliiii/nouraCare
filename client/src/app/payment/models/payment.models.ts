@@ -31,6 +31,7 @@ export interface ConsultationPaymentMeta {
   bookingType: 'online' | 'in-person';
   timeLabel: string;
   avatarUrl?: string;
+  licenseNumber?: string;
   appointmentId?: string;
 }
 

@@ -7,11 +7,13 @@ export interface Language {
   flag: string;
 }
 
+export const DEFAULT_APP_LANGUAGE = 'fa';
+
 @Injectable({
   providedIn: 'root'
 })
 export class LanguageService {
-  private currentLanguageSubject = new BehaviorSubject<string>('en');
+  private currentLanguageSubject = new BehaviorSubject<string>(DEFAULT_APP_LANGUAGE);
   public currentLanguage$ = this.currentLanguageSubject.asObservable();
 
   private readonly languages: Language[] = [
@@ -22,8 +24,9 @@ export class LanguageService {
   ];
 
   constructor(private appRef: ApplicationRef) {
-    // Load saved language from localStorage or default to English
-    const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
+    // Load saved language from localStorage or default to Persian
+    const savedLanguage =
+      localStorage.getItem('selectedLanguage') || DEFAULT_APP_LANGUAGE;
     this.setLanguage(savedLanguage);
   }
 

@@ -20,6 +20,8 @@ import {
   DoctorBookingType,
 } from '../../models/doctor-booking.model';
 import { DoctorBookingCalendarComponent } from '../doctor-booking-calendar/doctor-booking-calendar.component';
+import { DoctorAvatarComponent } from '../doctor-avatar/doctor-avatar.component';
+import { DoctorMedicalCodeComponent } from '../doctor-medical-code/doctor-medical-code.component';
 import { DoctorAppointmentService } from '../../services/doctor-appointment.service';
 import { DoctorDisplayService } from '../../services/doctor-display.service';
 import { TranslationService } from '../../services/translation.service';
@@ -27,14 +29,13 @@ import { LanguageService } from '../../services/language.service';
 import { formatBookingDateTimeLabel, bookingIsoDateKey, slotBookingDateKey } from '../../utils/doctor-booking-format.util';
 import { firstBookableDateIso } from '../../utils/doctor-booking-schedule.util';
 
-type BookingStep = 'select' | 'review';
-
 @Component({
   selector: 'app-doctor-booking-modal',
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS, DoctorBookingCalendarComponent],
+  imports: [...SHARED_STANDALONE_IMPORTS, DoctorBookingCalendarComponent, DoctorAvatarComponent, DoctorMedicalCodeComponent],
   templateUrl: './doctor-booking-modal.component.html',
   styleUrls: ['./doctor-booking-modal.component.scss'],
+  host: { class: 'ion-page' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DoctorBookingModalComponent implements OnInit, OnDestroy {
@@ -43,7 +44,6 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
 
   readonly doctorDisplay = inject(DoctorDisplayService);
 
-  step: BookingStep = 'select';
   selectedType: DoctorBookingType | null = null;
   selectedTimeSlotId: string | null = null;
   selectedDateIso: string | null = null;
@@ -75,8 +75,18 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  get canReview(): boolean {
+  get canSave(): boolean {
     return !!this.selectedType && !!this.selectedTimeSlotId;
+  }
+
+  get saveHint(): string {
+    if (!this.selectedType && this.showOnlineOption && this.showInPersonOption) {
+      return this.t('consultation.bookingModal.typeRequired');
+    }
+    if (!this.selectedTimeSlotId) {
+      return this.t('consultation.bookingModal.pickTimeFirst');
+    }
+    return '';
   }
 
   get selectedSlot(): DoctorBookingTimeSlot | undefined {
@@ -127,9 +137,6 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
 
   selectType(type: DoctorBookingType): void {
     this.selectedType = type;
-    if (this.step === 'review') {
-      this.step = 'select';
-    }
     this.cdr.markForCheck();
   }
 
@@ -146,12 +153,6 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
     this.selectedTimeSlotId = slot.id;
     const dateKey = slotBookingDateKey(slot);
     this.selectedDateIso = dateKey ?? bookingIsoDateKey(slot.scheduledAt);
-    this.step = 'review';
-    this.cdr.markForCheck();
-  }
-
-  backToSelect(): void {
-    this.step = 'select';
     this.cdr.markForCheck();
   }
 
@@ -160,7 +161,21 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
   }
 
   async saveBooking(): Promise<void> {
-    if (!this.canReview || !this.selectedType || !this.selectedTimeSlotId || this.saving) {
+    if (this.saving || this.slotsLoading) {
+      return;
+    }
+
+    if (!this.selectedType && this.showOnlineOption && this.showInPersonOption) {
+      await this.showToast(this.t('consultation.bookingModal.typeRequired'));
+      return;
+    }
+
+    if (!this.selectedTimeSlotId) {
+      await this.showToast(this.t('consultation.bookingModal.pickTimeFirst'));
+      return;
+    }
+
+    if (!this.canSave || !this.selectedType || !this.selectedTimeSlotId) {
       return;
     }
 
@@ -175,7 +190,6 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
     if (!slot?.available) {
       await this.showToast(this.t('consultation.bookingModal.slotUnavailable'));
       void this.loadSchedule();
-      this.step = 'select';
       this.cdr.markForCheck();
       return;
     }
@@ -204,7 +218,6 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
     } catch {
       await this.showToast(this.t('consultation.bookingModal.saveError'));
       void this.loadSchedule();
-      this.step = 'select';
     } finally {
       this.saving = false;
       this.cdr.markForCheck();
@@ -257,7 +270,6 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
       )
     ) {
       this.selectedTimeSlotId = null;
-      this.step = 'select';
     }
 
     if (preferred) {

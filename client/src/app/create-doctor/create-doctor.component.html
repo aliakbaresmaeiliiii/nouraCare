@@ -86,6 +86,23 @@
         </div>
       }
 
+      <!-- Medical council code (کد پزشکی) -->
+      <ion-item [class.error]="hasFieldError('licenseNumber')">
+        <ion-label position="stacked">{{ 'createDoctor.licenseNumberLabel' | translate }}</ion-label>
+        <ion-input
+          formControlName="licenseNumber"
+          [placeholder]="'createDoctor.licenseNumberPlaceholder' | translate"
+          type="text"
+          inputmode="numeric"
+          maxlength="10">
+        </ion-input>
+      </ion-item>
+      @if (hasFieldError('licenseNumber')) {
+        <div class="error-message">
+          {{ getFieldError('licenseNumber') }}
+        </div>
+      }
+
       <!-- About -->
       <ion-item [class.error]="hasFieldError('about')">
         <ion-label position="stacked">{{ 'createDoctor.aboutLabel' | translate }}</ion-label>

@@ -1,18 +1,19 @@
 .topic-header {
   --background: var(--app-gradient-header);
+  --color: var(--brand-text);
   
   .back-button {
-    color: white;
+    color: var(--brand-text);
   }
   
   .header-title {
-    color: white;
+    color: var(--brand-text);
     font-weight: 600;
     font-size: 18px;
   }
   
   .share-button {
-    color: white;
+    color: var(--brand-text);
   }
 }
 

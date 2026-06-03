@@ -79,5 +79,10 @@ export class CreateDoctorDto {
   fee?: number;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  licenseNumber?: string;
+
+  @IsOptional()
   availableSlots?: any;
 }

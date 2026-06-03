@@ -1,14 +1,15 @@
 .blocked-header {
   --background: var(--app-gradient-header);
-  --color: white;
+  --color: var(--brand-text);
   
   .back-button {
-    --color: white;
+    --color: var(--brand-text);
   }
   
   .header-title {
     font-weight: 600;
     font-size: 18px;
+    color: var(--brand-text);
   }
 }
 

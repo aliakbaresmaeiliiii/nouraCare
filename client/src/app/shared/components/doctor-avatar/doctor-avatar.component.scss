@@ -1,0 +1,40 @@
+:host {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.doctor-avatar {
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #e2e8f0;
+
+  &--sm {
+    width: 48px;
+    height: 48px;
+  }
+
+  &--list {
+    width: 56px;
+    height: 56px;
+    border: 2px solid #e2e8f0;
+  }
+
+  &--md {
+    width: 64px;
+    height: 64px;
+    border: 2px solid #e2e8f0;
+  }
+
+  &--lg {
+    width: 72px;
+    height: 72px;
+  }
+
+  &--hero {
+    width: 112px;
+    height: 112px;
+    border: 3px solid #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  }
+}

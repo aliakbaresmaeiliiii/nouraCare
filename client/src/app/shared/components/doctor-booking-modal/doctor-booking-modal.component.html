@@ -1,47 +1,29 @@
 <ion-header class="booking-sheet-header ion-no-border">
   <ion-toolbar>
     <ion-buttons slot="start">
-      @if (step === 'review') {
-        <ion-button fill="clear" class="booking-sheet-back" (click)="backToSelect()" [attr.aria-label]="'consultation.bookingModal.changeTime' | translate">
-          <ion-icon name="chevron-back-outline"></ion-icon>
-        </ion-button>
-      } @else {
-        <ion-button fill="clear" class="booking-sheet-close" (click)="dismiss()" [attr.aria-label]="'consultation.bookingModal.closeAria' | translate">
-          <ion-icon name="close-outline"></ion-icon>
-        </ion-button>
-      }
+      <ion-button fill="clear" class="booking-sheet-close" (click)="dismiss()" [attr.aria-label]="'consultation.bookingModal.closeAria' | translate">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
-    <ion-title>
-      @if (step === 'review') {
-        {{ 'consultation.bookingModal.reviewTitle' | translate }}
-      } @else {
-        {{ 'consultation.bookingModal.title' | translate }}
-      }
-    </ion-title>
+    <ion-title>{{ 'consultation.bookingModal.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="booking-sheet-content">
-  <div class="booking-sheet-handle" aria-hidden="true"></div>
   <p class="booking-sheet-subtitle">
-    @if (step === 'review') {
-      {{ 'consultation.bookingModal.reviewHint' | translate }}
-    } @else {
-      {{ 'consultation.bookingModal.subtitle' | translate }}
-    }
+    {{ 'consultation.bookingModal.subtitle' | translate }}
   </p>
 
   <section class="doctor-summary-card">
-    <img
+    <app-doctor-avatar
       class="doctor-summary-card__avatar"
-      [src]="doctorDisplay.getAvatar(doctor)"
-      [alt]="doctor.fullName"
-      loading="lazy"
-      decoding="async"
+      [doctor]="doctor"
+      size="md"
     />
     <div class="doctor-summary-card__body">
       <h2>{{ doctor.fullName }}</h2>
       <p>{{ doctorDisplay.getSpecialtyLabel(doctor.specialty) }}</p>
+      <app-doctor-medical-code [doctor]="doctor" variant="chip" />
       @if (doctor.location) {
         <span class="doctor-summary-card__location">
           <ion-icon name="location-outline"></ion-icon>
@@ -55,103 +37,83 @@
     </div>
   </section>
 
-  @if (step === 'select') {
-    @if (showOnlineOption || showInPersonOption) {
-      <section class="booking-section">
-        <h3>{{ 'consultation.bookingModal.consultationType' | translate }}</h3>
-        <p class="booking-section__hint">{{ 'consultation.bookingModal.typeHint' | translate }}</p>
-        <div class="type-options">
-          @if (showOnlineOption) {
-            <button
-              type="button"
-              class="type-option"
-              [class.type-option--active]="selectedType === 'online'"
-              (click)="selectType('online')"
-            >
-              <ion-icon name="videocam-outline"></ion-icon>
-              <span>{{ 'consultation.type.onlineOnly' | translate }}</span>
-            </button>
-          }
-          @if (showInPersonOption) {
-            <button
-              type="button"
-              class="type-option"
-              [class.type-option--active]="selectedType === 'in-person'"
-              (click)="selectType('in-person')"
-            >
-              <ion-icon name="business-outline"></ion-icon>
-              <span>{{ 'consultation.type.inPersonOnly' | translate }}</span>
-            </button>
-          }
-        </div>
-      </section>
+  @if (showOnlineOption || showInPersonOption) {
+    <section class="booking-section">
+      <h3>{{ 'consultation.bookingModal.consultationType' | translate }}</h3>
+      <p class="booking-section__hint">{{ 'consultation.bookingModal.typeHint' | translate }}</p>
+      <div class="type-options">
+        @if (showOnlineOption) {
+          <button
+            type="button"
+            class="type-option"
+            [class.type-option--active]="selectedType === 'online'"
+            (click)="selectType('online')"
+          >
+            <ion-icon name="videocam-outline"></ion-icon>
+            <span>{{ 'consultation.type.onlineOnly' | translate }}</span>
+          </button>
+        }
+        @if (showInPersonOption) {
+          <button
+            type="button"
+            class="type-option"
+            [class.type-option--active]="selectedType === 'in-person'"
+            (click)="selectType('in-person')"
+          >
+            <ion-icon name="business-outline"></ion-icon>
+            <span>{{ 'consultation.type.inPersonOnly' | translate }}</span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+
+  <section class="booking-section">
+    <h3>{{ 'consultation.bookingModal.pickDate' | translate }}</h3>
+    <p class="booking-section__hint">{{ 'consultation.bookingModal.calendarHint' | translate }}</p>
+
+    @if (slotsError) {
+      <p class="booking-slots-error">{{ 'consultation.bookingModal.slotsError' | translate }}</p>
     }
 
-    <section class="booking-section">
-      <h3>{{ 'consultation.bookingModal.pickDate' | translate }}</h3>
-      <p class="booking-section__hint">{{ 'consultation.bookingModal.calendarHint' | translate }}</p>
+    <app-doctor-booking-calendar
+      [slots]="timeSlots"
+      [loading]="slotsLoading"
+      [selectedDateIso]="selectedDateIso"
+      [selectedSlotId]="selectedTimeSlotId"
+      (dateSelected)="onDateSelected($event)"
+      (slotSelected)="selectTimeSlot($event)"
+    />
+  </section>
 
-      @if (slotsError) {
-        <p class="booking-slots-error">{{ 'consultation.bookingModal.slotsError' | translate }}</p>
-      }
-
-      <app-doctor-booking-calendar
-        [slots]="timeSlots"
-        [loading]="slotsLoading"
-        [selectedDateIso]="selectedDateIso"
-        [selectedSlotId]="selectedTimeSlotId"
-        (dateSelected)="onDateSelected($event)"
-        (slotSelected)="selectTimeSlot($event)"
-      />
+  @if (selectedTimeLabel) {
+    <section class="booking-selection-summary">
+      <span>{{ 'consultation.bookingModal.selectedSlot' | translate }}</span>
+      <strong>{{ selectedTimeLabel }}</strong>
     </section>
-  } @else {
-    <section class="booking-review-card">
-      <div class="booking-review-card__row">
-        <span>{{ 'consultation.bookingModal.consultationType' | translate }}</span>
-        <strong>{{ selectedTypeLabel }}</strong>
-      </div>
-      <div class="booking-review-card__row">
-        <span>{{ 'consultation.bookingModal.selectTime' | translate }}</span>
-        <strong>{{ selectedTimeLabel }}</strong>
-      </div>
-      <div class="booking-review-card__row booking-review-card__row--fee">
-        <span>{{ 'doctorProfile.perConsultation' | translate }}</span>
-        <strong>{{ feeLabel }}</strong>
-      </div>
-    </section>
-
-    <p class="booking-review-note">{{ 'consultation.bookingModal.reviewNote' | translate }}</p>
   }
 </ion-content>
 
-@if (step === 'review') {
-  <ion-footer class="booking-sheet-footer ion-no-border">
-    <ion-toolbar>
-      <div class="booking-footer-actions">
-        <ion-button
-          expand="block"
-          fill="outline"
-          class="cancel-btn"
-          [disabled]="saving"
-          (click)="backToSelect()"
-        >
-          {{ 'consultation.bookingModal.changeTime' | translate }}
-        </ion-button>
-        <ion-button
-          expand="block"
-          class="confirm-btn"
-          [disabled]="!canReview || saving"
-          (click)="saveBooking()"
-        >
-          @if (saving) {
-            <ion-spinner name="crescent" slot="start"></ion-spinner>
-            {{ 'consultation.bookingModal.saving' | translate }}
-          } @else {
-            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
-            {{ 'consultation.bookingModal.saveBooking' | translate }}
-          }
-        </ion-button>
-      </div>
-    </ion-toolbar>
-  </ion-footer>
-}
+<ion-footer class="booking-sheet-footer ion-no-border">
+  <ion-toolbar>
+    <div class="booking-footer-actions">
+      <ion-button
+        expand="block"
+        class="confirm-btn"
+        [disabled]="saving || slotsLoading"
+        (click)="saveBooking()"
+      >
+        @if (saving) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+          {{ 'consultation.bookingModal.saving' | translate }}
+        } @else {
+          <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+          {{ 'consultation.bookingModal.saveBooking' | translate }}
+        }
+      </ion-button>
+      @if (!canSave && !slotsLoading) {
+        <p class="booking-footer-hint">{{ saveHint }}</p>
+      }
+    </div>
+  </ion-toolbar>
+</ion-footer>

@@ -77,7 +77,8 @@ export class PaymentCheckoutService {
       specialtyLabel: this.doctorDisplay.getSpecialtyLabel(doctor.specialty),
       bookingType: booking.type,
       timeLabel: booking.timeLabel,
-      avatarUrl: doctor.profileImageUrl,
+      avatarUrl: this.doctorDisplay.getAvatar(doctor),
+      licenseNumber: doctor.licenseNumber?.trim() || undefined,
       appointmentId: booking.appointmentId,
     };
 
@@ -90,7 +91,7 @@ export class PaymentCheckoutService {
           subtitleKey: typeKey,
           quantity: 1,
           unitAmountTomans: feeTomans,
-          imageUrl: doctor.profileImageUrl,
+          imageUrl: this.doctorDisplay.getAvatar(doctor),
         },
       ],
       feeTomans,

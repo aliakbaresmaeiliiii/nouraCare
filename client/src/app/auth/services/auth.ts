@@ -416,9 +416,9 @@ export class AuthService {
 
   private getClientLocale(): string {
     if (typeof localStorage === 'undefined') {
-      return 'en';
+      return 'fa';
     }
-    return localStorage.getItem('selectedLanguage') || 'en';
+    return localStorage.getItem('selectedLanguage') || 'fa';
   }
 
   /**

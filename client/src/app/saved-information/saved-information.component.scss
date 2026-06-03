@@ -1,19 +1,20 @@
 // Saved information — Ionic tokens (light + html.ion-palette-dark)
 .saved-header {
   --background: var(--app-gradient-header);
-  --color: #fff;
+  --color: var(--brand-text);
 
   ion-back-button {
-    --color: #fff;
+    --color: var(--brand-text);
   }
 
   .header-title {
     font-weight: 600;
     font-size: 1.05rem;
+    color: var(--brand-text);
   }
 
   ion-button[fill='clear'] {
-    --color: #fff;
+    --color: var(--brand-text);
   }
 }
 

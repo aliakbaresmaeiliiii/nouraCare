@@ -287,6 +287,7 @@ async function main() {
       contactPhone: `+98912${String(1_000_000 + n).slice(1)}`,
       consultationType,
       fee: 1_500_000 + (i % 10) * 250_000,
+      licenseNumber: String(100000 + n).padStart(6, '0'),
       isVerified: true,
       verifiedAt: now(),
       updatedAt: now(),

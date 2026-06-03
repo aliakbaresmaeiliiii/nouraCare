@@ -62,10 +62,21 @@ export function applyThemeDom(preference: ThemePreference): void {
     return;
   }
   const dark = resolveEffectiveDark(preference);
-  setPaletteDarkClass(document.documentElement, dark);
-  setPaletteDarkClass(document.querySelector('ion-app'), dark);
-  document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+  const html = document.documentElement;
+  setPaletteDarkClass(html, dark);
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  html.style.colorScheme = dark ? 'dark' : 'light';
   document.body.classList.toggle('dark', dark);
+
+  const syncIonApp = (): void => {
+    setPaletteDarkClass(document.querySelector('ion-app'), dark);
+  };
+  syncIonApp();
+  // main.ts runs before <ion-app> exists — retry so html/ion-app stay in sync.
+  if (!document.querySelector('ion-app')) {
+    queueMicrotask(syncIonApp);
+    requestAnimationFrame(syncIonApp);
+  }
 }
 
 @Injectable({ providedIn: 'root' })
