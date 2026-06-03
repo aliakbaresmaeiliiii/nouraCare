@@ -12,15 +12,6 @@
   >
     @if (!isPregnant()) {
     <div class="cycle-today-shell">
-      <div class="cycle-today-bg" aria-hidden="true">
-        <div class="cycle-today-aurora"></div>
-        <div class="cycle-today-shine"></div>
-        <div class="cycle-today-blob cycle-today-blob--1"></div>
-        <div class="cycle-today-blob cycle-today-blob--2"></div>
-        <div class="cycle-today-blob cycle-today-blob--3"></div>
-        <div class="cycle-today-blob cycle-today-blob--4"></div>
-      </div>
-
       @if (showStartTrackingOnboarding()) {
       @let onboardCopy = getPreCycleEmptyCopy();
       <section
@@ -330,15 +321,6 @@
     <!-- Pregnancy “Today” layout (reference UI above Quick Actions) -->
     @if (isPregnant()) {
     <div class="pregnancy-today-shell">
-      <div class="pregnancy-today-bg" aria-hidden="true">
-        <div class="pregnancy-today-aurora"></div>
-        <div class="pregnancy-today-shine"></div>
-        <div class="pregnancy-today-blob pregnancy-today-blob--1"></div>
-        <div class="pregnancy-today-blob pregnancy-today-blob--2"></div>
-        <div class="pregnancy-today-blob pregnancy-today-blob--3"></div>
-        <div class="pregnancy-today-blob pregnancy-today-blob--4"></div>
-      </div>
-
       @if (needsPregnancyInput) {
       <div class="pregnancy-input-banner ion-padding-horizontal">
         <p class="pregnancy-input-banner-lead">

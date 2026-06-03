@@ -7,47 +7,18 @@
   </ion-refresher>
 <div class="insights-content">
 
-  <!-- Premium Unlock Animation Overlay -->
-  @if (showUnlockAnimation) {
-  <div class="unlock-animation-overlay">
-    <div class="unlock-animation">
-      <div class="unlock-particles">
-        @for (item of [1,2,3,4,5,6,7,8,9,10,11,12]; track $index) {
-          <div class="particle"></div>
-        }
-      </div>
-      <div class="unlock-icon">
-        <ion-icon name="lock-open" class="unlock-icon-main"></ion-icon>
-      </div>
-      <div class="unlock-text">
-        <h2>{{ 'insights.unlockTitle' | translate }}</h2>
-        <p>{{ 'insights.unlockSubtitle' | translate }}</p>
-      </div>
-      <div class="unlock-success">
-        <ion-icon name="checkmark-circle" class="success-check"></ion-icon>
-      </div>
-    </div>
-  </div>
-  }
-
   <!-- Premium Banner -->
-  @if (premiumBanner.isVisible && !showUnlockAnimation) {
-  <div class="premium-banner">
+  @if (premiumBanner.isVisible && !isPremiumUnlocked) {
+  <div class="premium-banner" role="button" tabindex="0" (click)="openPremiumPage()">
     <div class="banner-content">
       <div class="banner-icon">
-        <ion-icon [name]="isPremiumUnlocked ? 'lock-open' : 'lock-closed'"></ion-icon>
+        <ion-icon name="lock-closed"></ion-icon>
       </div>
       <div class="banner-text">
-        <p>
-          {{
-            isPremiumUnlocked
-              ? ('insights.premiumActiveAll' | translate)
-              : premiumBanner.title
-          }}
-        </p>
+        <p>{{ premiumBanner.title }}</p>
       </div>
-      <div class="banner-toggle">
-        <ion-toggle [checked]="isPremiumUnlocked" (ionChange)="togglePremium()"></ion-toggle>
+      <div class="banner-action">
+        <ion-icon name="chevron-forward"></ion-icon>
       </div>
     </div>
   </div>

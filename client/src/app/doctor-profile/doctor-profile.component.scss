@@ -110,12 +110,17 @@
 }
 
 .profile-container {
-  padding: 0 1rem calc(7.5rem + env(safe-area-inset-bottom, 0px));
+  padding: 0.75rem 1rem calc(7.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 .profile-hero {
   text-align: center;
-  padding: 1.25rem 0 1.5rem;
+  padding: 1.25rem 1rem 1.5rem;
+  margin-bottom: 1rem;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: var(--app-shadow-soft, 0 2px 8px rgba(15, 23, 42, 0.05));
 
   &__avatar-wrap {
     position: relative;
@@ -154,7 +159,7 @@
   }
 
   &__name {
-    margin: 0 0 0.35rem;
+    margin: 0 0 0.5rem;
     font-size: clamp(1.35rem, 4vw, 1.65rem);
     font-weight: 800;
     color: #1e293b;
@@ -162,10 +167,11 @@
   }
 
   &__specialty {
-    margin: 0 0 1rem;
+    margin: 0 0 1.5rem;
     color: var(--brand-primary);
     font-weight: 600;
     font-size: 0.95rem;
+    line-height: 1.45;
   }
 
   &__stats {
@@ -344,6 +350,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+  margin-bottom: 0.25rem;
 }
 
 .spec-tag {

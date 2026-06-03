@@ -201,7 +201,8 @@ async function main() {
   }
   console.log('✅ Post categories');
 
-  // 6. Doctors — 50 deterministic UUIDs (idempotent upserts)
+  // 6. Doctors — 500 deterministic UUIDs (idempotent upserts, Persian names)
+  const DOCTOR_SEED_COUNT = 500;
   const deterministicDoctorUuid = (index: number) => {
     const hex = (index + 1).toString(16).padStart(12, '0');
     return `f0000000-0000-4000-8000-${hex}`;
@@ -213,56 +214,98 @@ async function main() {
     'Fertility Specialist',
     'Prenatal Care',
     'High-Risk Pregnancy',
+    'Pediatrics',
+    'Neonatology',
+    'Midwifery',
+    'Lactation Consultant',
+    'Perinatal Psychiatry',
+    'Genetic Counseling',
+    'Obstetric Anesthesiology',
+    "Women's Health Nutrition",
+    'Pelvic Floor Physical Therapy',
+    'Pediatric Cardiology',
+    'Endocrinology',
+    'Dermatology',
+    'Clinical Psychology',
+    'Radiology',
+    'Ultrasound Specialist',
+    'General Practice',
+    'Internal Medicine',
+    'Urology',
+    'Infectious Disease',
+    'Emergency Medicine',
   ] as const;
-  const doctorCities = ['Tehran', 'Shiraz', 'Mashhad', 'Isfahan', 'New York, NY', 'Los Angeles, CA'];
+  const doctorCities = [
+    'Tehran',
+    'Shiraz',
+    'Mashhad',
+    'Isfahan',
+    'Tabriz',
+    'Karaj',
+    'Ahvaz',
+    'Qom',
+    'Kerman',
+    'Rasht',
+  ] as const;
   const consultRotation = ['ONLINE', 'IN_PERSON', 'BOTH'] as const;
+  const persianFirstNames = [
+    'فاطمه', 'زهرا', 'مریم', 'سارا', 'نرگس', 'لیلا', 'مینا', 'شیدا', 'پریسا', 'نسرین',
+    'الهام', 'ریحانه', 'سمیه', 'طاهره', 'مهسا', 'نگار', 'فریبا', 'گیتی', 'هانیه', 'یسنا',
+    'امیر', 'علی', 'محمد', 'حسین', 'رضا', 'مهدی', 'سعید', 'کامران', 'بهرام', 'داریوش',
+    'آرش', 'پویا', 'نیما', 'سینا', 'امین', 'فرهاد', 'کیوان', 'مانی', 'پیمان', 'شایان',
+  ];
+  const persianLastNames = [
+    'احمدی', 'محمدی', 'حسینی', 'رضایی', 'کریمی', 'جعفری', 'موسوی', 'علوی', 'نجفی', 'صادقی',
+    'اکبری', 'قاسمی', 'رحیمی', 'شریفی', 'مهدوی', 'باقری', 'امینی', 'طاهری', 'نوری', 'زارعی',
+    'غلامی', 'فیروزی', 'یزدی', 'کرمی', 'هاشمی', 'سلطانی', 'نظری', 'پورمحمد', 'خسروی', 'آذری',
+    'تهرانی', 'اصفهانی', 'شیرازی', 'مشهدی', 'تبریزی', 'رنجبر', 'اسدی', 'عزیزی', 'مرادی', 'لطیفی',
+  ];
+  const buildPersianDoctorName = (index: number): string => {
+    const first = persianFirstNames[index % persianFirstNames.length];
+    const last =
+      persianLastNames[
+        Math.floor(index / persianFirstNames.length) % persianLastNames.length
+      ];
+    return `دکتر ${first} ${last}`;
+  };
 
-  for (let i = 0; i < 50; i++) {
+  const upsertDoctor = async (i: number) => {
     const id = deterministicDoctorUuid(i);
     const n = i + 1;
     const specialty = doctorSpecialties[i % doctorSpecialties.length];
     const consultationType = consultRotation[i % consultRotation.length];
+    const doctorData = {
+      fullName: buildPersianDoctorName(i),
+      specialty,
+      experienceYears: 5 + (i % 20),
+      about: `Board-certified specialist in ${specialty}. Seed profile #${n} for development and demos.`,
+      rating: 4.2 + (i % 8) * 0.1,
+      profileImageUrl: 'assets/images/user-avatar.png',
+      clinicName: `کلینیک نورا ${n}`,
+      location: doctorCities[i % doctorCities.length],
+      contactEmail: `doctor.seed${n}@nouracare.app`,
+      contactPhone: `+98912${String(1_000_000 + n).slice(1)}`,
+      consultationType,
+      fee: 1_500_000 + (i % 10) * 250_000,
+      isVerified: true,
+      verifiedAt: now(),
+      updatedAt: now(),
+    };
     await db.doctors.upsert({
       where: { id },
-      update: {
-        fullName: `Dr. Seed Provider ${n}`,
-        specialty,
-        experienceYears: 5 + (i % 20),
-        about: `Board-certified specialist in ${specialty}. Seed profile #${n} for development and demos.`,
-        rating: 4.2 + (i % 8) * 0.1,
-        profileImageUrl: 'assets/images/user-avatar.png',
-        clinicName: `Wellness Clinic ${n}`,
-        location: doctorCities[i % doctorCities.length],
-        contactEmail: `doctor.seed${n}@nouracare.app`,
-        contactPhone: `+98912100${String(n).padStart(3, '0')}`,
-        consultationType,
-        fee: 1_500_000 + (i % 10) * 250_000,
-        isVerified: true,
-        verifiedAt: now(),
-        updatedAt: now(),
-      },
-      create: {
-        id,
-        fullName: `Dr. Seed Provider ${n}`,
-        specialty,
-        experienceYears: 5 + (i % 20),
-        about: `Board-certified specialist in ${specialty}. Seed profile #${n} for development and demos.`,
-        rating: 4.2 + (i % 8) * 0.1,
-        profileImageUrl: 'assets/images/user-avatar.png',
-        clinicName: `Wellness Clinic ${n}`,
-        location: doctorCities[i % doctorCities.length],
-        contactEmail: `doctor.seed${n}@nouracare.app`,
-        contactPhone: `+98912100${String(n).padStart(3, '0')}`,
-        consultationType,
-        fee: 1_500_000 + (i % 10) * 250_000,
-        isVerified: true,
-        verifiedAt: now(),
-        createdAt: now(),
-        updatedAt: now(),
-      },
+      update: doctorData,
+      create: { id, ...doctorData, createdAt: now() },
     });
+  };
+
+  const batchSize = 50;
+  for (let start = 0; start < DOCTOR_SEED_COUNT; start += batchSize) {
+    const end = Math.min(start + batchSize, DOCTOR_SEED_COUNT);
+    await Promise.all(
+      Array.from({ length: end - start }, (_, offset) => upsertDoctor(start + offset)),
+    );
   }
-  console.log('✅ Doctors (50 seed records)');
+  console.log(`✅ Doctors (${DOCTOR_SEED_COUNT} seed records)`);
 
   // 7. Addresses (no unique key except id; create if none)
   const hasAddress = await db.address.findFirst({ where: { userId: adminUser.id } });

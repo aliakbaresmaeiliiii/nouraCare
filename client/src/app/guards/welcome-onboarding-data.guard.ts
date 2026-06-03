@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { hasLocalNouraCareOnboardingProfile } from './onboarding-local-storage.util';
 
 /**
- * `/welcome` is for users who already have a local questionnaire snapshot or an auth session.
+ * `/auth/sign-in` is for users who already have a local questionnaire snapshot or an auth session.
  * Otherwise send them through `/onboarding` first (including the in-flow welcome step).
  */
 export const welcomeRequiresProfileOrSessionGuard: CanActivateFn = () => {

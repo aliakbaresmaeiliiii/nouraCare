@@ -365,6 +365,25 @@
   justify-content: center;
 }
 
+.pregnancy-hero-disk-shell:not(.pregnancy-hero-disk-shell--no-ring)::before {
+  content: '';
+  position: absolute;
+  inset: -2%;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.38;
+  background: conic-gradient(
+    from 210deg,
+    rgba(255, 202, 186, 0.48) 0%,
+    rgba(242, 160, 144, 0.38) 25%,
+    rgba(216, 106, 82, 0.4) 50%,
+    rgba(var(--brand-secondary-rgb), 0.22) 72%,
+    rgba(255, 202, 186, 0.44) 100%
+  );
+  animation: app-brand-ring-rotate 12s linear infinite;
+}
+
 .pregnancy-hero-progress-ring {
   position: absolute;
   inset: -7px;
@@ -372,6 +391,7 @@
   height: calc(100% + 14px);
   pointer-events: none;
   overflow: visible;
+  z-index: 1;
 }
 
 /* Soft outer cushion so the ring reads as one control, not a thin scratch. */
@@ -404,7 +424,7 @@
 
 .pregnancy-hero-disk-shell .pregnancy-hero-disk {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: calc(100% - 22px);
   max-width: calc(100% - 22px);
   height: auto;
@@ -1710,6 +1730,10 @@
       drop-shadow(0 0 8px rgba(var(--ion-color-primary-rgb), 0.35));
   }
 
+  .pregnancy-hero-disk-shell:not(.pregnancy-hero-disk-shell--no-ring)::before {
+    opacity: 0.42;
+  }
+
   .pregnancy-daily-insights-title,
   .pregnancy-insight-card-footer {
     color: var(--ion-text-color);
@@ -1842,6 +1866,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pregnancy-hero-disk-shell:not(.pregnancy-hero-disk-shell--no-ring)::before,
   .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-circle,
   .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-emoji,
   .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-img {

@@ -16,6 +16,7 @@ import {
   bagOutline,
   cartOutline,
   chevronBack,
+  chevronForwardOutline,
   funnelOutline,
   gridOutline,
   heartOutline,
@@ -32,6 +33,7 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { SHOP_CATEGORIES, SHOP_PRODUCTS } from './data/shop-catalog.data';
 import {
   ShopCategoryId,
+  ShopCategoryRow,
   ShopFilters,
   ShopProduct,
   ShopSortOption,
@@ -59,6 +61,8 @@ export class ShopComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   categories = SHOP_CATEGORIES;
+  readonly browseCategories = SHOP_CATEGORIES.filter((cat) => cat.id !== 'all');
+
   filters: ShopFilters = {
     category: 'all',
     search: '',
@@ -67,14 +71,11 @@ export class ShopComponent implements OnInit {
     onSaleOnly: false,
   };
 
-  filteredProducts: ShopProduct[] = [];
-  visibleProducts: ShopProduct[] = [];
+  categoryRows: ShopCategoryRow[] = [];
   showFilters = false;
-  loadingMoreProducts = false;
-  hasMoreProducts = false;
 
-  private allFilteredProducts: ShopProduct[] = [];
   private readonly productBatchSize = 6;
+  private readonly rowVisibleCounts = new Map<ShopCategoryId, number>();
 
   private readonly syncCartBadge = effect(() => {
     this.cart.itemCount();
@@ -84,6 +85,7 @@ export class ShopComponent implements OnInit {
   ngOnInit(): void {
     addIcons({
       chevronBack,
+      chevronForwardOutline,
       cartOutline,
       bagOutline,
       funnelOutline,
@@ -109,11 +111,15 @@ export class ShopComponent implements OnInit {
   }
 
   get hasProducts(): boolean {
-    return this.allFilteredProducts.length > 0;
+    return this.categoryRows.length > 0;
   }
 
   get productCount(): number {
-    return this.allFilteredProducts.length;
+    return this.categoryRows.reduce((sum, row) => sum + row.products.length, 0);
+  }
+
+  get isMultiRowBrowse(): boolean {
+    return this.filters.category === 'all';
   }
 
   goBack(): void {
@@ -131,6 +137,10 @@ export class ShopComponent implements OnInit {
   setCategory(category: ShopCategoryId): void {
     this.filters = { ...this.filters, category };
     this.applyFilters();
+  }
+
+  focusCategory(categoryId: ShopCategoryId): void {
+    this.setCategory(categoryId);
   }
 
   onSearch(event: Event): void {
@@ -232,53 +242,63 @@ export class ShopComponent implements OnInit {
     return this.translation.translate(key);
   }
 
-  resultsLabel(): string {
-    if (this.hasMoreProducts) {
-      return this.translation.translateParams('shop.resultsCountPartial', {
-        shown: this.visibleProducts.length,
-        total: this.allFilteredProducts.length,
-      });
-    }
-    return this.translation.translateParams('shop.resultsCount', {
-      count: this.allFilteredProducts.length,
+  rowCountLabel(row: ShopCategoryRow): string {
+    return this.translation.translateParams('shop.categoryProductCount', {
+      count: row.products.length,
     });
   }
 
-  onProductsScroll(event: Event): void {
-    const el = event.currentTarget as HTMLElement;
-    if (!el || !this.hasMoreProducts || this.loadingMoreProducts) {
-      return;
-    }
-
-    const threshold = 72;
-    const remaining = el.scrollWidth - el.clientWidth - Math.abs(el.scrollLeft);
-    if (remaining <= threshold) {
-      this.loadMoreProducts();
-    }
+  resultsLabel(): string {
+    return this.translation.translateParams('shop.resultsCount', {
+      count: this.productCount,
+    });
   }
 
-  private loadMoreProducts(): void {
-    if (!this.hasMoreProducts || this.loadingMoreProducts) {
+  getRowVisibleProducts(row: ShopCategoryRow): ShopProduct[] {
+    if (!this.isMultiRowBrowse) {
+      return row.products;
+    }
+
+    const count = this.rowVisibleCounts.get(row.category.id) ?? this.productBatchSize;
+    return row.products.slice(0, count);
+  }
+
+  rowHasMore(row: ShopCategoryRow): boolean {
+    if (!this.isMultiRowBrowse) {
+      return false;
+    }
+    const count = this.rowVisibleCounts.get(row.category.id) ?? this.productBatchSize;
+    return count < row.products.length;
+  }
+
+  onRowScroll(categoryId: ShopCategoryId, event: Event): void {
+    if (!this.isMultiRowBrowse) {
       return;
     }
 
-    this.loadingMoreProducts = true;
-    const nextCount = Math.min(
-      this.visibleProducts.length + this.productBatchSize,
-      this.allFilteredProducts.length,
+    const row = this.categoryRows.find((entry) => entry.category.id === categoryId);
+    if (!row || !this.rowHasMore(row)) {
+      return;
+    }
+
+    const el = event.currentTarget as HTMLElement;
+    const threshold = 72;
+    const remaining = el.scrollWidth - el.clientWidth - Math.abs(el.scrollLeft);
+    if (remaining > threshold) {
+      return;
+    }
+
+    const current = this.rowVisibleCounts.get(categoryId) ?? this.productBatchSize;
+    this.rowVisibleCounts.set(
+      categoryId,
+      Math.min(current + this.productBatchSize, row.products.length),
     );
-    this.visibleProducts = this.allFilteredProducts.slice(0, nextCount);
-    this.hasMoreProducts = nextCount < this.allFilteredProducts.length;
-    this.loadingMoreProducts = false;
     this.cdr.markForCheck();
   }
 
   private applyFilters(): void {
     let list = [...SHOP_PRODUCTS];
 
-    if (this.filters.category !== 'all') {
-      list = list.filter((p) => p.category === this.filters.category);
-    }
     if (this.filters.search) {
       const q = this.filters.search.toLowerCase();
       list = list.filter(
@@ -294,42 +314,59 @@ export class ShopComponent implements OnInit {
       list = list.filter((p) => p.originalPrice != null);
     }
 
-    switch (this.filters.sort) {
-      case 'price-asc':
-        list.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-desc':
-        list.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        list.sort((a, b) => b.rating - a.rating);
-        break;
-      default:
-        list.sort((a, b) => b.reviewCount - a.reviewCount);
+    list = this.sortProducts(list);
+
+    const grouped = new Map<Exclude<ShopCategoryId, 'all'>, ShopProduct[]>();
+    for (const product of list) {
+      const bucket = grouped.get(product.category) ?? [];
+      bucket.push(product);
+      grouped.set(product.category, bucket);
     }
 
-    this.allFilteredProducts = list;
-    this.filteredProducts = list;
-    this.resetVisibleProducts();
+    const visibleCategories = this.browseCategories.filter((cat) => {
+      if (this.filters.category !== 'all' && cat.id !== this.filters.category) {
+        return false;
+      }
+      return (grouped.get(cat.id as Exclude<ShopCategoryId, 'all'>)?.length ?? 0) > 0;
+    });
+
+    this.rowVisibleCounts.clear();
+    this.categoryRows = visibleCategories.map((category) => ({
+      category,
+      products: grouped.get(category.id as Exclude<ShopCategoryId, 'all'>) ?? [],
+    }));
+
+    for (const row of this.categoryRows) {
+      this.rowVisibleCounts.set(row.category.id, this.productBatchSize);
+    }
+
     this.cdr.markForCheck();
   }
 
-  private resetVisibleProducts(): void {
-    const initialCount = Math.min(this.productBatchSize, this.allFilteredProducts.length);
-    this.visibleProducts = this.allFilteredProducts.slice(0, initialCount);
-    this.hasMoreProducts = initialCount < this.allFilteredProducts.length;
+  private sortProducts(list: ShopProduct[]): ShopProduct[] {
+    const sorted = [...list];
+    switch (this.filters.sort) {
+      case 'price-asc':
+        return sorted.sort((a, b) => a.price - b.price);
+      case 'price-desc':
+        return sorted.sort((a, b) => b.price - a.price);
+      case 'rating':
+        return sorted.sort((a, b) => b.rating - a.rating);
+      default:
+        return sorted.sort((a, b) => b.reviewCount - a.reviewCount);
+    }
   }
 
   private async showToast(
     key: string,
     color: 'success' | 'warning' = 'success',
   ): Promise<void> {
-    const t = await this.toast.create({
+    const toast = await this.toast.create({
       message: this.t(key),
       duration: 2200,
       color,
       position: 'bottom',
     });
-    await t.present();
+    await toast.present();
   }
 }

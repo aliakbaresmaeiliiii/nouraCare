@@ -12,6 +12,26 @@ export const DOCTOR_SPECIALTIES = [
   'Fertility Specialist',
   'Prenatal Care',
   'High-Risk Pregnancy',
+  'Pediatrics',
+  'Neonatology',
+  'Midwifery',
+  'Lactation Consultant',
+  'Perinatal Psychiatry',
+  'Genetic Counseling',
+  'Obstetric Anesthesiology',
+  "Women's Health Nutrition",
+  'Pelvic Floor Physical Therapy',
+  'Pediatric Cardiology',
+  'Endocrinology',
+  'Dermatology',
+  'Clinical Psychology',
+  'Radiology',
+  'Ultrasound Specialist',
+  'General Practice',
+  'Internal Medicine',
+  'Urology',
+  'Infectious Disease',
+  'Emergency Medicine',
 ] as const;
 
 const SPECIALTY_TRANSLATION_KEYS: Record<string, string> = {
@@ -21,6 +41,26 @@ const SPECIALTY_TRANSLATION_KEYS: Record<string, string> = {
   'Fertility Specialist': 'doctor.specialty.fertilitySpecialist',
   'Prenatal Care': 'doctor.specialty.prenatalCare',
   'High-Risk Pregnancy': 'doctor.specialty.highRiskPregnancy',
+  Pediatrics: 'doctor.specialty.pediatrics',
+  Neonatology: 'doctor.specialty.neonatology',
+  Midwifery: 'doctor.specialty.midwifery',
+  'Lactation Consultant': 'doctor.specialty.lactationConsultant',
+  'Perinatal Psychiatry': 'doctor.specialty.perinatalPsychiatry',
+  'Genetic Counseling': 'doctor.specialty.geneticCounseling',
+  'Obstetric Anesthesiology': 'doctor.specialty.obstetricAnesthesiology',
+  "Women's Health Nutrition": 'doctor.specialty.womensHealthNutrition',
+  'Pelvic Floor Physical Therapy': 'doctor.specialty.pelvicFloorPhysicalTherapy',
+  'Pediatric Cardiology': 'doctor.specialty.pediatricCardiology',
+  Endocrinology: 'doctor.specialty.endocrinology',
+  Dermatology: 'doctor.specialty.dermatology',
+  'Clinical Psychology': 'doctor.specialty.clinicalPsychology',
+  Radiology: 'doctor.specialty.radiology',
+  'Ultrasound Specialist': 'doctor.specialty.ultrasoundSpecialist',
+  'General Practice': 'doctor.specialty.generalPractice',
+  'Internal Medicine': 'doctor.specialty.internalMedicine',
+  Urology: 'doctor.specialty.urology',
+  'Infectious Disease': 'doctor.specialty.infectiousDisease',
+  'Emergency Medicine': 'doctor.specialty.emergencyMedicine',
 };
 
 const LOCATION_TRANSLATION_KEYS: Record<string, string> = {
@@ -28,6 +68,12 @@ const LOCATION_TRANSLATION_KEYS: Record<string, string> = {
   Shiraz: 'doctor.location.shiraz',
   Mashhad: 'doctor.location.mashhad',
   Isfahan: 'doctor.location.isfahan',
+  Tabriz: 'doctor.location.tabriz',
+  Karaj: 'doctor.location.karaj',
+  Ahvaz: 'doctor.location.ahvaz',
+  Qom: 'doctor.location.qom',
+  Kerman: 'doctor.location.kerman',
+  Rasht: 'doctor.location.rasht',
   'New York, NY': 'doctor.location.newYork',
   'Los Angeles, CA': 'doctor.location.losAngeles',
 };
@@ -40,8 +86,16 @@ const PLACEHOLDER_IMAGE_FRAGMENTS = [
   'bg-01.png',
 ];
 
-const SEED_ABOUT_PATTERN =
-  /^Board-certified specialist in (.+)\. Seed profile #(\d+) for development and demos\.$/;
+const SEED_ABOUT_PATTERNS = [
+  /^Board-certified specialist in (.+)\. Seed profile #(\d+) for development and demos\.$/i,
+  /^Board-certified specialist in (.+)\. Profile #(\d+)\.$/i,
+  /^Board-certified specialist in (.+)\. Seed profile #(\d+)\.$/i,
+];
+
+const ENGLISH_PLACEHOLDER_ABOUT =
+  /board-certified|seed profile|development and demos|profile #\d+/i;
+
+const PERSIAN_SCRIPT = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/;
 
 const WELLNESS_CLINIC_PATTERN = /^Wellness Clinic (\d+)$/;
 
@@ -78,20 +132,25 @@ export class DoctorDisplayService {
 
   getAboutText(doctor: DoctorDto): string {
     const about = doctor.about?.trim();
-    if (!about) {
-      return '';
+    const lang = this.language.getCurrentLanguage();
+
+    if (about && this.containsPersianScript(about)) {
+      return about;
     }
 
-    const seedMatch = about.match(SEED_ABOUT_PATTERN);
-    if (seedMatch) {
-      const [, specialtyEn, number] = seedMatch;
-      return this.translation.translateParams('doctor.about.seed', {
-        specialty: this.getSpecialtyLabel(specialtyEn),
-        number,
-      });
+    if (about && this.isEnglishSeedOrPlaceholderAbout(about)) {
+      return this.buildSeedAbout(doctor, this.extractSeedSpecialty(about));
     }
 
-    return about;
+    if (lang === 'fa') {
+      return this.buildDefaultAbout(doctor);
+    }
+
+    if (about) {
+      return about;
+    }
+
+    return this.buildDefaultAbout(doctor);
   }
 
   getAboutExcerpt(doctor: DoctorDto, maxLen = 100): string {
@@ -168,6 +227,41 @@ export class DoctorDisplayService {
       return '';
     }
     return formatDoctorFee(fee, this.language.getCurrentLanguage());
+  }
+
+  private containsPersianScript(text: string): boolean {
+    return PERSIAN_SCRIPT.test(text);
+  }
+
+  private isEnglishSeedOrPlaceholderAbout(text: string): boolean {
+    return SEED_ABOUT_PATTERNS.some((pattern) => pattern.test(text)) || ENGLISH_PLACEHOLDER_ABOUT.test(text);
+  }
+
+  private extractSeedSpecialty(about: string): string | undefined {
+    for (const pattern of SEED_ABOUT_PATTERNS) {
+      const match = about.match(pattern);
+      if (match?.[1]) {
+        return match[1].trim();
+      }
+    }
+    return undefined;
+  }
+
+  private buildSeedAbout(doctor: DoctorDto, specialtyFromAbout?: string): string {
+    const specialty = specialtyFromAbout
+      ? this.getSpecialtyLabel(specialtyFromAbout)
+      : this.getSpecialtyLabel(doctor.specialty);
+    return this.translation.translateParams('doctor.about.seed', {
+      specialty,
+      years: String(doctor.experienceYears ?? 0),
+    });
+  }
+
+  private buildDefaultAbout(doctor: DoctorDto): string {
+    return this.translation.translateParams('doctor.about.default', {
+      specialty: this.getSpecialtyLabel(doctor.specialty),
+      years: String(doctor.experienceYears ?? 0),
+    });
   }
 
   private hasRealProfileImage(url?: string | null): boolean {

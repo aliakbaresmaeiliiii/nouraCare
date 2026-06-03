@@ -12,6 +12,7 @@ import {
   ARTICLE_PUBLISH_DATE_BY_ID,
   ARTICLE_READ_MINUTES_BY_ID,
   VALID_ARTICLE_IDS,
+  isPremiumArticleId,
 } from '../content/article-translations.content';
 
 const DATABASE_BY_LANG: Record<string, Record<string, ArticleContent>> = {
@@ -43,6 +44,10 @@ export class ArticleContentService {
 
   getRelatedTitle(relatedId: string): string {
     return this.translation.translate(`insights.article.${relatedId}`);
+  }
+
+  isPremiumArticle(articleId: string): boolean {
+    return isPremiumArticleId(articleId);
   }
 
   private buildStubArticle(articleId: string): ArticleContent {

@@ -43,3 +43,8 @@ export interface ShopFilters {
   inStockOnly: boolean;
   onSaleOnly: boolean;
 }
+
+export interface ShopCategoryRow {
+  category: ShopCategory;
+  products: ShopProduct[];
+}

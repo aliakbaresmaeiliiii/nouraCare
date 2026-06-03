@@ -4,6 +4,6 @@ import { shouldOpenOnboardingFirst } from './onboarding-local-storage.util';
 
 export const initialRouteGuard: CanActivateFn = () => {
   const router = inject(Router);
-  const path = shouldOpenOnboardingFirst() ? '/onboarding' : '/welcome';
+  const path = shouldOpenOnboardingFirst() ? '/onboarding' : '/auth/sign-in';
   return router.createUrlTree([path]);
 };

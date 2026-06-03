@@ -32,6 +32,9 @@ import {
 import {
   countAvailableSlotsForDate,
   groupSlotsByDate,
+  hasSlotsForDate,
+  bookingScheduleMonthRange,
+  isBookingMonthBefore,
 } from '../../utils/doctor-booking-schedule.util';
 import { getCalendarWeekdayLabels, formatLocalizedNumber } from '../../utils/locale-date-format.util';
 
@@ -57,6 +60,7 @@ export class DoctorBookingCalendarComponent implements OnInit, OnChanges, OnDest
   calendarDays: Date[] = [];
   daySlots: DoctorBookingTimeSlot[] = [];
   private slotsByDate = new Map<string, DoctorBookingTimeSlot[]>();
+  private scheduleMonthRange: { min: Date; max: Date } | null = null;
 
   private readonly languageService = inject(LanguageService);
   private readonly translation = inject(TranslationService);
@@ -84,9 +88,12 @@ export class DoctorBookingCalendarComponent implements OnInit, OnChanges, OnDest
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['slots'] || changes['selectedDateIso']) {
       this.slotsByDate = groupSlotsByDate(this.slots);
+      this.scheduleMonthRange = bookingScheduleMonthRange(this.slots);
       this.refreshView();
+      this.cdr.markForCheck();
     } else if (changes['selectedSlotId']) {
       this.refreshDaySlots();
+      this.cdr.markForCheck();
     }
   }
 
@@ -119,14 +126,42 @@ export class DoctorBookingCalendarComponent implements OnInit, OnChanges, OnDest
     return this.translation.translate(key);
   }
 
+  get canGoPreviousMonth(): boolean {
+    if (!this.scheduleMonthRange) {
+      return false;
+    }
+    return isBookingMonthBefore(
+      this.scheduleMonthRange.min,
+      this.currentMonth,
+    );
+  }
+
+  get canGoNextMonth(): boolean {
+    if (!this.scheduleMonthRange) {
+      return false;
+    }
+    return isBookingMonthBefore(
+      this.currentMonth,
+      this.scheduleMonthRange.max,
+    );
+  }
+
   previousMonth(): void {
+    if (!this.canGoPreviousMonth) {
+      return;
+    }
     this.currentMonth = addBookingMonths(this.currentMonth, -1);
     this.refreshCalendar();
+    this.cdr.markForCheck();
   }
 
   nextMonth(): void {
+    if (!this.canGoNextMonth) {
+      return;
+    }
     this.currentMonth = addBookingMonths(this.currentMonth, 1);
     this.refreshCalendar();
+    this.cdr.markForCheck();
   }
 
   selectDate(day: Date): void {
@@ -162,7 +197,7 @@ export class DoctorBookingCalendarComponent implements OnInit, OnChanges, OnDest
     if (!this.isCurrentMonth(day)) {
       return false;
     }
-    return countAvailableSlotsForDate(this.slots, bookingIsoDateKey(day)) > 0;
+    return hasSlotsForDate(this.slots, bookingIsoDateKey(day));
   }
 
   hasAvailability(day: Date): boolean {
@@ -200,7 +235,22 @@ export class DoctorBookingCalendarComponent implements OnInit, OnChanges, OnDest
     if (this.selectedDateIso) {
       const anchor = new Date(`${this.selectedDateIso}T12:00:00`);
       this.currentMonth = startOfBookingMonth(anchor);
+    } else if (this.scheduleMonthRange) {
+      this.currentMonth = new Date(this.scheduleMonthRange.min);
     }
+
+    if (this.scheduleMonthRange) {
+      if (
+        isBookingMonthBefore(this.currentMonth, this.scheduleMonthRange.min)
+      ) {
+        this.currentMonth = new Date(this.scheduleMonthRange.min);
+      } else if (
+        isBookingMonthBefore(this.scheduleMonthRange.max, this.currentMonth)
+      ) {
+        this.currentMonth = new Date(this.scheduleMonthRange.max);
+      }
+    }
+
     this.refreshCalendar();
     this.refreshDaySlots();
   }

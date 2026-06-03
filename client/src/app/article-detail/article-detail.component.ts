@@ -13,6 +13,11 @@ import { FavoritesService } from '../shared/services/favorites.service';
 import { ArticleContentService } from '../shared/services/article-content.service';
 import { TranslationService } from '../shared/services/translation.service';
 import { LanguageService } from '../shared/services/language.service';
+import {
+  DEFAULT_SUBSCRIPTION_SUMMARY,
+  SubscriptionService,
+} from '../shared/services/subscription.service';
+import { catchError, of, take } from 'rxjs';
 import { LogoLoadingComponent } from '../shared/components/logo-loading/logo-loading.component';
 import { TranslatePipe } from '../shared/pipes/translate.pipe';
 import {
@@ -58,11 +63,14 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
   private readonly articleContent = inject(ArticleContentService);
   private readonly translation = inject(TranslationService);
   private readonly languageService = inject(LanguageService);
+  private readonly subscriptionService = inject(SubscriptionService);
   private readonly cdr = inject(ChangeDetectorRef);
   private langChangeSub?: Subscription;
   private routeParamsSub?: Subscription;
   private favoritesSub?: Subscription;
   private currentArticleId = '';
+  private hasPremiumAccess = false;
+  private premiumAccessLoaded = false;
 
   get loadingMessage(): string {
     return this.t('article.loading');
@@ -99,10 +107,42 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
   loadArticle(articleId: string) {
     this.isLoading = true;
     this.readProgress = 0;
-    this.applyArticle(articleId);
-    this.isFavorite = this.favoritesService.isFavoriteSync(articleId);
-    this.isLoading = false;
     this.cdr.markForCheck();
+
+    this.ensurePremiumAccess(() => {
+      if (
+        this.articleContent.isPremiumArticle(articleId) &&
+        !this.hasPremiumAccess
+      ) {
+        this.isLoading = false;
+        void this.router.navigate(['/nouracare-pro']);
+        return;
+      }
+
+      this.applyArticle(articleId);
+      this.isFavorite = this.favoritesService.isFavoriteSync(articleId);
+      this.isLoading = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  private ensurePremiumAccess(onReady: () => void): void {
+    if (this.premiumAccessLoaded) {
+      onReady();
+      return;
+    }
+
+    this.subscriptionService
+      .getSummary()
+      .pipe(
+        catchError(() => of(DEFAULT_SUBSCRIPTION_SUMMARY)),
+        take(1),
+      )
+      .subscribe((summary) => {
+        this.hasPremiumAccess = summary.hasPremiumAccess;
+        this.premiumAccessLoaded = true;
+        onReady();
+      });
   }
 
   private applyArticle(articleId: string): void {
@@ -268,7 +308,14 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
   }
 
   openRelatedArticle(articleId: string) {
-    this.router.navigate(['/article', articleId]);
+    if (
+      this.articleContent.isPremiumArticle(articleId) &&
+      !this.hasPremiumAccess
+    ) {
+      void this.router.navigate(['/nouracare-pro']);
+      return;
+    }
+    void this.router.navigate(['/article', articleId]);
   }
 
   private t(key: string): string {

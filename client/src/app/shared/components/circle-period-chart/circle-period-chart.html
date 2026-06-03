@@ -4,13 +4,6 @@
   [class.cycle-chart-container--phase-fertile]="cycleDiskPhase === 'fertile'"
   [class.cycle-chart-container--phase-ovulation]="cycleDiskPhase === 'ovulation'"
 >
-  <div class="cycle-chart-drift" aria-hidden="true">
-    <div class="cycle-chart-drift-box">
-      <div class="cycle-chart-drift-wave"></div>
-      <div class="cycle-chart-drift-wave cycle-chart-drift-wave--two"></div>
-      <div class="cycle-chart-drift-wave cycle-chart-drift-wave--three"></div>
-    </div>
-  </div>
   @if (showWeekStrip) {
     <div class="cycle-chart-week-hero pregnancy-connect-wrapper cycle-calendar-connect">
       <div
@@ -55,7 +48,8 @@
   }
 
   <!-- Main Chart -->
-  <div class="chart-wrapper" >
+  <div class="chart-wrapper">
+    <div class="chart-motion-ring" aria-hidden="true"></div>
     <svg
       viewBox="50 50 500 500"
       class="cycle-chart"
@@ -261,20 +255,6 @@
           class="chart-track-ring"
         ></circle>
 
-        <!-- Soft ambient glow behind segments -->
-        <circle
-          r="224"
-          fill="url(#auraGradient1)"
-          filter="url(#auraBlur)"
-          class="chart-aura chart-aura--one"
-        />
-        <circle
-          r="216"
-          fill="url(#auraGradient2)"
-          filter="url(#auraBlur)"
-          class="chart-aura chart-aura--two"
-        />
-
         <!-- Cycle progress arc (Flo-style completion sweep) -->
         @if (startDate && viewCycleDay >= 1) {
           <circle
@@ -375,7 +355,6 @@
 
         <!-- Center content — frosted glass panel (Flo-style) -->
         <g class="center-content" role="status" aria-live="polite">
-          <circle r="168" class="center-glow-ring" />
           <circle
             r="160"
             stroke-width="1.5"

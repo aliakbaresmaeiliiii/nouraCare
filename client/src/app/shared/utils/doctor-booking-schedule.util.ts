@@ -1,5 +1,17 @@
 import { DoctorBookingTimeSlot } from '../models/doctor-booking.model';
-import { bookingIsoDateKey } from './doctor-booking-format.util';
+import {
+  bookingIsoDateKey,
+  slotBookingDateKey,
+} from './doctor-booking-format.util';
+
+function compareSlotsByTime(
+  a: DoctorBookingTimeSlot,
+  b: DoctorBookingTimeSlot,
+): number {
+  const aTime = a.scheduledAt ? new Date(a.scheduledAt).getTime() : 0;
+  const bTime = b.scheduledAt ? new Date(b.scheduledAt).getTime() : 0;
+  return aTime - bTime;
+}
 
 export function groupSlotsByDate(
   slots: DoctorBookingTimeSlot[],
@@ -7,20 +19,17 @@ export function groupSlotsByDate(
   const grouped = new Map<string, DoctorBookingTimeSlot[]>();
 
   for (const slot of slots) {
-    if (!slot.scheduledAt) {
+    const key = slotBookingDateKey(slot);
+    if (!key) {
       continue;
     }
-    const key = bookingIsoDateKey(slot.scheduledAt);
     const list = grouped.get(key) ?? [];
     list.push(slot);
     grouped.set(key, list);
   }
 
   for (const list of grouped.values()) {
-    list.sort(
-      (a, b) =>
-        new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime(),
-    );
+    list.sort(compareSlotsByTime);
   }
 
   return grouped;
@@ -31,24 +40,68 @@ export function countAvailableSlotsForDate(
   isoDate: string,
 ): number {
   return slots.filter(
-    (slot) =>
-      slot.available &&
-      slot.scheduledAt &&
-      bookingIsoDateKey(slot.scheduledAt) === isoDate,
+    (slot) => slot.available && slotBookingDateKey(slot) === isoDate,
   ).length;
+}
+
+export function hasSlotsForDate(
+  slots: DoctorBookingTimeSlot[],
+  isoDate: string,
+): boolean {
+  return slots.some((slot) => slotBookingDateKey(slot) === isoDate);
 }
 
 export function firstBookableDateIso(
   slots: DoctorBookingTimeSlot[],
 ): string | null {
-  const available = slots
-    .filter((slot) => slot.available && slot.scheduledAt)
-    .sort(
-      (a, b) =>
-        new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime(),
-    );
+  const dated = slots
+    .map((slot) => ({ slot, key: slotBookingDateKey(slot) }))
+    .filter(
+      (entry): entry is { slot: DoctorBookingTimeSlot; key: string } =>
+        entry.key != null,
+    )
+    .sort((a, b) => compareSlotsByTime(a.slot, b.slot));
 
-  return available[0]?.scheduledAt
-    ? bookingIsoDateKey(available[0].scheduledAt)
-    : null;
+  const firstAvailable = dated.find((entry) => entry.slot.available);
+  if (firstAvailable) {
+    return firstAvailable.key;
+  }
+
+  return dated[0]?.key ?? null;
+}
+
+export function bookingScheduleMonthRange(
+  slots: DoctorBookingTimeSlot[],
+): { min: Date; max: Date } | null {
+  const keys = slots
+    .map((slot) => slotBookingDateKey(slot))
+    .filter((key): key is string => key != null)
+    .sort();
+
+  if (keys.length === 0) {
+    return null;
+  }
+
+  const minKey = keys[0];
+  const maxKey = keys[keys.length - 1];
+  const [minY, minM] = minKey.split('-').map(Number);
+  const [maxY, maxM] = maxKey.split('-').map(Number);
+
+  return {
+    min: new Date(minY, minM - 1, 1),
+    max: new Date(maxY, maxM - 1, 1),
+  };
+}
+
+export function isSameBookingMonth(left: Date, right: Date): boolean {
+  return (
+    left.getFullYear() === right.getFullYear() &&
+    left.getMonth() === right.getMonth()
+  );
+}
+
+export function isBookingMonthBefore(left: Date, right: Date): boolean {
+  const leftIndex = left.getFullYear() * 12 + left.getMonth();
+  const rightIndex = right.getFullYear() * 12 + right.getMonth();
+  return leftIndex < rightIndex;
 }

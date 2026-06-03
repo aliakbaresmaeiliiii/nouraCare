@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 
 import { Router } from '@angular/router';
 
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom, catchError, of } from 'rxjs';
 
 import { AlertController, ToastController } from '@ionic/angular';
 
@@ -15,6 +15,11 @@ import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { formatRecordedAtDate } from '../shared/utils/locale-date-format.util';
 
 import { LanguageService } from '../shared/services/language.service';
+import { ArticleContentService } from '../shared/services/article-content.service';
+import {
+  DEFAULT_SUBSCRIPTION_SUMMARY,
+  SubscriptionService,
+} from '../shared/services/subscription.service';
 
 
 
@@ -108,6 +113,8 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
   private readonly translation = inject(TranslationService);
 
   private readonly languageService = inject(LanguageService);
+  private readonly articleContent = inject(ArticleContentService);
+  private readonly subscriptionService = inject(SubscriptionService);
 
   public readonly router = inject(Router);
 
@@ -433,6 +440,18 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
       switch (item.type) {
 
         case 'article':
+
+          if (this.articleContent.isPremiumArticle(item.id)) {
+            const summary = await firstValueFrom(
+              this.subscriptionService.getSummary().pipe(
+                catchError(() => of(DEFAULT_SUBSCRIPTION_SUMMARY)),
+              ),
+            );
+            if (!summary.hasPremiumAccess) {
+              await this.router.navigate(['/nouracare-pro']);
+              break;
+            }
+          }
 
           await this.router.navigate(['/article', item.id]);
 

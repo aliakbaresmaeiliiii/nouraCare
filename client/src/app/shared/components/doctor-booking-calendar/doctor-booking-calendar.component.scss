@@ -22,6 +22,11 @@
     ion-icon {
       font-size: 1.15rem;
     }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
   }
 
   &__month {

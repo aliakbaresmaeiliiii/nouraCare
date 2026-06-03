@@ -74,64 +74,82 @@
     }
   </div>
 
-  <div class="shop-results-meta">
-    <span>{{ resultsLabel() }}</span>
-    @if (hasProducts && productCount > 2) {
-      <span class="shop-results-meta__hint">{{ 'shop.swipeProducts' | translate }}</span>
-    }
-  </div>
-
   @if (hasProducts) {
-    <div
-      class="shop-grid-scroll"
-      [attr.aria-label]="'shop.productList' | translate"
-      (scroll)="onProductsScroll($event)"
-    >
-      <div class="shop-grid" role="list">
-        @for (product of visibleProducts; track product.id) {
-          <article class="shop-card" role="listitem" (click)="openProduct(product)">
-          <div class="shop-card__media">
-            <img [src]="product.imageUrl" [alt]="product.titleKey | translate" loading="lazy" />
-            @if (product.badgeKey) {
-              <span class="shop-card__badge">{{ product.badgeKey | translate }}</span>
-            }
-            @if (discountPercent(product); as pct) {
-              <span class="shop-card__discount">-{{ pct | localNum }}%</span>
-            }
-            @if (!product.inStock) {
-              <span class="shop-card__oos">{{ 'shop.outOfStock' | translate }}</span>
+    <div class="shop-results-meta">
+      <span>{{ resultsLabel() }}</span>
+      @if (isMultiRowBrowse) {
+        <span class="shop-results-meta__hint">{{ 'shop.swipeProducts' | translate }}</span>
+      }
+    </div>
+
+    <div class="shop-category-rows">
+      @for (row of categoryRows; track row.category.id) {
+        <section class="shop-category-row" [attr.aria-label]="row.category.labelKey | translate">
+          <div class="shop-category-row__head">
+            <div class="shop-category-row__title">
+              <span class="shop-category-row__icon">
+                <ion-icon [name]="row.category.icon"></ion-icon>
+              </span>
+              <div>
+                <h2>{{ row.category.labelKey | translate }}</h2>
+                <span>{{ rowCountLabel(row) }}</span>
+              </div>
+            </div>
+            @if (isMultiRowBrowse) {
+              <button type="button" class="shop-category-row__see-all" (click)="focusCategory(row.category.id)">
+                {{ 'shop.viewCategory' | translate }}
+                <ion-icon name="chevron-forward-outline"></ion-icon>
+              </button>
             }
           </div>
-          <div class="shop-card__body">
-            <h3>{{ product.titleKey | translate }}</h3>
-            <div class="shop-card__rating">
-              <ion-icon name="star"></ion-icon>
-              <span>{{ product.rating | localNum }}</span>
-              <span class="shop-card__reviews">({{ product.reviewCount | localNum }})</span>
-            </div>
-            <div class="shop-card__prices">
-              <strong>{{ formatPrice(product) }}</strong>
-              @if (formatOriginalPrice(product); as orig) {
-                <s>{{ orig }}</s>
+
+          <div
+            class="shop-grid-scroll"
+            (scroll)="onRowScroll(row.category.id, $event)"
+          >
+            <div class="shop-grid" role="list">
+              @for (product of getRowVisibleProducts(row); track product.id) {
+                <article class="shop-card" role="listitem" (click)="openProduct(product)">
+                  <div class="shop-card__media">
+                    <img [src]="product.imageUrl" [alt]="product.titleKey | translate" loading="lazy" />
+                    @if (product.badgeKey) {
+                      <span class="shop-card__badge">{{ product.badgeKey | translate }}</span>
+                    }
+                    @if (discountPercent(product); as pct) {
+                      <span class="shop-card__discount">-{{ pct | localNum }}%</span>
+                    }
+                    @if (!product.inStock) {
+                      <span class="shop-card__oos">{{ 'shop.outOfStock' | translate }}</span>
+                    }
+                  </div>
+                  <div class="shop-card__body">
+                    <h3>{{ product.titleKey | translate }}</h3>
+                    <div class="shop-card__rating">
+                      <ion-icon name="star"></ion-icon>
+                      <span>{{ product.rating | localNum }}</span>
+                      <span class="shop-card__reviews">({{ product.reviewCount | localNum }})</span>
+                    </div>
+                    <div class="shop-card__prices">
+                      <strong>{{ formatPrice(product) }}</strong>
+                      @if (formatOriginalPrice(product); as orig) {
+                        <s>{{ orig }}</s>
+                      }
+                    </div>
+                    <ion-button
+                      expand="block"
+                      size="small"
+                      class="shop-card__add"
+                      [disabled]="!product.inStock"
+                      (click)="addToCart(product, $event)"
+                    >
+                      {{ 'shop.addToCart' | translate }}
+                    </ion-button>
+                  </div>
+                </article>
               }
             </div>
-            <ion-button
-              expand="block"
-              size="small"
-              class="shop-card__add"
-              [disabled]="!product.inStock"
-              (click)="addToCart(product, $event)"
-            >
-              {{ 'shop.addToCart' | translate }}
-            </ion-button>
           </div>
-        </article>
-        }
-      </div>
-      @if (loadingMoreProducts) {
-        <div class="shop-grid-loading" aria-hidden="true">
-          <ion-spinner name="crescent"></ion-spinner>
-        </div>
+        </section>
       }
     </div>
   } @else {

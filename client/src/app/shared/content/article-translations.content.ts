@@ -390,3 +390,12 @@ export const ARTICLE_READ_MINUTES_BY_ID: Record<string, number> = {
 export const VALID_ARTICLE_IDS = new Set([
   '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
 ]);
+
+/** Premium-gated articles (aligned with Insights catalog). */
+export const PREMIUM_ARTICLE_IDS = new Set([
+  '2', '3', '4', '5', '8', '9', '11', '12', '14', '15',
+]);
+
+export function isPremiumArticleId(articleId: string): boolean {
+  return PREMIUM_ARTICLE_IDS.has(articleId);
+}

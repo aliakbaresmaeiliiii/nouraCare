@@ -166,7 +166,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0 1rem 0.5rem;
+  padding: 0 1rem 0.75rem;
   font-size: 0.8rem;
   color: #94a3b8;
 
@@ -175,6 +175,84 @@
     font-size: 0.72rem;
     color: #cbd5e1;
     white-space: nowrap;
+  }
+}
+
+.shop-category-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 2rem;
+}
+
+.shop-category-row {
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0 1rem 0.65rem;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+
+    h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1e293b;
+      line-height: 1.25;
+    }
+
+    span {
+      display: block;
+      margin-top: 0.15rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(168, 85, 247, 0.12));
+    color: #6366f1;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 1.15rem;
+    }
+  }
+
+  &__see-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    border: 0;
+    background: transparent;
+    color: #6366f1;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    padding: 0.35rem 0;
+
+    ion-icon {
+      font-size: 0.95rem;
+    }
+  }
+
+  .shop-grid {
+    padding-bottom: 0.25rem;
   }
 }
 
@@ -198,19 +276,10 @@
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 0.875rem;
-  padding: 0 1rem 2rem;
+  padding: 0 1rem;
   width: max-content;
   min-width: min-content;
   flex: 0 0 auto;
-}
-
-.shop-grid-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 3rem;
-  padding-inline-end: 1rem;
-  color: #64748b;
 }
 
 .shop-card {
@@ -352,6 +421,10 @@
 
 :host-context([dir='rtl']) {
   .shop-header ion-button ion-icon[name='chevron-back'] {
+    transform: scaleX(-1);
+  }
+
+  .shop-category-row__see-all ion-icon {
     transform: scaleX(-1);
   }
 }

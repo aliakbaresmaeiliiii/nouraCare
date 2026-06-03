@@ -15,6 +15,8 @@ const SHOP_EN: Record<string, string> = {
   'shop.clearFilters': 'Clear filters',
   'shop.resultsCount': '{{count}} products',
   'shop.resultsCountPartial': '{{shown}} of {{total}} products',
+  'shop.categoryProductCount': '{{count}} items',
+  'shop.viewCategory': 'See all',
   'shop.productList': 'Products',
   'shop.swipeProducts': 'Swipe to see more products',
   'shop.noProducts': 'No products match your filters',
@@ -93,6 +95,8 @@ const SHOP_FA: Record<string, string> = {
   'shop.clearFilters': 'پاک کردن فیلترها',
   'shop.resultsCount': '{{count}} محصول',
   'shop.resultsCountPartial': '{{shown}} از {{total}} محصول',
+  'shop.categoryProductCount': '{{count}} کالا',
+  'shop.viewCategory': 'مشاهده همه',
   'shop.productList': 'محصولات',
   'shop.swipeProducts': 'برای دیدن محصولات بیشتر بکشید',
   'shop.noProducts': 'محصولی با این فیلترها یافت نشد',
@@ -155,3 +159,8 @@ const SHOP_FA: Record<string, string> = {
 };
 
 export const SHOP_TRANSLATIONS = {
+  en: SHOP_EN,
+  fa: SHOP_FA,
+  zh: SHOP_EN,
+  ms: SHOP_EN,
+};

@@ -15,6 +15,21 @@ export function bookingIsoDateKey(value: Date | string): string {
   return `${y}-${m}-${d}`;
 }
 
+/** Stable calendar date from server slot id (e.g. 20260603_1030 → 2026-06-03). */
+export function slotBookingDateKey(slot: {
+  id: string;
+  scheduledAt?: string | null;
+}): string | null {
+  const fromId = slot.id.match(/^(\d{4})(\d{2})(\d{2})_/);
+  if (fromId) {
+    return `${fromId[1]}-${fromId[2]}-${fromId[3]}`;
+  }
+  if (slot.scheduledAt) {
+    return bookingIsoDateKey(slot.scheduledAt);
+  }
+  return null;
+}
+
 export function formatBookingTime(
   scheduledAt: string,
   languageCode: string,

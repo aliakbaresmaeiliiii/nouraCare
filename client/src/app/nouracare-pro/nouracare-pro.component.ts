@@ -3,11 +3,12 @@ import { addIcons } from 'ionicons';
 import {
   analyticsOutline,
   bookOutline,
+  bulbOutline,
   calendarOutline,
   checkmarkCircle,
   diamondOutline,
   flashOutline,
-  headsetOutline,
+  heartOutline,
   lockOpenOutline,
   sparklesOutline,
   shieldCheckmarkOutline,
@@ -26,7 +27,7 @@ import { LanguageService } from '../shared/services/language.service';
 import { TranslationService } from '../shared/services/translation.service';
 import { localizeDigitsInText } from '../shared/utils/locale-date-format.util';
 
-interface ProFeature {
+interface ProHelpItem {
   icon: string;
   titleKey: string;
   textKey: string;
@@ -54,36 +55,36 @@ export class NouracareProComponent implements OnInit, ViewWillEnter {
   summary: SubscriptionSummary | null = null;
   billingInterval: BillingInterval = 'YEAR';
 
-  readonly features: ProFeature[] = [
+  readonly helpItems: ProHelpItem[] = [
     {
-      icon: 'analytics-outline',
-      titleKey: 'proPage.feature1Title',
-      textKey: 'proPage.feature1Text',
+      icon: 'calendar-outline',
+      titleKey: 'proPage.help1Title',
+      textKey: 'proPage.help1Text',
+    },
+    {
+      icon: 'heart-outline',
+      titleKey: 'proPage.help2Title',
+      textKey: 'proPage.help2Text',
     },
     {
       icon: 'book-outline',
-      titleKey: 'proPage.feature2Title',
-      textKey: 'proPage.feature2Text',
+      titleKey: 'proPage.help3Title',
+      textKey: 'proPage.help3Text',
     },
     {
-      icon: 'calendar-outline',
-      titleKey: 'proPage.feature3Title',
-      textKey: 'proPage.feature3Text',
+      icon: 'bulb-outline',
+      titleKey: 'proPage.help4Title',
+      textKey: 'proPage.help4Text',
     },
     {
-      icon: 'sparkles-outline',
-      titleKey: 'proPage.feature4Title',
-      textKey: 'proPage.feature4Text',
-    },
-    {
-      icon: 'headset-outline',
-      titleKey: 'proPage.feature5Title',
-      textKey: 'proPage.feature5Text',
+      icon: 'analytics-outline',
+      titleKey: 'proPage.help5Title',
+      textKey: 'proPage.help5Text',
     },
     {
       icon: 'shield-checkmark-outline',
-      titleKey: 'proPage.feature6Title',
-      textKey: 'proPage.feature6Text',
+      titleKey: 'proPage.help6Title',
+      textKey: 'proPage.help6Text',
     },
   ];
 
@@ -91,11 +92,12 @@ export class NouracareProComponent implements OnInit, ViewWillEnter {
     addIcons({
       analyticsOutline,
       bookOutline,
+      bulbOutline,
       calendarOutline,
       checkmarkCircle,
       diamondOutline,
       flashOutline,
-      headsetOutline,
+      heartOutline,
       lockOpenOutline,
       sparklesOutline,
       shieldCheckmarkOutline,
@@ -174,6 +176,26 @@ export class NouracareProComponent implements OnInit, ViewWillEnter {
     }
     return this.tParams('proPage.priceMonthlyDetail', {
       price: this.formatMoney(this.selectedPrice),
+    });
+  }
+
+  heroPriceAmount(): string {
+    if (this.billingInterval === 'YEAR') {
+      const monthly =
+        this.summary?.pricing.yearlyMonthlyEquivalentUsd ??
+        Math.round((this.selectedPrice / 12) * 100) / 100;
+      return this.formatMoney(monthly);
+    }
+    return this.formatMoney(this.selectedPrice);
+  }
+
+  heroPricePeriod(): string {
+    return this.t('proPage.pricePerMonth');
+  }
+
+  yearlyBillingLine(): string {
+    return this.tParams('proPage.billedYearly', {
+      total: this.formatMoney(this.selectedPrice),
     });
   }
 

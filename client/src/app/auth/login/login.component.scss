@@ -1,69 +1,142 @@
-/* Login — calm layout: compact hero, solid readable card, generous touch targets */
-
 .login-page {
-  /* Same wash as the rest of the app (indigo → sky) */
-  --background: var(--app-gradient-soft);
-  --padding-start: 0;
-  --padding-end: 0;
-  --padding-top: 0;
-  --padding-bottom: 0;
+  --background: var(--app-gradient-header);
   --color: var(--brand-text);
-  margin: auto 0;
 }
 
-.login-shell {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  min-height: 65dvh;
+.language-section {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top, 0px));
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  z-index: 1000;
 }
 
-/* Form area */
-.login-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0 1rem 1rem;
-  margin-top: 4rem;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
-}
-
-.auth-container {
-  flex: 1;
-  margin-top: -1rem;
+.login-layout {
   position: relative;
-  z-index: 2;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.75rem;
+  min-height: 100%;
+  min-height: 100dvh;
   max-width: 26rem;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 1.5rem 1.25rem 1.75rem;
-  background: var(--brand-surface);
-  border-radius: 1.25rem;
-  box-shadow:
-    var(--app-shadow-card),
-    0 1px 0 rgba(var(--brand-secondary-rgb), 0.18);
-  border: 1px solid rgba(var(--brand-primary-rgb), 0.12);
+  margin: 0 auto;
+  padding:
+    calc(3.25rem + env(safe-area-inset-top, 0px))
+    1.25rem
+    max(1.75rem, env(safe-area-inset-bottom, 0px));
 }
 
-/* Segmented control */
+.login-hero {
+  text-align: center;
+}
+
+.login-brand-ring {
+  position: relative;
+  width: 5.5rem;
+  height: 5.5rem;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-brand-ring::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 1.75rem;
+  background: conic-gradient(
+    from 210deg,
+    rgba(var(--brand-primary-rgb), 0.45),
+    rgba(var(--brand-secondary-rgb), 0.35),
+    rgba(var(--brand-primary-rgb), 0.15),
+    rgba(var(--brand-secondary-rgb), 0.45)
+  );
+  opacity: 0.38;
+  animation: app-brand-ring-rotate 12s linear infinite;
+  z-index: 0;
+}
+
+.login-brand-icon {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  background: transparent;
+  filter: drop-shadow(0 8px 20px rgba(var(--brand-primary-rgb), 0.2));
+}
+
+.login-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--brand-text);
+}
+
+.login-lead {
+  margin: 0 auto;
+  max-width: 20rem;
+  font-size: 0.975rem;
+  color: var(--brand-text-secondary);
+  line-height: 1.5;
+}
+
+.auth-card {
+  position: relative;
+  padding: 1.35rem 1.2rem 1.1rem;
+  background: rgba(var(--brand-surface-rgb), 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 1.35rem;
+  box-shadow:
+    0 4px 6px rgba(var(--brand-text-rgb), 0.03),
+    0 20px 48px rgba(var(--brand-primary-rgb), 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(var(--brand-surface-rgb), 0.9);
+  overflow-x: clip;
+  min-width: 0;
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    145deg,
+    rgba(var(--brand-primary-rgb), 0.35) 0%,
+    rgba(var(--brand-secondary-rgb), 0.2) 50%,
+    rgba(var(--brand-primary-rgb), 0.08) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 .tab-container {
   display: flex;
   gap: 0.35rem;
-  padding: 0.35rem;
-  margin-bottom: 1.5rem;
-  background: linear-gradient(
-    135deg,
-    rgba(var(--brand-primary-rgb), 0.12) 0%,
-    rgba(var(--brand-secondary-rgb), 0.08) 100%
-  );
-  border-radius: 0.875rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  padding: 0.3rem;
+  margin-bottom: 1.1rem;
+  background: rgba(var(--brand-primary-rgb), 0.06);
+  border-radius: 0.85rem;
 }
 
 .tab-button {
   flex: 1;
-  min-height: 2.75rem;
+  min-height: 2.65rem;
   padding: 0.5rem 0.75rem;
   border: none;
   border-radius: 0.65rem;
@@ -72,18 +145,11 @@
   font-weight: 600;
   color: var(--brand-text-secondary);
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
   transition:
-    background var(--app-duration-fast) var(--app-ease-standard),
-    color var(--app-duration-fast) var(--app-ease-standard),
-    box-shadow var(--app-duration-fast) var(--app-ease-standard);
-}
-
-.tab-button ion-icon {
-  font-size: 1.05rem;
+    background var(--app-duration-normal) var(--app-ease-standard),
+    color var(--app-duration-normal) var(--app-ease-standard),
+    box-shadow var(--app-duration-normal) var(--app-ease-standard),
+    transform var(--app-duration-fast) var(--app-ease-standard);
 }
 
 .tab-button:focus-visible {
@@ -92,41 +158,22 @@
 }
 
 .tab-button.active {
-  background: var(--brand-surface);
-  color: var(--brand-primary-dark);
-  box-shadow:
-    0 1px 3px rgba(var(--brand-text-rgb), 0.06),
-    0 0 0 1px rgba(var(--brand-primary-rgb), 0.12);
+  background: var(--app-button-gradient-idle);
+  color: #fff;
+  box-shadow: var(--app-button-solid-shadow);
+  transform: translateY(-1px);
 }
 
 .form-container {
-  animation: fadeIn 0.35s var(--app-ease-standard);
-}
-
-.form-header {
-  text-align: center;
-  margin-bottom: 1.35rem;
-}
-
-.form-title {
-  margin: 0 0 0.35rem;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: var(--brand-text);
-  letter-spacing: -0.02em;
-}
-
-.form-subtitle {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--brand-text-secondary);
-  line-height: 1.4;
+  animation: fadeUp 0.4s var(--app-ease-standard);
+  min-width: 0;
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 0.9rem;
+  min-width: 0;
 }
 
 .form-label {
@@ -137,43 +184,62 @@
   margin-bottom: 0.4rem;
 }
 
-.optional {
-  font-weight: 500;
-  color: var(--brand-text-secondary);
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-.label-icon {
-  display: none;
+.input-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.95rem;
+  font-size: 1.15rem;
+  color: var(--brand-primary);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .form-input {
   width: 100%;
   min-height: 3rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgba(var(--brand-primary-rgb), 0.18);
-  border-radius: 0.75rem;
+  padding: 0.8rem 1rem 0.8rem 2.85rem;
+  border: 1.5px solid rgba(var(--brand-primary-rgb), 0.14);
+  border-radius: 0.85rem;
   font-size: 1rem;
-  background: rgba(var(--brand-surface-rgb), 0.92);
+  background: rgba(var(--brand-bg-rgb), 0.65);
   color: var(--brand-text);
   transition:
     border-color var(--app-duration-fast) var(--app-ease-standard),
-    box-shadow var(--app-duration-fast) var(--app-ease-standard);
+    box-shadow var(--app-duration-fast) var(--app-ease-standard),
+    background var(--app-duration-fast) var(--app-ease-standard);
 }
 
 .form-input::placeholder {
-  color: rgba(var(--brand-text-secondary-rgb), 0.75);
+  color: rgba(var(--brand-text-secondary-rgb), 0.7);
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(var(--brand-primary-rgb), 0.18);
+  border-color: rgba(var(--brand-primary-rgb), 0.45);
+  box-shadow: 0 0 0 4px rgba(var(--brand-primary-rgb), 0.12);
   background: var(--brand-surface);
 }
 
 .form-input.error {
   border-color: var(--ion-color-danger);
-  box-shadow: 0 0 0 3px rgba(var(--ion-color-danger-rgb), 0.12);
+  box-shadow: 0 0 0 4px rgba(var(--ion-color-danger-rgb), 0.1);
 }
 
 .error-message {
@@ -185,7 +251,7 @@
   font-size: 0.8125rem;
   color: var(--ion-color-danger-shade);
   background: rgba(var(--ion-color-danger-rgb), 0.08);
-  border-radius: 0.5rem;
+  border-radius: 0.55rem;
 }
 
 .error-message ion-icon {
@@ -194,34 +260,97 @@
   font-size: 1rem;
 }
 
+.otp-step-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1rem 0.85rem;
+  text-align: center;
+  border-radius: 0.85rem;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--brand-primary-rgb), 0.07) 0%,
+    rgba(var(--brand-secondary-rgb), 0.1) 100%
+  );
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
+}
+
+.otp-step-banner__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-surface);
+  color: var(--brand-primary);
+  box-shadow: 0 6px 16px rgba(var(--brand-primary-rgb), 0.12);
+}
+
+.otp-step-banner__icon ion-icon {
+  font-size: 1.35rem;
+}
+
+.otp-step-banner p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--brand-text-secondary);
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.change-email-link {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.change-email-link:hover {
+  text-decoration: underline;
+}
+
 .otp-group {
-  margin-top: 0.15rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .otp-container {
-  text-align: center;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
 }
 
 .custom-otp {
-  --background: rgba(var(--brand-surface-rgb), 0.92);
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  --background: var(--brand-surface);
   --color: var(--brand-text);
   --border-color: rgba(var(--brand-primary-rgb), 0.18);
   --border-color-focus: var(--brand-primary);
   --border-radius: 0.65rem;
-  --width: 2.45rem;
-  --height: 2.85rem;
+  --width: 2.25rem;
+  --height: 2.75rem;
   --font-size: 1rem;
   --font-weight: 700;
-  --margin: 0.15rem;
+  --margin-start: 0.06rem;
+  --margin-end: 0.06rem;
 }
 
-.otp-hint {
-  margin: 0.55rem 0 0;
-  color: var(--brand-text-secondary);
-  font-size: 0.8125rem;
+@media (max-width: 380px) {
+  .custom-otp {
+    --width: 1.9rem;
+    --height: 2.5rem;
+  }
 }
 
-/* Shared app-button spacing inside login form */
 .auth-form app-button {
   margin-top: 0.25rem;
 }
@@ -230,9 +359,9 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 0.15rem;
+  margin: 0.15rem 0 0.05rem;
   color: var(--brand-text-secondary);
-  font-size: 0.8125rem;
+  font-size: 0.78rem;
   font-weight: 500;
 }
 
@@ -241,82 +370,135 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(var(--brand-primary-rgb), 0.22);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--brand-primary-rgb), 0.22),
+    transparent
+  );
 }
 
 .social-buttons {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .social-button {
-  --background: var(--brand-surface);
+  --border-radius: 0.85rem;
+  --border-width: 1.5px;
+  --border-color: rgba(var(--brand-primary-rgb), 0.16);
+  --background: rgba(var(--brand-surface-rgb), 0.9);
+  --background-hover: rgba(var(--brand-primary-rgb), 0.06);
+  --background-activated: rgba(var(--brand-primary-rgb), 0.1);
   --color: var(--brand-text);
-  --border-color: rgba(var(--brand-primary-rgb), 0.22);
-  --border-radius: 0.75rem;
-  --padding-top: 0.8rem;
-  --padding-bottom: 0.8rem;
-  --box-shadow: 0 1px 0 rgba(var(--brand-secondary-rgb), 0.12);
+  --padding-top: 0.85rem;
+  --padding-bottom: 0.85rem;
+  margin: 0;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
 }
 
 .social-button ion-icon {
-  font-size: 1.15rem;
+  font-size: 1.2rem;
 }
 
-.social-button.google {
-  --background: #ffffff;
-  --color: #3c4043;
-  --border-color: #dadce0;
-  --box-shadow:
-    0 1px 2px rgba(60, 64, 67, 0.18),
-    0 1px 3px rgba(60, 64, 67, 0.12);
-}
-
-.social-button.google ion-icon {
+.social-button--google ion-icon {
   color: #4285f4;
 }
 
 .form-footer {
   text-align: center;
-  margin-top: 0.25rem;
+  margin-top: 0.1rem;
 }
 
 .forgot-link {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--ion-color-primary);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--brand-text-secondary);
   text-decoration: none;
+  transition: color var(--app-duration-fast) var(--app-ease-standard);
 }
 
 .forgot-link:hover {
-  text-decoration: underline;
+  color: var(--brand-primary);
 }
 
-.terms-text {
-  margin: 0;
-  font-size: 0.78rem;
-  line-height: 1.45;
+.login-footnote {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 1rem 0 0;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.75rem;
   color: var(--brand-text-secondary);
+  line-height: 1.45;
+  border-radius: 0.75rem;
+  background: rgba(var(--brand-secondary-rgb), 0.07);
 }
 
-.terms-link {
-  color: var(--ion-color-primary);
-  font-weight: 600;
-  text-decoration: none;
+.login-footnote ion-icon {
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+  font-size: 1rem;
+  color: var(--brand-secondary);
 }
 
-.terms-link:hover {
-  text-decoration: underline;
+@media (max-width: 480px) {
+  .login-layout {
+    padding-inline: 1rem;
+    gap: 1.35rem;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+
+  .login-brand-ring {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .login-brand-icon {
+    width: 64px;
+    height: 64px;
+  }
 }
 
-@keyframes fadeIn {
+:host-context(html.ion-palette-dark) {
+  .auth-card {
+    background: rgba(var(--brand-surface-rgb), 0.82);
+    box-shadow:
+      0 4px 6px rgba(0, 0, 0, 0.12),
+      0 20px 48px rgba(var(--brand-primary-rgb), 0.16);
+  }
+
+  .form-input {
+    background: rgba(var(--brand-bg-rgb), 0.35);
+    border-color: rgba(var(--brand-primary-rgb), 0.22);
+  }
+
+  .form-input:focus {
+    background: rgba(var(--brand-surface-rgb), 0.95);
+  }
+
+  .social-button {
+    --background: rgba(var(--brand-surface-rgb), 0.55);
+    --border-color: rgba(var(--brand-primary-rgb), 0.24);
+  }
+
+  .login-footnote {
+    background: rgba(var(--brand-secondary-rgb), 0.12);
+  }
+}
+
+@keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -324,6 +506,8 @@
   }
 }
 
-
-
-
+@media (prefers-reduced-motion: reduce) {
+  .login-brand-ring::before {
+    animation: none;
+  }
+}

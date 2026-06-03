@@ -127,7 +127,7 @@ export class InviteFriendsComponent implements OnInit {
         this.growthPoints = data.growthPoints;
         this.successfulReferrals = data.successfulReferrals;
         this.inviteLink = this.growth.buildInviteUrl(
-          `/welcome?ref=${encodeURIComponent(data.referralCode)}`,
+          `/auth/sign-in?ref=${encodeURIComponent(data.referralCode)}`,
         );
       });
   }

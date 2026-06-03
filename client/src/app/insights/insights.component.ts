@@ -9,13 +9,17 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule, ToastController, ViewWillEnter } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FavoritesService } from '../shared/services/favorites.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, catchError, of, take } from 'rxjs';
 import { TranslatePipe } from '../shared/pipes/translate.pipe';
 import { TranslationService } from '../shared/services/translation.service';
 import { LanguageService } from '../shared/services/language.service';
+import {
+  DEFAULT_SUBSCRIPTION_SUMMARY,
+  SubscriptionService,
+} from '../shared/services/subscription.service';
 
 interface ArticleCard {
   id: string;
@@ -35,15 +39,15 @@ interface ArticleCard {
   host: { class: 'ion-page' },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InsightsComponent implements OnInit, OnDestroy {
+export class InsightsComponent implements OnInit, OnDestroy, ViewWillEnter {
   private destroy$ = new Subject<void>();
   private readonly translation = inject(TranslationService);
   private readonly languageService = inject(LanguageService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly subscriptionService = inject(SubscriptionService);
 
-  // Premium state
+  // Premium state (from subscription API)
   isPremiumUnlocked = false;
-  showUnlockAnimation = false;
 
   // Article highlighting
   highlightedArticleId: string | null = null;
@@ -237,6 +241,7 @@ export class InsightsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.premiumBanner.title = this.translation.translate('insights.premiumBannerDefault');
+    this.loadPremiumStatus();
 
     this.favoritesService
       .getFavorites()
@@ -266,6 +271,10 @@ export class InsightsComponent implements OnInit, OnDestroy {
       });
   }
 
+  ionViewWillEnter(): void {
+    this.loadPremiumStatus();
+  }
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
@@ -276,22 +285,24 @@ export class InsightsComponent implements OnInit, OnDestroy {
     this.premiumBanner.isVisible = false;
   }
 
-  // Toggle premium
-  togglePremium() {
-    if (!this.isPremiumUnlocked) {
-      this.showUnlockAnimation = true;
-      
-      // Simulate unlock animation
-      setTimeout(() => {
-        this.isPremiumUnlocked = true;
-        this.premiumBanner.isVisible = false;
-        this.showUnlockAnimation = false;
-      }, 2000);
-    } else {
-      // If already unlocked, lock it back for demo purposes
-      this.isPremiumUnlocked = false;
-      this.premiumBanner.isVisible = true;
-    }
+  openPremiumPage(): void {
+    void this.router.navigate(['/nouracare-pro']);
+  }
+
+  private loadPremiumStatus(): void {
+    this.subscriptionService
+      .getSummary()
+      .pipe(
+        catchError(() => of(DEFAULT_SUBSCRIPTION_SUMMARY)),
+        take(1),
+      )
+      .subscribe((summary) => {
+        this.isPremiumUnlocked = summary.hasPremiumAccess;
+        if (this.isPremiumUnlocked) {
+          this.premiumBanner.isVisible = false;
+        }
+        this.cdr.markForCheck();
+      });
   }
 
   onSearchInput(event: Event): void {
@@ -303,9 +314,13 @@ export class InsightsComponent implements OnInit, OnDestroy {
     this.searchQuery.set('');
   }
 
-  // Open article
+  // Open article (or premium paywall for locked content)
   openArticle(article: ArticleCard) {
-    this.router.navigate(['/article', article.id]);
+    if (article.isPremium && !this.isPremiumUnlocked) {
+      this.openPremiumPage();
+      return;
+    }
+    void this.router.navigate(['/article', article.id]);
   }
 
   // Handle image error (apply fallback once to avoid error loops / flicker)

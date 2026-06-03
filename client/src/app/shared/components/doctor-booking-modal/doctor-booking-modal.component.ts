@@ -24,7 +24,7 @@ import { DoctorAppointmentService } from '../../services/doctor-appointment.serv
 import { DoctorDisplayService } from '../../services/doctor-display.service';
 import { TranslationService } from '../../services/translation.service';
 import { LanguageService } from '../../services/language.service';
-import { formatBookingDateTimeLabel, bookingIsoDateKey } from '../../utils/doctor-booking-format.util';
+import { formatBookingDateTimeLabel, bookingIsoDateKey, slotBookingDateKey } from '../../utils/doctor-booking-format.util';
 import { firstBookableDateIso } from '../../utils/doctor-booking-schedule.util';
 
 type BookingStep = 'select' | 'review';
@@ -144,7 +144,8 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedTimeSlotId = slot.id;
-    this.selectedDateIso = bookingIsoDateKey(slot.scheduledAt);
+    const dateKey = slotBookingDateKey(slot);
+    this.selectedDateIso = dateKey ?? bookingIsoDateKey(slot.scheduledAt);
     this.step = 'review';
     this.cdr.markForCheck();
   }
@@ -261,15 +262,19 @@ export class DoctorBookingModalComponent implements OnInit, OnDestroy {
 
     if (preferred) {
       this.selectedTimeSlotId = preferred.id;
-      this.selectedDateIso = bookingIsoDateKey(preferred.scheduledAt);
+      const dateKey = slotBookingDateKey(preferred);
+      this.selectedDateIso = dateKey ?? bookingIsoDateKey(preferred.scheduledAt);
       return;
     }
 
     if (this.selectedTimeSlotId) {
       const current = this.timeSlots.find((slot) => slot.id === this.selectedTimeSlotId);
       if (current) {
-        this.selectedDateIso = bookingIsoDateKey(current.scheduledAt);
-        return;
+        const dateKey = slotBookingDateKey(current);
+        if (dateKey) {
+          this.selectedDateIso = dateKey;
+          return;
+        }
       }
     }
 

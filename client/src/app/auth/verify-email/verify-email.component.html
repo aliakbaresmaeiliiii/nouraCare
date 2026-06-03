@@ -17,9 +17,9 @@
           <div class="otp-container">
             <ion-input-otp
               type="number"
+              size="small"
               class="custom-otp"
               [length]="otpLength"
-              separators="all"
               formControlName="otpCode"
               (ionInput)="onOtpChange($event)"
               inputmode="numeric"

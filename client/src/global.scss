@@ -183,6 +183,23 @@ h6 {
   }
 }
 
+/** Rotating conic glow — login brand, cycle ring, pregnancy ring */
+@keyframes app-brand-ring-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes app-brand-ring-rotate-centered {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
 ion-button {
   font-family: var(--font-secondary);
   font-weight: var(--app-button-font-weight, 600);

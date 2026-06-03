@@ -4,6 +4,7 @@
       type="button"
       class="booking-calendar__nav"
       (click)="previousMonth()"
+      [disabled]="!canGoPreviousMonth"
       [attr.aria-label]="t('consultation.bookingModal.prevMonth')"
     >
       <ion-icon name="chevron-back-outline"></ion-icon>
@@ -13,6 +14,7 @@
       type="button"
       class="booking-calendar__nav"
       (click)="nextMonth()"
+      [disabled]="!canGoNextMonth"
       [attr.aria-label]="t('consultation.bookingModal.nextMonth')"
     >
       <ion-icon name="chevron-forward-outline"></ion-icon>

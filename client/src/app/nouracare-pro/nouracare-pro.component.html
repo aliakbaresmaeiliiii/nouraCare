@@ -21,6 +21,7 @@
       </ion-button>
     </div>
     }
+
     <section class="pro-hero">
       <div class="pro-hero-glow" aria-hidden="true"></div>
       <div class="pro-hero-badge">
@@ -29,6 +30,7 @@
       </div>
       <h1 class="pro-hero-title">{{ 'proPage.heroTitle' | translate }}</h1>
       <p class="pro-hero-subtitle">{{ 'proPage.heroSubtitle' | translate }}</p>
+      <p class="pro-hero-mission">{{ 'proPage.missionText' | translate }}</p>
       @if (summary) {
       <div class="pro-status-pill" [class.pro-status-pill--active]="hasPremium">
         @if (hasPremium) {
@@ -41,19 +43,22 @@
       }
     </section>
 
-    <section class="pro-features">
-      <h2 class="pro-section-title">{{ 'proPage.featuresTitle' | translate }}</h2>
-      <div class="pro-feature-grid">
-        @for (feature of features; track feature.titleKey) {
-        <article class="pro-feature-card">
-          <div class="pro-feature-icon">
-            <ion-icon [name]="feature.icon" aria-hidden="true"></ion-icon>
+    <section class="pro-help">
+      <h2 class="pro-section-title">{{ 'proPage.helpTitle' | translate }}</h2>
+      <p class="pro-help-intro">{{ 'proPage.helpSubtitle' | translate }}</p>
+      <ul class="pro-help-list">
+        @for (item of helpItems; track item.titleKey; let i = $index) {
+        <li class="pro-help-item">
+          <div class="pro-help-icon" [attr.data-tone]="i + 1">
+            <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
           </div>
-          <h3>{{ feature.titleKey | translate }}</h3>
-          <p>{{ feature.textKey | translate }}</p>
-        </article>
+          <div class="pro-help-copy">
+            <h3>{{ item.titleKey | translate }}</h3>
+            <p>{{ item.textKey | translate }}</p>
+          </div>
+        </li>
         }
-      </div>
+      </ul>
     </section>
 
     @if (!hasPremium || isTrial) {
@@ -61,27 +66,45 @@
       <h2 class="pro-section-title">{{ 'proPage.pricingTitle' | translate }}</h2>
       <p class="pro-pricing-intro">{{ 'proPage.pricingIntro' | translate }}</p>
 
-      <div class="pro-plan-card">
-        <ion-segment
-          class="pro-billing-segment"
-          [value]="billingInterval"
-          (ionChange)="onBillingChange($event)"
-        >
-          <ion-segment-button value="MONTH">
-            <ion-label>{{ 'proPage.billingMonthly' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="YEAR">
-            <ion-label>{{ 'proPage.billingYearly' | translate }}</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+      <article class="pro-plan-card">
+        <div class="pro-plan-top">
+          <div class="pro-plan-label-row">
+            <span class="pro-plan-name">{{ 'proPage.planName' | translate }}</span>
+            @if (billingInterval === 'YEAR') {
+            <span class="pro-recommended-badge">{{ 'proPage.recommendedBadge' | translate }}</span>
+            }
+          </div>
 
-        <div class="pro-price-block">
-          <p class="pro-price-main">{{ formatPriceLine() }}</p>
+          <ion-segment
+            class="pro-billing-segment"
+            [value]="billingInterval"
+            (ionChange)="onBillingChange($event)"
+          >
+            <ion-segment-button value="MONTH">
+              <ion-label>{{ 'proPage.billingMonthly' | translate }}</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="YEAR">
+              <ion-label>{{ 'proPage.billingYearly' | translate }}</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </div>
+
+        <div class="pro-price-hero">
+          <div class="pro-price-row">
+            <span class="pro-price-amount">{{ heroPriceAmount() }}</span>
+            <span class="pro-price-period">{{ heroPricePeriod() }}</span>
+          </div>
           @if (billingInterval === 'YEAR') {
+          <p class="pro-price-subline">{{ yearlyBillingLine() }}</p>
           <span class="pro-save-badge">{{ saveBadgeLabel() }}</span>
+          } @else {
+          <p class="pro-price-subline">{{ 'proPage.billedMonthly' | translate }}</p>
           }
         </div>
 
+        <div class="pro-plan-divider" aria-hidden="true"></div>
+
+        <p class="pro-plan-includes">{{ 'proPage.planIncludes' | translate }}</p>
         <ul class="pro-plan-perks">
           <li>
             <ion-icon name="checkmark-circle" aria-hidden="true"></ion-icon>
@@ -115,7 +138,7 @@
         } @else if (isTrial) {
         <p class="pro-trial-note">{{ 'proPage.trialActiveNote' | translate }}</p>
         }
-      </div>
+      </article>
     </section>
     } @else {
     <section class="pro-active-card">

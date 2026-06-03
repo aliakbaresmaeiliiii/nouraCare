@@ -36,8 +36,8 @@ export function hasLocalNouraCareOnboardingProfile(): boolean {
 }
 
 /**
- * Root / welcome entry: use onboarding when there is no saved questionnaire snapshot.
- * Signed-in users who cleared onboarding keys after registration still need the welcome/login shell.
+ * Root entry: use onboarding when there is no saved questionnaire snapshot.
+ * Signed-in users who cleared onboarding keys after registration still reach sign-in via `/auth/sign-in`.
  */
 export function shouldOpenOnboardingFirst(): boolean {
   if (typeof localStorage === 'undefined') {

@@ -225,13 +225,17 @@ export class LoginComponent {
   }
   onTabChange(tab: 'login' | 'register') {
     this.activeTab = tab;
-    this.loginOtpStep = false;
-    this.loginForm.patchValue({ otp: '' });
+    this.resetLoginOtpStep();
     if (tab === 'register') {
       this.title.set('Register');
     } else {
       this.title.set('Login');
     }
+  }
+
+  resetLoginOtpStep(): void {
+    this.loginOtpStep = false;
+    this.loginForm.patchValue({ otp: '' });
   }
   onRegister() {
     if (this.registerForm.invalid) {
@@ -454,6 +458,11 @@ export class LoginComponent {
   viewLicenseAgreement(event: Event): void {
     event.preventDefault();
     void this.router.navigate(['/terms']);
+  }
+
+  get loginOtpSentMessage(): string {
+    const email = (this.loginForm.get('email')?.value || '').trim();
+    return this.translation.translateParams('auth.otpSentTo', { email });
   }
 
   private t(key: string): string {

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/guards/auth.guard';
 import { initialRouteGuard } from './guards/initial-route.guard';
-import { welcomeRequiresProfileOrSessionGuard } from './guards/welcome-onboarding-data.guard';
+import { welcomeToSignInRedirectGuard } from './guards/welcome-to-sign-in.guard';
 import { LayoutComponent } from './layout/layout.component';
 import { ReactWrapperComponent } from './react-wrapper/react-wrapper.component';
 import { TOOL_PAGE_ROUTES } from './tool-pages/tool-pages.routes';
@@ -25,9 +25,9 @@ export const routes: Routes = [
   },
   {
     path: 'welcome',
+    canActivate: [welcomeToSignInRedirectGuard],
     loadComponent: () =>
-      import('./welcome/welcome.component').then((m) => m.WelcomeComponent),
-    canActivate: [welcomeRequiresProfileOrSessionGuard],
+      import('./auth/login/login.component').then((m) => m.LoginComponent),
   },
 
   {
