@@ -389,6 +389,8 @@ export class ForumThreadsService {
       );
     }
 
+    assertNoProfanity(updateData.title, updateData.content);
+
     const updated = await this.prismaService.forum_threads.update({
       where: { id },
       data: updateData,

@@ -45,6 +45,7 @@ import {
 import { ForumService } from '../../shared/services/forum.service';
 import { TranslationService } from '../../shared/services/translation.service';
 import { ForumCategoryMapperService } from '../../shared/services/forum-category-mapper.service';
+import { containsProfanityInFields } from '../../shared/utils/profanity-filter.util';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 
 const MAX_COMMENT_LENGTH = 5000;
@@ -350,6 +351,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       );
       return;
     }
+    if (this.blockIfProfanity(text)) {
+      return;
+    }
 
     if (!this.topic) {
       this.showToast(this.t('forums.topic.notFound'), 'danger');
@@ -566,6 +570,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
         }),
         'warning',
       );
+      return;
+    }
+    if (this.blockIfProfanity(replyText)) {
       return;
     }
 
@@ -872,6 +879,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
     if (editText === comment.content) {
       this.cancelEdit();
+      return;
+    }
+    if (this.blockIfProfanity(editText)) {
       return;
     }
 
@@ -1204,6 +1214,9 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
       this.cancelEditPost();
       return;
     }
+    if (this.blockIfProfanity(title, content)) {
+      return;
+    }
 
     // Optimistic update
     const originalTitle = this.topic.title;
@@ -1319,6 +1332,14 @@ export class TopicDetailComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   private t(key: string): string {
     return this.translation.translate(key);
+  }
+
+  private blockIfProfanity(...texts: string[]): boolean {
+    if (!containsProfanityInFields(...texts)) {
+      return false;
+    }
+    void this.showToast(this.t('forums.error.profanity'), 'warning');
+    return true;
   }
 
   private tParams(

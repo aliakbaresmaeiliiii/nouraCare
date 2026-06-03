@@ -22,6 +22,7 @@ import { ForumCategoryMapperService } from '../../shared/services/forum-category
 import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
 import { LocalizedNumberPipe } from '../../shared/pipes/localized-number.pipe';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { containsProfanityInFields } from '../../shared/utils/profanity-filter.util';
 
 interface ForumCategory {
   id: string;
@@ -196,8 +197,19 @@ export class CreatePostComponent implements OnInit {
       return;
     }
 
-    this.isSubmitting = true;
     const formValue = this.postForm.value;
+    if (
+      containsProfanityInFields(
+        formValue.title,
+        formValue.content,
+        ...this.selectedTags,
+      )
+    ) {
+      void this.showToast(this.t('forums.error.profanity'), 'warning');
+      return;
+    }
+
+    this.isSubmitting = true;
     const userInfo = localStorage.getItem('userInfo');
     if (!userInfo) {
       void this.showToast(this.t('forums.createPost.error.loginRequired'), 'danger');

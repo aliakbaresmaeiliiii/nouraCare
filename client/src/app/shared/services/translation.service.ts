@@ -615,6 +615,8 @@ export class TranslationService {
       'forums.noTopicsCategory': 'No topics in this category yet.',
       'forums.createFirstTopic': 'Create First Topic in {{category}}',
       'forums.error.loadCategories': 'Failed to load categories',
+      'forums.error.profanity':
+        'Please remove inappropriate or offensive words before posting.',
       'forums.error.loadTopics': 'Failed to load topics',
       'forums.error.refresh': 'Failed to refresh',
       'forums.error.loadCategoryTopics': 'Failed to load topics for this category',
@@ -3006,6 +3008,7 @@ export class TranslationService {
       'forums.noTopicsCategory': '此分类下还没有话题。',
       'forums.createFirstTopic': '在{{category}}中创建第一个话题',
       'forums.error.loadCategories': '加载分类失败',
+      'forums.error.profanity': '发布前请删除不当或冒犯性词语。',
       'forums.error.loadTopics': '加载话题失败',
       'forums.error.refresh': '刷新失败',
       'forums.error.loadCategoryTopics': '加载此分类的话题失败',
@@ -4467,6 +4470,8 @@ export class TranslationService {
       'forums.noTopicsCategory': 'Belum ada topik dalam kategori ini.',
       'forums.createFirstTopic': 'Cipta Topik Pertama dalam {{category}}',
       'forums.error.loadCategories': 'Gagal memuatkan kategori',
+      'forums.error.profanity':
+        'Sila buang perkataan tidak sesuai atau kesat sebelum menyiarkan.',
       'forums.error.loadTopics': 'Gagal memuatkan topik',
       'forums.error.refresh': 'Gagal memuat semula',
       'forums.error.loadCategoryTopics': 'Gagal memuatkan topik untuk kategori ini',
@@ -5974,6 +5979,8 @@ export class TranslationService {
       'forums.noTopicsCategory': 'هنوز موضوعی در این دسته نیست.',
       'forums.createFirstTopic': 'ایجاد اولین موضوع در {{category}}',
       'forums.error.loadCategories': 'بارگذاری دسته‌ها ناموفق بود',
+      'forums.error.profanity':
+        'لطفاً قبل از ارسال، کلمات توهین‌آمیز یا نامناسب را حذف کنید.',
       'forums.error.loadTopics': 'بارگذاری موضوعات ناموفق بود',
       'forums.error.refresh': 'تازه‌سازی ناموفق بود',
       'forums.error.loadCategoryTopics': 'بارگذاری موضوعات این دسته ناموفق بود',

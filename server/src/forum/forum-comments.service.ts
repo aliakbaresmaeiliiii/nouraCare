@@ -9,6 +9,7 @@ import { PrismaService } from '../prisma/services/prisma.service';
 import { randomUUID } from 'crypto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { assertNoProfanity } from '../common/utils/profanity-filter.util';
 
 @Injectable()
 export class ForumCommentsService {
@@ -33,6 +34,8 @@ export class ForumCommentsService {
       if (!postOrThreadId) {
         throw new BadRequestException('Post ID is required');
       }
+
+      assertNoProfanity(normalizedComment);
 
       // Try direct post lookup first
       let targetPost = await this.prismaService.forum_posts.findUnique({
@@ -225,6 +228,8 @@ export class ForumCommentsService {
     if (!normalizedComment) {
       throw new BadRequestException('Comment content is required');
     }
+
+    assertNoProfanity(normalizedComment);
 
     return this.prismaService.forum_comments.update({
       where: { id },
