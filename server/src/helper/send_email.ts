@@ -21,18 +21,25 @@ class SendMail {
     templateName: string,
     data: Record<string, string | number>,
   ): Promise<string> {
-    try {
-      const templatePath = path.resolve(
-        __dirname,
-        `../../../public/template/email/${templateName}.html`,
-      );
-      const html = await fs.readFile(templatePath, 'utf8');
-      const template = handlebars.compile(html);
-      return template(data);
-    } catch (error) {
-      console.error(`Error loading email template (${templateName}):`, error);
-      throw new BadGatewayException('Email template not found');
+    const fileName = `${templateName}.html`;
+    const candidates = [
+      path.resolve(__dirname, '../../../public/template/email', fileName),
+      path.join(process.cwd(), 'server', 'public', 'template', 'email', fileName),
+      path.join(process.cwd(), 'public', 'template', 'email', fileName),
+    ];
+
+    for (const templatePath of candidates) {
+      try {
+        const html = await fs.readFile(templatePath, 'utf8');
+        const template = handlebars.compile(html);
+        return template(data);
+      } catch {
+        continue;
+      }
     }
+
+    console.error(`Error loading email template (${templateName}): not found`);
+    throw new BadGatewayException('Email template not found');
   }
 
   public async sendAccountRegister(

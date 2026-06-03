@@ -2,16 +2,16 @@
 const http = require('http');
 
 const testData = {
-  email: 'test@example.com',
+  email: 'aliakbaresmaeili98@gmail.com',
   fullName: 'Test User',
-  phoneNumber: '1234567890'
+  phoneNumber: '1234567890',
 };
 
 const postData = JSON.stringify(testData);
 
 const options = {
   hostname: 'localhost',
-  port: 8080,
+  port: 3000,
   path: '/api/v1/auth/register',
   method: 'POST',
   headers: {

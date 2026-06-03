@@ -3,9 +3,12 @@
 .verify-page {
   --background: var(--app-gradient-soft);
   --color: var(--brand-text);
-  min-height: 100%;
-  min-height: 100dvh;
-  background: var(--app-gradient-soft);
+  height: 100%;
+}
+
+.verify-ion-content {
+  --background: var(--app-gradient-soft);
+  --color: var(--brand-text);
 }
 
 .verify-shell {

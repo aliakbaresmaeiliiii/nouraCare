@@ -10,6 +10,7 @@ import { PrismaService } from '../prisma/services/prisma.service';
 import { RefreshTokenService } from './refresh-token.service';
 import { SocialTokenService } from './services/social-token.service';
 import { randomUUID } from 'crypto';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { RegisterDto } from './dto/register.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
 import SendMail from '../helper/send_email';
@@ -51,8 +52,9 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto, locale?: string) {
+    const email = this.normalizeEmail(registerDto.email);
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: registerDto.email },
+      where: { email },
     });
 
     if (existingUser) {
@@ -63,24 +65,39 @@ export class AuthService {
     }
 
     const verificationCode = this.generateOtp();
+    this.logDevOtp(email, verificationCode, 'register');
     const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: registerDto.email,
-        phoneNumber: registerDto.phoneNumber || '',
-        fullName: registerDto.fullName || '',
-        emailVerificationCode: verificationCode,
-        emailVerificationCodeExpires: verificationCodeExpires,
-        updatedAt: new Date(),
-        user_subscription: {
-          create: {
-            usageDayPaywallThreshold: 3 + Math.floor(Math.random() * 3),
+    let user;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          phoneNumber: this.resolvePhoneNumber(registerDto.phoneNumber),
+          fullName: registerDto.fullName || '',
+          emailVerificationCode: verificationCode,
+          emailVerificationCodeExpires: verificationCodeExpires,
+          updatedAt: new Date(),
+          user_subscription: {
+            create: {
+              usageDayPaywallThreshold: 3 + Math.floor(Math.random() * 3),
+            },
           },
         },
-      },
-      select: USER_PUBLIC_SELECT,
-    });
+        select: USER_PUBLIC_SELECT,
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException({
+          message: 'User with this email or phone number already exists',
+          messageKey: AUTH_MESSAGE_KEYS.USER_ALREADY_EXISTS,
+        });
+      }
+      throw error;
+    }
 
     try {
       await this.sendMail.sendAccountRegister(user.email, verificationCode, {
@@ -89,6 +106,13 @@ export class AuthService {
       });
     } catch (error) {
       console.error('Failed to send verification email:', error);
+      await this.prisma.user.delete({ where: { id: user.id } }).catch((deleteError) => {
+        console.error('Failed to roll back user after email error:', deleteError);
+      });
+      throw new BadRequestException({
+        message: 'Failed to send verification email',
+        messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL,
+      });
     }
 
     const onboardingDto = mapRegisterOnboardingPayload(
@@ -118,7 +142,8 @@ export class AuthService {
   }
 
   async verifyEmail(email: string, code: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = this.normalizeEmail(email);
+    const user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
 
     if (!user) {
       throw new NotFoundException({
@@ -172,7 +197,8 @@ export class AuthService {
   }
 
   async resendVerificationCode(email: string, locale?: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = this.normalizeEmail(email);
+    const user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
 
     if (!user) {
       throw new NotFoundException({
@@ -189,6 +215,7 @@ export class AuthService {
     }
 
     const verificationCode = this.generateOtp();
+    this.logDevOtp(user.email, verificationCode, 'resend-verification');
     const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     await this.prisma.user.update({
@@ -219,7 +246,7 @@ export class AuthService {
   }
 
   async login(email: string, otp?: string, locale?: string) {
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmail = this.normalizeEmail(email);
     const user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
       select: {
@@ -253,6 +280,7 @@ export class AuthService {
 
     if (!otp?.trim()) {
       const loginCode = this.generateOtp();
+      this.logDevOtp(user.email, loginCode, 'sign-in');
       const loginCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
 
       await this.prisma.user.update({
@@ -456,6 +484,27 @@ export class AuthService {
 
   private generateOtp(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+
+  private normalizeEmail(email: string): string {
+    return email.trim().toLowerCase();
+  }
+
+  /** Empty phone must be unique — DB has @unique on phoneNumber. */
+  private resolvePhoneNumber(phoneNumber?: string): string {
+    const trimmed = phoneNumber?.trim();
+    if (trimmed) {
+      return trimmed;
+    }
+    return `unset_${randomUUID().replace(/-/g, '')}`;
+  }
+
+  /** Local dev: print OTP in the server terminal when email delivery is slow/unreliable. */
+  private logDevOtp(email: string, code: string, purpose: string): void {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+    console.log(`[DEV OTP] ${purpose} → ${email}: ${code}`);
   }
 
   private async generateTokens(userId: number, email: string) {

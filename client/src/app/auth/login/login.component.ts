@@ -2,6 +2,7 @@ import {
   ChangeDetectorRef,
   Component,
   inject,
+  OnDestroy,
   Renderer2,
   signal,
 } from '@angular/core';
@@ -16,6 +17,7 @@ import { LoginRequest } from './model/login-request-interface';
 import { AuthService } from '../services/auth';
 import {
   EMAIL_OTP_LENGTH,
+  EMAIL_OTP_RESEND_COOLDOWN_SEC,
   markEmailVerificationSent,
 } from '../constants/email-verification.constants';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
@@ -23,11 +25,13 @@ import {
   BehaviorSubject,
   EMPTY,
   Subject,
+  Subscription,
   catchError,
   exhaustMap,
   filter,
   finalize,
   firstValueFrom,
+  interval,
   takeUntil,
   tap,
 } from 'rxjs';
@@ -41,6 +45,7 @@ import {
 } from '../services/apple-sign-in.service';
 import { PENDING_INVITE_CODE_KEY } from '../../shared/constants/growth.constants';
 import { TranslationService } from '../../shared/services/translation.service';
+import { environment } from '../../../environments/environment';
 import {
   extractApiMessagePayload,
   resolveApiMessage,
@@ -53,7 +58,7 @@ import {
   imports: [...SHARED_STANDALONE_IMPORTS],
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
   readonly otpLength = EMAIL_OTP_LENGTH;
 
   isSocialLoading = false;
@@ -74,6 +79,10 @@ export class LoginComponent {
 
   /** After email submit, user enters the code sent to their inbox. */
   loginOtpStep = false;
+  isResendingLoginOtp = false;
+  loginOtpResendCooldown = 0;
+
+  private loginOtpResendTimerSub?: Subscription;
 
   registerForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -134,10 +143,16 @@ export class LoginComponent {
       this.loadOnboardingData(sessionId);
     }
 
+    const devEmail = environment.devAuthEmail?.trim();
+    if (!environment.production && devEmail) {
+      this.loginForm.patchValue({ email: devEmail });
+      this.registerForm.patchValue({ email: devEmail });
+    }
+
     this.loginClick$
       .pipe(
         takeUntil(this.destroy$),
-        filter(() => this.loginForm.valid && !this.isLoading),
+        filter(() => this.canSubmitLogin()),
         tap(() => {
           this.isLoading = true;
           this.cdr.detectChanges();
@@ -147,15 +162,29 @@ export class LoginComponent {
             email: this.loginForm.value.email || '',
             phoneNumber: this.loginForm.value.phoneNumber || '',
           };
-          const otp = (this.loginForm.value.otp || '').trim();
+          const otp = this.normalizeOtpInput(this.loginForm.value.otp);
           if (this.loginOtpStep && otp) {
             payload.otp = otp;
           }
 
           return this.service.login(payload).pipe(
             catchError((err) => {
+              const payload = extractApiMessagePayload(err);
+              if (
+                payload.messageKey === 'auth.api.emailNotVerified' ||
+                payload.message ===
+                  'Email is not verified. Please complete email verification first.'
+              ) {
+                this.persistEmailForVerification(
+                  this.loginForm.value.email || '',
+                );
+                markEmailVerificationSent();
+                void this.router.navigate(['/auth/verify-email']);
+                return EMPTY;
+              }
+
               this.message = resolveApiMessage(this.translation, {
-                ...extractApiMessagePayload(err),
+                ...payload,
                 fallbackKey: 'auth.toast.loginFailed',
               });
               this.success = false;
@@ -173,6 +202,7 @@ export class LoginComponent {
         next: (res) => {
           if (res?.data?.otpSent && !res?.data?.accessToken) {
             this.loginOtpStep = true;
+            this.startLoginOtpResendCooldown(EMAIL_OTP_RESEND_COOLDOWN_SEC);
             this.message = resolveApiMessage(this.translation, {
               messageKey: res.messageKey ?? res.data?.messageKey,
               message: res.message,
@@ -236,6 +266,98 @@ export class LoginComponent {
   resetLoginOtpStep(): void {
     this.loginOtpStep = false;
     this.loginForm.patchValue({ otp: '' });
+    this.clearLoginOtpResendTimer();
+    this.loginOtpResendCooldown = 0;
+  }
+
+  get canResendLoginOtp(): boolean {
+    return (
+      !this.isResendingLoginOtp &&
+      !this.isLoading &&
+      (this.loginOtpResendCooldown <= 0)
+    );
+  }
+
+  get loginOtpResendCooldownDisplay(): string {
+    const minutes = Math.floor(this.loginOtpResendCooldown / 60);
+    const seconds = this.loginOtpResendCooldown % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  resendLoginOtp(): void {
+    if (!this.canResendLoginOtp) {
+      return;
+    }
+
+    const email = (this.loginForm.get('email')?.value || '').trim();
+    if (!this.isValidEmail(email)) {
+      return;
+    }
+
+    this.isResendingLoginOtp = true;
+    this.cdr.detectChanges();
+    this.service
+      .login({ email, phoneNumber: this.loginForm.value.phoneNumber || '' })
+      .pipe(
+        finalize(() => {
+          this.isResendingLoginOtp = false;
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          if (res?.data?.otpSent) {
+            this.startLoginOtpResendCooldown(EMAIL_OTP_RESEND_COOLDOWN_SEC);
+            this.loginForm.patchValue({ otp: '' });
+            this.message = resolveApiMessage(this.translation, {
+              messageKey: res.messageKey ?? res.data?.messageKey,
+              message: res.message,
+              fallbackKey: 'auth.api.otpSentIfExists',
+            });
+            this.success = true;
+            this.showToast = true;
+          }
+        },
+        error: (err) => {
+          this.message = resolveApiMessage(this.translation, {
+            ...extractApiMessagePayload(err),
+            fallbackKey: 'auth.toast.resendFailed',
+          });
+          this.success = false;
+          this.showToast = true;
+        },
+      });
+  }
+
+  private persistEmailForVerification(email: string): void {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) {
+      return;
+    }
+    localStorage.setItem(
+      'userInfo',
+      JSON.stringify({ data: { user: { email: normalized } } }),
+    );
+  }
+
+  private startLoginOtpResendCooldown(seconds: number): void {
+    this.loginOtpResendCooldown = seconds;
+    this.clearLoginOtpResendTimer();
+    if (seconds <= 0) {
+      return;
+    }
+    this.loginOtpResendTimerSub = interval(1000).subscribe(() => {
+      this.loginOtpResendCooldown--;
+      this.cdr.detectChanges();
+      if (this.loginOtpResendCooldown <= 0) {
+        this.clearLoginOtpResendTimer();
+      }
+    });
+  }
+
+  private clearLoginOtpResendTimer(): void {
+    this.loginOtpResendTimerSub?.unsubscribe();
+    this.loginOtpResendTimerSub = undefined;
   }
   onRegister() {
     if (this.registerForm.invalid) {
@@ -288,6 +410,12 @@ export class LoginComponent {
         },
         error: (err) => {
           console.error('Registration failed:', err);
+          this.message = resolveApiMessage(this.translation, {
+            ...extractApiMessagePayload(err),
+            fallbackKey: 'auth.api.failedSendVerificationEmail',
+          });
+          this.success = false;
+          this.showToast = true;
         },
       });
   }
@@ -296,15 +424,15 @@ export class LoginComponent {
     this.loginClick$.next();
   }
 
-  onLoginOtpChange(event: { detail: { value?: string | null } }): void {
-    const otp = (event.detail.value ?? '').trim();
+  onLoginOtpChange(event: { detail: { value?: string | number | null } }): void {
+    const otp = this.normalizeOtpInput(event.detail.value);
     this.loginForm.patchValue({ otp });
     if (
       otp.length === EMAIL_OTP_LENGTH &&
       this.loginOtpStep &&
-      !this.isLoginDisabled()
+      !this.isLoading
     ) {
-      this.onLogin();
+      queueMicrotask(() => this.onLogin());
     }
   }
 
@@ -313,10 +441,24 @@ export class LoginComponent {
     if (!this.loginOtpStep) {
       return emailInvalid;
     }
-    const otpInvalid = !!this.loginForm.get('otp')?.invalid;
-    const otp = (this.loginForm.get('otp')?.value || '').trim();
-    const otpEmpty = otp.length < 6;
-    return emailInvalid || otpInvalid || otpEmpty;
+    const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
+    return emailInvalid || otp.length < EMAIL_OTP_LENGTH;
+  }
+
+  private canSubmitLogin(): boolean {
+    if (this.isLoading) {
+      return false;
+    }
+    const emailValid = !!this.loginForm.get('email')?.valid;
+    if (!this.loginOtpStep) {
+      return emailValid;
+    }
+    const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
+    return emailValid && otp.length === EMAIL_OTP_LENGTH;
+  }
+
+  private normalizeOtpInput(value: unknown): string {
+    return String(value ?? '').replace(/\D/g, '').slice(0, EMAIL_OTP_LENGTH);
   }
 
   async onSocialLogin(provider: 'google' | 'apple') {
@@ -451,6 +593,7 @@ export class LoginComponent {
   }
 
   ngOnDestroy(): void {
+    this.clearLoginOtpResendTimer();
     this.destroy$.next();
     this.destroy$.complete();
   }

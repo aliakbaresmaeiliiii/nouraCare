@@ -42,8 +42,13 @@ const { apiEndPoint, urlProfileImg } = buildLocalBackendUrls(
 // App settings
 // ---------------------------------------------------------------------------
 
+/** Local dev: pre-fill sign-in / sign-up email (must match MAIL_USERNAME inbox). */
+const DEV_AUTH_EMAIL = 'aliakbaresmaeili98@gmail.com';
+
 export const environment = {
   production: false,
+
+  devAuthEmail: DEV_AUTH_EMAIL,
 
   apiEndPoint,
   urlProfileImg,

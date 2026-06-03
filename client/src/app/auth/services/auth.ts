@@ -395,7 +395,13 @@ export class AuthService {
   }
 
   verifyEmail(data: { email: string; code: string }): Observable<any> {
-    return this.http.post(`${this.baseUrl}/verify-email`, data);
+    return this.http.post<TokenResponse>(`${this.baseUrl}/verify-email`, data).pipe(
+      tap((response: TokenResponse) => {
+        if (response?.data?.accessToken) {
+          this.handleTokenResponse(response);
+        }
+      }),
+    );
   }
 
   resendOtp(data: { email: string }): Observable<any> {

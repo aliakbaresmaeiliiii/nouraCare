@@ -16,6 +16,8 @@ const API_VERSION_PATH = '/api/v1/';
 export const environment = {
   production: true,
 
+  devAuthEmail: '',
+
   apiEndPoint: `${PROD_API_ORIGIN}${API_VERSION_PATH}`,
   urlProfileImg: `${PROD_API_ORIGIN}/uploads/`,
   profileImageFallback: 'assets/images/bg-01.png',

@@ -315,6 +315,20 @@
   text-decoration: underline;
 }
 
+.resend-button {
+  --color: var(--ion-color-primary);
+  --border-radius: 999px;
+  margin-top: 0.35rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.resend-button:disabled {
+  --color: var(--brand-text-secondary);
+  opacity: 1;
+}
+
 .otp-group {
   width: 100%;
   min-width: 0;

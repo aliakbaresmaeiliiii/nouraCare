@@ -17,6 +17,7 @@ import {
   EMAIL_OTP_RESEND_COOLDOWN_SEC,
   EMAIL_OTP_VALIDITY_MS,
   EMAIL_VERIFICATION_EXPIRES_KEY,
+  EMAIL_VERIFICATION_JUST_SENT_KEY,
 } from '../constants/email-verification.constants';
 
 @Component({
@@ -57,8 +58,8 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
   }
 
   get canVerify(): boolean {
-    const code = String(this.form?.get('otpCode')?.value ?? '').trim();
-    return code.length === EMAIL_OTP_LENGTH && !this.isLoading && !this.isExpired;
+    const code = this.normalizeOtpInput(this.form?.get('otpCode')?.value);
+    return code.length === EMAIL_OTP_LENGTH && !this.isLoading;
   }
 
   get canResend(): boolean {
@@ -95,7 +96,15 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       ],
     });
     this.initCodeExpiry();
-    this.startResendCooldown(EMAIL_OTP_RESEND_COOLDOWN_SEC);
+    const justRegistered =
+      typeof sessionStorage !== 'undefined' &&
+      sessionStorage.getItem(EMAIL_VERIFICATION_JUST_SENT_KEY) === '1';
+    if (justRegistered) {
+      sessionStorage.removeItem(EMAIL_VERIFICATION_JUST_SENT_KEY);
+    }
+    this.startResendCooldown(
+      justRegistered ? 0 : EMAIL_OTP_RESEND_COOLDOWN_SEC,
+    );
   }
 
   ngOnDestroy(): void {
@@ -116,7 +125,11 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
         String(this.codeExpiresAt),
       );
     } else {
-      this.codeExpiresAt = parsed;
+      this.codeExpiresAt = Date.now() + EMAIL_OTP_VALIDITY_MS;
+      localStorage.setItem(
+        EMAIL_VERIFICATION_EXPIRES_KEY,
+        String(this.codeExpiresAt),
+      );
     }
 
     this.syncExpiryState();
@@ -160,14 +173,20 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 
-  onOtpChange(event: { detail: { value?: string | null } }): void {
-    const otp = (event.detail.value ?? '').trim();
-    if (otp.length === EMAIL_OTP_LENGTH && this.canVerify) {
-      this.verifyOtp(otp);
+  onOtpChange(event: { detail: { value?: string | number | null } }): void {
+    const otp = this.normalizeOtpInput(event.detail.value);
+    this.form.patchValue({ otpCode: otp });
+    if (otp.length === EMAIL_OTP_LENGTH && !this.isLoading) {
+      queueMicrotask(() => this.verifyOtp(otp));
     }
   }
 
   verifyOtp(otp: string): void {
+    const code = this.normalizeOtpInput(otp);
+    if (code.length !== EMAIL_OTP_LENGTH) {
+      return;
+    }
+
     if (this.isExpired) {
       this.showToast = true;
       this.message = this.t('auth.toast.codeExpiredResend');
@@ -185,7 +204,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
     this.service
-      .verifyEmail({ email, code: otp.trim() })
+      .verifyEmail({ email, code })
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (res: {
@@ -235,10 +254,14 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       this.form.markAllAsTouched();
       return;
     }
-    const otp = String(this.form.get('otpCode')?.value ?? '').trim();
+    const otp = this.normalizeOtpInput(this.form.get('otpCode')?.value);
     if (otp) {
       this.verifyOtp(otp);
     }
+  }
+
+  private normalizeOtpInput(value: unknown): string {
+    return String(value ?? '').replace(/\D/g, '').slice(0, EMAIL_OTP_LENGTH);
   }
 
   resendCode(): void {
