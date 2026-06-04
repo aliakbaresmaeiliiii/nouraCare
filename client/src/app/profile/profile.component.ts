@@ -51,6 +51,12 @@ import type {
 import { PeriodCycleStateService } from '../shared/services/period-cycle-state.service';
 
 import { TranslationService } from '../shared/services/translation.service';
+import { LanguageService } from '../shared/services/language.service';
+import { formatJalaliFaFromIso } from '../shared/utils/jalali-iranian-calendar.util';
+import {
+  formatHistoryDayDate,
+  isPersianAppLanguage,
+} from '../shared/utils/locale-date-format.util';
 
 import { UserInfoService } from '../shared/services/user-info.service';
 
@@ -139,6 +145,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
   private toastCtrl = inject(ToastController);
 
   private translation = inject(TranslationService);
+
+  private languageService = inject(LanguageService);
 
   private homeReproUi = inject(HomeReproductiveUiService);
 
@@ -252,6 +260,10 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
     if (!data) return false;
 
+    if (key === 'dateOfBirth') {
+      return !!(this.toDateOnly(data['dateOfBirth'] ?? data['birthday'] ?? ''));
+    }
+
     return !!data[key];
 
   }
@@ -278,8 +290,31 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
     const data = this.profileCompletion.currentUserData;
 
+    if (!data) return '';
+
+    if (key === 'dateOfBirth') {
+      const iso = this.toDateOnly(data['dateOfBirth'] ?? data['birthday'] ?? '');
+      if (!iso) return '';
+      const lang = this.languageService.getCurrentLanguage();
+      if (isPersianAppLanguage(lang)) {
+        return formatJalaliFaFromIso(iso, 'DD MMMM YYYY');
+      }
+      const [y, m, d] = iso.split('-').map((n) => parseInt(n, 10));
+      return formatHistoryDayDate(new Date(y, m - 1, d), lang);
+    }
+
     return data?.[key] || '';
 
+  }
+
+  private toDateOnly(value: unknown): string {
+    const s = String(value ?? '').trim();
+    if (!s || s === 'null' || s === 'undefined') return '';
+    const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (m?.[1]) return m[1];
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
   }
 
 

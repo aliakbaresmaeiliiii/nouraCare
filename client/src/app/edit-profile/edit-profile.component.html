@@ -209,15 +209,50 @@
           <ion-title>{{ 'editProfile.birthday' | translate }}</ion-title>
         </ion-toolbar>
         <p class="edit-profile-dob-range-hint">{{ dobPickerRangeHint }}</p>
-        <ion-datetime
-          class="edit-profile-dob-wheel ltr"
-          presentation="date"
-          [preferWheel]="true"
-          [value]="dobPickerIso"
-          [min]="dobMinIso"
-          [max]="dobMaxIso"
-          (ionChange)="onDobPickerChange($event)"
-        ></ion-datetime>
+        @if (isPersianLanguage) {
+          <ion-picker class="edit-profile-dob-wheel">
+            <ion-picker-column
+              [value]="jalaliDobDay"
+              (ionChange)="onJalaliDobColumnChange($event, 'day')"
+            >
+              @for (day of jalaliDobDayOptions; track day) {
+                <ion-picker-column-option [value]="day">
+                  {{ day | localNum }}
+                </ion-picker-column-option>
+              }
+            </ion-picker-column>
+            <ion-picker-column
+              [value]="jalaliDobMonth"
+              (ionChange)="onJalaliDobColumnChange($event, 'month')"
+            >
+              @for (month of jalaliDobMonths; track month.value) {
+                <ion-picker-column-option [value]="month.value">
+                  {{ month.label }}
+                </ion-picker-column-option>
+              }
+            </ion-picker-column>
+            <ion-picker-column
+              [value]="jalaliDobYear"
+              (ionChange)="onJalaliDobColumnChange($event, 'year')"
+            >
+              @for (year of jalaliDobYears; track year) {
+                <ion-picker-column-option [value]="year">
+                  {{ year | localNum }}
+                </ion-picker-column-option>
+              }
+            </ion-picker-column>
+          </ion-picker>
+        } @else {
+          <ion-datetime
+            class="edit-profile-dob-wheel ltr"
+            presentation="date"
+            [preferWheel]="true"
+            [value]="dobPickerIso"
+            [min]="dobMinIso"
+            [max]="dobMaxIso"
+            (ionChange)="onDobPickerChange($event)"
+          ></ion-datetime>
+        }
         @if (dobPickerError && isDobPickerOpen) {
           <div class="edit-profile-dob-feedback" role="alert">
             <p class="edit-profile-dob-feedback__error">{{ dobPickerError }}</p>

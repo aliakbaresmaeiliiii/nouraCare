@@ -170,8 +170,8 @@ export class ProfileCompletionService {
           dobRaw == null
             ? ''
             : typeof dobRaw === 'string'
-              ? dobRaw
-              : new Date(dobRaw).toISOString();
+              ? dobRaw.match(/^(\d{4}-\d{2}-\d{2})/)?.[1] ?? dobRaw.slice(0, 10)
+              : new Date(dobRaw).toISOString().slice(0, 10);
         const profileImageRaw = (
           u.profileImage ??
           u.profile_img ??
