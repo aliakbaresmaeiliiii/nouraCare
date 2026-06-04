@@ -612,6 +612,20 @@ html[lang='fa'] {
   --ion-font-family: var(--font-persian);
 }
 
+/* Auth & plain HTML controls: Ionic normalize sets font-family: inherit on inputs/buttons */
+input:not([type='hidden']),
+textarea,
+select,
+button {
+  font-family: var(--ion-font-family);
+}
+
+ion-content.login-page,
+ion-content.verify-ion-content,
+ion-content.onboarding-content {
+  font-family: var(--ion-font-family);
+}
+
 ion-menu,
 ion-menu.custom-menu {
   font-family: var(--ion-font-family);

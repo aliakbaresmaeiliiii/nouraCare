@@ -1,6 +1,30 @@
 .login-page {
   --background: var(--app-gradient-header);
   --color: var(--brand-text);
+  --ion-font-family: var(--font-primary);
+  font-family: var(--ion-font-family);
+}
+
+:host-context(html[lang='fa']) .login-page,
+:host-context(html[dir='rtl']) .login-page {
+  --ion-font-family: var(--font-persian);
+}
+
+.login-page :where(
+  h1,
+  p,
+  button,
+  input,
+  label,
+  ion-button,
+  .login-title,
+  .login-lead,
+  .tab-button,
+  .form-input,
+  .form-label,
+  .login-footnote
+) {
+  font-family: var(--ion-font-family);
 }
 
 .language-section {
