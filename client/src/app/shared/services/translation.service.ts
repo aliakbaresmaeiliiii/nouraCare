@@ -1556,6 +1556,11 @@ export class TranslationService {
       'common.refreshing': 'Refreshing…',
       'layout.profileAlt': 'Profile',
 
+      'insights.hero.title': 'Health insights',
+      'insights.hero.subtitle':
+        'Expert articles on nutrition, your baby, and pregnancy — curated for you.',
+      'insights.favoritesLink': 'Saved articles',
+      'insights.dismissBanner': 'Dismiss',
       'insights.unlockTitle': 'Premium unlocked!',
       'insights.unlockSubtitle': 'Access to 1000+ expert articles',
       'insights.premiumActiveAll': 'Premium active — all articles unlocked!',
@@ -6926,6 +6931,11 @@ export class TranslationService {
       'common.refreshing': 'در حال تازه‌سازی…',
       'layout.profileAlt': 'پروفایل',
 
+      'insights.hero.title': 'بینش‌های سلامت',
+      'insights.hero.subtitle':
+        'مقالات تخصصی دربارهٔ تغذیه، نوزاد و بارداری — مخصوص شما.',
+      'insights.favoritesLink': 'مقالات ذخیره‌شده',
+      'insights.dismissBanner': 'بستن',
       'insights.unlockTitle': 'پریمیوم باز شد!',
       'insights.unlockSubtitle': 'دسترسی به بیش از ۱۰۰۰ مقالهٔ تخصصی',
       'insights.premiumActiveAll': 'پریمیوم فعال است — همهٔ مقالات باز هستند!',

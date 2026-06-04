@@ -1,339 +1,137 @@
-<ion-content class="tab-page-content" [fullscreen]="false">
+<ion-content class="tab-page-content insights-page" [fullscreen]="false">
   <ion-refresher slot="fixed" (ionRefresh)="onTabPullRefresh($event)">
     <ion-refresher-content
       [pullingText]="'common.pullToRefresh' | translate"
       [refreshingText]="'common.refreshing' | translate"
     ></ion-refresher-content>
   </ion-refresher>
-<div class="insights-content">
 
-  <!-- Premium Banner -->
-  @if (premiumBanner.isVisible && !isPremiumUnlocked) {
-  <div class="premium-banner" role="button" tabindex="0" (click)="openPremiumPage()">
-    <div class="banner-content">
-      <div class="banner-icon">
-        <ion-icon name="lock-closed"></ion-icon>
+  <div class="insights-content">
+    <header class="insights-hero">
+      <div class="insights-hero__icon" aria-hidden="true">
+        <ion-icon name="bulb-outline"></ion-icon>
       </div>
-      <div class="banner-text">
-        <p>{{ premiumBanner.title }}</p>
-      </div>
-      <div class="banner-action">
-        <ion-icon name="chevron-forward"></ion-icon>
-      </div>
-    </div>
-  </div>
-  }
+      <h1 class="insights-hero__title">{{ 'insights.hero.title' | translate }}</h1>
+      <p class="insights-hero__subtitle">{{ 'insights.hero.subtitle' | translate }}</p>
+    </header>
 
-  <!-- Premium Success Banner -->
-  @if (isPremiumUnlocked && !premiumBanner.isVisible) {
-  <div class="premium-success-banner">
-    <div class="success-content">
-      <div class="success-icon">
-        <ion-icon name="diamond"></ion-icon>
-      </div>
-      <div class="success-text">
-        <h3>{{ 'insights.premiumActiveTitle' | translate }}</h3>
-        <p>{{ 'insights.premiumActiveDesc' | translate }}</p>
-      </div>
-      <div class="success-badge">
-        <span>{{ 'insights.proBadge' | translate }}</span>
-      </div>
-    </div>
-  </div>
-  }
-
-  <!-- Search Bar -->
-  <div class="search-section">
-    <div class="search-container">
+    <div class="insights-toolbar">
       <ion-searchbar
-        [placeholder]="'insights.searchPlaceholder' | translate"
         class="insights-search"
+        mode="ios"
         [debounce]="200"
+        [placeholder]="'insights.searchPlaceholder' | translate"
         (ionInput)="onSearchInput($event)"
         (ionClear)="onSearchClear()"
       ></ion-searchbar>
-      <div class="search-icons">
-        <ion-button fill="clear" class="bookmark-btn" (click)="router.navigate(['/my-favorites'])">
-          <ion-icon name="heart-outline"></ion-icon>
-        </ion-button>
-        <ion-button fill="clear" class="notification-btn">
-          <ion-icon name="notifications-outline"></ion-icon>
-          <div class="notification-badge">1</div>
-        </ion-button>
-      </div>
-    </div>
-  </div>
-
-  @if (hasActiveSearch() && !hasAnySearchResults()) {
-  <div class="search-empty">
-    <p>{{ 'insights.searchEmpty' | translate }}</p>
-  </div>
-  }
-
-  <!-- Nutrition need to know -->
-  @if (!hasActiveSearch() || filteredArticles().nutritionNeedToKnow.length > 0) {
-  <div class="section">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'insights.sectionNutrition' | translate }}</h2>
+      <button
+        type="button"
+        class="insights-favorites-btn"
+        (click)="openFavorites()"
+        [attr.aria-label]="'insights.favoritesLink' | translate"
+      >
+        <ion-icon name="heart-outline" aria-hidden="true"></ion-icon>
+        <span>{{ 'insights.favoritesLink' | translate }}</span>
+      </button>
     </div>
 
-    <div class="articles-scroll">
-       @for (article of filteredArticles().nutritionNeedToKnow; track article.id) {
-       <div class="article-card" (click)="openArticle(article)"
-         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
-         [attr.data-article-id]="article.id">
-        <div class="card-image">
-          <img
-            [src]="article.image"
-            [alt]="article.titleKey | translate"
-            (error)="handleImageError($event, article.category)"
-          >
-          <!-- Premium Lock Overlay -->
-          @if (article.isPremium && !isPremiumUnlocked) {
-          <div class="premium-lock">
-            <ion-icon name="lock-closed"></ion-icon>
-          </div>
-          }
-          <!-- Premium Unlocked Badge -->
-          @if (article.isPremium && isPremiumUnlocked) {
-          <div class="premium-unlocked">
-            <ion-icon name="diamond"></ion-icon>
-          </div>
-          }
-          <!-- Favorite Button -->
-          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
-            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
-                      [class.favorited]="isFavorite(article.id)"></ion-icon>
-          </div>
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
-          @if (article.isPremium) {
-          <div class="premium-indicator">
-            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
-            </span>
-          </div>
-          }
-        </div>
+    @if (premiumBanner.isVisible && !isPremiumUnlocked) {
+      <div class="premium-banner">
+        <button type="button" class="premium-banner__main" (click)="openPremiumPage()">
+          <ion-icon name="lock-closed" class="premium-banner__icon" aria-hidden="true"></ion-icon>
+          <span class="premium-banner__text">{{ premiumBanner.title }}</span>
+          <ion-icon name="chevron-forward" class="premium-banner__chevron" aria-hidden="true"></ion-icon>
+        </button>
+        <button
+          type="button"
+          class="premium-banner__dismiss"
+          (click)="closePremiumBanner()"
+          [attr.aria-label]="'insights.dismissBanner' | translate"
+        >
+          <ion-icon name="close" aria-hidden="true"></ion-icon>
+        </button>
       </div>
+    }
+
+    @if (isPremiumUnlocked && !premiumBanner.isVisible) {
+      <div class="premium-active-chip" role="status">
+        <ion-icon name="diamond" aria-hidden="true"></ion-icon>
+        <span>{{ 'insights.premiumActiveAll' | translate }}</span>
+      </div>
+    }
+
+    @if (hasActiveSearch() && !hasAnySearchResults()) {
+      <div class="insights-empty">
+        <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+        <p>{{ 'insights.searchEmpty' | translate }}</p>
+      </div>
+    }
+
+    <div class="insights-sections">
+      @for (section of filteredSections(); track section.id) {
+        <section class="insights-section">
+          <div class="insights-section__head">
+            <h2 class="insights-section__title">{{ section.titleKey | translate }}</h2>
+          </div>
+
+          <div class="articles-scroll">
+            @for (article of section.articles; track article.id) {
+              <article
+                class="article-card"
+                tabindex="0"
+                (click)="openArticle(article)"
+                (keydown.enter)="openArticle(article)"
+                [style.background]="article.gradient"
+                [class.locked]="article.isPremium && !isPremiumUnlocked"
+                [class.unlocked]="isPremiumUnlocked"
+                [class.highlighted]="isHighlighted(article.id)"
+                [attr.data-article-id]="article.id"
+              >
+                <div class="card-image">
+                  <img
+                    [src]="article.image"
+                    [alt]="article.titleKey | translate"
+                    (error)="handleImageError($event, article.category)"
+                  />
+                  @if (article.isPremium && !isPremiumUnlocked) {
+                    <div class="premium-lock" aria-hidden="true">
+                      <ion-icon name="lock-closed"></ion-icon>
+                    </div>
+                  }
+                  @if (article.isPremium && isPremiumUnlocked) {
+                    <div class="premium-unlocked" aria-hidden="true">
+                      <ion-icon name="diamond"></ion-icon>
+                    </div>
+                  }
+                  <button
+                    type="button"
+                    class="favorite-btn"
+                    (click)="toggleFavorite(article, $event)"
+                    [attr.aria-label]="'insights.favoritesLink' | translate"
+                  >
+                    <ion-icon
+                      [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'"
+                      [class.favorited]="isFavorite(article.id)"
+                    ></ion-icon>
+                  </button>
+                </div>
+                <div class="card-content">
+                  <h3 class="card-title">{{ article.titleKey | translate }}</h3>
+                  @if (article.isPremium) {
+                    <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
+                      {{
+                        isPremiumUnlocked
+                          ? ('insights.proBadge' | translate)
+                          : ('insights.premiumBadge' | translate)
+                      }}
+                    </span>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        </section>
       }
     </div>
   </div>
-  }
-
-  <!-- All about your baby -->
-  @if (!hasActiveSearch() || filteredArticles().allAboutYourBaby.length > 0) {
-  <div class="section">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'insights.sectionBaby' | translate }}</h2>
-    </div>
-
-    <div class="articles-scroll">
-       @for (article of filteredArticles().allAboutYourBaby; track article.id) {
-       <div class="article-card" (click)="openArticle(article)"
-         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
-         [attr.data-article-id]="article.id">
-        <div class="card-image">
-          <img
-            [src]="article.image"
-            [alt]="article.titleKey | translate"
-            (error)="handleImageError($event, article.category)"
-          >
-          <!-- Premium Lock Overlay -->
-          @if (article.isPremium && !isPremiumUnlocked) {
-          <div class="premium-lock">
-            <ion-icon name="lock-closed"></ion-icon>
-          </div>
-          }
-          <!-- Premium Unlocked Badge -->
-          @if (article.isPremium && isPremiumUnlocked) {
-          <div class="premium-unlocked">
-            <ion-icon name="diamond"></ion-icon>
-          </div>
-          }
-          <!-- Favorite Button -->
-          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
-            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
-                      [class.favorited]="isFavorite(article.id)"></ion-icon>
-          </div>
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
-          @if (article.isPremium) {
-          <div class="premium-indicator">
-            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
-            </span>
-          </div>
-          }
-        </div>
-      </div>
-      }
-    </div>
-  </div>
-  }
-
-  <!-- Most popular in Pregnancy -->
-  @if (!hasActiveSearch() || filteredArticles().pregnancyPopular.length > 0) {
-  <div class="section">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'insights.sectionPregnancyPopular' | translate }}</h2>
-    </div>
-
-    <div class="articles-scroll">
-       @for (article of filteredArticles().pregnancyPopular; track article.id) {
-       <div class="article-card" (click)="openArticle(article)"
-         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
-         [attr.data-article-id]="article.id">
-        <div class="card-image">
-          <img
-            [src]="article.image"
-            [alt]="article.titleKey | translate"
-            (error)="handleImageError($event, article.category)"
-          >
-          <!-- Premium Lock Overlay -->
-          @if (article.isPremium && !isPremiumUnlocked) {
-          <div class="premium-lock">
-            <ion-icon name="lock-closed"></ion-icon>
-          </div>
-          }
-          <!-- Premium Unlocked Badge -->
-          @if (article.isPremium && isPremiumUnlocked) {
-          <div class="premium-unlocked">
-            <ion-icon name="diamond"></ion-icon>
-          </div>
-          }
-          <!-- Favorite Button -->
-          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
-            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
-                      [class.favorited]="isFavorite(article.id)"></ion-icon>
-          </div>
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
-          @if (article.isPremium) {
-          <div class="premium-indicator">
-            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
-            </span>
-          </div>
-          }
-        </div>
-      </div>
-      }
-    </div>
-  </div>
-  }
-
-  <!-- Pregnancy sex and pleasure -->
-  @if (!hasActiveSearch() || filteredArticles().pregnancySexPleasure.length > 0) {
-  <div class="section">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'insights.sectionSexPleasure' | translate }}</h2>
-    </div>
-
-    <div class="articles-scroll">
-       @for (article of filteredArticles().pregnancySexPleasure; track article.id) {
-       <div class="article-card" (click)="openArticle(article)"
-         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
-         [attr.data-article-id]="article.id">
-        <div class="card-image">
-          <img
-            [src]="article.image"
-            [alt]="article.titleKey | translate"
-            (error)="handleImageError($event, article.category)"
-          >
-          <!-- Premium Lock Overlay -->
-          @if (article.isPremium && !isPremiumUnlocked) {
-          <div class="premium-lock">
-            <ion-icon name="lock-closed"></ion-icon>
-          </div>
-          }
-          <!-- Premium Unlocked Badge -->
-          @if (article.isPremium && isPremiumUnlocked) {
-          <div class="premium-unlocked">
-            <ion-icon name="diamond"></ion-icon>
-          </div>
-          }
-          <!-- Favorite Button -->
-          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
-            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
-                      [class.favorited]="isFavorite(article.id)"></ion-icon>
-          </div>
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
-          @if (article.isPremium) {
-          <div class="premium-indicator">
-            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
-            </span>
-          </div>
-          }
-        </div>
-      </div>
-      }
-    </div>
-  </div>
-  }
-
-  <!-- Pregnancy body signs explained -->
-  @if (!hasActiveSearch() || filteredArticles().pregnancyBodySigns.length > 0) {
-  <div class="section">
-    <div class="section-header">
-      <h2 class="section-title">{{ 'insights.sectionBodySigns' | translate }}</h2>
-    </div>
-
-    <div class="articles-scroll">
-       @for (article of filteredArticles().pregnancyBodySigns; track article.id) {
-       <div class="article-card" (click)="openArticle(article)"
-         [style.background]="article.gradient" [class.locked]="article.isPremium && !isPremiumUnlocked"
-         [class.unlocked]="isPremiumUnlocked" [class.highlighted]="isHighlighted(article.id)"
-         [attr.data-article-id]="article.id">
-        <div class="card-image">
-          <img
-            [src]="article.image"
-            [alt]="article.titleKey | translate"
-            (error)="handleImageError($event, article.category)"
-          >
-          <!-- Premium Lock Overlay -->
-          @if (article.isPremium && !isPremiumUnlocked) {
-          <div class="premium-lock">
-            <ion-icon name="lock-closed"></ion-icon>
-          </div>
-          }
-          <!-- Premium Unlocked Badge -->
-          @if (article.isPremium && isPremiumUnlocked) {
-          <div class="premium-unlocked">
-            <ion-icon name="diamond"></ion-icon>
-          </div>
-          }
-          <!-- Favorite Button -->
-          <div class="favorite-btn" (click)="toggleFavorite(article, $event)">
-            <ion-icon [name]="isFavorite(article.id) ? 'heart' : 'heart-outline'" 
-                      [class.favorited]="isFavorite(article.id)"></ion-icon>
-          </div>
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">{{ article.titleKey | translate }}</h3>
-          @if (article.isPremium) {
-          <div class="premium-indicator">
-            <span class="premium-badge" [class.unlocked]="isPremiumUnlocked">
-              {{ isPremiumUnlocked ? ('insights.proBadge' | translate) : ('insights.premiumBadge' | translate) }}
-            </span>
-          </div>
-          }
-        </div>
-      </div>
-      }
-    </div>
-  </div>
-  }
-
-</div>
 </ion-content>
