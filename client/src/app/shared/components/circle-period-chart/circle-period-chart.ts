@@ -3,6 +3,7 @@ import {
   effect,
   inject,
   Input,
+  NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -56,6 +57,7 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
   private userSession = inject(UserSessionService);
   private periodCycleState = inject(PeriodCycleStateService);
   private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
   private langSub?: Subscription;
   /** Parent-bound cycle length; wins over cycleSettings when Home passes fresh inputs. */
   private boundCycleLength: number | null = null;
@@ -66,6 +68,11 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
   @Input() periodLength: number = 5; // menstruation length in days
   /** ISO date (YYYY-MM-DD) for cycle ring anchor; kept in sync with {@link CycleSettingsService}. */
   @Input() lastPeriodStart: string | null = null;
+  /**
+   * Optional 1-based period day (1…periodLength) from Home stats — keeps ring numerals
+   * in sync when the user logs a period (especially when start date is today).
+   */
+  @Input() periodHighlightDay: number | null = null;
   /** When true, shows the Mon–Sun week strip above the ring (cycle home). */
   @Input() showWeekStrip = true;
 
@@ -74,9 +81,15 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     this.cycleSettings.cycleLength();
     this.cycleSettings.periodLength();
     this.cycleSettings.lastPeriodStartDate();
-    this.applyLocalCycleState();
-    this.recomputeEverything();
-    this.syncWeekCalendarSelectionFromStartDate();
+    this.cycleSettings.selectedCycleViewDate();
+    this.periodCycleState.periodStartIso();
+    this.ngZone.run(() => {
+      this.applyLocalCycleState();
+      this.syncWeekCalendarSelectionFromStartDate();
+      this.focusTodayWhenInActivePeriod();
+      this.recomputeEverything();
+      this.cdr.markForCheck();
+    });
   });
 
   private readonly weekCalWeeksPast = 10;
@@ -158,13 +171,31 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     );
   }
 
+  /** 1-based period marker (1…periodLength) to bold on the ring for the focused day. */
+  getActivePeriodMarkerDay(): number | null {
+    if (!this.startDate) {
+      return null;
+    }
+    const parentDay = this.normalizePeriodHighlightDay(this.periodHighlightDay);
+    if (parentDay != null && this.viewingCalendarToday()) {
+      return parentDay;
+    }
+    const cycleDay = this.viewCycleDay;
+    if (cycleDay >= 1 && cycleDay <= this.periodLength) {
+      return cycleDay;
+    }
+    if (this.viewingCalendarToday()) {
+      const todayDay = this.todayCycleDay;
+      if (todayDay >= 1 && todayDay <= this.periodLength) {
+        return todayDay;
+      }
+    }
+    return null;
+  }
+
   /** Bold red bg on the matching period arc numeral (e.g. day 1 when period starts today). */
   isPeriodDayHighlighted(day: number): boolean {
-    return (
-      !!this.startDate &&
-      this.isInPeriod &&
-      day === this.viewCycleDay
-    );
+    return this.getActivePeriodMarkerDay() === day;
   }
 
   // Period status (driven by **view** day so taps update the ring + center)
@@ -338,7 +369,15 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
           ? String(raw).split('T')[0]
           : String(raw).slice(0, 10);
         this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+      } else {
+        this.startDate = null;
+        this.endDate = null;
       }
+      this.syncWeekCalendarSelectionFromStartDate();
+      this.focusTodayWhenInActivePeriod();
+    }
+    if (changes['periodHighlightDay']) {
+      this.cdr.markForCheck();
     }
     this.recomputeEverything();
   }
@@ -397,8 +436,9 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
    */
   public refreshChart() {
     this.applyLocalCycleState();
-    this.recomputeEverything();
     this.syncWeekCalendarSelectionFromStartDate();
+    this.focusTodayWhenInActivePeriod();
+    this.recomputeEverything();
     queueMicrotask(() => this.scheduleWeekScrollToAnchor());
   }
 
@@ -1381,6 +1421,51 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
       return;
     }
     this.weekCalendarSelectedIsoKey = null;
+  }
+
+  /** After logging a period, keep the ring on today so day 1…5 highlights correctly. */
+  private focusTodayWhenInActivePeriod(): void {
+    if (!this.startDate) {
+      return;
+    }
+    const today = this.localMidnight(new Date());
+    const todayCycleDay = this.cycleDayForCalendarDate(today);
+    if (
+      todayCycleDay == null ||
+      todayCycleDay < 1 ||
+      todayCycleDay > this.periodLength
+    ) {
+      return;
+    }
+    const pinned = this.cycleSettings.selectedCycleViewDate();
+    if (pinned) {
+      const pinnedDate = this.parseWeekCalendarIsoKey(pinned);
+      if (pinnedDate) {
+        const pinnedCycleDay = this.cycleDayForCalendarDate(pinnedDate);
+        if (
+          pinnedCycleDay != null &&
+          pinnedCycleDay >= 1 &&
+          pinnedCycleDay <= this.periodLength
+        ) {
+          return;
+        }
+      }
+    }
+    this.weekCalendarSelectedIsoKey = null;
+    if (pinned) {
+      this.cycleSettings.setSelectedCycleViewDate(null);
+    }
+  }
+
+  private normalizePeriodHighlightDay(value: number | null): number | null {
+    if (value == null || !Number.isFinite(value)) {
+      return null;
+    }
+    const day = Math.round(Number(value));
+    if (day < 1 || day > this.periodLength) {
+      return null;
+    }
+    return day;
   }
 
   /**

@@ -290,10 +290,12 @@
 
 
         <!-- Period day labels (1…5) — active day gets red fill + bold -->
+        @if (startDate) {
         @for (day of periodDayNumbers; track day) {
           <g
             class="outer-number-marker period-day-marker"
             [class.period-day-marker--active]="isPeriodDayHighlighted(day)"
+            [attr.aria-current]="isPeriodDayHighlighted(day) ? 'date' : null"
             [attr.transform]="
               'translate(' +
               getCycleDayLabelX(day) +
@@ -315,6 +317,7 @@
               {{ day | localNum }}
             </text>
           </g>
+        }
         }
 
         <!-- Last day of cycle -->

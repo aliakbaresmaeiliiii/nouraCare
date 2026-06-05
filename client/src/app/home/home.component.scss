@@ -708,6 +708,32 @@
   }
 }
 
+.cycle-today-advice {
+  margin: clamp(0.35rem, 1.5vw, 0.65rem) auto 0;
+  padding: 0.72rem 1rem;
+  max-width: 22rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 24px rgba(219, 39, 119, 0.08);
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+  color: #334155;
+  text-wrap: pretty;
+
+  &--period {
+    border-color: rgba(244, 63, 94, 0.2);
+    background: linear-gradient(
+      145deg,
+      rgba(255, 241, 242, 0.96) 0%,
+      rgba(255, 255, 255, 0.9) 100%
+    );
+    color: #9f1239;
+  }
+}
+
 .cycle-day-desc {
   margin: 0 0 0.35rem;
   padding: 0 1rem;
@@ -1564,6 +1590,19 @@
 
     &::before {
       opacity: 0.45;
+    }
+  }
+
+  .cycle-today-advice {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--ion-card-background) 88%, #fda4af 12%);
+    box-shadow: var(--app-shadow-card);
+    color: rgba(255, 255, 255, 0.88);
+
+    &--period {
+      border-color: rgba(244, 63, 94, 0.28);
+      background: color-mix(in srgb, #fda4af 16%, var(--ion-card-background));
+      color: #fda4af;
     }
   }
 

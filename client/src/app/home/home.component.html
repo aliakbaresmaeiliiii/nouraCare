@@ -47,8 +47,19 @@
             [cycleLength]="currentCycleLength"
             [periodLength]="periodLength"
             [lastPeriodStart]="lastPeriodStartIso"
+            [periodHighlightDay]="getChartPeriodHighlightDay()"
           />
         </div>
+        @if (!showStartTrackingOnboarding()) {
+        <p
+          class="cycle-today-advice"
+          role="status"
+          aria-live="polite"
+          [class.cycle-today-advice--period]="getCyclePhaseTone() === 'period'"
+        >
+          {{ getCycleTodayAdvice() }}
+        </p>
+        }
       </div>
 
       @if (!showStartTrackingOnboarding()) {
@@ -100,9 +111,6 @@
           <h2 class="cycle-phase-guide__title">
             {{ getCyclePhaseGuideHeadline() }}
           </h2>
-          <p class="cycle-phase-guide__subtitle">
-            {{ getCyclePhaseGuideSubtitle() }}
-          </p>
         </header>
         <div class="cycle-phase-guide__scroll" role="list">
           @for (card of getCyclePhaseGuideCards(); track card.id) {

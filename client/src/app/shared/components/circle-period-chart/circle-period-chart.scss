@@ -909,6 +909,7 @@
       stroke-width: 2.5;
       filter: drop-shadow(0 0 12px rgba(244, 63, 94, 0.55))
         drop-shadow(0 3px 8px rgba(190, 18, 60, 0.4));
+      animation: period-day-marker-pulse 2.4s ease-in-out infinite;
     }
 
     .period-day-number {
@@ -918,6 +919,19 @@
       font-size: clamp(13px, 3.4vw, 16px);
       font-weight: 900;
     }
+  }
+}
+
+@keyframes period-day-marker-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.45))
+      drop-shadow(0 3px 8px rgba(190, 18, 60, 0.35));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 18px rgba(244, 63, 94, 0.72))
+      drop-shadow(0 4px 10px rgba(190, 18, 60, 0.5));
   }
 }
 
@@ -1920,7 +1934,8 @@ ion-modal ion-toolbar {
   .center-glass__hero .center-glass__day,
   .center-glass__pill,
   .center-glass__milestone,
-  .center-glass__insight {
+  .center-glass__insight,
+  .period-day-marker--active .period-day-number__disk {
     animation: none !important;
   }
 

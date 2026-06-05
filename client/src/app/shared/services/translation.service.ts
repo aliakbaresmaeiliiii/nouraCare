@@ -1630,6 +1630,28 @@ export class TranslationService {
       'home.cycleStatOvulation': 'Ovulation',
       'home.cycleStatCycle': 'This cycle',
       'home.cycleStatDayOfValue': '{{day}} / {{len}}',
+      'home.cycleToday.none':
+        'Log your last period to get personalized daily guidance.',
+      'home.cycleToday.period.day1':
+        'Today is the first day of your period — take it easy and listen to your body.',
+      'home.cycleToday.period.day2':
+        'Today is day 2 of your period — flow may be heavier; rest when you need to.',
+      'home.cycleToday.period.mid':
+        'Today is day {{day}} of your period — stay hydrated and go gently.',
+      'home.cycleToday.period.lastDay':
+        'Today is day {{day}} of your period — you may feel lighter as it wraps up.',
+      'home.cycleToday.follicular':
+        'Day {{day}} of your cycle — your energy is building; a good time to move.',
+      'home.cycleToday.fertile.window':
+        'You are in your fertile window — these days matter most for conception planning.',
+      'home.cycleToday.fertile.ovulationDay':
+        'Today is likely ovulation day — your highest chance of conception this cycle.',
+      'home.cycleToday.luteal.mid':
+        'About {{days}} days until your next period — watch mood and body signals.',
+      'home.cycleToday.luteal.soonDays':
+        'Your period may start in {{days}} days — be kind to yourself and prepare.',
+      'home.cycleToday.luteal.soon':
+        'Your period may start very soon — rest, hydrate, and listen to your body.',
       'home.cycleActionCalendarDesc': 'Full month view',
       'home.cycleActionSymptomsDesc': 'Mood, pain & more',
       'home.cycleActionLogPeriod': 'Log period',
@@ -7003,6 +7025,28 @@ export class TranslationService {
       'home.cycleStatOvulation': 'تخمک‌گذاری',
       'home.cycleStatCycle': 'این چرخه',
       'home.cycleStatDayOfValue': '{{day}} / {{len}}',
+      'home.cycleToday.none':
+        'آخرین پریود را ثبت کنید تا راهنمای روزانهٔ شخصی‌سازی‌شده ببینید.',
+      'home.cycleToday.period.day1':
+        'امروز روز اول پریودی هست؛ با خودت مراقب باش و استراحت کن.',
+      'home.cycleToday.period.day2':
+        'امروز روز دوم پریودی هست؛ ممکنه خونریزی بیشتر باشه — به بدنت گوش بده.',
+      'home.cycleToday.period.mid':
+        'امروز روز {{day}} پریودیه؛ آب کافی بنوش و با خودت ملایم باش.',
+      'home.cycleToday.period.lastDay':
+        'امروز روز {{day}} و احتمالاً آخرین روز پریودیه؛ آرام پیش برو.',
+      'home.cycleToday.follicular':
+        'امروز روز {{day}} چرخه‌اته؛ انرژی‌ات داره بیشتر می‌شه — از این روزها بهره ببر.',
+      'home.cycleToday.fertile.window':
+        'امروز توی پنجره باروری هستی؛ اگر برنامه بارداری داری، این روزها مهمن.',
+      'home.cycleToday.fertile.ovulationDay':
+        'امروز احتمالاً روز تخمک‌گذاریه؛ بالاترین شانس باروری در این چرخه.',
+      'home.cycleToday.luteal.mid':
+        'حدود {{days}} روز تا پریود بعدی مونده؛ مراقب خلق و علائم خودت باش.',
+      'home.cycleToday.luteal.soonDays':
+        'پریودت ممکنه {{days}} روز دیگه شروع بشه؛ آماده باش و با خودت مهربان باش.',
+      'home.cycleToday.luteal.soon':
+        'پریودت ممکنه به‌زودی شروع بشه؛ استراحت کن و به بدنت گوش بده.',
       'home.cycleActionCalendarDesc': 'نمای ماهانه',
       'home.cycleActionSymptomsDesc': 'خلق، درد و بیشتر',
       'home.cycleActionLogPeriod': 'ثبت قاعدگی',
