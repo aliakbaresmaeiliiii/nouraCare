@@ -5,6 +5,7 @@ import { UserInfo } from '../../shared/interfaces/user-info-api.interface';
 import { DashboardResponse } from '../../shared/services/onboarding.service';
 import type { DashboardCyclePhaseGuide } from '../../shared/services/onboarding.service';
 import { normalizeLmpInput } from '../../shared/utils/pregnancy-lmp.util';
+import { PeriodHistoryService } from '../../shared/services/period-history.service';
 
 /** Journey fields the home page binds after each dashboard + onboarding sync. */
 export interface HomePageJourneyState {
@@ -42,6 +43,7 @@ type DashboardFertileWindow = NonNullable<DashboardResponse['fertileWindow']>;
 export class HomeReproductiveUiService {
   private cycleSettings = inject(CycleSettingsService);
   private userInfoService = inject(UserInfoService);
+  private periodHistory = inject(PeriodHistoryService);
 
   /**
    * Applies dashboard, merges legacy onboarding row, finalizes pregnancy storage flags.
@@ -157,16 +159,25 @@ export class HomeReproductiveUiService {
       Number.isFinite(dashboard.cycleDay) &&
       dashboard.cycleDay >= 1
     ) {
-      const today = new Date();
-      today.setHours(12, 0, 0, 0);
-      const start = new Date(today);
-      start.setDate(today.getDate() - (Math.round(Number(dashboard.cycleDay)) - 1));
-      periodStartDate = start;
-      cycleDayDirty = true;
-      const y = start.getFullYear();
-      const m = String(start.getMonth() + 1).padStart(2, '0');
-      const d = String(start.getDate()).padStart(2, '0');
-      this.cycleSettings.setLastPeriodStart(`${y}-${m}-${d}`);
+      const localIso = this.resolvePreferredPeriodStartIso();
+      if (localIso) {
+        // Period picker / cycle calendar writes localStorage first — do not infer LMP from stale cycleDay.
+        periodStartDate = new Date(`${localIso}T12:00:00`);
+        cycleDayDirty = true;
+      } else {
+        const today = new Date();
+        today.setHours(12, 0, 0, 0);
+        const start = new Date(today);
+        start.setDate(
+          today.getDate() - (Math.round(Number(dashboard.cycleDay)) - 1),
+        );
+        periodStartDate = start;
+        cycleDayDirty = true;
+        const y = start.getFullYear();
+        const m = String(start.getMonth() + 1).padStart(2, '0');
+        const d = String(start.getDate()).padStart(2, '0');
+        this.cycleSettings.setLastPeriodStart(`${y}-${m}-${d}`);
+      }
     }
 
     const nextPeriodIso =
@@ -311,5 +322,20 @@ export class HomeReproductiveUiService {
     this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPregnancyWeek(0);
     this.cycleSettings.setPregnancyProgress(0);
+  }
+
+  /** Local cycle settings + period history beat dashboard cycleDay inference on refresh. */
+  private resolvePreferredPeriodStartIso(): string | null {
+    const fromSettings = normalizeLmpInput(
+      this.cycleSettings.lastPeriodStartDate() ?? undefined,
+    );
+    if (fromSettings) {
+      return fromSettings;
+    }
+    const newest = this.periodHistory.getEntries()[0];
+    if (!newest?.lastPeriodStartDate) {
+      return null;
+    }
+    return normalizeLmpInput(newest.lastPeriodStartDate) ?? null;
   }
 }

@@ -9,6 +9,7 @@ import { PeriodHistoryService } from './period-history.service';
 import { normalizeLmpInput } from '../utils/pregnancy-lmp.util';
 import { UserInfoService } from './user-info.service';
 import { AuthService } from '../../auth/services/auth';
+import { DashboardCacheService } from './dashboard-cache.service';
 
 @Injectable({ providedIn: 'root' })
 export class PeriodCycleStateService {
@@ -17,6 +18,7 @@ export class PeriodCycleStateService {
   private periodHistory = inject(PeriodHistoryService);
   private userInfoService = inject(UserInfoService);
   private authService = inject(AuthService);
+  private dashboardCache = inject(DashboardCacheService);
 
   private readonly latestPeriodIso = signal<string | null>(null);
   private readonly lastFetchedAtMs = signal<number>(0);
@@ -58,6 +60,7 @@ export class PeriodCycleStateService {
         this.reproductiveStatusService.createPeriodLog(userId, request),
       );
       this.lastFetchedAtMs.set(Date.now());
+      this.dashboardCache.invalidate();
     } catch (error) {
       console.error('Failed to persist period log:', error);
     }
@@ -69,7 +72,24 @@ export class PeriodCycleStateService {
     this.cycleSettings.setSelectedCycleViewDate(null);
     this.periodHistory.addEntry(iso);
     this.userInfoService.applyLocalPeriodOverride(iso);
+    this.patchOnboardingLocalStorage(iso);
     this.patchOnboardingLastPeriodBestEffort(iso);
+  }
+
+  /** Keep offline onboarding snapshot aligned so journey merge cannot revert on refresh. */
+  private patchOnboardingLocalStorage(iso: string): void {
+    try {
+      const raw = localStorage.getItem('onboarding_data');
+      if (!raw) {
+        return;
+      }
+      const data = JSON.parse(raw) as Record<string, unknown>;
+      data['last_period'] = iso;
+      data['lmp_date'] = iso;
+      localStorage.setItem('onboarding_data', JSON.stringify(data));
+    } catch {
+      // Non-blocking
+    }
   }
 
   private patchOnboardingLastPeriodBestEffort(iso: string): void {

@@ -138,17 +138,54 @@ export class UserService {
 
   async createPeriodLog(userId: number, dto: any): Promise<any> {
     const now = new Date();
+    const lastPeriodDate =
+      dto.lastPeriodDate instanceof Date
+        ? dto.lastPeriodDate
+        : new Date(dto.lastPeriodDate);
     const row = await this.prismaService.period_logs.create({
       data: {
         userId,
-        lastPeriodDate: dto.lastPeriodDate instanceof Date ? dto.lastPeriodDate : new Date(dto.lastPeriodDate),
+        lastPeriodDate,
         mood: dto.mood ?? null,
         notes: dto.notes ?? null,
         averagePeriodDuration:
-          dto.averagePeriodDuration != null ? Math.round(Number(dto.averagePeriodDuration)) : null,
+          dto.averagePeriodDuration != null
+            ? Math.round(Number(dto.averagePeriodDuration))
+            : null,
         updatedAt: now,
       },
     });
+
+    const existingCycle = await this.prismaService.cycle_data.findUnique({
+      where: { userId },
+    });
+    const shouldUpdateCycle =
+      !existingCycle?.lastPeriodDate ||
+      lastPeriodDate.getTime() >= existingCycle.lastPeriodDate.getTime();
+    if (shouldUpdateCycle) {
+      await this.prismaService.cycle_data.upsert({
+        where: { userId },
+        create: {
+          userId,
+          lastPeriodDate,
+          cycleLength: existingCycle?.cycleLength ?? 28,
+          updatedAt: now,
+        },
+        update: {
+          lastPeriodDate,
+          updatedAt: now,
+        },
+      });
+    }
+
+    await this.prismaService.onboarding_data.updateMany({
+      where: { userId },
+      data: {
+        lastPeriodDate,
+        updatedAt: now,
+      },
+    });
+
     void this.engagement.refreshEngagementMetrics(userId).catch(() => undefined);
     return row;
   }
