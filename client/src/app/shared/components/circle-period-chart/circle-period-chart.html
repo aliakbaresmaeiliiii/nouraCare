@@ -289,30 +289,32 @@
         }
 
 
-        <!-- Period day labels on the period arc (centered in each day slice) -->
+        <!-- Period day labels (1…5) — active day gets red fill + bold -->
         @for (day of periodDayNumbers; track day) {
-          @if (!(showTodayRingCap() && day === viewCycleDay)) {
-            <g
-              class="outer-number-marker period-day-marker"
-              [attr.transform]="
-                'translate(' +
-                getCycleDayLabelX(day) +
-                ',' +
-                getCycleDayLabelY(day) +
-                ')'
-              "
+          <g
+            class="outer-number-marker period-day-marker"
+            [class.period-day-marker--active]="isPeriodDayHighlighted(day)"
+            [attr.transform]="
+              'translate(' +
+              getCycleDayLabelX(day) +
+              ',' +
+              getCycleDayLabelY(day) +
+              ')'
+            "
+          >
+            <circle
+              class="period-day-number__disk"
+              [attr.r]="isPeriodDayHighlighted(day) ? 17 : 12"
+            />
+            <text
+              class="outer-number period-day-number"
+              text-anchor="middle"
+              dominant-baseline="central"
+              y="0.5"
             >
-              <circle class="period-day-number__disk" r="12" />
-              <text
-                class="outer-number period-day-number"
-                text-anchor="middle"
-                dominant-baseline="central"
-                y="0.5"
-              >
-                {{ day | localNum }}
-              </text>
-            </g>
-          }
+              {{ day | localNum }}
+            </text>
+          </g>
         }
 
         <!-- Last day of cycle -->

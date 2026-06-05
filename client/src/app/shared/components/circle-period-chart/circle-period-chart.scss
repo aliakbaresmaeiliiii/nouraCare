@@ -880,9 +880,13 @@
 
   .period-day-number__disk {
     fill: rgba(255, 251, 252, 0.92);
-    stroke: rgba(251, 113, 133, 0.38);
+    stroke: rgba(251, 113, 133, 0.45);
     stroke-width: 1.5;
     filter: drop-shadow(0 2px 6px rgba(244, 63, 94, 0.14));
+    transition:
+      fill 0.2s ease,
+      stroke 0.2s ease,
+      filter 0.2s ease;
   }
 
   .period-day-number {
@@ -891,10 +895,29 @@
     stroke-width: 2px;
     paint-order: stroke fill;
     font-size: clamp(10px, 2.7vw, 13px);
-    font-weight: 800;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
     opacity: 1;
+    transition: fill 0.2s ease, font-size 0.2s ease;
+  }
+
+  &--active {
+    .period-day-number__disk {
+      fill: #f43f5e;
+      stroke: #be123c;
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 12px rgba(244, 63, 94, 0.55))
+        drop-shadow(0 3px 8px rgba(190, 18, 60, 0.4));
+    }
+
+    .period-day-number {
+      fill: #ffffff;
+      stroke: #9f1239;
+      stroke-width: 2px;
+      font-size: clamp(13px, 3.4vw, 16px);
+      font-weight: 900;
+    }
   }
 }
 

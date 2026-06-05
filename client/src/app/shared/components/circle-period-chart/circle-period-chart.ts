@@ -149,11 +149,21 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     return !!this.startDate && this.viewCycleDay >= 1;
   }
 
-  /** Ring cap for the focused day — skip last day; cycle-length badge owns that spot. */
+  /** Ring cap for non-period days; period days use highlighted arc numerals (1…5). */
   showTodayRingCap(): boolean {
     return (
       this.viewCycleDay >= 1 &&
-      this.viewCycleDay < Math.max(1, this.cycleLength)
+      this.viewCycleDay < Math.max(1, this.cycleLength) &&
+      !this.isInPeriod
+    );
+  }
+
+  /** Bold red bg on the matching period arc numeral (e.g. day 1 when period starts today). */
+  isPeriodDayHighlighted(day: number): boolean {
+    return (
+      !!this.startDate &&
+      this.isInPeriod &&
+      day === this.viewCycleDay
     );
   }
 
@@ -1445,16 +1455,15 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
 
     // refresh ring day labels
     this.ringDays = Array.from({ length: this.cycleLength }, (_, i) => i + 1);
+    this.periodDayNumbers = Array.from(
+      { length: this.periodLength },
+      (_, i) => i + 1,
+    );
 
     // compute today cycle day relative to last period start (1-based)
     if (this.startDate) {
-      const start = new Date(this.startDate);
-      const diffDays = Math.floor(
-        (this.todayDate.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
-      );
-      const mod =
-        ((diffDays % this.cycleLength) + this.cycleLength) % this.cycleLength;
-      this.todayCycleDay = mod + 1; // Convert to 1-based day numbering
+      const cd = this.cycleDayForCalendarDate(this.todayDate);
+      this.todayCycleDay = cd != null && cd >= 1 ? cd : 1;
     } else {
       // fallback: keep current day index within cycle length (not ideal but avoids NaN)
       const todayNum = new Date().getDate();
