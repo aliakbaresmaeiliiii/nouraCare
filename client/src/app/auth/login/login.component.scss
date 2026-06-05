@@ -25,6 +25,7 @@
   .login-footnote
 ) {
   font-family: var(--ion-font-family);
+  color: var(--brand-text);
 }
 
 .language-section {
@@ -186,6 +187,15 @@
   color: #fff;
   box-shadow: var(--app-button-solid-shadow);
   transform: translateY(-1px);
+}
+
+.tab-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.tab-container--busy .tab-button.active {
+  transform: none;
 }
 
 .form-container {
@@ -362,13 +372,17 @@
   width: 100%;
   min-width: 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  direction: ltr;
 }
 
 .custom-otp {
   display: block;
-  width: 100%;
+  width: fit-content;
   max-width: 100%;
+  direction: ltr;
+  unicode-bidi: isolate;
   --background: var(--brand-surface);
   --color: var(--brand-text);
   --border-color: rgba(var(--brand-primary-rgb), 0.18);

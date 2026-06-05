@@ -96,6 +96,13 @@
 							"sourceMap": true,
 							"namedChunks": true
 						},
+						"mobile": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true,
+							"namedChunks": true,
+							"outputHashing": "all"
+						},
 						"ci": {
 							"progress": false
 						}

@@ -2065,10 +2065,9 @@ const PAGE_UI_FA: Record<string, string> = {
   'onboarding.welcome.brandAlt': 'آیکون برنامه NouraCare',
   'onboarding.welcome.getStarted': 'شروع کنید',
   'onboarding.welcome.footnote':
-    'حدود یک دقیقه · تا ورود، خصوصی روی این دستگاه می‌ماند',
-  'onboarding.welcome.title': 'به NouraCare خوش آمدید',
-  'onboarding.welcome.subtitle':
-    'همراهی ساده و امن برای پایش چرخه و مدیریت بهتر اطلاعات سلامت بانوان',
+    'حدود یک دقیقه · تا وارد نشدی، همه‌چیز فقط روی همین گوشیت می‌مونه',
+  'onboarding.welcome.title': 'به NouraCare خوش اومدی',
+  'onboarding.welcome.subtitle': 'چرخه و سلامتت رو راحت دنبال کن — ساده، امن، مخصوص تو',
   'onboarding.welcome.question':
     'با نوراکر می‌توانید اطلاعات چرخه خود را ثبت کنید، سوابق را ببینید و با آرامش بیشتری روندهای شخصی خود را دنبال کنید.',
   'onboarding.pregnancyStatus.title': 'در چه مرحله‌ای هستید؟',

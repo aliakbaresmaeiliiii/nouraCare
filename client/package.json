@@ -50,13 +50,17 @@
 
     "android:clean": "node scripts/clean-android-build.mjs",
 
-    "cap:clean-sync": "node scripts/clean-android-build.mjs && npx cap sync android",
+    "cap:clean-sync": "node scripts/clean-android-build.mjs && npx cap sync android && node scripts/patch-android-flatdir.mjs",
 
-    "cap:sync": "npx cap sync android",
+    "cap:sync": "npx cap sync android && node scripts/patch-android-flatdir.mjs",
 
     "build:prod": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build --configuration=production",
 
-    "cap:sync:prod": "npx cap sync android --config capacitor.config.prod.ts",
+    "build:mobile": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build --configuration=mobile --delete-output-path",
+
+    "cap:sync:mobile": "npm run build:mobile && npx cap sync android && node scripts/patch-android-flatdir.mjs",
+
+    "cap:sync:prod": "npx cap sync android --config capacitor.config.prod.ts && node scripts/patch-android-flatdir.mjs",
 
     "cap:sync:url": "node scripts/cap-sync-url.mjs",
 
@@ -64,7 +68,9 @@
 
     "run:all": "node node_modules/@angular-architects/module-federation/src/server/mf-dev-server.js",
 
-    "android:live": "node scripts/run-android-live.mjs"
+    "android:live": "node scripts/run-android-live.mjs",
+
+    "android:refresh": "node scripts/refresh-android.mjs"
 
   },
 

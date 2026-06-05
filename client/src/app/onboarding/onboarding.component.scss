@@ -588,7 +588,8 @@
   }
 }
 
-ion-datetime-button {
+ion-datetime-button,
+.onboarding-jalali-date-btn {
   --background: rgba(var(--brand-surface-rgb), 0.95);
   --color: var(--brand-text);
   border-radius: var(--onboarding-radius-sm);
@@ -598,6 +599,26 @@ ion-datetime-button {
   font-size: 1rem;
   font-weight: 600;
   border: 1px solid var(--onboarding-border);
+}
+
+.onboarding-jalali-date-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(var(--brand-surface-rgb), 0.95);
+  color: var(--brand-text);
+  cursor: pointer;
+
+  ion-icon {
+    font-size: 1.2rem;
+    color: rgba(var(--brand-primary-rgb), 0.85);
+  }
+}
+
+.onboarding-period-picker {
+  display: block;
+  margin-top: 0.25rem;
 }
 
 .date-picker-hint {

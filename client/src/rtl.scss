@@ -49,6 +49,12 @@
   ion-input, ion-textarea {
     text-align: right;
   }
+
+  ion-input-otp {
+    direction: ltr;
+    unicode-bidi: isolate;
+    text-align: center;
+  }
   
   // List items
   ion-item {

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 /** Set by `npm run cap:sync:url` so the native app loads `ng serve` over LAN (like Next dev + Cap URL). */
-const capServerUrl = process.env.CAP_SERVER_URL;
+const capServerUrl = process.env['CAP_SERVER_URL'] || '';
 
 const config: CapacitorConfig = {
   appId: 'com.tecknnycs.nouracare',
@@ -14,6 +14,9 @@ const config: CapacitorConfig = {
     ...(capServerUrl ? { url: capServerUrl } : {}),
   },
   plugins: {
+    Keyboard: {
+      resize: 'body'
+    },
     SocialLogin: {
       providers: {
         google: true,

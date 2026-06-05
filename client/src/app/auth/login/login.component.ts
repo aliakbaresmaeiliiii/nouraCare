@@ -17,7 +17,6 @@ import { LoginRequest } from './model/login-request-interface';
 import { AuthService } from '../services/auth';
 import {
   EMAIL_OTP_LENGTH,
-  EMAIL_OTP_RESEND_COOLDOWN_SEC,
   markEmailVerificationSent,
 } from '../constants/email-verification.constants';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
@@ -25,13 +24,11 @@ import {
   BehaviorSubject,
   EMPTY,
   Subject,
-  Subscription,
   catchError,
   exhaustMap,
   filter,
   finalize,
   firstValueFrom,
-  interval,
   takeUntil,
   tap,
 } from 'rxjs';
@@ -60,6 +57,7 @@ import {
 })
 export class LoginComponent implements OnDestroy {
   readonly otpLength = EMAIL_OTP_LENGTH;
+  readonly appleSignInEnabled = environment.appleSignInEnabled;
 
   isSocialLoading = false;
   onboardingData = signal<OnboardingDataDto | null>(null);
@@ -67,7 +65,8 @@ export class LoginComponent implements OnDestroy {
   activeTab: 'login' | 'register' = 'login';
   fb = inject(FormBuilder);
   message: string = '';
-  isLoading: boolean = false;
+  /** Only one auth action may show loading at a time (login vs register vs social). */
+  private authActionInProgress: 'login' | 'register' | null = null;
   accessTokenSubject = new BehaviorSubject<string>('');
   showToast = false;
   success!: boolean;
@@ -80,9 +79,6 @@ export class LoginComponent implements OnDestroy {
   /** After email submit, user enters the code sent to their inbox. */
   loginOtpStep = false;
   isResendingLoginOtp = false;
-  loginOtpResendCooldown = 0;
-
-  private loginOtpResendTimerSub?: Subscription;
 
   registerForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -103,6 +99,23 @@ export class LoginComponent implements OnDestroy {
   private destroy$ = new Subject<void>();
   successCaptcha = signal<boolean>(false);
   private loginClick$ = new Subject<void>();
+  private registerClick$ = new Subject<void>();
+
+  get isLoginLoading(): boolean {
+    return this.authActionInProgress === 'login';
+  }
+
+  get isRegisterLoading(): boolean {
+    return this.authActionInProgress === 'register';
+  }
+
+  get isAuthBusy(): boolean {
+    return (
+      this.authActionInProgress !== null ||
+      this.isSocialLoading ||
+      this.isResendingLoginOtp
+    );
+  }
 
   labelEmail = 'Email';
   labelPassword = 'Password';
@@ -154,7 +167,7 @@ export class LoginComponent implements OnDestroy {
         takeUntil(this.destroy$),
         filter(() => this.canSubmitLogin()),
         tap(() => {
-          this.isLoading = true;
+          this.authActionInProgress = 'login';
           this.cdr.detectChanges();
         }),
         exhaustMap(() => {
@@ -192,7 +205,9 @@ export class LoginComponent implements OnDestroy {
               return EMPTY;
             }),
             finalize(() => {
-              this.isLoading = false;
+              if (this.authActionInProgress === 'login') {
+                this.authActionInProgress = null;
+              }
               this.cdr.detectChanges();
             })
           );
@@ -202,7 +217,6 @@ export class LoginComponent implements OnDestroy {
         next: (res) => {
           if (res?.data?.otpSent && !res?.data?.accessToken) {
             this.loginOtpStep = true;
-            this.startLoginOtpResendCooldown(EMAIL_OTP_RESEND_COOLDOWN_SEC);
             this.message = resolveApiMessage(this.translation, {
               messageKey: res.messageKey ?? res.data?.messageKey,
               message: res.message,
@@ -237,6 +251,77 @@ export class LoginComponent implements OnDestroy {
           this.router.navigate(['/tabs/home']);
         },
       });
+
+    this.registerClick$
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(() => this.canSubmitRegister()),
+        tap(() => {
+          this.authActionInProgress = 'register';
+          this.cdr.detectChanges();
+        }),
+        exhaustMap(() => {
+          let onboardingData: OnboardingDataDto | null = null;
+          try {
+            const storedData = localStorage.getItem('onboarding_data');
+            if (storedData) {
+              onboardingData = JSON.parse(storedData) as OnboardingDataDto;
+            }
+          } catch (error) {
+            console.error('Error parsing onboarding data:', error);
+          }
+
+          const payload: RegisterRequest = {
+            email: this.registerForm.value.email,
+            phoneNumber: this.registerForm.value.phoneNumber,
+          };
+
+          return this.service.register(payload, onboardingData).pipe(
+            catchError((err) => {
+              console.error('Registration failed:', err);
+              this.message = resolveApiMessage(this.translation, {
+                ...extractApiMessagePayload(err),
+                fallbackKey: 'auth.api.failedSendVerificationEmail',
+              });
+              this.success = false;
+              this.showToast = true;
+              return EMPTY;
+            }),
+            finalize(() => {
+              if (this.authActionInProgress === 'register') {
+                this.authActionInProgress = null;
+              }
+              this.cdr.detectChanges();
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        next: (res) => {
+          let onboardingData: OnboardingDataDto | null = null;
+          try {
+            const storedData = localStorage.getItem('onboarding_data');
+            if (storedData) {
+              onboardingData = JSON.parse(storedData) as OnboardingDataDto;
+            }
+          } catch {
+            onboardingData = null;
+          }
+
+          localStorage.setItem('userInfo', JSON.stringify(res?.data ?? res));
+
+          if (onboardingData) {
+            localStorage.removeItem('onboarding_data');
+            localStorage.removeItem('onboarding_completed');
+          }
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
+          }
+
+          markEmailVerificationSent();
+          this.router.navigate(['auth/verify-email']);
+        },
+      });
   }
 
   private loadOnboardingData(sessionId: string): void {
@@ -254,34 +339,22 @@ export class LoginComponent implements OnDestroy {
     return JSON.parse(atob(token.split('.')[1]));
   }
   onTabChange(tab: 'login' | 'register') {
+    if (this.isAuthBusy || this.activeTab === tab) {
+      return;
+    }
+
     this.activeTab = tab;
     this.resetLoginOtpStep();
-    if (tab === 'register') {
-      this.title.set('Register');
-    } else {
-      this.title.set('Login');
-    }
+    this.title.set(tab === 'register' ? 'Register' : 'Login');
   }
 
   resetLoginOtpStep(): void {
     this.loginOtpStep = false;
     this.loginForm.patchValue({ otp: '' });
-    this.clearLoginOtpResendTimer();
-    this.loginOtpResendCooldown = 0;
   }
 
   get canResendLoginOtp(): boolean {
-    return (
-      !this.isResendingLoginOtp &&
-      !this.isLoading &&
-      (this.loginOtpResendCooldown <= 0)
-    );
-  }
-
-  get loginOtpResendCooldownDisplay(): string {
-    const minutes = Math.floor(this.loginOtpResendCooldown / 60);
-    const seconds = this.loginOtpResendCooldown % 60;
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return !this.isResendingLoginOtp && !this.isLoginLoading;
   }
 
   resendLoginOtp(): void {
@@ -307,7 +380,6 @@ export class LoginComponent implements OnDestroy {
       .subscribe({
         next: (res) => {
           if (res?.data?.otpSent) {
-            this.startLoginOtpResendCooldown(EMAIL_OTP_RESEND_COOLDOWN_SEC);
             this.loginForm.patchValue({ otp: '' });
             this.message = resolveApiMessage(this.translation, {
               messageKey: res.messageKey ?? res.data?.messageKey,
@@ -340,88 +412,25 @@ export class LoginComponent implements OnDestroy {
     );
   }
 
-  private startLoginOtpResendCooldown(seconds: number): void {
-    this.loginOtpResendCooldown = seconds;
-    this.clearLoginOtpResendTimer();
-    if (seconds <= 0) {
-      return;
-    }
-    this.loginOtpResendTimerSub = interval(1000).subscribe(() => {
-      this.loginOtpResendCooldown--;
-      this.cdr.detectChanges();
-      if (this.loginOtpResendCooldown <= 0) {
-        this.clearLoginOtpResendTimer();
-      }
-    });
-  }
-
-  private clearLoginOtpResendTimer(): void {
-    this.loginOtpResendTimerSub?.unsubscribe();
-    this.loginOtpResendTimerSub = undefined;
-  }
-  onRegister() {
+  onRegister(event?: Event) {
+    event?.preventDefault();
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
     }
-
-    // Get onboarding data from localStorage if available
-    let onboardingData: OnboardingDataDto | null = null;
-    try {
-      const storedData = localStorage.getItem('onboarding_data');
-      if (storedData) {
-        onboardingData = JSON.parse(storedData) as OnboardingDataDto;
-      }
-    } catch (error) {
-      console.error('Error parsing onboarding data:', error);
-    }
-
-    const payload: RegisterRequest = {
-      email: this.registerForm.value.email,
-      phoneNumber: this.registerForm.value.phoneNumber,
-    };
-
-    this.isLoading = true;
-    this.cdr.detectChanges();
-
-    this.service
-      .register(payload, onboardingData)
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        })
-      )
-      .subscribe({
-        next: (res) => {
-          localStorage.setItem('userInfo', JSON.stringify(res?.data ?? res));
-
-          // Clear onboarding data after successful registration
-          if (onboardingData) {
-            localStorage.removeItem('onboarding_data');
-            localStorage.removeItem('onboarding_completed');
-          }
-          if (typeof sessionStorage !== 'undefined') {
-            sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
-          }
-
-          markEmailVerificationSent();
-          this.router.navigate(['auth/verify-email']);
-        },
-        error: (err) => {
-          console.error('Registration failed:', err);
-          this.message = resolveApiMessage(this.translation, {
-            ...extractApiMessagePayload(err),
-            fallbackKey: 'auth.api.failedSendVerificationEmail',
-          });
-          this.success = false;
-          this.showToast = true;
-        },
-      });
+    this.registerClick$.next();
   }
 
-  onLogin() {
+  onLogin(event?: Event) {
+    event?.preventDefault();
     this.loginClick$.next();
+  }
+
+  private canSubmitRegister(): boolean {
+    if (this.authActionInProgress !== null || this.isSocialLoading) {
+      return false;
+    }
+    return this.registerForm.valid;
   }
 
   onLoginOtpChange(event: { detail: { value?: string | number | null } }): void {
@@ -430,13 +439,16 @@ export class LoginComponent implements OnDestroy {
     if (
       otp.length === EMAIL_OTP_LENGTH &&
       this.loginOtpStep &&
-      !this.isLoading
+      !this.isLoginLoading
     ) {
       queueMicrotask(() => this.onLogin());
     }
   }
 
   isLoginDisabled(): boolean {
+    if (this.isAuthBusy && !this.isLoginLoading) {
+      return true;
+    }
     const emailInvalid = !!this.loginForm.get('email')?.invalid;
     if (!this.loginOtpStep) {
       return emailInvalid;
@@ -446,7 +458,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   private canSubmitLogin(): boolean {
-    if (this.isLoading) {
+    if (this.authActionInProgress !== null || this.isSocialLoading) {
       return false;
     }
     const emailValid = !!this.loginForm.get('email')?.valid;
@@ -462,7 +474,7 @@ export class LoginComponent implements OnDestroy {
   }
 
   async onSocialLogin(provider: 'google' | 'apple') {
-    if (this.isSocialLoading || this.isLoading) {
+    if (this.isAuthBusy) {
       return;
     }
 
@@ -593,7 +605,6 @@ export class LoginComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.clearLoginOtpResendTimer();
     this.destroy$.next();
     this.destroy$.complete();
   }

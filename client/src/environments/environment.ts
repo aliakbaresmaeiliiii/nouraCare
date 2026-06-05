@@ -14,14 +14,19 @@ const BACKEND_PROFILES = {
   house: '192.168.1.143',
   /** Phone hotspot — use your laptop IP as seen on the hotspot */
   phone: '172.20.10.2',
-  /** Another network (e.g. café) */
+  /** Redmi Note 14 — API running on your Redmi Note 14 */
+  RedmiNote14: '10.55.243.237',
+  
   coffee: '192.168.1.14',
   /** phone pedar (e.g. café) */
   phonePedar: '10.209.157.237',
 } as const;
 
-/** Set to `house`, `phone`, or `coffee` to switch where API requests go. */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'house';
+/**
+ * Set to `house`, `phone`, or `coffee` to switch where API requests go.
+ * Used by `ng serve` and `npm run cap:sync:mobile` (not plain `ng build`, which uses production API).
+ */
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'RedmiNote14';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';
@@ -73,6 +78,8 @@ export const environment = {
   appleServiceId: 'com.tecknnycs.nouracare.signin',
   /** Apple redirect URL for web/Android (must match Apple Developer config). */
   appleRedirectUrl: 'https://api.nouracare.com/auth/apple/callback',
+  /** Temporarily hide/disable Sign in with Apple on auth screens. */
+  appleSignInEnabled: false,
 
   privacyPolicyUrl: 'https://nouracare.com/privacy',
 

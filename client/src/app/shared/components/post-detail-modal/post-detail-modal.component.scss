@@ -2,7 +2,8 @@
 .pregnancy-journey-modal {
   background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
   color: #333333;
-  min-height: 100vh;
+  // min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;

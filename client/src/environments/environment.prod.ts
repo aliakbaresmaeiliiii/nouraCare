@@ -42,4 +42,6 @@ export const environment = {
   appleServiceId: 'com.tecknnycs.nouracare.signin',
   /** Return URL registered in Apple Developer for the Services ID. */
   appleRedirectUrl: `${PROD_API_ORIGIN}/auth/apple/callback`,
+  /** Temporarily hide/disable Sign in with Apple on auth screens. */
+  appleSignInEnabled: false,
 };

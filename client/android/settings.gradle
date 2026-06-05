@@ -9,6 +9,37 @@ pluginManagement {
     }
 }
 
+// Capacitor modules under node_modules declare their own buildscript repos (google() only).
+// When dl.google.com is blocked, AGP must resolve via mirrors first — same as root build.gradle.
+gradle.beforeProject { project ->
+    project.buildscript.repositories.maven {
+        url = uri('https://maven.aliyun.com/repository/google')
+        name = 'AliyunGoogle'
+    }
+    project.buildscript.repositories.maven {
+        url = uri('https://maven.aliyun.com/repository/central')
+        name = 'AliyunCentral'
+    }
+    project.buildscript.repositories.maven {
+        url = uri('https://maven.aliyun.com/repository/gradle-plugin')
+        name = 'AliyunGradlePlugin'
+    }
+    project.buildscript.repositories.maven {
+        url = uri('https://maven.google.com')
+        name = 'GoogleMaven'
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        google()
+        mavenCentral()
+    }
+}
+
 include ':app'
 include ':capacitor-cordova-android-plugins'
 project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor-cordova-android-plugins/')

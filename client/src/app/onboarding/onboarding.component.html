@@ -171,44 +171,39 @@
               </div>
 
               @if (currentStepData.id === 'last_period') {
-                <ion-datetime-button datetime="onboarding-last-period"></ion-datetime-button>
-                <ion-modal [keepContentsMounted]="true">
-                  <ng-template>
-                    <ion-datetime
-                      id="onboarding-last-period"
-                      presentation="date"
-                      [value]="answers[currentStepData.id]"
-                      [max]="getMaxDate()"
-                      [highlightedDates]="lastPeriodDatetimeHighlights"
-                      (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
-                    ></ion-datetime>
-                  </ng-template>
-                </ion-modal>
+                <app-period-date-picker
+                  class="onboarding-period-picker"
+                  [periodLength]="onboardingPeriodLength"
+                  [cycleLength]="onboardingCycleLength"
+                  [initialStartIso]="answers['last_period'] || null"
+                  (dateSelected)="onLastPeriodRangeSelected($event)"
+                ></app-period-date-picker>
                 <p class="date-picker-hint">{{ 'onboarding.datePicker.hint' | translate }}</p>
-                <div class="date-picker-cycle-legend">
-                  <span class="date-picker-cycle-legend__item">
-                    <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--period"></span>
-                    {{ 'onboarding.datePicker.legend.period' | translate }}
-                  </span>
-                  <span class="date-picker-cycle-legend__item">
-                    <span class="date-picker-cycle-legend__swatch date-picker-cycle-legend__swatch--ovu"></span>
-                    {{ 'onboarding.datePicker.legend.ovulation' | translate }}
-                  </span>
-                </div>
               } @else if (currentStepData.id === 'baby_birth_date') {
-                <ion-datetime-button datetime="onboarding-baby-birth"></ion-datetime-button>
-                <ion-modal [keepContentsMounted]="true">
-                  <ng-template>
-                    <ion-datetime
-                      id="onboarding-baby-birth"
-                      presentation="date"
-                      [value]="answers[currentStepData.id]"
-                      [min]="getBabyBirthMinIso()"
-                      [max]="getBabyBirthMaxIso()"
-                      (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
-                    ></ion-datetime>
-                  </ng-template>
-                </ion-modal>
+                @if (isPersianLanguage()) {
+                  <button
+                    type="button"
+                    class="onboarding-jalali-date-btn"
+                    (click)="openBabyBirthJalaliPicker()"
+                  >
+                    <ion-icon name="calendar-clear-outline" aria-hidden="true"></ion-icon>
+                    <span>{{ 'pregnancyPlanning.selectDate' | translate }}</span>
+                  </button>
+                } @else {
+                  <ion-datetime-button datetime="onboarding-baby-birth"></ion-datetime-button>
+                  <ion-modal [keepContentsMounted]="true">
+                    <ng-template>
+                      <ion-datetime
+                        id="onboarding-baby-birth"
+                        presentation="date"
+                        [value]="answers[currentStepData.id]"
+                        [min]="getBabyBirthMinIso()"
+                        [max]="getBabyBirthMaxIso()"
+                        (ionChange)="selectOption(currentStepData.id, $event.detail.value)"
+                      ></ion-datetime>
+                    </ng-template>
+                  </ion-modal>
+                }
                 <p class="date-picker-hint">{{ 'onboarding.datePicker.hint' | translate }}</p>
               }
 

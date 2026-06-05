@@ -5,7 +5,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, PickerController } from '@ionic/angular';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import {
   OnboardingService,
@@ -28,12 +28,27 @@ import { ReproductiveStatusService } from '../shared/services/reproductive-statu
 import { FirstWeekPlanService } from '../shared/services/first-week-plan.service';
 import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
 import { HomeJourneyBridgeService } from '../home/services/home-journey-bridge.service';
-import {
-  buildCycleLmpDatetimeHighlights,
-  ionDatetimeTodayHighlight,
-} from '../shared/utils/ion-datetime-today-highlight.util';
 import { TranslationService } from '../shared/services/translation.service';
 import { LanguageService } from '../shared/services/language.service';
+import {
+  PeriodDatePickerComponent,
+  PeriodDateRange,
+} from '../shared/components/period-date-picker/period-date-picker.component';
+import {
+  formatRecordedAtDate,
+  isPersianAppLanguage,
+} from '../shared/utils/locale-date-format.util';
+import {
+  J_MONTHS,
+  jalaliDaysInMonth,
+  jalaliToIsoDate,
+  toFa,
+} from '../shared/utils/jalali-iranian-calendar.util';
+import {
+  attachJalaliPickerLiveValidation,
+  clearJalaliPickerFeedback,
+  showJalaliPickerFeedback,
+} from '../shared/utils/jalali-picker-live-validation.util';
 import {
   clearOnboardingProgress,
   readOnboardingProgress,
@@ -66,24 +81,13 @@ interface OnboardingStep {
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS],
+  imports: [...SHARED_STANDALONE_IMPORTS, PeriodDatePickerComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class OnboardingComponent implements OnInit {
-  /** Marks the current local calendar day in `ion-datetime` (last period step). */
-  readonly datetimeHighlightedToday = ionDatetimeTodayHighlight();
-
-  /** Last-period calendar: period span (dashed) + estimated ovulation day (green) + today. */
-  get lastPeriodDatetimeHighlights() {
-    return buildCycleLmpDatetimeHighlights(
-      this.answers['last_period'],
-      Number(this.answers['cycle_length']) || this.cycleSettings.cycleLength() || 28,
-      Number(this.answers['period_length']) || this.cycleSettings.periodLength() || 5,
-    );
-  }
-
   private router = inject(Router);
   private alertController = inject(AlertController);
+  private pickerController = inject(PickerController);
   private cycleSettings = inject(CycleSettingsService);
   private onboardingService = inject(OnboardingService);
   private onboardingStateService = inject(OnboardingStateService);
@@ -350,23 +354,118 @@ export class OnboardingComponent implements OnInit {
     return '';
   }
 
-  private dateLocale(): string {
-    const lang = this.languageService.getCurrentLanguage();
-    if (lang === 'fa') return 'fa-IR';
-    if (lang === 'zh') return 'zh-CN';
-    if (lang === 'ms') return 'ms-MY';
-    return 'en-US';
-  }
-
   formatMediumDate(iso: string | null | undefined): string {
     const d = isoDateOnly(typeof iso === 'string' ? iso : '');
     if (!d) return '';
     const parsed = new Date(`${d}T12:00:00`);
-    return parsed.toLocaleDateString(this.dateLocale(), {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
+    return formatRecordedAtDate(parsed, this.languageService.getCurrentLanguage());
+  }
+
+  isPersianLanguage(): boolean {
+    return isPersianAppLanguage(this.languageService.getCurrentLanguage());
+  }
+
+  get onboardingPeriodLength(): number {
+    return Number(this.answers['period_length']) || this.cycleSettings.periodLength() || 5;
+  }
+
+  get onboardingCycleLength(): number {
+    return Number(this.answers['cycle_length']) || this.cycleSettings.cycleLength() || 28;
+  }
+
+  onLastPeriodRangeSelected(range: PeriodDateRange): void {
+    const d = range.startDate;
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    this.selectOption('last_period', iso);
+  }
+
+  async openBabyBirthJalaliPicker(): Promise<void> {
+    const seedIso =
+      normalizeLmpInput(this.answers['baby_birth_date']) || utcTodayIsoDateOnly();
+    const jalaali = await import('jalaali-js');
+    const [gy, gm, gd] = seedIso.split('-').map((n) => parseInt(n, 10));
+    const initial = jalaali.toJalaali(gy, gm, gd);
+
+    const minIso = this.getBabyBirthMinIso();
+    const maxIso = this.getBabyBirthMaxIso();
+    const [minGy, minGm, minGd] = minIso.split('-').map((n) => parseInt(n, 10));
+    const minJ = jalaali.toJalaali(minGy, minGm, minGd);
+    const [maxGy, maxGm, maxGd] = maxIso.split('-').map((n) => parseInt(n, 10));
+    const maxJ = jalaali.toJalaali(maxGy, maxGm, maxGd);
+    const years = Array.from(
+      { length: maxJ.jy - minJ.jy + 1 },
+      (_, i) => minJ.jy + i,
+    );
+
+    const yearCol = {
+      name: 'year',
+      selectedIndex: Math.max(0, years.indexOf(initial.jy)),
+      options: years.map((yr) => ({ text: toFa(yr), value: yr })),
+    };
+
+    const monthCol = {
+      name: 'month',
+      selectedIndex: initial.jm - 1,
+      options: J_MONTHS.map((mo, idx) => ({ text: mo, value: idx + 1 })),
+    };
+
+    const makeDayCol = (jy: number, jm: number, selectedDay = 1) => {
+      const len = jalaliDaysInMonth(jy, jm);
+      const days = Array.from({ length: len }, (_, i) => i + 1);
+      return {
+        name: 'day',
+        selectedIndex: Math.min(selectedDay, len) - 1,
+        options: days.map((day) => ({ text: toFa(day), value: day })),
+      };
+    };
+
+    const dayCol = makeDayCol(initial.jy, initial.jm, initial.jd);
+
+    const picker = await this.pickerController.create({
+      columns: [dayCol, monthCol, yearCol],
+      buttons: [
+        { text: this.t('common.cancel'), role: 'cancel' },
+        {
+          text: this.t('reproductiveStatus.confirm'),
+          handler: (value) => {
+            const iso = jalaliToIsoDate(
+              value.year.value,
+              value.month.value,
+              value.day.value,
+            );
+            const check = this.validateBabyBirthIso(iso);
+            if (!check.valid) {
+              showJalaliPickerFeedback(picker, check.errorKey, (key) => this.t(key));
+              return false;
+            }
+            clearJalaliPickerFeedback(picker);
+            this.selectOption('baby_birth_date', check.iso);
+            return true;
+          },
+        },
+      ],
     });
+
+    await picker.present();
+
+    attachJalaliPickerLiveValidation(picker, {
+      validate: (iso) => this.validateBabyBirthIso(iso),
+      translate: (key) => this.t(key),
+    });
+  }
+
+  private validateBabyBirthIso(iso: string) {
+    const normalized = normalizeLmpInput(iso);
+    if (!normalized) {
+      return { valid: false as const, errorKey: 'onboarding.validation.adjustDate' };
+    }
+    if (!isCalendarDateNotAfterToday(normalized)) {
+      return { valid: false as const, errorKey: 'onboarding.validation.birthFuture' };
+    }
+    if (normalized < this.getBabyBirthMinIso()) {
+      return { valid: false as const, errorKey: 'onboarding.validation.birthTooOld' };
+    }
+    return { valid: true as const, iso: normalized };
   }
 
   /** Whole weeks since `birthIso` (date-only) through today (UTC civil days). */
@@ -681,10 +780,6 @@ export class OnboardingComponent implements OnInit {
 
     this.answers[stepId] = value;
     this.persistLocalProgress();
-  }
-
-  getMaxDate(): string {
-    return new Date().toISOString();
   }
 
   isValidLastPeriodDate(dateString: string): boolean {

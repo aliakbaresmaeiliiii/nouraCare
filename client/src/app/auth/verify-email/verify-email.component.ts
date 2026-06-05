@@ -14,7 +14,6 @@ import {
 
 import {
   EMAIL_OTP_LENGTH,
-  EMAIL_OTP_RESEND_COOLDOWN_SEC,
   EMAIL_OTP_VALIDITY_MS,
   EMAIL_VERIFICATION_EXPIRES_KEY,
   EMAIL_VERIFICATION_JUST_SENT_KEY,
@@ -41,13 +40,10 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
   form!: FormGroup;
   /** Seconds until the code expires (server-side window). */
   timer = 0;
-  /** Seconds until resend is allowed again. */
-  resendCooldown = 0;
   isExpired = false;
 
   private codeExpiresAt = 0;
   private codeTimerSub?: Subscription;
-  private resendTimerSub?: Subscription;
 
   get userEmail(): string {
     const data = this.userInfo?.['data'] as Record<string, unknown> | undefined;
@@ -63,7 +59,7 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
   }
 
   get canResend(): boolean {
-    return !this.isResending && (this.isExpired || this.resendCooldown <= 0);
+    return !this.isResending;
   }
 
   get toastOkButton(): string {
@@ -72,10 +68,6 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
 
   get timerDisplay(): string {
     return this.formatSeconds(this.timer);
-  }
-
-  get resendCooldownDisplay(): string {
-    return this.formatSeconds(this.resendCooldown);
   }
 
   constructor(
@@ -96,20 +88,16 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
       ],
     });
     this.initCodeExpiry();
-    const justRegistered =
+    if (
       typeof sessionStorage !== 'undefined' &&
-      sessionStorage.getItem(EMAIL_VERIFICATION_JUST_SENT_KEY) === '1';
-    if (justRegistered) {
+      sessionStorage.getItem(EMAIL_VERIFICATION_JUST_SENT_KEY) === '1'
+    ) {
       sessionStorage.removeItem(EMAIL_VERIFICATION_JUST_SENT_KEY);
     }
-    this.startResendCooldown(
-      justRegistered ? 0 : EMAIL_OTP_RESEND_COOLDOWN_SEC,
-    );
   }
 
   ngOnDestroy(): void {
     this.clearCodeTimer();
-    this.clearResendTimer();
   }
 
   private initCodeExpiry(): void {
@@ -143,28 +131,9 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
     this.isExpired = remainingMs <= 0;
   }
 
-  private startResendCooldown(seconds: number): void {
-    this.resendCooldown = seconds;
-    this.clearResendTimer();
-    if (seconds <= 0) {
-      return;
-    }
-    this.resendTimerSub = interval(1000).subscribe(() => {
-      this.resendCooldown--;
-      if (this.resendCooldown <= 0) {
-        this.clearResendTimer();
-      }
-    });
-  }
-
   private clearCodeTimer(): void {
     this.codeTimerSub?.unsubscribe();
     this.codeTimerSub = undefined;
-  }
-
-  private clearResendTimer(): void {
-    this.resendTimerSub?.unsubscribe();
-    this.resendTimerSub = undefined;
   }
 
   private formatSeconds(totalSeconds: number): string {
@@ -289,7 +258,6 @@ export class VerifyEmailComponent implements OnInit, OnDestroy {
             String(this.codeExpiresAt),
           );
           this.syncExpiryState();
-          this.startResendCooldown(EMAIL_OTP_RESEND_COOLDOWN_SEC);
           this.form.patchValue({ otpCode: '' });
           this.showToast = true;
           this.message = resolveApiMessage(this.translation, {

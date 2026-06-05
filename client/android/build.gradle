@@ -30,6 +30,17 @@ allprojects {
     }
 }
 
+subprojects { sub ->
+    sub.afterEvaluate {
+        if (sub.plugins.hasPlugin('com.android.application') || sub.plugins.hasPlugin('com.android.library')) {
+            sub.android.buildToolsVersion rootProject.ext.buildToolsVersion
+            if (sub.android.hasProperty('compileSdkMinor') && rootProject.ext.has('compileSdkMinorVersion')) {
+                sub.android.compileSdkMinor rootProject.ext.compileSdkMinorVersion
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
