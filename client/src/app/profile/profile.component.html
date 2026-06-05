@@ -22,6 +22,7 @@
 
 <ion-content class="profile-content">
   <div class="hero-section">
+    <div class="hero-inner">
     <div class="profile-avatar-container">
       <input
         #profileAvatarInput
@@ -75,6 +76,39 @@
           </div>
         }
       </div>
+    </div>
+    </div>
+
+    <div class="hero-waves" aria-hidden="true">
+      <svg
+        class="waves"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        viewBox="0 24 150 28"
+        preserveAspectRatio="none"
+        shape-rendering="auto"
+      >
+        <defs>
+          <path
+            id="profile-gentle-wave"
+            d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"
+          />
+        </defs>
+        <g class="parallax">
+          <g class="profile-wave-layer profile-wave-layer--1">
+            <use href="#profile-gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7)" />
+          </g>
+          <g class="profile-wave-layer profile-wave-layer--2">
+            <use href="#profile-gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
+          </g>
+          <g class="profile-wave-layer profile-wave-layer--3">
+            <use href="#profile-gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
+          </g>
+          <g class="profile-wave-layer profile-wave-layer--4">
+            <use href="#profile-gentle-wave" x="48" y="7" fill="#f8fafc" />
+          </g>
+        </g>
+      </svg>
     </div>
   </div>
 

@@ -5,26 +5,6 @@
   overflow: visible;
   background: transparent;
   --cycle-ambient-rgb: var(--brand-primary-rgb);
-  --cycle-drift-wave-1: radial-gradient(
-    circle at 42% 38%,
-    rgba(var(--brand-primary-rgb), 0.42) 0%,
-    rgba(var(--brand-primary-dark-rgb), 0.26) 42%,
-    rgba(99, 102, 241, 0.14) 58%,
-    transparent 74%
-  );
-  --cycle-drift-wave-2: radial-gradient(
-    circle at 50% 50%,
-    rgba(var(--brand-text-rgb), 0.16) 0%,
-    rgba(var(--brand-primary-rgb), 0.08) 44%,
-    transparent 64%
-  );
-  --cycle-drift-wave-3: radial-gradient(
-    circle at 58% 42%,
-    rgba(var(--brand-secondary-rgb), 0.38) 0%,
-    rgba(var(--brand-surface-rgb), 0.16) 48%,
-    rgba(94, 234, 212, 0.12) 62%,
-    transparent 74%
-  );
   --cycle-bottom-curve-fill: var(--ion-background-color, var(--brand-bg));
   --cycle-bottom-curve-fill-rgb: var(
     --ion-background-color-rgb,
@@ -33,124 +13,8 @@
   --cycle-bottom-curve-shadow:
     0 -12px 34px rgba(var(--brand-text-rgb), 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
-  --cycle-transition-blob-1: radial-gradient(
-    circle at 50% 20%,
-    rgba(var(--cycle-ambient-rgb), 0.28) 0%,
-    rgba(var(--cycle-ambient-rgb), 0.14) 42%,
-    rgba(var(--cycle-ambient-rgb), 0.04) 66%,
-    transparent 82%
-  );
-  --cycle-transition-blob-2: radial-gradient(
-    ellipse at 14% 60%,
-    rgba(var(--cycle-ambient-rgb), 0.14) 0%,
-    rgba(var(--cycle-ambient-rgb), 0.06) 36%,
-    transparent 72%
-  );
-  --cycle-transition-blob-3: radial-gradient(
-    ellipse at 86% 58%,
-    rgba(var(--cycle-ambient-rgb), 0.12) 0%,
-    rgba(var(--cycle-ambient-rgb), 0.05) 40%,
-    transparent 76%
-  );
 
-  /* Full-component drift waves (week strip + ring); sits behind all chart UI */
-  > .cycle-chart-drift {
-    position: absolute;
-    inset: -6% -3% -2%;
-    z-index: 0;
-    overflow: visible;
-    pointer-events: none;
-    background:
-      var(--cycle-transition-blob-2), var(--cycle-transition-blob-3),
-      var(--cycle-transition-blob-1);
-    transition: background 320ms ease;
-    mask-image: radial-gradient(
-      ellipse 96% 92% at 50% 44%,
-      #000 52%,
-      rgba(0, 0, 0, 0.55) 72%,
-      transparent 100%
-    );
-    -webkit-mask-image: radial-gradient(
-      ellipse 96% 92% at 50% 44%,
-      #000 52%,
-      rgba(0, 0, 0, 0.55) 72%,
-      transparent 100%
-    );
-
-    /* Soft bottom blend into page surface — no hard horizontal cut */
-    &::after {
-      content: "";
-      position: absolute;
-      left: -4%;
-      right: -4%;
-      bottom: -2%;
-      height: clamp(5.5rem, 18vw, 10rem);
-      pointer-events: none;
-      z-index: 2;
-      background: linear-gradient(
-        180deg,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0) 0%,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0.06) 28%,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0.18) 52%,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0.38) 72%,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0.58) 86%,
-        rgba(var(--cycle-bottom-curve-fill-rgb), 0.76) 100%
-      );
-    }
-
-    .cycle-chart-drift-box {
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 100%;
-      height: 100%;
-      transform: rotate(65deg);
-      transform-origin: 0% 100%;
-
-      &::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-        transform: translate3d(0, 0, 0);
-        pointer-events: none;
-        box-shadow: inset 0 0 min(120px, 22vw) rgba(255, 255, 255, 0.06);
-      }
-    }
-
-    .cycle-chart-drift-wave {
-      position: absolute;
-      top: 45%;
-      left: -76%;
-      z-index: 0;
-      width: min(1500px, 165%);
-      height: min(1300px, 155%);
-      margin-left: clamp(-120px, -12vw, -150px);
-      margin-top: clamp(-160px, -22vw, -250px);
-      transform-origin: 50% 48%;
-      border-radius: 43%;
-      opacity: 0.78;
-      background: var(--cycle-drift-wave-1);
-      animation: cycle-chart-drift 9s linear infinite;
-      will-change: transform;
-      filter: saturate(1.2) brightness(1.08);
-    }
-
-    .cycle-chart-drift-wave--three {
-      background: var(--cycle-drift-wave-3);
-      animation-duration: 11s;
-      opacity: 0.68;
-      filter: saturate(1.25) brightness(1.1);
-    }
-
-    .cycle-chart-drift-wave--two {
-      background: var(--cycle-drift-wave-2);
-      opacity: 0.52;
-      animation-duration: 5.5s;
-    }
-  }
-
-  > *:not(.cycle-chart-drift) {
+  > * {
     position: relative;
     z-index: 2;
   }
@@ -253,7 +117,7 @@
     content: "";
     position: absolute;
     inset: -4% -2% 0;
-    z-index: 1;
+    z-index: 0;
     pointer-events: none;
     background: radial-gradient(
       ellipse 88% 80% at 50% 40%,
@@ -266,114 +130,19 @@
 
 .cycle-chart-container.cycle-chart-container--phase-period {
   --cycle-ambient-rgb: 251, 113, 133;
-  --cycle-drift-wave-1: radial-gradient(
-    circle at 42% 38%,
-    rgba(254, 205, 211, 0.48) 0%,
-    rgba(251, 113, 133, 0.28) 42%,
-    rgba(244, 63, 94, 0.12) 58%,
-    transparent 74%
-  );
-  --cycle-drift-wave-2: radial-gradient(
-    circle at 50% 50%,
-    rgba(255, 241, 242, 0.35) 0%,
-    rgba(251, 113, 133, 0.1) 44%,
-    transparent 64%
-  );
-  --cycle-drift-wave-3: radial-gradient(
-    circle at 58% 42%,
-    rgba(255, 228, 230, 0.42) 0%,
-    rgba(253, 164, 175, 0.22) 48%,
-    rgba(244, 63, 94, 0.1) 62%,
-    transparent 74%
-  );
 }
 
 .cycle-chart-container.cycle-chart-container--phase-fertile,
 .cycle-chart-container.cycle-chart-container--phase-ovulation {
   --cycle-ambient-rgb: 13, 148, 136;
-  --cycle-drift-wave-1: radial-gradient(
-    circle at 42% 38%,
-    rgba(94, 234, 212, 0.5) 0%,
-    rgba(20, 184, 166, 0.32) 42%,
-    rgba(13, 148, 136, 0.18) 58%,
-    transparent 74%
-  );
-  --cycle-drift-wave-2: radial-gradient(
-    circle at 50% 50%,
-    rgba(6, 78, 59, 0.2) 0%,
-    rgba(20, 184, 166, 0.12) 44%,
-    transparent 64%
-  );
-  --cycle-drift-wave-3: radial-gradient(
-    circle at 58% 42%,
-    rgba(236, 254, 255, 0.4) 0%,
-    rgba(165, 232, 227, 0.24) 48%,
-    rgba(20, 184, 166, 0.14) 62%,
-    transparent 74%
-  );
 }
 
 .cycle-chart-container.cycle-chart-container--phase-ovulation {
   --cycle-ambient-rgb: 14, 165, 164;
 }
 
-@keyframes cycle-chart-drift {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .cycle-chart-drift-wave {
-    animation: none !important;
-  }
-}
-
 :host-context(html.ion-palette-dark) {
   .cycle-chart-container {
-    --cycle-transition-blob-1: radial-gradient(
-      circle at 50% 18%,
-      rgba(var(--cycle-ambient-rgb), 0.22) 0%,
-      rgba(var(--cycle-ambient-rgb), 0.1) 46%,
-      rgba(var(--cycle-ambient-rgb), 0.03) 68%,
-      transparent 84%
-    );
-    --cycle-transition-blob-2: radial-gradient(
-      ellipse at 12% 58%,
-      rgba(var(--cycle-ambient-rgb), 0.12) 0%,
-      rgba(var(--cycle-ambient-rgb), 0.05) 36%,
-      transparent 72%
-    );
-    --cycle-transition-blob-3: radial-gradient(
-      ellipse at 88% 58%,
-      rgba(var(--cycle-ambient-rgb), 0.1) 0%,
-      rgba(var(--cycle-ambient-rgb), 0.04) 40%,
-      transparent 76%
-    );
-    --cycle-drift-wave-1: radial-gradient(
-      circle at 42% 38%,
-      rgba(var(--brand-primary-rgb), 0.34) 0%,
-      rgba(129, 140, 248, 0.2) 46%,
-      rgba(30, 58, 138, 0.14) 60%,
-      transparent 74%
-    );
-    --cycle-drift-wave-2: radial-gradient(
-      circle at 50% 50%,
-      rgba(0, 0, 0, 0.28) 0%,
-      rgba(15, 23, 42, 0.14) 44%,
-      transparent 64%
-    );
-    --cycle-drift-wave-3: radial-gradient(
-      circle at 58% 42%,
-      rgba(var(--brand-secondary-rgb), 0.28) 0%,
-      rgba(148, 163, 184, 0.14) 48%,
-      rgba(45, 212, 191, 0.1) 62%,
-      transparent 74%
-    );
     --cycle-bottom-curve-shadow:
       0 -10px 28px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
     --cycle-bottom-curve-fill-rgb: var(--ion-background-color-rgb);
@@ -389,16 +158,6 @@
     );
   }
 
-  .cycle-chart-container > .cycle-chart-drift::after {
-    background: linear-gradient(
-      180deg,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0) 0%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.24) 50%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.52) 80%,
-      rgba(var(--cycle-bottom-curve-fill-rgb), 0.82) 100%
-    );
-  }
-
   .cycle-chart-container::after {
     background: radial-gradient(
       ellipse at center,
@@ -410,70 +169,6 @@
     );
     box-shadow: none;
   }
-
-  .cycle-chart-drift-wave {
-    opacity: 0.62;
-    background: var(--cycle-drift-wave-1);
-    filter: saturate(1.2) brightness(1.08);
-  }
-
-  .cycle-chart-drift-wave--three {
-    opacity: 0.54;
-    background: var(--cycle-drift-wave-3);
-  }
-
-  .cycle-chart-drift-wave--two {
-    opacity: 0.42;
-    background: var(--cycle-drift-wave-2);
-  }
-
-  .cycle-chart-container.cycle-chart-container--phase-period {
-    --cycle-drift-wave-1: radial-gradient(
-      circle at 42% 38%,
-      rgba(232, 180, 200, 0.42) 0%,
-      rgba(190, 24, 93, 0.24) 46%,
-      rgba(127, 29, 29, 0.18) 60%,
-      transparent 74%
-    );
-    --cycle-drift-wave-2: radial-gradient(
-      circle at 50% 50%,
-      rgba(0, 0, 0, 0.3) 0%,
-      rgba(127, 29, 29, 0.18) 44%,
-      transparent 64%
-    );
-    --cycle-drift-wave-3: radial-gradient(
-      circle at 58% 42%,
-      rgba(252, 231, 240, 0.3) 0%,
-      rgba(190, 24, 93, 0.18) 48%,
-      rgba(127, 29, 29, 0.12) 62%,
-      transparent 74%
-    );
-  }
-
-  .cycle-chart-container.cycle-chart-container--phase-fertile,
-  .cycle-chart-container.cycle-chart-container--phase-ovulation {
-    --cycle-drift-wave-1: radial-gradient(
-      circle at 42% 38%,
-      rgba(94, 234, 212, 0.38) 0%,
-      rgba(20, 184, 166, 0.22) 46%,
-      rgba(6, 95, 70, 0.16) 60%,
-      transparent 74%
-    );
-    --cycle-drift-wave-2: radial-gradient(
-      circle at 50% 50%,
-      rgba(0, 0, 0, 0.28) 0%,
-      rgba(6, 95, 70, 0.16) 44%,
-      transparent 64%
-    );
-    --cycle-drift-wave-3: radial-gradient(
-      circle at 58% 42%,
-      rgba(236, 254, 255, 0.3) 0%,
-      rgba(20, 184, 166, 0.18) 48%,
-      rgba(13, 148, 136, 0.12) 62%,
-      transparent 74%
-    );
-  }
-
 }
 
 .chart-header {
@@ -509,7 +204,7 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   height: 350px;
   overflow: visible;

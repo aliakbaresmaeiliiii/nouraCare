@@ -2137,3 +2137,13 @@ html[data-theme='light'] ion-content.onboarding-content {
   --color: #0f172a;
   color: #0f172a;
 }
+
+@keyframes noura-profile-wave-move {
+  0% {
+    transform: translate3d(-90px, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(85px, 0, 0);
+  }
+}
