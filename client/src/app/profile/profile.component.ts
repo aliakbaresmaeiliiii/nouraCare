@@ -39,6 +39,10 @@ import { UserSessionService } from '../shared/services/user-session.service';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 import { PregnancySetupSheetComponent } from '../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
+import {
+  MenopauseSetupSheetComponent,
+  MenopauseSetupSheetResult,
+} from '../shared/components/menopause-setup-sheet/menopause-setup-sheet.component';
 
 import type {
 
@@ -904,6 +908,10 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
       CYCLE: 'NOT_PREGNANT',
 
+      MENOPAUSE: 'MENOPAUSE',
+
+      PERIMENOPAUSE: 'MENOPAUSE',
+
     };
 
 
@@ -943,6 +951,16 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
     if (status === 'PREGNANT') {
 
       await this.openPregnancySetupSheet(status);
+
+      return;
+
+    }
+
+
+
+    if (status === 'MENOPAUSE') {
+
+      await this.openMenopauseSetupSheet(status);
 
     }
 
@@ -1050,6 +1068,96 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
 
 
+  private async openMenopauseSetupSheet(uiStatus: string): Promise<void> {
+
+    const modal = await this.modalCtrl.create({
+
+      component: MenopauseSetupSheetComponent,
+
+      breakpoints: [0, 0.75, 1],
+
+      initialBreakpoint: 0.75,
+
+      backdropDismiss: true,
+
+      cssClass: 'menopause-setup-sheet',
+
+    });
+
+
+
+    await modal.present();
+
+
+
+    const { data, role } =
+
+      await modal.onWillDismiss<MenopauseSetupSheetResult>();
+
+
+
+    if (role !== 'confirm' || !data) {
+
+      return;
+
+    }
+
+
+
+    const userId = this.userInfoStore?.user?.id;
+
+    if (!userId) {
+
+      this.showToast(this.translation.translate('profile.toast.userIdMissing'));
+
+      return;
+
+    }
+
+
+
+    const payload: UpdateReproductiveStateDto = {
+
+      state: 'menopause',
+
+      menopauseStage: data.menopauseStage,
+
+    };
+
+    if (data.lastPeriodDate) {
+
+      payload.lastPeriodDate = data.lastPeriodDate;
+
+    }
+
+
+
+    this.reproductiveStatus.updateState(userId, payload).subscribe({
+
+      next: (dashboard: DashboardResponse) => {
+
+        this.cycleSettings.applyMenopauseHomeMode(data.menopauseStage);
+
+        if (data.lastPeriodDate) {
+
+          this.cycleSettings.setLastPeriodStart(data.lastPeriodDate);
+
+        }
+
+        this.finishReproductiveStatusSave(uiStatus, dashboard);
+
+      },
+
+      error: () =>
+
+        this.showToast(this.translation.translate('profile.toast.statusUpdateFailed')),
+
+    });
+
+  }
+
+
+
   private async openPregnancySetupSheet(uiStatus: string): Promise<void> {
 
     const modal = await this.modalCtrl.create({
@@ -1136,6 +1244,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
     this.cycleSettings.setPostpartumStatus(false);
 
+    this.cycleSettings.setMenopauseStatus(false);
+
 
 
     if (apiState === 'planning') {
@@ -1178,11 +1288,45 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
     }
 
+    if (uiStatus === 'MENOPAUSE') {
+
+      this.applyLocalMenopauseSettingsFromDashboard(dashboard);
+
+    }
+
     this.pushHomeJourneyFromDashboard(dashboard);
 
     this.profileCompletion.refreshFromAPI().subscribe();
 
+    if (uiStatus === 'MENOPAUSE') {
+
+      void this.showToast(this.translation.translate('profile.toast.menopauseSaved'));
+
+    }
+
     this.router.navigate(['/tabs/home'], { replaceUrl: true });
+
+  }
+
+
+
+  private applyLocalMenopauseSettingsFromDashboard(
+
+    dashboard: DashboardResponse,
+
+  ): void {
+
+    const stage = dashboard.menopauseStage ?? 'perimenopause';
+
+    this.cycleSettings.applyMenopauseHomeMode(stage);
+
+    const lastIso = dashboard.lastPeriodDate ?? null;
+
+    if (lastIso) {
+
+      this.cycleSettings.setLastPeriodStart(lastIso);
+
+    }
 
   }
 
@@ -1201,6 +1345,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
     this.cycleSettings.setPregnancyStatus(true);
 
     this.cycleSettings.setPostpartumStatus(false);
+
+    this.cycleSettings.setMenopauseStatus(false);
 
     this.cycleSettings.clearGetPregnantProfileCardPending();
 

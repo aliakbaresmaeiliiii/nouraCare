@@ -368,6 +368,11 @@
   }
 }
 
+.experience-card--menopause.experience-card--selected {
+  border-color: #818cf8;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.18);
+}
+
 .experience-card-media {
   width: 64px;
   height: 64px;

@@ -1,6 +1,6 @@
 export interface UpdateReproductiveStateDto {
-  state: 'cycle' | 'planning' | 'pregnant' | 'postpartum';
-  
+  state: 'cycle' | 'planning' | 'pregnant' | 'postpartum' | 'menopause';
+
   pregnancyStartDate?: string;
   pregnancyDueDate?: string;
   tryingSince?: string;
@@ -8,4 +8,5 @@ export interface UpdateReproductiveStateDto {
   lastPeriodDate?: string;
   cycleLength?: number;
   currentWeek?: number;
+  menopauseStage?: 'perimenopause' | 'menopause';
 }

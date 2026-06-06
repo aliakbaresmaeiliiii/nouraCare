@@ -12,6 +12,10 @@ export interface HomePageJourneyState {
   userStatus: string;
   isPregnant: boolean;
   isPostpartum: boolean;
+  isMenopause: boolean;
+  menopauseStage?: 'perimenopause' | 'menopause';
+  daysSinceLastPeriod?: number | null;
+  menopauseInsight?: string | null;
   /** Set only when API / merge defines week (omit for cycle/postpartum so prior UI values stay). */
   pregnancyWeek?: number;
   /** 0–6, from dashboard; omitted until known. */
@@ -70,12 +74,14 @@ export class HomeReproductiveUiService {
       this.cycleSettings.setUserStatus('Pregnant');
       this.cycleSettings.setPregnancyStatus(true);
       this.cycleSettings.setPostpartumStatus(false);
+      this.cycleSettings.setMenopauseStatus(false);
 
       if (dashboard.needsPregnancyInput || dashboard.week == null) {
         return {
           userStatus: 'Pregnant',
           isPregnant: true,
           isPostpartum: false,
+          isMenopause: false,
           needsPregnancyInput: true,
           dashboardTips: [],
           pregnancyDashboardInsight: null,
@@ -98,6 +104,7 @@ export class HomeReproductiveUiService {
         userStatus: 'Pregnant',
         isPregnant: true,
         isPostpartum: false,
+        isMenopause: false,
         pregnancyWeek: week,
         pregnancyDay: day,
         pregnancyProgress,
@@ -115,12 +122,35 @@ export class HomeReproductiveUiService {
     if (dashboard.state === 'postpartum') {
       this.cycleSettings.setUserStatus('Postpartum');
       this.cycleSettings.setPostpartumStatus(true);
+      this.cycleSettings.setMenopauseStatus(false);
       return {
         userStatus: 'Postpartum',
         isPregnant: false,
         isPostpartum: true,
+        isMenopause: false,
         periodStartDate: null,
         cycleDayDirty: false,
+      };
+    }
+
+    if (dashboard.state === 'menopause') {
+      const stage = dashboard.menopauseStage ?? 'perimenopause';
+      this.cycleSettings.applyMenopauseHomeMode(stage);
+      const lastIso = dashboard.lastPeriodDate ?? null;
+      if (lastIso) {
+        this.cycleSettings.setLastPeriodStart(lastIso);
+      }
+      return {
+        userStatus: 'Menopause',
+        isPregnant: false,
+        isPostpartum: false,
+        isMenopause: true,
+        menopauseStage: stage,
+        daysSinceLastPeriod: dashboard.daysSinceLastPeriod ?? null,
+        menopauseInsight: dashboard.insight?.trim() ? dashboard.insight.trim() : null,
+        dashboardTips: dashboard.tips?.length ? dashboard.tips : [],
+        periodStartDate: lastIso ? new Date(`${lastIso}T12:00:00`) : null,
+        cycleDayDirty: !!lastIso,
       };
     }
 
@@ -135,6 +165,7 @@ export class HomeReproductiveUiService {
     this.cycleSettings.setUserStatus(userStatus);
     this.cycleSettings.setPostpartumStatus(false);
     this.cycleSettings.setPregnancyStatus(false);
+    this.cycleSettings.setMenopauseStatus(false);
 
     if (dashboard.state === 'planning') {
       this.cycleSettings.setGetPregnantProfileCardPending(false);
@@ -191,6 +222,7 @@ export class HomeReproductiveUiService {
       userStatus,
       isPregnant: false,
       isPostpartum: false,
+      isMenopause: false,
       periodStartDate,
       cycleDayDirty,
       dashboardCycleDay: dashboard.cycleDay ?? null,
@@ -214,7 +246,7 @@ export class HomeReproductiveUiService {
    */
   /** When the dashboard merge did not set `periodStartDate`, bind it from saved cycle settings (common on logged-in first paint). */
   private hydratePeriodStartFromLocalCycle(state: HomePageJourneyState): void {
-    if (state.isPregnant || state.isPostpartum) {
+    if (state.isPregnant || state.isPostpartum || state.isMenopause) {
       return;
     }
     if (state.periodStartDate) {
@@ -322,6 +354,9 @@ export class HomeReproductiveUiService {
     this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPregnancyWeek(0);
     this.cycleSettings.setPregnancyProgress(0);
+    if (dashboard.state !== 'menopause' && !state.isMenopause) {
+      this.cycleSettings.setMenopauseStatus(false);
+    }
   }
 
   /** Local cycle settings + period history beat dashboard cycleDay inference on refresh. */

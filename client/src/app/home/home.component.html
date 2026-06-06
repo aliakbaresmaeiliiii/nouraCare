@@ -8,9 +8,104 @@
   <div
     class="home-content"
     [class.home-content--pregnancy-today]="isPregnant()"
-    [class.home-content--cycle-today]="!isPregnant()"
+    [class.home-content--menopause-today]="isHomeMenopauseLayout()"
+    [class.home-content--cycle-today]="!isPregnant() && !isHomeMenopauseLayout()"
   >
-    @if (!isPregnant()) {
+    @if (isHomeMenopauseLayout()) {
+    <div class="menopause-today-shell">
+      <div class="menopause-hero-sky">
+        <div class="menopause-hero-visual" aria-hidden="true">
+          <app-menopause-hero-svg
+            class="menopause-hero-svg"
+            [stage]="menopauseStage"
+          />
+        </div>
+        <div class="menopause-hero-copy">
+          <p class="menopause-hero-eyebrow">{{ getMenopauseStageLabel() }}</p>
+          <h2 class="menopause-hero-title">{{ getMenopauseSituationHeadline() }}</h2>
+          <p class="menopause-hero-insight" role="status" aria-live="polite">
+            {{ getMenopauseSituationSummary() }}
+          </p>
+          @if (daysSinceLastPeriod != null) {
+          <p class="menopause-hero-stat">
+            {{ getMenopauseDaysSincePeriodText() }}
+          </p>
+          }
+        </div>
+      </div>
+
+      <section
+        class="menopause-timeline-card"
+        [attr.aria-label]="'home.menopause.timelineAria' | translate"
+      >
+        <div class="menopause-timeline-card__badge" aria-hidden="true">
+          <ion-icon name="time-outline"></ion-icon>
+        </div>
+        <div class="menopause-timeline-card__copy">
+          <h3 class="menopause-timeline-card__phase">{{ getMenopauseTimelinePhase() }}</h3>
+          <p class="menopause-timeline-card__note">{{ getMenopauseTimelineNote() }}</p>
+        </div>
+      </section>
+
+      <section
+        class="menopause-symptoms-section"
+        [attr.aria-label]="'home.menopause.symptomsAria' | translate"
+      >
+        <h3 class="menopause-section-title">{{ "home.menopause.symptomsTitle" | translate }}</h3>
+        <div class="menopause-symptom-chips">
+          @for (chip of getMenopauseSymptomChips(); track $index) {
+          <span class="menopause-symptom-chip">{{ chip }}</span>
+          }
+        </div>
+      </section>
+
+      <section
+        class="menopause-guide-section"
+        [attr.aria-label]="'home.menopause.guideAria' | translate"
+      >
+        <h3 class="menopause-section-title">{{ "home.menopause.guideTitle" | translate }}</h3>
+        <div class="menopause-guide-grid">
+          @for (card of getMenopauseGuideCards(); track card.id) {
+          <article class="menopause-guide-card">
+            <span
+              class="menopause-guide-card__icon"
+              [style.background]="card.accentHex + '22'"
+              [style.color]="card.accentHex"
+              aria-hidden="true"
+            >
+              <ion-icon [name]="card.ionIcon"></ion-icon>
+            </span>
+            <h4 class="menopause-guide-card__title">{{ getMenopauseGuideCardTitle(card) }}</h4>
+            <p class="menopause-guide-card__body">{{ getMenopauseGuideCardBody(card) }}</p>
+          </article>
+          }
+        </div>
+      </section>
+
+      <section
+        class="menopause-tips-section"
+        [attr.aria-label]="'home.menopause.tipsAria' | translate"
+      >
+        <h3 class="menopause-section-title">{{ "home.menopause.tipsTitle" | translate }}</h3>
+        <div class="menopause-tips-grid">
+          @for (tip of getMenopauseTips(); track $index) {
+          <article class="menopause-tip-card">
+            <span class="menopause-tip-card__icon" aria-hidden="true">🌿</span>
+            <p class="menopause-tip-card__body">{{ tip }}</p>
+          </article>
+          }
+        </div>
+        <button
+          type="button"
+          class="menopause-track-cta"
+          (click)="openMenopauseSymptomTracking()"
+        >
+          {{ "home.menopause.trackSymptomsCta" | translate }}
+          <ion-icon name="arrow-forward-outline" aria-hidden="true"></ion-icon>
+        </button>
+      </section>
+    </div>
+    } @else if (!isPregnant()) {
     <div class="cycle-today-shell">
       @if (showStartTrackingOnboarding()) {
       @let onboardCopy = getPreCycleEmptyCopy();

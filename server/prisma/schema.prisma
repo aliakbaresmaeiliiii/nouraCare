@@ -564,6 +564,21 @@ enum reproductive_state_state {
   PLANNING
   PREGNANT
   POSTPARTUM
+  MENOPAUSE
+}
+
+enum menopause_data_stage {
+  PERIMENOPAUSE
+  MENOPAUSE
+}
+
+model menopause_data {
+  id        Int                  @id @default(autoincrement())
+  userId    Int                  @unique
+  stage     menopause_data_stage @default(PERIMENOPAUSE)
+  notes     String?              @db.VarChar(2000)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime
 }
 
 enum doctor_appointment_status {

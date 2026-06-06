@@ -1,0 +1,6 @@
+flowchart TD
+    A[درخواست کلاینت] --> B{JWT معتبر؟}
+    B -->|خیر| C[401 Unauthorized]
+    B -->|بله| D[کنترلر NestJS]
+    D --> E[Prisma + MySQL]
+    E --> F[پاسخ JSON]

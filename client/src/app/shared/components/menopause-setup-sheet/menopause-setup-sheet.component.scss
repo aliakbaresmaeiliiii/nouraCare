@@ -1,0 +1,274 @@
+:host {
+  display: block;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.menopause-setup {
+  padding: 1.25rem 1.25rem 1.5rem;
+}
+
+.menopause-setup__header {
+  margin-bottom: 1.25rem;
+}
+
+.menopause-setup__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.menopause-setup__subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--brand-text-secondary, #64748b);
+}
+
+.menopause-setup__options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.menopause-setup__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  border-radius: 14px;
+  background: var(--ion-background-color, #fff);
+  color: inherit;
+  text-align: start;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+
+  &--selected {
+    border-color: #818cf8;
+    background: linear-gradient(
+      180deg,
+      rgba(129, 140, 248, 0.08) 0%,
+      rgba(99, 102, 241, 0.12) 100%
+    );
+    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.16);
+  }
+}
+
+.menopause-setup__option-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  margin-top: 0.1rem;
+}
+
+.menopause-setup__option-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.menopause-setup__option-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.menopause-setup__option-hint {
+  font-size: 0.8rem;
+  color: var(--brand-text-secondary, #64748b);
+  line-height: 1.35;
+}
+
+.menopause-setup__date-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgba(100, 116, 139, 0.22);
+  border-radius: 14px;
+  background: var(--ion-background-color, #fff);
+  text-align: start;
+  cursor: pointer;
+  color: inherit;
+
+  &:focus-visible {
+    outline: 2px solid rgba(99, 102, 241, 0.45);
+    outline-offset: 2px;
+  }
+}
+
+.menopause-setup__date-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
+
+  ion-icon {
+    font-size: 1.2rem;
+  }
+}
+
+.menopause-setup__date-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.menopause-setup__field-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brand-text-secondary, #475569);
+}
+
+.menopause-setup__date-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.menopause-setup__date-chevron {
+  color: var(--brand-text-secondary, #94a3b8);
+  font-size: 1.1rem;
+}
+
+.menopause-setup__feedback {
+  margin-bottom: 0.85rem;
+}
+
+.menopause-setup__error {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ion-color-danger, #e11d48);
+}
+
+.menopause-setup__help {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: var(--brand-text-secondary, #64748b);
+}
+
+.menopause-setup__actions {
+  display: flex;
+  gap: 0.65rem;
+  justify-content: flex-end;
+
+  &--picker {
+    padding: 0 1rem 1rem;
+  }
+}
+
+.menopause-setup__btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &--ghost {
+    background: transparent;
+    color: var(--brand-text-secondary, #64748b);
+  }
+
+  &--primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.28);
+  }
+}
+
+.menopause-date-sheet {
+  background: var(--ion-background-color, #fff);
+  padding-bottom: var(--ion-safe-area-bottom, 0px);
+
+  ion-title {
+    color: var(--ion-text-color, #1e293b);
+  }
+}
+
+.menopause-date-range-hint {
+  margin: 0;
+  padding: 0.5rem 1rem 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--brand-text-secondary, #64748b);
+}
+
+.menopause-date-wheel {
+  margin: 0 auto;
+}
+
+:host-context(html.ion-palette-dark) {
+  .menopause-setup__option {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+
+    &--selected {
+      border-color: rgba(167, 139, 250, 0.65);
+      background: linear-gradient(
+        180deg,
+        rgba(99, 102, 241, 0.18) 0%,
+        rgba(129, 140, 248, 0.1) 100%
+      );
+      box-shadow: 0 8px 22px rgba(99, 102, 241, 0.22);
+    }
+  }
+
+  .menopause-setup__option-label,
+  .menopause-setup__date-value,
+  .menopause-setup__title {
+    color: var(--brand-text, #f8fafc);
+  }
+
+  .menopause-setup__subtitle,
+  .menopause-setup__option-hint,
+  .menopause-setup__field-label,
+  .menopause-setup__help,
+  .menopause-setup__date-chevron,
+  .menopause-date-range-hint {
+    color: var(--brand-text-secondary, #94a3b8);
+  }
+
+  .menopause-setup__date-card {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  }
+
+  .menopause-setup__date-icon {
+    background: rgba(129, 140, 248, 0.2);
+    color: #c7d2fe;
+  }
+
+  .menopause-setup__btn--ghost {
+    color: var(--brand-text, #f8fafc);
+  }
+
+  .menopause-setup__btn--primary {
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+  }
+
+  .menopause-date-sheet {
+    background: var(--ion-background-color, #121218);
+
+    ion-title {
+      color: var(--brand-text, #f8fafc);
+    }
+  }
+}

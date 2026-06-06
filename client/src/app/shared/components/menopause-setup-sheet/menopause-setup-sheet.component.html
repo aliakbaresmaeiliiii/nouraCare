@@ -1,0 +1,114 @@
+<div class="menopause-setup">
+  <header class="menopause-setup__header">
+    <h2 class="menopause-setup__title">{{ tr('menopauseSetup.title') }}</h2>
+    <p class="menopause-setup__subtitle">{{ tr('menopauseSetup.subtitle') }}</p>
+  </header>
+
+  <div class="menopause-setup__options" role="radiogroup" [attr.aria-label]="tr('menopauseSetup.stageAria')">
+    <button
+      type="button"
+      class="menopause-setup__option"
+      [class.menopause-setup__option--selected]="selectedStage === 'perimenopause'"
+      (click)="selectStage('perimenopause')"
+      role="radio"
+      [attr.aria-checked]="selectedStage === 'perimenopause'"
+    >
+      <span class="menopause-setup__option-icon" aria-hidden="true">🌙</span>
+      <span class="menopause-setup__option-copy">
+        <span class="menopause-setup__option-label">{{ tr('menopauseSetup.perimenopause') }}</span>
+        <span class="menopause-setup__option-hint">{{ tr('menopauseSetup.perimenopauseHint') }}</span>
+      </span>
+    </button>
+
+    <button
+      type="button"
+      class="menopause-setup__option"
+      [class.menopause-setup__option--selected]="selectedStage === 'menopause'"
+      (click)="selectStage('menopause')"
+      role="radio"
+      [attr.aria-checked]="selectedStage === 'menopause'"
+    >
+      <span class="menopause-setup__option-icon" aria-hidden="true">✨</span>
+      <span class="menopause-setup__option-copy">
+        <span class="menopause-setup__option-label">{{ tr('menopauseSetup.menopause') }}</span>
+        <span class="menopause-setup__option-hint">{{ tr('menopauseSetup.menopauseHint') }}</span>
+      </span>
+    </button>
+  </div>
+
+  @if (selectedStage === 'perimenopause') {
+  <button
+    type="button"
+    class="menopause-setup__date-card"
+    (click)="openPeriodDatePicker()"
+    [attr.aria-label]="tr('menopauseSetup.lastPeriodOptional')"
+  >
+    <span class="menopause-setup__date-icon" aria-hidden="true">
+      <ion-icon name="calendar-outline"></ion-icon>
+    </span>
+    <span class="menopause-setup__date-copy">
+      <span class="menopause-setup__field-label">{{ tr('menopauseSetup.lastPeriodOptional') }}</span>
+      <span class="menopause-setup__date-value">{{ displayPeriodDate }}</span>
+    </span>
+    <ion-icon name="chevron-forward-outline" class="menopause-setup__date-chevron" aria-hidden="true"></ion-icon>
+  </button>
+  }
+
+  @if (pickerValidationMessage) {
+  <div class="menopause-setup__feedback" role="alert">
+    <p class="menopause-setup__error">{{ pickerValidationMessage }}</p>
+    @if (pickerValidationHelp) {
+    <p class="menopause-setup__help">{{ pickerValidationHelp }}</p>
+    }
+  </div>
+  }
+
+  <div class="menopause-setup__actions">
+    <button type="button" class="menopause-setup__btn menopause-setup__btn--ghost" (click)="cancel()">
+      {{ tr('common.cancel') }}
+    </button>
+    <button type="button" class="menopause-setup__btn menopause-setup__btn--primary" (click)="confirm()">
+      {{ tr('menopauseSetup.confirm') }}
+    </button>
+  </div>
+</div>
+
+<ion-modal
+  [isOpen]="isPeriodDateOpen"
+  (didDismiss)="onPeriodDateDismiss()"
+  class="menopause-date-modal"
+>
+  <ng-template>
+    <div class="menopause-date-sheet">
+      <ion-toolbar>
+        <ion-title>{{ "reproductiveStatus.pickerDate" | translate }}</ion-title>
+      </ion-toolbar>
+      <p class="menopause-date-range-hint">{{ periodPickerRangeHint }}</p>
+      <ion-datetime
+        class="menopause-date-wheel ltr"
+        presentation="date"
+        [preferWheel]="true"
+        [value]="periodDateIso"
+        [min]="minPeriodDate"
+        [max]="maxDate"
+        (ionChange)="onPeriodDateChange($event)"
+      ></ion-datetime>
+      @if (pickerValidationMessage && isPeriodDateOpen) {
+      <div class="menopause-setup__feedback" role="alert">
+        <p class="menopause-setup__error">{{ pickerValidationMessage }}</p>
+        @if (pickerValidationHelp) {
+        <p class="menopause-setup__help">{{ pickerValidationHelp }}</p>
+        }
+      </div>
+      }
+      <div class="menopause-setup__actions menopause-setup__actions--picker">
+        <button type="button" class="menopause-setup__btn menopause-setup__btn--ghost" (click)="closePeriodDate('cancel')">
+          {{ tr('common.cancel') }}
+        </button>
+        <button type="button" class="menopause-setup__btn menopause-setup__btn--primary" (click)="closePeriodDate('confirm')">
+          {{ tr('reproductiveStatus.confirm') }}
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>

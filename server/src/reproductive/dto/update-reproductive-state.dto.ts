@@ -15,7 +15,7 @@ import { REPRODUCTIVE_STATES } from '../types/reproductive-state.type';
 export class UpdateReproductiveStateDto {
   @IsNotEmpty()
   @IsIn(REPRODUCTIVE_STATES)
-  state: 'cycle' | 'planning' | 'pregnant' | 'postpartum';
+  state: 'cycle' | 'planning' | 'pregnant' | 'postpartum' | 'menopause';
 
   @IsOptional()
   @IsDateString()
@@ -53,4 +53,8 @@ export class UpdateReproductiveStateDto {
   @Max(42)
   /** Completed full weeks since LMP; LMP is derived as today minus (currentWeek × 7) calendar days. */
   currentWeek?: number;
+
+  @IsOptional()
+  @IsIn(['perimenopause', 'menopause'])
+  menopauseStage?: 'perimenopause' | 'menopause';
 }

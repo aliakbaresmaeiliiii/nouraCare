@@ -20,8 +20,14 @@ export class HomeUIService {
   /**
    * Get status icon based on user status
    */
-  getStatusIcon(userStatus: string, isPregnant: boolean, isPostpartum: boolean): string {
+  getStatusIcon(
+    userStatus: string,
+    isPregnant: boolean,
+    isPostpartum: boolean,
+    isMenopause = false,
+  ): string {
     if (isPregnant) return 'heart';
+    if (isMenopause || userStatus === 'Menopause') return 'moon-outline';
     if (isPostpartum) return 'flower';
     if (userStatus === 'Trying to Conceive') return 'rose';
     return 'person-circle';

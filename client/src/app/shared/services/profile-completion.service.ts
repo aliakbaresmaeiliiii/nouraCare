@@ -261,6 +261,7 @@ export class ProfileCompletionService {
     if (state === 'pregnant') return 'PREGNANT';
     if (state === 'planning') return 'PLANNING_PREGNANCY';
     if (state === 'postpartum') return 'POSTPARTUM';
+    if (state === 'menopause') return 'MENOPAUSE';
     if (state === 'cycle') return 'NOT_PREGNANT';
     return null;
   }

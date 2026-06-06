@@ -14,7 +14,7 @@ import { REPRODUCTIVE_STATES } from '../types/reproductive-state.type';
 export class InitializeReproductiveStateDto {
   @IsNotEmpty()
   @IsIn(REPRODUCTIVE_STATES)
-  state: 'cycle' | 'planning' | 'pregnant' | 'postpartum';
+  state: 'cycle' | 'planning' | 'pregnant' | 'postpartum' | 'menopause';
 
   @IsOptional()
   @IsDateString()
@@ -48,4 +48,8 @@ export class InitializeReproductiveStateDto {
   @Min(0)
   @Max(42)
   currentWeek?: number;
+
+  @IsOptional()
+  @IsIn(['perimenopause', 'menopause'])
+  menopauseStage?: 'perimenopause' | 'menopause';
 }

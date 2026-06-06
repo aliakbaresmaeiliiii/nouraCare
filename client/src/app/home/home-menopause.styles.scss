@@ -1,0 +1,325 @@
+.home-content--menopause-today {
+  --background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 48%, #f8fafc 100%);
+  background: var(--background);
+}
+
+.menopause-today-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-section-gap, 1.25rem);
+  padding: var(--home-shell-padding-block-start, 1rem) 1rem
+    var(--home-shell-padding-block-end, 1.5rem);
+}
+
+.menopause-hero-sky {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 0.75rem 0.5rem;
+  border-radius: 24px;
+  background: linear-gradient(165deg, #ffffff 0%, #eef2ff 55%, #e2e8f0 100%);
+  box-shadow: 0 10px 32px rgba(99, 102, 241, 0.1);
+}
+
+.menopause-hero-visual {
+  width: min(220px, 72vw);
+  aspect-ratio: 1;
+}
+
+.menopause-hero-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.menopause-hero-copy {
+  text-align: center;
+  max-width: 28rem;
+}
+
+.menopause-hero-eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6366f1;
+}
+
+.menopause-hero-title {
+  margin: 0 0 0.45rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.menopause-hero-insight {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--brand-text-secondary, #475569);
+}
+
+.menopause-hero-stat {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brand-text-secondary, #64748b);
+}
+
+.menopause-section-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.menopause-timeline-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.06) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.18);
+}
+
+.menopause-timeline-card__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.14);
+  color: #6366f1;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 1.2rem;
+  }
+}
+
+.menopause-timeline-card__phase {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.menopause-timeline-card__note {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--brand-text-secondary, #475569);
+}
+
+.menopause-symptoms-section,
+.menopause-guide-section,
+.menopause-tips-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.menopause-symptom-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.menopause-symptom-chip {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.16);
+}
+
+.menopause-guide-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+}
+
+.menopause-guide-card {
+  padding: 0.85rem 0.9rem;
+  border-radius: 16px;
+  background: var(--ion-background-color, #fff);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.menopause-guide-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 10px;
+  margin-bottom: 0.45rem;
+
+  ion-icon {
+    font-size: 1.1rem;
+  }
+}
+
+.menopause-guide-card__title {
+  margin: 0 0 0.3rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.menopause-guide-card__body {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--brand-text-secondary, #475569);
+}
+
+.menopause-track-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  padding: 0.55rem 1rem;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+}
+
+.menopause-tips-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+}
+
+.menopause-tip-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 16px;
+  background: var(--ion-background-color, #fff);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.menopause-tip-card__icon {
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+.menopause-tip-card__body {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--ion-text-color-step-150, #334155);
+}
+
+.menopause-status {
+  color: #818cf8;
+}
+
+:host-context(html.ion-palette-dark) {
+  .home-content.home-content--menopause-today {
+    --background: transparent;
+    background:
+      radial-gradient(
+        ellipse 100% 58% at 50% -8%,
+        rgba(129, 140, 248, 0.2) 0%,
+        transparent 58%
+      ),
+      linear-gradient(
+        165deg,
+        var(--ion-background-color-step-50, #1a1a22) 0%,
+        var(--ion-background-color, #121218) 100%
+      );
+  }
+
+  .menopause-hero-sky {
+    background: linear-gradient(
+      165deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(99, 102, 241, 0.14) 55%,
+      rgba(30, 41, 59, 0.35) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  }
+
+  .menopause-hero-eyebrow {
+    color: #c7d2fe;
+  }
+
+  .menopause-hero-title {
+    color: var(--brand-text, #f8fafc);
+  }
+
+  .menopause-hero-insight,
+  .menopause-hero-stat {
+    color: var(--brand-text-secondary, #cbd5e1);
+  }
+
+  .menopause-section-title,
+  .menopause-timeline-card__phase,
+  .menopause-guide-card__title {
+    color: var(--brand-text, #f8fafc);
+  }
+
+  .menopause-timeline-card {
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.2) 0%,
+      rgba(139, 92, 246, 0.1) 100%
+    );
+    border-color: rgba(167, 139, 250, 0.25);
+  }
+
+  .menopause-timeline-card__badge {
+    background: rgba(129, 140, 248, 0.22);
+    color: #c7d2fe;
+  }
+
+  .menopause-timeline-card__note,
+  .menopause-guide-card__body {
+    color: var(--brand-text-secondary, #cbd5e1);
+  }
+
+  .menopause-symptom-chip {
+    background: rgba(129, 140, 248, 0.16);
+    color: #e0e7ff;
+    border-color: rgba(167, 139, 250, 0.28);
+  }
+
+  .menopause-guide-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  }
+
+  .menopause-tip-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  }
+
+  .menopause-tip-card__body {
+    color: var(--brand-text-secondary, #e2e8f0);
+  }
+
+  .menopause-status {
+    color: #c7d2fe;
+  }
+}

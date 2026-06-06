@@ -24,6 +24,13 @@ import { catchError, finalize, tap } from 'rxjs/operators';
 import { AuthService } from '../auth/services/auth';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
 import { PregnancyHeroSvgComponent } from '../shared/components/pregnancy-hero-svg/pregnancy-hero-svg.component';
+import { MenopauseHeroSvgComponent } from '../shared/components/menopause-hero-svg/menopause-hero-svg.component';
+import {
+  buildMenopauseHomeContent,
+  translateMenopauseText,
+  type MenopauseGuideCard,
+  type MenopauseHomeContent,
+} from '../shared/utils/menopause-home-content.util';
 import { DailyInsightsStoryModalComponent } from '../shared/components/daily-insights-story-modal/daily-insights-story-modal.component';
 import { FertilityOverviewSheetComponent } from '../shared/components/fertility-overview-sheet/fertility-overview-sheet.component';
 import {
@@ -101,12 +108,17 @@ interface PregnancyFeatureSlide {
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss', './home-pregnancy.styles.scss'],
+  styleUrls: [
+    './home.component.scss',
+    './home-pregnancy.styles.scss',
+    './home-menopause.styles.scss',
+  ],
   standalone: true,
   imports: [
     ...SHARED_STANDALONE_IMPORTS,
     CirclePeriodChart,
     PregnancyHeroSvgComponent,
+    MenopauseHeroSvgComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
@@ -210,6 +222,11 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
   userStatus: string = 'Not Set'; // Default state
   isPregnant = signal<boolean>(false); // Set to false by default
   isPostpartum: boolean = false;
+  isMenopause: boolean = false;
+  menopauseStage: 'perimenopause' | 'menopause' = 'perimenopause';
+  daysSinceLastPeriod: number | null = null;
+  dashboardMenopauseInsight: string | null = null;
+  dashboardMenopauseTips: string[] = [];
 
   // Cycle tracking
   currentCycleDay: number = 0;
@@ -356,6 +373,8 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.userStatus = this.cycleSettings.userStatus();
     this.isPregnant.set(this.cycleSettings.isPregnant());
     this.isPostpartum = this.cycleSettings.isPostpartum();
+    this.isMenopause = this.cycleSettings.isMenopause();
+    this.menopauseStage = this.cycleSettings.menopauseStage();
     // Load pregnancy data
     this.pregnancyWeek = this.cycleSettings.pregnancyWeek();
     this.pregnancyProgress = this.cycleSettings.pregnancyProgress();
@@ -610,6 +629,11 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.userStatus = state.userStatus;
     this.isPregnant.set(state.isPregnant);
     this.isPostpartum = state.isPostpartum;
+    this.isMenopause = state.isMenopause;
+    this.menopauseStage = state.menopauseStage ?? this.cycleSettings.menopauseStage();
+    this.daysSinceLastPeriod = state.daysSinceLastPeriod ?? null;
+    this.dashboardMenopauseInsight = state.menopauseInsight ?? null;
+    this.dashboardMenopauseTips = state.isMenopause ? (state.dashboardTips ?? []) : [];
     this.needsPregnancyInput = false;
     this.dashboardPregnancyTips = [];
     this.dashboardPregnancyInsight = null;
@@ -812,10 +836,14 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
    * stays subscribed to that signal (delegating only to the service hid updates after save).
    */
   showStartTrackingOnboarding(): boolean {
-    if (this.isPregnant() || this.isPostpartum) {
+    if (this.isPregnant() || this.isPostpartum || this.isMenopause) {
       return false;
     }
-    if (this.cycleSettings.isPregnant() || this.cycleSettings.isPostpartum()) {
+    if (
+      this.cycleSettings.isPregnant() ||
+      this.cycleSettings.isPostpartum() ||
+      this.cycleSettings.isMenopause()
+    ) {
       return false;
     }
     if (this.cycleSettings.lastPeriodStartDate() || this.periodStartDate) {
@@ -865,6 +893,92 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       this.userStatus === 'Trying to Conceive' ||
       this.userStatus === 'Cycle Tracking'
     );
+  }
+
+  isHomeMenopauseLayout(): boolean {
+    return this.isMenopause || this.userStatus === 'Menopause';
+  }
+
+  getMenopauseStageLabel(): string {
+    return this.menopauseStage === 'menopause'
+      ? this.tr('home.menopause.stageMenopause')
+      : this.tr('home.menopause.stagePerimenopause');
+  }
+
+  getMenopauseHomeContent(): MenopauseHomeContent {
+    return buildMenopauseHomeContent(this.menopauseStage, this.daysSinceLastPeriod);
+  }
+
+  getMenopauseSituationHeadline(): string {
+    const c = this.getMenopauseHomeContent();
+    return translateMenopauseText(
+      c.headlineKey,
+      (k) => this.tr(k),
+      (k, p) => this.translation.translateParams(k, p),
+      c.summaryParams,
+    );
+  }
+
+  getMenopauseSituationSummary(): string {
+    const c = this.getMenopauseHomeContent();
+    return translateMenopauseText(
+      c.summaryKey,
+      (k) => this.tr(k),
+      (k, p) => this.translation.translateParams(k, p),
+      c.summaryParams,
+    );
+  }
+
+  getMenopauseTimelinePhase(): string {
+    return this.tr(this.getMenopauseHomeContent().timelinePhaseKey);
+  }
+
+  getMenopauseTimelineNote(): string {
+    return this.tr(this.getMenopauseHomeContent().timelineNoteKey);
+  }
+
+  getMenopauseSymptomChips(): string[] {
+    return this.getMenopauseHomeContent().symptomChipKeys.map((k) => this.tr(k));
+  }
+
+  getMenopauseGuideCards(): MenopauseGuideCard[] {
+    return this.getMenopauseHomeContent().guideCards;
+  }
+
+  getMenopauseGuideCardTitle(card: MenopauseGuideCard): string {
+    return this.tr(card.titleKey);
+  }
+
+  getMenopauseGuideCardBody(card: MenopauseGuideCard): string {
+    return this.tr(card.bodyKey);
+  }
+
+  getMenopauseInsight(): string {
+    if (this.dashboardMenopauseInsight?.trim()) {
+      return this.dashboardMenopauseInsight.trim();
+    }
+    return this.getMenopauseSituationSummary();
+  }
+
+  getMenopauseTips(): string[] {
+    const fromContent = this.getMenopauseHomeContent().dailyTipKeys.map((k) => this.tr(k));
+    if (this.dashboardMenopauseTips.length) {
+      return [...fromContent.slice(0, 1), ...this.dashboardMenopauseTips.slice(0, 3)];
+    }
+    return fromContent;
+  }
+
+  getMenopauseDaysSincePeriodText(): string {
+    if (this.daysSinceLastPeriod == null) {
+      return '';
+    }
+    return this.translation.translateParams('home.menopause.daysSincePeriod', {
+      days: String(this.daysSinceLastPeriod),
+    });
+  }
+
+  openMenopauseSymptomTracking(): void {
+    this.router.navigate(['/symptoms-tracker']);
   }
 
   private runPeriodChartRefresh(attempt = 0): void {
@@ -3433,11 +3547,15 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
     if (this.isPostpartum) {
       return this.tr('home.personalized.postpartum');
     }
+    if (this.isHomeMenopauseLayout()) {
+      return this.tr('home.personalized.menopause');
+    }
     return this.tr('home.personalized.default');
   }
 
   getStatusIcon(): string {
     if (this.isPregnant()) return 'heart';
+    if (this.isHomeMenopauseLayout()) return 'moon-outline';
     if (this.isHomeCycleTrackingLayout()) return 'analytics';
     if (this.isPostpartum) return 'flower';
     return 'calendar';
@@ -3445,6 +3563,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
   getStatusIconClass(): string {
     if (this.isPregnant()) return 'pregnant-status';
+    if (this.isHomeMenopauseLayout()) return 'menopause-status';
     if (this.isHomeCycleTrackingLayout()) return 'ttc-status';
     if (this.isPostpartum) return 'postpartum-status';
     return 'default-status';
@@ -3453,6 +3572,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
   getStatusTitle(): string {
     if (this.isPregnant())
       return `Week ${this.getPregnancyDisplayWeek()}, day ${this.getPregnancyDayDisplay()}`;
+    if (this.isHomeMenopauseLayout()) return this.getMenopauseStageLabel();
     if (this.isHomeCycleTrackingLayout()) return 'Tracking Fertility';
     if (this.isPostpartum) return 'Postpartum Care';
     return 'Start Tracking';
@@ -3460,6 +3580,7 @@ Generated by NouraCare App To Elahi Fatat besham Azizam`;
 
   getStatusDescription(): string {
     if (this.isPregnant()) return `Your baby is growing beautifully!`;
+    if (this.isHomeMenopauseLayout()) return this.getMenopauseInsight();
     if (this.isHomeCycleTrackingLayout())
       return `Day ${this.currentCycleDay} of your cycle`;
     if (this.isPostpartum) return 'Focus on recovery and bonding';

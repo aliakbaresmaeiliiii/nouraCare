@@ -5,6 +5,7 @@ import { ReproductiveStateController } from './reproductive-state.controller';
 import { CycleService } from './services/cycle.service';
 import { PlanningService } from './services/planning.service';
 import { PregnancyService } from './services/pregnancy.service';
+import { MenopauseService } from './services/menopause.service';
 
 @Module({
   imports: [PrismaModule],
@@ -13,6 +14,7 @@ import { PregnancyService } from './services/pregnancy.service';
     CycleService,
     PlanningService,
     PregnancyService,
+    MenopauseService,
   ],
   controllers: [ReproductiveStateController],
   exports: [ReproductiveStateService],

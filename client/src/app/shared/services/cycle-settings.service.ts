@@ -14,6 +14,8 @@ export class CycleSettingsService {
   userStatus = signal<string>('Not Set');
   isPregnant = signal<boolean>(false);
   isPostpartum = signal<boolean>(false);
+  isMenopause = signal<boolean>(false);
+  menopauseStage = signal<'perimenopause' | 'menopause'>('perimenopause');
   pregnancyWeek = signal<number>(0);
   pregnancyProgress = signal<number>(0);
   /** Optional baby/child name for pregnancy tracking (local only). */
@@ -75,6 +77,16 @@ export class CycleSettingsService {
 
   setPostpartumStatus(isPostpartum: boolean) {
     this.isPostpartum.set(isPostpartum);
+    this.saveToStorage();
+  }
+
+  setMenopauseStatus(isMenopause: boolean) {
+    this.isMenopause.set(isMenopause);
+    this.saveToStorage();
+  }
+
+  setMenopauseStage(stage: 'perimenopause' | 'menopause') {
+    this.menopauseStage.set(stage);
     this.saveToStorage();
   }
 
@@ -140,7 +152,17 @@ export class CycleSettingsService {
     this.setUserStatus('Trying to Conceive');
     this.setPregnancyStatus(false);
     this.setPostpartumStatus(false);
+    this.setMenopauseStatus(false);
     this.setGetPregnantProfileCardPending(true);
+  }
+
+  applyMenopauseHomeMode(stage: 'perimenopause' | 'menopause' = 'perimenopause'): void {
+    this.setUserStatus('Menopause');
+    this.setPregnancyStatus(false);
+    this.setPostpartumStatus(false);
+    this.setMenopauseStatus(true);
+    this.setMenopauseStage(stage);
+    this.clearGetPregnantProfileCardPending();
   }
 
   private loadFromStorage() {
@@ -158,6 +180,10 @@ export class CycleSettingsService {
       if (typeof data.userStatus === 'string') this.userStatus.set(data.userStatus);
       if (typeof data.isPregnant === 'boolean') this.isPregnant.set(data.isPregnant);
       if (typeof data.isPostpartum === 'boolean') this.isPostpartum.set(data.isPostpartum);
+      if (typeof data.isMenopause === 'boolean') this.isMenopause.set(data.isMenopause);
+      if (data.menopauseStage === 'perimenopause' || data.menopauseStage === 'menopause') {
+        this.menopauseStage.set(data.menopauseStage);
+      }
       if (typeof data.pregnancyWeek === 'number') this.pregnancyWeek.set(data.pregnancyWeek);
       if (typeof data.pregnancyProgress === 'number') this.pregnancyProgress.set(data.pregnancyProgress);
       if (typeof data.babyName === 'string') this.babyName.set(data.babyName);
@@ -182,6 +208,8 @@ export class CycleSettingsService {
         userStatus: this.userStatus(),
         isPregnant: this.isPregnant(),
         isPostpartum: this.isPostpartum(),
+        isMenopause: this.isMenopause(),
+        menopauseStage: this.menopauseStage(),
         pregnancyWeek: this.pregnancyWeek(),
         pregnancyProgress: this.pregnancyProgress(),
         babyName: this.babyName(),

@@ -1872,8 +1872,101 @@ export class TranslationService {
         "Day {{day}} of your cycle. Let's track your journey together.",
       'home.personalized.postpartum':
         'Welcome to your postpartum journey. Take care of yourself.',
+      'home.personalized.menopause':
+        'Your menopause journey — wellness, sleep, and symptom support.',
       'home.personalized.default':
         "Ready to start your health journey? Let's begin tracking!",
+      'home.menopause.heroTitle': 'Your wellness today',
+      'home.menopause.stagePerimenopause': 'Perimenopause',
+      'home.menopause.stageMenopause': 'Menopause',
+      'home.menopause.defaultInsight':
+        'Track how you feel and build habits that support this transition.',
+      'home.menopause.daysSincePeriod': '{{days}} days since your last period',
+      'home.menopause.tipsTitle': 'Tips for today',
+      'home.menopause.tipsAria': 'Menopause wellness tips',
+      'home.menopause.tip1': 'Stay cool and hydrated to ease hot flashes.',
+      'home.menopause.tip2': 'Gentle movement supports mood, sleep, and bones.',
+      'home.menopause.tip3': 'Talk with your care team about changes that worry you.',
+      'home.menopause.timelineAria': 'Menopause timeline',
+      'home.menopause.symptomsAria': 'Common symptoms to watch',
+      'home.menopause.symptomsTitle': 'What many people notice',
+      'home.menopause.guideAria': 'Personalized wellness guide',
+      'home.menopause.guideTitle': 'Your situation today',
+      'home.menopause.trackSymptomsCta': 'Log symptoms',
+      'profile.toast.menopauseSaved': 'Menopause mode saved — your home is updated.',
+      'home.menopause.situation.peri_no_period.headline': 'Cycles are shifting',
+      'home.menopause.situation.peri_no_period.summary':
+        'Perimenopause often starts with subtle changes. Logging your last period helps us personalize tips like Flo-style cycle insights.',
+      'home.menopause.situation.peri_recent.headline': 'Early transition phase',
+      'home.menopause.situation.peri_recent.summary':
+        '{{days}} days since your last period. Hormone levels may fluctuate — track sleep, mood, and hot flashes to spot patterns.',
+      'home.menopause.situation.peri_irregular.headline': 'Irregular cycle window',
+      'home.menopause.situation.peri_irregular.summary':
+        '{{days}} days since your last period. Gaps of 35–60 days are common; use a flexible window instead of a fixed cycle date.',
+      'home.menopause.situation.peri_long_gap.headline': 'Longer pause between periods',
+      'home.menopause.situation.peri_long_gap.summary':
+        '{{days}} days since your last period. Extended gaps often happen in late perimenopause — focus on symptom relief and wellness.',
+      'home.menopause.situation.menopause.headline': 'Post-menopause wellness',
+      'home.menopause.situation.menopause.summary':
+        'You are in menopause. Prioritize bone health, heart health, sleep quality, and symptom management with your care team.',
+      'home.menopause.timeline.peri.phase': 'Perimenopause · transition phase',
+      'home.menopause.timeline.peri.note':
+        'Estrogen and progesterone rise and fall unevenly. Symptoms can come in waves — tracking helps you prepare.',
+      'home.menopause.timeline.peri.longGapNote':
+        'Late perimenopause often brings longer gaps between periods. This is a common milestone, not something you have to face alone.',
+      'home.menopause.timeline.menopause.phase': 'Menopause · 12+ months without a period',
+      'home.menopause.timeline.menopause.note':
+        'Focus shifts to long-term health: bones, heart, metabolism, sleep, and mood support.',
+      'home.menopause.symptom.irregularPeriods': 'Irregular periods',
+      'home.menopause.symptom.hotFlashes': 'Hot flashes',
+      'home.menopause.symptom.sleep': 'Sleep changes',
+      'home.menopause.symptom.brainFog': 'Brain fog',
+      'home.menopause.symptom.boneHealth': 'Bone health',
+      'home.menopause.symptom.mood': 'Mood shifts',
+      'home.menopause.guide.cycles.title': 'Cycle window, not a fixed date',
+      'home.menopause.guide.cycles.body':
+        'Like Flo perimenopause mode, expect a range rather than one prediction day when cycles become irregular.',
+      'home.menopause.guide.symptoms.title': 'Track symptom patterns',
+      'home.menopause.guide.symptoms.body':
+        'Log hot flashes, night sweats, and mood changes to see trends and discuss them with your doctor.',
+      'home.menopause.guide.relief.title': 'Lifestyle relief options',
+      'home.menopause.guide.relief.body':
+        'Cool layers, hydration, gentle movement, and sleep routines can ease many transition symptoms.',
+      'home.menopause.guide.bone.title': 'Protect bone density',
+      'home.menopause.guide.bone.body':
+        'Weight-bearing exercise, calcium, vitamin D, and strength training support bones after menopause.',
+      'home.menopause.guide.heart.title': 'Heart & metabolism',
+      'home.menopause.guide.heart.body':
+        'Cardiovascular risk can rise after menopause — regular activity and check-ups matter.',
+      'home.menopause.guide.sleep.title': 'Sleep & night sweats',
+      'home.menopause.guide.sleep.body':
+        'Keep the bedroom cool, limit evening caffeine, and note triggers that worsen night sweats.',
+      'home.menopause.daily.peri_no_period.tip1': 'Start logging symptoms even before cycles change dramatically.',
+      'home.menopause.daily.peri_no_period.tip2': 'Add your last period date when you remember it for better insights.',
+      'home.menopause.daily.peri_no_period.tip3': 'Short walks and strength work support mood and bones early on.',
+      'home.menopause.daily.peri_recent.tip1': 'Notice if sleep or mood shifts cluster around cycle changes.',
+      'home.menopause.daily.peri_recent.tip2': 'Stay hydrated — it can help with headaches and hot flashes.',
+      'home.menopause.daily.peri_recent.tip3': 'Discuss heavy or very painful bleeding with your clinician.',
+      'home.menopause.daily.peri_irregular.tip1': 'Use a flexible “period window” instead of expecting an exact day.',
+      'home.menopause.daily.peri_irregular.tip2': 'Track triggers for hot flashes (stress, alcohol, heat).',
+      'home.menopause.daily.peri_irregular.tip3': 'Gentle yoga or stretching may ease tension and sleep issues.',
+      'home.menopause.daily.peri_long_gap.tip1': 'Long gaps are common — still mention sudden pain or bleeding to your doctor.',
+      'home.menopause.daily.peri_long_gap.tip2': 'Prioritize protein, fiber, and calcium-rich foods daily.',
+      'home.menopause.daily.peri_long_gap.tip3': 'Consider a perimenopause check-in with your care team.',
+      'home.menopause.daily.menopause.tip1': 'Schedule bone density and cardiovascular screenings as advised.',
+      'home.menopause.daily.menopause.tip2': 'Pelvic floor exercises support bladder health over time.',
+      'home.menopause.daily.menopause.tip3': 'Stay socially connected — mood support matters at every stage.',
+      'menopauseSetup.title': 'Track menopause',
+      'menopauseSetup.subtitle':
+        'Choose where you are in this transition so we can personalize your home.',
+      'menopauseSetup.stageAria': 'Menopause stage',
+      'menopauseSetup.perimenopause': 'Perimenopause',
+      'menopauseSetup.perimenopauseHint': 'Cycles are changing; periods may be irregular.',
+      'menopauseSetup.menopause': 'Menopause',
+      'menopauseSetup.menopauseHint': 'No period for 12+ months — focus on long-term wellness.',
+      'menopauseSetup.lastPeriodOptional': 'Last period date (optional)',
+      'menopauseSetup.chooseDate': 'Choose date',
+      'menopauseSetup.confirm': 'Save & continue',
       'home.preCycle.titleDefault': 'Start with your last period',
       'home.preCycle.bodyDefault':
         'Your cycle ring and day-by-day view stay empty until you add one date. It takes a few seconds.',
@@ -7270,8 +7363,101 @@ export class TranslationService {
         'روز {{day}} از چرخهٔ شماست. بیایید با هم پیگیری کنیم.',
       'home.personalized.postpartum':
         'به دورهٔ پس از زایمان خوش آمدید. به خودتان برسید.',
+      'home.personalized.menopause':
+        'سفر یائسگی شما — تندرستی، خواب و همراهی با علائم.',
       'home.personalized.default':
         'آماده‌اید سفر سلامتی را شروع کنید؟ بیایید پیگیری را آغاز کنیم!',
+      'home.menopause.heroTitle': 'تندرستی امروز شما',
+      'home.menopause.stagePerimenopause': 'یائسگی پیش از موعد',
+      'home.menopause.stageMenopause': 'یائسگی',
+      'home.menopause.defaultInsight':
+        'احساس خود را ثبت کنید و عادت‌هایی بسازید که این گذار را آسان‌تر کند.',
+      'home.menopause.daysSincePeriod': '{{days}} روز از آخرین قاعدگی گذشته',
+      'home.menopause.tipsTitle': 'نکات امروز',
+      'home.menopause.tipsAria': 'نکات تندرستی یائسگی',
+      'home.menopause.tip1': 'خنک بمانید و آب بنوشید تا گرگرفتگی کمتر شود.',
+      'home.menopause.tip2': 'حرکت ملایم به خلق، خواب و استخوان‌ها کمک می‌کند.',
+      'home.menopause.tip3': 'دربارهٔ تغییرات نگران‌کننده با پزشک صحبت کنید.',
+      'home.menopause.timelineAria': 'خط زمانی یائسگی',
+      'home.menopause.symptomsAria': 'علائم رایج برای پیگیری',
+      'home.menopause.symptomsTitle': 'آنچه بسیاری از افراد احساس می‌کنند',
+      'home.menopause.guideAria': 'راهنمای تندرستی شخصی',
+      'home.menopause.guideTitle': 'وضعیت شما امروز',
+      'home.menopause.trackSymptomsCta': 'ثبت علائم',
+      'profile.toast.menopauseSaved': 'حالت یائسگی ذخیره شد — صفحهٔ خانه به‌روز شد.',
+      'home.menopause.situation.peri_no_period.headline': 'چرخه در حال تغییر است',
+      'home.menopause.situation.peri_no_period.summary':
+        'یائسگی پیش از موعد اغلب با تغییرات تدریجی شروع می‌شود. ثبت آخرین قاعدگی به شخصی‌سازی نکات کمک می‌کند.',
+      'home.menopause.situation.peri_recent.headline': 'فاز اول گذار',
+      'home.menopause.situation.peri_recent.summary':
+        '{{days}} روز از آخرین قاعدگی گذشته. سطح هورمون‌ها ممکن است نوسان داشته باشد — خواب، خلق و گرگرفتگی را پیگیری کنید.',
+      'home.menopause.situation.peri_irregular.headline': 'پنجرهٔ چرخهٔ نامنظم',
+      'home.menopause.situation.peri_irregular.summary':
+        '{{days}} روز از آخرین قاعدگی گذشته. فاصلهٔ ۳۵ تا ۶۰ روزه رایج است؛ به جای تاریخ ثابت، یک بازهٔ انعطاف‌پذیر در نظر بگیرید.',
+      'home.menopause.situation.peri_long_gap.headline': 'وقفهٔ طولانی‌تر بین قاعدگی‌ها',
+      'home.menopause.situation.peri_long_gap.summary':
+        '{{days}} روز از آخرین قاعدگی گذشته. فاصله‌های طولانی در اواخر یائسگی پیش از موعد شایع است — روی تندرستی و تسکین علائم تمرکز کنید.',
+      'home.menopause.situation.menopause.headline': 'تندرستی پس از یائسگی',
+      'home.menopause.situation.menopause.summary':
+        'شما در یائسگی هستید. سلامت استخوان، قلب، خواب و مدیریت علائم را با پزشک خود در اولویت بگذارید.',
+      'home.menopause.timeline.peri.phase': 'یائسگی پیش از موعد · فاز گذار',
+      'home.menopause.timeline.peri.note':
+        'استروژن و پروژسترون به‌صورت نامتوازن بالا و پایین می‌روند. علائم می‌توانند موجی باشند — پیگیری کمک می‌کند.',
+      'home.menopause.timeline.peri.longGapNote':
+        'در اواخر یائسگی پیش از موعد اغلب فاصله بین قاعدگی‌ها بیشتر می‌شود. این یک مرحلهٔ رایج است.',
+      'home.menopause.timeline.menopause.phase': 'یائسگی · ۱۲+ ماه بدون قاعدگی',
+      'home.menopause.timeline.menopause.note':
+        'تمرکز روی سلامت بلندمدت: استخوان، قلب، متابولیسم، خواب و پشتیبانی خلقی.',
+      'home.menopause.symptom.irregularPeriods': 'قاعدگی نامنظم',
+      'home.menopause.symptom.hotFlashes': 'گرگرفتگی',
+      'home.menopause.symptom.sleep': 'تغییرات خواب',
+      'home.menopause.symptom.brainFog': 'مه ذهنی',
+      'home.menopause.symptom.boneHealth': 'سلامت استخوان',
+      'home.menopause.symptom.mood': 'تغییرات خلقی',
+      'home.menopause.guide.cycles.title': 'بازهٔ چرخه، نه تاریخ ثابت',
+      'home.menopause.guide.cycles.body':
+        'وقتی چرخه نامنظم می‌شود، یک بازهٔ احتمالی بهتر از یک روز دقیق پیش‌بینی است.',
+      'home.menopause.guide.symptoms.title': 'الگوی علائم را ببینید',
+      'home.menopause.guide.symptoms.body':
+        'گرگرفتگی، تعریق شبانه و تغییرات خلقی را ثبت کنید تا با پزشک راحت‌تر صحبت کنید.',
+      'home.menopause.guide.relief.title': 'راه‌های تسکین سبک زندگی',
+      'home.menopause.guide.relief.body':
+        'لباس چندلایه، آب کافی، حرکت ملایم و خواب منظم می‌تواند علائم را کمتر کند.',
+      'home.menopause.guide.bone.title': 'محافظت از استخوان',
+      'home.menopause.guide.bone.body':
+        'ورزش تحمل وزن، کلسیم، ویتامین D و تقویت عضلات از استخوان‌ها پس از یائسگی حمایت می‌کند.',
+      'home.menopause.guide.heart.title': 'قلب و متابولیسم',
+      'home.menopause.guide.heart.body':
+        'ریسک قلبی پس از یائسگی می‌تواند بیشتر شود — فعالیت منظم و معایبات مهم است.',
+      'home.menopause.guide.sleep.title': 'خواب و تعریق شبانه',
+      'home.menopause.guide.sleep.body':
+        'اتاق خنک، کم‌کردن کافئین عصرگاهی و ثبت محرک‌ها به خواب بهتر کمک می‌کند.',
+      'home.menopause.daily.peri_no_period.tip1': 'حتی قبل از تغییرات شدید چرخه، علائم را ثبت کنید.',
+      'home.menopause.daily.peri_no_period.tip2': 'وقتی یادتان آمد آخرین قاعدگی را اضافه کنید.',
+      'home.menopause.daily.peri_no_period.tip3': 'پیاده‌روی کوتاه و تقویت عضله به خلق و استخوان کمک می‌کند.',
+      'home.menopause.daily.peri_recent.tip1': 'ببینید آیا خواب یا خلق با تغییرات چرخه هم‌زمان می‌شود.',
+      'home.menopause.daily.peri_recent.tip2': 'آب کافی بنوشید — به سردرد و گرگرفتگی کمک می‌کند.',
+      'home.menopause.daily.peri_recent.tip3': 'خونریزی خیلی شدید یا دردناک را با پزشک در میان بگذارید.',
+      'home.menopause.daily.peri_irregular.tip1': '«پنجرهٔ قاعدگی» انعطاف‌پذیر بهتر از انتظار یک روز دقیق است.',
+      'home.menopause.daily.peri_irregular.tip2': 'محرک‌های گرگرفتگی (استرس، الکل، گرما) را یادداشت کنید.',
+      'home.menopause.daily.peri_irregular.tip3': 'یوگا یا کشش ملایم ممکن است تنش و خواب را بهتر کند.',
+      'home.menopause.daily.peri_long_gap.tip1': 'فاصلهٔ طولانی رایج است — خونریزی یا درد ناگهانی را به پزشک بگویید.',
+      'home.menopause.daily.peri_long_gap.tip2': 'پروتئین، فیبر و غذاهای سرشار از کلسیم را در اولویت بگذارید.',
+      'home.menopause.daily.peri_long_gap.tip3': 'یک جلسهٔ پیگیری یائسگی پیش از موعد با پزشک در نظر بگیرید.',
+      'home.menopause.daily.menopause.tip1': 'غربالگری استخوان و قلب را طبق توصیهٔ پزشک انجام دهید.',
+      'home.menopause.daily.menopause.tip2': 'تمرین کف لگن به سلامت مثانه در بلندمدت کمک می‌کند.',
+      'home.menopause.daily.menopause.tip3': 'ارتباط اجتماعی را حفظ کنید — حمایت خلقی در هر مرحله مهم است.',
+      'menopauseSetup.title': 'ردیابی یائسگی',
+      'menopauseSetup.subtitle':
+        'مرحلهٔ فعلی خود را انتخاب کنید تا صفحهٔ خانه شخصی‌سازی شود.',
+      'menopauseSetup.stageAria': 'مرحلهٔ یائسگی',
+      'menopauseSetup.perimenopause': 'یائسگی پیش از موعد',
+      'menopauseSetup.perimenopauseHint': 'چرخه در حال تغییر است؛ قاعدگی ممکن است نامنظم باشد.',
+      'menopauseSetup.menopause': 'یائسگی',
+      'menopauseSetup.menopauseHint': '۱۲+ ماه بدون قاعدگی — تمرکز بر تندرستی بلندمدت.',
+      'menopauseSetup.lastPeriodOptional': 'تاریخ آخرین قاعدگی (اختیاری)',
+      'menopauseSetup.chooseDate': 'انتخاب تاریخ',
+      'menopauseSetup.confirm': 'ذخیره و ادامه',
       'home.preCycle.titleDefault': 'هنوز اطلاعاتی ثبت نشده است.',
       'home.preCycle.bodyDefault': 'برای شروع، اطلاعات چرخه خود را ثبت کنید.',
       'home.preCycle.f1': 'حلقهٔ چرخه',

@@ -147,7 +147,12 @@ export class HabitNotificationService {
           return { type: 'PREGNANCY_INSIGHT', message: pick };
         }
       }
-    } else if (state === 'cycle' || state === 'planning' || state === 'postpartum') {
+    } else if (
+      state === 'cycle' ||
+      state === 'planning' ||
+      state === 'postpartum' ||
+      state === 'menopause'
+    ) {
       const d = dashboard as {
         nextPeriod?: Date | string | null;
         fertileWindow?: { start: string; end: string } | null;

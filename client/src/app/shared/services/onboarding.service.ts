@@ -47,7 +47,14 @@ export interface CompleteOnboardingResponse {
   accessToken?: string;
 }
 
-export type ReproductiveStatus = 'cycle' | 'planning' | 'pregnant' | 'postpartum';
+export type ReproductiveStatus =
+  | 'cycle'
+  | 'planning'
+  | 'pregnant'
+  | 'postpartum'
+  | 'menopause';
+
+export type MenopauseStage = 'perimenopause' | 'menopause';
 
 export interface InitializeReproductiveStateDto {
   state: ReproductiveStatus;
@@ -58,6 +65,7 @@ export interface InitializeReproductiveStateDto {
   lastPeriodDate?: string;
   cycleLength?: number;
   currentWeek?: number;
+  menopauseStage?: MenopauseStage;
 }
 
 export interface DashboardFertileWindow {
@@ -132,6 +140,10 @@ export interface DashboardResponse {
   lastMenstrualPeriod?: string | null;
   /** Cycle/planning: personalized phase guide cards from dashboard API. */
   phaseGuide?: DashboardCyclePhaseGuide | null;
+  /** Menopause / perimenopause stage when state is menopause. */
+  menopauseStage?: MenopauseStage | null;
+  daysSinceLastPeriod?: number | null;
+  lastPeriodDate?: string | null;
 }
 
 @Injectable({

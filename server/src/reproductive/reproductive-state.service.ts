@@ -10,6 +10,7 @@ import {
 import { CycleService } from './services/cycle.service';
 import { PlanningService } from './services/planning.service';
 import { PregnancyService } from './services/pregnancy.service';
+import { MenopauseService } from './services/menopause.service';
 
 @Injectable()
 export class ReproductiveStateService {
@@ -18,6 +19,7 @@ export class ReproductiveStateService {
     private readonly cycleService: CycleService,
     private readonly planningService: PlanningService,
     private readonly pregnancyService: PregnancyService,
+    private readonly menopauseService: MenopauseService,
   ) {}
 
   async initializeForUser(userId: number, dto: InitializeReproductiveStateDto) {
@@ -186,6 +188,17 @@ export class ReproductiveStateService {
         phaseGuide: cycle.phaseGuide,
       };
     }
+    if (state === 'menopause') {
+      const menopause = await this.menopauseService.getDashboardData(tx, userId);
+      return {
+        ...base,
+        menopauseStage: menopause.menopauseStage,
+        daysSinceLastPeriod: menopause.daysSinceLastPeriod,
+        lastPeriodDate: menopause.lastPeriodDate,
+        insight: menopause.insight,
+        tips: menopause.tips,
+      };
+    }
     return base;
   }
 
@@ -206,6 +219,19 @@ export class ReproductiveStateService {
     if (state === 'planning') {
       await this.planningService.upsertPlanningData(tx, userId, {
         tryingSince: dto.tryingSince,
+        notes: dto.notes,
+      });
+      if (dto.lastPeriodDate !== undefined || dto.cycleLength !== undefined) {
+        await this.cycleService.upsertCycleData(tx, userId, {
+          lastPeriodDate: dto.lastPeriodDate,
+          cycleLength: dto.cycleLength,
+        });
+      }
+      return;
+    }
+    if (state === 'menopause') {
+      await this.menopauseService.upsertMenopauseData(tx, userId, {
+        menopauseStage: dto.menopauseStage,
         notes: dto.notes,
       });
       if (dto.lastPeriodDate !== undefined || dto.cycleLength !== undefined) {
