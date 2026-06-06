@@ -15,7 +15,7 @@ const BACKEND_PROFILES = {
   /** Phone hotspot — use your laptop IP as seen on the hotspot */
   phone: '172.20.10.2',
   /** Redmi Note 14 — API running on your Redmi Note 14 */
-  RedmiNote14: '10.55.243.237',
+  RedmiNote14: '10.42.0.177',
   
   coffee: '192.168.1.14',
   /** phone pedar (e.g. café) */

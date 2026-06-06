@@ -11,13 +11,11 @@
 }
 
 .login-page :where(
-  h1,
   p,
   button,
   input,
   label,
   ion-button,
-  .login-title,
   .login-lead,
   .tab-button,
   .form-input,
@@ -26,6 +24,10 @@
 ) {
   font-family: var(--ion-font-family);
   color: var(--brand-text);
+}
+
+.login-page .login-title {
+  font-family: var(--ion-font-family);
 }
 
 .language-section {
@@ -95,12 +97,47 @@
 }
 
 .login-title {
+  position: relative;
+  display: inline-block;
   margin: 0 0 0.5rem;
+  padding-inline: 0.08em;
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.15;
+}
+
+.login-title__base {
   color: var(--brand-text);
+}
+
+.login-title__color {
+  position: absolute;
+  inset: 0;
+  color: var(--brand-primary);
+  background: linear-gradient(
+    90deg,
+    var(--brand-primary-dark) 0%,
+    var(--brand-primary) 50%,
+    var(--brand-secondary) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  clip-path: inset(0 100% 0 0);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .login-title--animating .login-title__color {
+    animation: login-title-color-reveal 1.15s cubic-bezier(0.22, 0.85, 0.32, 1) forwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-title--animating .login-title__color {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 .login-lead {
@@ -555,6 +592,15 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes login-title-color-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
   }
 }
 

@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   ChangeDetectorRef,
   Component,
   inject,
@@ -6,6 +7,7 @@ import {
   Renderer2,
   signal,
 } from '@angular/core';
+import { ViewDidEnter } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -55,9 +57,13 @@ import {
   imports: [...SHARED_STANDALONE_IMPORTS],
   styleUrl: './login.component.scss',
 })
-export class LoginComponent implements OnDestroy {
+export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
   readonly otpLength = EMAIL_OTP_LENGTH;
   readonly appleSignInEnabled = environment.appleSignInEnabled;
+
+  /** Drives title color sweep once the login page is visible. */
+  titlePaintActive = false;
+  private titlePaintTimer: ReturnType<typeof setTimeout> | null = null;
 
   isSocialLoading = false;
   onboardingData = signal<OnboardingDataDto | null>(null);
@@ -604,7 +610,34 @@ export class LoginComponent implements OnDestroy {
     return this.form.get('password');
   }
 
+  ionViewDidEnter(): void {
+    this.scheduleTitlePaint();
+  }
+
+  ngAfterViewInit(): void {
+    // Fallback when Ionic lifecycle does not fire (web refresh, cached route).
+    this.scheduleTitlePaint();
+  }
+
+  private scheduleTitlePaint(): void {
+    if (this.titlePaintTimer !== null) {
+      window.clearTimeout(this.titlePaintTimer);
+    }
+
+    this.titlePaintActive = false;
+    this.cdr.detectChanges();
+
+    this.titlePaintTimer = window.setTimeout(() => {
+      this.titlePaintActive = true;
+      this.titlePaintTimer = null;
+      this.cdr.detectChanges();
+    }, 120);
+  }
+
   ngOnDestroy(): void {
+    if (this.titlePaintTimer !== null) {
+      window.clearTimeout(this.titlePaintTimer);
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }

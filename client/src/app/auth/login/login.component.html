@@ -15,7 +15,12 @@
           decoding="async"
         />
       </div>
-      <h1 class="login-title">{{ "welcome.title" | translate }}</h1>
+      <h1 class="login-title" [class.login-title--animating]="titlePaintActive">
+        <span class="login-title__base">{{ "welcome.title" | translate }}</span>
+        <span class="login-title__color" aria-hidden="true">{{
+          "welcome.title" | translate
+        }}</span>
+      </h1>
       <p class="login-lead">{{ "welcome.subtitle" | translate }}</p>
     </header>
 

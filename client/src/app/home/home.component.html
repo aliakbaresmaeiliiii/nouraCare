@@ -532,6 +532,7 @@
             <button
               type="button"
               class="preg-feature-card preg-feature-card--{{ slide.variant }}"
+              [class.preg-feature-card--has-thumb]="!!slide.imageUrl"
               role="listitem"
               (click)="onPregnancyFeatureSlideClick(slide)"
               [attr.aria-label]="pregSlideAriaLabel(slide)"
@@ -554,21 +555,29 @@
                 </span>
                 }
               </div>
-              <h3 class="preg-feature-card__headline">{{ slide.headline }}</h3>
-              <p class="preg-feature-card__body">{{ slide.body }}</p>
-              @if (slide.footnoteKey) {
-              <p class="preg-feature-card__footnote">
-                {{
-                  slide.footnoteParams
-                    ? pregSlideText(slide.footnoteKey, slide.footnoteParams)
-                    : pregSlideText(slide.footnoteKey)
-                }}
-              </p>
-              }
-              <span class="preg-feature-card__cta" aria-hidden="true">
-                {{ "home.learnMore" | translate }}
-                <ion-icon name="chevron-forward-outline"></ion-icon>
-              </span>
+              <div class="preg-feature-card__content">
+                <h3 class="preg-feature-card__headline">{{ slide.headline }}</h3>
+                <p class="preg-feature-card__body">{{ slide.body }}</p>
+              </div>
+              <div class="preg-feature-card__footer">
+                @if (slide.footnoteKey) {
+                <span class="preg-feature-card__chip">
+                  {{
+                    slide.footnoteParams
+                      ? pregSlideText(slide.footnoteKey, slide.footnoteParams)
+                      : pregSlideText(slide.footnoteKey)
+                  }}
+                </span>
+                }
+                <span class="preg-feature-card__cta" aria-hidden="true">
+                  <span class="preg-feature-card__cta-label">{{
+                    "home.learnMore" | translate
+                  }}</span>
+                  <span class="preg-feature-card__cta-icon">
+                    <ion-icon name="arrow-forward-outline"></ion-icon>
+                  </span>
+                </span>
+              </div>
             </button>
             }
           </div>
