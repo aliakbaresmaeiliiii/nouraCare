@@ -23,6 +23,7 @@ import { firstValueFrom, of, Subscription } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
 import { AuthService } from '../auth/services/auth';
 import { CirclePeriodChart } from '../shared/components/circle-period-chart/circle-period-chart';
+import { PregnancyHeroSvgComponent } from '../shared/components/pregnancy-hero-svg/pregnancy-hero-svg.component';
 import { DailyInsightsStoryModalComponent } from '../shared/components/daily-insights-story-modal/daily-insights-story-modal.component';
 import { FertilityOverviewSheetComponent } from '../shared/components/fertility-overview-sheet/fertility-overview-sheet.component';
 import {
@@ -102,7 +103,11 @@ interface PregnancyFeatureSlide {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss', './home-pregnancy.styles.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS, CirclePeriodChart],
+  imports: [
+    ...SHARED_STANDALONE_IMPORTS,
+    CirclePeriodChart,
+    PregnancyHeroSvgComponent,
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   host: { class: 'ion-page' },
 })

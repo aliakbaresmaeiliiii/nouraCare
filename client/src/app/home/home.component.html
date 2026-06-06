@@ -291,9 +291,12 @@
                 aria-hidden="true"
               >
                 <div class="pregnancy-hero-fetus">
-                  @let heroIll = getPregnancyHeroIllustrationUrl(); @if
-                  (heroIll) {
-                  <div class="pregnancy-hero-fetus-circle">
+                  @let heroIll = getPregnancyHeroIllustrationUrl();
+                  <div
+                    class="pregnancy-hero-fetus-circle"
+                    [class.pregnancy-hero-fetus-circle--svg]="!heroIll"
+                  >
+                    @if (heroIll) {
                     <img
                       class="pregnancy-hero-fetus-img"
                       [src]="heroIll"
@@ -303,12 +306,14 @@
                       width="200"
                       height="200"
                     />
+                    } @else {
+                    <app-pregnancy-hero-svg
+                      class="pregnancy-hero-fetus-svg"
+                      [week]="getPregnancyDisplayWeek()"
+                      [attr.aria-label]="getPregnancyHeroIllustrationAlt()"
+                    ></app-pregnancy-hero-svg>
+                    }
                   </div>
-                  } @else {
-                  <span class="pregnancy-hero-fetus-emoji">{{
-                    getPregnancyBabyEmoji()
-                  }}</span>
-                  }
                 </div>
               </div>
 
@@ -424,23 +429,16 @@
             class="pds-card"
             [class.pds-card--topic]="!topic.personalized"
             [class.pds-card--personalized]="topic.personalized"
+            [style.--pds-accent]="topic.accentHex"
             role="listitem"
             (click)="openDailyInsightStory(topic)"
           >
             @if (!topic.personalized) {
-            <span class="pds-topic-label" [style.color]="topic.accentHex">{{
-              topic.categoryLabel
-            }}</span>
-            <span
-              class="pds-topic-icon-ring"
-              [style.--pds-accent]="topic.accentHex"
-            >
+            <span class="pds-topic-label">{{ topic.categoryLabel }}</span>
+            <span class="pds-topic-icon-ring">
               <ion-icon [name]="topic.ionIcon"></ion-icon>
             </span>
-            <span
-              class="pds-topic-inner"
-              [style.--pds-accent]="topic.accentHex"
-            >
+            <span class="pds-topic-inner">
               <span class="pds-topic-teaser">{{ topic.teaser }}</span>
             </span>
             } @else {
