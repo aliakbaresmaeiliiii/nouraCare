@@ -7,17 +7,12 @@ export const PREGNANCY_HERO_SVG_ASSET = 'assets/svg/pregnancy-hero.svg';
  * First matching range wins; keep ranges non-overlapping.
  * When no range matches, the home hero uses the inline `app-pregnancy-hero-svg` component.
  */
+/** Add raster paths here only when the files exist under `src/assets/`. */
 const ILLUSTRATION_BY_WEEK_RANGE: readonly {
   minWeek: number;
   maxWeek: number;
   asset: string;
-}[] = [
-  { minWeek: 4, maxWeek: 5, asset: 'assets/svg/weeks4-5.png' },
-  { minWeek: 6, maxWeek: 7, asset: 'assets/svg/weeks6-7.png' },
-  { minWeek: 8, maxWeek: 9, asset: 'assets/svg/weeks8-9.png' },
-  { minWeek: 10, maxWeek: 11, asset: 'assets/svg/weeks10-12.png' },
-  { minWeek: 12, maxWeek: 13, asset: 'assets/svg/weeks-13-15.png' },
-];
+}[] = [];
 
 function clampPregnancyDisplayWeek(week: number): number {
   return Math.min(40, Math.max(1, Math.round(Number(week) || 1)));

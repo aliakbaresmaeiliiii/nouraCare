@@ -299,7 +299,7 @@
   width: 3.75rem;
   height: 3.75rem;
   border-radius: 50%;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.95);
   padding: 0.15rem 0.2rem 0.2rem;
   margin: 0;
   display: flex;
@@ -309,31 +309,26 @@
   gap: 0.06rem;
   cursor: pointer;
   font: inherit;
-  color: #4a261c;
-  background: linear-gradient(
-    155deg,
-    #fffdfb 0%,
-    #ffe8dc 38%,
-    #f8c4b0 72%,
-    #e59882 100%
-  );
+  color: #be185d;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
   box-shadow:
-    0 5px 16px rgba(180, 90, 65, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    0 8px 22px rgba(244, 114, 182, 0.22),
+    0 2px 6px rgba(15, 23, 42, 0.06);
   -webkit-tap-highlight-color: transparent;
   transition:
-    transform 0.14s ease,
-    box-shadow 0.14s ease;
+    transform 0.18s cubic-bezier(0.33, 1, 0.68, 1),
+    box-shadow 0.18s ease;
 
   &:active {
     transform: scale(0.97);
     box-shadow:
-      0 3px 10px rgba(180, 90, 65, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+      0 4px 14px rgba(244, 114, 182, 0.16),
+      0 1px 4px rgba(15, 23, 42, 0.05);
   }
 
   &:focus-visible {
-    outline: 2px solid rgba(197, 118, 86, 0.65);
+    outline: 2px solid rgba(244, 114, 182, 0.55);
     outline-offset: 2px;
   }
 }
@@ -369,20 +364,19 @@
 .pregnancy-hero-disk-shell:not(.pregnancy-hero-disk-shell--no-ring)::before {
   content: '';
   position: absolute;
-  inset: -2%;
+  inset: -3%;
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.38;
+  opacity: 0.55;
   background: conic-gradient(
-    from 210deg,
-    rgba(255, 202, 186, 0.48) 0%,
-    rgba(242, 160, 144, 0.38) 25%,
-    rgba(216, 106, 82, 0.4) 50%,
-    rgba(var(--brand-secondary-rgb), 0.22) 72%,
-    rgba(255, 202, 186, 0.44) 100%
+    from 220deg,
+    rgba(249, 168, 212, 0.42) 0%,
+    rgba(244, 114, 182, 0.28) 28%,
+    rgba(167, 139, 250, 0.32) 56%,
+    rgba(249, 168, 212, 0.38) 100%
   );
-  animation: app-brand-ring-rotate 12s linear infinite;
+  animation: app-brand-ring-rotate 18s linear infinite;
 }
 
 .pregnancy-hero-progress-ring {
@@ -397,29 +391,28 @@
 
 /* Soft outer cushion so the ring reads as one control, not a thin scratch. */
 .pregnancy-hero-progress-ring__halo {
-  stroke: rgba(255, 248, 244, 0.95);
-  stroke-width: 9;
+  stroke: rgba(255, 255, 255, 0.92);
+  stroke-width: 7;
   stroke-linecap: round;
-  opacity: 0.55;
+  opacity: 0.42;
 }
 
 .pregnancy-hero-progress-ring__track {
-  stroke: rgba(197, 118, 86, 0.22);
-  stroke-width: 5.5;
+  stroke: rgba(244, 114, 182, 0.16);
+  stroke-width: 4.5;
   stroke-linecap: round;
 }
 
 .pregnancy-hero-progress-ring__fill {
   transition: stroke-dashoffset 0.65s cubic-bezier(0.33, 1, 0.68, 1);
-  filter: drop-shadow(0 1px 2px rgba(90, 40, 30, 0.12))
-    drop-shadow(0 0 6px rgba(224, 120, 92, 0.22));
+  filter: drop-shadow(0 0 8px rgba(244, 114, 182, 0.28));
 }
 
 /* End of 1st / 2nd trimester (week 13 & 27 of 40) — subtle wayfinding on the track. */
 .pregnancy-hero-progress-ring__milestone {
-  fill: rgba(255, 255, 255, 0.92);
-  stroke: rgba(197, 118, 86, 0.45);
-  stroke-width: 0.55;
+  fill: #fff;
+  stroke: rgba(244, 114, 182, 0.45);
+  stroke-width: 0.5;
   pointer-events: none;
 }
 
@@ -449,16 +442,14 @@
   justify-content: space-between;
   padding: 0.65rem 0.85rem 0.75rem;
   box-sizing: border-box;
-  background: radial-gradient(
-    circle at 38% 28%,
-    #fff0e8 0%,
-    #ffd4c4 32%,
-    #f8b8a0 58%,
-    #e59882 88%
-  );
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   box-shadow:
-    0 20px 50px rgba(212, 120, 96, 0.38),
-    inset 0 -12px 32px rgba(255, 255, 255, 0.22);
+    0 18px 44px rgba(15, 23, 42, 0.08),
+    0 6px 18px rgba(244, 114, 182, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .pregnancy-hero-disk--illustration {
@@ -609,20 +600,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(
-    circle at 42% 34%,
-    #fff9f6 0%,
-    #ffe8dc 48%,
-    #f8c4b0 100%
-  );
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
-    0 8px 22px rgba(180, 90, 65, 0.18);
+  width: min(92%, 196px);
+  background: transparent;
+  border-radius: 50%;
+  box-shadow: none;
+  overflow: visible;
+  animation: pregnancy-hero-fetus-drift 4.8s ease-in-out infinite;
 }
 
 .pregnancy-hero-fetus-svg {
-  width: 92%;
-  height: 92%;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
 }
 
 .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-img {
@@ -680,7 +671,7 @@
   justify-content: center;
   width: 100%;
   min-height: 0;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.12));
+  filter: none;
 }
 
 .pregnancy-hero-fetus-emoji {
@@ -691,22 +682,29 @@
 .pregnancy-hero-details-btn {
   border: none;
   margin: 0;
-  padding: 0.55rem 1.65rem;
+  padding: 0.55rem 1.75rem;
   border-radius: 999px;
-  background: #fff;
-  color: #c57656;
-  font-size: 0.92rem;
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 52%, #db2777 100%);
+  color: #fff;
+  font-size: 0.88rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(236, 72, 153, 0.28);
   -webkit-tap-highlight-color: transparent;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
 
   &:active {
     transform: scale(0.98);
+    box-shadow: 0 4px 14px rgba(236, 72, 153, 0.22);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(244, 114, 182, 0.55);
+    outline-offset: 2px;
   }
 }
 
@@ -1755,23 +1753,31 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
   }
 
+  .pregnancy-hero-disk {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 18px 44px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
   .pregnancy-hero-details-btn {
-    background: var(--ion-card-background);
-    color: var(--ion-color-primary-tint);
-    box-shadow: var(--app-shadow-card);
+    background: linear-gradient(
+      135deg,
+      rgba(244, 114, 182, 0.85) 0%,
+      rgba(219, 39, 119, 0.9) 100%
+    );
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
   }
 
   .pregnancy-hero-summary-badge {
-    color: var(--ion-text-color);
-    background: linear-gradient(
-      155deg,
-      rgba(var(--ion-color-primary-rgb), 0.22) 0%,
-      rgba(var(--ion-color-primary-rgb), 0.12) 45%,
-      rgba(var(--ion-color-primary-rgb), 0.28) 100%
-    );
+    color: #fbcfe8;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.18);
     box-shadow:
-      0 5px 16px rgba(0, 0, 0, 0.28),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      0 8px 22px rgba(0, 0, 0, 0.28),
+      0 2px 6px rgba(0, 0, 0, 0.12);
   }
 
   .pregnancy-hero-progress-ring__halo {
@@ -1798,15 +1804,8 @@
   }
 
   .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-circle--svg {
-    background: radial-gradient(
-      circle at 42% 34%,
-      rgba(255, 200, 180, 0.22) 0%,
-      rgba(200, 100, 80, 0.14) 52%,
-      rgba(120, 60, 50, 0.1) 100%
-    );
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-      0 8px 22px rgba(0, 0, 0, 0.28);
+    background: transparent;
+    box-shadow: none;
   }
 
   .pregnancy-daily-insights-title,
@@ -2273,6 +2272,21 @@
   );
   --preg-card-cta-bg: #b84a38;
   --preg-card-cta-fg: #fff;
+}
+
+.preg-feature-card__thumb--svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fff 0%, #fff7fb 100%);
+  border-color: rgba(244, 114, 182, 0.14);
+
+  app-pregnancy-hero-svg,
+  .pregnancy-hero-svg {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .preg-feature-card--rose.preg-feature-card--has-thumb {

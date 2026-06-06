@@ -216,9 +216,9 @@
                   x2="85%"
                   y2="0%"
                 >
-                  <stop offset="0%" stop-color="#ffcaba" />
-                  <stop offset="38%" stop-color="#f2a090" />
-                  <stop offset="100%" stop-color="#d86a52" />
+                  <stop offset="0%" stop-color="#f9a8d4" />
+                  <stop offset="45%" stop-color="#f472b6" />
+                  <stop offset="100%" stop-color="#a78bfa" />
                 </linearGradient>
               </defs>
               <circle
@@ -291,28 +291,14 @@
                 aria-hidden="true"
               >
                 <div class="pregnancy-hero-fetus">
-                  @let heroIll = getPregnancyHeroIllustrationUrl();
                   <div
-                    class="pregnancy-hero-fetus-circle"
-                    [class.pregnancy-hero-fetus-circle--svg]="!heroIll"
+                    class="pregnancy-hero-fetus-circle pregnancy-hero-fetus-circle--svg"
                   >
-                    @if (heroIll) {
-                    <img
-                      class="pregnancy-hero-fetus-img"
-                      [src]="heroIll"
-                      [attr.alt]="getPregnancyHeroIllustrationAlt()"
-                      loading="lazy"
-                      decoding="async"
-                      width="200"
-                      height="200"
-                    />
-                    } @else {
                     <app-pregnancy-hero-svg
                       class="pregnancy-hero-fetus-svg"
                       [week]="getPregnancyDisplayWeek()"
                       [attr.aria-label]="getPregnancyHeroIllustrationAlt()"
                     ></app-pregnancy-hero-svg>
-                    }
                   </div>
                 </div>
               </div>
@@ -530,7 +516,9 @@
             <button
               type="button"
               class="preg-feature-card preg-feature-card--{{ slide.variant }}"
-              [class.preg-feature-card--has-thumb]="!!slide.imageUrl"
+              [class.preg-feature-card--has-thumb]="
+                slide.id === 'baby-size' || !!slide.imageUrl
+              "
               role="listitem"
               (click)="onPregnancyFeatureSlideClick(slide)"
               [attr.aria-label]="pregSlideAriaLabel(slide)"
@@ -543,7 +531,16 @@
                       : pregSlideText(slide.eyebrowKey)
                   }}
                 </span>
-                @if (slide.imageUrl) {
+                @if (slide.id === 'baby-size') {
+                <span
+                  class="preg-feature-card__thumb preg-feature-card__thumb--svg"
+                  aria-hidden="true"
+                >
+                  <app-pregnancy-hero-svg
+                    [week]="getPregnancyDisplayWeek()"
+                  ></app-pregnancy-hero-svg>
+                </span>
+                } @else if (slide.imageUrl) {
                 <span class="preg-feature-card__thumb" aria-hidden="true">
                   <img [src]="slide.imageUrl" alt="" loading="lazy" decoding="async" />
                 </span>

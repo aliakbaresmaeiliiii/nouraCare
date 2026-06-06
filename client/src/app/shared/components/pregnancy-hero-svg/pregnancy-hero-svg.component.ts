@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
 
+type PregnancyHeroStage = 'early' | 'mid' | 'late';
+
 /**
- * Soft, modern vector illustration for the pregnancy home hero.
- * Scales gently with gestational week when no week-specific raster is available.
+ * Modern pregnancy hero illustration — abstract orbital rings, soft mesh glow,
+ * minimal flat baby silhouette that scales by gestational week.
  */
 @Component({
   selector: 'app-pregnancy-hero-svg',
@@ -16,96 +18,133 @@ import { Component, Input } from '@angular/core';
       focusable="false"
     >
       <defs>
-        <radialGradient [attr.id]="gradId + '-bg'" cx="42%" cy="34%" r="68%">
-          <stop offset="0%" stop-color="#fff9f6" />
-          <stop offset="48%" stop-color="#ffe8dc" />
-          <stop offset="100%" stop-color="#f8c4b0" />
+        <radialGradient [attr.id]="gradId + '-mesh'" cx="50%" cy="44%" r="58%">
+          <stop offset="0%" stop-color="#fff" stop-opacity="0.95" />
+          <stop offset="42%" stop-color="#fce7f3" stop-opacity="0.72" />
+          <stop offset="100%" stop-color="#e9d5ff" stop-opacity="0.18" />
         </radialGradient>
-        <linearGradient [attr.id]="gradId + '-ring'" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#ffcaba" />
-          <stop offset="52%" stop-color="#f2a090" />
-          <stop offset="100%" stop-color="#d86a52" />
+        <linearGradient [attr.id]="gradId + '-arc'" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6" />
+          <stop offset="100%" stop-color="#a78bfa" />
         </linearGradient>
-        <radialGradient [attr.id]="gradId + '-glow'" cx="50%" cy="58%" r="50%">
-          <stop offset="0%" stop-color="#fff0e8" stop-opacity="0.95" />
-          <stop offset="70%" stop-color="#ffd4c4" stop-opacity="0.35" />
-          <stop offset="100%" stop-color="#ffd4c4" stop-opacity="0" />
-        </radialGradient>
-        <linearGradient [attr.id]="gradId + '-baby'" x1="20%" y1="10%" x2="80%" y2="90%">
-          <stop offset="0%" stop-color="#ffece4" />
-          <stop offset="45%" stop-color="#f5b8a8" />
-          <stop offset="100%" stop-color="#e59882" />
+        <linearGradient [attr.id]="gradId + '-baby'" x1="30%" y1="0%" x2="70%" y2="100%">
+          <stop offset="0%" stop-color="#fecdd3" />
+          <stop offset="55%" stop-color="#fb7185" />
+          <stop offset="100%" stop-color="#f43f5e" />
         </linearGradient>
-        <filter [attr.id]="gradId + '-soft'" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="2.4" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
+        <filter [attr.id]="gradId + '-blur'" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="11" />
         </filter>
       </defs>
 
-      <circle cx="100" cy="100" r="92" [attr.fill]="'url(#' + gradId + '-bg)'" />
+      <circle cx="100" cy="100" r="78" [attr.fill]="'url(#' + gradId + '-mesh)'" />
+
       <circle
-        cx="100"
-        cy="100"
-        r="88"
-        fill="none"
-        [attr.stroke]="'url(#' + gradId + '-ring)'"
-        stroke-width="2.5"
+        class="pregnancy-hero-svg__orb pregnancy-hero-svg__orb--a"
+        cx="126"
+        cy="72"
+        r="28"
+        fill="#fbcfe8"
         opacity="0.55"
+        [attr.filter]="'url(#' + gradId + '-blur)'"
       />
-      <circle cx="100" cy="108" r="62" [attr.fill]="'url(#' + gradId + '-glow)'" />
+      <circle
+        class="pregnancy-hero-svg__orb pregnancy-hero-svg__orb--b"
+        cx="72"
+        cy="118"
+        r="24"
+        fill="#ddd6fe"
+        opacity="0.5"
+        [attr.filter]="'url(#' + gradId + '-blur)'"
+      />
+
+      <g
+        class="pregnancy-hero-svg__arcs"
+        fill="none"
+        [attr.stroke]="'url(#' + gradId + '-arc)'"
+        stroke-linecap="round"
+      >
+        <circle cx="100" cy="100" r="68" stroke-width="1.4" opacity="0.22" />
+        <path
+          d="M100 36 A64 64 0 0 1 164 100"
+          stroke-width="2.2"
+          opacity="0.42"
+        />
+        <path
+          d="M164 100 A64 64 0 0 1 100 164"
+          stroke-width="1.8"
+          opacity="0.28"
+        />
+        <path
+          d="M100 164 A64 64 0 0 1 36 100"
+          stroke-width="1.4"
+          opacity="0.18"
+        />
+      </g>
 
       <g [attr.transform]="babyTransform()">
-        <g
-          class="pregnancy-hero-svg__baby"
-          [attr.filter]="'url(#' + gradId + '-soft)'"
-        >
-        <ellipse cx="100" cy="118" rx="34" ry="40" fill="rgba(255, 255, 255, 0.22)" />
-        <path
-          d="M78 126 C72 108 84 92 100 88 C118 84 132 98 128 118 C124 136 108 146 96 142 C86 138 80 134 78 126 Z"
-          [attr.fill]="'url(#' + gradId + '-baby)'"
-          opacity="0.96"
-        />
-        <circle cx="112" cy="102" r="13.5" [attr.fill]="'url(#' + gradId + '-baby)'" />
-        <path
-          d="M104 98 C108 94 116 95 118 100 C116 104 110 106 106 103 Z"
-          fill="rgba(255, 255, 255, 0.35)"
-        />
-        <path
-          d="M88 120 C82 128 78 134 86 138"
-          fill="none"
-          stroke="#e8a090"
-          stroke-width="3.2"
-          stroke-linecap="round"
-          opacity="0.7"
-        />
-        <path
-          d="M118 122 C126 130 130 136 122 140"
-          fill="none"
-          stroke="#e8a090"
-          stroke-width="3"
-          stroke-linecap="round"
-          opacity="0.65"
-        />
+        @if (stage() === 'early') {
+        <g class="pregnancy-hero-svg__baby">
+          <circle cx="100" cy="102" r="14" [attr.fill]="'url(#' + gradId + '-baby)'" />
+          <circle cx="106" cy="97" r="4.5" fill="#fff" opacity="0.45" />
         </g>
+        } @else if (stage() === 'mid') {
+        <g class="pregnancy-hero-svg__baby">
+          <ellipse cx="100" cy="108" rx="22" ry="26" [attr.fill]="'url(#' + gradId + '-baby)'" />
+          <circle cx="112" cy="94" r="11" [attr.fill]="'url(#' + gradId + '-baby)'" />
+          <path
+            d="M116 92 C119 93 121 96 119 97"
+            stroke="#fff"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            opacity="0.55"
+            fill="none"
+          />
+        </g>
+        } @else {
+        <g class="pregnancy-hero-svg__baby">
+          <path
+            d="M86 118 C80 102 90 84 104 78 C118 72 132 80 136 96 C140 112 130 128 114 134 C100 139 88 132 86 118 Z"
+            [attr.fill]="'url(#' + gradId + '-baby)'"
+          />
+          <ellipse cx="122" cy="90" rx="15" ry="13" [attr.fill]="'url(#' + gradId + '-baby)'" />
+          <path
+            d="M127 88 C131 89 134 92 132 94"
+            stroke="#fff"
+            stroke-width="1.4"
+            stroke-linecap="round"
+            opacity="0.5"
+            fill="none"
+          />
+          <path
+            d="M92 122 C86 128 84 134 90 136"
+            stroke="#fda4af"
+            stroke-width="2.8"
+            stroke-linecap="round"
+            fill="none"
+            opacity="0.75"
+          />
+          <path
+            d="M126 116 C132 122 134 128 128 130"
+            stroke="#fda4af"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            fill="none"
+            opacity="0.7"
+          />
+        </g>
+        }
       </g>
 
-      <g class="pregnancy-hero-svg__sparkles" opacity="0.75">
-        <circle cx="52" cy="62" r="2.2" fill="#fff" opacity="0.8" />
-        <circle cx="148" cy="74" r="1.8" fill="#fff" opacity="0.65" />
-        <circle cx="156" cy="132" r="2.4" fill="#fff" opacity="0.55" />
-        <circle cx="44" cy="128" r="1.6" fill="#fff" opacity="0.5" />
-      </g>
-
-      <path
-        d="M62 154 C78 168 122 168 138 154"
+      <circle
+        class="pregnancy-hero-svg__pulse"
+        cx="100"
+        cy="100"
+        r="54"
         fill="none"
-        stroke="rgba(255, 255, 255, 0.55)"
-        stroke-width="2"
-        stroke-linecap="round"
-        opacity="0.7"
+        stroke="#f472b6"
+        stroke-width="1"
+        opacity="0.35"
       />
     </svg>
   `,
@@ -123,13 +162,53 @@ import { Component, Input } from '@angular/core';
         height: 100%;
       }
 
-      .pregnancy-hero-svg__baby {
-        transform-origin: 100px 112px;
-        animation: pregnancy-hero-svg-breathe 4.2s ease-in-out infinite;
+      .pregnancy-hero-svg__arcs {
+        transform-origin: 100px 100px;
+        animation: pregnancy-hero-svg-rotate 24s linear infinite;
       }
 
-      .pregnancy-hero-svg__sparkles {
-        animation: pregnancy-hero-svg-sparkle 5.5s ease-in-out infinite;
+      .pregnancy-hero-svg__orb--a {
+        animation: pregnancy-hero-svg-float-a 7s ease-in-out infinite;
+      }
+
+      .pregnancy-hero-svg__orb--b {
+        animation: pregnancy-hero-svg-float-b 8.5s ease-in-out infinite;
+      }
+
+      .pregnancy-hero-svg__baby {
+        transform-origin: 100px 104px;
+        animation: pregnancy-hero-svg-breathe 4.5s ease-in-out infinite;
+      }
+
+      .pregnancy-hero-svg__pulse {
+        transform-origin: 100px 100px;
+        animation: pregnancy-hero-svg-pulse 3.2s ease-out infinite;
+      }
+
+      @keyframes pregnancy-hero-svg-rotate {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes pregnancy-hero-svg-float-a {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(-4px, 5px);
+        }
+      }
+
+      @keyframes pregnancy-hero-svg-float-b {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(5px, -4px);
+        }
       }
 
       @keyframes pregnancy-hero-svg-breathe {
@@ -138,29 +217,33 @@ import { Component, Input } from '@angular/core';
           transform: scale(1);
         }
         50% {
-          transform: scale(1.03);
+          transform: scale(1.04);
         }
       }
 
-      @keyframes pregnancy-hero-svg-sparkle {
-        0%,
-        100% {
-          opacity: 0.55;
+      @keyframes pregnancy-hero-svg-pulse {
+        0% {
+          transform: scale(0.94);
+          opacity: 0.42;
         }
-        50% {
-          opacity: 0.9;
+        70% {
+          transform: scale(1.05);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1.05);
+          opacity: 0;
         }
       }
 
       @media (prefers-reduced-motion: reduce) {
+        .pregnancy-hero-svg__arcs,
+        .pregnancy-hero-svg__orb--a,
+        .pregnancy-hero-svg__orb--b,
         .pregnancy-hero-svg__baby,
-        .pregnancy-hero-svg__sparkles {
+        .pregnancy-hero-svg__pulse {
           animation: none;
         }
-      }
-
-      :host-context(html.ion-palette-dark) .pregnancy-hero-svg__art {
-        filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.28));
       }
     `,
   ],
@@ -173,9 +256,23 @@ export class PregnancyHeroSvgComponent {
 
   readonly gradId = `phs-${Math.random().toString(36).slice(2, 9)}`;
 
+  stage(): PregnancyHeroStage {
+    const w = Math.min(40, Math.max(1, Math.round(Number(this.week) || 1)));
+    if (w <= 10) {
+      return 'early';
+    }
+    if (w <= 24) {
+      return 'mid';
+    }
+    return 'late';
+  }
+
   babyTransform(): string {
-    const w = Math.min(40, Math.max(4, Math.round(Number(this.week) || 1)));
-    const s = 0.34 + ((w - 4) * 0.5) / 36;
-    return `translate(100 112) scale(${s}) translate(-100 -112)`;
+    const w = Math.min(40, Math.max(1, Math.round(Number(this.week) || 1)));
+    const stage = this.stage();
+    const base = stage === 'early' ? 0.88 : stage === 'mid' ? 1 : 1.08;
+    const growth = (w / 40) * 0.08;
+    const s = base + growth;
+    return `translate(100 104) scale(${s}) translate(-100 -104)`;
   }
 }
