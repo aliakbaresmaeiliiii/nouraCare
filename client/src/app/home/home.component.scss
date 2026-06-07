@@ -1019,13 +1019,13 @@
     margin-top: -1.25rem;
     height: auto;
     // Let the ring use ~2/3 of typical viewport (was ~1/3 via 350px wrapper + 340px cap)
-    min-height: min(94vw, min(68dvh, 600px));
+    min-height: min(96vw, min(70dvh, 620px));
     padding: 10px;
   }
 
   ::ng-deep .cycle-chart {
-    max-height: min(94vw, min(68dvh, 600px));
-    max-width: min(98vw, 600px);
+    max-height: min(96vw, min(70dvh, 620px));
+    max-width: min(100vw, 620px);
     width: 100%;
     height: auto;
     display: block;

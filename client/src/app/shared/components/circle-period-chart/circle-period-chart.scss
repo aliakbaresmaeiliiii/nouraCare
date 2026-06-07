@@ -169,6 +169,19 @@
     );
     box-shadow: none;
   }
+
+  .chart-ring-ambient {
+    stroke: rgba(244, 114, 182, 0.2);
+    opacity: 0.45;
+  }
+
+  .chart-inner-guide {
+    stroke: rgba(255, 255, 255, 0.14);
+  }
+
+  .chart-wrapper .cycle-chart .chart-bg-disk {
+    opacity: 0.28;
+  }
 }
 
 .chart-header {
@@ -221,22 +234,17 @@
   }
 
   .cycle-chart .chart-bg-disk {
-    opacity: 0;
-  }
-
-  /* HTML overlay replaces the SVG disk fill; keep ring geometry only. */
-  .cycle-chart .chart-center-disk {
-    opacity: 0;
-    stroke: none;
-    filter: none;
+    opacity: 0.42;
+    fill: url(#centerGradient);
+    transition: fill 0.55s var(--cycle-glass-ease), opacity 0.55s var(--cycle-glass-ease);
   }
 }
 
-/* r=160 inside viewBox width 500 → 64% diameter, matches SVG chart-center-disk */
+/* r=160 disk → 320 / 530 viewBox width ≈ 60.4% */
 .chart-center-overlay {
   grid-area: 1 / 1;
   z-index: 3;
-  width: 64%;
+  width: 60.5%;
   max-width: 100%;
   aspect-ratio: 1;
   container-type: inline-size;
@@ -409,24 +417,39 @@
 // SVG disk / track / center — soft brand tint on edges (reads friendlier than flat gray)
 .chart-bg-disk {
   stroke: none;
-  opacity: 0.78;
-  filter: blur(0.3px);
-  transition: opacity 0.55s var(--cycle-glass-ease, ease);
+  filter: blur(0.2px);
 }
 
 .cycle-chart.cycle-chart--disk-period .chart-bg-disk {
-  opacity: 0.82;
+  fill: url(#centerGradientPeriod);
+  opacity: 0.48;
 }
 
-.cycle-chart.cycle-chart--disk-fertile .chart-bg-disk,
+.cycle-chart.cycle-chart--disk-fertile .chart-bg-disk {
+  fill: url(#centerGradientFertile);
+  opacity: 0.46;
+}
+
 .cycle-chart.cycle-chart--disk-ovulation .chart-bg-disk {
-  opacity: 0.8;
+  fill: url(#centerGradientOvulationPeak);
+  opacity: 0.48;
+}
+
+.chart-ring-ambient {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.chart-inner-guide {
+  opacity: 0.7;
+  pointer-events: none;
 }
 
 .chart-track-ring {
   stroke: url(#trackRingGradient);
-  opacity: 0.95;
-  filter: drop-shadow(inset 0 2px 4px rgba(255, 255, 255, 0.5));
+  opacity: 1;
+  filter: drop-shadow(0 4px 14px rgba(251, 113, 133, 0.12))
+    drop-shadow(0 2px 6px rgba(167, 139, 250, 0.1));
 }
 
 .center-glow-ring {
@@ -557,12 +580,14 @@
 
 // SVG ring segments — soft Flo-style tints
 .cycle-segment {
-  opacity: 0.98;
+  opacity: 0.96;
+  stroke-linecap: round;
   filter: drop-shadow(0 2px 8px rgba(15, 23, 42, 0.08));
   transition:
     opacity 0.45s var(--cycle-glass-ease),
     filter 0.45s var(--cycle-glass-ease),
-    stroke 0.45s var(--cycle-glass-ease);
+    stroke 0.45s var(--cycle-glass-ease),
+    stroke-dashoffset 0.65s var(--cycle-glass-ease);
 }
 
 .cycle-segment--period {
@@ -679,8 +704,8 @@
   pointer-events: none;
 
   &__halo {
-    fill: rgba(var(--brand-secondary-rgb), 0.2);
-    filter: blur(4px);
+    fill: rgba(var(--brand-secondary-rgb), 0.18);
+    filter: blur(3px);
     transform-box: fill-box;
     transform-origin: center;
     animation: cycle-badge-halo 3s ease-in-out infinite;
@@ -689,13 +714,13 @@
   &__ring {
     fill: none;
     stroke: url(#cycleLengthBadgeRingGradient);
-    stroke-width: 2.5px;
-    filter: drop-shadow(0 6px 16px rgba(13, 148, 136, 0.28));
+    stroke-width: 2px;
+    filter: drop-shadow(0 4px 12px rgba(13, 148, 136, 0.26));
   }
 
   &__bg {
     fill: url(#cycleLengthBadgeGradient);
-    filter: drop-shadow(0 4px 12px rgba(13, 148, 136, 0.32));
+    filter: drop-shadow(0 3px 10px rgba(13, 148, 136, 0.3));
     transform-box: fill-box;
     transform-origin: center;
     animation: cycle-badge-float 5s ease-in-out infinite;
@@ -703,7 +728,7 @@
 
   &__value {
     fill: #ffffff;
-    font-size: clamp(18px, 4.8vw, 22px);
+    font-size: clamp(15px, 4vw, 18px);
     font-weight: 800;
     letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
@@ -711,10 +736,10 @@
   }
 
   &__label {
-    fill: rgba(255, 255, 255, 0.94);
-    font-size: clamp(7.5px, 2vw, 9px);
+    fill: rgba(255, 255, 255, 0.92);
+    font-size: clamp(6px, 1.7vw, 7.5px);
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 }
@@ -775,12 +800,42 @@
   filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.2));
 }
 
-// Ovulation Heart Styling
-.ovulation-heart {
-  animation: heart-beat 2s ease-in-out infinite;
+// Ovulation marker on the ring
+.ovulation-icon {
+  pointer-events: none;
 
-  .heart-icon {
-    animation: heart-pulse 1.5s ease-in-out infinite;
+  &__glow {
+    fill: rgba(20, 184, 166, 0.22);
+    filter: blur(2px);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ovulation-glow-pulse 2.8s ease-in-out infinite;
+  }
+
+  &__ring {
+    fill: #0d9488;
+    stroke: rgba(255, 255, 255, 0.92);
+    stroke-width: 2px;
+    filter: drop-shadow(0 3px 10px rgba(13, 148, 136, 0.38));
+  }
+
+  &__heart {
+    fill: #ffffff;
+    transform: translate(0, -1px) scale(0.52);
+    transform-box: fill-box;
+    transform-origin: center;
+    filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.12));
+  }
+}
+
+@keyframes ovulation-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+
+  50% {
+    opacity: 1;
   }
 }
 

@@ -524,7 +524,7 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
   private readonly ringTrackStroke = 22;
 
   private get ringDayLabelRadius(): number {
-    return this.ringTrackRadius + this.ringTrackStroke / 2 + 14;
+    return this.ringTrackRadius + this.ringTrackStroke / 2 + 8;
   }
 
   /** 1-based cycle day → angle at the center of that day's wedge (12 o'clock = day 1). */
@@ -536,14 +536,12 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
 
   getPhaseMarkX(dayIndex: number, total: number) {
     const angle = (2 * Math.PI * dayIndex) / total - Math.PI / 2;
-    const phaseRadius = this.R + 15; // 15px outside the main circle
-    return phaseRadius * Math.cos(angle);
+    return this.ringTrackRadius * Math.cos(angle);
   }
 
   getPhaseMarkY(dayIndex: number, total: number) {
     const angle = (2 * Math.PI * dayIndex) / total - Math.PI / 2;
-    const phaseRadius = this.R + 15; // 15px outside the main circle
-    return phaseRadius * Math.sin(angle);
+    return this.ringTrackRadius * Math.sin(angle);
   }
 
   isToday(value: number): boolean {
@@ -555,8 +553,8 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
     // ovulation heart at ovulationDay (1-based index)
     const ovAngle =
       ((this.ovulationDay - 1) / this.cycleLength) * 2 * Math.PI - Math.PI / 2;
-    this.ovulationX = 140 * Math.cos(ovAngle);
-    this.ovulationY = 140 * Math.sin(ovAngle);
+    this.ovulationX = this.ringTrackRadius * Math.cos(ovAngle);
+    this.ovulationY = this.ringTrackRadius * Math.sin(ovAngle);
     this.ovulationRotation = (ovAngle * 180) / Math.PI + 90;
 
     // period label at middle of period arc, slightly outside ring

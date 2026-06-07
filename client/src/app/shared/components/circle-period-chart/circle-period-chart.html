@@ -50,9 +50,11 @@
   <!-- Main Chart -->
   <div class="chart-wrapper">
     <svg
-      viewBox="50 50 500 500"
+      viewBox="35 35 530 530"
+      preserveAspectRatio="xMidYMid meet"
       class="cycle-chart"
       dir="ltr"
+      shape-rendering="geometricPrecision"
       [attr.aria-label]="'cycleChart.a11y.periodCycleChart' | translate"
       [class.cycle-chart--disk-period]="cycleDiskPhase === 'period'"
       [class.cycle-chart--disk-fertile]="cycleDiskPhase === 'fertile'"
@@ -235,24 +237,50 @@
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
+
+        <filter id="ringAmbientGlow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="10" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
 
       <g transform="translate(300,300)" class="chart-3d-container">
-        <!-- Outer background circle -->
+        <!-- Phase-tinted ambient wash behind the ring -->
         <circle
-          r="240"
-          fill="none"
+          r="248"
           stroke-width="0"
-          class="background-3d chart-bg-disk"
+          class="chart-bg-disk"
         ></circle>
 
-        <!-- Main cycle circle (neutral track) -->
+        <!-- Soft outer halo -->
+        <circle
+          r="224"
+          fill="none"
+          stroke="rgba(251, 113, 133, 0.14)"
+          stroke-width="18"
+          class="chart-ring-ambient"
+          filter="url(#ringAmbientGlow)"
+        ></circle>
+
+        <!-- Neutral track bed -->
         <circle
           r="210"
           fill="none"
           stroke="url(#trackRingGradient)"
           stroke-width="28"
           class="chart-track-ring"
+        ></circle>
+
+        <!-- Inner guide ring -->
+        <circle
+          r="182"
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.55)"
+          stroke-width="1.25"
+          class="chart-inner-guide"
         ></circle>
 
         <!-- Cycle progress arc (Flo-style completion sweep) -->
@@ -332,62 +360,30 @@
             ')'
           "
         >
-          <circle class="cycle-length-marker__halo" r="30" />
-          <circle class="cycle-length-marker__ring" r="26" />
-          <circle class="cycle-length-marker__bg" r="22" />
-          <text class="cycle-length-marker__value" text-anchor="middle" y="2">
+          <circle class="cycle-length-marker__halo" r="24" />
+          <circle class="cycle-length-marker__ring" r="21" />
+          <circle class="cycle-length-marker__bg" r="18" />
+          <text class="cycle-length-marker__value" text-anchor="middle" y="-1">
             {{ cycleLength | localNum }}
           </text>
-          <text class="cycle-length-marker__label" text-anchor="middle" y="18">
+          <text class="cycle-length-marker__label" text-anchor="middle" y="11">
             {{ 'cycleChart.center.cycleLengthLabel' | translate }}
           </text>
         </g>
 
-        <!-- Cycle Phase Marks (legacy position markers removed — today ring cap is the single focus indicator) -->
-
-        <!-- Ovulation Day Heart -->
+        <!-- Ovulation marker on the ring -->
         @if (ovulationDay > 0) {
-        <g class="ovulation-heart" [attr.transform]="'translate(' + ovulationX + ',' + ovulationY + ')'">
-          <circle r="12" fill="#14b8a6" opacity="0.95" filter="url(#shadow)"></circle>
-          <g transform="translate(0, 0)">
+          <g
+            class="ovulation-icon"
+            [attr.transform]="'translate(' + ovulationX + ',' + ovulationY + ')'"
+          >
+            <circle class="ovulation-icon__glow" r="16" />
+            <circle class="ovulation-icon__ring" r="13" />
             <path
-              d="M-4,-2 C-6,-4 -8,-2 -8,0 C-8,2 -4,6 0,8 C4,6 8,2 8,0 C8,-2 6,-4 4,-2 C2,-4 0,-2 0,0 C0,-2 -2,-4 -4,-2 Z"
-              fill="white" class="heart-icon">
-            </path>
+              class="ovulation-icon__heart"
+              d="M0 3.2 C-2.8 -1.2 -7 -0.4 -7 3.2 C-7 6.4 -0.2 11.6 0 12.2 C0.2 11.6 7 6.4 7 3.2 C7 -0.4 2.8 -1.2 0 3.2 Z"
+            />
           </g>
-        </g>
-        }
-
-        <!-- Center disk backdrop (HTML panel is overlaid outside SVG for iOS PWA RTL) -->
-        <g class="center-content" aria-hidden="true">
-          <circle
-            r="160"
-            stroke-width="1.5"
-            class="chart-center-disk"
-            filter="url(#centerGlassShadow)"
-            [class.chart-center-disk--period]="cycleDiskPhase === 'period'"
-            [class.chart-center-disk--fertile]="cycleDiskPhase === 'fertile'"
-            [class.chart-center-disk--ovulation]="cycleDiskPhase === 'ovulation'"
-          ></circle>
-        </g>
-
-        <!-- Ovulation heart icon -->
-        @if (ovulationDay > 0) {
-          <g [attr.transform]="'translate('+ovulationX+','+ovulationY+')'" class="ovulation-icon">
-            <!-- Background circle -->
-            <circle
-              r="12"
-              fill="rgba(var(--brand-secondary-rgb), 0.18)"
-              stroke="var(--brand-secondary)"
-              stroke-width="2"
-            ></circle>
-          
-            <path
-              d="M8,14 C8,14 2,8 2,5 C2,3 3,2 5,2 C6,2 7,3 8,4 C9,3 10,2 11,2 C13,2 14,3 14,5 C14,8 8,14 8,14 Z"
-              fill="var(--brand-secondary)"
-            ></path>
-          </g>
-          
         }
 
         <!-- Focus day on ring (today by default, or the strip day you selected) -->
