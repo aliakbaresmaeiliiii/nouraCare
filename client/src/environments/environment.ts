@@ -83,6 +83,9 @@ export const environment = {
 
   privacyPolicyUrl: 'https://nouracare.com/privacy',
 
+  /** Local dev: use LAN IP when testing PWA install on iPhone over HTTPS proxy. */
+  pwaInstallUrl: 'http://localhost:4200',
+
   // Firebase (optional — uncomment in environment.prod.ts when needed)
   firebaseConfig: {
     apiKey: 'AIzaSyBaQzqPdV4Z5hHmN_GTZHbaSkXWhKAlbIA',

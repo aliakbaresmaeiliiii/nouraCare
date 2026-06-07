@@ -15,6 +15,8 @@ import { ToastController } from '@ionic/angular/standalone';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 import { TranslationService } from '../shared/services/translation.service';
 import { LanguageService } from '../shared/services/language.service';
+import { PwaPlatformService } from '../shared/services/pwa-platform.service';
+import { environment } from '../../environments/environment';
 
 interface VersionInfo {
   currentVersion: string;
@@ -37,6 +39,7 @@ export class CheckVersionComponent implements OnInit {
   private readonly toastController = inject(ToastController);
   private readonly translation = inject(TranslationService);
   private readonly languageService = inject(LanguageService);
+  private readonly pwaPlatform = inject(PwaPlatformService);
 
   isLoading = false;
   errorMessage = '';
@@ -112,7 +115,12 @@ export class CheckVersionComponent implements OnInit {
   }
 
   async downloadUpdate(): Promise<void> {
-    const url = this.versionInfo?.downloadUrl;
+    if (this.pwaPlatform.isIosSafari() || this.pwaPlatform.isStandalone()) {
+      await this.showToast(this.translation.translate('pwa.installHint'));
+      return;
+    }
+
+    const url = this.versionInfo?.downloadUrl ?? environment.pwaInstallUrl;
     if (!url) {
       await this.showToast(this.translation.translate('checkVersion.toast.noDownloadLink'));
       return;

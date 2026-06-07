@@ -25,6 +25,9 @@ export const environment = {
   /** Public URL for App Store / Play privacy policy field */
   privacyPolicyUrl: 'https://nouracare.com/privacy',
 
+  /** Public HTTPS URL where the PWA is hosted (Add to Home Screen on iOS). */
+  pwaInstallUrl: 'https://noura-4f0ab.web.app',
+
   neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',
   mapboxToken:

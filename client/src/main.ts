@@ -1,4 +1,6 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { isDevMode } from '@angular/core';
+import { provideServiceWorker } from '@angular/service-worker';
 import {
   RouteReuseStrategy,
   provideRouter,
@@ -26,6 +28,20 @@ import { LanguageService } from './app/shared/services/language.service';
 import { TranslationService } from './app/shared/services/translation.service';
 import { AuthInterceptor } from './app/auth/interceptor/auth-interceptor';
 import { applyThemeDom, readStoredPreference } from './app/shared/services/theme.service';
+
+function pwaServiceWorkerEnabled(): boolean {
+  if (isDevMode()) {
+    return false;
+  }
+  try {
+    if (Capacitor.isNativePlatform()) {
+      return false;
+    }
+  } catch {
+    /* non-browser */
+  }
+  return true;
+}
 
 function initialIonicMode(): 'ios' | 'md' {
   try {
@@ -83,5 +99,9 @@ bootstrapApplication(AppComponent, {
     },
     LanguageService,
     TranslationService,
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: pwaServiceWorkerEnabled(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 });

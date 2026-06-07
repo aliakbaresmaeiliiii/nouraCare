@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NouraCare">
+  <rect width="512" height="512" rx="112" fill="#f8fafc"/>
+  <circle cx="256" cy="256" r="176" fill="#6366f1"/>
+  <path fill="#ffffff" d="M256 168c-34 0-62 28-62 62 0 46 62 98 62 98s62-52 62-98c0-34-28-62-62-62zm0 84a22 22 0 1 1 0-44 22 22 0 0 1 0 44z"/>
+  <path fill="#14b8a6" d="M176 332c18 28 52 44 80 44s62-16 80-44c-22 18-50 28-80 28s-58-10-80-28z"/>
+</svg>

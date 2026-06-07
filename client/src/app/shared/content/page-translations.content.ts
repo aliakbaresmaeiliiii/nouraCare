@@ -395,6 +395,11 @@ const PAGE_UI_EN: Record<string, string> = {
   'checkVersion.lastChecked': 'Last checked: {{time}}',
   'checkVersion.checkAgain': 'Check again',
 
+  // pwa
+  'pwa.installHint':
+    'Install NouraCare: tap Share, then "Add to Home Screen".',
+  'pwa.dismiss': 'Dismiss install hint',
+
   // onboarding
   'onboarding.welcome.brandAlt': 'NouraCare app icon',
   'onboarding.welcome.getStarted': 'Get started',
@@ -979,6 +984,10 @@ const PAGE_UI_ZH: Record<string, string> = {
   'checkVersion.lastChecked': '上次检查：{{time}}',
   'checkVersion.checkAgain': '再次检查',
 
+  // pwa
+  'pwa.installHint': '安装 NouraCare：点分享，然后“添加到主屏幕”。',
+  'pwa.dismiss': '关闭安装提示',
+
   'onboarding.welcome.brandAlt': 'NouraCare 应用图标',
   'onboarding.welcome.getStarted': '开始使用',
   'onboarding.welcome.footnote': '约需一分钟 · 登录前数据仅保存在本设备',
@@ -1515,6 +1524,11 @@ const PAGE_UI_MS: Record<string, string> = {
     'Anda sudah mempunyai versi NouraCare terkini untuk peranti ini.',
   'checkVersion.lastChecked': 'Terakhir disemak: {{time}}',
   'checkVersion.checkAgain': 'Semak semula',
+
+  // pwa
+  'pwa.installHint':
+    'Pasang NouraCare: ketik Kongsi, kemudian "Tambah ke Skrin Utama".',
+  'pwa.dismiss': 'Tutup petunjuk pemasangan',
 
   'onboarding.welcome.brandAlt': 'Ikon aplikasi NouraCare',
   'onboarding.welcome.getStarted': 'Mula',
@@ -2061,6 +2075,11 @@ const PAGE_UI_FA: Record<string, string> = {
   'checkVersion.upToDateMessage': 'جدیدترین نسخهٔ NouraCare برای این دستگاه را دارید.',
   'checkVersion.lastChecked': 'آخرین بررسی: {{time}}',
   'checkVersion.checkAgain': 'بررسی دوباره',
+
+  // pwa
+  'pwa.installHint':
+    'نوراکِر را نصب کنید: Share را بزنید، سپس «Add to Home Screen».',
+  'pwa.dismiss': 'بستن راهنمای نصب',
 
   'onboarding.welcome.brandAlt': 'آیکون برنامه NouraCare',
   'onboarding.welcome.getStarted': 'شروع کنید',
