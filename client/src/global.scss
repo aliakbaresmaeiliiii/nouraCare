@@ -732,7 +732,11 @@ ion-menu .menu-icon {
 /* Safe Area Insets for Modern Devices */
 @supports (padding: max(0px)) {
   :root {
-    --app-side-padding: max(1rem, env(safe-area-inset-left, 1rem));
+    --app-side-padding: max(
+      1rem,
+      env(safe-area-inset-left, 0px),
+      env(safe-area-inset-right, 0px)
+    );
   }
 }
 

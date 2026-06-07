@@ -5,6 +5,9 @@
 
 :host ion-content.tab-page-content {
   --background: transparent;
+  /* Avoid double horizontal inset with .cycle-today-shell (PWA safe-area bug). */
+  --padding-start: 0;
+  --padding-end: 0;
 }
 
 .hello-world {
@@ -938,7 +941,7 @@
   padding: 0.35rem 0 0.5rem;
 
   ::ng-deep .chart-wrapper {
-    max-width: 26.5rem;
+    max-width: min(30rem, 96vw);
     margin-left: auto;
     margin-right: auto;
   }
@@ -1016,13 +1019,13 @@
     margin-top: -1.25rem;
     height: auto;
     // Let the ring use ~2/3 of typical viewport (was ~1/3 via 350px wrapper + 340px cap)
-    min-height: min(88vw, min(62vh, 560px));
-    padding: 12px 10px 16px;
+    min-height: min(94vw, min(68dvh, 600px));
+    padding: 10px;
   }
 
   ::ng-deep .cycle-chart {
-    max-height: min(88vw, min(62vh, 560px));
-    max-width: min(92vw, 560px);
+    max-height: min(94vw, min(68dvh, 600px));
+    max-width: min(98vw, 600px);
     width: 100%;
     height: auto;
     display: block;

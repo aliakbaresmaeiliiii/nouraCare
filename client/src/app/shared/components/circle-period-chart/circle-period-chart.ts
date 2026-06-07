@@ -4,6 +4,7 @@ import {
   inject,
   Input,
   NgZone,
+  AfterViewInit,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -45,7 +46,7 @@ export interface Segment {
     './circle-period-chart-week-strip.scss',
   ],
 })
-export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
+export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('periodCalendar') periodCalendar!: IonDatetime;
   @ViewChild('cycleChartWeekScroll', { read: ElementRef })
   cycleChartWeekScroll?: ElementRef<HTMLElement>;
@@ -387,9 +388,16 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     this.applyLocalCycleState();
     this.recomputeEverything();
     this.syncWeekCalendarSelectionFromStartDate();
-    this.scheduleWeekScrollToAnchor();
     this.langSub = this.languageService.currentLanguage$.subscribe(() => {
       this.cdr.markForCheck();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.scheduleWeekScrollToAnchor();
+    // iOS PWA can report zero layout width on the first paint frame.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => this.scheduleWeekScrollToAnchor());
     });
   }
 
@@ -1479,7 +1487,17 @@ export class CirclePeriodChart implements OnInit, OnChanges, OnDestroy {
     if (!this.showWeekStrip) {
       return;
     }
-    setTimeout(() => this.scrollWeekToAnchor(smooth), 0);
+    const attempt = (retriesLeft: number) => {
+      setTimeout(() => {
+        const host = this.cycleChartWeekScroll?.nativeElement;
+        if (host && host.clientWidth < 1 && retriesLeft > 0) {
+          attempt(retriesLeft - 1);
+          return;
+        }
+        this.scrollWeekToAnchor(smooth);
+      }, retriesLeft === 5 ? 0 : 48);
+    };
+    attempt(5);
   }
 
   private getWeekMonday(d: Date): Date {

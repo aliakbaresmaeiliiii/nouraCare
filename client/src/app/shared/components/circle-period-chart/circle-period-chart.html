@@ -52,6 +52,7 @@
     <svg
       viewBox="50 50 500 500"
       class="cycle-chart"
+      dir="ltr"
       [attr.aria-label]="'cycleChart.a11y.periodCycleChart' | translate"
       [class.cycle-chart--disk-period]="cycleDiskPhase === 'period'"
       [class.cycle-chart--disk-fertile]="cycleDiskPhase === 'fertile'"
@@ -357,8 +358,8 @@
         </g>
         }
 
-        <!-- Center content — frosted glass panel (Flo-style) -->
-        <g class="center-content" role="status" aria-live="polite">
+        <!-- Center disk backdrop (HTML panel is overlaid outside SVG for iOS PWA RTL) -->
+        <g class="center-content" aria-hidden="true">
           <circle
             r="160"
             stroke-width="1.5"
@@ -368,47 +369,6 @@
             [class.chart-center-disk--fertile]="cycleDiskPhase === 'fertile'"
             [class.chart-center-disk--ovulation]="cycleDiskPhase === 'ovulation'"
           ></circle>
-
-          <foreignObject x="-132" y="-132" width="264" height="264" class="center-fo">
-            <div
-              xmlns="http://www.w3.org/1999/xhtml"
-              class="center-glass"
-              [class.center-glass--period]="cycleDiskPhase === 'period'"
-              [class.center-glass--fertile]="cycleDiskPhase === 'fertile'"
-              [class.center-glass--ovulation]="cycleDiskPhase === 'ovulation'"
-              [class.center-glass--none]="cycleDiskPhase === 'none'"
-            >
-              <div class="center-glass__inner">
-                <span class="center-glass__date">{{ formatStripCenterDate() }}</span>
-
-                @if (startDate && weekStripSelectionOvulationInsight) {
-                  <span class="center-glass__insight">{{
-                    weekStripSelectionOvulationInsight
-                  }}</span>
-                }
-
-                @if (showCenterHeroDay()) {
-                  <div class="center-glass__hero" [attr.data-day]="viewCycleDay">
-                    <span class="center-glass__day">{{ viewCycleDay | localNum }}</span>
-                    <span class="center-glass__caption">{{ getCenterHeroCaption() }}</span>
-                  </div>
-                } @else {
-                  <p class="center-glass__empty">{{ getCenterCycleHeading() }}</p>
-                }
-
-                <span
-                  [class]="'center-glass__pill center-glass__pill--' + getFertilityStatus().tone"
-                >
-                  <span class="center-glass__pill-dot" aria-hidden="true"></span>
-                  {{ getFertilityStatus().status }}
-                </span>
-
-                @if (getDetailedMilestone()) {
-                  <span class="center-glass__milestone">{{ getDetailedMilestone() }}</span>
-                }
-              </div>
-            </div>
-          </foreignObject>
         </g>
 
         <!-- Ovulation heart icon -->
@@ -471,6 +431,46 @@
         }
       </g>
     </svg>
+
+    <div class="chart-center-overlay" role="status" aria-live="polite">
+      <div
+        class="center-glass"
+        [class.center-glass--period]="cycleDiskPhase === 'period'"
+        [class.center-glass--fertile]="cycleDiskPhase === 'fertile'"
+        [class.center-glass--ovulation]="cycleDiskPhase === 'ovulation'"
+        [class.center-glass--none]="cycleDiskPhase === 'none'"
+      >
+        <div class="center-glass__inner">
+          <span class="center-glass__date">{{ formatStripCenterDate() }}</span>
+
+          @if (startDate && weekStripSelectionOvulationInsight) {
+            <span class="center-glass__insight">{{
+              weekStripSelectionOvulationInsight
+            }}</span>
+          }
+
+          @if (showCenterHeroDay()) {
+            <div class="center-glass__hero" [attr.data-day]="viewCycleDay">
+              <span class="center-glass__day">{{ viewCycleDay | localNum }}</span>
+              <span class="center-glass__caption">{{ getCenterHeroCaption() }}</span>
+            </div>
+          } @else {
+            <p class="center-glass__empty">{{ getCenterCycleHeading() }}</p>
+          }
+
+          <span
+            [class]="'center-glass__pill center-glass__pill--' + getFertilityStatus().tone"
+          >
+            <span class="center-glass__pill-dot" aria-hidden="true"></span>
+            {{ getFertilityStatus().status }}
+          </span>
+
+          @if (getDetailedMilestone()) {
+            <span class="center-glass__milestone">{{ getDetailedMilestone() }}</span>
+          }
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="cycle-chart-track-wrap">
