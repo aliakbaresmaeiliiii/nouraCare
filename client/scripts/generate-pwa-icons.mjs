@@ -42,7 +42,7 @@ async function main() {
         fit: 'contain',
         background: { r: 248, g: 250, b: 252, alpha: 1 },
       })
-      .png()
+      .png({ compressionLevel: 9, palette: true, effort: 10 })
       .toFile(outPath);
     console.log(`${name} (${size}x${size})`);
   }

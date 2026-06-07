@@ -242,10 +242,10 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
     const slug = this.getCategorySlug();
     const fallbacks: Record<string, string> = {
       pregnancy: 'assets/images/image1.png',
-      intimacy: 'assets/images/welcome2.png',
+      intimacy: 'assets/images/welcome2.jpg',
       symptoms: 'assets/images/bg-01.png',
       nutrition: 'assets/images/image1.png',
-      baby: 'assets/images/welcome2.png',
+      baby: 'assets/images/welcome2.jpg',
     };
     return fallbacks[slug] ?? 'assets/images/bg-01.png';
   }

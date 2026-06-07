@@ -18,11 +18,11 @@
 
     "server": "ionic serve",
 
-    "start": "ng serve --proxy-config proxy.conf.json",
+    "start": "ng serve --proxy-config proxy.conf.json --host 0.0.0.0 --disable-host-check",
 
-    "proxy": "ng serve --proxy-config proxy.conf.json",
+    "proxy": "ng serve --proxy-config proxy.conf.json --host 0.0.0.0 --disable-host-check",
 
-    "dev:lan": "ng serve --proxy-config proxy.conf.json --host 0.0.0.0",
+    "dev:lan": "node scripts/print-lan-url.mjs && ng serve --proxy-config proxy.conf.json --host 0.0.0.0 --disable-host-check",
 
     "build": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build",
 
@@ -61,6 +61,8 @@
     "deploy:pwa": "npm run build:pwa && firebase deploy --only hosting",
 
     "icons:pwa": "node scripts/generate-pwa-icons.mjs",
+
+    "images:optimize": "node scripts/optimize-images.mjs && npm run icons:pwa",
 
     "build:mobile": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build --configuration=mobile --delete-output-path",
 

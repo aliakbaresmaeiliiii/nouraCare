@@ -359,10 +359,10 @@ export class InsightsComponent implements OnInit, OnDestroy, ViewWillEnter {
   getFallbackImage(category: string): string {
     const fallbacks = {
       pregnancy: 'assets/images/image1.png',
-      intimacy: 'assets/images/welcome2.png',
+      intimacy: 'assets/images/welcome2.jpg',
       symptoms: 'assets/images/bg-01.png',
       nutrition: 'assets/images/image1.png',
-      baby: 'assets/images/welcome2.png',
+      baby: 'assets/images/welcome2.jpg',
     };
     return (
       fallbacks[category as keyof typeof fallbacks] || 'assets/images/bg-01.png'

@@ -88,7 +88,10 @@ export function formatHistoryDayDate(date: Date, languageCode: string): string {
 
 export function formatRecordedAtDate(date: Date, languageCode: string): string {
   if (isPersianAppLanguage(languageCode)) {
-    return format(date, 'd MMM yyyy', FA);
+    return format(date, 'd MMMM yyyy', FA).replace(
+      /\d/g,
+      (d) => PERSIAN_DIGITS[+d],
+    );
   }
   return date.toLocaleDateString(undefined, {
     month: 'short',
@@ -99,7 +102,10 @@ export function formatRecordedAtDate(date: Date, languageCode: string): string {
 
 export function formatMonthYearTitle(date: Date, languageCode: string): string {
   if (isPersianAppLanguage(languageCode)) {
-    return format(date, 'MMMM yyyy', FA);
+    return format(date, 'MMMM yyyy', FA).replace(
+      /\d/g,
+      (d) => PERSIAN_DIGITS[+d],
+    );
   }
   return date.toLocaleDateString('en-US', {
     month: 'long',

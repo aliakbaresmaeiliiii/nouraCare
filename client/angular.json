@@ -142,7 +142,9 @@
 					"options": {
 						"proxyConfig": "proxy.conf.json",
 						"port": 4200,
-						"publicHost": "http://localhost:4200"
+						"host": "0.0.0.0",
+						"allowedHosts": ["all"],
+						"publicHost": "auto"
 					},
 					"configurations": {
 						"production": {

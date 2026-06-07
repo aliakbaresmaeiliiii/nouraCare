@@ -1,0 +1,39 @@
+<ion-content
+  class="splash-content"
+  [scrollY]="false"
+  (click)="onSkip()"
+  [attr.aria-label]="'splash.skipHint' | translate"
+>
+  <div class="splash-ambient" aria-hidden="true">
+    <span class="splash-orb splash-orb--primary"></span>
+    <span class="splash-orb splash-orb--secondary"></span>
+    <span class="splash-orb splash-orb--accent"></span>
+    <span class="splash-wave splash-wave--one"></span>
+    <span class="splash-wave splash-wave--two"></span>
+  </div>
+
+  <div class="splash-shell">
+    <div class="splash-brand">
+      <div class="splash-brand-glow" aria-hidden="true"></div>
+      <div class="splash-brand-ring">
+        <img
+          src="assets/branding/AppIcon-welcome.png"
+          [attr.alt]="'splash.brandAlt' | translate"
+          width="112"
+          height="112"
+          class="splash-brand-icon"
+          decoding="async"
+        />
+      </div>
+
+      <p class="splash-wordmark">NouraCare</p>
+      <h1 class="splash-tagline">{{ "splash.tagline" | translate }}</h1>
+    </div>
+
+    <div class="splash-footer" aria-hidden="true">
+      <div class="splash-progress">
+        <span class="splash-progress__bar"></span>
+      </div>
+    </div>
+  </div>
+</ion-content>

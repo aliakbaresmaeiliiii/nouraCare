@@ -10,8 +10,9 @@
 // ---------------------------------------------------------------------------
 
 const BACKEND_PROFILES = {
-  /** Home Wi‑Fi — API running on your LAN PC */
-  house: '192.168.1.143',
+  /** Home Wi‑Fi — API running on your LAN PC (update IP with `ipconfig`) */
+  // house: '10.55.243.237',
+  house: '10.55.243.237',
   /** Phone hotspot — use your laptop IP as seen on the hotspot */
   phone: '172.20.10.2',
   /** Redmi Note 14 — API running on your Redmi Note 14 */
@@ -26,7 +27,7 @@ const BACKEND_PROFILES = {
  * Set to `house`, `phone`, or `coffee` to switch where API requests go.
  * Used by `ng serve` and `npm run cap:sync:mobile` (not plain `ng build`, which uses production API).
  */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'RedmiNote14';
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'house';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';
@@ -83,8 +84,8 @@ export const environment = {
 
   privacyPolicyUrl: 'https://nouracare.com/privacy',
 
-  /** Local dev: use LAN IP when testing PWA install on iPhone over HTTPS proxy. */
-  pwaInstallUrl: 'http://localhost:4200',
+  /** App metadata only — does NOT start the dev server. Use `npm start` + your PC IP:4200 on phone. */
+  pwaInstallUrl: 'http://10.55.243.237:4200',
 
   // Firebase (optional — uncomment in environment.prod.ts when needed)
   firebaseConfig: {

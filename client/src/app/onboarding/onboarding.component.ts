@@ -57,6 +57,8 @@ import {
 
 type JourneyCardTone = 'mint' | 'lavender' | 'cream';
 
+const DEFAULT_PREGNANCY_WEEK = 4;
+
 interface OnboardingStep {
   id: string;
   title: string;
@@ -240,8 +242,12 @@ export class OnboardingComponent implements OnInit {
     this.answers = { ...this.defaultAnswers(), ...snapshot.answers };
     const maxStep = Math.max(0, this.totalSteps - 1);
     this.currentStep = Math.max(0, Math.min(snapshot.currentStep, maxStep));
-    if (this.answers['pregnancy_status'] === 'pregnant' && this.answers['last_period']) {
-      this.syncPregnancyWeekFromLmp();
+    if (this.answers['pregnancy_status'] === 'pregnant') {
+      if (this.answers['last_period']) {
+        this.syncPregnancyWeekFromLmp();
+      } else if (!this.answers['pregnancy_week']) {
+        this.applyPregnancyWeek(DEFAULT_PREGNANCY_WEEK);
+      }
     }
   }
 
@@ -703,6 +709,10 @@ export class OnboardingComponent implements OnInit {
         delete this.answers['baby_birth_date'];
       }
       this.answers[stepId] = value;
+      if (value === 'pregnant' && !this.answers['pregnancy_week']) {
+        this.applyPregnancyWeek(DEFAULT_PREGNANCY_WEEK);
+        return;
+      }
       this.persistLocalProgress();
       return;
     }
@@ -714,25 +724,7 @@ export class OnboardingComponent implements OnInit {
         this.persistLocalProgress();
         return;
       }
-      const n = Math.floor(Number(value));
-      const max = this.stepById['pregnancy_week'].max ?? 40;
-      const min = this.stepById['pregnancy_week'].min ?? 4;
-      if (!Number.isFinite(n) || n < min || n > max) {
-        delete this.answers['pregnancy_week'];
-        delete this.answers['last_period'];
-        this.persistLocalProgress();
-        return;
-      }
-      this.answers['pregnancy_week'] = n;
-      const lmp = lmpIsoFromGestationalWeek1Based(n);
-      if (!lmp || !this.isValidLastPeriodDate(lmp)) {
-        delete this.answers['last_period'];
-        this.persistLocalProgress();
-        return;
-      }
-      this.answers['last_period'] = lmp;
-      this.syncPregnancyWeekFromLmp();
-      this.persistLocalProgress();
+      this.applyPregnancyWeek(Math.floor(Number(value)));
       return;
     }
 
@@ -807,6 +799,28 @@ export class OnboardingComponent implements OnInit {
       return false;
     }
     return iso >= this.getBabyBirthMinIso();
+  }
+
+  private applyPregnancyWeek(value: number): void {
+    const max = this.stepById['pregnancy_week'].max ?? 40;
+    const min = this.stepById['pregnancy_week'].min ?? DEFAULT_PREGNANCY_WEEK;
+    const n = Math.floor(Number(value));
+    if (!Number.isFinite(n) || n < min || n > max) {
+      delete this.answers['pregnancy_week'];
+      delete this.answers['last_period'];
+      this.persistLocalProgress();
+      return;
+    }
+    this.answers['pregnancy_week'] = n;
+    const lmp = lmpIsoFromGestationalWeek1Based(n);
+    if (!lmp || !this.isValidLastPeriodDate(lmp)) {
+      delete this.answers['last_period'];
+      this.persistLocalProgress();
+      return;
+    }
+    this.answers['last_period'] = lmp;
+    this.syncPregnancyWeekFromLmp();
+    this.persistLocalProgress();
   }
 
   private syncPregnancyWeekFromLmp(): void {
@@ -945,8 +959,12 @@ export class OnboardingComponent implements OnInit {
       this.persistLocalProgress();
     }
 
-    if (this.answers['pregnancy_status'] === 'pregnant' && this.answers['last_period']) {
-      this.syncPregnancyWeekFromLmp();
+    if (this.answers['pregnancy_status'] === 'pregnant') {
+      if (this.answers['last_period']) {
+        this.syncPregnancyWeekFromLmp();
+      } else if (!this.answers['pregnancy_week']) {
+        this.applyPregnancyWeek(DEFAULT_PREGNANCY_WEEK);
+      }
     }
   }
 
