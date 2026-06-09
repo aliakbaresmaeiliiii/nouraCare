@@ -1,6 +1,74 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NouraCare">
-  <rect width="512" height="512" rx="112" fill="#f8fafc"/>
-  <circle cx="256" cy="256" r="176" fill="#6366f1"/>
-  <path fill="#ffffff" d="M256 168c-34 0-62 28-62 62 0 46 62 98 62 98s62-52 62-98c0-34-28-62-62-62zm0 84a22 22 0 1 1 0-44 22 22 0 0 1 0 44z"/>
-  <path fill="#14b8a6" d="M176 332c18 28 52 44 80 44s62-16 80-44c-22 18-50 28-80 28s-58-10-80-28z"/>
+  <defs>
+    <linearGradient id="nc-bg" x1="8%" y1="6%" x2="92%" y2="94%">
+      <stop offset="0%" stop-color="#eef2ff"/>
+      <stop offset="55%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#ecfdf5"/>
+    </linearGradient>
+    <linearGradient id="nc-orb" x1="18%" y1="12%" x2="88%" y2="92%">
+      <stop offset="0%" stop-color="#a5b4fc"/>
+      <stop offset="38%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="nc-teal" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+    <linearGradient id="nc-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="nc-shadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#4338ca" flood-opacity="0.28"/>
+    </filter>
+    <filter id="nc-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- App icon canvas -->
+  <rect width="512" height="512" rx="118" fill="url(#nc-bg)"/>
+
+  <!-- Ambient halo -->
+  <circle cx="256" cy="252" r="188" fill="#6366f1" opacity="0.08"/>
+
+  <!-- Main brand orb -->
+  <circle cx="256" cy="248" r="166" fill="url(#nc-orb)" filter="url(#nc-shadow)"/>
+
+  <!-- Inner soft highlight -->
+  <ellipse cx="214" cy="198" rx="72" ry="56" fill="#ffffff" opacity="0.14"/>
+
+  <!-- Cycle embrace ring (wellness loop) -->
+  <path
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="20"
+    stroke-linecap="round"
+    opacity="0.92"
+    d="M168 286c22-62 72-98 88-98s66 36 88 98"
+  />
+
+  <!-- Teal life arc -->
+  <path
+    fill="none"
+    stroke="url(#nc-teal)"
+    stroke-width="16"
+    stroke-linecap="round"
+    filter="url(#nc-glow)"
+    d="M154 312c34 48 88 66 102 66s68-18 102-66"
+  />
+
+  <!-- Heart of care -->
+  <path
+    fill="#ffffff"
+    d="M256 178c-22 0-40 14-48 34-8 22 6 48 48 86 42-38 56-64 48-86-8-20-26-34-48-34zm0 28c10 0 18 7 21 17 3 9-2 20-21 38-19-18-24-29-21-38 3-10 11-17 21-17z"
+  />
+
+  <!-- Warm accent sparkle -->
+  <circle cx="338" cy="176" r="9" fill="url(#nc-gold)"/>
+  <circle cx="338" cy="176" r="4" fill="#fffbeb" opacity="0.85"/>
 </svg>

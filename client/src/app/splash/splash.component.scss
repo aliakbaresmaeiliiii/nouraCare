@@ -161,22 +161,11 @@
   object-fit: contain;
 }
 
-.splash-wordmark {
-  margin: 0 0 0.85rem;
-  font-family: 'Poppins', 'Inter', sans-serif;
-  font-size: clamp(2rem, 7vw, 2.65rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
-  background: linear-gradient(
-    125deg,
-    var(--brand-primary-dark) 0%,
-    var(--brand-primary) 42%,
-    var(--brand-secondary) 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.splash-wordmark-img {
+  display: block;
+  width: min(220px, 72vw);
+  height: auto;
+  margin: 0 auto 0.85rem;
   animation: splash-text-rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
 }
 
@@ -294,7 +283,7 @@
   :host,
   .splash-brand,
   .splash-brand-ring,
-  .splash-wordmark,
+  .splash-wordmark-img,
   .splash-tagline,
   .splash-footer,
   .splash-orb,

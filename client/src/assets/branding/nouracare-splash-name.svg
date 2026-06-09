@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 96" role="img" aria-label="NouraCare">
+  <defs>
+    <linearGradient id="sn-text" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#312e81"/>
+      <stop offset="55%" stop-color="#4338ca"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+  <text
+    x="240"
+    y="62"
+    text-anchor="middle"
+    fill="url(#sn-text)"
+    font-family="'Segoe UI', system-ui, sans-serif"
+    font-size="56"
+    font-weight="800"
+    letter-spacing="-1.5"
+  >
+    Noura<tspan fill="#14b8a6">Care</tspan>
+  </text>
+  <rect x="184" y="72" width="112" height="6" rx="3" fill="#14b8a6" opacity="0.85"/>
+</svg>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NouraCare">
+  <defs>
+    <linearGradient id="ic-orb" x1="18%" y1="12%" x2="88%" y2="92%">
+      <stop offset="0%" stop-color="#a5b4fc"/>
+      <stop offset="38%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+    <linearGradient id="ic-teal" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#5eead4"/>
+      <stop offset="100%" stop-color="#0d9488"/>
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="248" r="166" fill="url(#ic-orb)"/>
+  <ellipse cx="214" cy="198" rx="72" ry="56" fill="#ffffff" opacity="0.14"/>
+  <path
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="20"
+    stroke-linecap="round"
+    opacity="0.92"
+    d="M168 286c22-62 72-98 88-98s66 36 88 98"
+  />
+  <path
+    fill="none"
+    stroke="url(#ic-teal)"
+    stroke-width="16"
+    stroke-linecap="round"
+    d="M154 312c34 48 88 66 102 66s68-18 102-66"
+  />
+  <path
+    fill="#ffffff"
+    d="M256 178c-22 0-40 14-48 34-8 22 6 48 48 86 42-38 56-64 48-86-8-20-26-34-48-34zm0 28c10 0 18 7 21 17 3 9-2 20-21 38-19-18-24-29-21-38 3-10 11-17 21-17z"
+  />
+  <circle cx="338" cy="176" r="9" fill="#fbbf24"/>
+</svg>
