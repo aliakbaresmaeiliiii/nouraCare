@@ -85,15 +85,15 @@ export class PregnancyModeComponent implements AfterViewInit, OnInit {
 
   async openDeletePregnancyDialog(): Promise<void> {
     const alert = await this.alertController.create({
-      header: 'Delete pregnancy info',
-      message: 'This will permanently delete all data about this pregnancy from the Flo',
+      header: this.translation.translate('pregnancyMode.deleteConfirmHeader'),
+      message: this.translation.translate('pregnancyMode.deleteConfirmMessage'),
       buttons: [
         {
-          text: 'Cancel',
+          text: this.translation.translate('common.cancel'),
           role: 'cancel',
         },
         {
-          text: 'Delete',
+          text: this.translation.translate('common.delete'),
           role: 'destructive',
           handler: () => {
             void this.confirmDeletePregnancyMode();

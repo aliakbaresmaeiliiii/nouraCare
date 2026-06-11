@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.tecknnycs.nouracare"
+    namespace = "com.tecknnycs.dorehealth"
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
     compileSdkMinor rootProject.ext.compileSdkMinorVersion
     defaultConfig {
-        applicationId "com.tecknnycs.nouracare"
+        applicationId "com.tecknnycs.dorehealth"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

@@ -90,7 +90,7 @@ const ARTICLE_UI_EN: Record<string, string> = {
   'article.relatedHint': 'Discover more helpful content',
   'article.inBrief': 'In brief',
   'article.readTime': '{{minutes}} min read',
-  'article.authorDefault': 'NouraCare Editorial',
+  'article.authorDefault': 'DoreHealth Editorial',
   'article.toast.linkCopied': 'Link copied to clipboard',
   'article.toast.copyFailed':
     'Could not copy automatically. Select the address bar to copy the link.',
@@ -151,7 +151,7 @@ const ARTICLE_UI_ZH: Record<string, string> = {
   'article.relatedHint': '发现更多实用内容',
   'article.inBrief': '简要概述',
   'article.readTime': '{{minutes}} 分钟阅读',
-  'article.authorDefault': 'NouraCare 编辑部',
+  'article.authorDefault': 'DoreHealth 编辑部',
   'article.toast.linkCopied': '链接已复制到剪贴板',
   'article.toast.copyFailed': '无法自动复制，请在地址栏手动复制链接。',
   'article.category.pregnancy': '孕期',
@@ -200,7 +200,7 @@ const ARTICLE_UI_MS: Record<string, string> = {
   'article.relatedHint': 'Temui lebih banyak kandungan berguna',
   'article.inBrief': 'Ringkasnya',
   'article.readTime': '{{minutes}} min bacaan',
-  'article.authorDefault': 'Editorial NouraCare',
+  'article.authorDefault': 'Editorial DoreHealth',
   'article.toast.linkCopied': 'Pautan disalin ke papan keratan',
   'article.toast.copyFailed':
     'Tidak dapat menyalin secara automatik. Pilih bar alamat untuk menyalin pautan.',
@@ -262,7 +262,7 @@ const ARTICLE_UI_FA: Record<string, string> = {
   'article.relatedHint': 'محتوای مفید بیشتری کشف کنید',
   'article.inBrief': 'خلاصه',
   'article.readTime': '{{minutes}} دقیقه مطالعه',
-  'article.authorDefault': 'تحریریهٔ NouraCare',
+  'article.authorDefault': 'تحریریهٔ دوره',
   'article.toast.linkCopied': 'پیوند در کلیپ‌بورد کپی شد',
   'article.toast.copyFailed':
     'کپی خودکار ممکن نشد. برای کپی، نوار آدرس را انتخاب کنید.',

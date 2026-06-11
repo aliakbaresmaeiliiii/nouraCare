@@ -2,14 +2,14 @@
  * Production environment — used by `ng build` (see angular.json fileReplacements).
  *
  * Before store release:
- * 1. Set PROD_API_ORIGIN to your HTTPS API (e.g. https://api.nouracare.com)
+ * 1. Set PROD_API_ORIGIN to your HTTPS API (e.g. https://api.dorehealth.app)
  * 2. Create iOS OAuth client in Google Cloud → set googleIOSClientId
  * 3. Configure Sign in with Apple → set appleServiceId + appleRedirectUrl
  * 4. Match GOOGLE_CLIENT_IDS / APPLE_CLIENT_IDS on server .env
  */
 
 /** Public HTTPS origin of the NestJS API (no trailing slash). */
-const PROD_API_ORIGIN = 'https://api.nouracare.com';
+const PROD_API_ORIGIN = 'https://api.dorehealth.app';
 
 const API_VERSION_PATH = '/api/v1/';
 
@@ -23,7 +23,7 @@ export const environment = {
   profileImageFallback: 'assets/images/bg-01.png',
 
   /** Public URL for App Store / Play privacy policy field */
-  privacyPolicyUrl: 'https://nouracare.com/privacy',
+  privacyPolicyUrl: 'https://dorehealth.app/privacy',
 
   /** Public HTTPS URL where the PWA is hosted (Add to Home Screen on iOS). */
   pwaInstallUrl: 'https://noura-4f0ab.web.app',
@@ -40,9 +40,9 @@ export const environment = {
   googleIOSClientId: '',
 
   /** Must match Capacitor appId / Apple App ID bundle. */
-  appleBundleId: 'com.tecknnycs.nouracare',
+  appleBundleId: 'com.tecknnycs.dorehealth',
   /** Apple Services ID for Android + web Sign in with Apple. */
-  appleServiceId: 'com.tecknnycs.nouracare.signin',
+  appleServiceId: 'com.tecknnycs.dorehealth.signin',
   /** Return URL registered in Apple Developer for the Services ID. */
   appleRedirectUrl: `${PROD_API_ORIGIN}/auth/apple/callback`,
   /** Temporarily hide/disable Sign in with Apple on auth screens. */

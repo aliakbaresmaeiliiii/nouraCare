@@ -51,7 +51,7 @@ export function clearOnboardingProgress(): void {
   localStorage.removeItem(ONBOARDING_PROGRESS_KEY);
 }
 
-export function hasLocalNouraCareOnboardingProfile(): boolean {
+export function hasLocalDoreHealthOnboardingProfile(): boolean {
   if (typeof localStorage === 'undefined') {
     return false;
   }
@@ -92,7 +92,7 @@ export function shouldOpenOnboardingFirst(): boolean {
   if (typeof localStorage === 'undefined') {
     return true;
   }
-  if (hasLocalNouraCareOnboardingProfile()) {
+  if (hasLocalDoreHealthOnboardingProfile()) {
     return false;
   }
   return !localStorage.getItem('userInfo');

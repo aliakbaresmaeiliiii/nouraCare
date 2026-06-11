@@ -63,15 +63,9 @@ export class AuthExampleComponent implements OnInit {
   router = inject(Router);
 
   ngOnInit() {
-    // Subscribe to authentication state changes
-    this.authService.isAuthenticated$.subscribe(isAuthenticated => {
-      console.log('Authentication state changed:', isAuthenticated);
-    });
+    this.authService.isAuthenticated$.subscribe();
 
-    // Subscribe to access token changes
-    this.authService.accessToken$.subscribe(token => {
-      console.log('Access token changed:', token ? 'Present' : 'Not Present');
-    });
+    this.authService.accessToken$.subscribe();
   }
 
   logout() {

@@ -6,7 +6,7 @@
  * 3. Syncs assets into android/ and patches Gradle
  *
  * Then in Android Studio: Run (debug). If the phone still shows old UI,
- * uninstall NouraCare once and install again.
+ * uninstall DoreHealth once and install again.
  */
 import { spawnSync } from 'child_process';
 import fs from 'fs';
@@ -53,6 +53,6 @@ Done.
 
 Next steps:
   1. Open Android Studio and click Run (debug APK).
-  2. If the phone still shows the old design, uninstall NouraCare and run again.
+  2. If the phone still shows the old design, uninstall DoreHealth and run again.
   3. Do not use plain "cap sync" after "ng build" — use "npm run android:refresh" or "npm run cap:sync:mobile".
 `);

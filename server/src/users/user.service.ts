@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/user.dto';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { EngagementService } from '../health-engagement/engagement.service';
+import { GetDailyInsightUseCase } from '../reproductive/menstrual/application/get-daily-insight.usecase';
 
 @Injectable()
 export class UserService {
   constructor(
     private prismaService: PrismaService,
     private readonly engagement: EngagementService,
+    private readonly getDailyInsight: GetDailyInsightUseCase,
   ) {}
 
   async getUserById(userId: number) {
@@ -187,6 +189,7 @@ export class UserService {
     });
 
     void this.engagement.refreshEngagementMetrics(userId).catch(() => undefined);
+    void this.getDailyInsight.invalidateForUser(userId).catch(() => undefined);
     return row;
   }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 
-const DISMISS_KEY = 'nouracare.pwaInstallDismissed';
+const DISMISS_KEY = 'dorehealth.pwaInstallDismissed';
 
 /** Detects iOS Safari browser (not installed PWA / not native shell). */
 @Injectable({ providedIn: 'root' })

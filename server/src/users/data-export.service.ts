@@ -132,7 +132,7 @@ export class DataExportService {
     });
 
     const json = JSON.stringify(exportPayload, null, 2);
-    const filename = `nouracare-data-export-${userId}-${Date.now()}.json`;
+    const filename = `dorehealth-data-export-${userId}-${Date.now()}.json`;
 
     await this.sendMail.sendDataExport(
       email,

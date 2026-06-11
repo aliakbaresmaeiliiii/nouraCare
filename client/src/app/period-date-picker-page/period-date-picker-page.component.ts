@@ -34,8 +34,10 @@ export class PeriodDatePickerPageComponent implements OnInit {
     addIcons({ checkmarkCircle, closeOutline });
   }
 
-  /** Set when opened as a modal (e.g. from home) */
+  /** Set when opened as a modal (e.g. from cycle calendar). */
   @Input() initialStartIso: string | null = null;
+  /** When true, pre-select today instead of the previous period start (log-period flow). */
+  @Input() defaultToToday = false;
 
   periodLength = 5;
   cycleLength = 28;
@@ -52,6 +54,12 @@ export class PeriodDatePickerPageComponent implements OnInit {
   ngOnInit() {
     this.periodLength = this.cycleSettings.periodLength();
     this.cycleLength = this.cycleSettings.cycleLength();
+    if (this.defaultToToday) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      this.selectedRange = this.buildInitialRangeFromDate(today);
+      return;
+    }
     this.initialStartIso =
       this.initialStartIso ?? this.cycleSettings.lastPeriodStartDate();
     this.selectedRange = this.buildInitialRange(this.initialStartIso);
@@ -70,21 +78,25 @@ export class PeriodDatePickerPageComponent implements OnInit {
     const part = startIso.split('T')[0];
     const [y, m, d] = part.split('-').map((n) => parseInt(n, 10));
     if (!y || !m || !d) return null;
+    return this.buildInitialRangeFromDate(new Date(y, m - 1, d));
+  }
 
-    const startDate = new Date(y, m - 1, d);
+  private buildInitialRangeFromDate(startDate: Date): PeriodDateRange {
+    const normalizedStart = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      startDate.getDate(),
+    );
     const periodDates: Date[] = [];
     for (let i = 0; i < this.periodLength; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+      const date = new Date(normalizedStart);
+      date.setDate(normalizedStart.getDate() + i);
       periodDates.push(date);
     }
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const normalizedStart = new Date(y, m - 1, d);
-
     return {
-      startDate,
+      startDate: normalizedStart,
       periodDates,
       isPastDate: normalizedStart < today,
       isToday: normalizedStart.toDateString() === today.toDateString(),

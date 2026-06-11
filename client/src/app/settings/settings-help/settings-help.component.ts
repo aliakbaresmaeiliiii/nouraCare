@@ -28,9 +28,9 @@ export class SettingsHelpComponent {
   }
 
   async openContactOptions(): Promise<void> {
-    const subject = encodeURIComponent('NouraCare — Support');
-    const body = encodeURIComponent('Hi NouraCare team,\n\n');
-    const mailto = `mailto:support@nouracare.app?subject=${subject}&body=${body}`;
+    const subject = encodeURIComponent('DoreHealth — Support');
+    const body = encodeURIComponent('Hi DoreHealth team,\n\n');
+    const mailto = `mailto:support@dorehealth.app?subject=${subject}&body=${body}`;
 
     const sheet = await this.actionSheetCtrl.create({
       header: this.t('menu.contactUs'),
@@ -47,14 +47,14 @@ export class SettingsHelpComponent {
           text: this.t('menu.contactUsTelegram'),
           icon: 'paper-plane-outline',
           handler: () => {
-            window.open('https://t.me/nouracare', '_blank', 'noopener,noreferrer');
+            window.open('https://t.me/dorehealth', '_blank', 'noopener,noreferrer');
           },
         },
         {
           text: this.t('menu.contactUsInstagram'),
           icon: 'logo-instagram',
           handler: () => {
-            window.open('https://instagram.com/nouracare', '_blank', 'noopener,noreferrer');
+            window.open('https://instagram.com/dorehealth', '_blank', 'noopener,noreferrer');
           },
         },
         {
@@ -71,11 +71,11 @@ export class SettingsHelpComponent {
   }
 
   openFeedback(): void {
-    const subject = encodeURIComponent('NouraCare App Feedback');
+    const subject = encodeURIComponent('DoreHealth App Feedback');
     const body = encodeURIComponent(
-      'Hi NouraCare team,\n\nI would like to share the following feedback:\n\n',
+      'Hi DoreHealth team,\n\nI would like to share the following feedback:\n\n',
     );
-    window.open(`mailto:support@nouracare.app?subject=${subject}&body=${body}`);
+    window.open(`mailto:support@dorehealth.app?subject=${subject}&body=${body}`);
   }
 
   private t(key: string): string {

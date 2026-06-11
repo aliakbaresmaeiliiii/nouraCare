@@ -142,18 +142,33 @@
             [cycleLength]="currentCycleLength"
             [periodLength]="periodLength"
             [lastPeriodStart]="lastPeriodStartIso"
-            [periodHighlightDay]="getChartPeriodHighlightDay()"
           />
         </div>
         @if (!showStartTrackingOnboarding()) {
-        <p
+        <div
           class="cycle-today-advice"
           role="status"
           aria-live="polite"
           [class.cycle-today-advice--period]="getCyclePhaseTone() === 'period'"
         >
-          {{ getCycleTodayAdvice() }}
-        </p>
+          <p class="cycle-today-advice__text">
+            {{
+              isCycleTodayAdviceLong()
+                ? getCycleTodayAdvicePreview()
+                : getCycleTodayAdvice()
+            }}
+          </p>
+          @if (isCycleTodayAdviceLong()) {
+          <button
+            type="button"
+            class="cycle-today-advice__continue"
+            (click)="openCycleTodayAdviceStory()"
+            [attr.aria-label]="'home.a11y.readFullCycleAdvice' | translate"
+          >
+            {{ "home.common.continue" | translate }}
+          </button>
+          }
+        </div>
         }
       </div>
 

@@ -334,7 +334,6 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
     this.onboardingService.getOnboardingData(sessionId).subscribe({
       next: (res) => {
         this.onboardingData.set(res.data);
-        console.log('Onboarding data loaded:', res);
       },
       error: (err) => {
         console.error('Error loading onboarding data:', err);

@@ -10,15 +10,14 @@
   [attr.aria-busy]="loading() ? 'true' : null"
   (click)="onClick($event)"
 >
-  @if (loading()) {
-    <ion-spinner
-      class="app-button__spinner"
-      name="crescent"
-      slot="start"
-      aria-hidden="true"
-    ></ion-spinner>
-  }
-  <span class="app-button__label">
+  <span class="app-button__label" [class.app-button__label--loading]="loading()">
+    @if (loading()) {
+      <ion-spinner
+        class="app-button__spinner"
+        name="crescent"
+        aria-hidden="true"
+      ></ion-spinner>
+    }
     <ng-content></ng-content>
   </span>
 </ion-button>

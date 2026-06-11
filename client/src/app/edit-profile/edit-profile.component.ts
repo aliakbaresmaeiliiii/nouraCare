@@ -938,11 +938,9 @@ export class EditProfileComponent implements OnInit {
         updatedAt: new Date().toISOString(),
       };
 
-      console.log('🔄 Updating UserInfoService with new data:', updatedUserInfo);
       this.userInfoService.userInfo.set(updatedUserInfo);
       localStorage.setItem('userInfo', JSON.stringify(updatedUserInfo));
     } else {
-      console.log('⚠️ No current user info found, creating new one');
       const newUserInfo = {
         id: 1,
         userId: 1,
@@ -956,7 +954,6 @@ export class EditProfileComponent implements OnInit {
         updatedAt: new Date().toISOString(),
       };
 
-      console.log('🆕 Creating new user info:', newUserInfo);
       this.userInfoService.userInfo.set(newUserInfo);
       localStorage.setItem('userInfo', JSON.stringify(newUserInfo));
     }
@@ -1018,54 +1015,19 @@ export class EditProfileComponent implements OnInit {
   }
 
   checkCropperState(): void {
-    const canvas = this.cropPreviewCanvas?.nativeElement;
-    console.log('Cropper state:', {
-      showCropper: this.showCropper,
-      canvas: !!canvas,
-    });
-
-    if (canvas) {
-      console.log('Canvas details:', {
-        width: canvas.width,
-        height: canvas.height,
-        styleWidth: canvas.style.width,
-        styleHeight: canvas.style.height,
-        offsetWidth: canvas.offsetWidth,
-        offsetHeight: canvas.offsetHeight,
-        visible: canvas.offsetWidth > 0 && canvas.offsetHeight > 0,
-      });
-    }
+    // Debug helper — intentionally no-op in production
   }
 
  
 
   testImageDisplay(): void {
-    console.log('Testing image display...');
-    console.log('Current profileImage:', this.profileImage);
-    console.log('Form profileImage value:', this.form.get('profileImage')?.value);
-
     const testImage = 'https://ionicframework.com/docs/img/demos/avatar.svg';
     this.profileImage = testImage;
     this.form.patchValue({ profileImage: testImage });
-
-    console.log('Test image set:', this.profileImage);
   }
 
   checkImageVisibility(): void {
-    const imgElement = document.querySelector('.avatar-image') as HTMLImageElement;
-    if (imgElement) {
-      console.log('Image element found:', {
-        src: imgElement.src,
-        width: imgElement.width,
-        height: imgElement.height,
-        naturalWidth: imgElement.naturalWidth,
-        naturalHeight: imgElement.naturalHeight,
-        style: imgElement.style.cssText,
-        visible: imgElement.offsetWidth > 0 && imgElement.offsetHeight > 0,
-      });
-    } else {
-      console.log('Image element not found');
-    }
+    // Debug helper — intentionally no-op in production
   }
 
   getCurrentStatus(): string | null {
@@ -1094,7 +1056,6 @@ export class EditProfileComponent implements OnInit {
   }
 
   initializeFormWithDefaults(): void {
-    console.log('Initializing form with defaults...');
     this.form.patchValue({
       status: null,
       profileImage: '',
@@ -1104,7 +1065,6 @@ export class EditProfileComponent implements OnInit {
     });
     this.profileContactSnapshot = { fullName: '', email: '', dateOfBirth: '' };
     this.displayEmail = '';
-    console.log('Form after initialization:', this.form.value);
   }
 
   triggerFormInit(): void {

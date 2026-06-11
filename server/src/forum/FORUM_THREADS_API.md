@@ -1,6 +1,6 @@
 # Forum Threads API Documentation
 
-This API provides endpoints for managing forum threads (topics) in the NouraCare application.
+This API provides endpoints for managing forum threads (topics) in the DoreHealth application.
 
 ## Base URL
 ```

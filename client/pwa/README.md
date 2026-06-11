@@ -1,12 +1,12 @@
-# NouraCare PWA (iOS & Web)
+# DoreHealth PWA (iOS & Web)
 
 The PWA lives inside the same `client/` Ionic app — no separate frontend project is required. Build output goes to `dist/app/` and is hosted over **HTTPS** (required for iOS “Add to Home Screen”).
 
 ## Why PWA?
 
-App Store / Play Store distribution is limited in some regions. A PWA lets iPhone users install NouraCare from Safari:
+App Store / Play Store distribution is limited in some regions. A PWA lets iPhone users install DoreHealth from Safari:
 
-1. Open `https://app.nouracare.com` (or your Firebase Hosting URL)
+1. Open `https://app.dorehealth.app` (or your Firebase Hosting URL)
 2. Tap **Share** → **Add to Home Screen**
 3. Launch like a native app (standalone, full screen)
 
@@ -28,7 +28,7 @@ Firebase Hosting config: `client/firebase.json` (serves `dist/app`).
 | `src/manifest.webmanifest` | Install metadata, theme colors, icons |
 | `ngsw-config.json` | Offline caching for JS/CSS/assets |
 | `src/assets/icon/` | PWA + Apple touch icons |
-| `src/assets/pwa/source-icon.svg` | Master icon for regeneration |
+| `src/assets/branding/logo.png` | Master icon for regeneration (`npm run icons:pwa`) |
 | `scripts/generate-pwa-icons.mjs` | Icon generator |
 
 ## iOS notes

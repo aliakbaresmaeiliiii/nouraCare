@@ -302,7 +302,7 @@ export class ChatbotComponent implements OnInit {
       );
     } else {
       this.addBotMessage(
-        "I'm here for women's health and how to use NouraCare. You can ask about:\n\n" +
+        "I'm here for women's health and how to use DoreHealth. You can ask about:\n\n" +
           '• Periods and cycle tracking\n' +
           '• Pregnancy support\n' +
           '• Stress, mood, and sleep\n' +

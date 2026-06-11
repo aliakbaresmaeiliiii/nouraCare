@@ -273,7 +273,7 @@
   margin-top: 2px;
   gap: 0.65rem;
   width: 100%;
-  max-width: min(calc(100vw - 2.25rem), 304px);
+  max-width: min(calc(100vw - 2.25rem), var(--home-preg-hero-max, 304px));
   margin-inline: auto;
   box-sizing: border-box;
 }
@@ -711,15 +711,16 @@
 .pregnancy-daily-insights {
   position: relative;
   z-index: 2;
-  margin-top: var(--home-section-gap, var(--app-space-6));
+  margin-top: var(--home-block-gap, var(--app-space-4));
 }
 
 .pregnancy-daily-insights-title {
   margin: 0 0 var(--home-title-gap, var(--app-space-3));
-  font-size: 1.02rem;
+  font-size: 0.95rem;
   font-weight: 800;
   color: #141414;
   letter-spacing: -0.01em;
+  line-height: 1.25;
 }
 
 .pregnancy-insight-cards {
@@ -912,12 +913,13 @@
 .pds-strip {
   display: flex;
   flex-direction: row;
-  gap: 0.85rem;
+  align-items: stretch;
+  gap: 0.65rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  padding: 0.15rem 0 var(--app-space-2);
+  padding: 0.1rem 0 0.15rem;
   margin-inline: calc(-1 * var(--app-side-padding, 1rem));
   padding-inline: var(--app-side-padding, 1rem);
   scrollbar-width: none;
@@ -938,10 +940,10 @@
   overflow: hidden;
   flex: 0 0 auto;
   scroll-snap-align: start;
-  width: 136px;
-  min-height: 176px;
-  border-radius: 22px;
-  padding: 0.65rem 0.58rem 0.65rem;
+  width: var(--pds-card-width, 136px);
+  min-height: var(--pds-card-min-height, 176px);
+  border-radius: 20px;
+  padding: 0.55rem 0.5rem 0.55rem;
   box-sizing: border-box;
   border: 1px solid rgba(255, 255, 255, 0.88);
   background: rgba(255, 255, 255, 0.9);
@@ -1156,7 +1158,7 @@
 }
 
 .pds-card--personalized {
-  width: 148px;
+  width: calc(var(--pds-card-width, 136px) + 12px);
   text-align: start;
   padding: 0.7rem 0.68rem 0.58rem;
   background: linear-gradient(
@@ -1215,7 +1217,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--home-inline-gap, var(--app-space-3));
-  margin-top: var(--home-block-gap, var(--app-space-4));
+  margin-top: var(--home-section-gap, var(--app-space-6));
   padding-inline: 0;
 }
 
@@ -2448,6 +2450,138 @@
     &:active {
       transform: none;
     }
+  }
+}
+
+@media (max-width: 480px), (max-height: 820px) {
+  .pregnancy-calendar-swiper {
+    margin-bottom: var(--app-space-2);
+    padding-bottom: 0.15rem;
+  }
+
+  .pregnancy-calendar-week {
+    padding-block: 0.2rem;
+    gap: 0.1rem;
+  }
+
+  .pregnancy-calendar-col {
+    gap: 0.2rem;
+    padding-block: 0.15rem;
+  }
+
+  .pregnancy-hero-wrap {
+    gap: 0.45rem;
+  }
+
+  .pregnancy-hero-disk {
+    padding: 0.5rem 0.65rem 0.55rem;
+  }
+
+  .pregnancy-hero-disk--illustration {
+    padding: 0.55rem 0.65rem 0.5rem;
+  }
+
+  .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-circle--svg {
+    width: min(88%, 148px);
+  }
+
+  .pregnancy-hero-details-btn {
+    padding: 0.42rem 1.35rem;
+    font-size: 0.82rem;
+  }
+
+  .pregnancy-hero-summary-badge {
+    width: 3.25rem;
+    height: 3.25rem;
+  }
+
+  .pregnancy-hero-summary-badge__num {
+    font-size: 1.28rem;
+  }
+
+  .pds-strip {
+    gap: 0.55rem;
+  }
+
+  .pds-card--summary {
+    padding-bottom: 0.7rem;
+  }
+
+  .pds-summary-stack {
+    top: 0.65rem;
+    width: 82px;
+    height: 46px;
+  }
+
+  .pds-summary-orb {
+    width: 38px;
+    height: 38px;
+
+    ion-icon {
+      font-size: 1rem;
+    }
+  }
+
+  .pds-summary-orb--b {
+    left: 22px;
+  }
+
+  .pds-summary-orb--c {
+    left: 44px;
+    font-size: 0.66rem;
+  }
+
+  .pds-summary-story-btn {
+    bottom: 3.2rem;
+  }
+
+  .pds-summary-plus {
+    width: 2.55rem;
+    height: 2.55rem;
+
+    ion-icon {
+      font-size: 1.4rem;
+    }
+  }
+
+  .pds-topic-label {
+    margin-bottom: 0.28rem;
+    font-size: 0.54rem;
+  }
+
+  .pds-topic-icon-ring {
+    width: 2.45rem;
+    height: 2.45rem;
+    margin-bottom: 0.35rem;
+    border-radius: 14px;
+
+    ion-icon {
+      font-size: 1.15rem;
+    }
+  }
+
+  .pds-topic-inner {
+    padding: 0.32rem 0.3rem;
+    border-radius: 12px;
+  }
+
+  .pds-topic-teaser {
+    font-size: 0.66rem;
+    -webkit-line-clamp: 3;
+  }
+
+  .pds-card--personalized {
+    width: calc(var(--pds-card-width, 118px) + 8px);
+    padding: 0.55rem 0.52rem 0.48rem;
+  }
+
+  .pds-personal-copy {
+    font-size: 0.66rem;
+  }
+
+  .pds-action-tile {
+    min-height: 3.85rem;
+    padding: 0.62rem 0.58rem;
   }
 }
 

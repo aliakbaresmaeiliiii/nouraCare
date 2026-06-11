@@ -20,7 +20,6 @@ export class SearchModalComponent implements OnInit {
   @Input() set items(value: SearchItem[]) {
     this._items = value || [];
     this.updateFilteredItems();
-    console.log('SearchModal items set:', this._items);
   }
   
   get items(): SearchItem[] {
@@ -42,7 +41,6 @@ export class SearchModalComponent implements OnInit {
 
   private updateFilteredItems() {
     this.filteredItems = [...this.items];
-    console.log('SearchModal filteredItems updated:', this.filteredItems);
   }
 
   cancelChanges() {

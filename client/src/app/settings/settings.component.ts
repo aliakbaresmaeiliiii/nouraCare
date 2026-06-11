@@ -342,7 +342,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       id: 'about',
 
-      titleKey: 'menu.aboutNouracare',
+      titleKey: 'menu.aboutDoreHealth',
 
       subtitleKey: 'settings.about.subtitle',
 
@@ -754,15 +754,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   sendFeedback() {
 
-    const subject = encodeURIComponent('NouraCare App Feedback');
+    const subject = encodeURIComponent('DoreHealth App Feedback');
 
     const body = encodeURIComponent(
 
-      'Hi NouraCare team,\n\nI would like to share the following feedback:\n\n',
+      'Hi DoreHealth team,\n\nI would like to share the following feedback:\n\n',
 
     );
 
-    window.open(`mailto:support@nouracare.app?subject=${subject}&body=${body}`);
+    window.open(`mailto:support@dorehealth.app?subject=${subject}&body=${body}`);
 
   }
 

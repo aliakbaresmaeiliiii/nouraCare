@@ -12,13 +12,13 @@
 const BACKEND_PROFILES = {
   /** Home Wi‑Fi — API running on your LAN PC (update IP with `ipconfig`) */
   // house: '10.55.243.237',
-  house: '10.55.243.237',
+  house: '192.168.1.143',
   /** Phone hotspot — use your laptop IP as seen on the hotspot */
   phone: '172.20.10.2',
   /** Redmi Note 14 — API running on your Redmi Note 14 */
   RedmiNote14: '10.42.0.177',
   
-  coffee: '192.168.1.14',
+  coffee: '192.168.1.10',
   /** phone pedar (e.g. café) */
   phonePedar: '10.209.157.237',
 } as const;
@@ -27,7 +27,7 @@ const BACKEND_PROFILES = {
  * Set to `house`, `phone`, or `coffee` to switch where API requests go.
  * Used by `ng serve` and `npm run cap:sync:mobile` (not plain `ng build`, which uses production API).
  */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'house';
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'coffee';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';
@@ -74,18 +74,18 @@ export const environment = {
   googleIOSClientId: '',
 
   /** Capacitor appId — iOS Sign in with Apple. */
-  appleBundleId: 'com.tecknnycs.nouracare',
+  appleBundleId: 'com.tecknnycs.dorehealth',
   /** Apple Services ID (Android / web). Create in Apple Developer. */
-  appleServiceId: 'com.tecknnycs.nouracare.signin',
+  appleServiceId: 'com.tecknnycs.dorehealth.signin',
   /** Apple redirect URL for web/Android (must match Apple Developer config). */
-  appleRedirectUrl: 'https://api.nouracare.com/auth/apple/callback',
+  appleRedirectUrl: 'https://api.dorehealth.app/auth/apple/callback',
   /** Temporarily hide/disable Sign in with Apple on auth screens. */
   appleSignInEnabled: false,
 
-  privacyPolicyUrl: 'https://nouracare.com/privacy',
+  privacyPolicyUrl: 'https://dorehealth.app/privacy',
 
   /** App metadata only — does NOT start the dev server. Use `npm start` + your PC IP:4200 on phone. */
-  pwaInstallUrl: 'http://10.55.243.237:4200',
+  pwaInstallUrl: 'http://192.168.1.10:4200',
 
   // Firebase (optional — uncomment in environment.prod.ts when needed)
   firebaseConfig: {

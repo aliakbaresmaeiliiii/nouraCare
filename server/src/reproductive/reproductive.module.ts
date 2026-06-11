@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module';
+import { MenstrualModule } from './menstrual/menstrual.module';
 import { ReproductiveStateService } from './reproductive-state.service';
 import { ReproductiveStateController } from './reproductive-state.controller';
 import { CycleService } from './services/cycle.service';
@@ -8,7 +9,7 @@ import { PregnancyService } from './services/pregnancy.service';
 import { MenopauseService } from './services/menopause.service';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, MenstrualModule],
   providers: [
     ReproductiveStateService,
     CycleService,
@@ -17,6 +18,6 @@ import { MenopauseService } from './services/menopause.service';
     MenopauseService,
   ],
   controllers: [ReproductiveStateController],
-  exports: [ReproductiveStateService],
+  exports: [ReproductiveStateService, MenstrualModule],
 })
 export class ReproductiveModule {}

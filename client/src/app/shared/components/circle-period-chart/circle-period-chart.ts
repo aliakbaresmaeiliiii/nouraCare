@@ -29,6 +29,12 @@ import {
   weekStripDayOfMonth,
   weekStripWeekdayShort,
 } from '../../utils/locale-date-format.util';
+import {
+  cycleDayFromLmpIso,
+  localMidnight,
+  parseCycleViewDateKey,
+  toCycleViewDateKey,
+} from '../../utils/cycle-day.util';
 
 export interface Segment {
   label: string;
@@ -69,11 +75,6 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
   @Input() periodLength: number = 5; // menstruation length in days
   /** ISO date (YYYY-MM-DD) for cycle ring anchor; kept in sync with {@link CycleSettingsService}. */
   @Input() lastPeriodStart: string | null = null;
-  /**
-   * Optional 1-based period day (1…periodLength) from Home stats — keeps ring numerals
-   * in sync when the user logs a period (especially when start date is today).
-   */
-  @Input() periodHighlightDay: number | null = null;
   /** When true, shows the Mon–Sun week strip above the ring (cycle home). */
   @Input() showWeekStrip = true;
 
@@ -176,10 +177,6 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
   getActivePeriodMarkerDay(): number | null {
     if (!this.startDate) {
       return null;
-    }
-    const parentDay = this.normalizePeriodHighlightDay(this.periodHighlightDay);
-    if (parentDay != null && this.viewingCalendarToday()) {
-      return parentDay;
     }
     const cycleDay = this.viewCycleDay;
     if (cycleDay >= 1 && cycleDay <= this.periodLength) {
@@ -336,8 +333,14 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
       this.periodDays = 0;
       return;
     }
-    const start = new Date(this.startDate);
-    const end = new Date(this.endDate);
+    const start = new Date(
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
+    );
+    const end = new Date(
+      this.endDate.includes('T') ? this.endDate : `${this.endDate}T12:00:00`,
+    );
     const diff =
       Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
@@ -376,9 +379,6 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
       }
       this.syncWeekCalendarSelectionFromStartDate();
       this.focusTodayWhenInActivePeriod();
-    }
-    if (changes['periodHighlightDay']) {
-      this.cdr.markForCheck();
     }
     this.recomputeEverything();
   }
@@ -664,7 +664,6 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
 
   editCycle() {
     this.showCalendar = true;
-    console.log('Edit cycle clicked!');
   }
 
   openButtonSheet() {
@@ -689,7 +688,9 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
 
   // --- helpers & recompute ---
   private addDaysToIso(isoDate: string, daysToAdd: number): string {
-    const d = new Date(isoDate);
+    const d = new Date(
+      isoDate.includes('T') ? isoDate : `${isoDate}T12:00:00`,
+    );
     d.setDate(d.getDate() + daysToAdd);
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -1035,7 +1036,7 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
         );
         const uD = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
         const isToday = uD === uToday;
-        const isoKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        const isoKey = toCycleViewDateKey(d);
         const dayRow = {
           fullDate: d,
           isToday,
@@ -1191,7 +1192,7 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
       return false;
     }
     const nextOv = this.nextOvulationCalendarOnOrAfter(
-      this.localMidnight(new Date()),
+      localMidnight(new Date()),
     );
     if (!nextOv) {
       return false;
@@ -1294,24 +1295,12 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
 
   private getSelectedStripCalendarDate(): Date {
     if (this.weekCalendarSelectedIsoKey) {
-      const parsed = this.parseWeekCalendarIsoKey(
-        this.weekCalendarSelectedIsoKey,
-      );
+      const parsed = parseCycleViewDateKey(this.weekCalendarSelectedIsoKey);
       if (parsed) {
         return parsed;
       }
     }
-    return this.localMidnight(new Date());
-  }
-
-  private parseWeekCalendarIsoKey(key: string): Date | null {
-    const parts = key.split('-').map((p) => Number(p));
-    if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) {
-      return null;
-    }
-    const d = new Date(parts[0], parts[1], parts[2]);
-    d.setHours(0, 0, 0, 0);
-    return d;
+    return localMidnight(new Date());
   }
 
   /** Same index as the ring; falls back when `recomputeEverything` yields 0 for very short cycles. */
@@ -1320,10 +1309,6 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
       return this.ovulationDay;
     }
     return Math.max(1, this.cycleLength - 14);
-  }
-
-  private localMidnight(d: Date): Date {
-    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
   }
 
   private startDateLocalMidnight(): Date | null {
@@ -1357,7 +1342,7 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
     if (ov < 1) {
       return null;
     }
-    const fromMid = this.localMidnight(from);
+    const fromMid = localMidnight(from);
     let candidate = new Date(start);
     candidate.setDate(candidate.getDate() + (ov - 1));
     while (candidate.getTime() < fromMid.getTime()) {
@@ -1370,7 +1355,7 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
     if (!this.startDate) {
       return null;
     }
-    const today = this.localMidnight(new Date());
+    const today = localMidnight(new Date());
     const nextOv = this.nextOvulationCalendarOnOrAfter(today);
     if (!nextOv) {
       return null;
@@ -1383,20 +1368,8 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
     if (!this.startDate) {
       return null;
     }
-    const start = new Date(
-      this.startDate.includes('T')
-        ? this.startDate
-        : `${this.startDate}T12:00:00`,
-    );
-    start.setHours(0, 0, 0, 0);
-    const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    t.setHours(0, 0, 0, 0);
-    const diffDays = Math.floor(
-      (t.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
-    );
-    const mod =
-      ((diffDays % this.cycleLength) + this.cycleLength) % this.cycleLength;
-    return mod + 1;
+    const day = cycleDayFromLmpIso(this.startDate, d, this.cycleLength);
+    return day >= 1 ? day : null;
   }
 
   async onWeekDayPick(d: { isToday: boolean; isoKey: string; fullDate: Date }): Promise<void> {
@@ -1434,7 +1407,7 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
     if (!this.startDate) {
       return;
     }
-    const today = this.localMidnight(new Date());
+    const today = localMidnight(new Date());
     const todayCycleDay = this.cycleDayForCalendarDate(today);
     if (
       todayCycleDay == null ||
@@ -1444,34 +1417,32 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
       return;
     }
     const pinned = this.cycleSettings.selectedCycleViewDate();
-    if (pinned) {
-      const pinnedDate = this.parseWeekCalendarIsoKey(pinned);
-      if (pinnedDate) {
-        const pinnedCycleDay = this.cycleDayForCalendarDate(pinnedDate);
-        if (
-          pinnedCycleDay != null &&
-          pinnedCycleDay >= 1 &&
-          pinnedCycleDay <= this.periodLength
-        ) {
-          return;
-        }
-      }
+    if (!pinned) {
+      this.weekCalendarSelectedIsoKey = null;
+      return;
     }
-    this.weekCalendarSelectedIsoKey = null;
-    if (pinned) {
+    const pinnedDate = parseCycleViewDateKey(pinned);
+    if (!pinnedDate) {
+      this.weekCalendarSelectedIsoKey = null;
       this.cycleSettings.setSelectedCycleViewDate(null);
+      return;
     }
-  }
-
-  private normalizePeriodHighlightDay(value: number | null): number | null {
-    if (value == null || !Number.isFinite(value)) {
-      return null;
+    if (this.sameLocalCalendarDay(pinnedDate, today)) {
+      this.weekCalendarSelectedIsoKey = pinned;
+      return;
     }
-    const day = Math.round(Number(value));
-    if (day < 1 || day > this.periodLength) {
-      return null;
+    const pinnedCycleDay = this.cycleDayForCalendarDate(pinnedDate);
+    // Drop stale future strip pins (e.g. day 4 highlighted when today is day 1).
+    if (
+      pinnedCycleDay != null &&
+      pinnedCycleDay > todayCycleDay &&
+      pinnedCycleDay <= this.periodLength
+    ) {
+      this.weekCalendarSelectedIsoKey = null;
+      this.cycleSettings.setSelectedCycleViewDate(null);
+      return;
     }
-    return day;
+    this.weekCalendarSelectedIsoKey = pinned;
   }
 
   /**
@@ -1563,7 +1534,7 @@ export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDe
 
     // compute today cycle day relative to last period start (1-based)
     if (this.startDate) {
-      const cd = this.cycleDayForCalendarDate(this.todayDate);
+      const cd = this.cycleDayForCalendarDate(localMidnight(this.todayDate));
       this.todayCycleDay = cd != null && cd >= 1 ? cd : 1;
     } else {
       // fallback: keep current day index within cycle length (not ideal but avoids NaN)

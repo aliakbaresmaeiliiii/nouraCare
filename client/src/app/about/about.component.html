@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ 'menu.aboutNouracare' | translate }}</ion-title>
+    <ion-title>{{ 'menu.aboutDoreHealth' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         fill="clear"
@@ -20,9 +20,16 @@
   <div class="about-hero">
     <div class="hero-content">
       <div class="app-logo">
-        <ion-icon name="heart" class="logo-icon"></ion-icon>
+        <img
+          src="assets/branding/logo.png"
+          [attr.alt]="'about.hero.title' | translate"
+          width="80"
+          height="80"
+          class="app-logo__img"
+          decoding="async"
+        />
       </div>
-      <h1 class="hero-title">NouraCare</h1>
+      <h1 class="hero-title">{{ 'about.hero.title' | translate }}</h1>
       <p class="hero-subtitle">{{ 'about.hero.subtitle' | translate }}</p>
       <div class="app-version">
         <span class="version-text">{{ versionLabel }}</span>

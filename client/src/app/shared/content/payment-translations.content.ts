@@ -78,7 +78,7 @@ const PAYMENT_FA: Record<string, string> = {
   'payment.method.online.title': 'پرداخت اینترنتی',
   'payment.method.online.subtitle': 'پرداخت با تمامی کارت‌های بانکی (شاپرک)',
   'payment.method.online.badge': 'پیشنهادی',
-  'payment.method.wallet.title': 'کیف پول نورا',
+  'payment.method.wallet.title': 'کیف پول دوره',
   'payment.method.wallet.subtitle': 'پرداخت سریع از موجودی کیف پول',
   'payment.method.snappPay.title': 'اسنپ‌پی',
   'payment.method.snappPay.subtitle': 'پرداخت در ۴ قسط بدون بهره',

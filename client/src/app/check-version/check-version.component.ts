@@ -98,7 +98,7 @@ export class CheckVersionComponent implements OnInit {
         ],
         isUpdateAvailable: true,
         downloadUrl:
-          'https://play.google.com/store/apps/details?id=com.tecknnycs.nouracare',
+          'https://play.google.com/store/apps/details?id=com.tecknnycs.dorehealth',
       };
       this.lastChecked = new Date().toLocaleString();
       this.refreshLabels();

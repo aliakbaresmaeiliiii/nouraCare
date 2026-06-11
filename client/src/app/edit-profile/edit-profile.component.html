@@ -210,7 +210,7 @@
         </ion-toolbar>
         <p class="edit-profile-dob-range-hint">{{ dobPickerRangeHint }}</p>
         @if (isPersianLanguage) {
-          <ion-picker class="edit-profile-dob-wheel">
+          <ion-picker class="edit-profile-dob-wheel jalali-date-picker">
             <ion-picker-column
               [value]="jalaliDobDay"
               (ionChange)="onJalaliDobColumnChange($event, 'day')"

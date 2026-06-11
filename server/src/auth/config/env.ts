@@ -35,7 +35,7 @@ export const env = {
   DB_PORT: Number(process.env.DB_PORT || 3306),
   DB_USER: process.env.DB_USER || 'root',
   DB_PASSWORD: dbPassword || '',
-  DB_NAME: process.env.DB_NAME || 'nouracare',
+  DB_NAME: process.env.DB_NAME || 'dorehealth',
   JWT_SECRET:
     jwtSecret ||
     (isProduction ? '' : 'dev-only-change-me-not-for-production'),

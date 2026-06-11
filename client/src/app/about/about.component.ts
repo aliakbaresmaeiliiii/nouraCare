@@ -161,7 +161,7 @@ export class AboutComponent implements OnInit, OnDestroy {
     {
       id: 'instagram',
       nameKey: 'about.social.instagram',
-      handle: '@nouracare',
+      handle: '@dorehealth',
       icon: 'logo-instagram',
       cssClass: 'instagram',
       url: 'https://instagram.com/gahvare',
@@ -169,7 +169,7 @@ export class AboutComponent implements OnInit, OnDestroy {
     {
       id: 'facebook',
       nameKey: 'about.social.facebook',
-      handle: '@nouracare',
+      handle: '@dorehealth',
       icon: 'logo-facebook',
       cssClass: 'facebook',
       url: 'https://facebook.com/gahvare',
@@ -177,7 +177,7 @@ export class AboutComponent implements OnInit, OnDestroy {
     {
       id: 'twitter',
       nameKey: 'about.social.twitter',
-      handle: '@nouracare',
+      handle: '@dorehealth',
       icon: 'logo-twitter',
       cssClass: 'twitter',
       url: 'https://twitter.com/gahvare',
@@ -185,7 +185,7 @@ export class AboutComponent implements OnInit, OnDestroy {
     {
       id: 'youtube',
       nameKey: 'about.social.youtube',
-      handle: '@nouracare',
+      handle: '@dorehealth',
       icon: 'logo-youtube',
       cssClass: 'youtube',
       url: 'https://youtube.com/gahvare',

@@ -1,6 +1,6 @@
 # Forum Module
 
-This module provides forum functionality for the NouraCare application, including forum categories, forums, threads, and posts.
+This module provides forum functionality for the DoreHealth application, including forum categories, forums, threads, and posts.
 
 ## Database Schema
 

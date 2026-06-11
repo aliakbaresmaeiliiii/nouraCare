@@ -1,4 +1,4 @@
-const PAGE_UI_EN: Record<string, string> = {
+﻿const PAGE_UI_EN: Record<string, string> = {
   // blockedUsers
   'blockedUsers.title': 'Blocked Users',
   'blockedUsers.loading': 'Loading blocked users...',
@@ -265,6 +265,9 @@ const PAGE_UI_EN: Record<string, string> = {
   'pregnancyMode.dueDate': 'Due date',
   'pregnancyMode.multipleBabies': 'Are you having more than one baby?',
   'pregnancyMode.removePregnancy': 'Remove pregnancy information',
+  'pregnancyMode.deleteConfirmHeader': 'Delete pregnancy info',
+  'pregnancyMode.deleteConfirmMessage':
+    'This will permanently delete all pregnancy data from DoreHealth.',
   'pregnancyMode.save': 'Save',
 
   // pregnancyPlanning
@@ -301,7 +304,7 @@ const PAGE_UI_EN: Record<string, string> = {
     'Continue to track your pregnancy journey and get personalized insights',
 
   // chatbot
-  'chatbot.title': 'NouraCare Assistant',
+  'chatbot.title': 'DoreHealth Assistant',
   'chatbot.clearChatAria': 'Clear chat',
   'chatbot.typingAria': 'Assistant is typing',
   'chatbot.quickStart': 'Quick start',
@@ -391,22 +394,23 @@ const PAGE_UI_EN: Record<string, string> = {
   'checkVersion.getUpdate': 'Get the update',
   'checkVersion.upToDate': 'You are up to date',
   'checkVersion.upToDateMessage':
-    'You already have the latest NouraCare version for this device.',
+    'You already have the latest DoreHealth version for this device.',
   'checkVersion.lastChecked': 'Last checked: {{time}}',
   'checkVersion.checkAgain': 'Check again',
 
   // pwa
   'pwa.installHint':
-    'Install NouraCare: tap Share, then "Add to Home Screen".',
+    'Install DoreHealth: tap Share, then "Add to Home Screen".',
   'pwa.dismiss': 'Dismiss install hint',
 
   // onboarding
-  'onboarding.welcome.brandAlt': 'NouraCare app icon',
+  'onboarding.welcome.brandAlt': 'DoreHealth app icon',
+  'onboarding.welcome.brandName': 'DoreHealth',
   'onboarding.welcome.getStarted': 'Get started',
   'onboarding.welcome.footnote':
     'Takes about a minute · Private on this device until you sign in',
-  'onboarding.welcome.title': 'Welcome to NouraCare',
-  'onboarding.welcome.subtitle': 'Health support that fits your life',
+  'onboarding.welcome.title': 'Welcome to DoreHealth',
+  'onboarding.welcome.subtitle': 'Understand your body, every day',
   'onboarding.welcome.question':
     'In a few quick steps we will personalize your calendar, reminders, and insights. Nothing here replaces care from your clinician.',
   'onboarding.pregnancyStatus.title': 'Which stage are you in?',
@@ -529,8 +533,8 @@ const PAGE_UI_EN: Record<string, string> = {
   'secretChats.toast.needChatMember': 'You need to be a member of a chat to create posts',
 
   'chatbot.welcome':
-    "Hello! I'm the NouraCare assistant. I can help with menstrual health, pregnancy, wellness, and how to use the app. How can I help today?",
-  'chatbot.welcomeLink': 'Learn more about NouraCare',
+    "Hello! I'm the DoreHealth assistant. I can help with menstrual health, pregnancy, wellness, and how to use the app. How can I help today?",
+  'chatbot.welcomeLink': 'Learn more about DoreHealth',
   'chatbot.quickReply.periodTracking': 'Period tracking help',
   'chatbot.quickReply.healthTips': 'Health tips',
   'chatbot.quickReply.pregnancySupport': 'Pregnancy support',
@@ -875,6 +879,8 @@ const PAGE_UI_ZH: Record<string, string> = {
   'pregnancyMode.dueDate': '预产期',
   'pregnancyMode.multipleBabies': '您是否怀有多胎？',
   'pregnancyMode.removePregnancy': '移除怀孕信息',
+  'pregnancyMode.deleteConfirmHeader': '删除怀孕信息',
+  'pregnancyMode.deleteConfirmMessage': '这将永久删除 DoreHealth 中的所有怀孕数据。',
   'pregnancyMode.save': '保存',
 
   'pregnancyPlanning.title': '备孕规划',
@@ -902,7 +908,7 @@ const PAGE_UI_ZH: Record<string, string> = {
   'pregnancyPlanning.nextStep': '下一步',
   'pregnancyPlanning.nextStepNote': '继续追踪孕期旅程，获取个性化洞察',
 
-  'chatbot.title': 'NouraCare 助手',
+  'chatbot.title': 'DoreHealth 助手',
   'chatbot.clearChatAria': '清空聊天',
   'chatbot.typingAria': '助手正在输入',
   'chatbot.quickStart': '快速开始',
@@ -980,18 +986,18 @@ const PAGE_UI_ZH: Record<string, string> = {
   'checkVersion.whatsNew': '更新内容',
   'checkVersion.getUpdate': '获取更新',
   'checkVersion.upToDate': '已是最新版本',
-  'checkVersion.upToDateMessage': '您已安装此设备可用的最新 NouraCare 版本。',
+  'checkVersion.upToDateMessage': '您已安装此设备可用的最新 DoreHealth 版本。',
   'checkVersion.lastChecked': '上次检查：{{time}}',
   'checkVersion.checkAgain': '再次检查',
 
   // pwa
-  'pwa.installHint': '安装 NouraCare：点分享，然后“添加到主屏幕”。',
+  'pwa.installHint': '安装 DoreHealth：点分享，然后“添加到主屏幕”。',
   'pwa.dismiss': '关闭安装提示',
 
-  'onboarding.welcome.brandAlt': 'NouraCare 应用图标',
+  'onboarding.welcome.brandAlt': 'DoreHealth 应用图标',
   'onboarding.welcome.getStarted': '开始使用',
   'onboarding.welcome.footnote': '约需一分钟 · 登录前数据仅保存在本设备',
-  'onboarding.welcome.title': '欢迎使用 NouraCare',
+  'onboarding.welcome.title': '欢迎使用 DoreHealth',
   'onboarding.welcome.subtitle': '贴合您生活的健康支持',
   'onboarding.welcome.question':
     '只需几步，我们将为您定制日历、提醒与洞察。此处内容不能替代临床医疗建议。',
@@ -1407,6 +1413,9 @@ const PAGE_UI_MS: Record<string, string> = {
   'pregnancyMode.dueDate': 'Tarikh jangka',
   'pregnancyMode.multipleBabies': 'Adakah anda hamil lebih daripada seorang bayi?',
   'pregnancyMode.removePregnancy': 'Buang maklumat kehamilan',
+  'pregnancyMode.deleteConfirmHeader': 'Padam maklumat kehamilan',
+  'pregnancyMode.deleteConfirmMessage':
+    'Ini akan memadamkan semua data kehamilan dari DoreHealth secara kekal.',
   'pregnancyMode.save': 'Simpan',
 
   'pregnancyPlanning.title': 'Perancangan kehamilan',
@@ -1439,7 +1448,7 @@ const PAGE_UI_MS: Record<string, string> = {
   'pregnancyPlanning.nextStepNote':
     'Teruskan jejak perjalanan kehamilan dan dapatkan pandangan peribadi',
 
-  'chatbot.title': 'Pembantu NouraCare',
+  'chatbot.title': 'Pembantu DoreHealth',
   'chatbot.clearChatAria': 'Kosongkan sembang',
   'chatbot.typingAria': 'Pembantu sedang menaip',
   'chatbot.quickStart': 'Mula pantas',
@@ -1521,20 +1530,20 @@ const PAGE_UI_MS: Record<string, string> = {
   'checkVersion.getUpdate': 'Dapatkan kemas kini',
   'checkVersion.upToDate': 'Anda sudah terkini',
   'checkVersion.upToDateMessage':
-    'Anda sudah mempunyai versi NouraCare terkini untuk peranti ini.',
+    'Anda sudah mempunyai versi DoreHealth terkini untuk peranti ini.',
   'checkVersion.lastChecked': 'Terakhir disemak: {{time}}',
   'checkVersion.checkAgain': 'Semak semula',
 
   // pwa
   'pwa.installHint':
-    'Pasang NouraCare: ketik Kongsi, kemudian "Tambah ke Skrin Utama".',
+    'Pasang DoreHealth: ketik Kongsi, kemudian "Tambah ke Skrin Utama".',
   'pwa.dismiss': 'Tutup petunjuk pemasangan',
 
-  'onboarding.welcome.brandAlt': 'Ikon aplikasi NouraCare',
+  'onboarding.welcome.brandAlt': 'Ikon aplikasi DoreHealth',
   'onboarding.welcome.getStarted': 'Mula',
   'onboarding.welcome.footnote':
     'Kira-kira seminit · Peribadi pada peranti ini sehingga anda log masuk',
-  'onboarding.welcome.title': 'Selamat datang ke NouraCare',
+  'onboarding.welcome.title': 'Selamat datang ke DoreHealth',
   'onboarding.welcome.subtitle': 'Sokongan kesihatan yang sesuai dengan hidup anda',
   'onboarding.welcome.question':
     'Dalam beberapa langkah pantas kami akan peribadikan kalendar, peringatan, dan pandangan. Ini tidak menggantikan rawatan klinikal.',
@@ -1961,6 +1970,9 @@ const PAGE_UI_FA: Record<string, string> = {
   'pregnancyMode.dueDate': 'تاریخ زایمان',
   'pregnancyMode.multipleBabies': 'آیا بیش از یک نوزاد باردار هستید؟',
   'pregnancyMode.removePregnancy': 'حذف اطلاعات بارداری',
+  'pregnancyMode.deleteConfirmHeader': 'حذف اطلاعات بارداری',
+  'pregnancyMode.deleteConfirmMessage':
+    'این کار تمام داده‌های بارداری را از دوره برای همیشه حذف می‌کند.',
   'pregnancyMode.save': 'ذخیره',
 
   'pregnancyPlanning.title': 'برنامه‌ریزی بارداری',
@@ -1993,7 +2005,7 @@ const PAGE_UI_FA: Record<string, string> = {
   'pregnancyPlanning.nextStepNote':
     'ادامه دهید تا سفر بارداری را پیگیری و بینش‌های شخصی‌سازی‌شده دریافت کنید',
 
-  'chatbot.title': 'دستیار NouraCare',
+  'chatbot.title': 'دستیار دوره',
   'chatbot.clearChatAria': 'پاک کردن گفتگو',
   'chatbot.typingAria': 'دستیار در حال نوشتن است',
   'chatbot.quickStart': 'شروع سریع',
@@ -2072,23 +2084,24 @@ const PAGE_UI_FA: Record<string, string> = {
   'checkVersion.whatsNew': 'تازه‌ها',
   'checkVersion.getUpdate': 'دریافت به‌روزرسانی',
   'checkVersion.upToDate': 'به‌روز هستید',
-  'checkVersion.upToDateMessage': 'جدیدترین نسخهٔ NouraCare برای این دستگاه را دارید.',
+  'checkVersion.upToDateMessage': 'جدیدترین نسخهٔ دوره برای این دستگاه را دارید.',
   'checkVersion.lastChecked': 'آخرین بررسی: {{time}}',
   'checkVersion.checkAgain': 'بررسی دوباره',
 
   // pwa
   'pwa.installHint':
-    'نوراکِر را نصب کنید: Share را بزنید، سپس «Add to Home Screen».',
+    'دوره را نصب کنید: Share را بزنید، سپس «Add to Home Screen».',
   'pwa.dismiss': 'بستن راهنمای نصب',
 
-  'onboarding.welcome.brandAlt': 'آیکون برنامه NouraCare',
+  'onboarding.welcome.brandAlt': 'آیکون برنامه دوره',
+  'onboarding.welcome.brandName': 'دوره',
   'onboarding.welcome.getStarted': 'شروع کنید',
   'onboarding.welcome.footnote':
     'حدود یک دقیقه · تا وارد نشدی، همه‌چیز فقط روی همین گوشیت می‌مونه',
-  'onboarding.welcome.title': 'به NouraCare خوش اومدی',
-  'onboarding.welcome.subtitle': 'چرخه و سلامتت رو راحت دنبال کن — ساده، امن، مخصوص تو',
+  'onboarding.welcome.title': 'به دوره خوش اومدی',
+  'onboarding.welcome.subtitle': 'ردیاب پریود و سلامت زنان',
   'onboarding.welcome.question':
-    'با نوراکر می‌توانید اطلاعات چرخه خود را ثبت کنید، سوابق را ببینید و با آرامش بیشتری روندهای شخصی خود را دنبال کنید.',
+    'با دوره می‌توانید اطلاعات چرخه خود را ثبت کنید، سوابق را ببینید و با آرامش بیشتری روندهای شخصی خود را دنبال کنید.',
   'onboarding.pregnancyStatus.title': 'در چه مرحله‌ای هستید؟',
   'onboarding.pregnancyStatus.subtitle': 'هر زمان در پروفایل قابل تغییر است.',
   'onboarding.pregnancyStatus.question':

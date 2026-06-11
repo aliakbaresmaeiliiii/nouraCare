@@ -61,7 +61,12 @@ export class CycleSettingsService {
 
   setLastPeriodStart(dateIso: string | null) {
     const canonical = dateIso == null || dateIso === '' ? null : normalizeLmpInput(dateIso);
+    const prev = this.lastPeriodStartDate();
     this.lastPeriodStartDate.set(canonical);
+    // New / changed LMP — drop stale week-strip focus so the ring shows today (day 1…n).
+    if (canonical !== prev) {
+      this.selectedCycleViewDate.set(null);
+    }
     this.saveToStorage();
   }
 

@@ -402,9 +402,7 @@ export class PregnancyPlanningComponent implements OnInit {
 
     this.reproductiveStatusService
       .createPregnancyPlanning(this.userId, payload)
-      .subscribe((res) => {
-        console.log(res);
-      });
+      .subscribe();
   }
 
   private calculatePeriodEndDate(startDate: string, duration: number): Date {
@@ -433,8 +431,7 @@ export class PregnancyPlanningComponent implements OnInit {
     this.reproductiveStatusService
       .updateReproductiveStatus(this.userId, pregnancyPlanData)
       .subscribe({
-        next: (response: PregnancyPlanningResponseDto) => {
-          console.log('Pregnancy plan created successfully:', response);
+        next: () => {
           this.hasCycleData.set(true);
           this.isLoading.set(false);
           this.showToast(this.translation.translate('pregnancyPlanning.toast.planCreated'));

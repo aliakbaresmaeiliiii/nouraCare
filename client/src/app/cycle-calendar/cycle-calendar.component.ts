@@ -47,6 +47,7 @@ import {
   saturdayFirstWeekPadding,
   startOfMonth,
 } from '../shared/utils/jalali-iranian-calendar.util';
+import { toLocalIsoDate } from '../shared/utils/cycle-day.util';
 
 export type CycleDayKind =
   | 'empty'
@@ -142,7 +143,7 @@ export class CycleCalendarComponent implements OnInit {
     const modal = await this.modalController.create({
       component: PeriodDatePickerPageComponent,
       componentProps: {
-        initialStartIso: this.cycleSettings.lastPeriodStartDate(),
+        initialStartIso: toLocalIsoDate(new Date()),
       },
       breakpoints: [0, 1],
       initialBreakpoint: 1,

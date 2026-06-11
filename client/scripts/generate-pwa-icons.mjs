@@ -1,5 +1,5 @@
 /**
- * PWA + iOS home-screen icons from src/assets/pwa/source-icon.svg
+ * PWA + iOS home-screen icons from src/assets/branding/logo.png
  * Run from client/: npm run icons:pwa
  */
 import fs from 'fs';
@@ -9,8 +9,10 @@ import sharp from 'sharp';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientRoot = path.join(__dirname, '..');
-const sourceIcon = path.join(clientRoot, 'src/assets/pwa/source-icon.svg');
+const sourceIcon = path.join(clientRoot, 'src/assets/branding/logo.png');
 const outDir = path.join(clientRoot, 'src/assets/icon');
+
+const ICON_BG = { r: 248, g: 250, b: 252, alpha: 1 };
 
 const SIZES = [
   { name: 'favicon.png', size: 32 },
@@ -37,11 +39,25 @@ async function main() {
 
   for (const { name, size } of SIZES) {
     const outPath = path.join(outDir, name);
-    await sharp(sourceIcon)
-      .resize(size, size, {
+    const inset = Math.round(size * 0.08);
+    const iconSize = size - inset * 2;
+    const icon = await sharp(sourceIcon)
+      .resize(iconSize, iconSize, {
         fit: 'contain',
-        background: { r: 248, g: 250, b: 252, alpha: 1 },
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
       })
+      .png()
+      .toBuffer();
+
+    await sharp({
+      create: {
+        width: size,
+        height: size,
+        channels: 4,
+        background: ICON_BG,
+      },
+    })
+      .composite([{ input: icon, gravity: 'center' }])
       .png({ compressionLevel: 9, palette: true, effort: 10 })
       .toFile(outPath);
     console.log(`${name} (${size}x${size})`);

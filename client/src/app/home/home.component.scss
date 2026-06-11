@@ -24,6 +24,12 @@
   --home-inline-gap: var(--app-space-3);
   --home-shell-padding-block-start: var(--app-space-4);
   --home-shell-padding-block-end: var(--app-space-6);
+  /* Fold-aware sizing — overridden on phone to keep insight cards above the tab bar */
+  --home-preg-hero-max: 304px;
+  --home-fold-chart-height: min(94vw, 380px);
+  --home-fold-chart-min-height: 340px;
+  --pds-card-width: 136px;
+  --pds-card-min-height: 176px;
 
   display: block;
   box-sizing: border-box;
@@ -680,7 +686,7 @@
 
 .cycle-today-advice {
   margin: clamp(0.35rem, 1.5vw, 0.65rem) auto 0;
-  padding: 0.72rem 1rem;
+  padding: 0.72rem 1rem 0.65rem;
   max-width: 22rem;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.78);
@@ -692,6 +698,33 @@
   letter-spacing: -0.01em;
   color: #334155;
   text-wrap: pretty;
+
+  &__text {
+    margin: 0;
+  }
+
+  &__continue {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.35rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    opacity: 0.92;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+    }
+  }
 
   &--period {
     border-color: rgba(244, 63, 94, 0.2);
@@ -803,6 +836,65 @@
   position: relative;
   z-index: 2;
   margin-top: var(--home-section-gap);
+}
+
+/* Phone / short viewport: shrink hero chrome so daily insight cards fit before scroll */
+@media (max-width: 480px), (max-height: 820px) {
+  .home-content {
+    --home-section-gap: var(--app-space-3);
+    --home-block-gap: var(--app-space-2);
+    --home-title-gap: var(--app-space-2);
+    --home-shell-padding-block-start: var(--app-space-3);
+    --home-shell-padding-block-end: var(--app-space-4);
+  }
+
+  .home-content--pregnancy-today {
+    --home-preg-hero-max: clamp(218px, calc(100svh - 23.75rem), 262px);
+    --pds-card-width: 118px;
+    --pds-card-min-height: 140px;
+  }
+
+  .home-content--cycle-today {
+    --home-fold-chart-height: min(74vw, 268px);
+    --home-fold-chart-min-height: 0;
+  }
+
+  .cycle-hero-sky {
+    padding-bottom: clamp(0.65rem, 2vw, 1.25rem);
+
+    ::ng-deep .cycle-chart-week-hero .pregnancy-calendar-week {
+      padding-block: 0.2rem;
+    }
+
+    ::ng-deep .cycle-chart-week-hero .pregnancy-calendar-col {
+      gap: 0.2rem;
+      padding-block: 0.15rem;
+    }
+  }
+
+  .cycle-stats-grid {
+    margin-top: var(--app-space-2);
+    gap: var(--app-space-2);
+  }
+
+  .cycle-stat-card {
+    min-height: 4.35rem;
+    padding: 0.5rem 0.35rem;
+  }
+
+  .cycle-phase-guide {
+    margin-top: var(--app-space-3);
+  }
+
+  .cycle-phase-guide__header {
+    margin-bottom: var(--app-space-2);
+  }
+
+  .cycle-guide-card {
+    min-height: 148px;
+    width: min(74vw, 240px);
+    padding: 0.7rem 0.75rem 0.65rem;
+  }
 }
 
 .cycle-phase-guide__header {
@@ -942,8 +1034,11 @@
 
   ::ng-deep .chart-wrapper {
     max-width: min(30rem, 96vw);
+    height: var(--home-fold-chart-height, min(94vw, 380px));
+    min-height: var(--home-fold-chart-min-height, 340px);
     margin-left: auto;
     margin-right: auto;
+    padding: clamp(6px, 1.8vw, 12px);
   }
 }
 

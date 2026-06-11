@@ -58,7 +58,7 @@ export class SettingsLegalPageComponent implements OnInit, OnDestroy {
   effectiveDateDisplay = '';
   heroIcon = 'shield-checkmark';
   documentType: 'privacy' | 'terms' = 'privacy';
-  contactEmail = 'support@nouracare.app';
+  contactEmail = 'support@dorehealth.app';
   contactTextKey = 'settings.legal.privacyContactText';
   tocExpanded = false;
 

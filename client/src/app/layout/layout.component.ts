@@ -8,16 +8,14 @@ import {
 import { NavigationEnd, Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
-  bulb,
-  calendar,
-  construct,
+  bulbOutline,
+  calendarOutline,
   constructOutline,
-  home,
-  menu,
+  homeOutline,
+  menuOutline,
   notificationsOutline,
-  people,
-  personCircle,
-  school,
+  personCircleOutline,
+  schoolOutline,
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -62,16 +60,14 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   constructor() {
     addIcons({
-      home,
-      construct,
+      homeOutline,
       constructOutline,
-      people,
-      calendar,
-      school,
-      bulb,
-      menu,
+      calendarOutline,
+      schoolOutline,
+      bulbOutline,
+      menuOutline,
       notificationsOutline,
-      personCircle,
+      personCircleOutline,
     });
   }
 

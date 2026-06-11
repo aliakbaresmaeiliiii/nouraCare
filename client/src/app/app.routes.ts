@@ -147,7 +147,7 @@ export const routes: Routes = [
       showEffectiveDate: true,
       heroIcon: 'shield-checkmark',
       documentType: 'privacy',
-      contactEmail: 'support@nouracare.app',
+      contactEmail: 'support@dorehealth.app',
       contactTextKey: 'settings.legal.privacyContactText',
     },
   },
@@ -164,15 +164,15 @@ export const routes: Routes = [
       showEffectiveDate: true,
       heroIcon: 'document-text',
       documentType: 'terms',
-      contactEmail: 'support@nouracare.app',
+      contactEmail: 'support@dorehealth.app',
       contactTextKey: 'settings.legal.termsContactText',
     },
   },
   {
-    path: 'nouracare-pro',
+    path: 'dorehealth-pro',
     loadComponent: () =>
-      import('./nouracare-pro/nouracare-pro.component').then(
-        (m) => m.NouracareProComponent,
+      import('./dorehealth-pro/dorehealth-pro.component').then(
+        (m) => m.DorehealthProComponent,
       ),
   },
   {

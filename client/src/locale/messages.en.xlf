@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template">
     <body>
@@ -96,8 +96,8 @@
       
       <!-- Welcome Page -->
       <trans-unit id="welcome.title" datatype="html">
-        <source>Welcome to NouraCare</source>
-        <target>Welcome to NouraCare</target>
+        <source>Welcome to DoreHealth</source>
+        <target>Welcome to DoreHealth</target>
       </trans-unit>
       <trans-unit id="welcome.subtitle" datatype="html">
         <source>Your Pregnancy Companion</source>
@@ -108,8 +108,8 @@
         <target>Get Started</target>
       </trans-unit>
       <trans-unit id="welcome.joinTitle" datatype="html">
-        <source>Join NouraCare</source>
-        <target>Join NouraCare</target>
+        <source>Join DoreHealth</source>
+        <target>Join DoreHealth</target>
       </trans-unit>
       <trans-unit id="welcome.joinSubtitle" datatype="html">
         <source>Start your pregnancy journey today</source>

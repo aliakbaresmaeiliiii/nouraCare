@@ -196,18 +196,27 @@ export class HomeReproductiveUiService {
         periodStartDate = new Date(`${localIso}T12:00:00`);
         cycleDayDirty = true;
       } else {
-        const today = new Date();
-        today.setHours(12, 0, 0, 0);
-        const start = new Date(today);
-        start.setDate(
-          today.getDate() - (Math.round(Number(dashboard.cycleDay)) - 1),
+        const histIso = normalizeLmpInput(
+          this.periodHistory.getEntries()[0]?.lastPeriodStartDate,
         );
-        periodStartDate = start;
-        cycleDayDirty = true;
-        const y = start.getFullYear();
-        const m = String(start.getMonth() + 1).padStart(2, '0');
-        const d = String(start.getDate()).padStart(2, '0');
-        this.cycleSettings.setLastPeriodStart(`${y}-${m}-${d}`);
+        if (histIso) {
+          periodStartDate = new Date(`${histIso}T12:00:00`);
+          cycleDayDirty = true;
+          this.cycleSettings.setLastPeriodStart(histIso);
+        } else {
+          const today = new Date();
+          today.setHours(12, 0, 0, 0);
+          const start = new Date(today);
+          start.setDate(
+            today.getDate() - (Math.round(Number(dashboard.cycleDay)) - 1),
+          );
+          periodStartDate = start;
+          cycleDayDirty = true;
+          const y = start.getFullYear();
+          const m = String(start.getMonth() + 1).padStart(2, '0');
+          const d = String(start.getDate()).padStart(2, '0');
+          this.cycleSettings.setLastPeriodStart(`${y}-${m}-${d}`);
+        }
       }
     }
 

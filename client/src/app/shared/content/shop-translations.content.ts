@@ -80,7 +80,7 @@ const SHOP_EN: Record<string, string> = {
 
 const SHOP_FA: Record<string, string> = {
   'shop.title': 'فروشگاه',
-  'shop.heroTitle': 'فروشگاه نورا',
+  'shop.heroTitle': 'فروشگاه دوره',
   'shop.heroSubtitle': 'لوازم منتخب برای مادر و نوزاد',
   'shop.searchPlaceholder': 'جستجوی محصول...',
   'shop.filters': 'فیلتر',

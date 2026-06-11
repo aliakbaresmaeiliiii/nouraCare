@@ -91,10 +91,8 @@ export class BabyDevelopmentService {
       next: (data) => {
         this.babySizeData.set(data);
         this.saveToStorage(data);
-        console.log('Baby size data loaded from API');
       },
-      error: (error) => {
-        console.log('API not available, using default baby size data');
+      error: () => {
         this.loadDefaultData();
       }
     });
@@ -198,7 +196,6 @@ export class BabyDevelopmentService {
       tap((data) => {
         this.babySizeData.set(data);
         this.saveToStorage(data);
-        console.log('Baby size data refreshed from API');
       })
     );
   }

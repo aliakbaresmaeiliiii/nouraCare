@@ -1,28 +1,36 @@
-// Custom Menu Styles
+// Custom Menu Styles — frosted glass so page content stays visible behind the drawer
 .custom-menu {
   --ion-font-family: var(--font-primary);
   font-family: var(--font-primary);
-  --background: var(--app-gradient-header);
+  --background: transparent;
   --color: var(--brand-text);
   --width: 320px;
   --max-width: 85vw;
   --border-radius: 0 var(--app-radius-lg) var(--app-radius-lg) 0;
-  box-shadow: 8px 0 28px rgba(var(--brand-text-rgb), 0.1);
   /* Let Ionic position/layer the menu. Forcing fixed + high z-index can block app interactions. */
-  
-  ion-menu::part(backdrop) {
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
+
+  &::part(backdrop) {
+    background-color: rgba(var(--brand-text-rgb), 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
-  
-  ion-menu::part(container) {
+
+  &::part(container) {
     border-radius: 0 var(--app-radius-lg) var(--app-radius-lg) 0;
     height: 100%;
     margin-top: env(safe-area-inset-top, 0px);
     margin-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(var(--brand-surface-rgb), 0.55);
+    backdrop-filter: blur(24px) saturate(1.35);
+    -webkit-backdrop-filter: blur(24px) saturate(1.35);
+    border-inline-end: 1px solid rgba(var(--brand-text-rgb), 0.1);
+    box-shadow:
+      8px 0 32px rgba(var(--brand-text-rgb), 0.08),
+      inset 1px 0 0 rgba(255, 255, 255, 0.5);
   }
-  
+
   ion-content {
+    --background: transparent;
     --padding-top: env(safe-area-inset-top, 0px);
     --padding-bottom: env(safe-area-inset-bottom, 0px);
   }
@@ -189,6 +197,11 @@
     --background: rgba(var(--brand-text-rgb), 0.1);
     --color: var(--brand-text);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .menu-icon {
+      color: var(--brand-text);
+      opacity: 1;
+    }
   }
 }
 
@@ -196,6 +209,8 @@
   font-size: 20px;
   color: rgba(var(--brand-text-rgb), 0.55);
   margin-right: 12px;
+  flex-shrink: 0;
+  opacity: 1;
 }
 
 .menu-label {
@@ -319,83 +334,107 @@
   text-align: center;
 }
 
-// Social Section
+// Social Section — compact grid matching theme segment card style
 .social-section {
-  padding: 20px 16px;
+  padding: 12px 16px 8px;
 }
 
-.social-links {
+.social-hint {
+  margin: -8px 0 12px;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 500;
+  color: rgba(var(--brand-text-rgb), 0.52);
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  ion-menu-toggle {
+    display: block;
+    min-width: 0;
+  }
+}
+
+.social-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.social-btn {
-  --background: transparent;
-  --color: var(--brand-text);
-  --border-radius: var(--app-radius-md);
-  --padding-start: 12px;
-  --padding-end: 12px;
-  --min-height: 44px;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 10px 12px;
   margin: 0;
+  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
   border-radius: var(--app-radius-md);
-  transition: all var(--app-duration-fast) var(--app-ease-standard);
-  
+  background: rgba(var(--brand-text-rgb), 0.07);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+  font-family: inherit;
+  color: var(--brand-text);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    transform var(--app-duration-fast) var(--app-ease-standard),
+    background var(--app-duration-fast) var(--app-ease-standard),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard);
+
   &:hover {
-    --background: rgba(var(--brand-text-rgb), 0.06);
+    background: rgba(var(--brand-primary-rgb), 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
-  
-  &.instagram:hover,
-  &.telegram:hover {
-    --background: rgba(var(--brand-primary-rgb), 0.12);
-    --color: var(--brand-primary-dark);
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
-/* Rounded brand tiles — same visual language as the Instagram app icon */
-.social-icon-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--app-radius-sm);
-  display: inline-flex;
+.social-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-right: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 
   ion-icon {
     color: #fff;
-  }
-}
-
-.social-icon-badge--instagram {
-  background: linear-gradient(
-    45deg,
-    #f09433 0%,
-    #e6683c 25%,
-    #dc2743 50%,
-    #cc2366 75%,
-    #bc1888 100%
-  );
-
-  ion-icon {
     font-size: 22px;
   }
 }
 
-.social-icon-badge--telegram {
+.social-card--instagram .social-card__icon {
+  background: linear-gradient(
+    135deg,
+    #833ab4 0%,
+    #fd1d1d 50%,
+    #f09433 100%
+  );
+}
+
+.social-card--telegram .social-card__icon {
   background: linear-gradient(145deg, #37aee2 0%, #1e96c8 50%, #0088cc 100%);
 
   ion-icon {
-    font-size: 21px;
+    font-size: 20px;
     transform: translate(1px, -1px);
   }
 }
 
-.social-text {
-  font-size: 14px;
+.social-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.social-card__handle {
+  font-size: 11px;
   font-weight: 500;
+  color: rgba(var(--brand-text-rgb), 0.55);
+  line-height: 1.2;
 }
 
 // App Version
@@ -470,7 +509,8 @@
     padding: 16px 12px;
   }
 
-  .theme-section {
+  .theme-section,
+  .social-section {
     padding-inline: 12px;
   }
   
@@ -489,6 +529,22 @@
 
 // Dark Mode Support
 :host-context(html.ion-palette-dark) {
+  .custom-menu {
+    &::part(backdrop) {
+      background-color: rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    &::part(container) {
+      background: rgba(var(--navy-shell-850-rgb), 0.58);
+      border-inline-end-color: rgba(255, 255, 255, 0.12);
+      box-shadow:
+        8px 0 32px rgba(0, 0, 0, 0.28),
+        inset 1px 0 0 rgba(255, 255, 255, 0.08);
+    }
+  }
+
   .main-header {
     --background: #1f2937;
     --color: white;
@@ -532,8 +588,23 @@
     }
   }
 
-  .theme-hint {
+  .theme-hint,
+  .social-hint {
     color: rgba(255, 255, 255, 0.45);
+  }
+
+  .social-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .social-card__handle {
+    color: rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -565,14 +636,14 @@
   transition: all 0.2s ease;
 }
 
-.social-btn:hover .social-icon {
-  transform: scale(1.1);
-  transition: all 0.2s ease;
+.social-card:hover .social-card__icon {
+  transform: scale(1.06);
+  transition: transform 0.2s ease;
 }
 
 // Focus States
 .menu-item:focus-visible,
-.social-btn:focus-visible {
+.social-card:focus-visible {
   outline: 2px solid rgba(var(--brand-primary-rgb), 0.55);
   outline-offset: 2px;
 }
@@ -589,7 +660,10 @@
   .menu-label,
   .progress-text,
   .menu-soon,
-  .theme-hint {
+  .theme-hint,
+  .social-hint,
+  .social-card__name,
+  .social-card__handle {
     font-family: var(--font-persian);
   }
 }

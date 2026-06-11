@@ -40,6 +40,8 @@ import {
 } from '../shared/utils/locale-date-format.util';
 import {
   J_MONTHS,
+  JALALI_DATE_PICKER_CLASS,
+  JALALI_PICKER_MONTH_COL_WIDTH,
   jalaliDaysInMonth,
   jalaliToIsoDate,
   toFa,
@@ -113,7 +115,7 @@ export class OnboardingComponent implements OnInit {
   private readonly stepById: Record<string, OnboardingStep> = {
     welcome: {
       id: 'welcome',
-      title: 'Welcome to NouraCare',
+      title: 'Welcome to DoreHealth',
       subtitle: 'Health support that fits your life',
       question:
         'In a few quick steps we will personalize your calendar, reminders, and insights. Nothing here replaces care from your clinician.',
@@ -412,6 +414,8 @@ export class OnboardingComponent implements OnInit {
     const monthCol = {
       name: 'month',
       selectedIndex: initial.jm - 1,
+      columnWidth: JALALI_PICKER_MONTH_COL_WIDTH,
+      optionsWidth: JALALI_PICKER_MONTH_COL_WIDTH,
       options: J_MONTHS.map((mo, idx) => ({ text: mo, value: idx + 1 })),
     };
 
@@ -428,6 +432,7 @@ export class OnboardingComponent implements OnInit {
     const dayCol = makeDayCol(initial.jy, initial.jm, initial.jd);
 
     const picker = await this.pickerController.create({
+      cssClass: JALALI_DATE_PICKER_CLASS,
       columns: [dayCol, monthCol, yearCol],
       buttons: [
         { text: this.t('common.cancel'), role: 'cancel' },

@@ -115,7 +115,7 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
         !this.hasPremiumAccess
       ) {
         this.isLoading = false;
-        void this.router.navigate(['/nouracare-pro']);
+        void this.router.navigate(['/dorehealth-pro']);
         return;
       }
 
@@ -215,7 +215,7 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
     const slug = ARTICLE_CATEGORY_BY_ID[relatedId] ?? 'pregnancy';
     return {
       title: this.articleContent.getRelatedTitle(relatedId),
-      image: ARTICLE_IMAGE_BY_ID[relatedId] ?? 'assets/images/image1.png',
+      image: ARTICLE_IMAGE_BY_ID[relatedId] ?? 'assets/images/welcome2.jpg',
       category: this.t(`article.category.${slug}`),
     };
   }
@@ -235,16 +235,16 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
       return;
     }
     img.dataset['fallbackApplied'] = 'true';
-    img.src = 'assets/images/image1.png';
+    img.src = 'assets/images/welcome2.jpg';
   }
 
   private getFallbackImage(): string {
     const slug = this.getCategorySlug();
     const fallbacks: Record<string, string> = {
-      pregnancy: 'assets/images/image1.png',
+      pregnancy: 'assets/images/welcome2.jpg',
       intimacy: 'assets/images/welcome2.jpg',
       symptoms: 'assets/images/bg-01.png',
-      nutrition: 'assets/images/image1.png',
+      nutrition: 'assets/images/welcome2.jpg',
       baby: 'assets/images/welcome2.jpg',
     };
     return fallbacks[slug] ?? 'assets/images/bg-01.png';
@@ -312,7 +312,7 @@ export class ArticleDetailComponent implements OnInit, OnDestroy {
       this.articleContent.isPremiumArticle(articleId) &&
       !this.hasPremiumAccess
     ) {
-      void this.router.navigate(['/nouracare-pro']);
+      void this.router.navigate(['/dorehealth-pro']);
       return;
     }
     void this.router.navigate(['/article', articleId]);

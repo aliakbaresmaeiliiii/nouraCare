@@ -1,6 +1,6 @@
 import { utcDateIso } from '../../health-engagement/health-engagement.util';
 
-const APP = 'NouraCare';
+const APP = 'DoreHealth';
 
 function fmtIsoDay(v: unknown): string | null {
   if (v == null) return null;
@@ -30,7 +30,7 @@ export function buildShareableSummary(dashboard: Record<string, unknown>): {
   hashtags: string[];
 } {
   const state = dashboard.state as string | undefined;
-  const hashtags = ['#WomensHealth', '#CycleTracking', '#NouraCare'];
+  const hashtags = ['#WomensHealth', '#CycleTracking', '#DoreHealth'];
 
   if (state === 'pregnant') {
     const week = dashboard.week as number | null | undefined;
@@ -83,7 +83,7 @@ export function buildShareableSummary(dashboard: Record<string, unknown>): {
   return {
     title: `My cycle snapshot — ${APP}`,
     body: bodyLines.filter(Boolean).join('\n\n'),
-    hashtags: ['#CycleTracking', '#Fertility', '#NouraCare'],
+    hashtags: ['#CycleTracking', '#Fertility', '#DoreHealth'],
   };
 }
 

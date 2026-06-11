@@ -158,7 +158,6 @@ export class CreatePostModalComponent implements OnInit {
 
     if (role === 'back') {
       // User went back, could show create post modal again if needed
-      console.log('User went back from post detail');
     }
   }
 

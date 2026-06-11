@@ -1,5 +1,5 @@
 /**
- * Prints the LAN URL to open NouraCare on your phone (same Wi‑Fi).
+ * Prints the LAN URL to open DoreHealth on your phone (same Wi‑Fi).
  * Run: node scripts/print-lan-url.mjs
  */
 import os from 'os';
@@ -16,7 +16,7 @@ for (const name of Object.keys(nets)) {
   }
 }
 
-console.log('\nNouraCare — open on your phone (same Wi‑Fi):\n');
+console.log('\nDoreHealth — open on your phone (same Wi‑Fi):\n');
 if (ips.length === 0) {
   console.log('  No Wi‑Fi/LAN IPv4 found. Check your network connection.\n');
   process.exit(1);

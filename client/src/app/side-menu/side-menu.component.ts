@@ -49,6 +49,14 @@ interface MenuItem {
   action?: 'logout' | 'contact';
 }
 
+interface SocialLink {
+  id: string;
+  nameKey: string;
+  handle: string;
+  icon: string;
+  cssClass: string;
+}
+
 @Component({
   selector: 'app-side-menu',
   templateUrl: './side-menu.component.html',
@@ -86,13 +94,30 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   appVersion: string = '1.0.0';
 
   menuItemsTop: MenuItem[] = [
-    { icon: 'diamond-outline', label: 'menu.nouracarePro', badge: 'PRO' },
+    { icon: 'diamond-outline', label: 'menu.doreHealthPro', badge: 'PRO' },
     { icon: 'bag-outline', label: 'menu.myPurchases', disabled: true },
     { icon: 'heart-outline', label: 'menu.myFavorites' },
     { icon: 'bookmark-outline', label: 'menu.savedInformation' },
     { icon: 'people-outline', label: 'menu.myFriends' },
     { icon: 'chatbubbles-outline', label: 'menu.forums' },
     { icon: 'ban-outline', label: 'menu.blockedUsers', disabled: true },
+  ];
+
+  readonly socialLinks: SocialLink[] = [
+    {
+      id: 'instagram',
+      nameKey: 'about.social.instagram',
+      handle: '@dorehealth',
+      icon: 'logo-instagram',
+      cssClass: 'instagram',
+    },
+    {
+      id: 'telegram',
+      nameKey: 'menu.socialTelegram',
+      handle: '@dorehealth',
+      icon: 'paper-plane-outline',
+      cssClass: 'telegram',
+    },
   ];
 
   menuItemsBottom: MenuItem[] = [
@@ -103,7 +128,7 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     { icon: 'mail-outline', label: 'menu.contactUs', action: 'contact' },
     { icon: 'document-text-outline', label: 'menu.termsOfService', route: '/terms' },
     { icon: 'lock-closed-outline', label: 'menu.privacyPolicy', route: '/privacy-policy' },
-    { icon: 'information-circle-outline', label: 'menu.aboutNouracare', route: '/tabs/about' },
+    { icon: 'information-circle-outline', label: 'menu.aboutDoreHealth', route: '/tabs/about' },
     { icon: 'log-out-outline', label: 'menu.logOut', action: 'logout' },
   ];
 
@@ -171,8 +196,8 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.activeIndexTop = index;
 
     // Add navigation logic for specific menu items
-    if (item.label === 'menu.nouracarePro') {
-      await this.router.navigate(['/nouracare-pro']);
+    if (item.label === 'menu.doreHealthPro') {
+      await this.router.navigate(['/dorehealth-pro']);
     } else if (item.label === 'menu.myFavorites') {
       await this.router.navigate(['/my-favorites']);
     } else if (item.label === 'menu.savedInformation') {
@@ -206,9 +231,9 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   /** Quick paths to support — action sheet follows app light/dark theme. */
   async presentContactUs(): Promise<void> {
-    const subject = encodeURIComponent('NouraCare — Support');
-    const body = encodeURIComponent('Hi NouraCare team,\n\n');
-    const mailto = `mailto:support@nouracare.app?subject=${subject}&body=${body}`;
+    const subject = encodeURIComponent('DoreHealth — Support');
+    const body = encodeURIComponent('Hi DoreHealth team,\n\n');
+    const mailto = `mailto:support@dorehealth.app?subject=${subject}&body=${body}`;
 
     const sheet = await this.actionSheetCtrl.create({
       header: this.tr('menu.contactUs'),
@@ -225,14 +250,14 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
           text: this.tr('menu.contactUsTelegram'),
           icon: 'paper-plane-outline',
           handler: () => {
-            window.open('https://t.me/nouracare', '_blank', 'noopener,noreferrer');
+            window.open('https://t.me/dorehealth', '_blank', 'noopener,noreferrer');
           },
         },
         {
           text: this.tr('menu.contactUsInstagram'),
           icon: 'logo-instagram',
           handler: () => {
-            window.open('https://instagram.com/nouracare', '_blank', 'noopener,noreferrer');
+            window.open('https://instagram.com/dorehealth', '_blank', 'noopener,noreferrer');
           },
         },
         {
@@ -260,8 +285,8 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   openSocialLink(platform: string) {
     const socialLinks = {
-      instagram: 'https://instagram.com/nouracare',
-      telegram: 'https://t.me/nouracare'
+      instagram: 'https://instagram.com/dorehealth',
+      telegram: 'https://t.me/dorehealth'
     };
     
     if (socialLinks[platform as keyof typeof socialLinks]) {

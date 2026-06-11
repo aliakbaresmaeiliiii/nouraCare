@@ -1,6 +1,6 @@
 {
 
-  "name": "nouracare-app",
+  "name": "dorehealth-app",
 
   "type": "module",
 
@@ -23,6 +23,10 @@
     "proxy": "ng serve --proxy-config proxy.conf.json --host 0.0.0.0 --disable-host-check",
 
     "dev:lan": "node scripts/print-lan-url.mjs && ng serve --proxy-config proxy.conf.json --host 0.0.0.0 --disable-host-check",
+
+    "screenshots:store": "node scripts/capture-store-screenshots.mjs",
+
+    "screenshots:store:login": "node scripts/capture-store-screenshots.mjs --login",
 
     "build": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng.js build",
 
@@ -222,7 +226,7 @@
 
   },
 
-  "description": "NouraCare is a family-friendly app built with Ionic and Angular.",
+  "description": "DoreHealth is a women's health app built with Ionic and Angular.",
 
   "keywords": [
 
@@ -230,7 +234,7 @@
 
     "angular",
 
-    "nouracare",
+    "dorehealth",
 
     "islamic",
 

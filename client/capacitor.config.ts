@@ -4,8 +4,8 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const capServerUrl = process.env['CAP_SERVER_URL'] || '';
 
 const config: CapacitorConfig = {
-  appId: 'com.tecknnycs.nouracare',
-  appName: 'NouraCare',
+  appId: 'com.tecknnycs.dorehealth',
+  appName: 'دوره',
   webDir: 'dist/app',
   server: {
     androidScheme: 'http',

@@ -1,7 +1,6 @@
 /**
- * Launcher mipmaps from assets/branding/download.png (cover = fills entire icon).
- * Splash assets from wordmark SVGs.
- * Run from client/: node scripts/generate-android-icons.mjs
+ * Launcher mipmaps + splash assets from assets/branding/logo.png
+ * Run from client/: npm run icons:android
  */
 import fs from 'fs';
 import path from 'path';
@@ -11,17 +10,11 @@ import sharp from 'sharp';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientRoot = path.join(__dirname, '..');
 const branding = path.join(clientRoot, 'src/assets/branding');
-const launcherIconPath = path.join(branding, 'nouracare-icon.svg');
-const wordmarkSvgPath = path.join(branding, 'nouracare-wordmark.svg');
-const splashNameSvgPath = path.join(branding, 'nouracare-splash-name.svg');
+const launcherIconPath = path.join(branding, 'logo.png');
 const resRoot = path.join(clientRoot, 'android/app/src/main/res');
 
-/**
- * Clean icon style:
- * - soft palette background
- * - centered icon with padding (not edge-to-edge crop)
- */
-const ICON_INSET_RATIO = 0.06;
+const ICON_BG = { r: 248, g: 250, b: 252, alpha: 1 };
+const ICON_INSET_RATIO = 0.08;
 
 const DENSITIES = [
   { folder: 'mipmap-mdpi', legacy: 48, foreground: 108 },
@@ -47,11 +40,11 @@ async function renderCleanSquare(pngPath, outSize, outPath) {
       width: outSize,
       height: outSize,
       channels: 4,
-      background: { r: 248, g: 250, b: 252, alpha: 1 },
+      background: ICON_BG,
     },
   })
     .composite([{ input: icon, gravity: 'center' }])
-    .png()
+    .png({ compressionLevel: 9, palette: true, effort: 10 })
     .toFile(outPath);
 }
 
@@ -63,20 +56,19 @@ async function renderForeground(size, pngPath, outPath) {
   await renderCleanSquare(pngPath, size, outPath);
 }
 
-async function renderSplashWordmark(outPath) {
-  const maxW = 920;
-  const overlay = await sharp(wordmarkSvgPath)
-    .resize(maxW, null, {
-      fit: 'inside',
+async function renderSplashLogo(outPath, maxSize = 420) {
+  const icon = await sharp(launcherIconPath)
+    .resize(maxSize, maxSize, {
+      fit: 'contain',
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
     .png()
     .toBuffer();
 
-  const meta = await sharp(overlay).metadata();
+  const meta = await sharp(icon).metadata();
   const pad = 48;
-  const w = (meta.width || maxW) + pad * 2;
-  const h = (meta.height || 400) + pad * 2;
+  const w = (meta.width || maxSize) + pad * 2;
+  const h = (meta.height || maxSize) + pad * 2;
 
   await sharp({
     create: {
@@ -86,27 +78,15 @@ async function renderSplashWordmark(outPath) {
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     },
   })
-    .composite([{ input: overlay, gravity: 'center' }])
-    .png()
-    .toFile(outPath);
-}
-
-async function renderSplashAppName(outPath) {
-  await sharp(splashNameSvgPath)
-    .resize(800, null, {
-      fit: 'inside',
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-    })
-    .png()
+    .composite([{ input: icon, gravity: 'center' }])
+    .png({ compressionLevel: 9, effort: 10 })
     .toFile(outPath);
 }
 
 async function main() {
-  for (const p of [launcherIconPath, wordmarkSvgPath, splashNameSvgPath]) {
-    if (!fs.existsSync(p)) {
-      console.error('Missing asset:', p);
-      process.exit(1);
-    }
+  if (!fs.existsSync(launcherIconPath)) {
+    console.error('Missing asset:', launcherIconPath);
+    process.exit(1);
   }
   if (!fs.existsSync(resRoot)) {
     console.error('Missing Android res:', resRoot);
@@ -126,11 +106,11 @@ async function main() {
     await renderLegacy(legacy, launcherIconPath, path.join(dir, 'ic_launcher.png'));
     await renderLegacy(legacy, launcherIconPath, path.join(dir, 'ic_launcher_round.png'));
     await renderForeground(foreground, launcherIconPath, path.join(dir, 'ic_launcher_foreground.png'));
-    console.log(folder, '→', legacy, '/', foreground, '(nouracare-icon.svg clean)');
+    console.log(folder, '→', legacy, '/', foreground, '(logo.png)');
   }
 
-  await renderSplashWordmark(path.join(drawableNodpi, 'splash_full.png'));
-  await renderSplashAppName(path.join(drawableNodpi, 'splash_app_name.png'));
+  await renderSplashLogo(path.join(drawableNodpi, 'splash_full.png'), 420);
+  await renderSplashLogo(path.join(drawableNodpi, 'splash_app_name.png'), 320);
   console.log('drawable-nodpi → splash_full.png, splash_app_name.png');
   console.log('Done.');
 }

@@ -10,6 +10,8 @@ import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import {
   formatJalaliFaFromIso,
   J_MONTHS,
+  JALALI_DATE_PICKER_CLASS,
+  JALALI_PICKER_MONTH_COL_WIDTH,
   jalaliDaysInMonth,
   jalaliToIsoDate,
   toFa,
@@ -365,6 +367,8 @@ export class ReproductiveStatusComponent implements OnInit {
     const monthCol = {
       name: 'month',
       selectedIndex: tempJ.jm - 1,
+      columnWidth: JALALI_PICKER_MONTH_COL_WIDTH,
+      optionsWidth: JALALI_PICKER_MONTH_COL_WIDTH,
       options: J_MONTHS.map((m, idx) => ({ text: m, value: idx + 1 })),
     };
 
@@ -381,6 +385,7 @@ export class ReproductiveStatusComponent implements OnInit {
     const dayCol = makeDayCol(tempJ.jy, tempJ.jm, tempJ.jd);
 
     const picker = await this.pickerCtrl.create({
+      cssClass: JALALI_DATE_PICKER_CLASS,
       columns: [dayCol, monthCol, yearCol],
       buttons: [
         { text: this.translation.translate('common.cancel'), role: 'cancel' },

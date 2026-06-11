@@ -114,32 +114,35 @@
       </div>
     </div>
 
+    <div class="menu-divider menu-divider--tight"></div>
+
     <!-- Social Media Section -->
     <div class="social-section">
       <h4 class="section-title">{{ 'menu.followUs' | translate }}</h4>
-      <div class="social-links">
-        <ion-menu-toggle>
-          <ion-button fill="clear" class="social-btn instagram" (click)="openSocialLink('instagram')">
-            <span class="social-icon-badge social-icon-badge--instagram" aria-hidden="true">
-              <ion-icon name="logo-instagram"></ion-icon>
-            </span>
-            <span class="social-text">Instagram</span>
-          </ion-button>
-        </ion-menu-toggle>
-        <ion-menu-toggle>
-          <ion-button fill="clear" class="social-btn telegram" (click)="openSocialLink('telegram')">
-            <span class="social-icon-badge social-icon-badge--telegram" aria-hidden="true">
-              <ion-icon name="paper-plane-outline"></ion-icon>
-            </span>
-            <span class="social-text">Telegram</span>
-          </ion-button>
-        </ion-menu-toggle>
+      <p class="social-hint">{{ 'menu.followUsHint' | translate }}</p>
+      <div class="social-grid">
+        @for (link of socialLinks; track link.id) {
+          <ion-menu-toggle>
+            <button
+              type="button"
+              [class]="'social-card social-card--' + link.cssClass"
+              (click)="openSocialLink(link.id)"
+              [attr.aria-label]="link.nameKey | translate"
+            >
+              <span class="social-card__icon" aria-hidden="true">
+                <ion-icon [name]="link.icon"></ion-icon>
+              </span>
+              <span class="social-card__name">{{ link.nameKey | translate }}</span>
+              <span class="social-card__handle">{{ link.handle }}</span>
+            </button>
+          </ion-menu-toggle>
+        }
       </div>
     </div>
 
     <!-- App Version -->
     <div class="app-version">
-      <span class="version-text">NouraCare v{{ appVersion | localNum }}</span>
+      <span class="version-text">{{ 'about.hero.title' | translate }} v{{ appVersion | localNum }}</span>
     </div>
   </ion-content>
 </ion-menu>

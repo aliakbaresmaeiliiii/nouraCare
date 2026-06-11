@@ -337,7 +337,7 @@ const TOOLS_MENU_FA: Record<string, string> = {
   'toolsMenu.cat.growth': 'ثبت رشد',
   'toolsMenu.cat.growthSub': 'نمودار و آزمون رشد',
 
-  'toolsMenu.noraSchool': 'مدرسه نورا',
+  'toolsMenu.noraSchool': 'مدرسه دوره',
   'toolsMenu.noraSchoolDesc': 'رشد هفته‌به‌هفته جنین',
   'toolsMenu.nutritionFacts': 'دانستنی‌های تغذیه',
   'toolsMenu.nutritionFactsDesc': 'نکات ضروری تغذیه در بارداری',

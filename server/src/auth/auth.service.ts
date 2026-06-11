@@ -499,12 +499,11 @@ export class AuthService {
     return `unset_${randomUUID().replace(/-/g, '')}`;
   }
 
-  /** Local dev: print OTP in the server terminal when email delivery is slow/unreliable. */
-  private logDevOtp(email: string, code: string, purpose: string): void {
+  /** Local dev hook — no-op in production builds. */
+  private logDevOtp(_email: string, _code: string, _purpose: string): void {
     if (process.env.NODE_ENV === 'production') {
       return;
     }
-    console.log(`[DEV OTP] ${purpose} → ${email}: ${code}`);
   }
 
   private async generateTokens(userId: number, email: string) {

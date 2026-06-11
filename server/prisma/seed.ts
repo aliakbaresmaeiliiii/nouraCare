@@ -160,13 +160,13 @@ async function main() {
     });
   };
   const adminUser = await upsertUserByEmailOrPhone({
-    email: 'admin@nouracare.app',
+    email: 'admin@dorehealth.app',
     phoneNumber: '+989121111111',
     fullName: 'Admin User',
     role: 'ADMIN',
   });
   const seedUser = await upsertUserByEmailOrPhone({
-    email: 'user@nouracare.app',
+    email: 'user@dorehealth.app',
     phoneNumber: '+989122222222',
     fullName: 'Seed User',
     role: 'USER',
@@ -283,7 +283,7 @@ async function main() {
       profileImageUrl: 'assets/images/user-avatar.png',
       clinicName: `کلینیک نورا ${n}`,
       location: doctorCities[i % doctorCities.length],
-      contactEmail: `doctor.seed${n}@nouracare.app`,
+      contactEmail: `doctor.seed${n}@dorehealth.app`,
       contactPhone: `+98912${String(1_000_000 + n).slice(1)}`,
       consultationType,
       fee: 1_500_000 + (i % 10) * 250_000,

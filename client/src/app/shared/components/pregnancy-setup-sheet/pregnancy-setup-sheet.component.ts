@@ -38,6 +38,8 @@ import {
 import {
   formatJalaliFaFromIso,
   J_MONTHS,
+  JALALI_DATE_PICKER_CLASS,
+  JALALI_PICKER_MONTH_COL_WIDTH,
   jalaliDaysInMonth,
   jalaliToIsoDate,
   toFa,
@@ -701,6 +703,8 @@ export class PregnancySetupSheetComponent implements OnInit {
     const monthCol = {
       name: 'month',
       selectedIndex: initial.jm - 1,
+      columnWidth: JALALI_PICKER_MONTH_COL_WIDTH,
+      optionsWidth: JALALI_PICKER_MONTH_COL_WIDTH,
       options: J_MONTHS.map((mo, idx) => ({ text: mo, value: idx + 1 })),
     };
 
@@ -720,6 +724,7 @@ export class PregnancySetupSheetComponent implements OnInit {
       target === 'due' ? this.duePickerRangeHint : this.lmpPickerRangeHint;
 
     const picker = await this.pickerCtrl.create({
+      cssClass: JALALI_DATE_PICKER_CLASS,
       columns: [dayCol, monthCol, yearCol],
       buttons: [
         { text: this.translation.translate('common.cancel'), role: 'cancel' },

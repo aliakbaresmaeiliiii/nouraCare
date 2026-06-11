@@ -1,6 +1,6 @@
-# NouraCare production deployment
+# DoreHealth production deployment
 
-Replace `api.nouracare.com` with your domain everywhere below.
+Replace `api.dorehealth.app` with your domain everywhere below.
 
 ## 1. Server `.env`
 
@@ -12,12 +12,12 @@ JWT_SECRET=<openssl rand -hex 32>
 DB_PASSWORD=<strong-password>
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_USER=nouracare
-DB_NAME=nouracare
+DB_USER=dorehealth
+DB_NAME=dorehealth
 GOOGLE_CLIENT_IDS=1088321651982-l914r5o4bj5c73cua6qdcg0ttjnd8hbh.apps.googleusercontent.com
-APPLE_CLIENT_IDS=com.tecknnycs.nouracare,com.tecknnycs.nouracare.signin
-CORS_ORIGINS=capacitor://localhost,https://localhost,https://api.nouracare.com
-BASE_URL=https://api.nouracare.com
+APPLE_CLIENT_IDS=com.tecknnycs.dorehealth,com.tecknnycs.dorehealth.signin
+CORS_ORIGINS=capacitor://localhost,https://localhost,https://api.dorehealth.app
+BASE_URL=https://api.dorehealth.app
 PORT=3000
 HOST=0.0.0.0
 ```
@@ -34,10 +34,10 @@ API: `http://localhost:3000/api/v1/` (put nginx TLS in front for production).
 
 ## 3. nginx + TLS (recommended)
 
-1. Point DNS `api.nouracare.com` → your VPS IP.
+1. Point DNS `api.dorehealth.app` → your VPS IP.
 2. Install nginx + certbot.
-3. Copy `deploy/nginx/nouracare-api.conf` → `/etc/nginx/sites-available/`
-4. `sudo certbot --nginx -d api.nouracare.com`
+3. Copy `deploy/nginx/dorehealth-api.conf` → `/etc/nginx/sites-available/`
+4. `sudo certbot --nginx -d api.dorehealth.app`
 5. `sudo nginx -t && sudo systemctl reload nginx`
 
 ## 4. Client production build
@@ -58,7 +58,7 @@ npm run cap:sync:prod
 - [ ] HTTPS API live
 - [ ] Privacy policy URL (`environment.prod.ts` → `privacyPolicyUrl`)
 - [ ] Google Play Data safety + App Store Privacy labels
-- [ ] Sign in with Apple enabled in Apple Developer for bundle `com.tecknnycs.nouracare`
+- [ ] Sign in with Apple enabled in Apple Developer for bundle `com.tecknnycs.dorehealth`
 - [ ] Test: register, email OTP login, Google, Apple, delete account
 
 See also: `SECURITY_HARDENING.md`

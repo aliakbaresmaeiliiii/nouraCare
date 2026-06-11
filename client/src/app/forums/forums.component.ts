@@ -688,8 +688,7 @@ export class ForumsComponent implements OnInit, OnDestroy {
   private setupPostDeletionListener(): void {
     this.forumsService.postDeleted$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((postId: string) => {
-        console.log('🔄 Forums: Post deletion detected, refreshing list...');
+      .subscribe(() => {
         // Remove the deleted post from the current list
         // Also refresh the data to ensure we have the latest state
         this.refreshData();

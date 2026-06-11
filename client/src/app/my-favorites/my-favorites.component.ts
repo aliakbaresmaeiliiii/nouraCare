@@ -448,7 +448,7 @@ export class MyFavoritesComponent implements OnInit, OnDestroy {
               ),
             );
             if (!summary.hasPremiumAccess) {
-              await this.router.navigate(['/nouracare-pro']);
+              await this.router.navigate(['/dorehealth-pro']);
               break;
             }
           }

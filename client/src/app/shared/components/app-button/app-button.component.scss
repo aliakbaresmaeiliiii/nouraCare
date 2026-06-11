@@ -86,10 +86,18 @@
   height: 1.15em;
 }
 
+:host ion-button.app-button::part(native) {
+  justify-content: center;
+}
+
 :host ion-button.app-button .app-button__label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
   line-height: 1.2;
+}
+
+:host ion-button.app-button .app-button__label--loading {
+  width: 100%;
 }

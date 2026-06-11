@@ -1,5 +1,6 @@
 import { calendarDaysBetweenUtc } from './pregnancy-metrics.util';
 import { utcMidnightFromDate } from './cycle-prediction.util';
+import { determineCyclePhase } from '../menstrual/domain/cycle-phase.logic';
 
 export type CyclePhaseGuideAction =
   | 'insights'
@@ -58,42 +59,6 @@ function daysFromTodayToIso(iso: string | null, today: Date): number | null {
   const target = utcMidnightFromDate(new Date(`${iso}T00:00:00.000Z`));
   const t = utcMidnightFromDate(today);
   return calendarDaysBetweenUtc(t, target);
-}
-
-function resolvePhase(
-  cycleDay: number,
-  avgBleed: number,
-  cycleLength: number,
-  ovulationIso: string | null,
-  fertileWindow: { start: string; end: string } | null,
-  today: Date,
-): 'period' | 'follicular' | 'fertile' | 'luteal' {
-  const bleed = Math.max(2, Math.min(10, Math.round(avgBleed)));
-  const len = Math.max(21, Math.min(45, Math.round(cycleLength)));
-  if (cycleDay <= bleed) {
-    return 'period';
-  }
-  const t = utcMidnightFromDate(today);
-  if (fertileWindow) {
-    const start = utcMidnightFromDate(new Date(`${fertileWindow.start}T00:00:00.000Z`));
-    const end = utcMidnightFromDate(new Date(`${fertileWindow.end}T00:00:00.000Z`));
-    if (t.getTime() >= start.getTime() && t.getTime() <= end.getTime()) {
-      return 'fertile';
-    }
-  }
-  if (ovulationIso) {
-    const ov = utcMidnightFromDate(new Date(`${ovulationIso}T00:00:00.000Z`));
-    const daysToOv = calendarDaysBetweenUtc(t, ov);
-    if (daysToOv >= -1 && daysToOv <= 5) {
-      return 'fertile';
-    }
-    if (cycleDay < len - 14) {
-      return 'follicular';
-    }
-  } else if (cycleDay <= 14) {
-    return 'follicular';
-  }
-  return 'luteal';
 }
 
 function ovulationPhrase(daysToOvulation: number | null): string {
@@ -248,14 +213,14 @@ export function buildCyclePhaseGuide(
   const periodDay = cycleDay <= avgBleed ? cycleDay : null;
   const daysToNextPeriod = daysFromTodayToIso(input.nextPeriodIso, today);
   const daysToOvulation = daysFromTodayToIso(input.ovulationIso, today);
-  const phase = resolvePhase(
+  const phase = determineCyclePhase({
     cycleDay,
     avgBleed,
     cycleLength,
-    input.ovulationIso,
-    input.fertileWindow,
+    ovulationIso: input.ovulationIso,
+    fertileWindow: input.fertileWindow,
     today,
-  );
+  });
 
   const context: CyclePhaseGuideContext = {
     cycleDay,

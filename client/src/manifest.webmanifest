@@ -1,7 +1,7 @@
 {
-  "name": "NouraCare",
-  "short_name": "NouraCare",
-  "description": "Family-friendly health and wellness companion",
+  "name": "دوره | ردیاب پریود و سلامت زنان",
+  "short_name": "دوره",
+  "description": "ردیاب پریود و سلامت زنان",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

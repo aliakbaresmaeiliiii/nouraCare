@@ -86,7 +86,6 @@ export class EmailProvider {
       };
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log('✅ Email sent successfully:', info.messageId);
       return info;
     } catch (error) {
       console.error('❌ Error sending email:', error);

@@ -5,7 +5,7 @@
   height: 100%;
   box-sizing: border-box;
   --layout-tab-scroll-padding-top: 8px;
-  --layout-tab-scroll-padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  --layout-tab-scroll-padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
 }
 
 #main-content {
@@ -57,16 +57,60 @@ ion-header.modern-header {
     margin: 0 auto;
   }
 
+  .header-left ion-menu-toggle {
+    display: inline-flex;
+  }
+
   .header-left .menu-button {
     --color: var(--brand-text);
-    --padding-start: 8px;
-    --padding-end: 8px;
+    --padding-start: 4px;
+    --padding-end: 4px;
     min-width: 44px;
     min-height: 44px;
     border-radius: 12px;
 
+    &::part(native) {
+      overflow: visible;
+      border-radius: 12px;
+    }
+
+    &:focus-visible::part(native) {
+      outline: 2px solid rgba(var(--brand-text-rgb), 0.95);
+      outline-offset: 2px;
+    }
+
+    .menu-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(var(--brand-text-rgb), 0.08);
+      background: rgba(var(--brand-surface-rgb), 0.52);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 1px 2px rgba(var(--brand-text-rgb), 0.06);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition:
+        background var(--app-duration-fast) var(--app-ease-standard),
+        border-color var(--app-duration-fast) var(--app-ease-standard),
+        transform var(--app-duration-fast) var(--app-ease-standard);
+    }
+
     ion-icon {
-      font-size: 26px;
+      font-size: 22px;
+      opacity: 0.9;
+    }
+
+    &:hover .menu-trigger {
+      background: rgba(var(--brand-surface-rgb), 0.72);
+      border-color: rgba(var(--brand-text-rgb), 0.12);
+    }
+
+    &:active .menu-trigger {
+      transform: scale(0.96);
     }
   }
 
@@ -188,32 +232,109 @@ ion-header.modern-header {
   }
 }
 
+#main-content ion-tabs {
+  --background: transparent;
+}
+
 .app-tab-bar {
-  --background: var(--flo-bg);
-  --border: 1px solid rgba(var(--flo-primary-rgb), 0.08);
-  box-shadow: 0 -2px 14px rgba(var(--brand-primary-rgb), 0.06);
-  // padding-bottom: env(safe-area-inset-bottom, 0px);
-  min-height: calc(46px + env(safe-area-inset-bottom, 0px));
+  --background: transparent;
+  --border: none;
+  --color: var(--brand-text);
+  --color-selected: var(--brand-text);
+  align-self: center;
+  width: calc(100% - 48px);
+  max-width: 400px;
+  margin-inline: 24px;
+  margin-top: 6px;
+  margin-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  min-height: 56px;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
 
   ion-tab-button {
-    --color: var(--flo-text-secondary);
-    --color-selected: var(--ion-color-tertiary-shade);
-    --padding-top: 6px;
-    --padding-bottom: 6px;
-    min-height: 48px;
+    --background: transparent;
+    --background-focused: transparent;
+    --color: var(--brand-text);
+    --color-selected: var(--brand-text);
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --ripple-color: transparent;
+    flex: 1;
+    min-height: 44px;
+    overflow: visible;
+
+    &::part(native) {
+      overflow: visible;
+      padding: 0;
+      background: transparent;
+    }
 
     .tab-label {
-      font-size: 11px;
-      margin-top: 2px;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
-    ion-icon {
-      font-size: 24px;
-      transition: transform var(--app-duration-fast) var(--app-ease-standard);
+    .tab-icon-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 36px;
+      border-radius: 999px;
+      transition:
+        background var(--app-duration-fast) var(--app-ease-standard),
+        transform var(--app-duration-fast) var(--app-ease-standard);
+
+      ion-icon {
+        font-size: 22px;
+        color: var(--brand-text);
+        transition: transform var(--app-duration-fast) var(--app-ease-standard);
+      }
     }
 
-    &.tab-selected ion-icon {
-      transform: translateY(-1px);
+    &.tab-selected {
+      ion-icon {
+        color: var(--brand-text);
+      }
+
+      .tab-icon-wrap {
+        background: rgba(var(--brand-text-rgb), 0.1);
+      }
+    }
+
+    &:active .tab-icon-wrap {
+      transform: scale(0.94);
+    }
+  }
+}
+
+:host-context(ion-app.ion-palette-dark) .app-tab-bar {
+  --background: transparent;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  ion-tab-button {
+    --color: rgba(255, 255, 255, 0.92);
+    --color-selected: #fff;
+
+    .tab-icon-wrap ion-icon {
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    &.tab-selected .tab-icon-wrap {
+      background: rgba(255, 255, 255, 0.14);
     }
   }
 }

@@ -2102,6 +2102,27 @@ html.ion-palette-dark ion-modal:has(app-pregnancy-setup-sheet) {
   color: var(--ion-color-medium-shade, #64748b);
 }
 
+/* Jalali date wheels: Ionic ellipsis truncates long Persian month names (e.g. اردیبهشت → ارد). */
+ion-picker.jalali-date-picker ion-picker-column:nth-child(2) {
+  flex: 2.4 1 0;
+  min-width: 7.75rem;
+  max-width: 58%;
+  font-size: 19px;
+}
+
+ion-picker.jalali-date-picker ion-picker-column:first-child,
+ion-picker.jalali-date-picker ion-picker-column:last-child {
+  flex: 1 1 0;
+  min-width: 2.75rem;
+}
+
+/* PickerController overlay (ion-picker-legacy): month is the 2nd column after the highlight row. */
+ion-picker-legacy.jalali-date-picker ion-picker-legacy-column:nth-child(3) {
+  flex: 2.4 1 0;
+  min-width: 7.75rem;
+  max-width: 58%;
+}
+
 @import 'app/shared/styles/tools-shop-dark.theme';
 
 /* -------------------------------------------------------------------------- */

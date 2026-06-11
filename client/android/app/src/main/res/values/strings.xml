@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">NouraCare</string>
-    <string name="title_activity_main">NouraCare</string>
-    <string name="package_name">com.tecknnycs.nouracare</string>
-    <string name="custom_url_scheme">com.tecknnycs.nouracare</string>
+    <string name="app_name">دوره</string>
+    <string name="title_activity_main">دوره</string>
+    <string name="package_name">com.tecknnycs.dorehealth</string>
+    <string name="custom_url_scheme">com.tecknnycs.dorehealth</string>
 </resources>

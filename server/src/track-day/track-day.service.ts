@@ -123,7 +123,6 @@ export class TrackDayService {
       throw new NotFoundException('Track day not found');
     }
 
-    console.log('trackDay', trackDay);
     return {
       ...trackDay,
       mood: trackDay.mood ? JSON.parse(trackDay.mood) : null,

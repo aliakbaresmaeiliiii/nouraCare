@@ -13,10 +13,11 @@
   padding: 2rem 1.25rem;
   min-height: min(70dvh, 560px);
 
-  ion-spinner {
-    --color: var(--ion-color-primary, var(--brand-primary));
-    width: 2.5rem;
-    height: 2.5rem;
+  &__mark {
+    width: 4rem;
+    height: 4rem;
+    object-fit: contain;
+    animation: app-logo-loading-pulse 1.4s ease-in-out infinite;
   }
 }
 
@@ -24,9 +25,9 @@
   min-height: auto;
   padding: 1.25rem 1rem;
 
-  ion-spinner {
-    width: 2rem;
-    height: 2rem;
+  .app-logo-loading__mark {
+    width: 3rem;
+    height: 3rem;
   }
 }
 
@@ -38,4 +39,17 @@
   text-align: center;
   max-width: 280px;
   line-height: 1.45;
+}
+
+@keyframes app-logo-loading-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.94);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

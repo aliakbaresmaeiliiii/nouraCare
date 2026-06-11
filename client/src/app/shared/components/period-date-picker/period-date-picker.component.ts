@@ -299,6 +299,9 @@ export class PeriodDatePickerComponent implements OnInit, OnChanges {
       } else {
         this.currentMonth.set(new Date(today.getFullYear(), today.getMonth(), 1));
       }
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      this.selectedStartDate.set(d);
+      this.emitRange(d);
     }
   }
 

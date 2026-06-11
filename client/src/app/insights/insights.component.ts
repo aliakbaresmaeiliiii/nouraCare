@@ -307,7 +307,7 @@ export class InsightsComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   openPremiumPage(): void {
-    void this.router.navigate(['/nouracare-pro']);
+    void this.router.navigate(['/dorehealth-pro']);
   }
 
   openFavorites(): void {
@@ -358,10 +358,10 @@ export class InsightsComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   getFallbackImage(category: string): string {
     const fallbacks = {
-      pregnancy: 'assets/images/image1.png',
+      pregnancy: 'assets/images/welcome2.jpg',
       intimacy: 'assets/images/welcome2.jpg',
       symptoms: 'assets/images/bg-01.png',
-      nutrition: 'assets/images/image1.png',
+      nutrition: 'assets/images/welcome2.jpg',
       baby: 'assets/images/welcome2.jpg',
     };
     return (

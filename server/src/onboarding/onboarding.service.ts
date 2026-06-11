@@ -148,8 +148,6 @@ export class OnboardingService {
         delete data.pregnancy_week;
       }
 
-      console.log('Saving onboarding data (debug mode)', data);
-
       // Allow partial progress (e.g. user chose "tracking" before the LMP step).
       // LMP is collected before finish; validate at completion if needed.
 
@@ -159,7 +157,6 @@ export class OnboardingService {
         expiresAt,
       });
       
-      console.log(`Onboarding data saved successfully with session ID: ${sessionId}`);
       return { 
         sessionId, 
         message: 'Onboarding progress saved successfully'

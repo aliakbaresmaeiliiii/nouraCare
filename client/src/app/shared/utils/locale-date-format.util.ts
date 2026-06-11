@@ -76,7 +76,7 @@ export function getCalendarWeekdayLabels(languageCode: string): string[] {
 
 export function formatHistoryDayDate(date: Date, languageCode: string): string {
   if (isPersianAppLanguage(languageCode)) {
-    return format(date, 'EEE d MMM yyyy', FA);
+    return format(date, 'EEE d MMMM yyyy', FA);
   }
   return date.toLocaleDateString(undefined, {
     weekday: 'short',
@@ -116,7 +116,7 @@ export function formatMonthYearTitle(date: Date, languageCode: string): string {
 /** Center headline date above the cycle ring (was `date: 'EEE, MMM d, yyyy'`). */
 export function formatCycleStripCenterDate(date: Date, languageCode: string): string {
   if (isPersianAppLanguage(languageCode)) {
-    return format(date, 'EEE, d MMM yyyy', FA);
+    return format(date, 'EEE, d MMMM yyyy', FA);
   }
   return date.toLocaleDateString('en-US', {
     weekday: 'short',
@@ -129,7 +129,7 @@ export function formatCycleStripCenterDate(date: Date, languageCode: string): st
 /** Short “day month” for phase markers (period start, ovulation, etc.). */
 export function formatCyclePhaseShortDate(date: Date, languageCode: string): string {
   if (isPersianAppLanguage(languageCode)) {
-    return format(date, 'd MMM', FA);
+    return format(date, 'd MMMM', FA);
   }
   return date.toLocaleDateString(undefined, {
     day: '2-digit',

@@ -114,21 +114,9 @@ function isBrokenPlaceholder(filePath) {
 }
 
 async function repairBrokenPlaceholders() {
-  const sourceIcon = path.join(clientRoot, 'src/assets/pwa/source-icon.svg');
+  const sourceLogo = path.join(clientRoot, 'src/assets/branding/logo.png');
   const welcomeJpg = path.join(clientRoot, 'src/assets/images/welcome2.jpg');
   const nurse = path.join(clientRoot, 'src/assets/images/nurse.png');
-
-  const appIconWelcome = path.join(clientRoot, 'src/assets/branding/AppIcon-welcome.png');
-  if (fs.existsSync(sourceIcon)) {
-    await sharp(sourceIcon)
-      .resize(224, 224, {
-        fit: 'contain',
-        background: { r: 248, g: 250, b: 252, alpha: 1 },
-      })
-      .png({ compressionLevel: PNG_COMPRESSION, palette: true, effort: 10 })
-      .toFile(appIconWelcome);
-    console.log('Regenerated AppIcon-welcome.png from source-icon.svg (224px)');
-  }
 
   const welcome2Png = path.join(clientRoot, 'src/assets/images/welcome2.png');
   if (fs.existsSync(welcome2Png) && fs.existsSync(welcomeJpg)) {
@@ -170,10 +158,7 @@ function optimizeSvg(filePath) {
 
 async function ensureMissingAvatars() {
   const nurse = path.join(clientRoot, 'src/assets/images/nurse.png');
-  const targets = [
-    path.join(clientRoot, 'src/assets/default-avatar.png'),
-    path.join(clientRoot, 'src/assets/images/user-avatar.png'),
-  ];
+  const targets = [path.join(clientRoot, 'src/assets/default-avatar.png')];
 
   if (!fs.existsSync(nurse)) return;
 
@@ -190,10 +175,18 @@ async function ensureMissingAvatars() {
 
 /** Asset paths not referenced anywhere in the app (verified against src/). */
 const UNUSED_ASSET_PATHS = [
+  'src/assets/branding/AppIcon-welcome.png',
   'src/assets/branding/AppIcon.png',
   'src/assets/branding/appIcon1.png',
   'src/assets/branding/download.png',
   'src/assets/branding/finger-heart.png',
+  'src/assets/branding/nouracare-icon.svg',
+  'src/assets/branding/nouracare-logo.svg',
+  'src/assets/branding/nouracare-wordmark.svg',
+  'src/assets/branding/nouracare-splash-name.svg',
+  'src/assets/pwa/source-icon.svg',
+  'src/assets/images/image1.png',
+  'src/assets/images/user-avatar.png',
   'src/assets/images/welcome1.jpg',
   'src/assets/images/welcome3.jpg',
   'src/assets/images/avatarMen.png',
@@ -223,6 +216,7 @@ const UNUSED_ASSET_DIRS = [
   'src/assets/images/fetus',
   'src/assets/images/sliders',
   'src/assets/images/tools',
+  'src/assets/pwa',
 ];
 
 function removePath(targetPath) {

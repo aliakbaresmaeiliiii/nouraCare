@@ -350,6 +350,25 @@ model cycle_data {
   predictionErrors           Json?
 }
 
+/// Cached daily menstrual insights (rule-based or AI) — one row per user per calendar day.
+model daily_cycle_insight {
+  id          Int                    @id @default(autoincrement())
+  userId      Int
+  insightDate DateTime               @db.Date
+  insight     String                 @db.Text
+  source      daily_insight_source   @default(RULE)
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime
+
+  @@unique([userId, insightDate])
+  @@index([userId], map: "daily_cycle_insight_userId_idx")
+}
+
+enum daily_insight_source {
+  RULE
+  AI
+}
+
 model refresh_tokens {
   id        String   @id
   token     String   @unique

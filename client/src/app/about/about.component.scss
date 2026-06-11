@@ -1,4 +1,4 @@
-// About NouraCare — Ionic tokens (light + dark via ion-app / html.ion-palette-dark)
+// About DoreHealth — Ionic tokens (light + dark via ion-app / html.ion-palette-dark)
 .about-content {
   --background: linear-gradient(
     180deg,
@@ -37,17 +37,17 @@
   .app-logo {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
-    border-radius: 50%;
+    margin: 0 auto 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 20px;
-    box-shadow: 0 10px 30px rgba(var(--ion-color-primary-rgb), 0.28);
+    filter: drop-shadow(0 10px 24px rgba(var(--ion-color-primary-rgb), 0.22));
 
-    .logo-icon {
-      color: var(--ion-color-primary-contrast);
-      font-size: 2.5rem;
+    &__img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
   }
 
@@ -523,10 +523,6 @@
     .app-logo {
       width: 70px;
       height: 70px;
-
-      .logo-icon {
-        font-size: 2rem;
-      }
     }
   }
 

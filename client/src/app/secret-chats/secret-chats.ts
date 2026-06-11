@@ -70,8 +70,6 @@ export class SecretChatsComponent implements OnInit {
   }
 
   async createNewPost() {
-    console.log('🆕 Opening create post modal...');
-
     // Check if user has access to create posts
     if (!this.canUserCreatePosts()) {
       this.showToast(this.t('secretChats.toast.needChatMember'), 'warning');
@@ -83,13 +81,6 @@ export class SecretChatsComponent implements OnInit {
       (chat) => chat.id === this.selectedChatId
     );
     const userRole = this.getCurrentUserRole(selectedChat);
-
-    console.log(
-      '👤 Creating post as:',
-      userRole,
-      'in chat:',
-      selectedChat?.name
-    );
 
     const { CreatePostModalComponent } = await import(
       '../shared/components/create-post-modal/create-post-modal.component'
@@ -111,8 +102,6 @@ export class SecretChatsComponent implements OnInit {
 
     const { data, role } = await modal.onDidDismiss();
     if (role === 'success' && data) {
-      console.log('✅ Post creation confirmed:', data);
-
       // Add the new post to the feed
       this.addNewPostToFeed(data);
     }
@@ -121,8 +110,6 @@ export class SecretChatsComponent implements OnInit {
   getUserChats(page: number = 1) {
     this.secretChatsService.getUserChats().subscribe({
       next: (response: any) => {
-        console.log('📋 User chats loaded:', response);
-
         // Extract chats from response.data
         const chats = response.data || response;
 
@@ -132,12 +119,6 @@ export class SecretChatsComponent implements OnInit {
 
           // Use the first chat's ID
           this.selectedChatId = chats[0].id;
-          console.log('🎯 Selected chatId:', this.selectedChatId);
-          console.log('📝 Chat name:', chats[0].name);
-          console.log(
-            '👥 User role in this chat:',
-            chats[0].currentUserRole || 'MEMBER'
-          );
 
           // Now load posts for this chat
           this.loadPosts(page);
@@ -154,8 +135,7 @@ export class SecretChatsComponent implements OnInit {
     });
   }
 
-  private addNewPostToFeed(postData: any) {
-    console.log('✅ Post created successfully:', postData);
+  private addNewPostToFeed(_postData: any) {
     this.showToast(this.t('secretChats.toast.postCreated'), 'success');
 
     // Reload posts from API to get the latest data
@@ -211,8 +191,6 @@ export class SecretChatsComponent implements OnInit {
     
     this.secretChatsService.togglePostLike(post.id).subscribe({
       next: (response: { liked: boolean }) => {
-        console.log('✅ Like toggled:', response);
-        
         // Update with actual server response
         post.isLiked = response.liked;
         
@@ -345,20 +323,17 @@ export class SecretChatsComponent implements OnInit {
       .substring(0, 2);
   }
 
-  showPostMenu(post: any, event: Event) {
+  showPostMenu(_post: any, event: Event) {
     event.stopPropagation();
-    console.log('📋 Post menu for:', post.id);
     // TODO: Implement post menu (edit, delete, report, etc.)
   }
 
-  showComments(post: any) {
-    console.log('💬 Show comments for post:', post.id);
+  showComments(_post: any) {
     // TODO: Navigate to comments view or open comments modal
   }
 
   sharePost(post: any) {
     post.stopPropagation();
-    console.log('📤 Share post:', post.id);
     // TODO: Implement share functionality
     this.showToast(this.t('secretChats.toast.shareComingSoon'), 'primary');
   }

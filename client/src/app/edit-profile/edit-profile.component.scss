@@ -1854,6 +1854,13 @@ ion-item:focus-visible {
   max-width: 100%;
 }
 
+.edit-profile-dob-sheet ion-picker.jalali-date-picker ion-picker-column:nth-child(2) {
+  flex: 2.4 1 0;
+  min-width: 7.75rem;
+  max-width: 58%;
+  font-size: 19px;
+}
+
 .edit-profile-dob-feedback {
   margin: 0 16px 12px;
 }
