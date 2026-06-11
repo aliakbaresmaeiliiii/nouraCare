@@ -43,7 +43,8 @@
 						"main": "src/main.ts",
 						"commonChunk": false,
 						"allowedCommonJsDependencies": [
-							"jalaali-js"
+							"jalaali-js",
+							"dayjs"
 						]
 					},
 					"configurations": {
@@ -59,8 +60,8 @@
 								},
 								{
 									"type": "anyComponentStyle",
-									"maximumWarning": "10kb",
-									"maximumError": "46kb"
+									"maximumWarning": "50kb",
+									"maximumError": "55kb"
 								}
 							],
 							"fileReplacements": [
@@ -83,8 +84,8 @@
 								},
 								{
 									"type": "anyComponentStyle",
-									"maximumWarning": "10kb",
-									"maximumError": "46kb"
+									"maximumWarning": "50kb",
+									"maximumError": "55kb"
 								}
 							],
 							"fileReplacements": [

@@ -10,6 +10,7 @@
  */
 
 // Import RTL support for Persian language
+@use 'sass:meta';
 @use 'rtl.scss';
 
 // Beautiful Typography System
@@ -2123,7 +2124,7 @@ ion-picker-legacy.jalali-date-picker ion-picker-legacy-column:nth-child(3) {
   max-width: 58%;
 }
 
-@import 'app/shared/styles/tools-shop-dark.theme';
+@include meta.load-css('app/shared/styles/tools-shop-dark.theme');
 
 /* -------------------------------------------------------------------------- */
 /* Light appearance — readable text on pastel surfaces (explicit + desync fix) */

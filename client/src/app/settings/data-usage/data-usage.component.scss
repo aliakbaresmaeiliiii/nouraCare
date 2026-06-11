@@ -1,4 +1,4 @@
-@import '../privacy-settings/privacy-settings.component.scss';
+@use '../privacy-settings/privacy-settings.component.scss' as *;
 
 .stat-card {
   display: flex;
