@@ -11,8 +11,8 @@ import {
   PaymentResult,
 } from '../models/payment.models';
 
-const ORDER_STORAGE_KEY = 'noura_payment_order';
-const RESULT_STORAGE_KEY = 'noura_payment_result';
+const ORDER_STORAGE_KEY = 'dore_payment_order';
+const RESULT_STORAGE_KEY = 'dore_payment_result';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentCheckoutService {

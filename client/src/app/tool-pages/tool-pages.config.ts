@@ -48,10 +48,10 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     icon: 'newspaper-outline',
     items: [
       {
-        id: 'nora-school',
+        id: 'dore-school',
         icon: 'school-outline',
-        titleKey: 'toolsMenu.noraSchool',
-        descKey: 'toolsMenu.noraSchoolDesc',
+        titleKey: 'toolsMenu.doreSchool',
+        descKey: 'toolsMenu.doreSchoolDesc',
         externalRoute: '/tabs/school',
         color: '#6366f1',
       },

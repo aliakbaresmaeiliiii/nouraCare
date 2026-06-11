@@ -2,7 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import { getProductById } from '../data/shop-catalog.data';
 import { CartLine, ShopProduct } from '../models/shop.models';
 
-const STORAGE_KEY = 'noura_shop_cart';
+const STORAGE_KEY = 'dore_shop_cart';
 
 @Injectable({ providedIn: 'root' })
 export class ShopCartService {

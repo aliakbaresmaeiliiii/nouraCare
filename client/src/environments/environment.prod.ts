@@ -26,7 +26,7 @@ export const environment = {
   privacyPolicyUrl: 'https://dorehealth.app/privacy',
 
   /** Public HTTPS URL where the PWA is hosted (Add to Home Screen on iOS). */
-  pwaInstallUrl: 'https://noura-4f0ab.web.app',
+  pwaInstallUrl: 'https://dorehealth.app',
 
   neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',

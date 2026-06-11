@@ -15,8 +15,8 @@ const TOOLS_MENU_EN: Record<string, string> = {
   'toolsMenu.cat.growth': 'Growth Tracking',
   'toolsMenu.cat.growthSub': 'Charts and development quiz',
 
-  'toolsMenu.noraSchool': 'Noura School',
-  'toolsMenu.noraSchoolDesc': 'Week-by-week baby development',
+  'toolsMenu.doreSchool': 'Dore School',
+  'toolsMenu.doreSchoolDesc': 'Week-by-week baby development',
   'toolsMenu.nutritionFacts': 'Nutrition Facts',
   'toolsMenu.nutritionFactsDesc': 'Essential pregnancy nutrition tips',
   'toolsMenu.sleepFacts': 'Sleep Facts',
@@ -337,8 +337,8 @@ const TOOLS_MENU_FA: Record<string, string> = {
   'toolsMenu.cat.growth': 'ثبت رشد',
   'toolsMenu.cat.growthSub': 'نمودار و آزمون رشد',
 
-  'toolsMenu.noraSchool': 'مدرسه دوره',
-  'toolsMenu.noraSchoolDesc': 'رشد هفته‌به‌هفته جنین',
+  'toolsMenu.doreSchool': 'مدرسه دوره',
+  'toolsMenu.doreSchoolDesc': 'رشد هفته‌به‌هفته جنین',
   'toolsMenu.nutritionFacts': 'دانستنی‌های تغذیه',
   'toolsMenu.nutritionFactsDesc': 'نکات ضروری تغذیه در بارداری',
   'toolsMenu.sleepFacts': 'دانستنی‌های خواب',

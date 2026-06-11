@@ -34,7 +34,7 @@ export interface GrowthEntry {
 
 @Injectable({ providedIn: 'root' })
 export class ToolStorageService {
-  private prefix = 'noura_tool_';
+  private prefix = 'dore_tool_';
 
   get<T>(key: string, fallback: T): T {
     try {

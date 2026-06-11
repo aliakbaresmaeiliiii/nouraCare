@@ -23,7 +23,7 @@ const PAYMENT_EN: Record<string, string> = {
   'payment.method.online.title': 'Online payment',
   'payment.method.online.subtitle': 'Pay with any Iranian bank card (Shaparak)',
   'payment.method.online.badge': 'Recommended',
-  'payment.method.wallet.title': 'Noura Wallet',
+  'payment.method.wallet.title': 'Dore Wallet',
   'payment.method.wallet.subtitle': 'Pay instantly from your wallet balance',
   'payment.method.snappPay.title': 'Snapp Pay',
   'payment.method.snappPay.subtitle': 'Pay in 4 interest-free installments',

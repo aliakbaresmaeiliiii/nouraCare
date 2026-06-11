@@ -1,6 +1,6 @@
 const SHOP_EN: Record<string, string> = {
   'shop.title': 'Shop',
-  'shop.heroTitle': 'Noura Store',
+  'shop.heroTitle': 'Dore Store',
   'shop.heroSubtitle': 'Curated essentials for mom and baby',
   'shop.searchPlaceholder': 'Search products...',
   'shop.filters': 'Filters',

@@ -25,7 +25,7 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_NOURA_4F0AB }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DOREHEALTH }}
           channelId: live
-          projectId: noura-4f0ab
+          projectId: dorehealth
           entryPoint: client
