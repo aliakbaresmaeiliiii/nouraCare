@@ -22,6 +22,7 @@ import {
   markEmailVerificationSent,
 } from '../constants/email-verification.constants';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
+import { LANGUAGE_SWITCHING_ENABLED } from '../../shared/services/language.service';
 import {
   BehaviorSubject,
   EMPTY,
@@ -60,6 +61,7 @@ import {
 export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
   readonly otpLength = EMAIL_OTP_LENGTH;
   readonly appleSignInEnabled = environment.appleSignInEnabled;
+  readonly languageSwitchingEnabled = LANGUAGE_SWITCHING_ENABLED;
 
   /** Drives title color sweep once the login page is visible. */
   titlePaintActive = false;

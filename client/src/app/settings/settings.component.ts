@@ -42,7 +42,7 @@ import {
 
 import { TranslationService } from '../shared/services/translation.service';
 
-import { LanguageService } from '../shared/services/language.service';
+import { LanguageService, LANGUAGE_SWITCHING_ENABLED } from '../shared/services/language.service';
 
 import { User } from '../shared/services/user';
 
@@ -196,27 +196,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 
 
+  readonly languageSwitchingEnabled = LANGUAGE_SWITCHING_ENABLED;
+
   appSettings: SettingItem[] = [
 
-    {
-
-      id: 'language',
-
-      titleKey: 'common.language',
-
-      subtitleKey: 'settings.language.subtitle',
-
-      icon: 'language-outline',
-
-      type: 'button',
-
-      action: () => {
-
-        void this.openLanguageSheet();
-
-      },
-
-    },
+    ...(LANGUAGE_SWITCHING_ENABLED
+      ? [
+          {
+            id: 'language',
+            titleKey: 'common.language',
+            subtitleKey: 'settings.language.subtitle',
+            icon: 'language-outline',
+            type: 'button' as const,
+            action: () => {
+              void this.openLanguageSheet();
+            },
+          },
+        ]
+      : []),
 
     {
 

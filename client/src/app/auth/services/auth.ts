@@ -10,6 +10,10 @@ import { LoginRequest } from '../login/model/login-request-interface';
 import { RegisterRequest } from '../login/model/register-request-interface';
 import { User } from '../login/model/uesr-interface';
 import { JwtPayload, TokenResponse } from '../models/token.interface';
+import {
+  DEFAULT_APP_LANGUAGE,
+  LANGUAGE_SWITCHING_ENABLED,
+} from '../../shared/services/language.service';
 
 @Injectable({
   providedIn: 'root',
@@ -421,10 +425,13 @@ export class AuthService {
   }
 
   private getClientLocale(): string {
-    if (typeof localStorage === 'undefined') {
-      return 'fa';
+    if (!LANGUAGE_SWITCHING_ENABLED) {
+      return DEFAULT_APP_LANGUAGE;
     }
-    return localStorage.getItem('selectedLanguage') || 'fa';
+    if (typeof localStorage === 'undefined') {
+      return DEFAULT_APP_LANGUAGE;
+    }
+    return localStorage.getItem('selectedLanguage') || DEFAULT_APP_LANGUAGE;
   }
 
   /**

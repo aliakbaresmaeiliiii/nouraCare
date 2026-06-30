@@ -116,6 +116,7 @@
 
     </div>
 
+    @if (languageSwitchingEnabled) {
     <div class="action-card" (click)="onSettingClick(appSettings[0])">
 
       <div class="action-icon language-icon">
@@ -127,6 +128,7 @@
       <span class="action-label">{{ 'common.language' | translate }}</span>
 
     </div>
+    }
 
     <div class="action-card" (click)="onSettingClick(accountSettings[1])">
 

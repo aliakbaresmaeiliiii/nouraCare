@@ -12,7 +12,7 @@
 const BACKEND_PROFILES = {
   /** Home Wi‑Fi — API running on your LAN PC (update IP with `ipconfig`) */
   // house: '10.55.243.237',
-  house: '192.168.1.143',
+  house: '192.168.1.151',
   /** Phone hotspot — use your laptop IP as seen on the hotspot */
   phone: '172.20.10.2',
   /** Redmi Note 14 — API running on your Redmi Note 14 */
@@ -27,7 +27,7 @@ const BACKEND_PROFILES = {
  * Set to `house`, `phone`, or `coffee` to switch where API requests go.
  * Used by `ng serve` and `npm run cap:sync:mobile` (not plain `ng build`, which uses production API).
  */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'coffee';
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'house';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';
@@ -78,14 +78,14 @@ export const environment = {
   /** Apple Services ID (Android / web). Create in Apple Developer. */
   appleServiceId: 'com.tecknnycs.dorehealth.signin',
   /** Apple redirect URL for web/Android (must match Apple Developer config). */
-  appleRedirectUrl: 'https://api.dorehealth.app/auth/apple/callback',
+  appleRedirectUrl: 'https://api.dorehealth.ir/auth/apple/callback',
   /** Temporarily hide/disable Sign in with Apple on auth screens. */
   appleSignInEnabled: false,
 
-  privacyPolicyUrl: 'https://dorehealth.app/privacy',
+  privacyPolicyUrl: 'https://dorehealth.ir/privacy',
 
   /** App metadata only — does NOT start the dev server. Use `npm start` + your PC IP:4200 on phone. */
-  pwaInstallUrl: 'http://192.168.1.10:4200',
+  pwaInstallUrl: 'http://192.168.1.151:4200',
 
   // Firebase (optional — uncomment in environment.prod.ts when needed)
   firebaseConfig: {
