@@ -1,7 +1,9 @@
 <ion-content class="login-page" [scrollY]="true">
+  @if (languageSwitchingEnabled) {
   <div class="language-section">
     <app-language-switcher></app-language-switcher>
   </div>
+  }
 
   <div class="login-layout">
     <header class="login-hero">

@@ -2,14 +2,14 @@
  * Production environment — used by `ng build` (see angular.json fileReplacements).
  *
  * Before store release:
- * 1. Set PROD_API_ORIGIN to your HTTPS API (e.g. https://api.dorehealth.app)
+ * 1. Set PROD_API_ORIGIN to your HTTPS API (e.g. https://api.dorehealth.ir)
  * 2. Create iOS OAuth client in Google Cloud → set googleIOSClientId
  * 3. Configure Sign in with Apple → set appleServiceId + appleRedirectUrl
  * 4. Match GOOGLE_CLIENT_IDS / APPLE_CLIENT_IDS on server .env
  */
 
 /** Public HTTPS origin of the NestJS API (no trailing slash). */
-const PROD_API_ORIGIN = 'https://api.dorehealth.app';
+const PROD_API_ORIGIN = 'https://api.dorehealth.ir';
 
 const API_VERSION_PATH = '/api/v1/';
 
@@ -23,10 +23,10 @@ export const environment = {
   profileImageFallback: 'assets/images/bg-01.png',
 
   /** Public URL for App Store / Play privacy policy field */
-  privacyPolicyUrl: 'https://dorehealth.app/privacy',
+  privacyPolicyUrl: 'https://dorehealth.ir/privacy',
 
   /** Public HTTPS URL where the PWA is hosted (Add to Home Screen on iOS). */
-  pwaInstallUrl: 'https://dorehealth.app',
+  pwaInstallUrl: 'https://dorehealth.ir',
 
   neshanBaseUrl: 'https://api.neshan.org',
   neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',

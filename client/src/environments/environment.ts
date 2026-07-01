@@ -12,7 +12,7 @@
 const BACKEND_PROFILES = {
   /** Home Wi‑Fi — API running on your LAN PC (update IP with `ipconfig`) */
   // house: '10.55.243.237',
-  house: '192.168.1.143',
+  house: '192.168.1.151',
   /** Phone hotspot — use your laptop IP as seen on the hotspot */
   phone: '172.20.10.2',
   /** Redmi Note 14 — API running on your Redmi Note 14 */
@@ -80,11 +80,11 @@ export const environment = {
   /** Apple Services ID (Android / web). Create in Apple Developer. */
   appleServiceId: 'com.tecknnycs.dorehealth.signin',
   /** Apple redirect URL for web/Android (must match Apple Developer config). */
-  appleRedirectUrl: 'https://api.dorehealth.app/auth/apple/callback',
+  appleRedirectUrl: 'https://api.dorehealth.ir/auth/apple/callback',
   /** Temporarily hide/disable Sign in with Apple on auth screens. */
   appleSignInEnabled: false,
 
-  privacyPolicyUrl: 'https://dorehealth.app/privacy',
+  privacyPolicyUrl: 'https://dorehealth.ir/privacy',
 
   /** App metadata only — does NOT start the dev server. Use `npm start` + your PC IP:4200 on phone. */
   pwaInstallUrl: 'http://192.168.1.143:4200',
