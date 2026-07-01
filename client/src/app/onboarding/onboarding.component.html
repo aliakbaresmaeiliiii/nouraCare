@@ -1,4 +1,9 @@
 <ion-content class="onboarding-content" [scrollY]="true">
+  @if (!languageReady) {
+    <div class="onboarding-language-gate" role="status" aria-live="polite">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+  } @else {
   <div class="onboarding-ambient" aria-hidden="true">
     <span class="onboarding-orb onboarding-orb--primary"></span>
     <span class="onboarding-orb onboarding-orb--secondary"></span>
@@ -371,5 +376,6 @@
         </app-button>
       </div>
     </footer>
+  }
   }
 </ion-content>

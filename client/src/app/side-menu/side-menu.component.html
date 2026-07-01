@@ -34,6 +34,34 @@
     </ion-toolbar>
   </ion-header>
 
+  <!-- Instagram-style: notifications & language right under profile -->
+  <div class="ig-quick-nav">
+    <ion-menu-toggle auto-hide="false">
+      <button type="button" class="ig-quick-nav__row" (click)="openNotifications()">
+        <span class="ig-quick-nav__icon-wrap" aria-hidden="true">
+          <ion-icon name="notifications-outline" class="ig-quick-nav__icon"></ion-icon>
+          @if (unreadCount > 0) {
+            <span class="ig-quick-nav__dot"></span>
+          }
+        </span>
+        <span class="ig-quick-nav__label">{{ 'menu.notifications' | translate }}</span>
+        @if (unreadCount > 0) {
+          <span class="ig-quick-nav__count">{{ unreadBadgeText | localNum }}</span>
+        }
+      </button>
+    </ion-menu-toggle>
+
+    <button type="button" class="ig-quick-nav__row" (click)="openLanguageSheet()">
+      <span class="ig-quick-nav__icon-wrap" aria-hidden="true">
+        <ion-icon name="language-outline" class="ig-quick-nav__icon"></ion-icon>
+      </span>
+      <span class="ig-quick-nav__label">{{ 'common.language' | translate }}</span>
+      <span class="ig-quick-nav__meta">{{ currentLanguageLabel }}</span>
+    </button>
+  </div>
+
+  <div class="menu-divider menu-divider--tight"></div>
+
   <!-- Menu Content -->
   <ion-content class="menu-content">
     <!-- Main Menu Items -->

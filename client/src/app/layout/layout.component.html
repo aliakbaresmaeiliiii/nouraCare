@@ -16,22 +16,6 @@
       </ion-buttons>
 
       <div slot="end" class="header-right">
-        <ion-button
-          fill="clear"
-          class="header-action header-action--notifications"
-          (click)="openNotifications()"
-          [attr.aria-label]="notificationsAriaLabel"
-        >
-          <span class="notification-bell" aria-hidden="true">
-            <ion-icon name="notifications-outline"></ion-icon>
-            @if (unreadCount > 0) {
-              <span class="notification-bell__badge">{{ unreadBadgeText | localNum }}</span>
-            }
-          </span>
-        </ion-button>
-
-        <app-header-language-switcher></app-header-language-switcher>
-
         <ion-button fill="clear" class="header-action" (click)="openProfile()">
           <div class="profile-avatar">
             @if (hasUserAvatar && headerAvatarSrc) {

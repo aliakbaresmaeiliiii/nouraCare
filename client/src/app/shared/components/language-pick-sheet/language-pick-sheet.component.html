@@ -1,0 +1,64 @@
+<div class="language-pick">
+  <div class="language-pick__handle" aria-hidden="true"></div>
+
+  <header class="language-pick__header">
+    <p class="language-pick__eyebrow" dir="rtl">زبان خود را انتخاب کنید</p>
+    <h2 class="language-pick__title">Choose your language</h2>
+    <p class="language-pick__subtitle">
+      We’ll show onboarding in the language you pick. You can change it later in Settings.
+    </p>
+    <p class="language-pick__subtitle language-pick__subtitle--fa" dir="rtl">
+      مراحل شروع با زبانی که انتخاب می‌کنید نمایش داده می‌شود. بعداً از تنظیمات می‌توانید تغییرش دهید.
+    </p>
+  </header>
+
+  <div
+    class="language-pick__options"
+    role="listbox"
+    aria-label="Choose your language"
+  >
+    <button
+      type="button"
+      class="language-pick__option"
+      [class.language-pick__option--selected]="selected() === 'fa'"
+      [disabled]="isConfirming()"
+      role="option"
+      [attr.aria-selected]="selected() === 'fa'"
+      (click)="selectLanguage('fa')"
+    >
+      <span class="language-pick__flag" aria-hidden="true">🇮🇷</span>
+      <span class="language-pick__copy">
+        <span class="language-pick__label" dir="rtl">فارسی</span>
+        <span class="language-pick__hint">Persian · RTL</span>
+      </span>
+      <ion-icon
+        name="checkmark-circle"
+        class="language-pick__check"
+        [class.language-pick__check--visible]="selected() === 'fa'"
+        aria-hidden="true"
+      ></ion-icon>
+    </button>
+
+    <button
+      type="button"
+      class="language-pick__option"
+      [class.language-pick__option--selected]="selected() === 'en'"
+      [disabled]="isConfirming()"
+      role="option"
+      [attr.aria-selected]="selected() === 'en'"
+      (click)="selectLanguage('en')"
+    >
+      <span class="language-pick__flag" aria-hidden="true">🇺🇸</span>
+      <span class="language-pick__copy">
+        <span class="language-pick__label">English</span>
+        <span class="language-pick__hint">Left to right</span>
+      </span>
+      <ion-icon
+        name="checkmark-circle"
+        class="language-pick__check"
+        [class.language-pick__check--visible]="selected() === 'en'"
+        aria-hidden="true"
+      ></ion-icon>
+    </button>
+  </div>
+</div>

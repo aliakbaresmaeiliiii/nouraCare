@@ -17,6 +17,13 @@
   color: var(--brand-text);
 }
 
+.onboarding-language-gate {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  background: var(--app-gradient-header);
+}
+
 .onboarding-ambient {
   position: fixed;
   inset: 0;

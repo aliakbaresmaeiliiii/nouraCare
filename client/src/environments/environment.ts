@@ -21,13 +21,15 @@ const BACKEND_PROFILES = {
   coffee: '192.168.1.10',
   /** phone pedar (e.g. café) */
   phonePedar: '10.209.157.237',
+
+  abbas: '10.42.0.177',
 } as const;
 
 /**
  * Set to `house`, `phone`, or `coffee` to switch where API requests go.
  * Used by `ng serve` and `npm run cap:sync:mobile` (not plain `ng build`, which uses production API).
  */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'coffee';
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'house';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';
@@ -85,7 +87,7 @@ export const environment = {
   privacyPolicyUrl: 'https://dorehealth.app/privacy',
 
   /** App metadata only — does NOT start the dev server. Use `npm start` + your PC IP:4200 on phone. */
-  pwaInstallUrl: 'http://192.168.1.10:4200',
+  pwaInstallUrl: 'http://192.168.1.143:4200',
 
   // Firebase (optional — uncomment in environment.prod.ts when needed)
   firebaseConfig: {

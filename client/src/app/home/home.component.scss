@@ -18,12 +18,12 @@
 }
 
 .home-content {
-  --home-section-gap: var(--app-space-6);
-  --home-block-gap: var(--app-space-4);
-  --home-title-gap: var(--app-space-3);
-  --home-inline-gap: var(--app-space-3);
-  --home-shell-padding-block-start: var(--app-space-4);
-  --home-shell-padding-block-end: var(--app-space-6);
+  --home-section-gap: var(--app-space-8);
+  --home-block-gap: var(--app-space-5);
+  --home-title-gap: var(--app-space-4);
+  --home-inline-gap: var(--app-space-4);
+  --home-shell-padding-block-start: var(--app-space-5);
+  --home-shell-padding-block-end: calc(var(--app-space-8) + var(--app-space-2));
   /* Fold-aware sizing — overridden on phone to keep insight cards above the tab bar */
   --home-preg-hero-max: 304px;
   --home-fold-chart-height: min(94vw, 380px);
@@ -356,6 +356,9 @@
 
 .cycle-today-shell {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-section-gap);
   margin-top: 0;
   padding: var(--home-shell-padding-block-start) var(--app-side-padding, 1rem)
     var(--home-shell-padding-block-end);
@@ -462,9 +465,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--home-block-gap);
-  margin-bottom: var(--home-block-gap);
-  padding: var(--home-block-gap);
-  border-radius: 20px;
+  margin: 0;
+  padding: calc(var(--home-block-gap) + var(--app-space-1))
+    calc(var(--home-block-gap) + var(--app-space-2));
+  border-radius: 22px;
   background: linear-gradient(145deg, #fff 0%, #fff5f9 100%);
   border: 1px solid rgba(219, 39, 119, 0.18);
   box-shadow:
@@ -630,7 +634,7 @@
   position: relative;
   z-index: 2;
   margin-inline: calc(-1 * var(--app-side-padding, 1rem));
-  padding: 0 0 clamp(1.25rem, 3.5vw, 2.25rem);
+  padding: var(--app-space-2) 0 clamp(1.5rem, 4vw, 2.75rem);
   text-align: center;
   overflow: visible;
   background: transparent;
@@ -685,10 +689,10 @@
 }
 
 .cycle-today-advice {
-  margin: clamp(0.35rem, 1.5vw, 0.65rem) auto 0;
-  padding: 0.72rem 1rem 0.65rem;
+  margin: clamp(0.75rem, 2.5vw, 1.15rem) auto 0;
+  padding: 0.9rem 1.1rem 0.85rem;
   max-width: 22rem;
-  border-radius: 14px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.78);
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 8px 24px rgba(219, 39, 119, 0.08);
@@ -752,7 +756,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--home-inline-gap);
-  margin: var(--home-block-gap) 0 0;
+  margin: 0;
 }
 
 .cycle-stat-card {
@@ -760,10 +764,10 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0.2rem;
-  min-height: 5.5rem;
-  padding: 0.65rem 0.45rem;
-  border-radius: 16px;
+  gap: 0.35rem;
+  min-height: 5.75rem;
+  padding: 0.85rem 0.55rem 0.75rem;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.72);
   background: rgba(255, 255, 255, 0.76);
   backdrop-filter: blur(14px);
@@ -835,17 +839,19 @@
 .cycle-phase-guide {
   position: relative;
   z-index: 2;
-  margin-top: var(--home-section-gap);
+  margin: 0;
+  padding-top: var(--app-space-1);
 }
 
-/* Phone / short viewport: shrink hero chrome so daily insight cards fit before scroll */
-@media (max-width: 480px), (max-height: 820px) {
+/* Phone: slightly tighter rhythm without crushing section breathing room */
+@media (max-width: 480px) {
   .home-content {
-    --home-section-gap: var(--app-space-3);
-    --home-block-gap: var(--app-space-2);
-    --home-title-gap: var(--app-space-2);
-    --home-shell-padding-block-start: var(--app-space-3);
-    --home-shell-padding-block-end: var(--app-space-4);
+    --home-section-gap: var(--app-space-6);
+    --home-block-gap: var(--app-space-4);
+    --home-title-gap: var(--app-space-3);
+    --home-inline-gap: var(--app-space-3);
+    --home-shell-padding-block-start: var(--app-space-4);
+    --home-shell-padding-block-end: var(--app-space-7);
   }
 
   .home-content--pregnancy-today {
@@ -873,38 +879,45 @@
   }
 
   .cycle-stats-grid {
-    margin-top: var(--app-space-2);
-    gap: var(--app-space-2);
+    gap: var(--app-space-3);
   }
 
   .cycle-stat-card {
-    min-height: 4.35rem;
-    padding: 0.5rem 0.35rem;
-  }
-
-  .cycle-phase-guide {
-    margin-top: var(--app-space-3);
+    min-height: 4.75rem;
+    padding: 0.65rem 0.4rem 0.6rem;
   }
 
   .cycle-phase-guide__header {
-    margin-bottom: var(--app-space-2);
+    margin-bottom: var(--app-space-3);
   }
 
   .cycle-guide-card {
-    min-height: 148px;
-    width: min(74vw, 240px);
-    padding: 0.7rem 0.75rem 0.65rem;
+    min-height: 156px;
+    width: min(76vw, 248px);
+    padding: 0.9rem 0.9rem 0.8rem;
+  }
+}
+
+/* Very short viewports only: compact hero so key cards stay reachable */
+@media (max-height: 640px) {
+  .home-content--cycle-today {
+    --home-fold-chart-height: min(70vw, 248px);
+    --home-fold-chart-min-height: 0;
+  }
+
+  .cycle-hero-sky {
+    padding-bottom: clamp(0.85rem, 2.5vw, 1.35rem);
   }
 }
 
 .cycle-phase-guide__header {
-  margin-bottom: var(--home-title-gap);
+  margin-bottom: calc(var(--home-title-gap) + var(--app-space-1));
   padding-inline: 0;
 }
 
 .cycle-phase-guide__title {
-  margin: 0 0 0.35rem;
-  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.12rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: #141414;
@@ -921,9 +934,9 @@
 
 .cycle-phase-guide__scroll {
   display: flex;
-  gap: var(--home-inline-gap);
+  gap: calc(var(--home-inline-gap) + var(--app-space-1));
   overflow-x: auto;
-  padding: 0 0 var(--app-space-2);
+  padding: var(--app-space-1) 0 var(--app-space-3);
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -937,12 +950,12 @@
   --guide-accent: #db2777;
   flex: 0 0 auto;
   scroll-snap-align: start;
-  width: min(78vw, 260px);
-  min-height: 168px;
+  width: min(78vw, 268px);
+  min-height: 176px;
   display: flex;
   flex-direction: column;
-  padding: 0.85rem 0.85rem 0.75rem;
-  border-radius: 18px;
+  padding: 1rem 1rem 0.9rem;
+  border-radius: 20px;
   border: 1px solid color-mix(in srgb, var(--guide-accent) 22%, transparent);
   background: linear-gradient(
     155deg,

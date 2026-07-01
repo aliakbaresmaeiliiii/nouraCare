@@ -31,9 +31,13 @@
 
 .pregnancy-today-shell {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-section-gap, var(--app-space-8));
   margin-top: 0;
-  padding: var(--home-shell-padding-block-start, var(--app-space-4))
-    var(--app-side-padding, 1rem) var(--home-shell-padding-block-end, var(--app-space-6));
+  padding: var(--home-shell-padding-block-start, var(--app-space-5))
+    var(--app-side-padding, 1rem)
+    var(--home-shell-padding-block-end, calc(var(--app-space-8) + var(--app-space-2)));
   z-index: 1;
 }
 
@@ -155,8 +159,8 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  margin: 0 calc(-1 * var(--app-side-padding, 1rem)) var(--home-block-gap, var(--app-space-4));
-  padding: 0 var(--app-side-padding, 1rem) var(--app-space-2);
+  margin: 0 calc(-1 * var(--app-side-padding, 1rem));
+  padding: 0 var(--app-side-padding, 1rem) var(--app-space-3);
   box-sizing: border-box;
   display: grid;
   grid-auto-flow: column;
@@ -642,9 +646,9 @@
 .pregnancy-input-banner {
   position: relative;
   z-index: 2;
-  margin: 0 0 var(--home-block-gap, var(--app-space-4));
-  padding: var(--home-block-gap, var(--app-space-4));
-  border-radius: 14px;
+  margin: 0;
+  padding: calc(var(--home-block-gap, var(--app-space-5)) + var(--app-space-1));
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(197, 118, 86, 0.25);
 
@@ -711,12 +715,15 @@
 .pregnancy-daily-insights {
   position: relative;
   z-index: 2;
-  margin-top: var(--home-block-gap, var(--app-space-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-block-gap, var(--app-space-5));
+  margin: 0;
 }
 
 .pregnancy-daily-insights-title {
-  margin: 0 0 var(--home-title-gap, var(--app-space-3));
-  font-size: 0.95rem;
+  margin: 0;
+  font-size: 1.02rem;
   font-weight: 800;
   color: #141414;
   letter-spacing: -0.01em;
@@ -914,12 +921,12 @@
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: 0.65rem;
+  gap: calc(var(--home-inline-gap, var(--app-space-4)) + var(--app-space-1));
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  padding: 0.1rem 0 0.15rem;
+  padding: var(--app-space-1) 0 var(--app-space-2);
   margin-inline: calc(-1 * var(--app-side-padding, 1rem));
   padding-inline: var(--app-side-padding, 1rem);
   scrollbar-width: none;
@@ -1216,18 +1223,18 @@
 .pds-action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--home-inline-gap, var(--app-space-3));
-  margin-top: var(--home-section-gap, var(--app-space-6));
+  gap: var(--home-inline-gap, var(--app-space-4));
+  margin: 0;
   padding-inline: 0;
 }
 
 .pds-action-tile {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  min-height: 4.35rem;
-  padding: 0.75rem 0.7rem;
-  border-radius: 16px;
+  gap: 0.65rem;
+  min-height: 4.65rem;
+  padding: 0.9rem 0.8rem;
+  border-radius: 18px;
   border: 1px solid rgba(0, 0, 0, 0.06);
   background: #fff;
   box-shadow:
@@ -1603,7 +1610,7 @@
 .pregnancy-post-due-card {
   position: relative;
   z-index: 2;
-  margin: var(--home-section-gap, var(--app-space-6)) 0 0;
+  margin: 0;
 }
 
 .pregnancy-post-due-card__inner {
@@ -1990,39 +1997,40 @@
 .home-feature-slider {
   position: relative;
   z-index: 2;
-  margin-top: var(--home-section-gap, var(--app-space-6));
+  margin: 0;
+  padding: var(--app-space-2) 0 0;
   padding-left: 0;
   padding-right: 0;
 }
 
 .home-feature-slider__header {
-  margin: 0 0 var(--home-title-gap, var(--app-space-3));
+  margin: 0 0 calc(var(--home-title-gap, var(--app-space-4)) + var(--app-space-1));
   padding-inline: 0;
 }
 
 .home-feature-slider__title {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.14rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   color: #141414;
 }
 
 .home-feature-slider__subtitle {
-  margin: 0.3rem 0 0;
-  font-size: 0.8rem;
-  line-height: 1.45;
+  margin: 0.45rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
   color: rgba(20, 20, 20, 0.52);
 }
 
 .home-feature-slider__track {
   display: flex;
-  gap: 0.85rem;
+  gap: calc(var(--home-inline-gap, var(--app-space-4)) + var(--app-space-2));
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  padding: 0.15rem 0 var(--app-space-2);
+  padding: var(--app-space-2) 0 var(--app-space-3);
   margin-inline: calc(-1 * var(--app-side-padding, 1rem));
   padding-inline: var(--app-side-padding, 1rem);
   scrollbar-width: none;
@@ -2453,10 +2461,9 @@
   }
 }
 
-@media (max-width: 480px), (max-height: 820px) {
+@media (max-width: 480px), (max-height: 640px) {
   .pregnancy-calendar-swiper {
-    margin-bottom: var(--app-space-2);
-    padding-bottom: 0.15rem;
+    padding-bottom: var(--app-space-2);
   }
 
   .pregnancy-calendar-week {

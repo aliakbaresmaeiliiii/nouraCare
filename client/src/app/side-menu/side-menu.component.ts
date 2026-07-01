@@ -12,6 +12,7 @@ import {
   documentTextOutline,
   heartOutline,
   informationCircleOutline,
+  languageOutline,
   lockClosedOutline,
   logOutOutline,
   logoInstagram,
@@ -38,6 +39,10 @@ import {
   ThemeService,
 } from '../shared/services/theme.service';
 import { TranslationService } from '../shared/services/translation.service';
+import {
+  LanguageService,
+} from '../shared/services/language.service';
+import { NotificationUnreadService } from '../shared/services/notification-unread.service';
 
 interface MenuItem {
   icon: string;
@@ -46,7 +51,7 @@ interface MenuItem {
   /** When true, row is non-interactive and shows the “coming soon” hint. */
   disabled?: boolean;
   route?: string;
-  action?: 'logout' | 'contact';
+  action?: 'logout' | 'contact' | 'language';
 }
 
 interface SocialLink {
@@ -75,7 +80,14 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   private themeService = inject(ThemeService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly translation = inject(TranslationService);
+  private readonly languageService = inject(LanguageService);
+  private readonly notificationUnread = inject(NotificationUnreadService);
   private themeSub?: Subscription;
+  private unreadSub?: Subscription;
+  private languageSub?: Subscription;
+
+  unreadCount = 0;
+  currentLanguage = 'fa';
 
   /** Bound to the appearance segment (light / dark / system). */
   themePreference: ThemePreference = 'system';
@@ -124,7 +136,6 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     { icon: 'settings-outline', label: 'menu.settings', route: '/settings' },
     { icon: 'refresh-outline', label: 'menu.checkUpdates', route: '/check-version' },
     { icon: 'person-add-outline', label: 'menu.inviteFriends', route: '/invite-friends' },
-    { icon: 'notifications-outline', label: 'menu.notifications', route: '/notifications' },
     { icon: 'mail-outline', label: 'menu.contactUs', action: 'contact' },
     { icon: 'document-text-outline', label: 'menu.termsOfService', route: '/terms' },
     { icon: 'lock-closed-outline', label: 'menu.privacyPolicy', route: '/privacy-policy' },
@@ -143,6 +154,7 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
       documentTextOutline,
       heartOutline,
       informationCircleOutline,
+      languageOutline,
       lockClosedOutline,
       logOutOutline,
       logoInstagram,
@@ -161,6 +173,39 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   ngOnDestroy(): void {
     this.themeSub?.unsubscribe();
+    this.unreadSub?.unsubscribe();
+    this.languageSub?.unsubscribe();
+  }
+
+  get unreadBadgeText(): string {
+    return this.unreadCount > 99 ? '99+' : String(this.unreadCount);
+  }
+
+  get currentLanguageLabel(): string {
+    const key = 'settings.langName.' + this.currentLanguage;
+    const translated = this.tr(key);
+    return translated !== key ? translated : this.languageService.getLanguageName(this.currentLanguage);
+  }
+
+  async openLanguageSheet(): Promise<void> {
+    const current = this.languageService.getCurrentLanguage();
+    const mark = (code: string) => (current === code ? ' ✓' : '');
+
+    const sheet = await this.actionSheetCtrl.create({
+      header: this.tr('common.language'),
+      buttons: [
+        ...this.languageService.getLanguages().map((lang) => ({
+          text: `${lang.flag} ${this.tr('settings.langName.' + lang.code)}${mark(lang.code)}`,
+          handler: () => this.languageService.setLanguage(lang.code),
+        })),
+        { text: this.tr('common.cancel'), role: 'cancel' },
+      ],
+    });
+    await sheet.present();
+  }
+
+  async openNotifications(): Promise<void> {
+    await this.router.navigate(['/notifications']);
   }
 
   onThemeSegmentChange(ev: Event): void {
@@ -295,12 +340,23 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   }
 
   ngOnInit() {
+    this.currentLanguage = this.languageService.getCurrentLanguage();
+    this.unreadCount = this.notificationUnread.getUnreadCount();
+
     this.loadUserProfile();
     this.syncThemeFromService();
     this.themeSub = merge(
       this.themeService.preferenceChanges$,
       this.themeService.appearanceChanged$,
     ).subscribe(() => this.syncThemeFromService());
+
+    this.unreadSub = this.notificationUnread.unreadCount$.subscribe((count) => {
+      this.unreadCount = count;
+    });
+
+    this.languageSub = this.languageService.currentLanguage$.subscribe((lang) => {
+      this.currentLanguage = lang;
+    });
   }
 
   ionViewWillEnter(): void {

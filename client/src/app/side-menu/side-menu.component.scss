@@ -146,6 +146,84 @@
   font-weight: 500;
 }
 
+// Instagram-style notifications + language (under profile)
+.ig-quick-nav {
+  padding: 4px 8px 8px;
+}
+
+.ig-quick-nav__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 12px;
+  margin: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--brand-text);
+  font-family: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(var(--brand-text-rgb), 0.06);
+  }
+
+  &:active {
+    background: rgba(var(--brand-text-rgb), 0.1);
+  }
+}
+
+.ig-quick-nav__icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.ig-quick-nav__icon {
+  font-size: 26px;
+  color: var(--brand-text);
+}
+
+.ig-quick-nav__dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ion-color-danger);
+  border: 2px solid var(--brand-surface);
+}
+
+.ig-quick-nav__label {
+  flex: 1;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ig-quick-nav__count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ion-color-danger);
+}
+
+.ig-quick-nav__meta {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(var(--brand-text-rgb), 0.55);
+  white-space: nowrap;
+}
+
 // Menu Content
 .menu-content {
   --background: transparent;
@@ -227,6 +305,11 @@
   font-weight: 600;
   padding: 2px 6px;
   border-radius: 10px;
+
+  &--alert {
+    --background: var(--ion-color-danger);
+    --color: var(--ion-color-danger-contrast);
+  }
 }
 
 .menu-item--disabled {

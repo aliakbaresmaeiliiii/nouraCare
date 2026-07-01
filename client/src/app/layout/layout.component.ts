@@ -13,16 +13,12 @@ import {
   constructOutline,
   homeOutline,
   menuOutline,
-  notificationsOutline,
   personCircleOutline,
   schoolOutline,
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
-import { LanguageService } from '../shared/services/language.service';
-import { NotificationUnreadService } from '../shared/services/notification-unread.service';
-import { TranslationService } from '../shared/services/translation.service';
 import { ImageUrlService } from '../shared/services/image-url.service';
 import { ProfileCompletionService } from '../shared/services/profile-completion.service';
 import {
@@ -40,23 +36,15 @@ import { SideMenuComponent } from '../side-menu/side-menu.component';
 })
 export class LayoutComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
-  private readonly languageService = inject(LanguageService);
-  private readonly notificationUnread = inject(NotificationUnreadService);
-  private readonly translation = inject(TranslationService);
   private readonly imageUrlService = inject(ImageUrlService);
   private readonly profileCompletion = inject(ProfileCompletionService);
   private readonly userSession = inject(UserSessionService);
 
-  selectedTitle = 'Home';
-  private languageSubscription!: Subscription;
-  private unreadSubscription!: Subscription;
   private routerSubscription?: Subscription;
   /** Resolved URL for `<img [src]>` when the user has a real profile photo (not the generic fallback). */
   headerAvatarSrc: string | null = null;
   hasUserAvatar = false;
   userInfoStore!: UserInfoStore;
-  unreadCount = 0;
-  notificationsAriaLabel = '';
 
   constructor() {
     addIcons({
@@ -66,40 +54,20 @@ export class LayoutComponent implements OnInit, OnDestroy {
       schoolOutline,
       bulbOutline,
       menuOutline,
-      notificationsOutline,
       personCircleOutline,
     });
   }
 
   ngOnInit() {
-    this.refreshNotificationButtonA11y();
     this.loadHeaderProfile();
 
     this.routerSubscription = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe(() => this.applyHeaderFromUserStore());
-
-    this.unreadSubscription = this.notificationUnread.unreadCount$.subscribe(
-      (count) => {
-        this.unreadCount = count;
-        this.refreshNotificationButtonA11y();
-      },
-    );
-
-    this.languageSubscription = this.languageService.currentLanguage$.subscribe(
-      () => {
-        this.updateTitle(this.router.url);
-        this.refreshNotificationButtonA11y();
-      },
-    );
   }
 
   ngOnDestroy() {
-    this.unreadSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
-    if (this.languageSubscription) {
-      this.languageSubscription.unsubscribe();
-    }
   }
 
   onHeaderAvatarError(): void {
@@ -148,45 +116,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error loading header profile from storage:', error);
     }
-  }
-
-  get unreadBadgeText(): string {
-    return this.unreadCount > 99 ? '99+' : String(this.unreadCount);
-  }
-
-  private refreshNotificationButtonA11y(): void {
-    if (this.unreadCount <= 0) {
-      this.notificationsAriaLabel = this.translation.translate(
-        'header.notifications.noUnread',
-      );
-      return;
-    }
-    this.notificationsAriaLabel = this.translation.translateParams(
-      'header.notifications.withUnread',
-      { count: this.unreadCount },
-    );
-  }
-
-  private updateTitle(url: string) {
-    if (url.includes('/tabs/home')) {
-      this.selectedTitle = 'common.home';
-    } else if (url.includes('/tabs/tools')) {
-      this.selectedTitle = 'nav.tools';
-    } else if (url.includes('/tabs/insights')) {
-      this.selectedTitle = 'nav.insights';
-    } else if (url.includes('/tabs/SecretChats')) {
-      this.selectedTitle = 'nav.SecretChats';
-    } else if (url.includes('/tabs/consultation')) {
-      this.selectedTitle = 'nav.consultation';
-    } else if (url.includes('/tabs/school')) {
-      this.selectedTitle = 'nav.school';
-    } else {
-      this.selectedTitle = 'common.home';
-    }
-  }
-
-  openNotifications(): void {
-    this.router.navigate(['/notifications']);
   }
 
   /** Opens the read-only profile view; photo changes stay on `/edit-profile` only. */

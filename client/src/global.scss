@@ -670,6 +670,8 @@ ion-menu .menu-icon {
   --app-space-4: 16px;
   --app-space-5: 20px;
   --app-space-6: 24px;
+  --app-space-7: 28px;
+  --app-space-8: 32px;
 }
 
 /* Global Container System */
@@ -2007,6 +2009,7 @@ ion-content[class^='tpi'] ion-progress-bar {
 }
 
 // Bottom sheets opened from Profile reproductive flows
+ion-modal.language-pick-sheet,
 ion-modal.cycle-setup-sheet,
 ion-modal.pregnancy-setup-sheet,
 ion-modal.fertility-overview-sheet,
@@ -2047,6 +2050,7 @@ ion-modal.doctor-booking-sheet {
   }
 }
 
+html.ion-palette-dark ion-modal.language-pick-sheet,
 html.ion-palette-dark ion-modal.cycle-setup-sheet,
 html.ion-palette-dark ion-modal.pregnancy-setup-sheet,
 html.ion-palette-dark ion-modal.fertility-overview-sheet,

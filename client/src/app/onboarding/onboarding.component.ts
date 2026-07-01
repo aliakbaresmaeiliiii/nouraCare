@@ -1,10 +1,10 @@
 import {
+  ChangeDetectorRef,
   Component,
   OnInit,
   inject,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { AlertController, PickerController } from '@ionic/angular';
 import { CycleSettingsService } from '../shared/services/cycle-settings.service';
 import {
@@ -56,6 +56,11 @@ import {
   readOnboardingProgress,
   writeOnboardingProgress,
 } from '../guards/onboarding-local-storage.util';
+import { OnboardingLanguageSheetService } from '../shared/services/onboarding-language-sheet.service';
+import {
+  markOnboardingLanguageConfirmed,
+} from '../shared/utils/onboarding-language.util';
+import { Router } from '@angular/router';
 
 type JourneyCardTone = 'mint' | 'lavender' | 'cream';
 
@@ -102,6 +107,10 @@ export class OnboardingComponent implements OnInit {
   private homeJourneyBridge = inject(HomeJourneyBridgeService);
   private translation = inject(TranslationService);
   private languageService = inject(LanguageService);
+  private onboardingLanguageSheet = inject(OnboardingLanguageSheetService);
+  private cdr = inject(ChangeDetectorRef);
+
+  languageReady = false;
 
   currentStep = 0;
   answers: { [key: string]: any } = {};
@@ -218,12 +227,29 @@ export class OnboardingComponent implements OnInit {
   }
 
   ngOnInit() {
+    void this.initializeOnboarding();
+  }
+
+  private async initializeOnboarding(): Promise<void> {
+    await this.ensureOnboardingLanguage();
+
     this.answers = this.defaultAnswers();
     this.restoreLocalProgress();
 
     this.sessionId = this.onboardingService.getSessionId();
     if (this.sessionId) {
       this.loadExistingOnboardingData();
+    }
+
+    this.languageReady = true;
+    this.cdr.markForCheck();
+  }
+
+  private async ensureOnboardingLanguage(): Promise<void> {
+    const choice = await this.onboardingLanguageSheet.presentIfNeeded();
+    if (choice) {
+      this.languageService.setLanguage(choice);
+      markOnboardingLanguageConfirmed();
     }
   }
 

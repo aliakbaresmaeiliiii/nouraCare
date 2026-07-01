@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { LanguageService } from './language.service';
 import { localizeDigitsInText } from '../utils/locale-date-format.util';
 import { PRIVACY_POLICY } from '../content/privacy-policy.content';
@@ -446,6 +446,7 @@ export class TranslationService {
       'home.bookAppointment': 'Book Appointment',
       'menu.completed': 'completed',
       'menu.mainMenu': 'Main Menu',
+      'menu.preferences': 'Preferences',
       'menu.settingsSupport': 'Settings & Support',
       'menu.followUs': 'Follow Us',
       'menu.followUsHint': 'Tips, updates & community',
@@ -2970,6 +2971,7 @@ export class TranslationService {
       'home.bookAppointment': '预约',
       'menu.completed': '已完成',
       'menu.mainMenu': '主菜单',
+      'menu.preferences': '偏好设置',
       'menu.settingsSupport': '设置与支持',
       'menu.followUs': '关注我们',
       'menu.followUsHint': '获取贴士、更新与社区动态',
@@ -4458,6 +4460,7 @@ export class TranslationService {
       'home.bookAppointment': 'Tempah Temujanji',
       'menu.completed': 'selesai',
       'menu.mainMenu': 'Menu Utama',
+      'menu.preferences': 'Keutamaan',
       'menu.settingsSupport': 'Tetapan & Sokongan',
       'menu.followUs': 'Ikuti Kami',
       'menu.followUsHint': 'Tips, pembaruan & komunitas',
@@ -5996,6 +5999,7 @@ export class TranslationService {
       'home.bookAppointment': 'رزرو قرار ملاقات',
       'menu.completed': 'تکمیل شده',
       'menu.mainMenu': 'منوی اصلی',
+      'menu.preferences': 'تنظیمات سریع',
       'menu.settingsSupport': 'تنظیمات و پشتیبانی',
       'menu.followUs': 'ما را دنبال کنید',
       'menu.followUsHint': 'نکات، به‌روزرسانی‌ها و جامعه',
