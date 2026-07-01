@@ -238,6 +238,8 @@ ion-header.modern-header {
 
 .app-tab-bar {
   --background: transparent;
+  --ion-tab-bar-background: transparent;
+  --ion-tab-bar-border-color: transparent;
   --border: none;
   --color: var(--brand-text);
   --color-selected: var(--brand-text);
@@ -321,6 +323,8 @@ ion-header.modern-header {
 
 :host-context(ion-app.ion-palette-dark) .app-tab-bar {
   --background: transparent;
+  --ion-tab-bar-background: transparent;
+  --ion-tab-bar-border-color: transparent;
   background: transparent;
   border: none;
   box-shadow: none;

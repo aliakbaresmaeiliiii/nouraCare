@@ -1000,12 +1000,29 @@ ion-item ion-icon[slot='end'] {
   color: var(--app-icon-muted, inherit);
 }
 
+ion-tab-bar.app-tab-bar {
+  --background: transparent;
+  --ion-tab-bar-background: transparent;
+  --border: none;
+  --ion-tab-bar-border-color: transparent;
+  background: transparent;
+  border-top: none;
+  box-shadow: none;
+}
+
 ion-tab-button ion-icon {
   color: inherit;
 }
 
 ion-tab-button.tab-selected ion-icon {
   color: var(--app-icon-accent, var(--ion-color-primary));
+}
+
+ion-app.ion-palette-dark ion-tab-bar.app-tab-bar {
+  --background: transparent;
+  --ion-tab-bar-background: transparent;
+  --ion-tab-bar-border-color: transparent;
+  background: transparent;
 }
 
 ion-app.ion-palette-dark ion-tab-button.tab-selected ion-icon {
