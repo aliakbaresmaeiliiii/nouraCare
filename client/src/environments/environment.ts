@@ -18,7 +18,7 @@ const BACKEND_PROFILES = {
   /** Redmi Note 14 — API running on your Redmi Note 14 */
   RedmiNote14: '10.42.0.177',
   
-  coffee: '192.168.1.10',
+  coffee: '192.168.1.16',
   /** phone pedar (e.g. café) */
   phonePedar: '10.209.157.237',
 
@@ -29,7 +29,7 @@ const BACKEND_PROFILES = {
  * Set to `house`, `phone`, or `coffee` to switch where API requests go.
  * Used by `ng serve` and `npm run cap:sync:mobile` (not plain `ng build`, which uses production API).
  */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'house';
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'coffee';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';
