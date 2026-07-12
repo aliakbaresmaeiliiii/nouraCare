@@ -34,24 +34,32 @@ async function bootstrap() {
     'http://127.0.0.1:4200',
     'http://localhost:8100',
     'http://127.0.0.1:8100',
-    'http://172.20.10.2:8100',
     'capacitor://localhost',
     'ionic://localhost',
     'https://localhost',
   ];
 
-  const corsOrigin =
+  const allowedOrigins: string[] | true =
     env.NODE_ENV !== 'production'
       ? env.CORS_ORIGINS.length > 0
         ? [...new Set([...env.CORS_ORIGINS, ...devOrigins])]
         : true
       : env.CORS_ORIGINS.length > 0
         ? env.CORS_ORIGINS
-        : false;
+        : [];
 
   app.enableCors({
-    origin: corsOrigin,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    origin: (origin, callback) => {
+      // Native apps (Capacitor) and server-to-server calls often omit Origin.
+      if (!origin) {
+        return callback(null, true);
+      }
+      if (allowedOrigins === true || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error(`Not allowed by CORS: ${origin}`));
+    },
+    credentials: true,
   });
 
   app.setGlobalPrefix('api/v1');

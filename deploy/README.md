@@ -1,6 +1,6 @@
 # DoreHealth production deployment
 
-Replace `api.dorehealth.app` with your domain everywhere below.
+Production domains: app `https://dorehealth.ir`, API `https://api.dorehealth.ir`.
 
 ## 1. Server `.env`
 
@@ -16,8 +16,8 @@ DB_USER=dorehealth
 DB_NAME=dorehealth
 GOOGLE_CLIENT_IDS=1088321651982-l914r5o4bj5c73cua6qdcg0ttjnd8hbh.apps.googleusercontent.com
 APPLE_CLIENT_IDS=com.tecknnycs.dorehealth,com.tecknnycs.dorehealth.signin
-CORS_ORIGINS=capacitor://localhost,https://localhost,https://api.dorehealth.app
-BASE_URL=https://api.dorehealth.app
+CORS_ORIGINS=capacitor://localhost,https://localhost,https://dorehealth.ir,https://www.dorehealth.ir
+BASE_URL=https://api.dorehealth.ir
 PORT=3000
 HOST=0.0.0.0
 ```
@@ -34,10 +34,10 @@ API: `http://localhost:3000/api/v1/` (put nginx TLS in front for production).
 
 ## 3. nginx + TLS (recommended)
 
-1. Point DNS `api.dorehealth.app` → your VPS IP.
+1. Point DNS `api.dorehealth.ir` → your VPS IP.
 2. Install nginx + certbot.
 3. Copy `deploy/nginx/dorehealth-api.conf` → `/etc/nginx/sites-available/`
-4. `sudo certbot --nginx -d api.dorehealth.app`
+4. `sudo certbot --nginx -d api.dorehealth.ir`
 5. `sudo nginx -t && sudo systemctl reload nginx`
 
 ## 4. Client production build
