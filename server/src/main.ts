@@ -21,7 +21,6 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
-      skipMissingProperties: false,
     }),
   );
 
@@ -29,46 +28,53 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
-  const devOrigins = [
+  const defaultOrigins = [
+    'https://dorehealth.ir',
+    'https://www.dorehealth.ir',
     'http://localhost:4200',
     'http://127.0.0.1:4200',
     'http://localhost:8100',
     'http://127.0.0.1:8100',
     'capacitor://localhost',
     'ionic://localhost',
-    'https://localhost',
   ];
 
-  const allowedOrigins: string[] | true =
-    env.NODE_ENV !== 'production'
-      ? env.CORS_ORIGINS.length > 0
-        ? [...new Set([...env.CORS_ORIGINS, ...devOrigins])]
-        : true
-      : env.CORS_ORIGINS.length > 0
-        ? env.CORS_ORIGINS
-        : [];
+  const allowedOrigins = [
+    ...new Set([...defaultOrigins, ...(env.CORS_ORIGINS ?? [])]),
+  ];
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Native apps (Capacitor) and server-to-server calls often omit Origin.
       if (!origin) {
         return callback(null, true);
       }
-      if (allowedOrigins === true || allowedOrigins.includes(origin)) {
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      callback(new Error(`Not allowed by CORS: ${origin}`));
+
+      Logger.warn(`Blocked by CORS: ${origin}`, 'CORS');
+      return callback(new Error(`Origin ${origin} is not allowed by CORS`));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-Requested-With',
+    ],
   });
 
   app.setGlobalPrefix('api/v1');
 
-  const port = env.PORT;
-  const host = env.HOST;
+  await app.listen(env.PORT, env.HOST);
 
-  await app.listen(port, host);
-
-  Logger.log(`Server running on http://${host}:${port}`, 'Bootstrap');
+  Logger.log(
+    `Server running on http://${env.HOST}:${env.PORT}`,
+    'Bootstrap',
+  );
 }
+
 bootstrap();
