@@ -23,13 +23,15 @@ const BACKEND_PROFILES = {
   phonePedar: '10.209.157.237',
 
   abbas: '10.42.0.177',
+
+  office: '192.168.64.105',
 } as const;
 
 /**
  * Set to `house`, `phone`, or `coffee` to switch where API requests go.
  * Used by `ng serve` and `npm run cap:sync:mobile` (not plain `ng build`, which uses production API).
  */
-const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'coffee';
+const ACTIVE_BACKEND: keyof typeof BACKEND_PROFILES = 'office';
 
 const API_PORT = 3000;
 const API_VERSION_PATH = '/api/v1/';
@@ -84,10 +86,16 @@ export const environment = {
   /** Temporarily hide/disable Sign in with Apple on auth screens. */
   appleSignInEnabled: false,
 
+  /**
+   * When false, email sign-in/register skip OTP and go straight to home.
+   * Re-enable by setting true (and EMAIL_OTP_ENABLED=true on the server).
+   */
+  emailOtpEnabled: false,
+
   privacyPolicyUrl: 'https://dorehealth.ir/privacy',
 
   /** App metadata only — does NOT start the dev server. Use `npm start` + your PC IP:4200 on phone. */
-  pwaInstallUrl: 'http://192.168.1.143:4200',
+  pwaInstallUrl: 'http://192.168.64.105:4200',
 
   // Firebase (optional — uncomment in environment.prod.ts when needed)
   firebaseConfig: {

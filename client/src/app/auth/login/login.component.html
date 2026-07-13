@@ -64,7 +64,7 @@
             (ngSubmit)="onLogin($event)"
             class="auth-form"
           >
-            @if (!loginOtpStep) {
+            @if (!emailOtpEnabled || !loginOtpStep) {
               <div class="form-group">
                 <label class="form-label visually-hidden" for="login-email">{{
                   "auth.email" | translate
@@ -165,7 +165,7 @@
               {{
                 isLoginLoading
                   ? ("auth.signingIn" | translate)
-                  : loginOtpStep
+                  : emailOtpEnabled && loginOtpStep
                     ? ("auth.verifyCode" | translate)
                     : ("auth.continueWithEmail" | translate)
               }}

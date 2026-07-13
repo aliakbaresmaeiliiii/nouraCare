@@ -51,4 +51,9 @@
     appleRedirectUrl: `${PROD_API_ORIGIN}/auth/apple/callback`,
     /** Temporarily hide/disable Sign in with Apple on auth screens. */
     appleSignInEnabled: false,
+    /**
+     * When false, email sign-in/register skip OTP and go straight to home.
+     * Re-enable by setting true (and EMAIL_OTP_ENABLED=true on the server).
+     */
+    emailOtpEnabled: false,
   };

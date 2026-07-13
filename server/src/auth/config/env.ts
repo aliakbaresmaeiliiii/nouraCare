@@ -45,4 +45,9 @@ export const env = {
     process.env.GOOGLE_CLIENT_IDS || process.env.GOOGLE_WEB_CLIENT_ID,
   ),
   APPLE_CLIENT_IDS: parseCsv(process.env.APPLE_CLIENT_IDS),
+  /**
+   * When false, sign-in/register skip email OTP and issue tokens immediately.
+   * Set EMAIL_OTP_ENABLED=true to restore OTP verification.
+   */
+  EMAIL_OTP_ENABLED: process.env.EMAIL_OTP_ENABLED === 'true',
 };

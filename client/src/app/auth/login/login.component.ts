@@ -61,6 +61,7 @@ import {
 export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
   readonly otpLength = EMAIL_OTP_LENGTH;
   readonly appleSignInEnabled = environment.appleSignInEnabled;
+  readonly emailOtpEnabled = environment.emailOtpEnabled !== false;
   readonly languageSwitchingEnabled = LANGUAGE_SWITCHING_ENABLED;
 
   /** Drives title color sweep once the login page is visible. */
@@ -183,9 +184,11 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
             email: this.loginForm.value.email || '',
             phoneNumber: this.loginForm.value.phoneNumber || '',
           };
-          const otp = this.normalizeOtpInput(this.loginForm.value.otp);
-          if (this.loginOtpStep && otp) {
-            payload.otp = otp;
+          if (this.emailOtpEnabled) {
+            const otp = this.normalizeOtpInput(this.loginForm.value.otp);
+            if (this.loginOtpStep && otp) {
+              payload.otp = otp;
+            }
           }
 
           return this.service.login(payload).pipe(
@@ -223,7 +226,11 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
       )
       .subscribe({
         next: (res) => {
-          if (res?.data?.otpSent && !res?.data?.accessToken) {
+          if (
+            this.emailOtpEnabled &&
+            res?.data?.otpSent &&
+            !res?.data?.accessToken
+          ) {
             this.loginOtpStep = true;
             this.message = resolveApiMessage(this.translation, {
               messageKey: res.messageKey ?? res.data?.messageKey,
@@ -324,6 +331,26 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
           }
           if (typeof sessionStorage !== 'undefined') {
             sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
+          }
+
+          const accessToken = res?.data?.accessToken;
+          if (accessToken) {
+            if (res?.data?.user) {
+              this.service.setUserInfo({
+                id: res.data.user.id,
+                email: res.data.user.email,
+                phone: res.data.user.phone ?? '',
+                name: res.data.user['name'],
+                profileImage: res.data.user['profileImage'],
+                isVerified: res.data.user.isVerified,
+                status: res.data.user['status'],
+                city: res.data.user['city'],
+                birthday: res.data.user['birthday'],
+                createdAt: res.data.user['createdAt'],
+              });
+            }
+            this.router.navigate(['/tabs/home']);
+            return;
           }
 
           markEmailVerificationSent();
@@ -457,7 +484,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
       return true;
     }
     const emailInvalid = !!this.loginForm.get('email')?.invalid;
-    if (!this.loginOtpStep) {
+    if (!this.emailOtpEnabled || !this.loginOtpStep) {
       return emailInvalid;
     }
     const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
@@ -469,7 +496,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
       return false;
     }
     const emailValid = !!this.loginForm.get('email')?.valid;
-    if (!this.loginOtpStep) {
+    if (!this.emailOtpEnabled || !this.loginOtpStep) {
       return emailValid;
     }
     const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);

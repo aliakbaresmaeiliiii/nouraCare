@@ -21,6 +21,7 @@ import { GrowthService } from '../growth/growth.service';
 import { ACCESS_TOKEN_TTL } from './config/jwt.config';
 import { parseRefreshToken } from './services/social-token.service';
 import { AUTH_MESSAGE_KEYS } from './constants/auth-message-keys';
+import { env } from './config/env';
 
 const USER_PUBLIC_SELECT = {
   id: true,
@@ -64,9 +65,14 @@ export class AuthService {
       });
     }
 
-    const verificationCode = this.generateOtp();
-    this.logDevOtp(email, verificationCode, 'register');
-    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+    const otpEnabled = env.EMAIL_OTP_ENABLED;
+    const verificationCode = otpEnabled ? this.generateOtp() : null;
+    if (verificationCode) {
+      this.logDevOtp(email, verificationCode, 'register');
+    }
+    const verificationCodeExpires = otpEnabled
+      ? new Date(Date.now() + 15 * 60 * 1000)
+      : null;
 
     let user;
     try {
@@ -75,6 +81,7 @@ export class AuthService {
           email,
           phoneNumber: this.resolvePhoneNumber(registerDto.phoneNumber),
           fullName: registerDto.fullName || '',
+          isVerified: !otpEnabled,
           emailVerificationCode: verificationCode,
           emailVerificationCodeExpires: verificationCodeExpires,
           updatedAt: new Date(),
@@ -99,20 +106,22 @@ export class AuthService {
       throw error;
     }
 
-    try {
-      await this.sendMail.sendAccountRegister(user.email, verificationCode, {
-        locale,
-        purpose: 'verification',
-      });
-    } catch (error) {
-      console.error('Failed to send verification email:', error);
-      await this.prisma.user.delete({ where: { id: user.id } }).catch((deleteError) => {
-        console.error('Failed to roll back user after email error:', deleteError);
-      });
-      throw new BadRequestException({
-        message: 'Failed to send verification email',
-        messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL,
-      });
+    if (otpEnabled && verificationCode) {
+      try {
+        await this.sendMail.sendAccountRegister(user.email, verificationCode, {
+          locale,
+          purpose: 'verification',
+        });
+      } catch (error) {
+        console.error('Failed to send verification email:', error);
+        await this.prisma.user.delete({ where: { id: user.id } }).catch((deleteError) => {
+          console.error('Failed to roll back user after email error:', deleteError);
+        });
+        throw new BadRequestException({
+          message: 'Failed to send verification email',
+          messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL,
+        });
+      }
     }
 
     const onboardingDto = mapRegisterOnboardingPayload(
@@ -133,6 +142,15 @@ export class AuthService {
       await this.growthService.onNewAccount(user.id, registerDto.inviteCode);
     } catch (err) {
       console.error('Growth referral setup failed at registration:', err);
+    }
+
+    if (!otpEnabled) {
+      const tokens = await this.generateTokens(user.id, user.email);
+      return {
+        user,
+        requiresVerification: false,
+        ...tokens,
+      };
     }
 
     return {
@@ -247,7 +265,7 @@ export class AuthService {
 
   async login(email: string, otp?: string, locale?: string) {
     const normalizedEmail = this.normalizeEmail(email);
-    const user = await this.prisma.user.findUnique({
+    let user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
       select: {
         ...USER_PUBLIC_SELECT,
@@ -257,6 +275,12 @@ export class AuthService {
     });
 
     if (!user) {
+      if (!env.EMAIL_OTP_ENABLED) {
+        throw new UnauthorizedException({
+          message: 'Invalid email or account not found',
+          messageKey: AUTH_MESSAGE_KEYS.USER_NOT_FOUND,
+        });
+      }
       return {
         otpSent: true,
         message: 'If the account exists, a sign-in code was sent.',
@@ -272,10 +296,34 @@ export class AuthService {
     }
 
     if (!user.isVerified) {
-      throw new UnauthorizedException({
-        message: 'Email is not verified. Please complete email verification first.',
-        messageKey: AUTH_MESSAGE_KEYS.EMAIL_NOT_VERIFIED,
-      });
+      if (!env.EMAIL_OTP_ENABLED) {
+        // OTP disabled: treat email as sufficient proof and verify on sign-in.
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            isVerified: true,
+            emailVerificationCode: null,
+            emailVerificationCodeExpires: null,
+          },
+        });
+        user = { ...user, isVerified: true };
+      } else {
+        throw new UnauthorizedException({
+          message: 'Email is not verified. Please complete email verification first.',
+          messageKey: AUTH_MESSAGE_KEYS.EMAIL_NOT_VERIFIED,
+        });
+      }
+    }
+
+    // Temporarily skip OTP: email alone signs the user in.
+    if (!env.EMAIL_OTP_ENABLED) {
+      const { emailVerificationCode: _c, emailVerificationCodeExpires: _e, ...publicUser } =
+        user;
+      const tokens = await this.generateTokens(publicUser.id, publicUser.email);
+      return {
+        user: publicUser,
+        ...tokens,
+      };
     }
 
     if (!otp?.trim()) {

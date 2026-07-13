@@ -384,7 +384,15 @@ export class AuthService {
       }
     }
 
-    return this.http.post(`${this.baseUrl}/register`, payload, this.languageHttpOptions());
+    return this.http
+      .post(`${this.baseUrl}/register`, payload, this.languageHttpOptions())
+      .pipe(
+        tap((response: any) => {
+          if (response?.data?.accessToken) {
+            this.handleTokenResponse(response);
+          }
+        }),
+      );
   }
 
   forgotPassword(email: string): Observable<any> {
