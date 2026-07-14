@@ -61,7 +61,8 @@ import {
 export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
   readonly otpLength = EMAIL_OTP_LENGTH;
   readonly appleSignInEnabled = environment.appleSignInEnabled;
-  readonly emailOtpEnabled = environment.emailOtpEnabled !== false;
+  /** Opt-in only — false/undefined skips OTP and goes to home after email sign-in. */
+  readonly emailOtpEnabled = environment.emailOtpEnabled === true;
   readonly languageSwitchingEnabled = LANGUAGE_SWITCHING_ENABLED;
 
   /** Drives title color sweep once the login page is visible. */
@@ -195,9 +196,10 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
             catchError((err) => {
               const payload = extractApiMessagePayload(err);
               if (
-                payload.messageKey === 'auth.api.emailNotVerified' ||
-                payload.message ===
-                  'Email is not verified. Please complete email verification first.'
+                this.emailOtpEnabled &&
+                (payload.messageKey === 'auth.api.emailNotVerified' ||
+                  payload.message ===
+                    'Email is not verified. Please complete email verification first.')
               ) {
                 this.persistEmailForVerification(
                   this.loginForm.value.email || '',
@@ -242,6 +244,18 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
             return;
           }
 
+          // OTP disabled: email alone should return tokens. Do not show OTP UI.
+          if (!res?.data?.accessToken) {
+            this.message = resolveApiMessage(this.translation, {
+              messageKey: res?.messageKey ?? res?.data?.messageKey,
+              message: res?.message,
+              fallbackKey: 'auth.toast.loginFailed',
+            });
+            this.success = false;
+            this.showToast = true;
+            return;
+          }
+
           this.message = this.t('auth.toast.loginSuccess');
           this.success = true;
           this.showToast = true;
@@ -263,7 +277,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
             localStorage.setItem('userInfo', JSON.stringify(res.data));
           }
 
-          this.router.navigate(['/tabs/home']);
+          void this.router.navigate(['/tabs/home']);
         },
       });
 
@@ -349,12 +363,23 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
                 createdAt: res.data.user['createdAt'],
               });
             }
-            this.router.navigate(['/tabs/home']);
+            void this.router.navigate(['/tabs/home']);
+            return;
+          }
+
+          if (!this.emailOtpEnabled) {
+            this.message = resolveApiMessage(this.translation, {
+              messageKey: res?.messageKey,
+              message: res?.message,
+              fallbackKey: 'auth.toast.loginFailed',
+            });
+            this.success = false;
+            this.showToast = true;
             return;
           }
 
           markEmailVerificationSent();
-          this.router.navigate(['auth/verify-email']);
+          void this.router.navigate(['auth/verify-email']);
         },
       });
   }
@@ -538,12 +563,13 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
       sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
     }
 
-    if (!res?.data?.user?.isVerified) {
+    if (this.emailOtpEnabled && !res?.data?.user?.isVerified) {
       markEmailVerificationSent();
-      this.router.navigate(['/auth/verify-email']);
-    } else {
-      this.router.navigate(['/tabs/home']);
+      void this.router.navigate(['/auth/verify-email']);
+      return;
     }
+
+    void this.router.navigate(['/tabs/home']);
   }
 
   private async completeAppleSocialLogin(): Promise<void> {
