@@ -31,12 +31,7 @@ async function bootstrap() {
   const defaultOrigins = [
     'https://dorehealth.ir',
     'https://www.dorehealth.ir',
-    'http://localhost:4200',
-    'http://127.0.0.1:4200',
-    'http://localhost:8100',
-    'http://127.0.0.1:8100',
-    'capacitor://localhost',
-    'ionic://localhost',
+    'https://app.dorehealth.ir',
   ];
 
   const allowedOrigins = [
