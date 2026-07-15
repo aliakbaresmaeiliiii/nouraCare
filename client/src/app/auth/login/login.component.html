@@ -63,7 +63,7 @@
             (ngSubmit)="onLogin($event)"
             class="auth-form"
           >
-            @if (!emailOtpEnabled || !loginOtpStep) {
+            <!-- @if (!emailOtpEnabled || !loginOtpStep) {
               <div class="form-group">
                 <label class="form-label visually-hidden" for="login-email">{{
                   "auth.email" | translate
@@ -152,9 +152,9 @@
                   }
                 </ion-button>
               </div>
-            }
+            } -->
 
-            <app-button
+            <!-- <app-button
               type="button"
               size="large"
               [disabled]="isLoginDisabled()"
@@ -168,13 +168,13 @@
                     ? ("auth.verifyCode" | translate)
                     : ("auth.continueWithEmail" | translate)
               }}
-            </app-button>
+            </app-button> -->
 
             <div class="social-divider">
               <span>{{ "auth.orContinueWith" | translate }}</span>
             </div>
 
-            <div class="social-buttons">
+            <!-- <div class="social-buttons">
               <ion-button
                 type="button"
                 fill="outline"
@@ -206,16 +206,16 @@
                 ></ion-icon>
                 {{ "auth.continueWithApple" | translate }}
               </ion-button>
-            </div>
+            </div> -->
 
-            <div class="form-footer">
+            <!-- <div class="form-footer">
               <a
                 href="/terms"
                 class="forgot-link"
                 (click)="viewLicenseAgreement($event)"
                 >{{ "auth.licenseAgreement" | translate }}</a
               >
-            </div>
+            </div> -->
           </form>
         </div>
         <div class="form-container">
