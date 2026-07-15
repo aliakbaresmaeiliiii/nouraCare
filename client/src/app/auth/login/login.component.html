@@ -27,7 +27,7 @@
     </header>
 
     <section class="auth-card">
-      <div
+      <!-- <div
         class="tab-container"
         [class.tab-container--busy]="isAuthBusy"
         role="tablist"
@@ -55,9 +55,8 @@
         >
           {{ "auth.signUp" | translate }}
         </button>
-      </div>
+      </div> -->
 
-      @if (activeTab === "login") {
         <div class="form-container">
           <form
             [formGroup]="loginForm"
@@ -219,7 +218,6 @@
             </div>
           </form>
         </div>
-      } @else {
         <div class="form-container">
           <form
             [formGroup]="registerForm"
@@ -264,7 +262,7 @@
               }
             </div>
 
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label class="form-label visually-hidden" for="register-phone">{{
                 "auth.phone" | translate
               }}</label>
@@ -284,7 +282,7 @@
                   inputmode="tel"
                 />
               </div>
-            </div>
+            </div> -->
 
             <app-button
               type="button"
@@ -348,7 +346,6 @@
             </div>
           </form>
         </div>
-      }
 
       <p class="login-footnote">
         <ion-icon name="shield-checkmark-outline" aria-hidden="true"></ion-icon>

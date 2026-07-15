@@ -30,8 +30,7 @@ async function bootstrap() {
 
   const defaultOrigins = [
     'https://dorehealth.ir',
-    'https://www.dorehealth.ir',
-    'https://app.dorehealth.ir',
+    
   ];
 
   const allowedOrigins = [
