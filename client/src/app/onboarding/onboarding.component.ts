@@ -1081,9 +1081,8 @@ export class OnboardingComponent implements OnInit {
       if (token) {
         this.router.navigate(['/tabs/home']);
       } else {
-        this.router.navigate(['/auth/sign-in'], {
-          queryParams: { tab: 'register' },
-        });
+        // Continue-with-email: unknown emails are auto-registered + OTP on sign-in.
+        this.router.navigate(['/auth/sign-in']);
       }
     };
 

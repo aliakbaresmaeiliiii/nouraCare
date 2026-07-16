@@ -1,6 +1,7 @@
 :host {
   display: flex;
   flex-direction: column;
+  position: relative;
   min-height: 100dvh;
   height: 100%;
   box-sizing: border-box;
@@ -10,12 +11,24 @@
   --layout-tab-scroll-padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
 }
 
+/*
+ * Ionic defaults ion-tabs to position:absolute; inset:0; height:100%.
+ * That covers the in-flow header and draws under the iOS PWA status bar
+ * (apple-mobile-web-app-status-bar-style: black-translucent). Keep tabs in flex flow.
+ */
 #main-content {
   flex: 1 1 0;
   min-height: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  height: auto !important;
+  z-index: 0;
 }
 
 #main-content ion-router-outlet {
@@ -32,7 +45,10 @@ ion-header.modern-header {
   right: auto !important;
   z-index: 10;
   width: 100%;
+  box-sizing: border-box;
   padding: 0;
+  /* Header owns the top inset so toolbar can stay a fixed 44px control row. */
+  padding-top: constant(safe-area-inset-top); /* iOS 11.0–11.2 */
   padding-top: env(safe-area-inset-top, 0px);
   background: var(--brand-surface);
   --background: var(--brand-surface);
@@ -49,6 +65,8 @@ ion-header.modern-header {
     --padding-bottom: 0;
     --padding-start: max(12px, env(safe-area-inset-left, 12px));
     --padding-end: max(12px, env(safe-area-inset-right, 12px));
+    /* Override Ionic's toolbar safe-area padding (applied on the host). */
+    padding-top: 0 !important;
     min-height: var(--layout-header-height);
     height: var(--layout-header-height);
     box-shadow: none;

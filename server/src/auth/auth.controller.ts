@@ -40,6 +40,14 @@ export class AuthController {
       registerDto,
       resolveRequestLocale(acceptLanguage, appLanguage),
     );
+    if ('otpSent' in result && result.otpSent) {
+      return ApiResponseHelper.success(
+        result,
+        result.message,
+        200,
+        result.messageKey,
+      );
+    }
     return ApiResponseHelper.success(result, 'User registered successfully');
   }
 

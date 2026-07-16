@@ -116,6 +116,9 @@ ion-router-outlet {
 app-layout>ion-header.modern-header {
   flex-shrink: 0;
   position: relative !important;
+  box-sizing: border-box;
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top, 0px);
   --background: var(--brand-surface);
   --opacity-translucent: 1;
   background: var(--brand-surface);
@@ -127,7 +130,22 @@ app-layout>ion-header.modern-header ion-toolbar {
   --background: var(--brand-surface);
   --opacity-translucent: 1;
   --min-height: var(--layout-header-height, 44px);
+  --padding-top: 0;
+  padding-top: 0 !important;
   box-shadow: none;
+}
+
+/* Keep shell tabs in-flow under the header (see layout.component.scss). */
+app-layout>ion-tabs#main-content {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  height: auto !important;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
 }
 
 ion-app.ion-palette-dark app-layout>ion-header.modern-header,
@@ -679,6 +697,11 @@ ion-menu .menu-icon {
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
   --safe-area-inset-left: env(safe-area-inset-left, 0px);
   --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  /* Keep Ionic vars aligned with real env() (PWA / translucent status bar). */
+  --ion-safe-area-top: var(--safe-area-inset-top);
+  --ion-safe-area-bottom: var(--safe-area-inset-bottom);
+  --ion-safe-area-left: var(--safe-area-inset-left);
+  --ion-safe-area-right: var(--safe-area-inset-right);
   /* Fixed FAB above bottom tab bar (single source; avoid stacking with ion-content padding) */
   --app-tab-fab-clearance: calc(49px + env(safe-area-inset-bottom, 0px));
   --app-space-1: 4px;

@@ -72,7 +72,8 @@ export class AuthService {
   /**
    * Continue with email — existing users sign in; unknown emails are auto-registered
    * and receive an OTP (server returns otpSent until the code is verified).
-   * Body is email + optional otp only so older API builds do not 400 on extra fields.
+   * Body stays email + optional otp so older API builds (forbidNonWhitelisted)
+   * do not 400 on onboardingData / inviteCode. Onboarding is applied after auth.
    */
   login(data: LoginRequest): Observable<TokenResponse> {
     const body: { email: string; otp?: string } = {
@@ -87,12 +88,12 @@ export class AuthService {
     return this.http
       .post<TokenResponse>(`${this.baseUrl}/sign-in`, body, options)
       .pipe(
-      tap((response: TokenResponse) => {
-        if (response?.data?.accessToken) {
-          this.handleTokenResponse(response);
-        }
-      }),
-    );
+        tap((response: TokenResponse) => {
+          if (response?.data?.accessToken) {
+            this.handleTokenResponse(response);
+          }
+        }),
+      );
   }
 
   /**

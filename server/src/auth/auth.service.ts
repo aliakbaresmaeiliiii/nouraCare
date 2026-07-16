@@ -69,14 +69,11 @@ export class AuthService {
       });
     }
 
-    const otpEnabled = env.EMAIL_OTP_ENABLED;
-    const verificationCode = otpEnabled ? this.generateOtp() : null;
-    if (verificationCode) {
-      this.logDevOtp(email, verificationCode, 'register');
-    }
-    const verificationCodeExpires = otpEnabled
-      ? new Date(Date.now() + 15 * 60 * 1000)
-      : null;
+    // New accounts always verify by email OTP. EMAIL_OTP_ENABLED only gates
+    // OTP for already-verified users on continue-with-email sign-in.
+    const verificationCode = this.generateOtp();
+    this.logDevOtp(email, verificationCode, 'register');
+    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     let user;
     try {
@@ -85,7 +82,7 @@ export class AuthService {
           email,
           phoneNumber: this.resolvePhoneNumber(registerDto.phoneNumber),
           fullName: registerDto.fullName || '',
-          isVerified: !otpEnabled,
+          isVerified: false,
           emailVerificationCode: verificationCode,
           emailVerificationCodeExpires: verificationCodeExpires,
           updatedAt: new Date(),
@@ -110,14 +107,15 @@ export class AuthService {
       throw error;
     }
 
-    if (otpEnabled && verificationCode) {
-      try {
-        await this.sendMail.sendAccountRegister(user.email, verificationCode, {
-          locale,
-          purpose: 'verification',
-        });
-      } catch (error) {
-        console.error('Failed to send verification email:', error);
+    try {
+      await this.sendMail.sendAccountRegister(user.email, verificationCode, {
+        locale,
+        purpose: 'verification',
+      });
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+      this.logDevOtp(user.email, verificationCode, 'register-email-failed');
+      if (process.env.EMAIL_STRICT === 'true') {
         await this.prisma.user.delete({ where: { id: user.id } }).catch((deleteError) => {
           console.error('Failed to roll back user after email error:', deleteError);
         });
@@ -149,18 +147,13 @@ export class AuthService {
       console.error('Growth referral setup failed at registration:', err);
     }
 
-    if (!otpEnabled) {
-      const tokens = await this.generateTokens(user.id, user.email);
-      return {
-        user,
-        requiresVerification: false,
-        ...tokens,
-      };
-    }
-
     return {
       user,
+      otpSent: true,
+      isNewUser: true,
       requiresVerification: true,
+      message: 'If the account exists, a sign-in code was sent.',
+      messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
     };
   }
 

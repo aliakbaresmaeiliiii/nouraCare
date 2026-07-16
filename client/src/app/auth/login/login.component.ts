@@ -18,7 +18,6 @@ import {
   OnboardingService,
 } from '../../shared/services/onboarding.service';
 import { RegisterRequest } from './model/register-request-interface';
-import { LoginRequest } from './model/login-request-interface';
 import { AuthService } from '../services/auth';
 import {
   EMAIL_OTP_LENGTH,
@@ -33,15 +32,18 @@ import {
 import {
   BehaviorSubject,
   EMPTY,
+  Observable,
   Subject,
   catchError,
   exhaustMap,
   filter,
   finalize,
   firstValueFrom,
+  map,
   takeUntil,
   tap,
 } from 'rxjs';
+import { TokenResponse } from '../models/token.interface';
 import {
   GoogleSignInNotConfiguredError,
   GoogleSignInService,
@@ -110,6 +112,11 @@ export class LoginComponent
   /** After email submit, user enters the code sent to their inbox. */
   loginOtpStep = false;
   isResendingLoginOtp = false;
+  /**
+   * When true, OTP was issued via /register (older APIs that still 404 unknown
+   * emails on sign-in). Verify/resend use verify-email endpoints instead of sign-in.
+   */
+  private verifyOtpViaEmailApi = false;
 
   registerForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -225,32 +232,41 @@ export class LoginComponent
           this.cdr.detectChanges();
         }),
         exhaustMap(() => {
-          const payload: LoginRequest = {
-            email: this.loginForm.value.email || '',
-          };
+          const email = (this.loginForm.value.email || '').trim();
           const otp = this.normalizeOtpInput(this.loginForm.value.otp);
-          if (this.loginOtpStep && otp) {
-            payload.otp = otp;
-          }
 
-          return this.service.login(payload).pipe(
+          const authRequest$: Observable<TokenResponse> =
+            this.loginOtpStep && otp
+              ? this.verifyOtpViaEmailApi
+                ? this.service.verifyEmail({ email, code: otp })
+                : this.service.login({ email, otp })
+              : this.service.login({ email }).pipe(
+                  catchError((err) => {
+                    const apiPayload = extractApiMessagePayload(err);
+                    if (this.isUserNotFoundError(apiPayload)) {
+                      // Older APIs reject unknown emails — register + OTP instead.
+                      return this.registerUnknownEmail(email);
+                    }
+                    throw err;
+                  }),
+                );
+
+          return authRequest$.pipe(
             catchError((err) => {
-              const payload = extractApiMessagePayload(err);
+              const apiPayload = extractApiMessagePayload(err);
               if (
-                payload.messageKey === 'auth.api.emailNotVerified' ||
-                payload.message ===
+                apiPayload.messageKey === 'auth.api.emailNotVerified' ||
+                apiPayload.message ===
                   'Email is not verified. Please complete email verification first.'
               ) {
-                this.persistEmailForVerification(
-                  this.loginForm.value.email || '',
-                );
+                this.persistEmailForVerification(email);
                 markEmailVerificationSent();
                 void this.router.navigate(['/auth/verify-email']);
                 return EMPTY;
               }
 
               this.message = resolveApiMessage(this.translation, {
-                ...payload,
+                ...apiPayload,
                 fallbackKey: 'auth.toast.loginFailed',
               });
               this.success = false;
@@ -262,14 +278,20 @@ export class LoginComponent
                 this.authActionInProgress = null;
               }
               this.cdr.detectChanges();
-            })
+            }),
           );
-        })
+        }),
       )
       .subscribe({
         next: (res) => {
-          if (res?.data?.otpSent && !res?.data?.accessToken) {
+          if (
+            !res?.data?.accessToken &&
+            (res?.data?.otpSent || res?.data?.requiresVerification)
+          ) {
             this.loginOtpStep = true;
+            this.persistEmailForVerification(
+              this.loginForm.value.email || '',
+            );
             this.message = resolveApiMessage(this.translation, {
               messageKey: res.messageKey ?? res.data?.messageKey,
               message: res.message,
@@ -440,6 +462,7 @@ export class LoginComponent
 
   resetLoginOtpStep(): void {
     this.loginOtpStep = false;
+    this.verifyOtpViaEmailApi = false;
     this.loginForm.patchValue({ otp: '' });
   }
 
@@ -459,8 +482,12 @@ export class LoginComponent
 
     this.isResendingLoginOtp = true;
     this.cdr.detectChanges();
-    this.service
-      .login({ email, phoneNumber: this.loginForm.value.phoneNumber || '' })
+
+    const resend$ = this.verifyOtpViaEmailApi
+      ? this.service.resendOtp({ email })
+      : this.service.login({ email });
+
+    resend$
       .pipe(
         finalize(() => {
           this.isResendingLoginOtp = false;
@@ -469,11 +496,16 @@ export class LoginComponent
       )
       .subscribe({
         next: (res) => {
-          if (res?.data?.otpSent) {
+          const otpSent =
+            res?.data?.otpSent === true ||
+            this.verifyOtpViaEmailApi ||
+            !!res?.messageKey;
+          if (otpSent) {
             this.loginForm.patchValue({ otp: '' });
+            markEmailVerificationSent();
             this.message = resolveApiMessage(this.translation, {
-              messageKey: res.messageKey ?? res.data?.messageKey,
-              message: res.message,
+              messageKey: res?.messageKey ?? res?.data?.messageKey,
+              message: res?.message,
               fallbackKey: 'auth.api.otpSentIfExists',
             });
             this.success = true;
@@ -489,6 +521,68 @@ export class LoginComponent
           this.showToast = true;
         },
       });
+  }
+
+  /** Older sign-in APIs return 404/401 for unknown emails — create + send OTP. */
+  private registerUnknownEmail(email: string): Observable<TokenResponse> {
+    const registerPayload: RegisterRequest = {
+      email,
+      phoneNumber: this.loginForm.value.phoneNumber || undefined,
+    };
+    const onboardingData = this.readStoredOnboardingData();
+
+    return this.service.register(registerPayload, onboardingData).pipe(
+      map((res: TokenResponse) => {
+        if (res?.data?.accessToken) {
+          return res;
+        }
+
+        this.verifyOtpViaEmailApi = true;
+        markEmailVerificationSent();
+        this.persistEmailForVerification(email);
+
+        return {
+          code: res?.code ?? 200,
+          isSuccess: true,
+          message:
+            res?.message ??
+            res?.data?.messageKey ??
+            'If the account exists, a sign-in code was sent.',
+          messageKey: res?.messageKey ?? 'auth.api.otpSentIfExists',
+          timestamp: res?.timestamp ?? new Date().toISOString(),
+          data: {
+            ...(res?.data ?? {}),
+            otpSent: true,
+            isNewUser: true,
+            requiresVerification: true,
+          },
+        } as TokenResponse;
+      }),
+      catchError((err) => {
+        const apiPayload = extractApiMessagePayload(err);
+        if (
+          apiPayload.messageKey === 'auth.api.userAlreadyExists' ||
+          (apiPayload.message || '')
+            .toLowerCase()
+            .includes('already exists')
+        ) {
+          // Race / prior attempt — ask sign-in to (re)send OTP when supported.
+          return this.service.login({ email });
+        }
+        throw err;
+      }),
+    );
+  }
+
+  private isUserNotFoundError(payload: {
+    messageKey?: string | null;
+    message?: string | null;
+  }): boolean {
+    if (payload.messageKey === 'auth.api.userNotFound') {
+      return true;
+    }
+    const message = (payload.message || '').trim().toLowerCase();
+    return message === 'user not found' || message.includes('user not found');
   }
 
   private persistEmailForVerification(email: string): void {
