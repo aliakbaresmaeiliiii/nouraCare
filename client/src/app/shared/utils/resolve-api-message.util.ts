@@ -53,7 +53,28 @@ export function extractApiMessagePayload(error: unknown): ApiMessageInput {
   const topLevelKey = normalizeMessage(root?.['messageKey']);
 
   const nested = body['message'];
-  if (nested && typeof nested === 'object' && !Array.isArray(nested)) {
+  if (Array.isArray(nested)) {
+    const joined = nested
+      .map((item) => {
+        if (typeof item === 'string') {
+          return item;
+        }
+        if (item && typeof item === 'object') {
+          const obj = item as Record<string, unknown>;
+          return normalizeMessage(obj['message']) || normalizeMessage(obj['error']);
+        }
+        return undefined;
+      })
+      .filter((v): v is string => !!v)
+      .join('; ');
+    return {
+      messageKey:
+        normalizeMessage(body['messageKey']) ?? topLevelKey,
+      message: joined || undefined,
+    };
+  }
+
+  if (nested && typeof nested === 'object') {
     const nestedObj = nested as Record<string, unknown>;
     return {
       messageKey:

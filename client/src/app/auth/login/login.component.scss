@@ -36,11 +36,142 @@
   font-family: var(--ion-font-family);
 }
 
-.language-section {
+.login-chrome {
   position: fixed;
   top: max(1rem, env(safe-area-inset-top, 0px));
-  right: max(1rem, env(safe-area-inset-right, 0px));
+  inset-inline: max(1rem, env(safe-area-inset-left, 0px))
+    max(1rem, env(safe-area-inset-right, 0px));
   z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.login-chrome > * {
+  pointer-events: auto;
+}
+
+.language-section {
+  display: flex;
+  align-items: center;
+}
+
+.theme-switch {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  min-height: 44px;
+  padding: 3px;
+  border-radius: 14px;
+  border: 1px solid rgba(var(--brand-text-rgb), 0.12);
+  background: rgba(var(--brand-surface-rgb), 0.88);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  direction: ltr;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-switch__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 72px;
+  min-height: 38px;
+  margin: 0;
+  padding: 0 12px;
+  border: none;
+  border-radius: 11px;
+  background: transparent;
+  color: rgba(var(--brand-text-rgb), 0.55);
+  cursor: pointer;
+  transition:
+    background var(--app-duration-fast) var(--app-ease-standard, ease),
+    color var(--app-duration-fast) var(--app-ease-standard, ease),
+    box-shadow var(--app-duration-fast) var(--app-ease-standard, ease),
+    transform var(--app-duration-fast) var(--app-ease-standard, ease);
+
+  ion-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+}
+
+.theme-switch__label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.theme-switch__option:hover:not(.theme-switch__option--active) {
+  background: rgba(var(--brand-text-rgb), 0.06);
+  color: rgba(var(--brand-text-rgb), 0.8);
+}
+
+.theme-switch__option:active {
+  transform: scale(0.97);
+}
+
+.theme-switch__option:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+.theme-switch__option--active {
+  background: var(--brand-surface);
+  color: var(--brand-text);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.1);
+  cursor: default;
+
+  ion-icon {
+    color: var(--brand-primary);
+  }
+}
+
+.theme-switch--dark {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(30, 30, 30, 0.9);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+
+  .theme-switch__option {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .theme-switch__option:hover:not(.theme-switch__option--active) {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .theme-switch__option--active {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    box-shadow: none;
+
+    ion-icon {
+      color: #a5b4fc;
+    }
+  }
+}
+
+@media (max-width: 380px) {
+  .theme-switch__option {
+    min-width: 44px;
+    padding: 0 10px;
+  }
+
+  .theme-switch__label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch__option {
+    transition: none;
+  }
 }
 
 .login-layout {

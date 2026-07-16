@@ -4,12 +4,15 @@ import {
   Component,
   inject,
   OnDestroy,
+  OnInit,
   Renderer2,
   signal,
 } from '@angular/core';
 import { ViewDidEnter } from '@ionic/angular';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import { moonOutline, sunnyOutline } from 'ionicons/icons';
 import {
   OnboardingDataDto,
   OnboardingService,
@@ -23,6 +26,10 @@ import {
 } from '../constants/email-verification.constants';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import { LANGUAGE_SWITCHING_ENABLED } from '../../shared/services/language.service';
+import {
+  ThemePreference,
+  ThemeService,
+} from '../../shared/services/theme.service';
 import {
   BehaviorSubject,
   EMPTY,
@@ -50,6 +57,11 @@ import {
   extractApiMessagePayload,
   resolveApiMessage,
 } from '../../shared/utils/resolve-api-message.util';
+import {
+  mapLocalOnboardingToReproductiveInit,
+  type LocalOnboardingAnswers,
+} from '../../shared/utils/onboarding-reproductive.util';
+import { DashboardCacheService } from '../../shared/services/dashboard-cache.service';
 
 @Component({  
   selector: 'app-login',
@@ -58,12 +70,20 @@ import {
   imports: [...SHARED_STANDALONE_IMPORTS],
   styleUrl: './login.component.scss',
 })
-export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
+export class LoginComponent
+  implements OnInit, OnDestroy, ViewDidEnter, AfterViewInit
+{
   readonly otpLength = EMAIL_OTP_LENGTH;
   readonly appleSignInEnabled = environment.appleSignInEnabled;
-  /** Opt-in only — false/undefined skips OTP and goes to home after email sign-in. */
+  /**
+   * When true, verified users also receive a sign-in OTP (server EMAIL_OTP_ENABLED).
+   * New / unverified emails always use the OTP step when the server returns otpSent.
+   */
   readonly emailOtpEnabled = environment.emailOtpEnabled === true;
   readonly languageSwitchingEnabled = LANGUAGE_SWITCHING_ENABLED;
+
+  /** Resolved light/dark appearance for the login theme switch. */
+  isDarkTheme = false;
 
   /** Drives title color sweep once the login page is visible. */
   titlePaintActive = false;
@@ -72,6 +92,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
   isSocialLoading = false;
   onboardingData = signal<OnboardingDataDto | null>(null);
   onboardingService = inject(OnboardingService);
+  private dashboardCache = inject(DashboardCacheService);
   activeTab: 'login' | 'register' = 'login';
   fb = inject(FormBuilder);
   message: string = '';
@@ -105,6 +126,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
   private appleSignIn = inject(AppleSignInService);
   private onboardingStateService = inject(OnboardingService);
   private translation = inject(TranslationService);
+  private themeService = inject(ThemeService);
   selectedRole: string = '';
   private destroy$ = new Subject<void>();
   successCaptcha = signal<boolean>(false);
@@ -149,7 +171,29 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
 
   refreshToken(): void {}
 
+  setTheme(preference: Extract<ThemePreference, 'light' | 'dark'>): void {
+    if (
+      (preference === 'dark' && this.isDarkTheme) ||
+      (preference === 'light' && !this.isDarkTheme)
+    ) {
+      return;
+    }
+    this.themeService.setPreference(preference);
+  }
+
+  constructor() {
+    addIcons({ moonOutline, sunnyOutline });
+  }
+
   ngOnInit(): void {
+    this.syncThemeFromService();
+    this.themeService.appearanceChanged$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.syncThemeFromService();
+        this.cdr.detectChanges();
+      });
+
     // Check for query parameters to determine active tab
     this.activatedRoute.queryParams.subscribe((params) => {
       if (params['tab'] === 'register') {
@@ -183,23 +227,19 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
         exhaustMap(() => {
           const payload: LoginRequest = {
             email: this.loginForm.value.email || '',
-            phoneNumber: this.loginForm.value.phoneNumber || '',
           };
-          if (this.emailOtpEnabled) {
-            const otp = this.normalizeOtpInput(this.loginForm.value.otp);
-            if (this.loginOtpStep && otp) {
-              payload.otp = otp;
-            }
+          const otp = this.normalizeOtpInput(this.loginForm.value.otp);
+          if (this.loginOtpStep && otp) {
+            payload.otp = otp;
           }
 
           return this.service.login(payload).pipe(
             catchError((err) => {
               const payload = extractApiMessagePayload(err);
               if (
-                this.emailOtpEnabled &&
-                (payload.messageKey === 'auth.api.emailNotVerified' ||
-                  payload.message ===
-                    'Email is not verified. Please complete email verification first.')
+                payload.messageKey === 'auth.api.emailNotVerified' ||
+                payload.message ===
+                  'Email is not verified. Please complete email verification first.'
               ) {
                 this.persistEmailForVerification(
                   this.loginForm.value.email || '',
@@ -228,11 +268,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
       )
       .subscribe({
         next: (res) => {
-          if (
-            this.emailOtpEnabled &&
-            res?.data?.otpSent &&
-            !res?.data?.accessToken
-          ) {
+          if (res?.data?.otpSent && !res?.data?.accessToken) {
             this.loginOtpStep = true;
             this.message = resolveApiMessage(this.translation, {
               messageKey: res.messageKey ?? res.data?.messageKey,
@@ -244,7 +280,6 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
             return;
           }
 
-          // OTP disabled: email alone should return tokens. Do not show OTP UI.
           if (!res?.data?.accessToken) {
             this.message = resolveApiMessage(this.translation, {
               messageKey: res?.messageKey ?? res?.data?.messageKey,
@@ -277,7 +312,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
             localStorage.setItem('userInfo', JSON.stringify(res.data));
           }
 
-          void this.router.navigate(['/tabs/home']);
+          void this.finishAuthNavigationToHome();
         },
       });
 
@@ -339,10 +374,6 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
 
           localStorage.setItem('userInfo', JSON.stringify(res?.data ?? res));
 
-          if (onboardingData) {
-            localStorage.removeItem('onboarding_data');
-            localStorage.removeItem('onboarding_completed');
-          }
           if (typeof sessionStorage !== 'undefined') {
             sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
           }
@@ -363,7 +394,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
                 createdAt: res.data.user['createdAt'],
               });
             }
-            void this.router.navigate(['/tabs/home']);
+            void this.finishAuthNavigationToHome();
             return;
           }
 
@@ -471,6 +502,49 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
     );
   }
 
+  private readStoredOnboardingData(): OnboardingDataDto | null {
+    try {
+      const storedData = localStorage.getItem('onboarding_data');
+      if (storedData) {
+        return JSON.parse(storedData) as OnboardingDataDto;
+      }
+    } catch (error) {
+      console.error('Error parsing onboarding data:', error);
+    }
+    return null;
+  }
+
+  private clearStoredOnboardingAfterAuth(): void {
+    if (localStorage.getItem('onboarding_data')) {
+      localStorage.removeItem('onboarding_data');
+      localStorage.removeItem('onboarding_completed');
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
+    }
+  }
+
+  /**
+   * After signup/sign-in with a token: push local onboarding → reproductive domain
+   * (so Home does not show the period cycle ring for pregnant/postpartum), then go home.
+   */
+  private async finishAuthNavigationToHome(): Promise<void> {
+    const local = this.readStoredOnboardingData() as LocalOnboardingAnswers | null;
+    const payload = mapLocalOnboardingToReproductiveInit(local);
+    if (payload && this.service.getAccessToken()) {
+      try {
+        await firstValueFrom(
+          this.onboardingService.initializeReproductiveState(payload),
+        );
+        this.dashboardCache.invalidate();
+      } catch {
+        /* Server registration may already have initialized; Home can still reconcile. */
+      }
+    }
+    this.clearStoredOnboardingAfterAuth();
+    await this.router.navigate(['/tabs/home']);
+  }
+
   onRegister(event?: Event) {
     event?.preventDefault();
     if (this.registerForm.invalid) {
@@ -509,7 +583,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
       return true;
     }
     const emailInvalid = !!this.loginForm.get('email')?.invalid;
-    if (!this.emailOtpEnabled || !this.loginOtpStep) {
+    if (!this.loginOtpStep) {
       return emailInvalid;
     }
     const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
@@ -521,7 +595,7 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
       return false;
     }
     const emailValid = !!this.loginForm.get('email')?.valid;
-    if (!this.emailOtpEnabled || !this.loginOtpStep) {
+    if (!this.loginOtpStep) {
       return emailValid;
     }
     const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
@@ -686,6 +760,10 @@ export class LoginComponent implements OnDestroy, ViewDidEnter, AfterViewInit {
       this.titlePaintTimer = null;
       this.cdr.detectChanges();
     }, 120);
+  }
+
+  private syncThemeFromService(): void {
+    this.isDarkTheme = this.themeService.effectiveIsDark();
   }
 
   ngOnDestroy(): void {

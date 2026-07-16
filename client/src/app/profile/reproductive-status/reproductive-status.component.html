@@ -215,15 +215,50 @@
         <ion-title>{{ "reproductiveStatus.pickerDate" | translate }}</ion-title>
       </ion-toolbar>
       <p class="cycle-picker-range-hint">{{ periodPickerRangeHint }}</p>
-      <ion-datetime
-        class="cycle-date-wheel ltr"
-        presentation="date"
-        [preferWheel]="true"
-        [value]="periodDateIso"
-        [min]="minPeriodDate"
-        [max]="maxDate"
-        (ionChange)="onPeriodDateChange($event)"
-      ></ion-datetime>
+      @if (isPersianLanguage) {
+        <ion-picker class="cycle-date-wheel jalali-date-picker">
+          <ion-picker-column
+            [value]="jalaliPeriodDay"
+            (ionChange)="onJalaliPeriodColumnChange($event, 'day')"
+          >
+            @for (day of jalaliPeriodDayOptions; track day) {
+              <ion-picker-column-option [value]="day">
+                {{ day | localNum }}
+              </ion-picker-column-option>
+            }
+          </ion-picker-column>
+          <ion-picker-column
+            [value]="jalaliPeriodMonth"
+            (ionChange)="onJalaliPeriodColumnChange($event, 'month')"
+          >
+            @for (month of jalaliPeriodMonths; track month.value) {
+              <ion-picker-column-option [value]="month.value">
+                {{ month.label }}
+              </ion-picker-column-option>
+            }
+          </ion-picker-column>
+          <ion-picker-column
+            [value]="jalaliPeriodYear"
+            (ionChange)="onJalaliPeriodColumnChange($event, 'year')"
+          >
+            @for (year of jalaliPeriodYears; track year) {
+              <ion-picker-column-option [value]="year">
+                {{ year | localNum }}
+              </ion-picker-column-option>
+            }
+          </ion-picker-column>
+        </ion-picker>
+      } @else {
+        <ion-datetime
+          class="cycle-date-wheel ltr"
+          presentation="date"
+          [preferWheel]="true"
+          [value]="periodDateIso"
+          [min]="minPeriodDate"
+          [max]="maxDate"
+          (ionChange)="onPeriodDateChange($event)"
+        ></ion-datetime>
+      }
       @if (pickerValidationMessage && isPeriodDateOpen) {
         <div class="cycle-picker-feedback" role="alert">
           <p class="cycle-picker-error">{{ pickerValidationMessage }}</p>

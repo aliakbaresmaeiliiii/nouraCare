@@ -5,16 +5,14 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { ModalController, PickerController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
+import * as jalaali from 'jalaali-js';
 import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
 import {
   formatJalaliFaFromIso,
   J_MONTHS,
-  JALALI_DATE_PICKER_CLASS,
-  JALALI_PICKER_MONTH_COL_WIDTH,
   jalaliDaysInMonth,
   jalaliToIsoDate,
-  toFa,
 } from '../../shared/utils/jalali-iranian-calendar.util';
 import {
   formatLocalizedNumber,
@@ -22,11 +20,6 @@ import {
   isPersianAppLanguage,
 } from '../../shared/utils/locale-date-format.util';
 import { localCalendarIsoDate } from '../../shared/utils/ion-datetime-today-highlight.util';
-import {
-  attachJalaliPickerLiveValidation,
-  clearJalaliPickerFeedback,
-  showJalaliPickerFeedback,
-} from '../../shared/utils/jalali-picker-live-validation.util';
 import {
   helpKeyForValidationError,
   minCycleLastPeriodIso,
@@ -54,7 +47,6 @@ export interface CycleSetupSheetResult {
 export class ReproductiveStatusComponent implements OnInit {
   private modalCtrl = inject(ModalController);
   private cdr = inject(ChangeDetectorRef);
-  private pickerCtrl = inject(PickerController);
   private languageService = inject(LanguageService);
   private translation = inject(TranslationService);
 
@@ -76,6 +68,26 @@ export class ReproductiveStatusComponent implements OnInit {
   pickerValidationMessage = '';
   pickerValidationHelp = '';
   submitAttempted = false;
+
+  readonly jalaliPeriodMonths = J_MONTHS.map((label, idx) => ({
+    label,
+    value: idx + 1,
+  }));
+  readonly jalaliPeriodYears: number[] = (() => {
+    const [minGy, minGm, minGd] = minCycleLastPeriodIso()
+      .split('-')
+      .map((n) => parseInt(n, 10));
+    const [maxGy, maxGm, maxGd] = localCalendarIsoDate()
+      .split('-')
+      .map((n) => parseInt(n, 10));
+    const minJ = jalaali.toJalaali(minGy, minGm, minGd);
+    const maxJ = jalaali.toJalaali(maxGy, maxGm, maxGd);
+    return Array.from({ length: maxJ.jy - minJ.jy + 1 }, (_, i) => minJ.jy + i);
+  })();
+  jalaliPeriodYear =
+    this.jalaliPeriodYears[this.jalaliPeriodYears.length - 1] ?? 1400;
+  jalaliPeriodMonth = 1;
+  jalaliPeriodDay = 1;
 
   form = new FormGroup({
     durationDays: new FormControl(this.durationDays),
@@ -210,6 +222,15 @@ export class ReproductiveStatusComponent implements OnInit {
     return `${num} ${unit}`;
   }
 
+  get isPersianLanguage(): boolean {
+    return isPersianAppLanguage(this.languageService.getCurrentLanguage());
+  }
+
+  get jalaliPeriodDayOptions(): number[] {
+    const len = jalaliDaysInMonth(this.jalaliPeriodYear, this.jalaliPeriodMonth);
+    return Array.from({ length: len }, (_, i) => i + 1);
+  }
+
   openBleedingDaysPicker() {
     if (this.isBleedingDaysOpen) return;
     this.setPickerFeedback(null);
@@ -226,11 +247,15 @@ export class ReproductiveStatusComponent implements OnInit {
 
   openPeriodDatePicker() {
     this.setPickerFeedback(null);
-    if (isPersianAppLanguage(this.languageService.getCurrentLanguage())) {
-      void this.openJalaliPicker();
-      return;
+    const seedIso = this.periodDateIso || this.maxDate;
+    if (this.isPersianLanguage) {
+      this.syncJalaliPeriodFromIso(seedIso);
+    } else if (!this.periodDateIso) {
+      this.periodDateIso = seedIso;
     }
     this.isPeriodDateOpen = true;
+    this.validateActivePeriodPicker();
+    this.cdr.markForCheck();
   }
 
   closeBleedingDays(role: 'cancel' | 'confirm') {
@@ -281,7 +306,15 @@ export class ReproductiveStatusComponent implements OnInit {
 
   closePeriodDate(role: 'cancel' | 'confirm') {
     if (role === 'confirm') {
-      const check = validateCycleLastPeriodIso(this.periodDateIso);
+      const check = this.isPersianLanguage
+        ? validateCycleLastPeriodIso(
+            jalaliToIsoDate(
+              this.jalaliPeriodYear,
+              this.jalaliPeriodMonth,
+              this.jalaliPeriodDay,
+            ),
+          )
+        : validateCycleLastPeriodIso(this.periodDateIso);
       if (!check.valid) {
         this.setPickerFeedback(check.errorKey);
         return;
@@ -342,6 +375,27 @@ export class ReproductiveStatusComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  onJalaliPeriodColumnChange(
+    event: CustomEvent,
+    column: 'day' | 'month' | 'year',
+  ): void {
+    const value = Number((event.detail as { value?: number | string }).value);
+    if (!Number.isFinite(value)) return;
+    if (column === 'year') {
+      this.jalaliPeriodYear = value;
+    } else if (column === 'month') {
+      this.jalaliPeriodMonth = value;
+    } else {
+      this.jalaliPeriodDay = value;
+    }
+    const maxDay = jalaliDaysInMonth(this.jalaliPeriodYear, this.jalaliPeriodMonth);
+    if (this.jalaliPeriodDay > maxDay) {
+      this.jalaliPeriodDay = maxDay;
+    }
+    this.validateActivePeriodPicker();
+    this.cdr.markForCheck();
+  }
+
   onPeriodDateDismiss() {
     this.isPeriodDateOpen = false;
     this.setPickerFeedback(null);
@@ -349,81 +403,6 @@ export class ReproductiveStatusComponent implements OnInit {
 
   cancel() {
     this.modalCtrl.dismiss(null, 'cancel');
-  }
-
-  async openJalaliPicker() {
-    const seedIso = this.periodDateIso || this.maxDate;
-    const jalaali = await import('jalaali-js');
-    const [gy, gm, gd] = seedIso.split('-').map((n) => parseInt(n, 10));
-    const tempJ = jalaali.toJalaali(gy, gm, gd);
-
-    const years = Array.from({ length: 60 }, (_, i) => 1360 + i);
-    const yearCol = {
-      name: 'year',
-      selectedIndex: Math.max(0, years.indexOf(tempJ.jy)),
-      options: years.map((y) => ({ text: toFa(y), value: y })),
-    };
-
-    const monthCol = {
-      name: 'month',
-      selectedIndex: tempJ.jm - 1,
-      columnWidth: JALALI_PICKER_MONTH_COL_WIDTH,
-      optionsWidth: JALALI_PICKER_MONTH_COL_WIDTH,
-      options: J_MONTHS.map((m, idx) => ({ text: m, value: idx + 1 })),
-    };
-
-    const makeDayCol = (jy: number, jm: number, selectedDay = 1) => {
-      const len = jalaliDaysInMonth(jy, jm);
-      const days = Array.from({ length: len }, (_, i) => i + 1);
-      return {
-        name: 'day',
-        selectedIndex: Math.min(selectedDay, len) - 1,
-        options: days.map((d) => ({ text: toFa(d), value: d })),
-      };
-    };
-
-    const dayCol = makeDayCol(tempJ.jy, tempJ.jm, tempJ.jd);
-
-    const picker = await this.pickerCtrl.create({
-      cssClass: JALALI_DATE_PICKER_CLASS,
-      columns: [dayCol, monthCol, yearCol],
-      buttons: [
-        { text: this.translation.translate('common.cancel'), role: 'cancel' },
-        {
-          text: this.translation.translate('reproductiveStatus.confirm'),
-          handler: (value) => {
-            const iso = jalaliToIsoDate(
-              value.year.value,
-              value.month.value,
-              value.day.value,
-            );
-            const check = validateCycleLastPeriodIso(iso);
-            if (!check.valid) {
-              showJalaliPickerFeedback(picker, check.errorKey, (key) =>
-                this.translation.translate(key),
-              );
-              this.cdr.detectChanges();
-              return false;
-            }
-            clearJalaliPickerFeedback(picker);
-            this.periodDateIso = check.iso;
-            this.periodDate = check.iso;
-            this.form.patchValue({ periodStartIso: check.iso });
-            this.setFormValidationFeedback(null);
-            this.cdr.detectChanges();
-            return true;
-          },
-        },
-      ],
-    });
-
-    await picker.present();
-
-    attachJalaliPickerLiveValidation(picker, {
-      validate: (iso) => validateCycleLastPeriodIso(iso),
-      translate: (key) => this.translation.translate(key),
-      rangeHint: this.periodPickerRangeHint,
-    });
   }
 
   saveInfo() {
@@ -454,6 +433,33 @@ export class ReproductiveStatusComponent implements OnInit {
     };
 
     this.modalCtrl.dismiss(result, 'confirm');
+  }
+
+  private syncJalaliPeriodFromIso(iso: string): void {
+    const [gy, gm, gd] = iso.split('-').map((n) => parseInt(n, 10));
+    const j = jalaali.toJalaali(gy, gm, gd);
+    this.jalaliPeriodYear = this.jalaliPeriodYears.includes(j.jy)
+      ? j.jy
+      : (this.jalaliPeriodYears[this.jalaliPeriodYears.length - 1] ?? j.jy);
+    this.jalaliPeriodMonth = j.jm;
+    this.jalaliPeriodDay = j.jd;
+    const maxDay = jalaliDaysInMonth(this.jalaliPeriodYear, this.jalaliPeriodMonth);
+    if (this.jalaliPeriodDay > maxDay) {
+      this.jalaliPeriodDay = maxDay;
+    }
+  }
+
+  private validateActivePeriodPicker(): void {
+    const check = this.isPersianLanguage
+      ? validateCycleLastPeriodIso(
+          jalaliToIsoDate(
+            this.jalaliPeriodYear,
+            this.jalaliPeriodMonth,
+            this.jalaliPeriodDay,
+          ),
+        )
+      : validateCycleLastPeriodIso(this.periodDateIso);
+    this.setPickerFeedback(check.valid ? null : check.errorKey);
   }
 
   private setPickerFeedback(errorKey: string | null): void {

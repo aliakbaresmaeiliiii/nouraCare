@@ -12,6 +12,8 @@ export interface TokenResponse {
     refreshToken?: string;
     /** Step 1 email sign-in: code sent, no tokens yet. */
     otpSent?: boolean;
+    /** True when sign-in created a new account for an unknown email. */
+    isNewUser?: boolean;
     messageKey?: string;
     requiresVerification?: boolean;
   };

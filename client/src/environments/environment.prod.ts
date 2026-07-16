@@ -52,8 +52,9 @@
     /** Temporarily hide/disable Sign in with Apple on auth screens. */
     appleSignInEnabled: false,
     /**
-     * When false, email sign-in/register skip OTP and go straight to home.
-     * Re-enable by setting true (and EMAIL_OTP_ENABLED=true on the server).
+     * When false, verified users sign in with email alone (no OTP).
+     * New / unverified emails still receive an OTP via continue-with-email.
+     * Set true (and EMAIL_OTP_ENABLED=true on the server) to require OTP for all email sign-ins.
      */
     emailOtpEnabled: false,
   };

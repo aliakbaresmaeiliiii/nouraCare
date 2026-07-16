@@ -116,6 +116,7 @@ interface PregnancyFeatureSlide {
     './home.component.scss',
     './home-pregnancy.styles.scss',
     './home-menopause.styles.scss',
+    './home-postpartum.styles.scss',
   ],
   standalone: true,
   imports: [
@@ -447,6 +448,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     }
   
     this.cycleSettings.setUserStatus('Pregnant');
+    this.cycleSettings.setPregnancyStatus(true);
     this.cycleSettings.setPostpartumStatus(false);
   }
   
@@ -456,6 +458,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.isPostpartum = true;
   
     this.cycleSettings.setUserStatus('Postpartum');
+    this.cycleSettings.setPregnancyStatus(false);
     this.cycleSettings.setPostpartumStatus(true);
   }
   
@@ -731,6 +734,56 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     }
     this.schedulePregnancyConnectorUpdate();
     this.runPeriodChartRefresh();
+    if (state.needsReproductivePersist) {
+      this.persistReconciledReproductiveState(state);
+    }
+  }
+
+  /** One-shot PATCH when journey was pregnant/postpartum but dashboard still said cycle. */
+  private persistReconciledReproductiveState(state: HomePageJourneyState): void {
+    const key = '__repro_state_promoted_from_journey__';
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(key) === '1') {
+      return;
+    }
+    if (!this.authService.getAccessToken()) {
+      return;
+    }
+    const payload: InitializeReproductiveStateDto = state.isPregnant
+      ? {
+          state: 'pregnant',
+          pregnancyStartDate: state.lastMenstrualPeriodIso || undefined,
+        }
+      : state.isPostpartum
+        ? { state: 'postpartum' }
+        : { state: 'cycle' };
+    if (payload.state === 'cycle') {
+      return;
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(key, '1');
+    }
+    this.onboardingService.updateReproductiveState(payload).subscribe({
+      next: () => {
+        this.homeFacade.syncDashboardJourney(true).subscribe({
+          next: (next) => {
+            if (next) {
+              this.applyJourneyStateToView({
+                ...next,
+                needsReproductivePersist: false,
+              });
+            }
+          },
+          error: () => {
+            /* UI already shows reconciled state */
+          },
+        });
+      },
+      error: () => {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.removeItem(key);
+        }
+      },
+    });
   }
 
   /**
@@ -741,7 +794,7 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
     if (!this.authService.getAccessToken()) {
       return;
     }
-    if (!this.isPregnant || !this.needsPregnancyInput) {
+    if (!this.isPregnant() || !this.needsPregnancyInput) {
       return;
     }
     if (this.isPromotingOnboardingPregnancy) {
@@ -1181,6 +1234,12 @@ export class HomeComponent implements OnInit, OnDestroy, ViewWillEnter {
       (data) => data.week === this.postpartumWeek
     );
     return currentData || this.postpartumData[0];
+  }
+
+  getPostpartumWeekLabel(): string {
+    return this.translation.translateParams('home.postpartum.weekLabel', {
+      week: String(this.postpartumWeek),
+    });
   }
 
   updatePostpartumWeek(week: number) {

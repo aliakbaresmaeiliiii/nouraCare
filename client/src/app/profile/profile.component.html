@@ -130,67 +130,12 @@
     }}</app-button>
   </div>
 
-  <section class="experience-section">
-    <h2 class="experience-title">
-      {{ "editProfile.experienceTitle" | translate }}
-    </h2>
-
-    <div class="experience-grid">
-      <button
-        class="experience-card"
-        [class.experience-card--selected]="isStatusSelected('NOT_PREGNANT')"
-        (click)="changeReproductiveStatus('NOT_PREGNANT')"
-      >
-        <div class="experience-card-media">
-          <img src="assets/images/profile/trackCyclePeriod.jpg" alt="" />
-        </div>
-        <span class="experience-label">{{
-          "editProfile.trackCycle" | translate
-        }}</span>
-      </button>
-
-      <button
-        class="experience-card"
-        [class.experience-card--selected]="
-          isStatusSelected('PLANNING_PREGNANCY')
-        "
-        (click)="changeReproductiveStatus('PLANNING_PREGNANCY')"
-      >
-        <div class="experience-card-media">
-          <img src="assets/images/profile/getPregnent.jpg" alt="" />
-        </div>
-        <span class="experience-label">{{
-          "editProfile.getPregnant" | translate
-        }}</span>
-      </button>
-
-      <button
-        class="experience-card"
-        [class.experience-card--selected]="isStatusSelected('PREGNANT')"
-        (click)="changeReproductiveStatus('PREGNANT')"
-      >
-        <div class="experience-card-media">
-          <img src="assets/images/profile/trackPregnency.jpg" alt="" />
-        </div>
-        <span class="experience-label">{{
-          "editProfile.trackPregnancy" | translate
-        }}</span>
-      </button>
-
-      <button
-        class="experience-card experience-card--menopause"
-        [class.experience-card--selected]="isStatusSelected('MENOPAUSE')"
-        (click)="changeReproductiveStatus('MENOPAUSE')"
-      >
-        <div class="experience-card-media">
-          <img src="assets/images/profile/perimenopause.jpg" alt="" />
-        </div>
-        <span class="experience-label">{{
-          "editProfile.trackPerimenopause" | translate
-        }}</span>
-      </button>
-    </div>
-  </section>
+  <app-reproductive-status-picker
+    class="experience-section"
+    [selectedStatus]="currentReproductiveStatus"
+    [planningPending]="isPlanningStatusPending()"
+    (statusChange)="changeReproductiveStatus($event)"
+  />
 
   <div class="profile-fields">
     <h3 class="section-title">{{ "profile.completeProfile" | translate }}</h3>

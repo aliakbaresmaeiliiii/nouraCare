@@ -24,6 +24,7 @@ import {
   normalizeLmpInput,
   utcTodayIsoDateOnly,
 } from '../shared/utils/pregnancy-lmp.util';
+import { mapLocalOnboardingToReproductiveInit } from '../shared/utils/onboarding-reproductive.util';
 import { ReproductiveStatusService } from '../shared/services/reproductive-status.service';
 import { FirstWeekPlanService } from '../shared/services/first-week-plan.service';
 import { HomeReproductiveUiService } from '../home/services/home-reproductive-ui.service';
@@ -34,6 +35,12 @@ import {
   PeriodDatePickerComponent,
   PeriodDateRange,
 } from '../shared/components/period-date-picker/period-date-picker.component';
+import { ReproductiveStatusPickerComponent } from '../shared/components/reproductive-status-picker/reproductive-status-picker.component';
+import {
+  normalizeReproductiveUiStatus,
+  uiStatusToApiState,
+  uiStatusToHomeStatus,
+} from '../shared/reproductive-status/reproductive-status.mapper';
 import {
   formatRecordedAtDate,
   isPersianAppLanguage,
@@ -62,8 +69,6 @@ import {
 } from '../shared/utils/onboarding-language.util';
 import { Router } from '@angular/router';
 
-type JourneyCardTone = 'mint' | 'lavender' | 'cream';
-
 const DEFAULT_PREGNANCY_WEEK = 4;
 
 interface OnboardingStep {
@@ -77,7 +82,6 @@ interface OnboardingStep {
     value: any;
     icon?: string;
     imageSrc?: string;
-    cardTone?: JourneyCardTone;
   }[];
   placeholder?: string;
   min?: number;
@@ -90,7 +94,11 @@ interface OnboardingStep {
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS, PeriodDatePickerComponent],
+  imports: [
+    ...SHARED_STANDALONE_IMPORTS,
+    PeriodDatePickerComponent,
+    ReproductiveStatusPickerComponent,
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class OnboardingComponent implements OnInit {
@@ -134,31 +142,12 @@ export class OnboardingComponent implements OnInit {
     },
     pregnancy_status: {
       id: 'pregnancy_status',
-      title: 'Which stage are you in?',
+      title: 'Your status',
       subtitle: 'You can update this anytime in your profile.',
       question:
-        'Pick the path that fits you best. The next screen depends on your choice—week-by-week if you are pregnant, last period if you are trying to conceive, or your baby’s birth date if you are postpartum.',
+        'Choose the same status options as in your profile. The next step depends on your choice.',
       type: 'radio',
-      options: [
-        {
-          labelKey: 'onboarding.pregnancyStatus.option.trying',
-          value: 'trying',
-          imageSrc: 'assets/images/onboarding/becomePregnent.jpg',
-          cardTone: 'mint',
-        },
-        {
-          labelKey: 'onboarding.pregnancyStatus.option.pregnant',
-          value: 'pregnant',
-          imageSrc: 'assets/images/onboarding/Pregnent.jpg',
-          cardTone: 'lavender',
-        },
-        {
-          labelKey: 'onboarding.pregnancyStatus.option.postpartum',
-          value: 'postpartum',
-          imageSrc: 'assets/images/onboarding/IHavaeKid.jpg',
-          cardTone: 'cream',
-        },
-      ],
+      // Options come from REPRODUCTIVE_STATUS_OPTIONS via app-reproductive-status-picker.
       required: true,
     },
     last_period: {
@@ -212,14 +201,19 @@ export class OnboardingComponent implements OnInit {
 
   /** Ordered ids for the current journey (after goal is known, index ≥2 is stable until goal changes). */
   stepOrder(): string[] {
-    const status = this.answers['pregnancy_status'];
-    let contextual = 'last_period';
-    if (status === 'pregnant') {
+    const ui = normalizeReproductiveUiStatus(this.answers['pregnancy_status']);
+    let contextual: string | null = 'last_period';
+    if (ui === 'PREGNANT') {
       contextual = 'pregnancy_week';
-    } else if (status === 'postpartum') {
+    } else if (ui === 'POSTPARTUM') {
+      // Legacy in-progress drafts only; Profile no longer offers postpartum.
       contextual = 'baby_birth_date';
+    } else if (ui === 'MENOPAUSE') {
+      contextual = null;
     }
-    return ['welcome', 'pregnancy_status', contextual, 'notifications', 'personalized_result'];
+    return contextual
+      ? ['welcome', 'pregnancy_status', contextual, 'notifications', 'personalized_result']
+      : ['welcome', 'pregnancy_status', 'notifications', 'personalized_result'];
   }
 
   get totalSteps(): number {
@@ -270,7 +264,7 @@ export class OnboardingComponent implements OnInit {
     this.answers = { ...this.defaultAnswers(), ...snapshot.answers };
     const maxStep = Math.max(0, this.totalSteps - 1);
     this.currentStep = Math.max(0, Math.min(snapshot.currentStep, maxStep));
-    if (this.answers['pregnancy_status'] === 'pregnant') {
+    if (this.isPregnantStatus()) {
       if (this.answers['last_period']) {
         this.syncPregnancyWeekFromLmp();
       } else if (!this.answers['pregnancy_week']) {
@@ -341,12 +335,16 @@ export class OnboardingComponent implements OnInit {
   }
 
   getStepTitle(): string {
+    // Keep the same title as Profile «وضعیت شما».
+    if (this.currentStepData.id === 'pregnancy_status') {
+      return this.t('editProfile.experienceTitle');
+    }
     return this.t(`${this.stepKeyPrefix(this.currentStepData.id)}.title`);
   }
 
   getStepSubtitle(): string {
     const s = this.currentStepData;
-    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'trying') {
+    if (s.id === 'last_period' && this.isPlanningStatus()) {
       return this.t('onboarding.lastPeriod.subtitleTrying');
     }
     return this.t(`${this.stepKeyPrefix(s.id)}.subtitle`);
@@ -354,13 +352,39 @@ export class OnboardingComponent implements OnInit {
 
   getStepQuestion(): string {
     const s = this.currentStepData;
-    if (s.id === 'last_period' && this.answers['pregnancy_status'] === 'trying') {
+    if (s.id === 'last_period' && this.isPlanningStatus()) {
       return this.t('onboarding.lastPeriod.questionTrying');
     }
     if (s.id === 'last_period') {
       return this.t('onboarding.lastPeriod.questionDefault');
     }
     return this.t(`${this.stepKeyPrefix(s.id)}.question`);
+  }
+
+  /** Same status vocabulary as Profile «وضعیت شما». */
+  private reproductiveUiStatus() {
+    return normalizeReproductiveUiStatus(this.answers['pregnancy_status']);
+  }
+
+  private isPlanningStatus(): boolean {
+    return this.reproductiveUiStatus() === 'PLANNING_PREGNANCY';
+  }
+
+  private isPregnantStatus(): boolean {
+    return this.reproductiveUiStatus() === 'PREGNANT';
+  }
+
+  private isPostpartumStatus(): boolean {
+    return this.reproductiveUiStatus() === 'POSTPARTUM';
+  }
+
+  private isMenopauseStatus(): boolean {
+    return this.reproductiveUiStatus() === 'MENOPAUSE';
+  }
+
+  /** Picker emits UI keys; store canonical API states shared with Profile. */
+  onReproductiveStatusSelected(uiStatus: string): void {
+    this.selectOption('pregnancy_status', uiStatusToApiState(uiStatus));
   }
 
   getLastPeriodValidationMessage(): string {
@@ -527,29 +551,33 @@ export class OnboardingComponent implements OnInit {
   }
 
   getResultHeadline(): string {
-    const status = this.answers['pregnancy_status'];
-    if (status === 'pregnant') {
+    if (this.isPregnantStatus()) {
       const w = Number(this.answers['pregnancy_week']) || 0;
       return w > 0
         ? this.tParams('onboarding.result.headline.pregnant', { week: w })
         : this.t('onboarding.result.headline.pregnantFallback');
     }
-    if (status === 'trying') {
+    if (this.isPlanningStatus()) {
       return this.t('onboarding.result.headline.trying');
     }
-    if (status === 'postpartum') {
+    if (this.isPostpartumStatus()) {
       return this.t('onboarding.result.headline.postpartum');
+    }
+    if (this.isMenopauseStatus()) {
+      return this.t('onboarding.result.headline.menopause');
     }
     return this.t('onboarding.result.headline.cycle');
   }
 
   getResultSubcopy(): string {
-    const status = this.answers['pregnancy_status'];
-    if (status === 'pregnant') {
+    if (this.isPregnantStatus()) {
       return this.t('onboarding.result.subcopy.pregnant');
     }
-    if (status === 'postpartum') {
+    if (this.isPostpartumStatus()) {
       return this.t('onboarding.result.subcopy.postpartum');
+    }
+    if (this.isMenopauseStatus()) {
+      return this.t('onboarding.result.subcopy.menopause');
     }
     return this.t('onboarding.result.subcopy.default');
   }
@@ -557,8 +585,7 @@ export class OnboardingComponent implements OnInit {
   getResultBullets(): { label: string; value: string }[] {
     const lmp = this.getEffectiveLmpIsoForStorage();
     const cl = Number(this.answers['cycle_length']) || 28;
-    const status = this.answers['pregnancy_status'];
-    if (status === 'postpartum') {
+    if (this.isPostpartumStatus()) {
       const birth = normalizeLmpInput(this.answers['baby_birth_date']);
       if (!birth) {
         return [];
@@ -575,10 +602,13 @@ export class OnboardingComponent implements OnInit {
         },
       ];
     }
+    if (this.isMenopauseStatus()) {
+      return [];
+    }
     if (!lmp) {
       return [];
     }
-    if (status === 'pregnant') {
+    if (this.isPregnantStatus()) {
       const edd = addCalendarDaysIso(lmp, 280);
       return [
         {
@@ -629,10 +659,6 @@ export class OnboardingComponent implements OnInit {
       personalized_result: 'checkmark-done-outline',
     };
     return icons[stepId] ?? 'ellipse-outline';
-  }
-
-  getJourneyDescKey(value: string): string {
-    return `onboarding.pregnancyStatus.option.${value}.desc`;
   }
 
   getFormattedAnswerDate(stepId: string): string | null {
@@ -733,14 +759,15 @@ export class OnboardingComponent implements OnInit {
 
   selectOption(stepId: string, value: any) {
     if (stepId === 'pregnancy_status') {
+      const next = uiStatusToApiState(value);
       const prev = this.answers['pregnancy_status'];
-      if (prev !== value) {
+      if (prev !== next) {
         delete this.answers['last_period'];
         delete this.answers['pregnancy_week'];
         delete this.answers['baby_birth_date'];
       }
-      this.answers[stepId] = value;
-      if (value === 'pregnant' && !this.answers['pregnancy_week']) {
+      this.answers[stepId] = next;
+      if (next === 'pregnant' && !this.answers['pregnancy_week']) {
         this.applyPregnancyWeek(DEFAULT_PREGNANCY_WEEK);
         return;
       }
@@ -810,7 +837,7 @@ export class OnboardingComponent implements OnInit {
     if (!iso) {
       return false;
     }
-    if (this.answers['pregnancy_status'] === 'pregnant') {
+    if (this.isPregnantStatus()) {
       if (!isCalendarDateNotAfterToday(iso)) {
         return false;
       }
@@ -855,7 +882,7 @@ export class OnboardingComponent implements OnInit {
   }
 
   private syncPregnancyWeekFromLmp(): void {
-    if (this.answers['pregnancy_status'] !== 'pregnant') {
+    if (!this.isPregnantStatus()) {
       return;
     }
     const lmp = normalizeLmpInput(this.answers['last_period']);
@@ -866,9 +893,9 @@ export class OnboardingComponent implements OnInit {
     this.answers['pregnancy_week'] = gestationalWeekFromLmp(lmp);
   }
 
-  /** Canonical LMP (first day of last period), `YYYY-MM-DD`, or null. Postpartum skips LMP. */
+  /** Canonical LMP (first day of last period), `YYYY-MM-DD`, or null. */
   private getEffectiveLmpIsoForStorage(): string | null {
-    if (this.answers['pregnancy_status'] === 'postpartum') {
+    if (this.isPostpartumStatus() || this.isMenopauseStatus()) {
       return null;
     }
     return normalizeLmpInput(this.answers['last_period']);
@@ -990,7 +1017,7 @@ export class OnboardingComponent implements OnInit {
       this.persistLocalProgress();
     }
 
-    if (this.answers['pregnancy_status'] === 'pregnant') {
+    if (this.isPregnantStatus()) {
       if (this.answers['last_period']) {
         this.syncPregnancyWeekFromLmp();
       } else if (!this.answers['pregnancy_week']) {
@@ -1001,7 +1028,7 @@ export class OnboardingComponent implements OnInit {
 
   private buildOnboardingDto(): OnboardingDataDto {
     const lmp = this.getEffectiveLmpIsoForStorage();
-    const pregnant = String(this.answers['pregnancy_status'] ?? '').toLowerCase() === 'pregnant';
+    const pregnant = this.isPregnantStatus();
     const pregnancyWeek =
       pregnant && this.answers['pregnancy_week'] != null
         ? Number(this.answers['pregnancy_week'])
@@ -1009,7 +1036,7 @@ export class OnboardingComponent implements OnInit {
           ? gestationalWeekFromLmp(lmp)
           : undefined;
     return {
-      pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
+      pregnancy_status: this.answers['pregnancy_status'] || 'cycle',
       lmp_date: lmp,
       last_period: lmp,
       cycle_length: this.answers['cycle_length'] || 28,
@@ -1091,24 +1118,18 @@ export class OnboardingComponent implements OnInit {
   }
 
   private toReproductivePayload(): InitializeReproductiveStateDto {
-    const status = this.answers['pregnancy_status'];
-    const mappedState =
-      status === 'pregnant'
-        ? 'pregnant'
-        : status === 'postpartum'
-          ? 'postpartum'
-          : status === 'trying'
-            ? 'planning'
-            : 'cycle';
-    const lmp = this.getEffectiveLmpIsoForStorage();
-    return {
-      state: mappedState,
-      lastPeriodDate: mappedState === 'postpartum' ? undefined : lmp || undefined,
-      cycleLength: this.answers['cycle_length'] || undefined,
-      tryingSince: mappedState === 'planning' ? lmp || undefined : undefined,
-      // Pregnant: LMP derived from entered week — server derives metrics; do not send currentWeek.
-      pregnancyStartDate: mappedState === 'pregnant' ? lmp || undefined : undefined,
-    };
+    const payload = mapLocalOnboardingToReproductiveInit({
+      pregnancy_status: this.answers['pregnancy_status'],
+      lmp_date: this.getEffectiveLmpIsoForStorage(),
+      last_period: this.getEffectiveLmpIsoForStorage(),
+      cycle_length: this.answers['cycle_length'],
+      pregnancy_week: this.answers['pregnancy_week'],
+    });
+    return (
+      payload ?? {
+        state: 'cycle',
+      }
+    );
   }
 
   /**
@@ -1134,30 +1155,19 @@ export class OnboardingComponent implements OnInit {
       this.cycleSettings.setLastPeriodStart(lmp);
     }
 
-    // Save pregnancy status
-    const pregnancyStatus = this.answers['pregnancy_status'];
-    if (pregnancyStatus === 'pregnant') {
-      this.cycleSettings.setUserStatus('Pregnant');
-      this.cycleSettings.setPregnancyStatus(true);
-      this.cycleSettings.setPostpartumStatus(false);
+    // Save reproductive status (same set as Profile «وضعیت شما»)
+    const ui = this.reproductiveUiStatus();
+    const homeStatus = uiStatusToHomeStatus(ui);
+    this.cycleSettings.setUserStatus(homeStatus);
+    this.cycleSettings.setPregnancyStatus(ui === 'PREGNANT');
+    this.cycleSettings.setPostpartumStatus(ui === 'POSTPARTUM');
 
-      if (lmp) {
-        const w = gestationalWeekFromLmp(lmp);
-        this.cycleSettings.setPregnancyWeek(w);
-        this.cycleSettings.setPregnancyProgress(Math.min(100, Math.round((w / 40) * 100)));
-      }
-    } else if (pregnancyStatus === 'postpartum') {
-      this.cycleSettings.setUserStatus('Postpartum');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(true);
-    } else if (pregnancyStatus === 'trying') {
-      this.cycleSettings.setUserStatus('Trying to Conceive');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(false);
-    } else {
-      this.cycleSettings.setUserStatus('Cycle Tracking');
-      this.cycleSettings.setPregnancyStatus(false);
-      this.cycleSettings.setPostpartumStatus(false);
+    if (ui === 'PREGNANT' && lmp) {
+      const w = gestationalWeekFromLmp(lmp);
+      this.cycleSettings.setPregnancyWeek(w);
+      this.cycleSettings.setPregnancyProgress(Math.min(100, Math.round((w / 40) * 100)));
+    } else if (ui === 'MENOPAUSE') {
+      this.cycleSettings.applyMenopauseHomeMode('perimenopause');
     }
 
     localStorage.setItem('onboarding_completed', 'true');
@@ -1171,10 +1181,10 @@ export class OnboardingComponent implements OnInit {
     );
 
     const lmpOut = this.getEffectiveLmpIsoForStorage();
-    const pregnantOut = String(this.answers['pregnancy_status'] ?? '').toLowerCase() === 'pregnant';
+    const pregnantOut = this.isPregnantStatus();
     const babyBirth = normalizeLmpInput(this.answers['baby_birth_date']);
     const onboardingData = {
-      pregnancy_status: this.answers['pregnancy_status'] || 'tracking',
+      pregnancy_status: this.answers['pregnancy_status'] || 'cycle',
       lmp_date: lmpOut,
       last_period: lmpOut,
       cycle_length: this.answers['cycle_length'] || 28,

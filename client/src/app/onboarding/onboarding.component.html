@@ -65,7 +65,6 @@
           />
         </div>
 
-        <p class="welcome-eyebrow">{{ 'onboarding.welcome.brandName' | translate }}</p>
         <h1 class="welcome-title">{{ getStepTitle() }}</h1>
         <p class="welcome-lead">{{ getStepSubtitle() }}</p>
         <p class="welcome-body">{{ getStepQuestion() }}</p>
@@ -121,41 +120,12 @@
         <div class="step-panel">
           @if (currentStepData.type === 'radio' && currentStepData.id === 'pregnancy_status') {
             <p class="step-lead">{{ getStepQuestion() }}</p>
-            <div class="journey-grid" role="radiogroup" [attr.aria-label]="getStepTitle()">
-              @for (option of currentStepData.options; track option.value) {
-                <button
-                  type="button"
-                  class="journey-tile"
-                  [class.journey-tile--mint]="option.cardTone === 'mint'"
-                  [class.journey-tile--lavender]="option.cardTone === 'lavender'"
-                  [class.journey-tile--cream]="option.cardTone === 'cream'"
-                  [class.journey-tile--selected]="answers[currentStepData.id] === option.value"
-                  (click)="selectOption(currentStepData.id, option.value)"
-                  [attr.aria-checked]="answers[currentStepData.id] === option.value"
-                  role="radio"
-                >
-                  <span class="journey-tile__media" aria-hidden="true">
-                    @if (option.imageSrc) {
-                      <img
-                        [src]="option.imageSrc"
-                        alt=""
-                        width="72"
-                        height="72"
-                        class="journey-tile__img"
-                        decoding="async"
-                      />
-                    }
-                  </span>
-                  <span class="journey-tile__body">
-                    <span class="journey-tile__title">{{ getOptionLabel(option) }}</span>
-                    <span class="journey-tile__desc">{{ getJourneyDescKey(option.value) | translate }}</span>
-                  </span>
-                  <span class="journey-tile__check" aria-hidden="true">
-                    <ion-icon name="checkmark"></ion-icon>
-                  </span>
-                </button>
-              }
-            </div>
+            <app-reproductive-status-picker
+              class="onboarding-status-picker"
+              [selectedStatus]="answers['pregnancy_status']"
+              [showTitle]="false"
+              (statusChange)="onReproductiveStatusSelected($event)"
+            />
             <p class="step-footnote">{{ 'onboarding.pregnancyStatus.footnote' | translate }}</p>
           }
 

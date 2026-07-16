@@ -12,6 +12,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { OnboardingModule } from '../onboarding/onboarding.module';
 import { UserModule } from '../users/user.module';
 import { GrowthModule } from '../growth/growth.module';
+import { ReproductiveModule } from '../reproductive/reproductive.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { GrowthModule } from '../growth/growth.module';
     OnboardingModule,
     UserModule,
     GrowthModule,
+    ReproductiveModule,
   ],
   controllers: [AuthController],
   providers: [

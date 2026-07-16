@@ -1881,6 +1881,11 @@ export class TranslationService {
         "Day {{day}} of your cycle. Let's track your journey together.",
       'home.personalized.postpartum':
         'Welcome to your postpartum journey. Take care of yourself.',
+      'home.postpartum.eyebrow': 'Postpartum',
+      'home.postpartum.weekLabel': 'Recovery week {{week}}',
+      'home.postpartum.recoveryAria': 'Postpartum recovery focus',
+      'home.postpartum.symptomsAria': 'Common postpartum experiences',
+      'home.postpartum.symptomsTitle': 'What many parents notice',
       'home.personalized.menopause':
         'Your menopause journey — wellness, sleep, and symptom support.',
       'home.personalized.default':
@@ -7443,6 +7448,11 @@ export class TranslationService {
         'روز {{day}} از چرخهٔ شماست. بیایید با هم پیگیری کنیم.',
       'home.personalized.postpartum':
         'به دورهٔ پس از زایمان خوش آمدید. به خودتان برسید.',
+      'home.postpartum.eyebrow': 'پس از زایمان',
+      'home.postpartum.weekLabel': 'هفتهٔ بهبودی {{week}}',
+      'home.postpartum.recoveryAria': 'تمرکز بهبودی پس از زایمان',
+      'home.postpartum.symptomsAria': 'تجربه‌های رایج پس از زایمان',
+      'home.postpartum.symptomsTitle': 'آنچه بسیاری از والدین تجربه می‌کنند',
       'home.personalized.menopause':
         'سفر یائسگی شما — تندرستی، خواب و همراهی با علائم.',
       'home.personalized.default':

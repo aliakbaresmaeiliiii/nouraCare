@@ -70,14 +70,16 @@ export class AuthService {
   }
 
   /**
-   * Login with mobile and OTP
+   * Continue with email — existing users sign in; unknown emails are auto-registered
+   * and receive an OTP (server returns otpSent until the code is verified).
+   * Body is email + optional otp only so older API builds do not 400 on extra fields.
    */
   login(data: LoginRequest): Observable<TokenResponse> {
     const body: { email: string; otp?: string } = {
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
     };
     if (data.otp?.trim()) {
-      body.otp = data.otp.trim();
+      body.otp = String(data.otp).trim();
     }
 
     const options = data.otp?.trim() ? {} : this.languageHttpOptions();

@@ -39,6 +39,11 @@ export interface HomePageJourneyState {
   dashboardCycleInsight?: string | null;
   /** Personalized phase guide from GET /me/dashboard (cycle/planning). */
   dashboardPhaseGuide?: DashboardCyclePhaseGuide | null;
+  /**
+   * True when journey said pregnant/postpartum but dashboard was still default `cycle`.
+   * Home should PATCH reproductive state once so later loads stay correct.
+   */
+  needsReproductivePersist?: boolean;
 }
 
 type DashboardFertileWindow = NonNullable<DashboardResponse['fertileWindow']>;
@@ -57,10 +62,94 @@ export class HomeReproductiveUiService {
     dashboard: DashboardResponse,
     journey: UserInfo | null | undefined,
   ): HomePageJourneyState {
-    const state = this.applyDashboardResponse(dashboard);
+    let state = this.applyDashboardResponse(dashboard);
+    // Registration used to persist journey without reproductive_state; GET dashboard
+    // then defaulted to `cycle`. Prefer completed journey pregnant/postpartum intent.
+    state = this.reconcileJourneyOverDefaultCycle(dashboard, journey, state);
     this.mergeJourneyLastPeriodIntoCycleState(journey, state);
     this.hydratePeriodStartFromLocalCycle(state);
-    this.finalizePregnancyStorageFromDashboard(dashboard, state);
+    this.finalizePregnancyStorageFromDashboard(
+      state.isPregnant
+        ? { ...dashboard, state: 'pregnant' }
+        : state.isPostpartum
+          ? { ...dashboard, state: 'postpartum' }
+          : dashboard,
+      state,
+    );
+    return state;
+  }
+
+  /**
+   * When dashboard is still the default `cycle` but onboarding journey says
+   * pregnant / postpartum / has child, bind Home to that intent.
+   */
+  private reconcileJourneyOverDefaultCycle(
+    dashboard: DashboardResponse,
+    journey: UserInfo | null | undefined,
+    state: HomePageJourneyState,
+  ): HomePageJourneyState {
+    if (dashboard.state !== 'cycle' || !journey?.pregnancyStatus) {
+      return state;
+    }
+    const status = String(journey.pregnancyStatus).toUpperCase();
+    if (status === 'PREGNANT') {
+      this.cycleSettings.setUserStatus('Pregnant');
+      this.cycleSettings.setPregnancyStatus(true);
+      this.cycleSettings.setPostpartumStatus(false);
+      this.cycleSettings.setMenopauseStatus(false);
+      const lmpIso = this.journeyLastPeriodIso(journey);
+      if (lmpIso) {
+        this.cycleSettings.setLastPeriodStart(lmpIso);
+        const stats = this.computePregnancyStatsFromLmpIso(lmpIso);
+        if (stats) {
+          this.cycleSettings.setPregnancyWeek(stats.week);
+          this.cycleSettings.setPregnancyProgress(stats.progress);
+          return {
+            userStatus: 'Pregnant',
+            isPregnant: true,
+            isPostpartum: false,
+            isMenopause: false,
+            pregnancyWeek: stats.week,
+            pregnancyDay: stats.day,
+            pregnancyProgress: stats.progress,
+            needsPregnancyInput: false,
+            lastMenstrualPeriodIso: lmpIso,
+            dashboardTips: [],
+            pregnancyDashboardInsight: null,
+            periodStartDate: null,
+            cycleDayDirty: false,
+            needsReproductivePersist: true,
+          };
+        }
+      }
+      return {
+        userStatus: 'Pregnant',
+        isPregnant: true,
+        isPostpartum: false,
+        isMenopause: false,
+        needsPregnancyInput: true,
+        dashboardTips: [],
+        pregnancyDashboardInsight: null,
+        periodStartDate: null,
+        cycleDayDirty: false,
+        needsReproductivePersist: true,
+      };
+    }
+    if (status === 'POSTPARTUM' || status === 'HAS_CHILD') {
+      this.cycleSettings.setUserStatus('Postpartum');
+      this.cycleSettings.setPregnancyStatus(false);
+      this.cycleSettings.setPostpartumStatus(true);
+      this.cycleSettings.setMenopauseStatus(false);
+      return {
+        userStatus: 'Postpartum',
+        isPregnant: false,
+        isPostpartum: true,
+        isMenopause: false,
+        periodStartDate: null,
+        cycleDayDirty: false,
+        needsReproductivePersist: true,
+      };
+    }
     return state;
   }
 
@@ -121,6 +210,7 @@ export class HomeReproductiveUiService {
 
     if (dashboard.state === 'postpartum') {
       this.cycleSettings.setUserStatus('Postpartum');
+      this.cycleSettings.setPregnancyStatus(false);
       this.cycleSettings.setPostpartumStatus(true);
       this.cycleSettings.setMenopauseStatus(false);
       return {

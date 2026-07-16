@@ -102,7 +102,8 @@ ion-content.tab-page-content {
  */
 html.plt-mobile ion-content.tab-page-content,
 html.plt-capacitor ion-content.tab-page-content {
-  --padding-top: calc(var(--layout-tab-scroll-padding-top, 8px) + env(safe-area-inset-top, 0px) + 58px);
+  /* Header is in-flow + safe-area; keep a small content inset only. */
+  --padding-top: var(--layout-tab-scroll-padding-top, 8px);
 }
 
 
@@ -115,12 +116,28 @@ ion-router-outlet {
 app-layout>ion-header.modern-header {
   flex-shrink: 0;
   position: relative !important;
-  // Solid toolbar so week rows / insights don’t paint through on mobile WebViews.
+  --background: var(--brand-surface);
   --opacity-translucent: 1;
+  background: var(--brand-surface);
+  border-bottom: 0.5px solid rgba(var(--brand-text-rgb), 0.12);
+  box-shadow: none;
 }
 
 app-layout>ion-header.modern-header ion-toolbar {
+  --background: var(--brand-surface);
   --opacity-translucent: 1;
+  --min-height: var(--layout-header-height, 44px);
+  box-shadow: none;
+}
+
+ion-app.ion-palette-dark app-layout>ion-header.modern-header,
+ion-app.ion-palette-dark app-layout>ion-header.modern-header ion-toolbar {
+  --background: #000;
+  background: #000;
+}
+
+ion-app.ion-palette-dark app-layout>ion-header.modern-header {
+  border-bottom-color: rgba(255, 255, 255, 0.18);
 }
 
 // Headings with beautiful typography
@@ -663,7 +680,7 @@ ion-menu .menu-icon {
   --safe-area-inset-left: env(safe-area-inset-left, 0px);
   --safe-area-inset-right: env(safe-area-inset-right, 0px);
   /* Fixed FAB above bottom tab bar (single source; avoid stacking with ion-content padding) */
-  --app-tab-fab-clearance: 72px;
+  --app-tab-fab-clearance: calc(49px + env(safe-area-inset-bottom, 0px));
   --app-space-1: 4px;
   --app-space-2: 8px;
   --app-space-3: 12px;
@@ -1001,12 +1018,12 @@ ion-item ion-icon[slot='end'] {
 }
 
 ion-tab-bar.app-tab-bar {
-  --background: transparent;
-  --ion-tab-bar-background: transparent;
-  --border: none;
-  --ion-tab-bar-border-color: transparent;
-  background: transparent;
-  border-top: none;
+  --background: var(--brand-surface);
+  --ion-tab-bar-background: var(--brand-surface);
+  --border: 0.5px solid rgba(var(--brand-text-rgb), 0.12);
+  --ion-tab-bar-border-color: rgba(var(--brand-text-rgb), 0.12);
+  background: var(--brand-surface);
+  border-top: 0.5px solid rgba(var(--brand-text-rgb), 0.12);
   box-shadow: none;
 }
 
@@ -1015,18 +1032,20 @@ ion-tab-button ion-icon {
 }
 
 ion-tab-button.tab-selected ion-icon {
-  color: var(--app-icon-accent, var(--ion-color-primary));
+  color: inherit;
 }
 
 ion-app.ion-palette-dark ion-tab-bar.app-tab-bar {
-  --background: transparent;
-  --ion-tab-bar-background: transparent;
-  --ion-tab-bar-border-color: transparent;
-  background: transparent;
+  --background: #000;
+  --ion-tab-bar-background: #000;
+  --ion-tab-bar-border-color: rgba(255, 255, 255, 0.18);
+  --border: 0.5px solid rgba(255, 255, 255, 0.18);
+  background: #000;
+  border-top-color: rgba(255, 255, 255, 0.18);
 }
 
 ion-app.ion-palette-dark ion-tab-button.tab-selected ion-icon {
-  filter: var(--app-icon-shine-filter, none);
+  filter: none;
 }
 
 ion-app.ion-palette-dark ion-segment-button.segment-button-checked ion-icon {

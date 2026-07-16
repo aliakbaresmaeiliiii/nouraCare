@@ -8,8 +8,11 @@
   <div
     class="home-content"
     [class.home-content--pregnancy-today]="isPregnant()"
+    [class.home-content--postpartum-today]="isPostpartum"
     [class.home-content--menopause-today]="isHomeMenopauseLayout()"
-    [class.home-content--cycle-today]="!isPregnant() && !isHomeMenopauseLayout()"
+    [class.home-content--cycle-today]="
+      !isPregnant() && !isPostpartum && !isHomeMenopauseLayout()
+    "
   >
     @if (isHomeMenopauseLayout()) {
     <div class="menopause-today-shell">
@@ -103,6 +106,56 @@
           {{ "home.menopause.trackSymptomsCta" | translate }}
           <ion-icon name="arrow-forward-outline" aria-hidden="true"></ion-icon>
         </button>
+      </section>
+    </div>
+    } @else if (isPostpartum) {
+    <div class="postpartum-today-shell">
+      <div class="postpartum-hero-sky">
+        <div class="postpartum-hero-copy">
+          <p class="postpartum-hero-eyebrow">
+            {{ "home.postpartum.eyebrow" | translate }}
+          </p>
+          <h2 class="postpartum-hero-title">
+            {{ getStatusTitle() }}
+          </h2>
+          <p class="postpartum-hero-insight" role="status" aria-live="polite">
+            {{ getStatusDescription() }}
+          </p>
+          <p class="postpartum-hero-stat">
+            {{ getPostpartumWeekLabel() }}
+          </p>
+        </div>
+      </div>
+
+      <section
+        class="postpartum-recovery-card"
+        [attr.aria-label]="'home.postpartum.recoveryAria' | translate"
+      >
+        <div class="postpartum-recovery-card__badge" aria-hidden="true">
+          <ion-icon name="flower-outline"></ion-icon>
+        </div>
+        <div class="postpartum-recovery-card__copy">
+          <h3 class="postpartum-recovery-card__phase">
+            {{ getCurrentPostpartumData().recovery }}
+          </h3>
+          <p class="postpartum-recovery-card__note">
+            {{ getCurrentPostpartumData().tips }}
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="postpartum-symptoms-section"
+        [attr.aria-label]="'home.postpartum.symptomsAria' | translate"
+      >
+        <h3 class="postpartum-section-title">
+          {{ "home.postpartum.symptomsTitle" | translate }}
+        </h3>
+        <div class="postpartum-symptom-chips">
+          @for (symptom of getCurrentPostpartumData().symptoms; track $index) {
+          <span class="postpartum-symptom-chip">{{ symptom }}</span>
+          }
+        </div>
       </section>
     </div>
     } @else if (!isPregnant()) {

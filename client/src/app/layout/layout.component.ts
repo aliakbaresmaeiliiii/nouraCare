@@ -8,12 +8,17 @@ import {
 import { NavigationEnd, Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
+  bulb,
   bulbOutline,
+  calendar,
   calendarOutline,
+  construct,
   constructOutline,
+  home,
   homeOutline,
   menuOutline,
   personCircleOutline,
+  school,
   schoolOutline,
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
@@ -48,10 +53,15 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   constructor() {
     addIcons({
+      home,
       homeOutline,
+      construct,
       constructOutline,
+      calendar,
       calendarOutline,
+      school,
       schoolOutline,
+      bulb,
       bulbOutline,
       menuOutline,
       personCircleOutline,

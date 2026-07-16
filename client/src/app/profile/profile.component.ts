@@ -43,6 +43,11 @@ import {
   MenopauseSetupSheetComponent,
   MenopauseSetupSheetResult,
 } from '../shared/components/menopause-setup-sheet/menopause-setup-sheet.component';
+import { ReproductiveStatusPickerComponent } from '../shared/components/reproductive-status-picker/reproductive-status-picker.component';
+import {
+  isReproductiveUiStatusSelected,
+  normalizeReproductiveUiStatus,
+} from '../shared/reproductive-status/reproductive-status.mapper';
 
 import type {
 
@@ -116,7 +121,7 @@ declare global {
 
   standalone: true,
 
-  imports: [...SHARED_STANDALONE_IMPORTS],
+  imports: [...SHARED_STANDALONE_IMPORTS, ReproductiveStatusPickerComponent],
 
   styleUrls: ['./profile.component.scss'],
 
@@ -860,15 +865,16 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
 
 
-  isStatusSelected(s: string) {
+  isPlanningStatusPending(): boolean {
+    return this.cycleSettings.getPregnantProfileCardPending();
+  }
 
-    if (
-      s === 'PLANNING_PREGNANCY' &&
-      this.cycleSettings.getPregnantProfileCardPending()
-    ) {
-      return true;
-    }
-    return this.currentReproductiveStatus === s;
+  isStatusSelected(s: string) {
+    return isReproductiveUiStatusSelected(
+      this.currentReproductiveStatus,
+      s,
+      { planningPending: this.isPlanningStatusPending() },
+    );
   }
 
 
@@ -883,41 +889,7 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
 
   private normalizeStatus(s: string | null): string | null {
-
-    if (!s) return 'NOT_PREGNANT';
-
-    s = s.replace(/\s+/g, '_').toUpperCase();
-
-
-
-    const map: Record<string, string> = {
-
-      PREGNANT: 'PREGNANT',
-
-      EXPECTING: 'PREGNANT',
-
-      PLANNING_PREGNANCY: 'PLANNING_PREGNANCY',
-
-      TRYING_TO_CONCEIVE: 'PLANNING_PREGNANCY',
-
-      POSTPARTUM: 'POSTPARTUM',
-
-      HAS_CHILD: 'POSTPARTUM',
-
-      NOT_PREGNANT: 'NOT_PREGNANT',
-
-      CYCLE: 'NOT_PREGNANT',
-
-      MENOPAUSE: 'MENOPAUSE',
-
-      PERIMENOPAUSE: 'MENOPAUSE',
-
-    };
-
-
-
-    return map[s] ?? 'NOT_PREGNANT';
-
+    return normalizeReproductiveUiStatus(s);
   }
 
 

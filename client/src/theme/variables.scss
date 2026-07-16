@@ -179,8 +179,8 @@
   --ion-toolbar-color: var(--brand-text);
   --ion-item-background: var(--brand-surface);
   --ion-card-background: var(--brand-surface);
-  --ion-tab-bar-background: transparent;
-  --ion-tab-bar-border-color: transparent;
+  --ion-tab-bar-background: var(--brand-surface);
+  --ion-tab-bar-border-color: rgba(var(--brand-text-rgb), 0.12);
 
   /* ion-icon / Ionicons use currentColor on the host — tune without piercing shadow */
   --app-icon-default: var(--brand-text-secondary);

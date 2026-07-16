@@ -1,0 +1,38 @@
+@if (showTitle()) {
+  <h2 class="rsp__title">{{ titleKey() | translate }}</h2>
+}
+
+<div
+  class="rsp__grid"
+  role="radiogroup"
+  [attr.aria-label]="titleKey() | translate"
+>
+  @for (option of options(); track option.uiStatus) {
+    <button
+      type="button"
+      class="rsp__card"
+      [class.rsp__card--selected]="isSelected(option)"
+      [class.rsp__card--menopause]="option.uiStatus === 'MENOPAUSE'"
+      [disabled]="disabled()"
+      role="radio"
+      [attr.aria-checked]="isSelected(option)"
+      (click)="onSelect(option)"
+    >
+      <span class="rsp__media" aria-hidden="true">
+        <img
+          [src]="option.imageSrc"
+          alt=""
+          width="112"
+          height="112"
+          decoding="async"
+        />
+      </span>
+      <span class="rsp__label">{{ option.labelKey | translate }}</span>
+      @if (isSelected(option)) {
+        <span class="rsp__check" aria-hidden="true">
+          <ion-icon name="checkmark"></ion-icon>
+        </span>
+      }
+    </button>
+  }
+</div>

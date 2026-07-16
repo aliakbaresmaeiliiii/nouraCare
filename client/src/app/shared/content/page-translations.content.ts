@@ -413,10 +413,10 @@
   'onboarding.welcome.subtitle': 'Understand your body, every day',
   'onboarding.welcome.question':
     'In a few quick steps we will personalize your calendar, reminders, and insights. Nothing here replaces care from your clinician.',
-  'onboarding.pregnancyStatus.title': 'Which stage are you in?',
+  'onboarding.pregnancyStatus.title': 'Your status',
   'onboarding.pregnancyStatus.subtitle': 'You can update this anytime in your profile.',
   'onboarding.pregnancyStatus.question':
-    'Pick the path that fits you best. The next screen depends on your choice—week-by-week if you are pregnant, last period if you are trying to conceive, or your baby’s birth date if you are postpartum.',
+    'Choose the status that fits you best. The next step depends on your choice—pregnancy week, last period, or menopause support.',
   'onboarding.pregnancyStatus.footnote':
     'Your choice only shapes what we show first—not a diagnosis.',
   'onboarding.pregnancyStatus.option.trying': 'Trying to conceive',
@@ -489,11 +489,14 @@
   'onboarding.result.headline.pregnantFallback': 'Pregnancy',
   'onboarding.result.headline.trying': 'Fertility snapshot',
   'onboarding.result.headline.postpartum': 'Postpartum',
+  'onboarding.result.headline.menopause': 'Menopause support',
   'onboarding.result.headline.cycle': 'Cycle snapshot',
   'onboarding.result.subcopy.pregnant':
     'Estimated from the week you entered. Your clinician may use ultrasound-based dating.',
   'onboarding.result.subcopy.postpartum':
     'We will focus on recovery-friendly tips. Add cycle details later when it feels right.',
+  'onboarding.result.subcopy.menopause':
+    'We will focus on menopause-related support. You can update this anytime in your profile.',
   'onboarding.result.subcopy.default':
     'Based on a typical 28-day cycle. You can fine-tune length later in the app.',
   'onboarding.result.bullet.babyBirthDate': "Baby's birth date",
@@ -1001,10 +1004,10 @@ const PAGE_UI_ZH: Record<string, string> = {
   'onboarding.welcome.subtitle': '贴合您生活的健康支持',
   'onboarding.welcome.question':
     '只需几步，我们将为您定制日历、提醒与洞察。此处内容不能替代临床医疗建议。',
-  'onboarding.pregnancyStatus.title': '您目前处于哪个阶段？',
+  'onboarding.pregnancyStatus.title': '您的状态',
   'onboarding.pregnancyStatus.subtitle': '您可随时在资料中更新。',
   'onboarding.pregnancyStatus.question':
-    '选择最适合您的路径。下一屏将根据您的选择显示：怀孕则按周追踪，备孕则记录末次月经，产后则填写宝宝出生日期。',
+    '选择最适合您的状态。下一步取决于您的选择——孕周、末次月经或更年期支持。',
   'onboarding.pregnancyStatus.footnote': '您的选择仅影响优先展示内容，并非诊断。',
   'onboarding.pregnancyStatus.option.trying': '正在备孕',
   'onboarding.pregnancyStatus.option.pregnant': '我已怀孕',
@@ -1068,9 +1071,11 @@ const PAGE_UI_ZH: Record<string, string> = {
   'onboarding.result.headline.pregnantFallback': '怀孕',
   'onboarding.result.headline.trying': '生育概览',
   'onboarding.result.headline.postpartum': '产后',
+  'onboarding.result.headline.menopause': '更年期支持',
   'onboarding.result.headline.cycle': '周期概览',
   'onboarding.result.subcopy.pregnant': '根据您输入的孕周估算。临床可能采用超声日期。',
   'onboarding.result.subcopy.postpartum': '我们将侧重恢复友好提示。周期细节可稍后补充。',
+  'onboarding.result.subcopy.menopause': '我们将为您提供更年期相关支持。可随时在资料中调整。',
   'onboarding.result.subcopy.default': '基于典型 28 天周期。您可在应用中进一步调整。',
   'onboarding.result.bullet.babyBirthDate': '宝宝出生日期',
   'onboarding.result.bullet.timeSinceBirth': '自出生起（约）',
@@ -1547,10 +1552,10 @@ const PAGE_UI_MS: Record<string, string> = {
   'onboarding.welcome.subtitle': 'Sokongan kesihatan yang sesuai dengan hidup anda',
   'onboarding.welcome.question':
     'Dalam beberapa langkah pantas kami akan peribadikan kalendar, peringatan, dan pandangan. Ini tidak menggantikan rawatan klinikal.',
-  'onboarding.pregnancyStatus.title': 'Peringkat manakah anda?',
+  'onboarding.pregnancyStatus.title': 'Status anda',
   'onboarding.pregnancyStatus.subtitle': 'Anda boleh kemas kini bila-bila masa dalam profil.',
   'onboarding.pregnancyStatus.question':
-    'Pilih laluan yang paling sesuai. Skrin seterusnya bergantung pada pilihan—minggu demi minggu jika hamil, haid terakhir jika cuba hamil, atau tarikh lahir bayi jika selepas bersalin.',
+    'Pilih status yang paling sesuai. Langkah seterusnya bergantung pada pilihan—minggu kehamilan, haid terakhir, atau sokongan menopaus.',
   'onboarding.pregnancyStatus.footnote':
     'Pilihan anda hanya membentuk apa yang kami tunjuk dahulu—bukan diagnosis.',
   'onboarding.pregnancyStatus.option.trying': 'Cuba hamil',
@@ -1621,11 +1626,14 @@ const PAGE_UI_MS: Record<string, string> = {
   'onboarding.result.headline.pregnantFallback': 'Kehamilan',
   'onboarding.result.headline.trying': 'Gambaran kesuburan',
   'onboarding.result.headline.postpartum': 'Selepas bersalin',
+  'onboarding.result.headline.menopause': 'Sokongan menopaus',
   'onboarding.result.headline.cycle': 'Gambaran kitaran',
   'onboarding.result.subcopy.pregnant':
     'Dianggarkan dari minggu yang anda masukkan. Klinikal mungkin guna dating ultrasound.',
   'onboarding.result.subcopy.postpartum':
     'Kami fokus tip mesra pemulihan. Butiran kitaran boleh ditambah kemudian.',
+  'onboarding.result.subcopy.menopause':
+    'Kami akan fokus sokongan berkaitan menopaus. Anda boleh ubah dalam profil bila-bila masa.',
   'onboarding.result.subcopy.default':
     'Berdasarkan kitaran 28 hari biasa. Anda boleh haluskan panjang dalam apl.',
   'onboarding.result.bullet.babyBirthDate': 'Tarikh lahir bayi',
@@ -2102,10 +2110,10 @@ const PAGE_UI_FA: Record<string, string> = {
   'onboarding.welcome.subtitle': 'ردیاب پریود و سلامت زنان',
   'onboarding.welcome.question':
     'با دوره می‌توانید اطلاعات چرخه خود را ثبت کنید، سوابق را ببینید و با آرامش بیشتری روندهای شخصی خود را دنبال کنید.',
-  'onboarding.pregnancyStatus.title': 'در چه مرحله‌ای هستید؟',
+  'onboarding.pregnancyStatus.title': 'وضعیت شما',
   'onboarding.pregnancyStatus.subtitle': 'هر زمان در پروفایل قابل تغییر است.',
   'onboarding.pregnancyStatus.question':
-    'مسیر مناسب را انتخاب کنید. صفحهٔ بعد بسته به انتخاب شماست — هفته‌به‌هفته برای بارداری، آخرین قاعدگی برای تلاش برای بارداری، یا تاریخ تولد برای پس از زایمان.',
+    'وضعیتی را انتخاب کنید که با شما سازگار است. مرحلهٔ بعد بسته به انتخاب شماست — هفتهٔ بارداری، آخرین قاعدگی، یا پشتیبانی یائسگی.',
   'onboarding.pregnancyStatus.footnote': 'انتخاب شما فقط اولویت نمایش را تعیین می‌کند — تشخیص نیست.',
   'onboarding.pregnancyStatus.option.trying': 'در تلاش برای بارداری',
   'onboarding.pregnancyStatus.option.pregnant': 'باردار هستم',
@@ -2171,11 +2179,14 @@ const PAGE_UI_FA: Record<string, string> = {
   'onboarding.result.headline.pregnantFallback': 'بارداری',
   'onboarding.result.headline.trying': 'نمای کلی باروری',
   'onboarding.result.headline.postpartum': 'پس از زایمان',
+  'onboarding.result.headline.menopause': 'پشتیبانی یائسگی',
   'onboarding.result.headline.cycle': 'نمای کلی سیکل',
   'onboarding.result.subcopy.pregnant':
     'بر اساس هفته‌ای که وارد کردید. پزشک ممکن است dating سونوگرافی داشته باشد.',
   'onboarding.result.subcopy.postpartum':
     'روی نکات مناسب دوران بهبود تمرکز می‌کنیم. جزئیات سیکل را بعداً اضافه کنید.',
+  'onboarding.result.subcopy.menopause':
+    'روی پشتیبانی مرتبط با یائسگی تمرکز می‌کنیم. هر زمان در پروفایل قابل تغییر است.',
   'onboarding.result.subcopy.default':
     'بر اساس سیکل معمول ۲۸ روزه. طول را بعداً در برنامه تنظیم کنید.',
   'onboarding.result.bullet.babyBirthDate': 'تاریخ تولد نوزاد',

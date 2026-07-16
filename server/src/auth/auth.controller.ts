@@ -55,6 +55,11 @@ export class AuthController {
       loginDto.email,
       loginDto.otp,
       resolveRequestLocale(acceptLanguage, appLanguage),
+      {
+        phoneNumber: loginDto.phoneNumber,
+        onboardingData: loginDto.onboardingData,
+        inviteCode: loginDto.inviteCode,
+      },
     );
     if ('otpSent' in result && result.otpSent) {
       return ApiResponseHelper.success(

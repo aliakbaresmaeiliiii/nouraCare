@@ -306,11 +306,8 @@
 
 // Flo Experience section (from edit-profile)
 .experience-section {
+  display: block;
   margin: 0 20px 20px;
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 .experience-title {

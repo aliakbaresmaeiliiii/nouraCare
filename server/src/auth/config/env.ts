@@ -46,8 +46,10 @@ export const env = {
   ),
   APPLE_CLIENT_IDS: parseCsv(process.env.APPLE_CLIENT_IDS),
   /**
-   * When false, sign-in/register skip email OTP and issue tokens immediately.
-   * Set EMAIL_OTP_ENABLED=true to restore OTP verification.
+   * When false, verified users can sign in with email alone.
+   * Continue-with-email still auto-registers unknown emails and requires OTP for those
+   * (and for any unverified account). Set EMAIL_OTP_ENABLED=true to require OTP for
+   * all email sign-ins.
    */
   EMAIL_OTP_ENABLED: process.env.EMAIL_OTP_ENABLED === 'true',
 };

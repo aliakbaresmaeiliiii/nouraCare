@@ -1,0 +1,133 @@
+.home-content--postpartum-today {
+  --background: linear-gradient(180deg, #fffaf8 0%, #fef3ee 48%, #fffaf8 100%);
+  background: var(--background);
+}
+
+.postpartum-today-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--home-section-gap, var(--app-space-8));
+  padding: var(--home-shell-padding-block-start, var(--app-space-5))
+    var(--app-side-padding, 1rem)
+    var(--home-shell-padding-block-end, calc(var(--app-space-8) + var(--app-space-2)));
+}
+
+.postpartum-hero-sky {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.35rem 1rem 1.1rem;
+  border-radius: 26px;
+  background: linear-gradient(165deg, #ffffff 0%, #fff1eb 55%, #fde8df 100%);
+  box-shadow: 0 10px 32px rgba(190, 120, 90, 0.12);
+}
+
+.postpartum-hero-copy {
+  text-align: center;
+  max-width: 28rem;
+}
+
+.postpartum-hero-eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c26b4a;
+}
+
+.postpartum-hero-title {
+  margin: 0 0 0.45rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.postpartum-hero-insight {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--brand-text-secondary, #475569);
+}
+
+.postpartum-hero-stat {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brand-text-secondary, #64748b);
+}
+
+.postpartum-section-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.postpartum-recovery-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1.05rem 1.1rem;
+  border-radius: 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(194, 107, 74, 0.1) 0%,
+    rgba(244, 162, 97, 0.06) 100%
+  );
+  border: 1px solid rgba(194, 107, 74, 0.18);
+}
+
+.postpartum-recovery-card__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 12px;
+  background: rgba(194, 107, 74, 0.14);
+  color: #c26b4a;
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 1.2rem;
+  }
+}
+
+.postpartum-recovery-card__phase {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ion-text-color, #1e293b);
+}
+
+.postpartum-recovery-card__note {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--brand-text-secondary, #475569);
+}
+
+.postpartum-symptoms-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.postpartum-symptom-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.postpartum-symptom-chip {
+  display: inline-flex;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #9a4f35;
+  background: rgba(253, 232, 223, 0.9);
+  border: 1px solid rgba(194, 107, 74, 0.16);
+}

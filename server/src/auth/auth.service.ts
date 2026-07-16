@@ -16,7 +16,10 @@ import { SocialLoginDto } from './dto/social-login.dto';
 import SendMail from '../helper/send_email';
 import { EmailProvider } from './config/email';
 import { OnboardingService as UserOnboardingService } from '../users/onboarding.service';
+import { OnboardingDataDto } from '../users/dto/onboarding.dto';
 import { mapRegisterOnboardingPayload } from './utils/map-register-onboarding.util';
+import { mapOnboardingToReproductiveInit } from './utils/map-onboarding-to-reproductive.util';
+import { ReproductiveStateService } from '../reproductive/reproductive-state.service';
 import { GrowthService } from '../growth/growth.service';
 import { ACCESS_TOKEN_TTL } from './config/jwt.config';
 import { parseRefreshToken } from './services/social-token.service';
@@ -47,6 +50,7 @@ export class AuthService {
     private socialTokenService: SocialTokenService,
     private userOnboarding: UserOnboardingService,
     private growthService: GrowthService,
+    private reproductiveState: ReproductiveStateService,
   ) {
     this.emailProvider = new EmailProvider();
     this.sendMail = new SendMail(this.emailProvider);
@@ -130,6 +134,7 @@ export class AuthService {
     if (onboardingDto) {
       try {
         await this.userOnboarding.saveOnboardingData(user.id, onboardingDto);
+        await this.initializeReproductiveFromOnboarding(user.id, onboardingDto);
       } catch (err) {
         console.error(
           'Failed to persist onboarding_data at registration:',
@@ -263,7 +268,22 @@ export class AuthService {
     };
   }
 
-  async login(email: string, otp?: string, locale?: string) {
+  /**
+   * Continue-with-email:
+   * - Existing verified user → login (OTP when EMAIL_OTP_ENABLED)
+   * - Unknown email → auto-register, send OTP, return otpSent
+   * - Unverified user → send/verify OTP on this same endpoint
+   */
+  async login(
+    email: string,
+    otp?: string,
+    locale?: string,
+    options?: {
+      phoneNumber?: string;
+      onboardingData?: Record<string, unknown>;
+      inviteCode?: string;
+    },
+  ) {
     const normalizedEmail = this.normalizeEmail(email);
     let user = await this.prisma.user.findUnique({
       where: { email: normalizedEmail },
@@ -275,17 +295,15 @@ export class AuthService {
     });
 
     if (!user) {
-      if (!env.EMAIL_OTP_ENABLED) {
+      if (otp?.trim()) {
         throw new UnauthorizedException({
-          message: 'Invalid email or account not found',
-          messageKey: AUTH_MESSAGE_KEYS.USER_NOT_FOUND,
+          message: 'Invalid or expired sign-in code',
+          messageKey: AUTH_MESSAGE_KEYS.INVALID_OR_EXPIRED_SIGNIN_CODE,
         });
       }
-      return {
-        otpSent: true,
-        message: 'If the account exists, a sign-in code was sent.',
-        messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
-      };
+
+      // New email: create account and send OTP for verification / first login.
+      return this.autoRegisterForEmailSignIn(normalizedEmail, locale, options);
     }
 
     if (user.status !== 'ACTIVE') {
@@ -295,27 +313,15 @@ export class AuthService {
       });
     }
 
+    // Unverified accounts always complete via OTP on this endpoint.
     if (!user.isVerified) {
-      if (!env.EMAIL_OTP_ENABLED) {
-        // OTP disabled: treat email as sufficient proof and verify on sign-in.
-        await this.prisma.user.update({
-          where: { id: user.id },
-          data: {
-            isVerified: true,
-            emailVerificationCode: null,
-            emailVerificationCodeExpires: null,
-          },
-        });
-        user = { ...user, isVerified: true };
-      } else {
-        throw new UnauthorizedException({
-          message: 'Email is not verified. Please complete email verification first.',
-          messageKey: AUTH_MESSAGE_KEYS.EMAIL_NOT_VERIFIED,
-        });
+      if (!otp?.trim()) {
+        return this.sendSignInOtp(user.id, user.email, locale, 'verification');
       }
+      return this.completeOtpSignIn(user, otp.trim(), true);
     }
 
-    // Temporarily skip OTP: email alone signs the user in.
+    // Verified user — OTP optional via feature flag.
     if (!env.EMAIL_OTP_ENABLED) {
       const { emailVerificationCode: _c, emailVerificationCodeExpires: _e, ...publicUser } =
         user;
@@ -327,40 +333,193 @@ export class AuthService {
     }
 
     if (!otp?.trim()) {
-      const loginCode = this.generateOtp();
-      this.logDevOtp(user.email, loginCode, 'sign-in');
-      const loginCodeExpires = new Date(Date.now() + 10 * 60 * 1000);
-
-      await this.prisma.user.update({
-        where: { id: user.id },
-        data: {
-          emailVerificationCode: loginCode,
-          emailVerificationCodeExpires: loginCodeExpires,
-        },
-      });
-
-      try {
-        await this.sendMail.sendAccountRegister(user.email, loginCode, {
-          locale,
-          purpose: 'sign-in',
-        });
-      } catch (error) {
-        console.error('Failed to send sign-in code:', error);
-        throw new BadRequestException({
-          message: 'Failed to send sign-in code',
-          messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_SIGNIN_CODE,
-        });
-      }
-
-      return {
-        otpSent: true,
-        message: 'If the account exists, a sign-in code was sent.',
-        messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
-      };
+      return this.sendSignInOtp(user.id, user.email, locale, 'sign-in');
     }
 
+    return this.completeOtpSignIn(user, otp.trim(), false);
+  }
+
+  /** Create account for an unknown email, email an OTP, and ask the client to verify. */
+  private async autoRegisterForEmailSignIn(
+    email: string,
+    locale?: string,
+    options?: {
+      phoneNumber?: string;
+      onboardingData?: Record<string, unknown>;
+      inviteCode?: string;
+    },
+  ) {
+    const verificationCode = this.generateOtp();
+    this.logDevOtp(email, verificationCode, 'register');
+    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    let user;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          phoneNumber: this.resolvePhoneNumber(options?.phoneNumber),
+          fullName: '',
+          isVerified: false,
+          emailVerificationCode: verificationCode,
+          emailVerificationCodeExpires: verificationCodeExpires,
+          updatedAt: new Date(),
+          user_subscription: {
+            create: {
+              usageDayPaywallThreshold: 3 + Math.floor(Math.random() * 3),
+            },
+          },
+        },
+        select: USER_PUBLIC_SELECT,
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        // Race: another request created this email — continue as existing user.
+        const existing = await this.prisma.user.findUnique({
+          where: { email },
+          select: {
+            ...USER_PUBLIC_SELECT,
+            emailVerificationCode: true,
+            emailVerificationCodeExpires: true,
+          },
+        });
+        if (existing) {
+          return this.login(email, undefined, locale, options);
+        }
+        throw new ConflictException({
+          message: 'User with this email or phone number already exists',
+          messageKey: AUTH_MESSAGE_KEYS.USER_ALREADY_EXISTS,
+        });
+      }
+      throw error;
+    }
+
+    try {
+      await this.sendMail.sendAccountRegister(user.email, verificationCode, {
+        locale,
+        purpose: 'verification',
+      });
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+      // Keep account + OTP so the client can still show the OTP step.
+      // Set EMAIL_STRICT=true to fail closed (rollback + 400) when mail is required.
+      this.logDevOtp(user.email, verificationCode, 'register-email-failed');
+      if (process.env.EMAIL_STRICT === 'true') {
+        await this.prisma.user.delete({ where: { id: user.id } }).catch((deleteError) => {
+          console.error('Failed to roll back user after email error:', deleteError);
+        });
+        throw new BadRequestException({
+          message: 'Failed to send verification email',
+          messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL,
+        });
+      }
+    }
+
+    const onboardingDto = mapRegisterOnboardingPayload(options?.onboardingData);
+    if (onboardingDto) {
+      try {
+        await this.userOnboarding.saveOnboardingData(user.id, onboardingDto);
+        await this.initializeReproductiveFromOnboarding(user.id, onboardingDto);
+      } catch (err) {
+        console.error(
+          'Failed to persist onboarding_data at auto-register sign-in:',
+          err,
+        );
+      }
+    }
+
+    try {
+      await this.growthService.onNewAccount(user.id, options?.inviteCode);
+    } catch (err) {
+      console.error('Growth referral setup failed at auto-register sign-in:', err);
+    }
+
+    return {
+      otpSent: true,
+      isNewUser: true,
+      requiresVerification: true,
+      message: 'If the account exists, a sign-in code was sent.',
+      messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
+    };
+  }
+
+  private async sendSignInOtp(
+    userId: number,
+    email: string,
+    locale: string | undefined,
+    purpose: 'sign-in' | 'verification',
+  ) {
+    const loginCode = this.generateOtp();
+    this.logDevOtp(email, loginCode, purpose === 'verification' ? 'resend-verification' : 'sign-in');
+    const loginCodeExpires = new Date(
+      Date.now() + (purpose === 'verification' ? 15 : 10) * 60 * 1000,
+    );
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        emailVerificationCode: loginCode,
+        emailVerificationCodeExpires: loginCodeExpires,
+      },
+    });
+
+    try {
+      await this.sendMail.sendAccountRegister(email, loginCode, {
+        locale,
+        purpose,
+      });
+    } catch (error) {
+      console.error('Failed to send sign-in code:', error);
+      this.logDevOtp(
+        email,
+        loginCode,
+        purpose === 'verification'
+          ? 'resend-verification-email-failed'
+          : 'sign-in-email-failed',
+      );
+      if (process.env.EMAIL_STRICT === 'true') {
+        throw new BadRequestException({
+          message:
+            purpose === 'verification'
+              ? 'Failed to send verification email'
+              : 'Failed to send sign-in code',
+          messageKey:
+            purpose === 'verification'
+              ? AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL
+              : AUTH_MESSAGE_KEYS.FAILED_SEND_SIGNIN_CODE,
+        });
+      }
+    }
+
+    return {
+      otpSent: true,
+      message: 'If the account exists, a sign-in code was sent.',
+      messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
+    };
+  }
+
+  private async completeOtpSignIn(
+    user: {
+      id: number;
+      email: string;
+      emailVerificationCode: string | null;
+      emailVerificationCodeExpires: Date | null;
+      isVerified: boolean;
+      phoneNumber?: string | null;
+      fullName?: string | null;
+      role?: string | null;
+      status?: string | null;
+      createdAt?: Date;
+      updatedAt?: Date;
+    },
+    otp: string,
+    markVerified: boolean,
+  ) {
     if (
-      user.emailVerificationCode !== otp.trim() ||
+      user.emailVerificationCode !== otp ||
       !user.emailVerificationCodeExpires ||
       user.emailVerificationCodeExpires < new Date()
     ) {
@@ -370,20 +529,20 @@ export class AuthService {
       });
     }
 
-    await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: {
+        ...(markVerified ? { isVerified: true } : {}),
         emailVerificationCode: null,
         emailVerificationCodeExpires: null,
       },
+      select: USER_PUBLIC_SELECT,
     });
 
-    const { emailVerificationCode: _c, emailVerificationCodeExpires: _e, ...publicUser } =
-      user;
-    const tokens = await this.generateTokens(publicUser.id, publicUser.email);
+    const tokens = await this.generateTokens(updatedUser.id, updatedUser.email);
 
     return {
-      user: publicUser,
+      user: updatedUser,
       ...tokens,
     };
   }
@@ -530,6 +689,28 @@ export class AuthService {
     return { exists: true, user };
   }
 
+  /**
+   * Align reproductive domain with onboarding answers at signup so Home does not
+   * fall back to the default `cycle` dashboard (period ring) for pregnant/postpartum.
+   */
+  private async initializeReproductiveFromOnboarding(
+    userId: number,
+    onboardingDto: OnboardingDataDto,
+  ): Promise<void> {
+    const reproductivePayload = mapOnboardingToReproductiveInit(onboardingDto);
+    if (!reproductivePayload) {
+      return;
+    }
+    try {
+      await this.reproductiveState.initializeForUser(userId, reproductivePayload);
+    } catch (err) {
+      console.error(
+        'Failed to initialize reproductive_state from onboarding at registration:',
+        err,
+      );
+    }
+  }
+
   private generateOtp(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
   }
@@ -547,11 +728,13 @@ export class AuthService {
     return `unset_${randomUUID().replace(/-/g, '')}`;
   }
 
-  /** Local dev hook — no-op in production builds. */
-  private logDevOtp(_email: string, _code: string, _purpose: string): void {
-    if (process.env.NODE_ENV === 'production') {
+  /** Log OTP when mail fails, or always in non-production. */
+  private logDevOtp(email: string, code: string, purpose: string): void {
+    const mailFailed = purpose.includes('email-failed');
+    if (!mailFailed && env.NODE_ENV === 'production') {
       return;
     }
+    console.log(`[auth-otp] ${purpose} → ${email}: ${code}`);
   }
 
   private async generateTokens(userId: number, email: string) {
