@@ -686,7 +686,24 @@
               (click)="onPregnancyFeatureSlideClick(slide)"
               [attr.aria-label]="pregSlideAriaLabel(slide)"
             >
-              <div class="preg-feature-card__top">
+              <div class="preg-feature-card__media" aria-hidden="true">
+                @if (slide.id === 'baby-size') {
+                <span class="preg-feature-card__thumb preg-feature-card__thumb--svg">
+                  <app-pregnancy-hero-svg
+                    [week]="getPregnancyDisplayWeek()"
+                  ></app-pregnancy-hero-svg>
+                </span>
+                } @else if (slide.imageUrl) {
+                <span class="preg-feature-card__thumb">
+                  <img [src]="slide.imageUrl" alt="" loading="lazy" decoding="async" />
+                </span>
+                } @else {
+                <span class="preg-feature-card__icon">
+                  <ion-icon [name]="slide.ionIcon"></ion-icon>
+                </span>
+                }
+              </div>
+              <div class="preg-feature-card__content">
                 <span class="preg-feature-card__eyebrow">
                   {{
                     slide.eyebrowParams
@@ -694,32 +711,10 @@
                       : pregSlideText(slide.eyebrowKey)
                   }}
                 </span>
-                @if (slide.id === 'baby-size') {
-                <span
-                  class="preg-feature-card__thumb preg-feature-card__thumb--svg"
-                  aria-hidden="true"
-                >
-                  <app-pregnancy-hero-svg
-                    [week]="getPregnancyDisplayWeek()"
-                  ></app-pregnancy-hero-svg>
-                </span>
-                } @else if (slide.imageUrl) {
-                <span class="preg-feature-card__thumb" aria-hidden="true">
-                  <img [src]="slide.imageUrl" alt="" loading="lazy" decoding="async" />
-                </span>
-                } @else {
-                <span class="preg-feature-card__icon" aria-hidden="true">
-                  <ion-icon [name]="slide.ionIcon"></ion-icon>
-                </span>
-                }
-              </div>
-              <div class="preg-feature-card__content">
                 <h3 class="preg-feature-card__headline">{{ slide.headline }}</h3>
                 <p class="preg-feature-card__body">{{ slide.body }}</p>
-              </div>
-              <div class="preg-feature-card__footer">
                 @if (slide.footnoteKey) {
-                <span class="preg-feature-card__chip">
+                <span class="preg-feature-card__meta">
                   {{
                     slide.footnoteParams
                       ? pregSlideText(slide.footnoteKey, slide.footnoteParams)
@@ -727,15 +722,11 @@
                   }}
                 </span>
                 }
-                <span class="preg-feature-card__cta" aria-hidden="true">
-                  <span class="preg-feature-card__cta-label">{{
-                    "home.learnMore" | translate
-                  }}</span>
-                  <span class="preg-feature-card__cta-icon">
-                    <ion-icon name="arrow-forward-outline"></ion-icon>
-                  </span>
-                </span>
               </div>
+              <span class="preg-feature-card__cta" aria-hidden="true">
+                {{ "home.learnMore" | translate }}
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+              </span>
             </button>
             }
           </div>
