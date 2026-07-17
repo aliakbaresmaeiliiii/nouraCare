@@ -50,6 +50,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
   headerAvatarSrc: string | null = null;
   hasUserAvatar = false;
   userInfoStore!: UserInfoStore;
+  /** Soft Instagram-style chrome that blends with the Today hero gradient. */
+  isHomeTab = false;
 
   constructor() {
     addIcons({
@@ -70,10 +72,19 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadHeaderProfile();
+    this.syncHomeTabFlag(this.router.url);
 
     this.routerSubscription = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(() => this.applyHeaderFromUserStore());
+      .subscribe((e) => {
+        this.syncHomeTabFlag(e.urlAfterRedirects || e.url);
+        this.applyHeaderFromUserStore();
+      });
+  }
+
+  private syncHomeTabFlag(url: string): void {
+    const path = url.split('?')[0] ?? '';
+    this.isHomeTab = /\/tabs\/home(?:\/|$)/.test(path);
   }
 
   ngOnDestroy() {

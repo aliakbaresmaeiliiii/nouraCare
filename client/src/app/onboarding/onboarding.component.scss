@@ -801,18 +801,6 @@ ion-datetime-button,
   margin: 0 auto 1rem;
 }
 
-.result-celebration__ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(var(--brand-primary-rgb), 0.22) 0%,
-    rgba(var(--brand-secondary-rgb), 0.08) 70%,
-    transparent 100%
-  );
-  animation: result-pulse 2.4s ease-in-out infinite;
-}
 
 .result-celebration__icon {
   position: relative;

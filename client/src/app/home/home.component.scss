@@ -5,9 +5,16 @@
 
 :host ion-content.tab-page-content {
   --background: transparent;
+  /* Flush under layout header — Instagram-tight; shell owns the inset. */
+  --padding-top: 0;
   /* Avoid double horizontal inset with .cycle-today-shell (PWA safe-area bug). */
   --padding-start: 0;
   --padding-end: 0;
+}
+
+:host-context(html.plt-mobile) ion-content.tab-page-content,
+:host-context(html.plt-capacitor) ion-content.tab-page-content {
+  --padding-top: 0;
 }
 
 .hello-world {
@@ -22,7 +29,8 @@
   --home-block-gap: var(--app-space-5);
   --home-title-gap: var(--app-space-4);
   --home-inline-gap: var(--app-space-4);
-  --home-shell-padding-block-start: var(--app-space-5);
+  /* 4px under blended header — Instagram flush chrome → content */
+  --home-shell-padding-block-start: var(--app-space-1);
   --home-shell-padding-block-end: calc(var(--app-space-8) + var(--app-space-2));
   /* Fold-aware sizing — overridden on phone to keep insight cards above the tab bar */
   --home-preg-hero-max: 304px;
@@ -634,7 +642,8 @@
   position: relative;
   z-index: 2;
   margin-inline: calc(-1 * var(--app-side-padding, 1rem));
-  padding: var(--app-space-2) 0 clamp(1.5rem, 4vw, 2.75rem);
+  /* No top pad — shell already owns the 4px header gap */
+  padding: 0 0 clamp(1.5rem, 4vw, 2.75rem);
   text-align: center;
   overflow: visible;
   background: transparent;
@@ -685,6 +694,16 @@
 
   .cycle-ring-shell--hero {
     margin-bottom: 0;
+  }
+
+  /* Week strip sits like IG stories — tight under chrome, no extra air */
+  ::ng-deep .cycle-chart-week-hero .pregnancy-calendar-week {
+    padding-top: 0.15rem;
+  }
+
+  ::ng-deep .cycle-chart-week-hero .pregnancy-calendar-swiper {
+    margin-bottom: 0;
+    padding-bottom: 0.2rem;
   }
 }
 
@@ -850,7 +869,7 @@
     --home-block-gap: var(--app-space-4);
     --home-title-gap: var(--app-space-3);
     --home-inline-gap: var(--app-space-3);
-    --home-shell-padding-block-start: var(--app-space-4);
+    --home-shell-padding-block-start: var(--app-space-1);
     --home-shell-padding-block-end: var(--app-space-7);
   }
 
@@ -1039,19 +1058,25 @@
   /* Full width for week strip; ring stays capped via ::ng-deep .chart-wrapper */
   max-width: none;
   width: 100%;
-  margin: 0 0 0.35rem;
+  margin: 0;
   background: transparent;
   border: none;
   box-shadow: none;
-  padding: 0.35rem 0 0.5rem;
+  padding: 0 0 0.35rem;
 
   ::ng-deep .chart-wrapper {
     max-width: min(30rem, 96vw);
     height: var(--home-fold-chart-height, min(94vw, 380px));
     min-height: var(--home-fold-chart-min-height, 340px);
+    margin-top: -0.65rem;
     margin-left: auto;
     margin-right: auto;
-    padding: clamp(6px, 1.8vw, 12px);
+    padding: clamp(4px, 1.4vw, 10px);
+  }
+
+  ::ng-deep .chart-header {
+    padding-top: 0;
+    margin-bottom: 0;
   }
 }
 

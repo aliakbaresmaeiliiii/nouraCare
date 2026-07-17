@@ -249,6 +249,8 @@ export class OnboardingComponent implements OnInit {
 
   private defaultAnswers(): { [key: string]: any } {
     return {
+      // Match picker default highlight (فقط ردیابی چرخه / NOT_PREGNANT).
+      pregnancy_status: 'cycle',
       cycle_length: 28,
       period_length: 5,
       notifications: 'no',

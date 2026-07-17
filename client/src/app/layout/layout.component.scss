@@ -9,6 +9,17 @@
   --layout-tab-bar-height: 49px;
   --layout-tab-scroll-padding-top: 8px;
   --layout-tab-scroll-padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  /* Matches cycle Today hero top so chrome + content read as one surface */
+  --layout-home-chrome-bg: #ffeef5;
+  --layout-home-chrome-bg-dark: #1f1524;
+}
+
+:host:has(.modern-header--home) {
+  background: var(--layout-home-chrome-bg);
+}
+
+:host-context(ion-app.ion-palette-dark):has(.modern-header--home) {
+  background: var(--layout-home-chrome-bg-dark);
 }
 
 /*
@@ -53,8 +64,20 @@ ion-header.modern-header {
   background: var(--brand-surface);
   --background: var(--brand-surface);
   --opacity-translucent: 1;
-  border-bottom: 0.5px solid rgba(var(--brand-text-rgb), 0.12);
+  /* Hairline only — Instagram-clean chrome, no heavy separator */
+  border-bottom: 0.5px solid rgba(var(--brand-text-rgb), 0.06);
   box-shadow: none;
+
+  /* Continuous with home hero sky — no white bar / dead gap under chrome */
+  &.modern-header--home {
+    background: var(--layout-home-chrome-bg);
+    --background: var(--layout-home-chrome-bg);
+    border-bottom: none;
+
+    ion-toolbar {
+      --background: transparent;
+    }
+  }
 
   ion-toolbar {
     --background: var(--brand-surface);
@@ -233,6 +256,16 @@ ion-header.modern-header {
   background: #000;
   --background: #000;
   border-bottom-color: rgba(255, 255, 255, 0.18);
+
+  &.modern-header--home {
+    background: var(--layout-home-chrome-bg-dark);
+    --background: var(--layout-home-chrome-bg-dark);
+    border-bottom: none;
+
+    ion-toolbar {
+      --background: transparent;
+    }
+  }
 
   ion-toolbar {
     --background: #000;

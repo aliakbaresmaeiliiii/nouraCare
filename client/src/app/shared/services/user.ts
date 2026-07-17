@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { UserDto } from '../models/user.dto';
 
@@ -22,7 +23,17 @@ export class User {
   uploadProfileImage(id: string, blob: Blob): Observable<{ url: string }> {
     const form = new FormData();
     form.append('file', blob, 'profile.jpg');
-    return this.http.post<{ url: string }>(`${this.baseUrl}/${id}/profile-image`, form);
+    // API envelope: { isSuccess, data: { url } } — unwrap so callers get `{ url }`.
+    return this.http.post<unknown>(`${this.baseUrl}/${id}/profile-image`, form).pipe(
+      map((res) => {
+        const envelope = res as { data?: { url?: string }; url?: string } | null;
+        const url = envelope?.data?.url ?? envelope?.url;
+        if (!url || typeof url !== 'string' || !url.trim()) {
+          throw new Error('Profile image upload returned no URL');
+        }
+        return { url: url.trim() };
+      }),
+    );
   }
 
   // Geo - Fixed URLs with proper forward slash

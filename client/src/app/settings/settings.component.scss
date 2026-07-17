@@ -13,13 +13,20 @@
   min-height: 100dvh;
 }
 
-// Beautiful Header
+// Header — match project toolbar height (44px) + safe-area
 .settings-header {
+  --settings-header-height: var(--layout-header-height, 44px);
   position: relative;
   background: var(--app-gradient-header);
-  padding: 2rem 1.5rem 1.5rem;
+  padding:
+    env(safe-area-inset-top, 0px)
+    max(12px, env(safe-area-inset-right, 12px))
+    0
+    max(12px, env(safe-area-inset-left, 12px));
   overflow: hidden;
   margin-bottom: 1rem;
+  border-bottom: 0.5px solid rgba(var(--brand-text-rgb), 0.06);
+  box-shadow: none;
 
   .header-background {
     position: absolute;
@@ -45,6 +52,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    min-height: var(--settings-header-height);
+    height: var(--settings-header-height);
     color: var(--brand-text, #0f172a);
 
     .header-title,
@@ -54,28 +63,36 @@
 
     .back-btn {
       --color: var(--brand-text, #0f172a);
+      --padding-start: 4px;
+      --padding-end: 4px;
       flex-shrink: 0;
-      padding: 0.5rem;
+      margin: 0;
+      min-width: 40px;
+      min-height: var(--settings-header-height);
+      height: var(--settings-header-height);
 
       ion-icon {
-        font-size: 1.5rem;
+        font-size: 24px;
         color: var(--brand-text, #0f172a);
       }
     }
 
     .header-end-spacer {
-      width: 44px;
+      width: 40px;
       flex-shrink: 0;
     }
 
     .header-info {
       text-align: center;
       flex: 1;
+      min-width: 0;
 
       .header-title {
-        font-size: 2rem;
-        font-weight: 800;
-        margin: 0 0 0.25rem 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 0;
+        line-height: 1.2;
+        letter-spacing: -0.01em;
         text-shadow: none;
       }
 
@@ -579,7 +596,11 @@
 // Responsive Design
 @media (max-width: 768px) {
   .settings-header {
-    padding: 1.5rem 1rem 1rem;
+    padding:
+      env(safe-area-inset-top, 0px)
+      max(8px, env(safe-area-inset-right, 8px))
+      0
+      max(8px, env(safe-area-inset-left, 8px));
   }
 
   .user-profile-card {

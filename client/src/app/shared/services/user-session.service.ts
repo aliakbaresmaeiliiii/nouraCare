@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
 /** Shape of `localStorage.userInfo` JSON (nested `user` + top-level fields vary by flow). */
 export type UserInfoStore = Record<string, unknown> & {
@@ -10,6 +11,11 @@ export type UserInfoStore = Record<string, unknown> & {
 
 @Injectable({ providedIn: 'root' })
 export class UserSessionService {
+  private readonly userUpdatedSubject = new Subject<Record<string, unknown>>();
+  /** Emits after `mergeIntoStoredUser` so header/settings can refresh avatars. */
+  readonly userUpdated$: Observable<Record<string, unknown>> =
+    this.userUpdatedSubject.asObservable();
+
   parseUserInfoStore(): UserInfoStore | null {
     if (typeof localStorage === 'undefined') {
       return null;
@@ -74,5 +80,6 @@ export class UserSessionService {
     const prev = (store.user ?? {}) as Record<string, unknown>;
     store.user = { ...prev, ...partial };
     this.setUserInfoStore(store);
+    this.userUpdatedSubject.next(store.user);
   }
 }
