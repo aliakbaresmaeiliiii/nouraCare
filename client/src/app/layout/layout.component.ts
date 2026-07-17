@@ -31,6 +31,7 @@ import {
   UserSessionService,
 } from '../shared/services/user-session.service';
 import { SideMenuComponent } from '../side-menu/side-menu.component';
+
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
@@ -46,6 +47,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
   private readonly userSession = inject(UserSessionService);
 
   private routerSubscription?: Subscription;
+  private userUpdatedSubscription?: Subscription;
+  private headerApiSubscription?: Subscription;
   /** Resolved URL for `<img [src]>` when the user has a real profile photo (not the generic fallback). */
   headerAvatarSrc: string | null = null;
   hasUserAvatar = false;
@@ -80,6 +83,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
         this.syncHomeTabFlag(e.urlAfterRedirects || e.url);
         this.applyHeaderFromUserStore();
       });
+
+    this.userUpdatedSubscription = this.userSession.userUpdated$.subscribe(() => {
+      this.applyHeaderFromUserStore();
+    });
   }
 
   private syncHomeTabFlag(url: string): void {
@@ -89,6 +96,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.routerSubscription?.unsubscribe();
+    this.userUpdatedSubscription?.unsubscribe();
+    this.headerApiSubscription?.unsubscribe();
   }
 
   onHeaderAvatarError(): void {
@@ -97,25 +106,23 @@ export class LayoutComponent implements OnInit, OnDestroy {
   }
 
   private loadHeaderProfile(): void {
-    if (this.userInfoStore) {
-      this.profileCompletion.refreshFromAPI().subscribe({
-        next: (merged) => {
-          if (!merged) {
-            return;
-          }
-          const raw = (merged.profileImageRaw ?? '').toString().trim();
-          if (raw) {
-            this.hasUserAvatar = true;
-            this.headerAvatarSrc = merged.profileImage;
-          } else {
-            this.hasUserAvatar = false;
-            this.headerAvatarSrc = null;
-          }
-        },
-      });
-    } else {
-      this.applyHeaderFromUserStore();
-    }
+    this.applyHeaderFromUserStore();
+    this.headerApiSubscription?.unsubscribe();
+    this.headerApiSubscription = this.profileCompletion.refreshFromAPI().subscribe({
+      next: (merged) => {
+        if (!merged) {
+          return;
+        }
+        const raw = (merged.profileImageRaw ?? '').toString().trim();
+        if (raw) {
+          this.hasUserAvatar = true;
+          this.headerAvatarSrc = merged.profileImage;
+        } else {
+          this.hasUserAvatar = false;
+          this.headerAvatarSrc = null;
+        }
+      },
+    });
   }
 
   /** Reads `userInfo.user` from storage (aligned with the side menu). */
@@ -130,7 +137,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
         this.headerAvatarSrc = this.imageUrlService.getImageUrl(
           profileImage as string,
         );
-      } else if (raw === '') {
+      } else {
         this.hasUserAvatar = false;
         this.headerAvatarSrc = null;
       }

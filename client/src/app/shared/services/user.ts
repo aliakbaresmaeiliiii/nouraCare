@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { UserDto } from '../models/user.dto';
 

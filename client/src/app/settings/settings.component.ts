@@ -22,6 +22,8 @@ import {
 
 } from '@ionic/angular/standalone';
 
+import { ViewWillEnter } from '@ionic/angular';
+
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
 
 import { Router } from '@angular/router';
@@ -88,7 +90,7 @@ interface SettingItem {
 
 })
 
-export class SettingsComponent implements OnInit, OnDestroy {
+export class SettingsComponent implements OnInit, ViewWillEnter, OnDestroy {
 
   private readonly router = inject(Router);
 
@@ -117,6 +119,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private appearanceSub?: Subscription;
 
   private languageSub?: Subscription;
+
+  private userUpdatedSub?: Subscription;
 
 
 
@@ -419,7 +423,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     });
 
+    this.userUpdatedSub = this.userSession.userUpdated$.subscribe(() => {
+
+      this.refreshAccountHeader();
+
+      this.cdr.markForCheck();
+
+    });
+
     this.loadSavedSettings();
+
+  }
+
+
+
+  ionViewWillEnter(): void {
+
+    this.refreshAccountHeader();
 
   }
 
@@ -430,6 +450,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.appearanceSub?.unsubscribe();
 
     this.languageSub?.unsubscribe();
+
+    this.userUpdatedSub?.unsubscribe();
 
   }
 
@@ -633,9 +655,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     const picStr = typeof pic === 'string' ? pic.trim() : '';
 
-    this.hasUserAvatar = picStr.length > 0;
+    const hasRealPhoto =
 
-    this.avatarSrc = this.hasUserAvatar
+      picStr.length > 0 &&
+
+      !picStr.startsWith('blob:') &&
+
+      !picStr.startsWith('data:');
+
+    this.hasUserAvatar = hasRealPhoto;
+
+    this.avatarSrc = hasRealPhoto
 
       ? this.imageUrlService.getImageUrl(picStr)
 

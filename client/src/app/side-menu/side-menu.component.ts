@@ -85,6 +85,7 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   private themeSub?: Subscription;
   private unreadSub?: Subscription;
   private languageSub?: Subscription;
+  private userUpdatedSub?: Subscription;
 
   unreadCount = 0;
   currentLanguage = 'fa';
@@ -175,6 +176,7 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.themeSub?.unsubscribe();
     this.unreadSub?.unsubscribe();
     this.languageSub?.unsubscribe();
+    this.userUpdatedSub?.unsubscribe();
   }
 
   get unreadBadgeText(): string {
@@ -357,6 +359,10 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.languageSub = this.languageService.currentLanguage$.subscribe((lang) => {
       this.currentLanguage = lang;
     });
+
+    this.userUpdatedSub = this.userSession.userUpdated$.subscribe(() => {
+      this.applyProfileFromStore();
+    });
   }
 
   ionViewWillEnter(): void {
@@ -375,6 +381,10 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
       },
     });
 
+    this.applyProfileFromStore();
+  }
+
+  private applyProfileFromStore(): void {
     try {
       const userInfoStore = this.userSession.getUserInfoStoreOrEmpty();
       const user = (userInfoStore.user ?? {}) as Record<string, unknown>;
@@ -385,11 +395,9 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
         (typeof name === 'string' && name) ||
         this.userName;
       const profileImage = user['profileImage'];
-      this.userProfileImage =
-        this.userProfileImage ||
-        this.imageUrlService.getImageUrl(
-          typeof profileImage === 'string' ? profileImage : null,
-        );
+      if (typeof profileImage === 'string' && profileImage.trim()) {
+        this.userProfileImage = this.imageUrlService.getImageUrl(profileImage);
+      }
     } catch (error) {
       console.error('Error loading user profile from localStorage:', error);
     }

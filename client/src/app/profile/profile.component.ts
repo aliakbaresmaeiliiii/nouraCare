@@ -34,6 +34,8 @@ import { UpdateReproductiveStateDto } from './models/UpdateReproductiveStateDto'
 
 import { User } from '../shared/services/user';
 
+import { ImageUrlService } from '../shared/services/image-url.service';
+
 import { UserSessionService } from '../shared/services/user-session.service';
 
 import { SHARED_STANDALONE_IMPORTS } from '../shared/shared-standalone';
@@ -150,6 +152,8 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
   userId = signal<number>(0);
 
   private userSession = inject(UserSessionService);
+
+  private imageUrlService = inject(ImageUrlService);
 
   private toastCtrl = inject(ToastController);
 
@@ -717,7 +721,17 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
 
 
-    const image = user.profileImage ?? null;
+    const rawImage =
+
+      (user.profileImageRaw ?? user.profileImage ?? null) as string | null;
+
+    const image =
+
+      typeof rawImage === 'string' && rawImage.trim()
+
+        ? this.imageUrlService.getImageUrl(rawImage)
+
+        : null;
 
 
 
@@ -725,13 +739,19 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
       this.avatarSkeleton = true;
 
-      this.avatarSrc = image;
+      this.avatarSrc = image ?? '';
 
     }
 
 
 
-    this.userSession.mergeIntoStoredUser(user);
+    this.userSession.mergeIntoStoredUser({
+
+      ...user,
+
+      profileImage: typeof rawImage === 'string' ? rawImage : user.profileImage,
+
+    });
 
   }
 
@@ -809,13 +829,25 @@ export class ProfileComponent implements OnInit, ViewWillEnter, OnDestroy {
 
         URL.revokeObjectURL(preview);
 
-        this.avatarSrc = res.url;
+        const resolved = this.imageUrlService.getImageUrl(res.url);
+
+        this.avatarSrc = resolved;
 
         this.avatarSkeleton = false;
 
         this.isUploadingAvatar = false;
 
         this.userSession.mergeIntoStoredUser({ profileImage: res.url });
+
+        this.profileCompletion.updateUserData({
+
+          ...this.profileCompletion.currentUserData,
+
+          profileImage: resolved,
+
+          profileImageRaw: res.url,
+
+        });
 
       },
 
