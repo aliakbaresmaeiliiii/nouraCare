@@ -1,0 +1,46 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.input-shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  inset-inline-start: 0.95rem;
+  font-size: 1.15rem;
+  color: var(--brand-primary);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.form-input {
+  width: 100%;
+  min-height: $login-input-min-height;
+  padding-block: 0.8rem;
+  padding-inline: 2.85rem 1rem;
+  border: 1.5px solid $login-border-input;
+  border-radius: $login-radius-control;
+  font-size: 1rem;
+  background: $login-input-fill;
+  color: var(--brand-text);
+  @include fast-color-bg-transition;
+}
+
+.form-input::placeholder {
+  color: rgba(var(--brand-text-secondary-rgb), 0.7);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: $login-border-input-focus;
+  box-shadow: $login-shadow-focus;
+  background: var(--brand-surface);
+}
+
+.form-input.error {
+  border-color: var(--ion-color-danger);
+  box-shadow: $login-shadow-error;
+}

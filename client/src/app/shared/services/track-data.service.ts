@@ -226,17 +226,27 @@ export class TrackDataService {
   }
 
   createSymptoms(userId: any, symptomsData: any): Observable<any> {
+    const { date, mood, energy, symptoms, notes } = symptomsData ?? {};
     return this.httpClient
-      .post<any>(`${environment.apiEndPoint}track-day/${userId}`, symptomsData)
+      .post<any>(`${environment.apiEndPoint}track-day/${userId}`, {
+        date,
+        mood,
+        energy,
+        symptoms,
+        notes,
+      })
       .pipe(tap(() => this.invalidateTrackDaysRangeCache()));
   }
 
   updateSymptoms(userId: any, date: string, symptomsData: any): Observable<any> {
+    const { mood, energy, symptoms, notes } = symptomsData ?? {};
     return this.httpClient
-      .put<any>(
-        `${environment.apiEndPoint}track-day/${userId}/${date}`,
-        symptomsData,
-      )
+      .put<any>(`${environment.apiEndPoint}track-day/${userId}/${date}`, {
+        mood,
+        energy,
+        symptoms,
+        notes,
+      })
       .pipe(tap(() => this.invalidateTrackDaysRangeCache()));
   }
 }

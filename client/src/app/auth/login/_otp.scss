@@ -1,0 +1,70 @@
+@use 'variables' as *;
+
+.otp-step-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1rem 0.85rem;
+  text-align: center;
+  border-radius: $login-radius-control;
+  background: rgba(var(--brand-primary-rgb), 0.08);
+  border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
+}
+
+.otp-step-banner__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: $login-radius-control;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-surface);
+  color: var(--brand-primary);
+  box-shadow: $login-shadow-otp-icon;
+}
+
+.otp-step-banner__icon ion-icon {
+  font-size: 1.35rem;
+}
+
+.otp-step-banner p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--brand-text-secondary);
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.otp-group {
+  width: 100%;
+  min-width: 0;
+}
+
+.otp-container {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  direction: ltr;
+}
+
+.custom-otp {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  direction: ltr;
+  unicode-bidi: isolate;
+  --background: var(--brand-surface);
+  --color: var(--brand-text);
+  --border-color: #{$login-border-otp};
+  --border-color-focus: var(--brand-primary);
+  --border-radius: #{$login-radius-sm};
+  --width: 2.25rem;
+  --height: 2.75rem;
+  --font-size: 1rem;
+  --font-weight: 700;
+  --margin-start: 0.06rem;
+  --margin-end: 0.06rem;
+}

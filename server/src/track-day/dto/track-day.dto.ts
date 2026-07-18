@@ -23,8 +23,10 @@ export class SymptomDto {
   @IsString()
   severity: string;
 
+  /** Optional for older clients that omit it */
+  @IsOptional()
   @IsDateString()
-  timestamp: string;
+  timestamp?: string;
 }
 
 export class CreateTrackDayDto {

@@ -1,0 +1,56 @@
+// Login page tokens — values match the previous monolithic stylesheet.
+
+$login-max-width: 26rem;
+$login-layout-gap: 1.75rem;
+$login-layout-gap-sm: 1.35rem;
+$login-layout-padding-inline: 1.25rem;
+$login-layout-padding-inline-sm: 1rem;
+
+$login-radius-xs: 0.55rem;
+$login-radius-sm: 0.65rem;
+$login-radius-md: 0.75rem;
+$login-radius-control: 0.85rem;
+$login-radius-card: 1.35rem;
+$login-radius-pill: 999px;
+
+$login-surface-fill: rgba(var(--brand-surface-rgb), 0.96);
+$login-surface-fill-dark: rgba(var(--brand-surface-rgb), 0.92);
+$login-input-fill: rgba(var(--brand-bg-rgb), 0.65);
+$login-input-fill-dark: rgba(var(--brand-bg-rgb), 0.35);
+$login-input-focus-fill-dark: rgba(var(--brand-surface-rgb), 0.95);
+
+$login-border-subtle: rgba(var(--brand-primary-rgb), 0.14);
+$login-border-input: rgba(var(--brand-primary-rgb), 0.14);
+$login-border-input-focus: rgba(var(--brand-primary-rgb), 0.45);
+$login-border-input-dark: rgba(var(--brand-primary-rgb), 0.22);
+$login-border-otp: rgba(var(--brand-primary-rgb), 0.18);
+$login-border-social: rgba(var(--brand-primary-rgb), 0.16);
+$login-border-social-dark: rgba(var(--brand-primary-rgb), 0.24);
+
+$login-shadow-chrome: 0 2px 8px rgba(15, 23, 42, 0.08);
+$login-shadow-chrome-active: 0 1px 4px rgba(15, 23, 42, 0.1);
+$login-shadow-chrome-dark: 0 2px 12px rgba(0, 0, 0, 0.28);
+$login-shadow-card:
+  0 16px 40px rgba(var(--brand-primary-rgb), 0.12),
+  inset 0 1px 0 rgba(255, 255, 255, 0.85);
+$login-shadow-card-dark: 0 16px 40px rgba(var(--brand-primary-rgb), 0.18);
+$login-shadow-brand: 0 8px 20px rgba(var(--brand-primary-rgb), 0.2);
+$login-shadow-focus: 0 0 0 4px rgba(var(--brand-primary-rgb), 0.12);
+$login-shadow-error: 0 0 0 4px rgba(var(--ion-color-danger-rgb), 0.1);
+$login-shadow-otp-icon: 0 4px 12px rgba(var(--brand-primary-rgb), 0.12);
+
+$login-input-min-height: 3rem;
+$login-brand-size: 5.5rem;
+$login-brand-size-sm: 5rem;
+$login-brand-icon: 72px;
+$login-brand-icon-sm: 64px;
+$login-title-size: 1.75rem;
+$login-title-size-sm: 1.5rem;
+
+$login-ease: var(--app-ease-standard);
+$login-duration-fast: var(--app-duration-fast);
+$login-google-blue: #4285f4;
+$login-dark-accent: #a5b4fc;
+
+$login-bp-sm: 480px;
+$login-bp-xs: 380px;

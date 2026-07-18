@@ -1,36 +1,38 @@
 import {
   AfterViewInit,
-  ChangeDetectorRef,
+  ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  computed,
   inject,
   OnDestroy,
   OnInit,
-  Renderer2,
   signal,
 } from '@angular/core';
-import { ViewDidEnter } from '@ionic/angular';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ViewDidEnter } from '@ionic/angular';
+import {
+  IonButton,
+  IonContent,
+  IonIcon,
+  IonInputOtp,
+  IonSpinner,
+  IonToast,
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { moonOutline, sunnyOutline } from 'ionicons/icons';
 import {
-  OnboardingDataDto,
-  OnboardingService,
-} from '../../shared/services/onboarding.service';
-import { RegisterRequest } from './model/register-request-interface';
-import { AuthService } from '../services/auth';
+  alertCircleOutline,
+  logoApple,
+  logoGoogle,
+  mailOpenOutline,
+  mailOutline,
+  moonOutline,
+  shieldCheckmarkOutline,
+  sunnyOutline,
+} from 'ionicons/icons';
 import {
-  EMAIL_OTP_LENGTH,
-  markEmailVerificationSent,
-} from '../constants/email-verification.constants';
-import { SHARED_STANDALONE_IMPORTS } from '../../shared/shared-standalone';
-import { LANGUAGE_SWITCHING_ENABLED } from '../../shared/services/language.service';
-import {
-  ThemePreference,
-  ThemeService,
-} from '../../shared/services/theme.service';
-import {
-  BehaviorSubject,
   EMPTY,
   Observable,
   Subject,
@@ -40,21 +42,27 @@ import {
   finalize,
   firstValueFrom,
   map,
+  merge,
+  startWith,
   takeUntil,
   tap,
 } from 'rxjs';
-import { TokenResponse } from '../models/token.interface';
-import {
-  GoogleSignInNotConfiguredError,
-  GoogleSignInService,
-} from '../services/google-sign-in.service';
-import {
-  AppleSignInNotConfiguredError,
-  AppleSignInService,
-} from '../services/apple-sign-in.service';
-import { PENDING_INVITE_CODE_KEY } from '../../shared/constants/growth.constants';
-import { TranslationService } from '../../shared/services/translation.service';
 import { environment } from '../../../environments/environment';
+import { AppButtonComponent } from '../../shared/components/app-button/app-button.component';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
+import { PENDING_INVITE_CODE_KEY } from '../../shared/constants/growth.constants';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { DashboardCacheService } from '../../shared/services/dashboard-cache.service';
+import { LANGUAGE_SWITCHING_ENABLED } from '../../shared/services/language.service';
+import {
+  OnboardingDataDto,
+  OnboardingService,
+} from '../../shared/services/onboarding.service';
+import {
+  ThemePreference,
+  ThemeService,
+} from '../../shared/services/theme.service';
+import { TranslationService } from '../../shared/services/translation.service';
 import {
   extractApiMessagePayload,
   resolveApiMessage,
@@ -63,188 +71,188 @@ import {
   mapLocalOnboardingToReproductiveInit,
   type LocalOnboardingAnswers,
 } from '../../shared/utils/onboarding-reproductive.util';
-import { DashboardCacheService } from '../../shared/services/dashboard-cache.service';
+import {
+  EMAIL_OTP_LENGTH,
+  markEmailVerificationSent,
+} from '../constants/email-verification.constants';
+import { TokenResponse } from '../models/token.interface';
+import {
+  AppleSignInNotConfiguredError,
+  AppleSignInService,
+} from '../services/apple-sign-in.service';
+import { AuthService } from '../services/auth';
+import {
+  GoogleSignInNotConfiguredError,
+  GoogleSignInService,
+} from '../services/google-sign-in.service';
+import { RegisterRequest } from './model/register-request-interface';
 
-@Component({  
+@Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    ReactiveFormsModule,
+    IonContent,
+    IonButton,
+    IonIcon,
+    IonInputOtp,
+    IonSpinner,
+    IonToast,
+    AppButtonComponent,
+    LanguageSwitcherComponent,
+    TranslatePipe,
+  ],
   styleUrl: './login.component.scss',
+  host: {
+    '[class.login--backgrounded]': 'isBackgrounded()',
+  },
 })
 export class LoginComponent
   implements OnInit, OnDestroy, ViewDidEnter, AfterViewInit
 {
   readonly otpLength = EMAIL_OTP_LENGTH;
   readonly appleSignInEnabled = environment.appleSignInEnabled;
-  /**
-   * When true, verified users also receive a sign-in OTP (server EMAIL_OTP_ENABLED).
-   * New / unverified emails always use the OTP step when the server returns otpSent.
-   */
   readonly emailOtpEnabled = environment.emailOtpEnabled === true;
   readonly languageSwitchingEnabled = LANGUAGE_SWITCHING_ENABLED;
 
-  /** Resolved light/dark appearance for the login theme switch. */
-  isDarkTheme = false;
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly auth = inject(AuthService);
+  private readonly googleSignIn = inject(GoogleSignInService);
+  private readonly appleSignIn = inject(AppleSignInService);
+  private readonly onboardingService = inject(OnboardingService);
+  private readonly dashboardCache = inject(DashboardCacheService);
+  private readonly translation = inject(TranslationService);
+  private readonly themeService = inject(ThemeService);
 
-  /** Drives title color sweep once the login page is visible. */
-  titlePaintActive = false;
-  private titlePaintTimer: ReturnType<typeof setTimeout> | null = null;
-
-  isSocialLoading = false;
-  onboardingData = signal<OnboardingDataDto | null>(null);
-  onboardingService = inject(OnboardingService);
-  private dashboardCache = inject(DashboardCacheService);
-  activeTab: 'login' | 'register' = 'login';
-  fb = inject(FormBuilder);
-  message: string = '';
-  /** Only one auth action may show loading at a time (login vs register vs social). */
-  private authActionInProgress: 'login' | 'register' | null = null;
-  accessTokenSubject = new BehaviorSubject<string>('');
-  showToast = false;
-  success!: boolean;
-  loginForm = this.fb.group({
+  readonly loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     phoneNumber: [''],
     otp: ['', [Validators.minLength(6), Validators.maxLength(6)]],
   });
 
-  /** After email submit, user enters the code sent to their inbox. */
-  loginOtpStep = false;
-  isResendingLoginOtp = false;
+  readonly isDarkTheme = signal(false);
+  readonly titlePaintActive = signal(false);
+  readonly isBackgrounded = signal(false);
+  readonly isSocialLoading = signal(false);
+  readonly showToast = signal(false);
+  readonly toastMessage = signal('');
+  readonly toastSuccess = signal(false);
+  readonly toastButtons = signal<string[]>(['OK']);
+  readonly loginOtpStep = signal(false);
+  readonly isResendingLoginOtp = signal(false);
+
+  private readonly authActionInProgress = signal<'login' | null>(null);
   /**
    * When true, OTP was issued via /register (older APIs that still 404 unknown
    * emails on sign-in). Verify/resend use verify-email endpoints instead of sign-in.
    */
   private verifyOtpViaEmailApi = false;
+  private titlePaintTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly loginClick$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
-  registerForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    phoneNumber: [''],
+  private readonly loginFormView = toSignal(
+    merge(this.loginForm.valueChanges, this.loginForm.statusChanges).pipe(
+      startWith(null),
+      map(() => this.readLoginFormView()),
+    ),
+    { initialValue: this.readLoginFormView() },
+  );
+
+  readonly isLoginLoading = computed(
+    () => this.authActionInProgress() === 'login',
+  );
+
+  readonly isAuthBusy = computed(
+    () =>
+      this.authActionInProgress() !== null ||
+      this.isSocialLoading() ||
+      this.isResendingLoginOtp(),
+  );
+
+  readonly canResendLoginOtp = computed(
+    () => !this.isResendingLoginOtp() && !this.isLoginLoading(),
+  );
+
+  readonly loginDisabled = computed(() => {
+    if (this.isAuthBusy() && !this.isLoginLoading()) {
+      return true;
+    }
+    const form = this.loginFormView();
+    if (!this.loginOtpStep()) {
+      return form.emailInvalid;
+    }
+    return form.emailInvalid || form.otpIncomplete;
   });
 
-  router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute);
-  renderer = inject(Renderer2);
-  cdr = inject(ChangeDetectorRef);
+  readonly emailShowError = computed(() => {
+    const form = this.loginFormView();
+    return form.emailTouched && form.emailInvalid;
+  });
 
-  service = inject(AuthService);
-  private googleSignIn = inject(GoogleSignInService);
-  private appleSignIn = inject(AppleSignInService);
-  private onboardingStateService = inject(OnboardingService);
-  private translation = inject(TranslationService);
-  private themeService = inject(ThemeService);
-  selectedRole: string = '';
-  private destroy$ = new Subject<void>();
-  successCaptcha = signal<boolean>(false);
-  private loginClick$ = new Subject<void>();
-  private registerClick$ = new Subject<void>();
-
-  get isLoginLoading(): boolean {
-    return this.authActionInProgress === 'login';
-  }
-
-  get isRegisterLoading(): boolean {
-    return this.authActionInProgress === 'register';
-  }
-
-  get isAuthBusy(): boolean {
-    return (
-      this.authActionInProgress !== null ||
-      this.isSocialLoading ||
-      this.isResendingLoginOtp
-    );
-  }
-
-  labelEmail = 'Email';
-  labelPassword = 'Password';
-  form!: FormGroup;
-  role!: string;
-  // user!: SocialUser;
-  loggedIn!: boolean;
-  protected wobbleField = false;
-  // theme = this.themeManager.theme;
-  title = signal<string>('');
-  storeDataUser: any;
-
-  get toastOkButton(): string {
-    return this.t('common.ok');
-  }
-
-  setRole(role: string) {
-    this.selectedRole = role;
-    this.title.set(role);
-  }
-
-  refreshToken(): void {}
-
-  setTheme(preference: Extract<ThemePreference, 'light' | 'dark'>): void {
-    if (
-      (preference === 'dark' && this.isDarkTheme) ||
-      (preference === 'light' && !this.isDarkTheme)
-    ) {
-      return;
-    }
-    this.themeService.setPreference(preference);
-  }
+  readonly loginOtpSentMessage = computed(() => {
+    const email = this.loginFormView().email;
+    return this.translation.translateParams('auth.otpSentTo', { email });
+  });
 
   constructor() {
-    addIcons({ moonOutline, sunnyOutline });
+    addIcons({
+      moonOutline,
+      sunnyOutline,
+      mailOutline,
+      alertCircleOutline,
+      mailOpenOutline,
+      logoGoogle,
+      logoApple,
+      shieldCheckmarkOutline,
+    });
+
+    this.bindPageVisibility();
   }
 
   ngOnInit(): void {
     this.syncThemeFromService();
     this.themeService.appearanceChanged$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.syncThemeFromService();
-        this.cdr.detectChanges();
-      });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncThemeFromService());
 
-    // Check for query parameters to determine active tab
-    this.activatedRoute.queryParams.subscribe((params) => {
-      if (params['tab'] === 'register') {
-        this.activeTab = 'register';
-        this.title.set('Register');
-      }
-      const ref = (params['ref'] || params['invite'] || '').trim();
-      if (ref && typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem(PENDING_INVITE_CODE_KEY, ref.toUpperCase());
-      }
-    });
-    const sessionId = this.onboardingService.getSessionId();
-    if (sessionId) {
-      this.loadOnboardingData(sessionId);
-    }
+    this.activatedRoute.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const ref = (params['ref'] || params['invite'] || '').trim();
+        if (ref && typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem(PENDING_INVITE_CODE_KEY, ref.toUpperCase());
+        }
+      });
 
     const devEmail = environment.devAuthEmail?.trim();
     if (!environment.production && devEmail) {
       this.loginForm.patchValue({ email: devEmail });
-      this.registerForm.patchValue({ email: devEmail });
     }
 
     this.loginClick$
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         filter(() => this.canSubmitLogin()),
-        tap(() => {
-          this.authActionInProgress = 'login';
-          this.cdr.detectChanges();
-        }),
+        tap(() => this.authActionInProgress.set('login')),
         exhaustMap(() => {
           const email = (this.loginForm.value.email || '').trim();
           const otp = this.normalizeOtpInput(this.loginForm.value.otp);
 
           const authRequest$: Observable<TokenResponse> =
-            this.loginOtpStep && otp
+            this.loginOtpStep() && otp
               ? this.verifyOtpViaEmailApi
-                ? this.service.verifyEmail({ email, code: otp })
-                : this.service.login({ email, otp })
-              : this.service.login({ email }).pipe(
+                ? this.auth.verifyEmail({ email, code: otp })
+                : this.auth.login({ email, otp })
+              : this.auth.login({ email }).pipe(
                   catchError((err) => {
                     const apiPayload = extractApiMessagePayload(err);
                     if (this.isUserNotFoundError(apiPayload)) {
-                      // Older APIs reject unknown emails — register + OTP instead.
                       return this.registerUnknownEmail(email);
                     }
                     throw err;
@@ -265,19 +273,19 @@ export class LoginComponent
                 return EMPTY;
               }
 
-              this.message = resolveApiMessage(this.translation, {
-                ...apiPayload,
-                fallbackKey: 'auth.toast.loginFailed',
-              });
-              this.success = false;
-              this.showToast = true;
+              this.presentToast(
+                resolveApiMessage(this.translation, {
+                  ...apiPayload,
+                  fallbackKey: 'auth.toast.loginFailed',
+                }),
+                false,
+              );
               return EMPTY;
             }),
             finalize(() => {
-              if (this.authActionInProgress === 'login') {
-                this.authActionInProgress = null;
+              if (this.authActionInProgress() === 'login') {
+                this.authActionInProgress.set(null);
               }
-              this.cdr.detectChanges();
             }),
           );
         }),
@@ -288,37 +296,34 @@ export class LoginComponent
             !res?.data?.accessToken &&
             (res?.data?.otpSent || res?.data?.requiresVerification)
           ) {
-            this.loginOtpStep = true;
-            this.persistEmailForVerification(
-              this.loginForm.value.email || '',
+            this.enterLoginOtpStep(this.loginForm.value.email || '');
+            this.presentToast(
+              resolveApiMessage(this.translation, {
+                messageKey: res.messageKey ?? res.data?.messageKey,
+                message: res.message,
+                fallbackKey: 'auth.api.otpSentIfExists',
+              }),
+              true,
             );
-            this.message = resolveApiMessage(this.translation, {
-              messageKey: res.messageKey ?? res.data?.messageKey,
-              message: res.message,
-              fallbackKey: 'auth.api.otpSentIfExists',
-            });
-            this.success = true;
-            this.showToast = true;
             return;
           }
 
           if (!res?.data?.accessToken) {
-            this.message = resolveApiMessage(this.translation, {
-              messageKey: res?.messageKey ?? res?.data?.messageKey,
-              message: res?.message,
-              fallbackKey: 'auth.toast.loginFailed',
-            });
-            this.success = false;
-            this.showToast = true;
+            this.presentToast(
+              resolveApiMessage(this.translation, {
+                messageKey: res?.messageKey ?? res?.data?.messageKey,
+                message: res?.message,
+                fallbackKey: 'auth.toast.loginFailed',
+              }),
+              false,
+            );
             return;
           }
 
-          this.message = this.t('auth.toast.loginSuccess');
-          this.success = true;
-          this.showToast = true;
+          this.presentToast(this.t('auth.toast.loginSuccess'), true);
 
           if (res?.data?.user) {
-            this.service.setUserInfo({
+            this.auth.setUserInfo({
               id: res.data.user.id,
               email: res.data.user.email,
               phone: res.data.user.phone ?? '',
@@ -330,148 +335,31 @@ export class LoginComponent
               birthday: res.data.user['birthday'],
               createdAt: res.data.user['createdAt'],
             });
-
-            localStorage.setItem('userInfo', JSON.stringify(res.data));
           }
 
           void this.finishAuthNavigationToHome();
         },
       });
-
-    this.registerClick$
-      .pipe(
-        takeUntil(this.destroy$),
-        filter(() => this.canSubmitRegister()),
-        tap(() => {
-          this.authActionInProgress = 'register';
-          this.cdr.detectChanges();
-        }),
-        exhaustMap(() => {
-          let onboardingData: OnboardingDataDto | null = null;
-          try {
-            const storedData = localStorage.getItem('onboarding_data');
-            if (storedData) {
-              onboardingData = JSON.parse(storedData) as OnboardingDataDto;
-            }
-          } catch (error) {
-            console.error('Error parsing onboarding data:', error);
-          }
-
-          const payload: RegisterRequest = {
-            email: this.registerForm.value.email,
-            phoneNumber: this.registerForm.value.phoneNumber,
-          };
-
-          return this.service.register(payload, onboardingData).pipe(
-            catchError((err) => {
-              console.error('Registration failed:', err);
-              this.message = resolveApiMessage(this.translation, {
-                ...extractApiMessagePayload(err),
-                fallbackKey: 'auth.api.failedSendVerificationEmail',
-              });
-              this.success = false;
-              this.showToast = true;
-              return EMPTY;
-            }),
-            finalize(() => {
-              if (this.authActionInProgress === 'register') {
-                this.authActionInProgress = null;
-              }
-              this.cdr.detectChanges();
-            }),
-          );
-        }),
-      )
-      .subscribe({
-        next: (res) => {
-          let onboardingData: OnboardingDataDto | null = null;
-          try {
-            const storedData = localStorage.getItem('onboarding_data');
-            if (storedData) {
-              onboardingData = JSON.parse(storedData) as OnboardingDataDto;
-            }
-          } catch {
-            onboardingData = null;
-          }
-
-          localStorage.setItem('userInfo', JSON.stringify(res?.data ?? res));
-
-          if (typeof sessionStorage !== 'undefined') {
-            sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
-          }
-
-          const accessToken = res?.data?.accessToken;
-          if (accessToken) {
-            if (res?.data?.user) {
-              this.service.setUserInfo({
-                id: res.data.user.id,
-                email: res.data.user.email,
-                phone: res.data.user.phone ?? '',
-                name: res.data.user['name'],
-                profileImage: res.data.user['profileImage'],
-                isVerified: res.data.user.isVerified,
-                status: res.data.user['status'],
-                city: res.data.user['city'],
-                birthday: res.data.user['birthday'],
-                createdAt: res.data.user['createdAt'],
-              });
-            }
-            void this.finishAuthNavigationToHome();
-            return;
-          }
-
-          if (!this.emailOtpEnabled) {
-            this.message = resolveApiMessage(this.translation, {
-              messageKey: res?.messageKey,
-              message: res?.message,
-              fallbackKey: 'auth.toast.loginFailed',
-            });
-            this.success = false;
-            this.showToast = true;
-            return;
-          }
-
-          markEmailVerificationSent();
-          void this.router.navigate(['auth/verify-email']);
-        },
-      });
   }
 
-  private loadOnboardingData(sessionId: string): void {
-    this.onboardingService.getOnboardingData(sessionId).subscribe({
-      next: (res) => {
-        this.onboardingData.set(res.data);
-      },
-      error: (err) => {
-        console.error('Error loading onboarding data:', err);
-      },
-    });
-  }
-  private decodeToken(token: any) {
-    return JSON.parse(atob(token.split('.')[1]));
-  }
-  onTabChange(tab: 'login' | 'register') {
-    if (this.isAuthBusy || this.activeTab === tab) {
+  setTheme(preference: Extract<ThemePreference, 'light' | 'dark'>): void {
+    if (
+      (preference === 'dark' && this.isDarkTheme()) ||
+      (preference === 'light' && !this.isDarkTheme())
+    ) {
       return;
     }
-
-    this.activeTab = tab;
-    this.resetLoginOtpStep();
-    this.title.set(tab === 'register' ? 'Register' : 'Login');
+    this.themeService.setPreference(preference);
   }
 
   resetLoginOtpStep(): void {
-    this.loginOtpStep = false;
+    this.loginOtpStep.set(false);
     this.verifyOtpViaEmailApi = false;
     this.loginForm.patchValue({ otp: '' });
   }
 
-  get canResendLoginOtp(): boolean {
-    return !this.isResendingLoginOtp && !this.isLoginLoading;
-  }
-
   resendLoginOtp(): void {
-    if (!this.canResendLoginOtp) {
+    if (!this.canResendLoginOtp()) {
       return;
     }
 
@@ -480,19 +368,16 @@ export class LoginComponent
       return;
     }
 
-    this.isResendingLoginOtp = true;
-    this.cdr.detectChanges();
+    this.isResendingLoginOtp.set(true);
 
     const resend$ = this.verifyOtpViaEmailApi
-      ? this.service.resendOtp({ email })
-      : this.service.login({ email });
+      ? this.auth.resendOtp({ email })
+      : this.auth.login({ email });
 
     resend$
       .pipe(
-        finalize(() => {
-          this.isResendingLoginOtp = false;
-          this.cdr.detectChanges();
-        }),
+        takeUntil(this.destroy$),
+        finalize(() => this.isResendingLoginOtp.set(false)),
       )
       .subscribe({
         next: (res) => {
@@ -503,24 +388,92 @@ export class LoginComponent
           if (otpSent) {
             this.loginForm.patchValue({ otp: '' });
             markEmailVerificationSent();
-            this.message = resolveApiMessage(this.translation, {
-              messageKey: res?.messageKey ?? res?.data?.messageKey,
-              message: res?.message,
-              fallbackKey: 'auth.api.otpSentIfExists',
-            });
-            this.success = true;
-            this.showToast = true;
+            this.presentToast(
+              resolveApiMessage(this.translation, {
+                messageKey: res?.messageKey ?? res?.data?.messageKey,
+                message: res?.message,
+                fallbackKey: 'auth.api.otpSentIfExists',
+              }),
+              true,
+            );
           }
         },
         error: (err) => {
-          this.message = resolveApiMessage(this.translation, {
-            ...extractApiMessagePayload(err),
-            fallbackKey: 'auth.toast.resendFailed',
-          });
-          this.success = false;
-          this.showToast = true;
+          this.presentToast(
+            resolveApiMessage(this.translation, {
+              ...extractApiMessagePayload(err),
+              fallbackKey: 'auth.toast.resendFailed',
+            }),
+            false,
+          );
         },
       });
+  }
+
+  onLogin(event?: Event): void {
+    event?.preventDefault();
+    if (!this.canSubmitLogin()) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+    this.loginClick$.next();
+  }
+
+  onLoginOtpChange(event: {
+    detail: { value?: string | number | null };
+  }): void {
+    const otp = this.normalizeOtpInput(event.detail.value);
+    this.loginForm.patchValue({ otp });
+    if (
+      otp.length === EMAIL_OTP_LENGTH &&
+      this.loginOtpStep() &&
+      !this.isLoginLoading()
+    ) {
+      queueMicrotask(() => this.onLogin());
+    }
+  }
+
+  async onSocialLogin(provider: 'google' | 'apple'): Promise<void> {
+    if (this.isAuthBusy()) {
+      return;
+    }
+
+    if (provider === 'google') {
+      await this.completeGoogleSocialLogin();
+      return;
+    }
+
+    if (!this.appleSignInEnabled) {
+      return;
+    }
+
+    await this.completeAppleSocialLogin();
+  }
+
+  onToastDismiss(): void {
+    this.showToast.set(false);
+  }
+
+  viewLicenseAgreement(event: Event): void {
+    event.preventDefault();
+    void this.router.navigate(['/terms']);
+  }
+
+  ionViewDidEnter(): void {
+    this.scheduleTitlePaint();
+  }
+
+  ngAfterViewInit(): void {
+    this.scheduleTitlePaint();
+  }
+
+  ngOnDestroy(): void {
+    if (this.titlePaintTimer !== null) {
+      window.clearTimeout(this.titlePaintTimer);
+    }
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.loginClick$.complete();
   }
 
   /** Older sign-in APIs return 404/401 for unknown emails — create + send OTP. */
@@ -531,7 +484,7 @@ export class LoginComponent
     };
     const onboardingData = this.readStoredOnboardingData();
 
-    return this.service.register(registerPayload, onboardingData).pipe(
+    return this.auth.register(registerPayload, onboardingData).pipe(
       map((res: TokenResponse) => {
         if (res?.data?.accessToken) {
           return res;
@@ -562,16 +515,176 @@ export class LoginComponent
         const apiPayload = extractApiMessagePayload(err);
         if (
           apiPayload.messageKey === 'auth.api.userAlreadyExists' ||
-          (apiPayload.message || '')
-            .toLowerCase()
-            .includes('already exists')
+          (apiPayload.message || '').toLowerCase().includes('already exists')
         ) {
-          // Race / prior attempt — ask sign-in to (re)send OTP when supported.
-          return this.service.login({ email });
+          return this.auth.login({ email });
         }
         throw err;
       }),
     );
+  }
+
+  private enterLoginOtpStep(email: string): void {
+    this.loginOtpStep.set(true);
+    this.persistEmailForVerification(email);
+    queueMicrotask(() => this.focusLoginOtp());
+  }
+
+  private focusLoginOtp(): void {
+    const host = document.getElementById('login-otp') as
+      | (HTMLElement & { setFocus?: () => Promise<void> })
+      | null;
+    if (!host) {
+      return;
+    }
+    if (typeof host.setFocus === 'function') {
+      void host.setFocus();
+      return;
+    }
+    host.focus();
+  }
+
+  private finishSocialLogin(res: {
+    data?: { accessToken?: string; user?: { isVerified?: boolean } };
+  }): void {
+    this.presentToast(this.t('auth.toast.loginSuccess'), true);
+
+    if (res?.data?.accessToken) {
+      this.auth.setUserInfoFromSocialResponse(res as TokenResponse);
+    }
+
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
+    }
+
+    if (this.emailOtpEnabled && !res?.data?.user?.isVerified) {
+      markEmailVerificationSent();
+      void this.router.navigate(['/auth/verify-email']);
+      return;
+    }
+
+    void this.router.navigate(['/tabs/home']);
+  }
+
+  private async completeAppleSocialLogin(): Promise<void> {
+    this.isSocialLoading.set(true);
+
+    try {
+      const { email, fullName, idToken } =
+        await this.appleSignIn.signInWithApple();
+      const res = await firstValueFrom(
+        this.auth.socialLogin('apple', { email, fullName, idToken }),
+      );
+      this.finishSocialLogin(res);
+    } catch (err: unknown) {
+      if (err instanceof AppleSignInNotConfiguredError) {
+        this.presentToast(this.t('auth.toast.appleNotConfigured'), false);
+      } else {
+        const httpLike = err as { error?: { message?: string } };
+        this.presentToast(
+          resolveApiMessage(this.translation, {
+            ...extractApiMessagePayload(err),
+            message:
+              httpLike?.error?.message ||
+              (err instanceof Error ? err.message : undefined),
+            fallbackKey: 'auth.toast.appleUnavailable',
+          }),
+          false,
+        );
+      }
+    } finally {
+      this.isSocialLoading.set(false);
+    }
+  }
+
+  private async completeGoogleSocialLogin(): Promise<void> {
+    this.isSocialLoading.set(true);
+
+    try {
+      const { email, fullName, idToken, accessToken } =
+        await this.googleSignIn.signInWithGoogle();
+      const res = await firstValueFrom(
+        this.auth.socialLogin('google', {
+          email,
+          fullName,
+          idToken,
+          accessToken,
+        }),
+      );
+      this.finishSocialLogin(res);
+    } catch (err: unknown) {
+      if (err instanceof GoogleSignInNotConfiguredError) {
+        this.presentToast(this.t('auth.toast.googleNotConfigured'), false);
+      } else {
+        const httpLike = err as { error?: { message?: string } };
+        this.presentToast(
+          resolveApiMessage(this.translation, {
+            ...extractApiMessagePayload(err),
+            message:
+              httpLike?.error?.message ||
+              (err instanceof Error ? err.message : undefined),
+            fallbackKey: 'auth.toast.googleUnavailable',
+          }),
+          false,
+        );
+      }
+    } finally {
+      this.isSocialLoading.set(false);
+    }
+  }
+
+  private async finishAuthNavigationToHome(): Promise<void> {
+    const local = this.readStoredOnboardingData() as LocalOnboardingAnswers | null;
+    const payload = mapLocalOnboardingToReproductiveInit(local);
+    if (payload && this.auth.getAccessToken()) {
+      try {
+        await firstValueFrom(
+          this.onboardingService.initializeReproductiveState(payload),
+        );
+        this.dashboardCache.invalidate();
+      } catch {
+        /* Server registration may already have initialized; Home can still reconcile. */
+      }
+    }
+    this.clearStoredOnboardingAfterAuth();
+    await this.router.navigate(['/tabs/home']);
+  }
+
+  private canSubmitLogin(): boolean {
+    if (this.authActionInProgress() !== null || this.isSocialLoading()) {
+      return false;
+    }
+    const emailValid = !!this.loginForm.get('email')?.valid;
+    if (!this.loginOtpStep()) {
+      return emailValid;
+    }
+    const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
+    return emailValid && otp.length === EMAIL_OTP_LENGTH;
+  }
+
+  private readLoginFormView(): {
+    email: string;
+    emailInvalid: boolean;
+    emailTouched: boolean;
+    otp: string;
+    otpIncomplete: boolean;
+  } {
+    const emailCtrl = this.loginForm.get('email');
+    const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
+    return {
+      email: (emailCtrl?.value || '').trim(),
+      emailInvalid: !!emailCtrl?.invalid,
+      emailTouched: !!emailCtrl?.touched,
+      otp,
+      otpIncomplete: otp.length < EMAIL_OTP_LENGTH,
+    };
+  }
+
+  private presentToast(message: string, success: boolean): void {
+    this.toastMessage.set(message);
+    this.toastSuccess.set(success);
+    this.toastButtons.set([this.t('common.ok')]);
+    this.showToast.set(true);
   }
 
   private isUserNotFoundError(payload: {
@@ -590,10 +703,14 @@ export class LoginComponent
     if (!normalized) {
       return;
     }
-    localStorage.setItem(
-      'userInfo',
-      JSON.stringify({ data: { user: { email: normalized } } }),
-    );
+    try {
+      localStorage.setItem(
+        'userInfo',
+        JSON.stringify({ data: { user: { email: normalized } } }),
+      );
+    } catch {
+      /* ignore quota / private mode */
+    }
   }
 
   private readStoredOnboardingData(): OnboardingDataDto | null {
@@ -618,227 +735,14 @@ export class LoginComponent
     }
   }
 
-  /**
-   * After signup/sign-in with a token: push local onboarding → reproductive domain
-   * (so Home does not show the period cycle ring for pregnant/postpartum), then go home.
-   */
-  private async finishAuthNavigationToHome(): Promise<void> {
-    const local = this.readStoredOnboardingData() as LocalOnboardingAnswers | null;
-    const payload = mapLocalOnboardingToReproductiveInit(local);
-    if (payload && this.service.getAccessToken()) {
-      try {
-        await firstValueFrom(
-          this.onboardingService.initializeReproductiveState(payload),
-        );
-        this.dashboardCache.invalidate();
-      } catch {
-        /* Server registration may already have initialized; Home can still reconcile. */
-      }
-    }
-    this.clearStoredOnboardingAfterAuth();
-    await this.router.navigate(['/tabs/home']);
-  }
-
-  onRegister(event?: Event) {
-    event?.preventDefault();
-    if (this.registerForm.invalid) {
-      this.registerForm.markAllAsTouched();
-      return;
-    }
-    this.registerClick$.next();
-  }
-
-  onLogin(event?: Event) {
-    event?.preventDefault();
-    this.loginClick$.next();
-  }
-
-  private canSubmitRegister(): boolean {
-    if (this.authActionInProgress !== null || this.isSocialLoading) {
-      return false;
-    }
-    return this.registerForm.valid;
-  }
-
-  onLoginOtpChange(event: { detail: { value?: string | number | null } }): void {
-    const otp = this.normalizeOtpInput(event.detail.value);
-    this.loginForm.patchValue({ otp });
-    if (
-      otp.length === EMAIL_OTP_LENGTH &&
-      this.loginOtpStep &&
-      !this.isLoginLoading
-    ) {
-      queueMicrotask(() => this.onLogin());
-    }
-  }
-
-  isLoginDisabled(): boolean {
-    if (this.isAuthBusy && !this.isLoginLoading) {
-      return true;
-    }
-    const emailInvalid = !!this.loginForm.get('email')?.invalid;
-    if (!this.loginOtpStep) {
-      return emailInvalid;
-    }
-    const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
-    return emailInvalid || otp.length < EMAIL_OTP_LENGTH;
-  }
-
-  private canSubmitLogin(): boolean {
-    if (this.authActionInProgress !== null || this.isSocialLoading) {
-      return false;
-    }
-    const emailValid = !!this.loginForm.get('email')?.valid;
-    if (!this.loginOtpStep) {
-      return emailValid;
-    }
-    const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
-    return emailValid && otp.length === EMAIL_OTP_LENGTH;
-  }
-
   private normalizeOtpInput(value: unknown): string {
-    return String(value ?? '').replace(/\D/g, '').slice(0, EMAIL_OTP_LENGTH);
-  }
-
-  async onSocialLogin(provider: 'google' | 'apple') {
-    if (this.isAuthBusy) {
-      return;
-    }
-
-    if (provider === 'google') {
-      await this.completeGoogleSocialLogin();
-      return;
-    }
-
-    await this.completeAppleSocialLogin();
-  }
-
-  private finishSocialLogin(res: {
-    data?: { accessToken?: string; user?: { isVerified?: boolean } };
-  }): void {
-    this.message = this.t('auth.toast.loginSuccess');
-    this.success = true;
-    this.showToast = true;
-
-    if (res?.data?.accessToken) {
-      this.service.setUserInfoFromSocialResponse(res as any);
-    }
-
-    if (res?.data) {
-      localStorage.setItem('userInfo', JSON.stringify(res.data));
-    }
-    if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);
-    }
-
-    if (this.emailOtpEnabled && !res?.data?.user?.isVerified) {
-      markEmailVerificationSent();
-      void this.router.navigate(['/auth/verify-email']);
-      return;
-    }
-
-    void this.router.navigate(['/tabs/home']);
-  }
-
-  private async completeAppleSocialLogin(): Promise<void> {
-    this.isSocialLoading = true;
-    this.cdr.detectChanges();
-
-    try {
-      const { email, fullName, idToken } =
-        await this.appleSignIn.signInWithApple();
-      const res = await firstValueFrom(
-        this.service.socialLogin('apple', { email, fullName, idToken }),
-      );
-      this.finishSocialLogin(res);
-    } catch (err: unknown) {
-      if (err instanceof AppleSignInNotConfiguredError) {
-        this.message = this.t('auth.toast.appleNotConfigured');
-      } else {
-        const httpLike = err as { error?: { message?: string } };
-        this.message = resolveApiMessage(this.translation, {
-          ...extractApiMessagePayload(err),
-          message:
-            httpLike?.error?.message ||
-            (err instanceof Error ? err.message : undefined),
-          fallbackKey: 'auth.toast.appleUnavailable',
-        });
-      }
-      this.success = false;
-      this.showToast = true;
-    } finally {
-      this.isSocialLoading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  private async completeGoogleSocialLogin(): Promise<void> {
-    this.isSocialLoading = true;
-    this.cdr.detectChanges();
-
-    try {
-      const { email, fullName, idToken, accessToken } =
-        await this.googleSignIn.signInWithGoogle();
-      const res = await firstValueFrom(
-        this.service.socialLogin('google', {
-          email,
-          fullName,
-          idToken,
-          accessToken,
-        }),
-      );
-
-      this.finishSocialLogin(res);
-    } catch (err: unknown) {
-      if (err instanceof GoogleSignInNotConfiguredError) {
-        this.message = this.t('auth.toast.googleNotConfigured');
-      } else {
-        const httpLike = err as { error?: { message?: string } };
-        this.message = resolveApiMessage(this.translation, {
-          ...extractApiMessagePayload(err),
-          message:
-            httpLike?.error?.message ||
-            (err instanceof Error ? err.message : undefined),
-          fallbackKey: 'auth.toast.googleUnavailable',
-        });
-      }
-      this.success = false;
-      this.showToast = true;
-    } finally {
-      this.isSocialLoading = false;
-      this.cdr.detectChanges();
-    }
+    return String(value ?? '')
+      .replace(/\D/g, '')
+      .slice(0, EMAIL_OTP_LENGTH);
   }
 
   private isValidEmail(email: string): boolean {
     return !!email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-  resolved(_captchaResponse: any) {}
-
-  navigateRegister() {
-    this.router.navigate(['/auth/register']);
-  }
-
-  onAdminRol(data: string) {
-    this.role = data;
-  }
-  onDoctorRol(data: string) {}
-  onPatientRol(data: string) {}
-  // Get Value Form For Validation
-  get email() {
-    return this.form.get('email');
-  }
-  get password() {
-    return this.form.get('password');
-  }
-
-  ionViewDidEnter(): void {
-    this.scheduleTitlePaint();
-  }
-
-  ngAfterViewInit(): void {
-    // Fallback when Ionic lifecycle does not fire (web refresh, cached route).
-    this.scheduleTitlePaint();
   }
 
   private scheduleTitlePaint(): void {
@@ -846,36 +750,28 @@ export class LoginComponent
       window.clearTimeout(this.titlePaintTimer);
     }
 
-    this.titlePaintActive = false;
-    this.cdr.detectChanges();
-
+    this.titlePaintActive.set(false);
     this.titlePaintTimer = window.setTimeout(() => {
-      this.titlePaintActive = true;
+      this.titlePaintActive.set(true);
       this.titlePaintTimer = null;
-      this.cdr.detectChanges();
     }, 120);
   }
 
   private syncThemeFromService(): void {
-    this.isDarkTheme = this.themeService.effectiveIsDark();
+    this.isDarkTheme.set(this.themeService.effectiveIsDark());
   }
 
-  ngOnDestroy(): void {
-    if (this.titlePaintTimer !== null) {
-      window.clearTimeout(this.titlePaintTimer);
+  private bindPageVisibility(): void {
+    if (typeof document === 'undefined') {
+      return;
     }
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
-  viewLicenseAgreement(event: Event): void {
-    event.preventDefault();
-    void this.router.navigate(['/terms']);
-  }
-
-  get loginOtpSentMessage(): string {
-    const email = (this.loginForm.get('email')?.value || '').trim();
-    return this.translation.translateParams('auth.otpSentTo', { email });
+    const sync = () => this.isBackgrounded.set(document.hidden);
+    sync();
+    document.addEventListener('visibilitychange', sync);
+    this.destroyRef.onDestroy(() => {
+      document.removeEventListener('visibilitychange', sync);
+    });
   }
 
   private t(key: string): string {

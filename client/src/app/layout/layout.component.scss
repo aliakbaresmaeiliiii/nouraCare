@@ -181,47 +181,6 @@ ion-header.modern-header {
         color: var(--brand-text);
       }
 
-      &.header-action--notifications {
-        .notification-bell {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 28px;
-          height: 28px;
-          background: transparent;
-          border: none;
-          box-shadow: none;
-        }
-
-        ion-icon {
-          font-size: 24px;
-          opacity: 1;
-        }
-
-        .notification-bell__badge {
-          position: absolute;
-          top: -4px;
-          right: -6px;
-          min-width: 16px;
-          height: 16px;
-          padding: 0 4px;
-          line-height: 1;
-          background: var(--ion-color-danger);
-          color: var(--ion-color-danger-contrast);
-          border-radius: 999px;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: -0.02em;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border: 1.5px solid var(--brand-surface);
-          box-shadow: none;
-          pointer-events: none;
-        }
-      }
-
       .profile-avatar {
         display: flex;
         align-items: center;
@@ -282,10 +241,6 @@ ion-header.modern-header {
   }
 
   .header-right .header-action {
-    .notification-bell__badge {
-      border-color: #000;
-    }
-
     .profile-avatar {
       background: rgba(255, 255, 255, 0.12);
 

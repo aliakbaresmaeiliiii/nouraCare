@@ -2,12 +2,12 @@ import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonPopover } from '@ionic/angular/standalone';
 import { Language, LanguageService, LANGUAGE_SWITCHING_ENABLED } from '../../services/language.service';
-import { SHARED_STANDALONE_IMPORTS } from '../../shared-standalone';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-language-switcher',
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS, IonPopover],
+  imports: [IonPopover, TranslatePipe],
   template: `
     <button
       type="button"

@@ -8,7 +8,7 @@ export const TERMS_OF_SERVICE = {
       '## 2. Your Account',
       'You are responsible for keeping your login credentials confidential and for all activity under your account. Provide accurate information and notify us promptly at support@dorehealth.app if you suspect unauthorized access.',
       '## 3. Permitted Use',
-      'You may use the Service for personal, non-commercial wellness tracking and related features we provide. You agree not to: (a) violate applicable laws or third-party rights; (b) upload malware, spam, or harmful content; (c) attempt to reverse engineer, scrape, or disrupt the Service; (d) impersonate others or share another person\'s health data without permission; (e) use the Service to provide unauthorized medical advice or emergency services.',
+      "You may use the Service for personal, non-commercial wellness tracking and related features we provide. You agree not to: (a) violate applicable laws or third-party rights; (b) upload malware, spam, or harmful content; (c) attempt to reverse engineer, scrape, or disrupt the Service; (d) impersonate others or share another person's health data without permission; (e) use the Service to provide unauthorized medical advice or emergency services.",
       '## 4. Health and Medical Disclaimer',
       'DoreHealth provides educational and tracking tools only. The Service does not replace professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for medical decisions. In an emergency, contact local emergency services immediately. Predictions and insights are estimates, not guarantees.',
       '## 5. Community and User Content',

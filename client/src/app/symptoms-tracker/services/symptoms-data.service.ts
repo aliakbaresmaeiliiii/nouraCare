@@ -96,6 +96,7 @@ export class SymptomsDataService {
       ...SYMPTOMS_CONFIG.moodOptions,
       ...SYMPTOMS_CONFIG.physicalSymptoms
     ];
+    const nowIso = new Date().toISOString();
 
     const symptoms = Array.from(selectedItems).map(itemId => {
       const option = allOptions.find(opt => opt.id === itemId);
@@ -105,7 +106,8 @@ export class SymptomsDataService {
           name: option.name,
           icon: option.icon,
           category: this.getCategoryForItem(itemId),
-          severity: 'mild'
+          severity: 'mild' as const,
+          timestamp: new Date(nowIso),
         };
       }
       return null;
@@ -142,29 +144,39 @@ export class SymptomsDataService {
     notes: string;
     selectedDate: string;
   }) {
-    // Convert selected chips to symptoms array
-    const selectedSymptoms = this.convertSelectedItemsToSymptoms(data.selectedItems);
-    
+    const nowIso = new Date().toISOString();
+
+    // Convert selected chips to symptoms array (API expects ISO timestamp strings)
+    const selectedSymptoms = this.convertSelectedItemsToSymptoms(
+      data.selectedItems,
+    ).map((s) => ({
+      id: s.id,
+      name: s.name,
+      icon: s.icon,
+      category: s.category,
+      severity: s.severity,
+      timestamp: nowIso,
+    }));
+
     // Add quick symptoms to the list
-    const quickSymptomsArray = Array.from(data.quickSymptoms).map(symptom => ({
+    const quickSymptomsArray = Array.from(data.quickSymptoms).map((symptom) => ({
       id: symptom,
       name: this.getSymptomName(symptom),
       icon: this.getSymptomIcon(symptom),
       category: 'Quick',
-      severity: 'mild'
+      severity: 'mild',
+      timestamp: nowIso,
     }));
 
-    // Combine all symptoms
+    // Combine all symptoms — only fields allowed by CreateTrackDayDto / UpdateTrackDayDto
     const allSymptoms = [...selectedSymptoms, ...quickSymptomsArray];
 
     return {
-      userId: data.userId,
-      symptoms: allSymptoms,
+      date: data.selectedDate,
       mood: data.currentMood,
       energy: data.currentEnergy,
       notes: data.notes,
-      date: data.selectedDate,
-      timestamp: new Date().toISOString()
+      symptoms: allSymptoms,
     };
   }
 

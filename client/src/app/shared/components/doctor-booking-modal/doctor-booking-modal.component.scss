@@ -23,10 +23,6 @@
   --color: var(--brand-primary-dark);
 }
 
-.booking-sheet-back {
-  --color: var(--brand-primary-dark);
-}
-
 .booking-sheet-content {
   flex: 1;
   min-height: 0;
@@ -161,52 +157,6 @@
   }
 }
 
-.time-options {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.time-option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.85rem 0.95rem;
-  border-radius: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  background: #fff;
-  text-align: start;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease;
-
-  &__label {
-    font-weight: 700;
-    color: #1e293b;
-    font-size: 0.9rem;
-  }
-
-  &__status {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #94a3b8;
-
-    &--open {
-      color: var(--ion-color-success);
-    }
-  }
-
-  &--active {
-    border-color: var(--brand-primary);
-    background: rgba(var(--brand-primary-rgb), 0.06);
-  }
-
-  &--disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
-  }
-}
-
 .booking-sheet-footer {
   --background: #fff;
   --border-width: 0;
@@ -260,63 +210,11 @@
   }
 }
 
-.booking-slots-loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.65rem;
-  min-height: 120px;
-  color: #64748b;
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
 .booking-slots-error {
   margin: 0 0 0.65rem;
   color: var(--ion-color-warning-shade);
   font-size: 0.82rem;
   font-weight: 600;
-}
-
-.booking-review-card {
-  margin: 0 1rem 1rem;
-  padding: 1rem;
-  border-radius: 16px;
-  background: #fff;
-  border: 1px solid rgba(var(--brand-primary-rgb), 0.14);
-  box-shadow: 0 8px 24px rgba(var(--brand-primary-rgb), 0.08);
-
-  &__row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.55rem 0;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-    color: #64748b;
-    font-size: 0.84rem;
-
-    strong {
-      color: #1e293b;
-      font-size: 0.92rem;
-      text-align: end;
-    }
-
-    &:last-child {
-      border-bottom: 0;
-    }
-
-    &--fee strong {
-      color: var(--brand-primary-dark);
-    }
-  }
-}
-
-.booking-review-note {
-  margin: 0 1rem 1.25rem;
-  color: #64748b;
-  font-size: 0.82rem;
-  line-height: 1.45;
 }
 
 .confirm-btn {
@@ -326,12 +224,6 @@
   font-weight: 700;
   min-height: 48px;
   margin: 0;
-}
-
-.cancel-btn {
-  --border-radius: 12px;
-  font-weight: 700;
-  min-height: 44px;
 }
 
 :host-context(html[dir='rtl']) {

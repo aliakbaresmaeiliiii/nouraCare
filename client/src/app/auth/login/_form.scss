@@ -1,0 +1,70 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.auth-card {
+  position: relative;
+  padding: 1.35rem 1.2rem 1.1rem;
+  background: $login-surface-fill;
+  border-radius: $login-radius-card;
+  box-shadow: $login-shadow-card;
+  border: 1px solid $login-border-subtle;
+  overflow-x: clip;
+  min-width: 0;
+  contain: layout paint style;
+}
+
+.form-container {
+  min-width: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  margin-bottom: 0.4rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.8125rem;
+  color: var(--ion-color-danger-shade);
+  background: rgba(var(--ion-color-danger-rgb), 0.08);
+  border-radius: $login-radius-xs;
+}
+
+.error-message ion-icon {
+  @include inline-start-icon;
+}
+
+.auth-form app-button {
+  margin-top: 0.25rem;
+}
+
+.form-footer {
+  text-align: center;
+  margin-top: 0.1rem;
+}

@@ -144,28 +144,6 @@
   color: var(--brand-text-secondary);
 }
 
-.week-slider-block {
-  margin-top: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgba(var(--brand-text-rgb), 0.08);
-}
-
-.week-slider-labels {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.75rem;
-  color: var(--brand-text-secondary);
-  margin-bottom: 0.15rem;
-
-  .week-slider-mid {
-    flex: 1;
-    text-align: center;
-    font-weight: 500;
-    padding: 0 0.25rem;
-  }
-}
-
 .school-week-progress {
   margin-top: 14px;
 }
@@ -279,43 +257,6 @@
   border-left: 4px solid var(--ion-color-warning, #ffd700);
 }
 
-.progress-card .read-card-head {
-  margin-bottom: 0.75rem;
-}
-
-.progress-track {
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(var(--brand-text-rgb), 0.1);
-  overflow: hidden;
-  margin-bottom: 0.65rem;
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    var(--ion-color-primary),
-    var(--ion-color-primary-tint, #6dd5ed)
-  );
-  transition: width 0.35s ease;
-}
-
-.progress-meta {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.35rem;
-  font-size: 0.85rem;
-  color: var(--brand-text-secondary);
-
-  .progress-pct {
-    font-weight: 600;
-    color: var(--brand-text);
-  }
-}
-
 .empty-state {
   text-align: center;
   max-width: 400px;
@@ -355,19 +296,4 @@
     width: 44px;
     height: 44px;
   }
-}
-
-.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.success {
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.12), rgba(76, 175, 80, 0.06)) !important;
-  border-color: rgba(76, 175, 80, 0.25) !important;
-}
-
-.error {
-  background: linear-gradient(135deg, rgba(244, 67, 54, 0.12), rgba(244, 67, 54, 0.06)) !important;
-  border-color: rgba(244, 67, 54, 0.25) !important;
 }

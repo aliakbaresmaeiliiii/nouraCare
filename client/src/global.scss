@@ -714,64 +714,6 @@ ion-menu .menu-icon {
   --app-space-8: 32px;
 }
 
-/* Global Container System */
-.app-container {
-  max-width: var(--app-max-width);
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Content Container for Main Sections */
-.content-container {
-  max-width: var(--app-content-max-width);
-  margin: 0 auto;
-  padding: 0 var(--app-side-padding);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Reusable page spacing and hierarchy helpers */
-.app-section {
-  margin-bottom: var(--app-space-6);
-}
-
-.app-section-title {
-  color: var(--brand-text);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--app-space-3);
-}
-
-.app-section-subtitle {
-  color: var(--brand-text-secondary);
-  font-size: var(--font-size-sm);
-  margin-bottom: var(--app-space-4);
-}
-
-.app-surface {
-  background: var(--brand-surface);
-  border: 1px solid rgba(var(--brand-primary-rgb), 0.08);
-  border-radius: var(--app-radius-lg);
-  box-shadow: var(--app-shadow-card);
-}
-
-.app-list-item {
-  background: var(--brand-surface);
-  border: 1px solid rgba(var(--brand-primary-rgb), 0.1);
-  border-radius: var(--app-radius-md);
-  padding: var(--app-space-3) var(--app-space-4);
-  transition: transform var(--app-duration-fast) var(--app-ease-standard),
-    box-shadow var(--app-duration-fast) var(--app-ease-standard),
-    border-color var(--app-duration-fast) var(--app-ease-standard);
-}
-
-.app-list-item:hover {
-  transform: translateY(-1px);
-  border-color: rgba(var(--brand-primary-rgb), 0.2);
-  box-shadow: 0 8px 20px rgba(var(--brand-primary-rgb), 0.08);
-}
-
 /* Safe Area Insets for Modern Devices */
 @supports (padding: max(0px)) {
   :root {
@@ -1095,7 +1037,6 @@ ion-menu .user-name,
 ion-menu .progress-text,
 ion-menu .theme-hint,
 ion-menu .menu-soon,
-ion-menu .social-label,
 ion-menu .version-text {
   font-family: var(--ion-font-family);
 }
@@ -1182,8 +1123,7 @@ ion-menu .version-text {
 }
 
 /* Custom Scrollbar */
-.fertility-results-content,
-.pregnancy-results-content {
+.fertility-results-content {
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -1251,59 +1191,6 @@ ion-action-sheet {
     --color: rgb(var(--flo-primary-rgb));
     font-weight: 700;
   }
-}
-
-.sheet-dialog-actions {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.sheet-dialog-action {
-  border: 0;
-  background: transparent;
-  font-size: 16px;
-  font-weight: 600;
-  padding: 10px 4px;
-  cursor: pointer;
-  color: var(--ion-color-medium-shade, #64748b);
-
-  &--confirm {
-    color: rgb(var(--flo-primary-rgb));
-    font-weight: 700;
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-  }
-}
-
-/* Pregnancy mode pickers: small centered dialog */
-ion-modal.pm-center-dialog {
-  --width: min(360px, 92vw);
-  --height: auto;
-  --max-height: 74vh;
-  --border-radius: 16px;
-  --backdrop-opacity: 0.42;
-  --box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
-}
-
-ion-modal.pm-center-dialog::part(content) {
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-ion-modal.pm-center-dialog ion-content {
-  --background: #0f1217;
-}
-
-ion-modal.pm-center-dialog ion-picker,
-ion-modal.pm-center-dialog ion-datetime {
-  width: 100%;
 }
 
 /* iPhone-like liquid glass dialog style for action popups */
@@ -1962,43 +1849,6 @@ ion-popover ion-button[color='dark']:not([fill='outline']):not([fill='clear']):n
   --color: var(--ion-color-dark-contrast) !important;
 }
 
-/* Auth / welcome native tab switches (not ion-button) */
-button.tab-button {
-  border: none;
-  cursor: pointer;
-  transition:
-    transform var(--app-duration-fast) var(--app-ease-standard),
-    box-shadow var(--app-duration-fast) var(--app-ease-standard),
-    background var(--app-duration-normal) var(--app-ease-standard),
-    color var(--app-duration-normal) var(--app-ease-standard);
-}
-
-button.tab-button:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-button.tab-button.active {
-  background-image: var(--app-button-gradient-idle) !important;
-  background-size: 220% 220% !important;
-  background-position: 0% 50%;
-  background-repeat: no-repeat !important;
-  color: var(--brand-text) !important;
-  box-shadow: var(--app-button-solid-shadow) !important;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  button.tab-button.active {
-    animation: app-button-gradient-wave 12s ease-in-out infinite;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  button.tab-button.active {
-    animation: none !important;
-    background-size: auto !important;
-  }
-}
-
 /* Rare native submit (<button type="submit">) outside ion-button */
 ion-content button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip):not(.pdp-nav-btn):not(.experience-card):not(.dis-close),
 ion-modal button[type='submit']:not([disabled]):not(.tab-button):not(.pds-chip) {
@@ -2149,21 +1999,6 @@ html.ion-palette-dark ion-modal:has(app-pregnancy-setup-sheet) {
   background: rgba(194, 30, 86, 0.08);
   border-radius: 10px;
   text-align: center;
-}
-
-.jalali-picker-feedback__error {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.45;
-  font-weight: 600;
-  color: var(--ion-color-danger, #c21e56);
-}
-
-.jalali-picker-feedback__help {
-  margin: 6px 0 0;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--ion-color-medium-shade, #64748b);
 }
 
 /* Jalali date wheels: Ionic ellipsis truncates long Persian month names (e.g. اردیبهشت → ارد). */

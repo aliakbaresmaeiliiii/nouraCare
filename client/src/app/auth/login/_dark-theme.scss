@@ -1,0 +1,49 @@
+@use 'variables' as *;
+
+.theme-switch--dark {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(30, 30, 30, 0.9);
+  box-shadow: $login-shadow-chrome-dark;
+}
+
+.theme-switch--dark .theme-switch__option {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.theme-switch--dark .theme-switch__option:hover:not(.theme-switch__option--active) {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.theme-switch--dark .theme-switch__option--active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  box-shadow: none;
+}
+
+.theme-switch--dark .theme-switch__option--active ion-icon {
+  color: $login-dark-accent;
+}
+
+:host-context(html.ion-palette-dark) .auth-card {
+  background: $login-surface-fill-dark;
+  box-shadow: $login-shadow-card-dark;
+}
+
+:host-context(html.ion-palette-dark) .form-input {
+  background: $login-input-fill-dark;
+  border-color: $login-border-input-dark;
+}
+
+:host-context(html.ion-palette-dark) .form-input:focus {
+  background: $login-input-focus-fill-dark;
+}
+
+:host-context(html.ion-palette-dark) .social-button {
+  --background: rgba(var(--brand-surface-rgb), 0.55);
+  --border-color: #{$login-border-social-dark};
+}
+
+:host-context(html.ion-palette-dark) .login-footnote {
+  background: rgba(var(--brand-secondary-rgb), 0.12);
+}

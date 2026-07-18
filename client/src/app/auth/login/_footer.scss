@@ -1,0 +1,33 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+.forgot-link {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--brand-text-secondary);
+  text-decoration: none;
+  transition: color $login-duration-fast $login-ease;
+}
+
+.forgot-link:hover {
+  color: var(--brand-primary);
+}
+
+.login-footnote {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 1rem 0 0;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--brand-text-secondary);
+  line-height: 1.45;
+  border-radius: $login-radius-md;
+  background: rgba(var(--brand-secondary-rgb), 0.07);
+}
+
+.login-footnote ion-icon {
+  @include inline-start-icon;
+  color: var(--brand-secondary);
+}

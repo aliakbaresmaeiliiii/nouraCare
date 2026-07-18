@@ -1,0 +1,42 @@
+@use 'variables' as *;
+
+.login-brand-ring {
+  position: relative;
+  width: $login-brand-size;
+  height: $login-brand-size;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  contain: layout paint;
+}
+
+.login-brand-ring::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 1.75rem;
+  background: conic-gradient(
+    from 210deg,
+    rgba(var(--brand-primary-rgb), 0.45),
+    rgba(var(--brand-secondary-rgb), 0.35),
+    rgba(var(--brand-primary-rgb), 0.15),
+    rgba(var(--brand-secondary-rgb), 0.45)
+  );
+  opacity: 0.38;
+  z-index: 0;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.login-brand-icon {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: $login-brand-icon;
+  height: $login-brand-icon;
+  object-fit: contain;
+  background: transparent;
+  border-radius: 18px;
+  box-shadow: $login-shadow-brand;
+}

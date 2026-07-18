@@ -1,0 +1,45 @@
+@use 'variables' as *;
+
+.login-hero {
+  text-align: center;
+}
+
+.login-title {
+  position: relative;
+  display: inline-block;
+  margin: 0 0 0.5rem;
+  padding-inline: 0.08em;
+  font-size: $login-title-size;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.login-title__base {
+  color: var(--brand-text);
+}
+
+.login-title__color {
+  position: absolute;
+  inset: 0;
+  color: var(--brand-primary);
+  background: linear-gradient(
+    90deg,
+    var(--brand-primary-dark) 0%,
+    var(--brand-primary) 50%,
+    var(--brand-secondary) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transform: translate3d(-101%, 0, 0);
+  pointer-events: none;
+}
+
+.login-lead {
+  margin: 0 auto;
+  max-width: 20rem;
+  font-size: 0.975rem;
+  color: var(--brand-text-secondary);
+  line-height: 1.5;
+}

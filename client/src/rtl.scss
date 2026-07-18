@@ -2,49 +2,28 @@
 [dir="rtl"] {
   // Text alignment
   text-align: right;
-  
-  // Flexbox direction
-  .flex-row {
-    flex-direction: row-reverse;
-  }
-  
-  // Margin and padding adjustments
-  .ml-auto {
-    margin-left: unset !important;
-    margin-right: auto !important;
-  }
-  
-  .mr-auto {
-    margin-right: unset !important;
-    margin-left: auto !important;
-  }
-  
+
   // Icon positioning
   ion-icon[slot="start"] {
     margin-left: 8px;
     margin-right: 0;
   }
-  
+
   ion-icon[slot="end"] {
     margin-right: 8px;
     margin-left: 0;
   }
-  
+
   // Button text alignment
   ion-button {
     text-align: right;
   }
-  
+
   // Card content alignment
   .card-content {
     text-align: right;
   }
-  
-  // Navigation items
-  .nav-item {
-    text-align: right;
-  }
-  
+
   // Form inputs
   ion-input, ion-textarea {
     text-align: right;
@@ -55,113 +34,27 @@
     unicode-bidi: isolate;
     text-align: center;
   }
-  
+
   // List items
   ion-item {
     text-align: right;
   }
-  
+
   // Modal content
   .modal-content {
     text-align: right;
   }
-  
+
   // Header alignment
   .header-content {
     text-align: right;
   }
-  
+
   // Footer alignment
   .footer-content {
     text-align: right;
   }
-  
-  // Custom RTL adjustments for pregnancy section
-  .pregnancy-section {
-    .pregnancy-hero {
-      .pregnancy-header {
-        text-align: center; // Keep centered for visual appeal
-      }
-      
-      .pregnancy-progress {
-        .pregnancy-stats {
-          .stat-card {
-            text-align: right;
-          }
-        }
-      }
-    }
-    
-    .baby-development-card {
-      .baby-info {
-        text-align: right;
-        
-        .info-header {
-          flex-direction: row-reverse;
-        }
-        
-        .baby-measurements {
-          .measurement-card {
-            text-align: right;
-          }
-        }
-      }
-    }
-  }
-  
-  // Home page specific RTL adjustments
-  .home-content {
-    .welcome-hero {
-      .greeting-section {
-        flex-direction: row-reverse;
-      }
-    }
-    
-    .quick-actions-section {
-      .actions-grid {
-        .action-card {
-          text-align: right;
-        }
-      }
-    }
-    
-    .symptoms-section {
-      .symptoms-tracker {
-        text-align: right;
-      }
-    }
-    
-    .tools-section {
-      .tools-carousel {
-        .tool-card {
-          text-align: right;
-        }
-      }
-    }
-    
-    .insights-section {
-      .insight-card {
-        text-align: right;
-      }
-    }
-    
-    .expert-section {
-      .expert-card {
-        text-align: right;
-        
-        .expert-profile {
-          flex-direction: row-reverse;
-        }
-      }
-    }
-    
-    .community-section {
-      .community-highlight {
-        text-align: right;
-      }
-    }
-  }
-  
+
   // Post detail modal RTL adjustments
   .pregnancy-journey-modal {
     .pregnancy-header {
@@ -169,17 +62,17 @@
         text-align: center; // Keep centered for visual appeal
       }
     }
-    
+
     .pregnancy-post-content {
       .post-card {
         text-align: right;
-        
+
         .post-header {
           flex-direction: row-reverse;
         }
       }
     }
-    
+
     .pregnancy-features {
       .features-grid {
         .feature-card {
@@ -187,41 +80,41 @@
         }
       }
     }
-    
+
     .pregnancy-empty-state {
       text-align: center; // Keep centered for visual appeal
     }
-    
+
     .comments-section {
       .comment-item {
         text-align: right;
-        
+
         .comment-content {
           .comment-header {
             flex-direction: row-reverse;
           }
-          
+
           .comment-actions {
             justify-content: flex-start;
           }
         }
       }
-      
+
       .reply-item {
         text-align: right;
-        
+
         .reply-content {
           .reply-header {
             flex-direction: row-reverse;
           }
-          
+
           .reply-actions {
             justify-content: flex-start;
           }
         }
       }
     }
-    
+
     .pregnancy-comment-input {
       .input-container {
         .input-wrapper {
@@ -230,38 +123,38 @@
       }
     }
   }
-  
+
   // Category selection modal RTL adjustments
   .category-selection-modal {
     .modal-header {
       text-align: center; // Keep centered for visual appeal
     }
-    
+
     .categories-content {
       .category-item {
         text-align: right;
-        
+
         .category-info {
           flex-direction: row-reverse;
         }
       }
     }
-    
+
     .modal-footer {
       text-align: center; // Keep centered for visual appeal
     }
   }
-  
+
   // Create post modal RTL adjustments
   .create-post-modal {
     .modal-header {
       text-align: center; // Keep centered for visual appeal
     }
-    
+
     .post-content {
       text-align: right;
     }
-    
+
     .modal-footer {
       text-align: center; // Keep centered for visual appeal
     }
@@ -270,11 +163,6 @@
 
 // Persian number formatting
 [lang="fa"] {
-  .persian-numbers {
-    font-family: var(--font-persian);
-    direction: rtl;
-  }
-  
   // Ensure Persian text uses proper font (keep ion-icon glyphs visible)
   *:not(ion-icon) {
     font-family: var(--font-persian);

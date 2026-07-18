@@ -42,12 +42,6 @@
 
   // Phase mark styles
   .phase-mark {
-    &.period-mark {
-      circle {
-        filter: drop-shadow(0 2px 5px rgba(244, 63, 94, 0.32));
-      }
-    }
-
     &.today-mark {
       circle {
         filter: drop-shadow(0 2px 4px rgba(var(--brand-primary-rgb), 0.28));
@@ -94,23 +88,6 @@
       }
     }
 
-    &.fertile-mark {
-      circle {
-        filter: drop-shadow(0 2px 5px rgba(45, 212, 191, 0.28));
-      }
-    }
-
-    &.ovulation-mark {
-      circle {
-        filter: drop-shadow(0 2px 6px rgba(13, 148, 136, 0.32));
-      }
-    }
-
-    &.pms-mark {
-      circle {
-        filter: drop-shadow(0 2px 4px rgba(167, 139, 250, 0.28));
-      }
-    }
   }
 
   &::before {
@@ -184,34 +161,6 @@
   }
 }
 
-.chart-header {
-  text-align: center;
-  position: relative;
-  z-index: 1;
-
-  .chart-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--brand-text);
-    margin: 0 0 0.5rem 0;
-    background: linear-gradient(
-      135deg,
-      var(--brand-text) 0%,
-      var(--brand-text-secondary) 100%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .chart-subtitle {
-    font-size: 0.875rem;
-    color: var(--brand-text-secondary);
-    margin: 0;
-    font-weight: 500;
-  }
-}
-
 .chart-wrapper {
   /* Stack SVG + center panel in one cell so the disk stays geometrically centered. */
   display: grid;
@@ -274,19 +223,6 @@
   tspan {
     font-family: var(--cycle-chart-font);
   }
-}
-
-.chart-aura {
-  display: none;
-}
-
-.chart-aura--one {
-  animation: chart-aura-drift 14s ease-in-out infinite;
-}
-
-.chart-aura--two {
-  animation: chart-aura-drift 18s ease-in-out infinite reverse;
-  opacity: 0.42;
 }
 
 .cycle-progress-arc {
@@ -452,33 +388,6 @@
     drop-shadow(0 2px 6px rgba(167, 139, 250, 0.1));
 }
 
-.center-glow-ring {
-  display: none;
-}
-
-.chart-center-disk {
-  fill: rgba(var(--brand-surface-rgb), 0.35);
-  stroke: rgba(255, 255, 255, 0.65);
-  transition:
-    fill 0.6s var(--cycle-glass-ease),
-    stroke 0.6s var(--cycle-glass-ease);
-}
-
-.chart-center-disk--period {
-  fill: rgba(255, 251, 252, 0.92);
-  stroke: rgba(244, 63, 94, 0.14);
-}
-
-.chart-center-disk--fertile {
-  fill: rgba(246, 255, 254, 0.92);
-  stroke: rgba(45, 212, 191, 0.18);
-}
-
-.chart-center-disk--ovulation {
-  fill: rgba(240, 253, 250, 0.92);
-  stroke: rgba(20, 184, 166, 0.22);
-}
-
 :host-context(html.ion-palette-dark) {
   .center-glass {
     background: linear-gradient(
@@ -550,32 +459,6 @@
     }
   }
 
-  .chart-center-disk--period {
-    fill: color-mix(
-      in srgb,
-      #4a2430 46%,
-      var(--ion-card-background, #1e293b) 54%
-    );
-    stroke: rgba(212, 132, 158, 0.22);
-  }
-
-  .chart-center-disk--fertile {
-    fill: color-mix(
-      in srgb,
-      #134e4a 32%,
-      var(--ion-card-background, #1e293b) 68%
-    );
-    stroke: rgba(45, 212, 191, 0.24);
-  }
-
-  .chart-center-disk--ovulation {
-    fill: color-mix(
-      in srgb,
-      #115e59 34%,
-      var(--ion-card-background, #1e293b) 66%
-    );
-    stroke: rgba(94, 234, 212, 0.28);
-  }
 }
 
 // SVG ring segments — soft Flo-style tints
@@ -684,20 +567,6 @@
 }
 
 .outer-number-marker {
-  .last-day-number {
-    fill: var(--brand-secondary);
-    stroke: rgba(var(--brand-surface-rgb), 0.92);
-    stroke-width: 3px;
-    paint-order: stroke fill;
-    font-size: clamp(19px, 5vw, 24px);
-    font-weight: 800;
-    letter-spacing: 0.01em;
-    opacity: 1;
-
-    &:hover {
-      opacity: 0.88;
-    }
-  }
 }
 
 .cycle-length-marker {
@@ -771,35 +640,13 @@
   }
 }
 
-.period-mark {
-  animation-delay: 0s;
-}
-
 .today-mark.phase-mark {
   animation: none;
-}
-
-.fertile-mark {
-  animation-delay: 0.5s;
-}
-
-.ovulation-mark {
-  animation-delay: 1s;
-}
-
-.pms-mark {
-  animation-delay: 1.5s;
 }
 
 // Progress Loader Styles
 
 // Rotating Color Ring Animation
-.rotating-color-ring {
-  animation: rotate-colors 8s linear infinite;
-  opacity: 1;
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.2));
-}
-
 // Ovulation marker on the ring
 .ovulation-icon {
   pointer-events: none;
@@ -840,16 +687,7 @@
 }
 
 // Legend Heart Styling
-.legend-heart {
-  animation: legend-heart-beat 3s ease-in-out infinite;
-}
-
 // Flo-style frosted center panel (foreignObject)
-.center-fo {
-  overflow: visible;
-  pointer-events: none;
-}
-
 .center-glass {
   width: 100%;
   height: 100%;
@@ -1137,64 +975,7 @@
   }
 }
 
-.center-content {
-  .graceful-ring {
-    animation: graceful-flow 6s ease-in-out infinite;
-    stroke-dasharray: 596.9;
-    stroke-dashoffset: 596.9;
-  }
-
-  .edit-button-container {
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:hover {
-      transform: scale(1.05);
-
-      .edit-button-bg {
-        opacity: 1;
-      }
-    }
-  }
-
-  .edit-button-bg {
-    transition: all 0.2s ease;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    cursor: pointer;
-  }
-
-  .edit-button-text {
-    font-family: var(--cycle-chart-font);
-    letter-spacing: 0.025em;
-    cursor: pointer;
-    pointer-events: all;
-  }
-
-  // Disabled state
-  &.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-
-    .edit-button-bg {
-      cursor: not-allowed;
-    }
-
-    .edit-button-text {
-      cursor: not-allowed;
-    }
-  }
-}
-
 :host-context(html:lang(fa)) {
-  .center-content {
-    .center-date-eyebrow,
-    .center-current-date {
-      letter-spacing: 0;
-      text-transform: none;
-      font-size: clamp(12px, 3vw, 14px);
-    }
-  }
-
   .center-glass__date {
     letter-spacing: 0;
     text-transform: none;
@@ -1209,131 +990,6 @@
 }
 
 // Legend — vertical cards, cycle order, plain-language hints
-.cycle-legend {
-  padding: 1rem 1rem 1.125rem;
-  background: rgba(var(--brand-surface-rgb), 0.92);
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
-  box-shadow: var(--app-shadow-soft);
-}
-
-.cycle-legend__intro {
-  margin: 0 0 0.75rem 0;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--brand-text-secondary);
-  letter-spacing: 0.01em;
-}
-
-.cycle-legend__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.legend-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
-  padding: 0.75rem 0.875rem;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--brand-text-rgb), 0.07);
-  background: rgba(var(--brand-primary-rgb), 0.04);
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease;
-
-  &:hover {
-    background: rgba(var(--brand-surface-rgb), 0.98);
-    border-color: rgba(var(--brand-text-rgb), 0.12);
-  }
-}
-
-.legend-swatch {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: var(--brand-surface);
-  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
-}
-
-.legend-swatch--ovulation {
-  background: linear-gradient(
-    145deg,
-    rgba(var(--brand-secondary-rgb), 0.22) 0%,
-    rgba(var(--brand-secondary-rgb), 0.12) 100%
-  );
-  border-color: rgba(var(--brand-secondary-rgb), 0.45);
-  color: var(--brand-secondary);
-}
-
-.legend-ovulation-heart {
-  display: block;
-  flex-shrink: 0;
-}
-
-.legend-item__content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
-  flex: 1;
-}
-
-.legend-item__title {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--brand-text);
-  line-height: 1.25;
-}
-
-.legend-item__hint {
-  font-size: 0.75rem;
-  line-height: 1.4;
-  color: var(--brand-text-secondary);
-  font-weight: 500;
-}
-
-.legend-item__range {
-  font-size: 0.8125rem;
-  line-height: 1.35;
-  color: var(--brand-text-secondary);
-  font-weight: 600;
-  margin-top: 0.125rem;
-}
-
-.legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.period-dot {
-  background: linear-gradient(135deg, #fda4af 0%, #f43f5e 100%);
-}
-
-.fertility-dot {
-  background: linear-gradient(135deg, #99f6e4 0%, #2dd4bf 100%);
-}
-
-.ovulation-dot {
-  background: linear-gradient(135deg, #6ee7b7 0%, #0d9488 100%);
-}
-
-.pms-dot {
-  background: linear-gradient(135deg, #ddd6fe 0%, #a78bfa 100%);
-}
-
 // Animations
 
 // All animations removed - completely static chart
@@ -1345,18 +1001,6 @@
     padding: 0 0 1rem;
   }
 
-  .chart-title {
-    font-size: 1.25rem;
-  }
-
-  .cycle-legend {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .legend-item {
-    padding: 0.375rem;
-  }
 }
 
 
@@ -1590,29 +1234,7 @@ ion-modal ion-toolbar {
   }
 }
 
-@keyframes legend-heart-beat {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
-}
-
 // Phase Mark Animation
-@keyframes chart-aura-drift {
-  0%,
-  100% {
-    transform: rotate(0deg) scale(1);
-    opacity: 0.42;
-  }
-  50% {
-    transform: rotate(8deg) scale(1.04);
-    opacity: 0.58;
-  }
-}
-
 @keyframes cycle-progress-glow {
   0%,
   100% {
@@ -1723,9 +1345,7 @@ ion-modal ion-toolbar {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chart-aura,
   .cycle-progress-arc,
-  .center-glow-ring,
   .cycle-length-marker,
   .cycle-length-marker__bg,
   .cycle-length-marker__halo,
@@ -1741,8 +1361,7 @@ ion-modal ion-toolbar {
 
   .cycle-progress-arc,
   .cycle-segment,
-  .center-glass,
-  .chart-center-disk {
+  .center-glass {
     transition: none !important;
   }
 }

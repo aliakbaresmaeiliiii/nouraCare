@@ -61,100 +61,6 @@
   vector-effect: non-scaling-stroke;
 }
 
-.pregnancy-today-bg {
-  position: absolute;
-  inset: 0;
-  top: -0.5rem;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
-}
-
-.pregnancy-today-aurora {
-  position: absolute;
-  inset: -18% -12% 35% -12%;
-  background:
-    radial-gradient(
-      ellipse 68% 58% at 30% 26%,
-      rgba(255, 160, 130, 0.48) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 58% 52% at 74% 20%,
-      rgba(255, 200, 170, 0.36) 0%,
-      transparent 58%
-    ),
-    radial-gradient(
-      ellipse 48% 44% at 50% 64%,
-      rgba(210, 180, 240, 0.28) 0%,
-      transparent 56%
-    );
-  filter: blur(32px);
-  animation: home-aurora-shift 17s ease-in-out infinite;
-}
-
-.pregnancy-today-shine {
-  position: absolute;
-  top: -4%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(440px, 96vw);
-  height: min(300px, 48vw);
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 255, 255, 0.76) 0%,
-    rgba(255, 255, 255, 0.2) 44%,
-    transparent 72%
-  );
-  animation: home-shine-pulse 9s ease-in-out infinite;
-}
-
-.pregnancy-today-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(52px);
-  opacity: 0.68;
-  animation: home-blob-float 12s ease-in-out infinite;
-}
-
-.pregnancy-today-blob--1 {
-  width: 240px;
-  height: 240px;
-  background: #ffb899;
-  top: -6%;
-  right: -14%;
-  animation-delay: -1s;
-}
-
-.pregnancy-today-blob--2 {
-  width: 290px;
-  height: 290px;
-  background: #f5c4a8;
-  bottom: 16%;
-  left: -22%;
-  animation-delay: -4s;
-}
-
-.pregnancy-today-blob--3 {
-  width: 170px;
-  height: 170px;
-  background: #d8c4f0;
-  opacity: 0.48;
-  top: 34%;
-  left: 54%;
-  animation-delay: -8s;
-}
-
-.pregnancy-today-blob--4 {
-  width: 195px;
-  height: 195px;
-  background: #ffd4c2;
-  opacity: 0.42;
-  top: 10%;
-  left: 6%;
-  animation-delay: -6s;
-}
-
 .pregnancy-calendar-swiper {
   position: relative;
   z-index: 2;
@@ -461,89 +367,6 @@
   justify-content: space-between;
 }
 
-.pregnancy-hero-week-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  width: 100%;
-  padding: 0 0.5rem;
-  margin-top: 0.35rem;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 2;
-}
-
-.pregnancy-hero-gestational {
-  margin: 0;
-  max-width: calc(100% - 2.5rem);
-  min-width: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem 0.55rem;
-  text-align: center;
-  line-height: 1.15;
-}
-
-.pregnancy-hero-gestational-part {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.32rem;
-}
-
-.pregnancy-hero-gestational-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.88);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-}
-
-.pregnancy-hero-gestational-value {
-  font-size: 1.45rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-  line-height: 1;
-}
-
-.pregnancy-hero-gestational-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.65);
-  flex-shrink: 0;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
-}
-
-.pregnancy-hero-info {
-  margin: 0;
-  padding: 0.2rem;
-  border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.95);
-  cursor: pointer;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-
-  ion-icon {
-    font-size: 1.35rem;
-  }
-
-  &:active {
-    opacity: 0.85;
-    transform: scale(0.96);
-  }
-}
-
 .pregnancy-hero-visual {
   position: relative;
   flex: 1;
@@ -571,22 +394,6 @@
   50% {
     transform: translateY(-5px);
   }
-}
-
-@keyframes pregnancy-hero-fetus-img-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.04);
-  }
-}
-
-.pregnancy-hero-disk--illustration .pregnancy-hero-fetus-emoji {
-  display: inline-block;
-  font-size: clamp(3.25rem, 15vw, 4.75rem);
-  animation: pregnancy-hero-fetus-drift 3.6s ease-in-out infinite;
 }
 
 /* Circular crop: image fills the round frame (edges may crop). */
@@ -618,29 +425,6 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
-}
-
-.pregnancy-hero-disk--illustration .pregnancy-hero-fetus-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  user-select: none;
-  pointer-events: none;
-  animation: pregnancy-hero-fetus-img-breathe 4.2s ease-in-out infinite;
-}
-
-.pregnancy-progress-svg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(62%, 168px);
-  max-width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  pointer-events: none;
 }
 
 .pregnancy-input-banner {
@@ -676,11 +460,6 @@
   width: 100%;
   min-height: 0;
   filter: none;
-}
-
-.pregnancy-hero-fetus-emoji {
-  font-size: clamp(3.2rem, 14vw, 4.75rem);
-  line-height: 1;
 }
 
 .pregnancy-hero-details-btn {
@@ -728,192 +507,6 @@
   color: #141414;
   letter-spacing: -0.01em;
   line-height: 1.25;
-}
-
-.pregnancy-insight-cards {
-  display: flex;
-  flex-direction: row;
-  gap: 0.65rem;
-  overflow-x: auto;
-  padding-bottom: 0.35rem;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-.pregnancy-insight-card {
-  flex: 0 0 auto;
-  width: 31%;
-  min-width: 104px;
-  max-width: 118px;
-  min-height: 148px;
-  border-radius: 16px;
-  padding: 0.65rem 0.55rem 0.7rem;
-  box-sizing: border-box;
-  border: 1px solid rgba(230, 120, 130, 0.45);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  scroll-snap-align: start;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-}
-
-.pregnancy-insight-card--btn {
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  font: inherit;
-  appearance: none;
-
-  &:active {
-    transform: scale(0.98);
-  }
-}
-
-.pregnancy-insight-card--lavender {
-  background: linear-gradient(165deg, #e8def6 0%, #ddd0f0 100%);
-}
-
-.pregnancy-insight-card--mint {
-  background: linear-gradient(165deg, #e6f4ef 0%, #d4ebe3 100%);
-}
-
-.pregnancy-insight-card--yellow {
-  background: linear-gradient(165deg, #fdf3d1 0%, #f8e8b8 100%);
-}
-
-.pregnancy-insight-card-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #3d3d3d;
-  line-height: 1.2;
-  align-self: flex-start;
-  width: 100%;
-  text-align: left;
-}
-
-.pregnancy-insight-card-body {
-  margin: auto 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  width: 100%;
-  min-height: 0;
-}
-
-.pregnancy-insight-card--lavender .pregnancy-insight-card-value {
-  font-size: 2.35rem;
-  font-weight: 800;
-  color: #fff;
-  line-height: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-}
-
-.pregnancy-insight-card-phase {
-  font-size: 0.62rem;
-  font-weight: 600;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.92);
-  text-align: center;
-  max-width: 100%;
-  padding: 0 0.15rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.pregnancy-insight-pill {
-  align-self: flex-start;
-  font-size: 0.58rem;
-  font-weight: 600;
-  padding: 0.22rem 0.45rem;
-  border-radius: 999px;
-  background: #fff;
-  line-height: 1.2;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pregnancy-insight-pill--muted {
-  color: #6b7280;
-}
-
-.pregnancy-insight-pill.pregnancy-insight-pill--gestation {
-  align-self: stretch;
-  width: 100%;
-  max-width: 100%;
-  white-space: normal;
-  overflow: visible;
-  text-overflow: clip;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.1rem;
-  padding: 0.3rem 0.5rem;
-  border-radius: 10px;
-  font-size: 0.62rem;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: 0.01em;
-}
-
-.pregnancy-insight-pill-line {
-  display: block;
-  width: 100%;
-  font-variant-numeric: tabular-nums;
-}
-
-.pregnancy-insight-pill--accent {
-  color: #e07a3a;
-  font-weight: 700;
-}
-
-.pregnancy-insight-icon {
-  margin: 0.45rem 0 0.35rem;
-  width: 2.65rem;
-  height: 2.65rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  ion-icon {
-    font-size: 1.35rem;
-    color: #fff;
-  }
-}
-
-.pregnancy-insight-icon--teal {
-  background: #0d9488;
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
-}
-
-.pregnancy-insight-icon--orange {
-  background: #f97316;
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
-
-  ion-icon {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-}
-
-.pregnancy-insight-card-footer {
-  margin-top: auto;
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: #141414;
-  line-height: 1.15;
 }
 
 /* “My daily insights” — horizontal story cards + chips */
@@ -1213,13 +806,6 @@
   color: #fb923c;
 }
 
-.pds-quick-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: 0.55rem;
-}
-
 .pds-action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1339,271 +925,10 @@
     }
   }
 
-  &--fertility {
-    background: linear-gradient(145deg, #fff 0%, #faf5ff 100%);
-    border-color: rgba(139, 92, 246, 0.22);
-
-    .pds-action-tile__icon {
-      background: linear-gradient(145deg, #a78bfa, #7c3aed);
-      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.28);
-    }
-
-    .pds-action-tile__title {
-      color: #6d28d9;
-    }
-  }
-
-  &--period {
-    background: linear-gradient(145deg, #fff 0%, #fff1f2 100%);
-    border-color: rgba(244, 63, 94, 0.22);
-
-    .pds-action-tile__icon {
-      background: linear-gradient(145deg, #fb7185, #e11d48);
-      box-shadow: 0 4px 12px rgba(225, 29, 72, 0.28);
-    }
-
-    .pds-action-tile__title {
-      color: #be123c;
-    }
-  }
 }
 
 :host-context([dir='rtl']) .pds-action-tile__chevron {
   transform: scaleX(-1);
-}
-
-/* Cycle calendar: under section title so it’s visible before the horizontal card strip */
-.pds-quick-links--before-strip {
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-  margin-inline: 10px;
-}
-
-.pds-chip {
-  border: 1px solid rgba(13, 148, 136, 0.35);
-  background: rgba(255, 255, 255, 0.92);
-  color: #0f766e;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 2.2rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 0.45rem 0.75rem;
-  border-radius: 999px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition:
-    transform 0.12s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
-
-  ion-icon {
-    font-size: 0.96rem;
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  &:focus-visible {
-    outline: none;
-    border-color: rgba(13, 148, 136, 0.75);
-    box-shadow:
-      0 0 0 3px rgba(13, 148, 136, 0.16),
-      0 6px 14px rgba(15, 118, 110, 0.14);
-  }
-}
-
-.pds-chip--accent {
-  border-color: rgba(249, 115, 22, 0.45);
-  color: #c2410c;
-}
-
-/* Cycle calendar — Uiverse-style CTA (StealthWorm), scoped for home */
-.pds-cycle-calendar-btn {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 13rem;
-  width: auto;
-  max-width: 100%;
-  padding: 0 0.75rem;
-  box-sizing: border-box;
-  overflow: hidden;
-  height: 3rem;
-  background-size: 300% 300%;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  backdrop-filter: blur(1rem);
-  border-radius: 5rem;
-  transition: 0.5s;
-  animation: pds-cycle-calendar-gradient 5s ease infinite;
-  border: double 4px transparent;
-  background-image:
-    linear-gradient(#212121, #212121),
-    linear-gradient(137.48deg, #ffdb3b 10%, #fe53bb 45%, #8f51ea 67%, #0044ff 87%);
-  background-origin: border-box;
-  background-clip: content-box, border-box;
-
-  &__container-stars {
-    position: absolute;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    transition: 0.5s;
-    backdrop-filter: blur(1rem);
-    border-radius: 5rem;
-  }
-
-  &__label {
-    z-index: 2;
-    font-family: "Avalors Personal Use", system-ui, -apple-system, sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: #ffffff;
-    text-shadow: 0 0 4px white;
-    max-width: 11rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__glow {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    width: min(12rem, 92%);
-    pointer-events: none;
-  }
-
-  &__circle {
-    width: 100%;
-    height: 30px;
-    filter: blur(2rem);
-    animation: pds-cycle-calendar-pulse 4s infinite;
-    z-index: -1;
-  }
-
-  &__circle:nth-of-type(1) {
-    background: rgba(254, 83, 186, 0.636);
-  }
-
-  &__circle:nth-of-type(2) {
-    background: rgba(142, 81, 234, 0.704);
-  }
-
-  &__stars {
-    position: relative;
-    background: transparent;
-    width: 200rem;
-    height: 200rem;
-  }
-
-  &__stars::after {
-    content: "";
-    position: absolute;
-    top: -10rem;
-    left: -100rem;
-    width: 100%;
-    height: 100%;
-    animation: pds-cycle-calendar-star-rotate 90s linear infinite;
-    background-image: radial-gradient(#ffffff 1px, transparent 1%);
-    background-size: 50px 50px;
-  }
-
-  &__stars::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -50%;
-    width: 170%;
-    height: 500%;
-    animation: pds-cycle-calendar-star 60s linear infinite;
-    background-image: radial-gradient(#ffffff 1px, transparent 1%);
-    background-size: 50px 50px;
-    opacity: 0.5;
-  }
-
-  &:hover &__container-stars {
-    z-index: 1;
-    background-color: #212121;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-  }
-
-  &:active {
-    border: double 4px #fe53bb;
-    background-origin: border-box;
-    background-clip: content-box, border-box;
-    animation: none;
-  }
-
-  &:active &__circle {
-    background: #fe53bb;
-  }
-
-  &:focus-visible {
-    outline: 2px solid #fe53bb;
-    outline-offset: 3px;
-  }
-}
-
-@keyframes pds-cycle-calendar-star {
-  from {
-    transform: translateY(0);
-  }
-
-  to {
-    transform: translateY(-135rem);
-  }
-}
-
-@keyframes pds-cycle-calendar-star-rotate {
-  from {
-    transform: rotate(360deg);
-  }
-
-  to {
-    transform: rotate(0);
-  }
-}
-
-@keyframes pds-cycle-calendar-gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes pds-cycle-calendar-pulse {
-  0% {
-    transform: scale(0.75);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
-  }
-
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-  }
-
-  100% {
-    transform: scale(0.75);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-  }
 }
 
 /* Post–40 weeks (full-term+) — calm reassurance card */
@@ -1694,35 +1019,8 @@
     --background: transparent;
   }
 
-  .pregnancy-today-aurora {
-    opacity: 0.5;
-    filter: blur(40px);
-  }
-
-  .pregnancy-today-shine {
-    opacity: 0.3;
-  }
-
-  .pregnancy-today-blob--1 {
-    background: rgba(255, 140, 110, 0.22);
-    opacity: 0.32;
-  }
-  .pregnancy-today-blob--2 {
-    background: rgba(200, 170, 150, 0.18);
-    opacity: 0.28;
-  }
-  .pregnancy-today-blob--3 {
-    background: rgba(170, 150, 210, 0.16);
-    opacity: 0.22;
-  }
-
-  .pregnancy-today-blob--4 {
-    background: rgba(255, 180, 150, 0.14);
-    opacity: 0.2;
-  }
-
   /* Week calendar strip: crisp type on a dark glass bar */
-  
+
   .pregnancy-calendar-label {
     color: rgba(255, 255, 255, 0.76);
   }
@@ -1817,8 +1115,7 @@
     box-shadow: none;
   }
 
-  .pregnancy-daily-insights-title,
-  .pregnancy-insight-card-footer {
+  .pregnancy-daily-insights-title {
     color: var(--ion-text-color);
   }
 
@@ -1870,17 +1167,6 @@
     }
   }
 
-  .pds-chip {
-    background: rgba(0, 0, 0, 0.25);
-    color: #5eead4;
-    border-color: rgba(94, 234, 212, 0.35);
-  }
-
-  .pds-chip--accent {
-    color: #fdba74;
-    border-color: rgba(251, 146, 60, 0.4);
-  }
-
   .pds-action-tile {
     background: var(--ion-card-background);
     border-color: rgba(255, 255, 255, 0.1);
@@ -1913,42 +1199,6 @@
     color: rgba(255, 255, 255, 0.45);
   }
 
-  .pregnancy-insight-card {
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: var(--app-shadow-card);
-  }
-
-  .pregnancy-insight-card--lavender {
-    background: linear-gradient(165deg, #3d3554 0%, #2a2438 100%);
-  }
-  .pregnancy-insight-card--mint {
-    background: linear-gradient(165deg, #1e3d36 0%, #152a26 100%);
-  }
-  .pregnancy-insight-card--yellow {
-    background: linear-gradient(165deg, #45402a 0%, #2e2a1c 100%);
-  }
-
-  .pregnancy-insight-card-label {
-    color: var(--ion-color-medium);
-  }
-  .pregnancy-insight-card--lavender .pregnancy-insight-card-value {
-    color: #e8e4f5;
-    text-shadow: none;
-  }
-
-  .pregnancy-insight-card-phase {
-    color: rgba(232, 228, 245, 0.88);
-    text-shadow: none;
-  }
-
-  .pregnancy-insight-pill {
-    background: rgba(0, 0, 0, 0.28);
-    color: var(--ion-text-color);
-  }
-  .pregnancy-insight-pill--muted {
-    color: var(--ion-color-medium);
-  }
-
   .pregnancy-post-due-card__inner {
     background: linear-gradient(145deg, #2a2638 0%, #1e2740 55%, #1a2332 100%);
     border-color: rgba(167, 139, 250, 0.28);
@@ -1979,9 +1229,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pregnancy-hero-disk-shell:not(.pregnancy-hero-disk-shell--no-ring)::before,
-  .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-circle,
-  .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-emoji,
-  .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-img {
+  .pregnancy-hero-disk--illustration .pregnancy-hero-fetus-circle {
     animation: none;
   }
 }
@@ -1998,38 +1246,39 @@
   position: relative;
   z-index: 2;
   margin: 0;
-  padding: var(--app-space-2) 0 0;
+  padding: var(--app-space-1) 0 0;
 }
 
 .home-feature-slider__header {
-  margin: 0 0 var(--home-title-gap, var(--app-space-4));
+  margin: 0 0 var(--home-title-gap, var(--app-space-3));
   padding-inline: 0;
 }
 
 .home-feature-slider__title {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.02rem;
   font-weight: 700;
   letter-spacing: -0.025em;
   color: #1a1a1a;
 }
 
 .home-feature-slider__subtitle {
-  margin: 0.35rem 0 0;
-  font-size: 0.82rem;
-  line-height: 1.45;
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
   color: rgba(26, 26, 26, 0.5);
 }
 
 .home-feature-slider__track {
   display: flex;
-  gap: 0.75rem;
+  align-items: stretch;
+  gap: 0.55rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
-  padding: 0.15rem 0 0.5rem;
+  padding: 0.1rem 0 0.25rem;
   margin-inline: calc(-1 * var(--app-side-padding, 1rem));
   padding-inline: var(--app-side-padding, 1rem);
   scrollbar-width: none;
@@ -2048,18 +1297,21 @@
   --preg-card-cta: #c57656;
 
   position: relative;
-  flex: 0 0 min(78%, 268px);
+  flex: 0 0 min(72%, 212px);
   scroll-snap-align: start;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 0.7rem;
+  row-gap: 0.15rem;
+  align-items: center;
   text-align: start;
   min-height: 0;
-  padding: 1rem 1rem 0.9rem;
+  padding: 0.7rem 0.75rem;
   border: 1px solid rgba(26, 26, 26, 0.06);
-  border-radius: 20px;
+  border-radius: 16px;
   background: #fff;
-  box-shadow: 0 2px 12px rgba(26, 26, 26, 0.04);
+  box-shadow: 0 1px 8px rgba(26, 26, 26, 0.04);
   cursor: pointer;
   appearance: none;
   font: inherit;
@@ -2072,7 +1324,7 @@
 
   &:active {
     transform: scale(0.98);
-    box-shadow: 0 1px 6px rgba(26, 26, 26, 0.04);
+    box-shadow: 0 1px 4px rgba(26, 26, 26, 0.04);
   }
 
   &:focus-visible {
@@ -2082,31 +1334,33 @@
 }
 
 .preg-feature-card__media {
+  grid-row: 1 / -1;
   display: flex;
   align-items: center;
-  margin-bottom: 0.85rem;
+  align-self: center;
+  margin: 0;
 }
 
 .preg-feature-card__icon {
   flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 14px;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   background: var(--preg-card-tint);
   color: var(--preg-card-accent);
 
   ion-icon {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
   }
 }
 
 .preg-feature-card__thumb {
   flex-shrink: 0;
-  width: 3.25rem;
-  height: 3.25rem;
-  border-radius: 14px;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--preg-card-tint);
 
@@ -2132,65 +1386,64 @@
 }
 
 .preg-feature-card__content {
-  flex: 1;
-  min-height: 0;
+  grid-column: 2;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.12rem;
 }
 
 .preg-feature-card__eyebrow {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  line-height: 1.2;
+  line-height: 1.15;
   color: var(--preg-card-accent);
   text-transform: uppercase;
 }
 
 .preg-feature-card__headline {
   margin: 0;
-  font-size: 1.12rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.03em;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: var(--preg-card-title);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .preg-feature-card__body {
-  margin: 0.1rem 0 0;
-  font-size: 0.8rem;
-  line-height: 1.45;
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
   color: var(--preg-card-body);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .preg-feature-card__meta {
-  display: block;
-  margin-top: 0.35rem;
-  font-size: 0.72rem;
-  font-weight: 500;
-  line-height: 1.3;
-  color: var(--preg-card-meta);
-  font-variant-numeric: tabular-nums;
+  display: none;
 }
 
 .preg-feature-card__cta {
+  grid-column: 2;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  margin-top: 0.85rem;
-  font-size: 0.78rem;
+  gap: 0.2rem;
+  margin-top: 0.15rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--preg-card-cta);
   white-space: nowrap;
 
   ion-icon {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     transition: transform 0.2s ease;
   }
 }
@@ -2201,8 +1454,8 @@
 
 .preg-feature-card--has-thumb {
   .preg-feature-card__thumb {
-    width: 3.75rem;
-    height: 3.75rem;
+    width: 2.65rem;
+    height: 2.65rem;
   }
 }
 

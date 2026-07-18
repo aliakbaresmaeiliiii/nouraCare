@@ -676,18 +676,6 @@ ion-avatar img {
   object-fit: cover;
 }
 
-.onImageError {
-  background: #e9ecef;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  &::before {
-    content: '👤';
-    font-size: 20px;
-  }
-}
-
 :host-context(html.ion-palette-dark) {
   .topic-content {
     --background: #0f172a;

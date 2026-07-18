@@ -56,8 +56,7 @@
     height: var(--settings-header-height);
     color: var(--brand-text, #0f172a);
 
-    .header-title,
-    .header-subtitle {
+    .header-title {
       color: inherit;
     }
 
@@ -94,14 +93,6 @@
         line-height: 1.2;
         letter-spacing: -0.01em;
         text-shadow: none;
-      }
-
-      .header-subtitle {
-        font-size: 0.875rem;
-        color: var(--brand-text-secondary, #334155);
-        opacity: 1;
-        margin: 0;
-        font-weight: 500;
       }
     }
   }
@@ -668,10 +659,6 @@
         }
       }
 
-      .header-info .header-subtitle {
-        color: inherit;
-        opacity: 0.9;
-      }
     }
   }
 

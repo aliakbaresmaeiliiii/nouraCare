@@ -2,37 +2,43 @@
   <div class="login-chrome">
     <div
       class="theme-switch"
-      [class.theme-switch--dark]="isDarkTheme"
+      [class.theme-switch--dark]="isDarkTheme()"
       role="group"
       [attr.aria-label]="'menu.appearance' | translate"
     >
       <button
         type="button"
         class="theme-switch__option"
-        [class.theme-switch__option--active]="!isDarkTheme"
-        [attr.aria-pressed]="!isDarkTheme"
+        [class.theme-switch__option--active]="!isDarkTheme()"
+        [attr.aria-pressed]="!isDarkTheme()"
         [attr.aria-label]="'menu.themeLight' | translate"
         (click)="setTheme('light')"
       >
         <ion-icon name="sunny-outline" aria-hidden="true"></ion-icon>
-        <!-- <span class="theme-switch__label">{{ "menu.themeLight" | translate }}</span> -->
+        <span class="theme-switch__label">{{
+          "menu.themeLight" | translate
+        }}</span>
       </button>
       <button
         type="button"
         class="theme-switch__option"
-        [class.theme-switch__option--active]="isDarkTheme"
-        [attr.aria-pressed]="isDarkTheme"
+        [class.theme-switch__option--active]="isDarkTheme()"
+        [attr.aria-pressed]="isDarkTheme()"
         [attr.aria-label]="'menu.themeDark' | translate"
         (click)="setTheme('dark')"
       >
         <ion-icon name="moon-outline" aria-hidden="true"></ion-icon>
-        <!-- <span class="theme-switch__label">{{ "menu.themeDark" | translate }}</span> -->
+        <span class="theme-switch__label">{{
+          "menu.themeDark" | translate
+        }}</span>
       </button>
     </div>
 
     @if (languageSwitchingEnabled) {
       <div class="language-section">
-        <app-language-switcher></app-language-switcher>
+        @defer {
+          <app-language-switcher></app-language-switcher>
+        }
       </div>
     }
   </div>
@@ -49,7 +55,11 @@
           decoding="async"
         />
       </div>
-      <h1 class="login-title" [class.login-title--animating]="titlePaintActive">
+      <h1
+        id="login-title-heading"
+        class="login-title"
+        [class.login-title--animating]="titlePaintActive()"
+      >
         <span class="login-title__base">{{ "welcome.title" | translate }}</span>
         <span class="login-title__color" aria-hidden="true">{{
           "welcome.title" | translate
@@ -58,14 +68,15 @@
       <p class="login-lead">{{ "welcome.subtitle" | translate }}</p>
     </header>
 
-    <section class="auth-card">
+    <section class="auth-card" aria-labelledby="login-title-heading">
       <div class="form-container">
         <form
           [formGroup]="loginForm"
           (ngSubmit)="onLogin($event)"
           class="auth-form"
+          novalidate
         >
-          @if (!loginOtpStep) {
+          @if (!loginOtpStep()) {
             <div class="form-group">
               <label class="form-label visually-hidden" for="login-email">{{
                 "auth.email" | translate
@@ -84,17 +95,19 @@
                   class="form-input"
                   autocomplete="email"
                   inputmode="email"
-                  [class.error]="
-                    loginForm.get('email')?.touched &&
-                    loginForm.get('email')?.invalid
+                  [attr.aria-invalid]="emailShowError() ? true : null"
+                  [attr.aria-describedby]="
+                    emailShowError() ? 'login-email-error' : null
                   "
+                  [class.error]="emailShowError()"
                 />
               </div>
-              @if (
-                loginForm.get("email")?.touched &&
-                loginForm.get("email")?.invalid
-              ) {
-                <div class="error-message">
+              @if (emailShowError()) {
+                <div
+                  id="login-email-error"
+                  class="error-message"
+                  role="alert"
+                >
                   <ion-icon
                     name="alert-circle-outline"
                     aria-hidden="true"
@@ -111,7 +124,7 @@
                   aria-hidden="true"
                 ></ion-icon>
               </div>
-              <p>{{ loginOtpSentMessage }}</p>
+              <p id="login-otp-hint">{{ loginOtpSentMessage() }}</p>
               <button
                 type="button"
                 class="change-email-link"
@@ -137,17 +150,18 @@
                   (ionInput)="onLoginOtpChange($event)"
                   inputmode="numeric"
                   autocomplete="one-time-code"
+                  [attr.aria-describedby]="'login-otp-hint'"
                 ></ion-input-otp>
               </div>
               <ion-button
                 fill="clear"
                 class="resend-button"
-                [disabled]="!canResendLoginOtp"
+                [disabled]="!canResendLoginOtp()"
                 expand="block"
                 type="button"
                 (click)="resendLoginOtp()"
               >
-                @if (isResendingLoginOtp) {
+                @if (isResendingLoginOtp()) {
                   <ion-spinner name="crescent"></ion-spinner>
                 } @else {
                   {{ "auth.resendCode" | translate }}
@@ -157,16 +171,15 @@
           }
 
           <app-button
-            type="button"
+            type="submit"
             size="large"
-            [disabled]="isLoginDisabled()"
-            [loading]="isLoginLoading"
-            (buttonClick)="onLogin()"
+            [disabled]="loginDisabled()"
+            [loading]="isLoginLoading()"
           >
             {{
-              isLoginLoading
+              isLoginLoading()
                 ? ("auth.signingIn" | translate)
-                : loginOtpStep
+                : loginOtpStep()
                   ? ("auth.verifyCode" | translate)
                   : ("auth.continueWithEmail" | translate)
             }}
@@ -182,7 +195,7 @@
               fill="outline"
               expand="block"
               class="social-button social-button--google"
-              [disabled]="isLoginLoading || isSocialLoading"
+              [disabled]="isLoginLoading() || isSocialLoading()"
               (click)="onSocialLogin('google')"
             >
               <ion-icon
@@ -193,23 +206,23 @@
               {{ "auth.continueWithGoogle" | translate }}
             </ion-button>
 
-            <ion-button
-              type="button"
-              fill="outline"
-              expand="block"
-              class="social-button social-button--apple"
-              [disabled]="
-                !appleSignInEnabled || isLoginLoading || isSocialLoading
-              "
-              (click)="onSocialLogin('apple')"
-            >
-              <ion-icon
-                slot="start"
-                name="logo-apple"
-                aria-hidden="true"
-              ></ion-icon>
-              {{ "auth.continueWithApple" | translate }}
-            </ion-button>
+            @if (appleSignInEnabled) {
+              <ion-button
+                type="button"
+                fill="outline"
+                expand="block"
+                class="social-button social-button--apple"
+                [disabled]="isLoginLoading() || isSocialLoading()"
+                (click)="onSocialLogin('apple')"
+              >
+                <ion-icon
+                  slot="start"
+                  name="logo-apple"
+                  aria-hidden="true"
+                ></ion-icon>
+                {{ "auth.continueWithApple" | translate }}
+              </ion-button>
+            }
           </div>
 
           <div class="form-footer">
@@ -231,12 +244,12 @@
   </div>
 
   <ion-toast
-    [isOpen]="showToast"
-    [message]="message"
+    [isOpen]="showToast()"
+    [message]="toastMessage()"
     [duration]="3000"
-    (didDismiss)="showToast = false"
-    [buttons]="[toastOkButton]"
-    [color]="success ? 'success' : 'danger'"
+    (didDismiss)="onToastDismiss()"
+    [buttons]="toastButtons()"
+    [color]="toastSuccess() ? 'success' : 'danger'"
   >
   </ion-toast>
 </ion-content>

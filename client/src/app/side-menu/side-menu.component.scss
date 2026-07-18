@@ -534,45 +534,6 @@
   font-weight: 400;
 }
 
-// Main Header
-.main-header {
-  --background: var(--brand-surface);
-  --color: var(--brand-text);
-  box-shadow: var(--app-shadow-soft);
-}
-
-.main-toolbar {
-  --background: var(--brand-surface);
-  --color: var(--brand-text);
-  padding: 8px 16px;
-}
-
-.menu-button {
-  --color: var(--brand-text);
-  --background: transparent;
-  margin: 0;
-  
-  &:hover {
-    --background: rgba(0, 0, 0, 0.05);
-  }
-}
-
-.main-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--brand-text);
-}
-
-.notification-btn {
-  --color: var(--brand-text);
-  --background: transparent;
-  margin: 0;
-  
-  &:hover {
-    --background: rgba(0, 0, 0, 0.05);
-  }
-}
-
 // Responsive Design
 @media (max-width: 768px) {
   .profile-section {
@@ -626,29 +587,6 @@
         8px 0 32px rgba(0, 0, 0, 0.28),
         inset 1px 0 0 rgba(255, 255, 255, 0.08);
     }
-  }
-
-  .main-header {
-    --background: #1f2937;
-    --color: white;
-  }
-  
-  .main-toolbar {
-    --background: #1f2937;
-    --color: white;
-  }
-  
-  .menu-button,
-  .notification-btn {
-    --color: white;
-    
-    &:hover {
-      --background: rgba(255, 255, 255, 0.1);
-    }
-  }
-  
-  .main-title {
-    color: white;
   }
 
   .theme-segment-card {

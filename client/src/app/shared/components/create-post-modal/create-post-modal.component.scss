@@ -177,14 +177,6 @@
     color: #888;
     margin-left: auto;
     margin-right: 1rem;
-
-    &.warning {
-      color: #ff9500;
-    }
-
-    &.error {
-      color: #ff4757;
-    }
   }
 
 }
@@ -226,21 +218,6 @@
 
   .images-preview {
     grid-template-columns: 1fr;
-    
-    &.multiple {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-}
-
-// Character count color states
-.character-count {
-  &.warning {
-    color: #ff9500 !important;
-  }
-
-  &.error {
-    color: #ff4757 !important;
   }
 }
 

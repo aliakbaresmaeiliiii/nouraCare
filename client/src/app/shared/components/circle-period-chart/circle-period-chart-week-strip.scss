@@ -145,99 +145,6 @@ html:lang(fa) .cycle-chart-week-hero .pregnancy-calendar-label {
   -webkit-font-smoothing: antialiased;
 }
 
-.cycle-chart-week-selection-stack {
-  margin: 0.05rem 0.45rem 0.4rem;
-}
-
-.cycle-chart-week-selection-insight {
-  margin: 0.1rem 0.65rem 0.2rem;
-  padding: 0.35rem 0.5rem 0.4rem;
-  text-align: center;
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: #0d9488;
-  letter-spacing: 0.02em;
-  line-height: 1.35;
-  border-radius: 10px;
-  background: linear-gradient(
-    180deg,
-    rgba(20, 184, 166, 0.1) 0%,
-    rgba(20, 184, 166, 0.02) 100%
-  );
-  border: 1px solid rgba(13, 148, 136, 0.2);
-  box-sizing: border-box;
-}
-
-.cycle-chart-week-selection-fertility {
-  margin: 0.1rem 0.65rem 0.35rem;
-  padding: 0.32rem 0.55rem 0.38rem;
-  text-align: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.4;
-  border-radius: 10px;
-  box-sizing: border-box;
-  color: var(--brand-text-secondary);
-  background: rgba(var(--brand-text-rgb), 0.04);
-  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
-}
-
-.cycle-chart-week-selection-fertility.tone-emerald,
-.cycle-chart-week-selection-fertility.tone-mint {
-  color: #0d9488;
-  font-weight: 700;
-  background: linear-gradient(
-    180deg,
-    rgba(20, 184, 166, 0.14) 0%,
-    rgba(20, 184, 166, 0.04) 100%
-  );
-  border-color: rgba(13, 148, 136, 0.28);
-}
-
-.cycle-chart-week-selection-fertility.tone-rose {
-  color: #9b4a63;
-  background: linear-gradient(
-    180deg,
-    rgba(232, 180, 200, 0.2) 0%,
-    rgba(232, 180, 200, 0.06) 100%
-  );
-  border-color: rgba(155, 74, 99, 0.22);
-}
-
-.cycle-chart-week-selection-fertility.tone-amber {
-  color: #b45309;
-  background: linear-gradient(
-    180deg,
-    rgba(251, 191, 36, 0.14) 0%,
-    rgba(251, 191, 36, 0.04) 100%
-  );
-  border-color: rgba(217, 119, 6, 0.25);
-}
-
-.cycle-chart-week-selection-fertility.tone-violet {
-  color: #5b21b6;
-  background: linear-gradient(
-    180deg,
-    rgba(196, 181, 253, 0.2) 0%,
-    rgba(196, 181, 253, 0.06) 100%
-  );
-  border-color: rgba(124, 58, 237, 0.22);
-}
-
-.cycle-chart-week-selection-fertility.tone-pink {
-  color: #9d174d;
-  background: linear-gradient(
-    180deg,
-    rgba(251, 207, 232, 0.35) 0%,
-    rgba(251, 207, 232, 0.1) 100%
-  );
-  border-color: rgba(219, 39, 119, 0.2);
-}
-
-.cycle-chart-week-selection-fertility.tone-slate {
-  color: var(--brand-text-secondary);
-}
-
 .cycle-chart-week-hero
   .pregnancy-calendar-col--selected
   .pregnancy-calendar-label {
@@ -539,53 +446,6 @@ html:lang(fa) .cycle-chart-week-hero .pregnancy-calendar-label {
 }
 
 :host-context(html.ion-palette-dark) {
-  .cycle-chart-week-selection-insight {
-    color: #5eead4;
-    background: linear-gradient(
-      180deg,
-      rgba(45, 212, 191, 0.12) 0%,
-      rgba(45, 212, 191, 0.03) 100%
-    );
-    border-color: rgba(94, 234, 212, 0.22);
-  }
-
-  .cycle-chart-week-selection-fertility {
-    color: var(--ion-color-medium);
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .cycle-chart-week-selection-fertility.tone-emerald,
-  .cycle-chart-week-selection-fertility.tone-mint {
-    color: #5eead4;
-    background: linear-gradient(
-      180deg,
-      rgba(20, 184, 166, 0.14) 0%,
-      rgba(20, 184, 166, 0.04) 100%
-    );
-    border-color: rgba(94, 234, 212, 0.28);
-  }
-
-  .cycle-chart-week-selection-fertility.tone-rose {
-    color: #f0b9cb;
-    border-color: rgba(212, 132, 158, 0.28);
-  }
-
-  .cycle-chart-week-selection-fertility.tone-amber {
-    color: #fcd34d;
-    border-color: rgba(251, 191, 36, 0.22);
-  }
-
-  .cycle-chart-week-selection-fertility.tone-violet {
-    color: #c4b5fd;
-    border-color: rgba(167, 139, 250, 0.28);
-  }
-
-  .cycle-chart-week-selection-fertility.tone-pink {
-    color: #f9a8d4;
-    border-color: rgba(244, 114, 182, 0.22);
-  }
-
   .cycle-chart-week-hero .pregnancy-calendar-col--fertile-window {
     background: transparent;
     box-shadow: none;
@@ -615,7 +475,7 @@ html:lang(fa) .cycle-chart-week-hero .pregnancy-calendar-label {
       0 1px 0 rgba(255, 255, 255, 0.4) inset,
       0 4px 14px rgba(124, 61, 82, 0.28);
     animation: none;
-    border: 2px solid;  
+    border: 2px solid;
   }
 
   .cycle-chart-week-hero .pregnancy-calendar-label {

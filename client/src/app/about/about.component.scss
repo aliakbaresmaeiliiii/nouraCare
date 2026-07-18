@@ -606,29 +606,6 @@
   animation: pulse 2s infinite;
 }
 
-.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.success {
-  background: linear-gradient(
-    135deg,
-    rgba(var(--ion-color-success-rgb), 0.18),
-    rgba(var(--ion-color-success-rgb), 0.08)
-  ) !important;
-  border-color: rgba(var(--ion-color-success-rgb), 0.35) !important;
-}
-
-.error {
-  background: linear-gradient(
-    135deg,
-    rgba(var(--ion-color-danger-rgb), 0.18),
-    rgba(var(--ion-color-danger-rgb), 0.08)
-  ) !important;
-  border-color: rgba(var(--ion-color-danger-rgb), 0.35) !important;
-}
-
 /* Slightly soften hero texture when palette is dark */
 @mixin about-dark-hero-grain {
   .about-hero::before {

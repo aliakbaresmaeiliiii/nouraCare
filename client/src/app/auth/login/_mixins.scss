@@ -1,0 +1,20 @@
+@use 'variables' as *;
+
+/// Shared ion-icon alignment beside compact helper text.
+@mixin inline-start-icon($size: 1rem) {
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+  font-size: $size;
+}
+
+/// Native / ion action labels without uppercase tracking.
+@mixin plain-action-type {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+@mixin fast-color-bg-transition {
+  transition:
+    border-color $login-duration-fast $login-ease,
+    background $login-duration-fast $login-ease;
+}

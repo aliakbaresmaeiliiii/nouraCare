@@ -229,10 +229,6 @@
   color: var(--ion-text-color-step-150, #334155);
 }
 
-.menopause-status {
-  color: #818cf8;
-}
-
 :host-context(html.ion-palette-dark) {
   .home-content.home-content--menopause-today {
     --background: transparent;
@@ -320,7 +316,4 @@
     color: var(--brand-text-secondary, #e2e8f0);
   }
 
-  .menopause-status {
-    color: #c7d2fe;
-  }
 }
