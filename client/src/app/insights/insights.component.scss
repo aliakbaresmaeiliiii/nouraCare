@@ -8,7 +8,7 @@
 }
 
 .insights-content {
-  padding-bottom: var(--app-tab-fab-clearance, 88px);
+  // padding-bottom: var(--app-tab-fab-clearance, 88px);
 }
 
 .insights-hero {
@@ -52,7 +52,6 @@
 
 .insights-toolbar {
   padding: 0 0.75rem;
-  margin-top: -0.65rem;
   position: relative;
   z-index: 2;
   display: flex;

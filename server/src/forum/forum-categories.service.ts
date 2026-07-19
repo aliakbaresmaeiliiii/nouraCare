@@ -2,13 +2,17 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/services/prisma.service';
 import { CreateForumCategoryDto } from './dto/create-forum-category.dto';
 import { UpdateForumCategoryDto } from './dto/update-forum-category.dto';
+import { DEFAULT_FORUM_CATEGORIES } from './forum-category.defaults';
 
 @Injectable()
 export class ForumCategoriesService {
+  private readonly logger = new Logger(ForumCategoriesService.name);
+
   constructor(private readonly prismaService: PrismaService) {}
 
   private async attachForumsToCategories(categories: any[]) {
@@ -52,6 +56,22 @@ export class ForumCategoriesService {
     return withForums;
   }
 
+  /** Insert default categories when the table is empty (fresh DB / missed seed). */
+  private async ensureDefaultCategories() {
+    const count = await this.prismaService.forum_categories.count();
+    if (count > 0) return;
+
+    const now = new Date();
+    this.logger.log('No forum categories found — seeding defaults');
+    for (const category of DEFAULT_FORUM_CATEGORIES) {
+      await this.prismaService.forum_categories.upsert({
+        where: { id: category.id },
+        update: { ...category, updatedAt: now },
+        create: { ...category, createdAt: now, updatedAt: now },
+      });
+    }
+  }
+
   async create(createForumCategoryDto: CreateForumCategoryDto) {
     // Check if name already exists
     const existingCategory = await this.prismaService.forum_categories.findFirst({
@@ -73,8 +93,10 @@ export class ForumCategoriesService {
   }
 
   async findAll() {
+    await this.ensureDefaultCategories();
+
     const categories = await this.prismaService.forum_categories.findMany({
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
     });
 
     return this.attachForumsToCategories(categories as any[]);

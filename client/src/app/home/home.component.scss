@@ -659,8 +659,8 @@
   .cycle-hero-sky {
     --cycle-hero-pink: #f472b6;
     --cycle-hero-pink-deep: #fbcfe8;
-    --cycle-hero-fade-stop: var(--home-surface-warm, #121820);
-    --cycle-hero-fade-rgb: var(--home-surface-warm-rgb, 18, 24, 32);
+    --cycle-hero-fade-stop: var(--home-surface-warm, #000);
+    --cycle-hero-fade-rgb: var(--home-surface-warm-rgb, 0, 0, 0);
 
     &::before {
       opacity: 0.45;
@@ -681,25 +681,20 @@
   }
 
   .home-content.home-content--cycle-today {
-    --home-surface-warm: #121820;
-    --home-surface-warm-rgb: 18, 24, 32;
+    --home-surface-warm: #000;
+    --home-surface-warm-rgb: 0, 0, 0;
     background:
       radial-gradient(
         ellipse 100% 60% at 50% -8%,
-        rgba(244, 114, 182, 0.22) 0%,
+        rgba(244, 114, 182, 0.14) 0%,
         transparent 58%
       ),
       radial-gradient(
         ellipse 70% 45% at 90% 10%,
-        rgba(251, 146, 60, 0.12) 0%,
+        rgba(251, 146, 60, 0.08) 0%,
         transparent 52%
       ),
-      linear-gradient(
-        165deg,
-        #1f1524 0%,
-        #171520 38%,
-        #121820 100%
-      );
+      #000;
   }
 
   .cycle-stat-card__label {

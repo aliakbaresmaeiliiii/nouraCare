@@ -1003,19 +1003,15 @@
 
 :host-context(html.ion-palette-dark) {
   .home-content.home-content--pregnancy-today {
-    --home-surface-warm: var(--ion-background-color);
-    --home-surface-warm-rgb: var(--ion-background-color-rgb);
+    --home-surface-warm: #000;
+    --home-surface-warm-rgb: 0, 0, 0;
     background:
       radial-gradient(
         ellipse 100% 58% at 50% -8%,
-        rgba(255, 140, 110, 0.18) 0%,
+        rgba(255, 140, 110, 0.12) 0%,
         transparent 58%
       ),
-      linear-gradient(
-        165deg,
-        var(--ion-background-color-step-50) 0%,
-        var(--ion-background-color) 100%
-      );
+      #000;
     --background: transparent;
   }
 

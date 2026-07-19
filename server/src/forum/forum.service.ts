@@ -4,6 +4,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { randomUUID } from 'crypto';
+import { DEFAULT_FORUM_CATEGORIES } from './forum-category.defaults';
 
 @Injectable()
 export class ForumService {
@@ -11,9 +12,21 @@ export class ForumService {
 
   // Categories
   async getCategories() {
+    const count = await this.prisma.forum_categories.count();
+    if (count === 0) {
+      const now = new Date();
+      for (const c of DEFAULT_FORUM_CATEGORIES) {
+        await this.prisma.forum_categories.upsert({
+          where: { id: c.id },
+          update: { ...c, updatedAt: now },
+          create: { ...c, createdAt: now, updatedAt: now },
+        });
+      }
+    }
+
     return this.prisma.forum_categories.findMany({
       where: { isActive: true },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
     });
   }
 

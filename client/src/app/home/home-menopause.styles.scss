@@ -235,14 +235,10 @@
     background:
       radial-gradient(
         ellipse 100% 58% at 50% -8%,
-        rgba(129, 140, 248, 0.2) 0%,
+        rgba(129, 140, 248, 0.14) 0%,
         transparent 58%
       ),
-      linear-gradient(
-        165deg,
-        var(--ion-background-color-step-50, #1a1a22) 0%,
-        var(--ion-background-color, #121218) 100%
-      );
+      #000;
   }
 
   .menopause-hero-sky {
