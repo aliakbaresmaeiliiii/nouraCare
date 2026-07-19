@@ -1,0 +1,60 @@
+<div class="login">
+  <div class="panel">
+    <div class="brand-block">
+      <p class="eyebrow">DoreHealth</p>
+      <h1>Admin</h1>
+      <p class="sub">Operations console for users, doctors, and community.</p>
+    </div>
+
+    @if (step() === 'email') {
+      <form (ngSubmit)="submitEmail()" class="form">
+        <div class="field">
+          <label for="email">Work email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            autocomplete="username"
+            placeholder="admin@dorehealth.app"
+            required
+          />
+        </div>
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
+        <button class="btn btn-primary" type="submit" [disabled]="loading()">
+          {{ loading() ? 'Sending…' : 'Continue' }}
+        </button>
+      </form>
+    } @else {
+      <form (ngSubmit)="submitOtp()" class="form">
+        <p class="hint">Code sent to <strong>{{ email }}</strong></p>
+        <div class="field">
+          <label for="otp">Sign-in code</label>
+          <input
+            id="otp"
+            type="text"
+            name="otp"
+            [(ngModel)]="otp"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            placeholder="6-digit code"
+            required
+          />
+        </div>
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
+        <div class="actions">
+          <button class="btn btn-ghost" type="button" (click)="back()" [disabled]="loading()">
+            Back
+          </button>
+          <button class="btn btn-primary" type="submit" [disabled]="loading()">
+            {{ loading() ? 'Checking…' : 'Enter admin' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

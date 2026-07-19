@@ -1,0 +1,127 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Overview</h1>
+      <p>Platform pulse — users, care, and community.</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card loading">Loading dashboard…</div>
+  } @else if (error()) {
+    <div class="card error">{{ error() }}</div>
+  } @else if (data(); as d) {
+    <section class="stat-grid">
+      <article class="card stat">
+        <div class="label">Total users</div>
+        <div class="value">{{ d.users.total | number }}</div>
+      </article>
+      <article class="card stat">
+        <div class="label">New this week</div>
+        <div class="value">{{ d.users.newThisWeek | number }}</div>
+      </article>
+      <article class="card stat">
+        <div class="label">Active</div>
+        <div class="value">{{ d.users.active | number }}</div>
+      </article>
+      <article class="card stat">
+        <div class="label">Pending appointments</div>
+        <div class="value">{{ d.appointments.pending | number }}</div>
+      </article>
+      <article class="card stat">
+        <div class="label">Doctors unverified</div>
+        <div class="value">{{ d.doctors.unverified | number }}</div>
+      </article>
+      <article class="card stat">
+        <div class="label">Forum threads</div>
+        <div class="value">{{ d.community.threads | number }}</div>
+      </article>
+    </section>
+
+    <section class="split">
+      <article class="card">
+        <header class="card-head">
+          <h2>Signups (7 days)</h2>
+        </header>
+        <div class="chart-bars">
+          @for (point of d.charts.signupsLast7Days; track point.day) {
+            <div class="bar-col">
+              <div
+                class="bar"
+                [style.height.px]="barHeight(point.count, maxSignup(d))"
+                [title]="point.count + ' signups'"
+              ></div>
+              <div class="day">{{ point.day.slice(5) }}</div>
+            </div>
+          }
+        </div>
+      </article>
+
+      <article class="card">
+        <header class="card-head">
+          <h2>Modes</h2>
+        </header>
+        <ul class="kv">
+          @for (row of d.reproductive.byState | keyvalue; track row.key) {
+            <li>
+              <span>{{ row.key }}</span>
+              <strong>{{ row.value }}</strong>
+            </li>
+          } @empty {
+            <li class="muted">No reproductive-state data yet</li>
+          }
+        </ul>
+        <header class="card-head sub">
+          <h2>Subscriptions</h2>
+        </header>
+        <ul class="kv">
+          @for (row of d.subscriptions.byTier | keyvalue; track row.key) {
+            <li>
+              <span>{{ row.key }}</span>
+              <strong>{{ row.value }}</strong>
+            </li>
+          }
+        </ul>
+      </article>
+    </section>
+
+    <article class="card">
+      <header class="card-head">
+        <h2>Recent signups</h2>
+      </header>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Verified</th>
+              <th>Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of d.recentSignups; track u.id) {
+              <tr>
+                <td>{{ u.fullName || '—' }}</td>
+                <td>{{ u.email }}</td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.badge-ok]="u.status === 'ACTIVE'"
+                    [class.badge-danger]="u.status === 'SUSPENDED'"
+                    [class.badge-muted]="u.status === 'INACTIVE'"
+                  >
+                    {{ u.status }}
+                  </span>
+                </td>
+                <td>{{ u.isVerified ? 'Yes' : 'No' }}</td>
+                <td>{{ u.createdAt | slice: 0:10 }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </article>
+  }
+</div>

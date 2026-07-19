@@ -1,0 +1,90 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Doctors</h1>
+      <p>Verify clinicians before they appear as trusted care providers.</p>
+    </div>
+  </div>
+
+  <div class="card toolbar-card">
+    <div class="toolbar">
+      <div class="field grow">
+        <label for="search">Search</label>
+        <input
+          id="search"
+          [(ngModel)]="search"
+          placeholder="Name or specialty"
+          (keyup.enter)="applyFilters()"
+        />
+      </div>
+      <div class="field">
+        <label for="verified">Verification</label>
+        <select id="verified" [(ngModel)]="verified">
+          <option value="">All</option>
+          <option value="true">Verified</option>
+          <option value="false">Unverified</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="button" (click)="applyFilters()">Filter</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card loading">Loading doctors…</div>
+  } @else if (error()) {
+    <div class="card error">{{ error() }}</div>
+  } @else if (result(); as r) {
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Doctor</th>
+              <th>Specialty</th>
+              <th>Type</th>
+              <th>Appts</th>
+              <th>Verified</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (d of r.items; track d.id) {
+              <tr>
+                <td>
+                  <strong>{{ d.fullName }}</strong>
+                  <div class="muted">{{ d.contactEmail || d.location || '—' }}</div>
+                </td>
+                <td>{{ d.specialty }}</td>
+                <td>{{ d.consultationType }}</td>
+                <td>{{ d._count?.doctor_appointments ?? 0 }}</td>
+                <td>
+                  <span class="badge" [class.badge-ok]="d.isVerified" [class.badge-warn]="!d.isVerified">
+                    {{ d.isVerified ? 'Verified' : 'Pending' }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-ghost" type="button" (click)="toggleVerify(d)">
+                    {{ d.isVerified ? 'Unverify' : 'Verify' }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty">No doctors found</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span>Page {{ r.page }} / {{ r.totalPages }} · {{ r.total }} doctors</span>
+        <div class="toolbar">
+          <button class="btn btn-ghost" type="button" (click)="prev()" [disabled]="r.page <= 1">Prev</button>
+          <button class="btn btn-ghost" type="button" (click)="next()" [disabled]="r.page >= r.totalPages">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

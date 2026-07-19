@@ -1,0 +1,35 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="mark">DH</span>
+      <div>
+        <strong>DoreHealth</strong>
+        <small>Admin</small>
+      </div>
+    </div>
+
+    <nav>
+      @for (item of nav; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: !!item.exact }"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="who">
+        <strong>{{ auth.user()?.fullName || 'Admin' }}</strong>
+        <small>{{ auth.user()?.email }}</small>
+      </div>
+      <button class="btn btn-ghost" type="button" (click)="auth.logout()">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <router-outlet />
+  </main>
+</div>

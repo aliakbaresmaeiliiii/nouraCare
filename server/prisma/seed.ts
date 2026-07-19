@@ -171,6 +171,23 @@ async function main() {
     fullName: 'Seed User',
     role: 'USER',
   });
+
+  // Promote extra admins from ADMIN_EMAILS (comma-separated)
+  const extraAdminEmails = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  for (const email of extraAdminEmails) {
+    const updated = await db.user.updateMany({
+      where: { email },
+      data: { role: 'ADMIN', status: 'ACTIVE', updatedAt: now() },
+    });
+    if (updated.count > 0) {
+      console.log(`✅ Promoted ADMIN: ${email}`);
+    } else {
+      console.log(`⚠️ ADMIN_EMAILS skip (user not found): ${email}`);
+    }
+  }
   console.log('✅ Users');
 
   // 4. User profiles

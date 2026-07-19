@@ -1,0 +1,39 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Subscriptions</h1>
+      <p>Freemium mix and active premium access.</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card loading">Loading…</div>
+  } @else if (error()) {
+    <div class="card error">{{ error() }}</div>
+  } @else if (data(); as d) {
+    <section class="stat-grid">
+      <article class="card stat">
+        <div class="label">Premium active</div>
+        <div class="value">{{ d.premiumActive }}</div>
+      </article>
+      <article class="card stat">
+        <div class="label">Trial active</div>
+        <div class="value">{{ d.trialActive }}</div>
+      </article>
+    </section>
+
+    <article class="card">
+      <header class="card-head">
+        <h2>By tier</h2>
+      </header>
+      <ul class="kv">
+        @for (row of d.byTier | keyvalue; track row.key) {
+          <li>
+            <span>{{ row.key }}</span>
+            <strong>{{ row.value }}</strong>
+          </li>
+        }
+      </ul>
+    </article>
+  }
+</div>

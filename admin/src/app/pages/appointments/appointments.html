@@ -1,0 +1,83 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Appointments</h1>
+      <p>Monitor booking volume and pending consults.</p>
+    </div>
+  </div>
+
+  <div class="card toolbar-card">
+    <div class="toolbar">
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" [(ngModel)]="status">
+          <option value="">All</option>
+          <option value="PENDING">Pending</option>
+          <option value="CONFIRMED">Confirmed</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="button" (click)="applyFilters()">Filter</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card loading">Loading appointments…</div>
+  } @else if (error()) {
+    <div class="card error">{{ error() }}</div>
+  } @else if (result(); as r) {
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>When</th>
+              <th>Doctor</th>
+              <th>Patient</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Fee</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of r.items; track a.id) {
+              <tr>
+                <td>{{ a.scheduledAt | date: 'medium' }}</td>
+                <td>{{ a.doctor?.fullName || '—' }}</td>
+                <td>
+                  <strong>{{ a.user?.fullName || '—' }}</strong>
+                  <div class="muted">{{ a.user?.email }}</div>
+                </td>
+                <td>{{ a.consultationType }}</td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.badge-warn]="a.status === 'PENDING'"
+                    [class.badge-ok]="a.status === 'CONFIRMED'"
+                    [class.badge-danger]="a.status === 'CANCELLED'"
+                  >
+                    {{ a.status }}
+                  </span>
+                </td>
+                <td>{{ a.feeTomans != null ? (a.feeTomans + ' T') : '—' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty">No appointments</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span>Page {{ r.page }} / {{ r.totalPages }} · {{ r.total }} appointments</span>
+        <div class="toolbar">
+          <button class="btn btn-ghost" type="button" (click)="prev()" [disabled]="r.page <= 1">Prev</button>
+          <button class="btn btn-ghost" type="button" (click)="next()" [disabled]="r.page >= r.totalPages">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

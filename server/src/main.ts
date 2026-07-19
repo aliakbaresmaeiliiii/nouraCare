@@ -28,13 +28,24 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
-  const defaultOrigins = [
-    'https://dorehealth.ir',
-    
-  ];
+  const defaultOrigins = ['https://dorehealth.ir', 'https://www.dorehealth.ir'];
+
+  const devOrigins =
+    env.NODE_ENV === 'production'
+      ? []
+      : [
+          'http://localhost:4200',
+          'http://127.0.0.1:4200',
+          'http://localhost:4300',
+          'http://127.0.0.1:4300',
+        ];
 
   const allowedOrigins = [
-    ...new Set([...defaultOrigins, ...(env.CORS_ORIGINS ?? [])]),
+    ...new Set([
+      ...defaultOrigins,
+      ...devOrigins,
+      ...(env.CORS_ORIGINS ?? []),
+    ]),
   ];
 
   app.enableCors({

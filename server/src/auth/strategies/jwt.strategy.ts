@@ -1,6 +1,7 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { user_status } from '@prisma/client';
 import { PrismaService } from '../../prisma/services/prisma.service';
 import { env } from '../config/env';
 import { userIdFromJwtSub } from '../utils/jwt-user-id.util';
@@ -15,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: { sub?: string }) {
     const id = userIdFromJwtSub(payload.sub);
     const user = await this.prisma.user.findUnique({
       where: { id },
@@ -24,6 +25,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         email: true,
         phoneNumber: true,
         fullName: true,
+        role: true,
+        status: true,
         isVerified: true,
         createdAt: true,
       },
@@ -34,6 +37,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     if (!user.isVerified) {
       throw new UnauthorizedException('User email is not verified');
+    }
+
+    if (user.status === user_status.SUSPENDED) {
+      throw new UnauthorizedException('Account is suspended');
     }
 
     return user;

@@ -1,0 +1,27 @@
+.toolbar-card {
+  padding: 1rem;
+}
+
+.grow {
+  flex: 1;
+  min-width: 220px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 0.15rem;
+}
+
+.flags,
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.actions .btn {
+  min-height: 34px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+}

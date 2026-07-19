@@ -1,0 +1,92 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1>Forums</h1>
+      <p>Moderate threads — pin, lock, or remove.</p>
+    </div>
+  </div>
+
+  <div class="card toolbar-card">
+    <div class="toolbar">
+      <div class="field grow">
+        <label for="search">Search</label>
+        <input
+          id="search"
+          [(ngModel)]="search"
+          placeholder="Title or content"
+          (keyup.enter)="applyFilters()"
+        />
+      </div>
+      <button class="btn btn-primary" type="button" (click)="applyFilters()">Search</button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="card loading">Loading threads…</div>
+  } @else if (error()) {
+    <div class="card error">{{ error() }}</div>
+  } @else if (result(); as r) {
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Thread</th>
+              <th>Author</th>
+              <th>Forum</th>
+              <th>Flags</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (t of r.items; track t.id) {
+              <tr>
+                <td>
+                  <strong>{{ t.title }}</strong>
+                  <div class="muted">{{ t._count?.forum_posts ?? 0 }} replies · {{ t.viewCount }} views</div>
+                </td>
+                <td>{{ t.user?.fullName || t.user?.email || '—' }}</td>
+                <td>{{ t.forums?.title || '—' }}</td>
+                <td class="flags">
+                  @if (t.isPinned) {
+                    <span class="badge badge-accent">Pinned</span>
+                  }
+                  @if (t.isLocked) {
+                    <span class="badge badge-warn">Locked</span>
+                  }
+                  @if (!t.isPinned && !t.isLocked) {
+                    <span class="badge badge-muted">Normal</span>
+                  }
+                </td>
+                <td>{{ t.createdAt | date: 'mediumDate' }}</td>
+                <td class="actions">
+                  <button class="btn btn-ghost" type="button" (click)="togglePin(t)">
+                    {{ t.isPinned ? 'Unpin' : 'Pin' }}
+                  </button>
+                  <button class="btn btn-ghost" type="button" (click)="toggleLock(t)">
+                    {{ t.isLocked ? 'Unlock' : 'Lock' }}
+                  </button>
+                  <button class="btn btn-danger" type="button" (click)="remove(t)">Delete</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="empty">No threads</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span>Page {{ r.page }} / {{ r.totalPages }} · {{ r.total }} threads</span>
+        <div class="toolbar">
+          <button class="btn btn-ghost" type="button" (click)="prev()" [disabled]="r.page <= 1">Prev</button>
+          <button class="btn btn-ghost" type="button" (click)="next()" [disabled]="r.page >= r.totalPages">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
