@@ -115,7 +115,7 @@ ion-item:focus-visible {
 
     .header-title {
       color: #ffffff;
-      font-size: 31px;
+      font-size: 20px;
       font-weight: 700;
       text-shadow: none;
     }
@@ -133,7 +133,7 @@ ion-item:focus-visible {
   }
 
   .settings-profile-hero .profile-avatar {
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   }
 
   .settings-profile-hero .upload-button {
@@ -141,46 +141,21 @@ ion-item:focus-visible {
     border: 2px solid #fff;
   }
 
-  .hero-email {
-    color: #f8fafc;
-  }
-
-  .hero-display-name {
-    margin: 4px 16px 0;
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.25;
-    color: #f8fafc;
-  }
-
-  .hero-photo-hint {
-    margin: 6px 20px 0;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    line-height: 1.35;
-    color: rgba(248, 250, 252, 0.68);
+  .avatar-camera-badge {
+    background: var(--ion-color-primary);
+    border-color: var(--app-dark-page-shell-bg);
+    color: #fff;
   }
 
   .personal-info-heading {
-    margin: 0 0 6px;
-    font-size: 1.125rem;
-    font-weight: 800;
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 700;
     letter-spacing: -0.02em;
     color: #f8fafc;
   }
 
-  .personal-info-sub {
-    margin: 0 0 18px;
-    font-size: 0.875rem;
-    line-height: 1.45;
-    color: rgba(226, 232, 240, 0.75);
-  }
-
-  .personal-info-card {
-    margin-bottom: 12px;
-    padding: 14px 16px 12px;
-    border-radius: 16px;
+  .personal-info-fields {
     background: #1a1b22;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow:
@@ -188,45 +163,52 @@ ion-item:focus-visible {
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
+  .personal-info-card {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .personal-info-card:last-child {
+    border-bottom: 0;
+  }
+
   .personal-info-card--dob-missing {
-    border-color: rgba(251, 191, 36, 0.45);
-    box-shadow:
-      0 0 0 1px rgba(251, 191, 36, 0.22),
-      0 8px 28px rgba(0, 0, 0, 0.35),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.35);
   }
 
   .field-label {
     display: block;
-    margin-bottom: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: rgba(226, 232, 240, 0.78);
+    margin-bottom: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgba(226, 232, 240, 0.62);
   }
 
   .field-item {
-    --background: rgba(255, 255, 255, 0.06);
+    --background: transparent;
     --padding-start: 0;
     --inner-padding-end: 0;
-    --min-height: 48px;
+    --min-height: 40px;
     margin: 0;
-    border-radius: 12px;
+    border-radius: 0;
     --color: #f8fafc;
-    border-color: rgba(255, 255, 255, 0.12);
+    border: 0;
     overflow: hidden;
     color-scheme: dark;
   }
 
   .field-item--date {
-    --min-height: 52px;
+    --min-height: 40px;
   }
 
   .field-item ion-input {
     --background: transparent;
+    --padding-start: 0;
+    --padding-end: 0;
     --color: #f8fafc;
     --placeholder-color: rgba(248, 250, 252, 0.45);
+    font-size: 0.9375rem;
+    font-weight: 600;
     color-scheme: dark;
   }
 
@@ -235,21 +217,21 @@ ion-item:focus-visible {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    min-height: 52px;
-    padding: 12px 14px;
+    min-height: 40px;
+    padding: 0;
     border: 0;
-    border-radius: 12px;
+    border-radius: 0;
     background: transparent;
     color: #f8fafc;
     font: inherit;
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     text-align: start;
     cursor: pointer;
 
     ion-icon {
       flex-shrink: 0;
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       color: rgba(226, 232, 240, 0.75);
     }
   }
@@ -301,10 +283,10 @@ ion-item:focus-visible {
 
     .header-title {
       color: var(--brand-text);
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.35px;
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.35);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      text-shadow: none;
     }
   }
 
@@ -319,7 +301,7 @@ ion-item:focus-visible {
   }
 
   .settings-profile-hero .profile-avatar {
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
   }
 
   .settings-profile-hero .upload-button {
@@ -327,21 +309,21 @@ ion-item:focus-visible {
     border: 2px solid rgba(255, 255, 255, 0.9);
   }
 
-  .hero-email {
-    color: var(--brand-text);
+  .avatar-camera-badge {
+    background: var(--ion-color-primary);
+    border-color: #fff;
+    color: #fff;
   }
-
 }
 
 .settings-profile-hero {
   text-align: center;
-  padding: 8px 20px 18px;
+  padding: 4px 20px 12px;
 }
 
 .settings-profile-hero .avatar-container {
   position: relative;
-  margin-bottom: 10px;
-  display: flex;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
 }
@@ -351,18 +333,18 @@ ion-item:focus-visible {
   inset: 0;
   z-index: 2;
   cursor: pointer;
-  border-radius: 24px;
+  border-radius: 20px;
 }
 
 .settings-profile-hero .profile-avatar {
-  width: 118px;
-  height: 118px;
-  border-radius: 24px;
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
   border: 0;
 }
 
 .settings-profile-hero .avatar-image {
-  border-radius: 24px;
+  border-radius: 20px;
 }
 
 .settings-profile-hero .avatar-overlay {
@@ -377,11 +359,24 @@ ion-item:focus-visible {
   border-radius: 9999px;
 }
 
-.hero-email {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  letter-spacing: -0.2px;
+.avatar-camera-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+
+  ion-icon {
+    font-size: 14px;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -410,42 +405,15 @@ ion-item:focus-visible {
 
 /* Light palette: scope so dark theme rules are not overridden later in the file */
 :host-context(html:not(.ion-palette-dark)) {
-  .hero-display-name {
-    margin: 4px 16px 0;
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    color: var(--ion-color-dark, #0f172a);
-    line-height: 1.25;
-  }
-
-  .hero-photo-hint {
-    margin: 6px 20px 0;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--ion-color-medium, #64748b);
-    line-height: 1.35;
-  }
-
   .personal-info-heading {
-    margin: 0 0 6px;
-    font-size: 1.125rem;
-    font-weight: 800;
+    margin: 0 0 12px;
+    font-size: 1rem;
+    font-weight: 700;
     letter-spacing: -0.02em;
     color: var(--ion-color-dark, #0f172a);
   }
 
-  .personal-info-sub {
-    margin: 0 0 18px;
-    font-size: 0.875rem;
-    line-height: 1.45;
-    color: var(--ion-color-medium, #64748b);
-  }
-
-  .personal-info-card {
-    margin-bottom: 12px;
-    padding: 14px 16px 12px;
-    border-radius: 16px;
+  .personal-info-fields {
     background: #ffffff;
     border: 1px solid rgba(var(--brand-primary-rgb, 99, 102, 241), 0.1);
     box-shadow:
@@ -453,13 +421,20 @@ ion-item:focus-visible {
       inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
+  .personal-info-card {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .personal-info-card:last-child {
+    border-bottom: 0;
+  }
+
   .field-label {
     display: block;
-    margin-bottom: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     color: var(--ion-color-medium-shade, #64748b);
   }
 
@@ -467,25 +442,25 @@ ion-item:focus-visible {
     --background: transparent;
     --padding-start: 0;
     --inner-padding-end: 0;
-    --min-height: 48px;
+    --min-height: 40px;
     margin: 0;
-    border-radius: 12px;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 0;
+    border: 0;
     overflow: hidden;
     color-scheme: light;
   }
 
   .field-item--date {
-    --min-height: 52px;
+    --min-height: 40px;
   }
 
   .field-item ion-input {
-    --padding-start: 12px;
-    --padding-end: 12px;
+    --padding-start: 0;
+    --padding-end: 0;
     --background: transparent;
     --color: var(--ion-color-dark, #0f172a);
     --placeholder-color: var(--ion-color-medium, #64748b);
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     color: var(--ion-color-dark, #0f172a);
     color-scheme: light;
@@ -496,21 +471,21 @@ ion-item:focus-visible {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    min-height: 52px;
-    padding: 12px 14px;
+    min-height: 40px;
+    padding: 0;
     border: 0;
-    border-radius: 12px;
+    border-radius: 0;
     background: transparent;
     color: var(--ion-color-dark, #0f172a);
     font: inherit;
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     text-align: start;
     cursor: pointer;
 
     ion-icon {
       flex-shrink: 0;
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       color: var(--ion-color-medium, #64748b);
     }
   }
@@ -528,24 +503,20 @@ ion-item:focus-visible {
   }
 
   .personal-info-card--dob-missing {
-    border-color: rgba(245, 158, 11, 0.35);
-    box-shadow:
-      0 0 0 1px rgba(245, 158, 11, 0.12),
-      0 4px 16px rgba(15, 23, 42, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.35);
   }
 
   .dob-missing-hint {
-    margin: 10px 0 0;
-    font-size: 0.8125rem;
-    line-height: 1.45;
+    margin: 8px 0 0;
+    font-size: 0.75rem;
+    line-height: 1.4;
     font-weight: 600;
     color: var(--ion-color-warning-shade, #b45309);
   }
 
   .field-error {
-    margin: 8px 0 0;
-    font-size: 0.8125rem;
+    margin: 6px 0 0;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--ion-color-danger, #dc2626);
   }
@@ -555,11 +526,25 @@ ion-item:focus-visible {
   display: block;
   max-width: 560px;
   margin: 0 auto;
-  padding: 0 16px 32px;
+  padding: 0 16px 24px;
 }
 
 .personal-info-section {
-  padding-top: 8px;
+  padding-top: 0;
+}
+
+.personal-info-fields {
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.personal-info-card {
+  margin: 0;
+  padding: 12px 14px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .edit-profile-dob-modal {

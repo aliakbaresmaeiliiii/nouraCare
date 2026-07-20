@@ -104,17 +104,15 @@
       <ion-avatar class="profile-avatar">
         <img [src]="profileImage" [attr.alt]="'editProfile.profileImageAlt' | translate" class="avatar-image" />
       </ion-avatar>
+      <span class="avatar-camera-badge" aria-hidden="true">
+        <ion-icon name="camera-outline"></ion-icon>
+      </span>
       <label
         for="fileeInput"
         class="avatar-tap-target"
         [attr.aria-label]="'editProfile.changeProfilePhotoAria' | translate"
       ></label>
     </div>
-    <p class="hero-display-name">
-      {{ (form.get('fullName')?.value || '').trim() || ('editProfile.fullNamePlaceholder' | translate) }}
-    </p>
-    <p class="hero-email">{{ (form.get('email')?.value || '').trim() || displayEmail || ('editProfile.emailPlaceholder' | translate) }}</p>
-    <p class="hero-photo-hint">{{ 'editProfile.tapPhotoHint' | translate }}</p>
   </section>
 
   <form [formGroup]="form" class="personal-info-form" (ngSubmit)="savePersonalDetails()">
@@ -122,66 +120,67 @@
       <h2 id="personal-info-title" class="personal-info-heading">
         {{ 'editProfile.personalInformation' | translate }}
       </h2>
-      <p class="personal-info-sub">{{ 'editProfile.saveHint' | translate }}</p>
 
-      <div class="personal-info-card" id="edit-focus-fullName">
-        <label class="field-label" for="inp-full-name">{{ 'editProfile.fullNameLabel' | translate }}</label>
-        <ion-item lines="none" class="field-item">
-          <ion-input
-            id="inp-full-name"
-            formControlName="fullName"
-            [placeholder]="'editProfile.fullNamePlaceholder' | translate"
-            autocomplete="name"
-            inputmode="text"
-          ></ion-input>
-        </ion-item>
-      </div>
+      <div class="personal-info-fields">
+        <div class="personal-info-card" id="edit-focus-fullName">
+          <label class="field-label" for="inp-full-name">{{ 'editProfile.fullNameLabel' | translate }}</label>
+          <ion-item lines="none" class="field-item">
+            <ion-input
+              id="inp-full-name"
+              formControlName="fullName"
+              [placeholder]="'editProfile.fullNamePlaceholder' | translate"
+              autocomplete="name"
+              inputmode="text"
+            ></ion-input>
+          </ion-item>
+        </div>
 
-      <div class="personal-info-card" id="edit-focus-email">
-        <label class="field-label" for="inp-email">{{ 'editProfile.emailLabel' | translate }}</label>
-        <ion-item lines="none" class="field-item">
-          <ion-input
-            id="inp-email"
-            formControlName="email"
-            type="email"
-            [placeholder]="'editProfile.emailPlaceholder' | translate"
-            autocomplete="email"
-            inputmode="email"
-          ></ion-input>
-        </ion-item>
-        @if (form.get('email')?.invalid && form.get('email')?.touched) {
-          <p class="field-error" role="alert">{{ 'editProfile.invalidEmail' | translate }}</p>
-        }
-      </div>
-
-      <div
-        class="personal-info-card personal-info-card--dob"
-        id="edit-focus-dateOfBirth"
-        [class.personal-info-card--dob-missing]="!hasDateOfBirth"
-      >
-        <label class="field-label" id="inp-dob-label">{{ 'editProfile.birthday' | translate }}</label>
-        <ion-item lines="none" class="field-item field-item--date">
-          <button
-            type="button"
-            id="inp-dob"
-            class="dob-picker-btn"
-            [class.dob-picker-btn--placeholder]="!hasDateOfBirth"
-            [attr.aria-labelledby]="'inp-dob-label'"
-            (click)="openBirthdayDatePicker()"
-          >
-            <span class="dob-picker-btn__value">{{ displayBirthdayDate }}</span>
-            <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
-          </button>
-        </ion-item>
-        @if (dobFieldError()) {
-          <p class="field-error" role="alert">{{ dobFieldError() }}</p>
-          @if (dobFieldHelp()) {
-            <p class="dob-field-help">{{ dobFieldHelp() }}</p>
+        <div class="personal-info-card" id="edit-focus-email">
+          <label class="field-label" for="inp-email">{{ 'editProfile.emailLabel' | translate }}</label>
+          <ion-item lines="none" class="field-item">
+            <ion-input
+              id="inp-email"
+              formControlName="email"
+              type="email"
+              [placeholder]="'editProfile.emailPlaceholder' | translate"
+              autocomplete="email"
+              inputmode="email"
+            ></ion-input>
+          </ion-item>
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <p class="field-error" role="alert">{{ 'editProfile.invalidEmail' | translate }}</p>
           }
-        }
-        @if (!hasDateOfBirth) {
-          <p class="dob-missing-hint" role="status">{{ 'editProfile.dobMissingHint' | translate }}</p>
-        }
+        </div>
+
+        <div
+          class="personal-info-card personal-info-card--dob"
+          id="edit-focus-dateOfBirth"
+          [class.personal-info-card--dob-missing]="!hasDateOfBirth"
+        >
+          <label class="field-label" id="inp-dob-label">{{ 'editProfile.birthday' | translate }}</label>
+          <ion-item lines="none" class="field-item field-item--date">
+            <button
+              type="button"
+              id="inp-dob"
+              class="dob-picker-btn"
+              [class.dob-picker-btn--placeholder]="!hasDateOfBirth"
+              [attr.aria-labelledby]="'inp-dob-label'"
+              (click)="openBirthdayDatePicker()"
+            >
+              <span class="dob-picker-btn__value">{{ displayBirthdayDate }}</span>
+              <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </ion-item>
+          @if (dobFieldError()) {
+            <p class="field-error" role="alert">{{ dobFieldError() }}</p>
+            @if (dobFieldHelp()) {
+              <p class="dob-field-help">{{ dobFieldHelp() }}</p>
+            }
+          }
+          @if (!hasDateOfBirth) {
+            <p class="dob-missing-hint" role="status">{{ 'editProfile.dobMissingHint' | translate }}</p>
+          }
+        </div>
       </div>
 
       <app-button
