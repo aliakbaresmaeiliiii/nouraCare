@@ -52,4 +52,27 @@ export const env = {
    * all email sign-ins.
    */
   EMAIL_OTP_ENABLED: process.env.EMAIL_OTP_ENABLED === 'true',
+
+  /** sms.ir — API key from panel (X-API-KEY). Never expose to the client. */
+  SMS_IR_API_KEY: process.env.SMS_IR_API_KEY?.trim() || '',
+  SMS_IR_LINE_NUMBER: Number(process.env.SMS_IR_LINE_NUMBER || 0),
+  /**
+   * Optional verify-template ID from sms.ir panel.
+   * When set (>0), OTP uses sendVerifyCode; otherwise plain sendBulk text.
+   */
+  SMS_IR_VERIFY_TEMPLATE_ID: Number(process.env.SMS_IR_VERIFY_TEMPLATE_ID || 0),
+  /** Template placeholder name (default Code). */
+  SMS_IR_VERIFY_PARAM_NAME:
+    process.env.SMS_IR_VERIFY_PARAM_NAME?.trim() || 'Code',
+  /** Bulk SMS body; use {code} for the OTP. */
+  SMS_OTP_MESSAGE_TEMPLATE:
+    process.env.SMS_OTP_MESSAGE_TEMPLATE?.trim() ||
+    'کد ورود دُرهِلث: {code}',
+  /**
+   * When true, skip email OTP if SMS was sent successfully.
+   * Default false — send both when phone + SMS are available.
+   */
+  SMS_OTP_SKIP_EMAIL: process.env.SMS_OTP_SKIP_EMAIL === 'true',
+  /** When true, fail the request if SMS send fails (and phone was required). */
+  SMS_STRICT: process.env.SMS_STRICT === 'true',
 };

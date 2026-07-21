@@ -13,6 +13,7 @@ import { OnboardingModule } from '../onboarding/onboarding.module';
 import { UserModule } from '../users/user.module';
 import { GrowthModule } from '../growth/growth.module';
 import { ReproductiveModule } from '../reproductive/reproductive.module';
+import { SmsModule } from '../sms/sms.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ReproductiveModule } from '../reproductive/reproductive.module';
     UserModule,
     GrowthModule,
     ReproductiveModule,
+    SmsModule,
   ],
   controllers: [AuthController],
   providers: [

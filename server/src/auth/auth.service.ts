@@ -25,6 +25,7 @@ import { ACCESS_TOKEN_TTL } from './config/jwt.config';
 import { parseRefreshToken } from './services/social-token.service';
 import { AUTH_MESSAGE_KEYS } from './constants/auth-message-keys';
 import { env } from './config/env';
+import { SmsIrService } from '../sms/sms-ir.service';
 
 const USER_PUBLIC_SELECT = {
   id: true,
@@ -51,6 +52,7 @@ export class AuthService {
     private userOnboarding: UserOnboardingService,
     private growthService: GrowthService,
     private reproductiveState: ReproductiveStateService,
+    private smsIr: SmsIrService,
   ) {
     this.emailProvider = new EmailProvider();
     this.sendMail = new SendMail(this.emailProvider);
@@ -108,19 +110,22 @@ export class AuthService {
     }
 
     try {
-      await this.sendMail.sendAccountRegister(user.email, verificationCode, {
+      await this.deliverOtp({
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        code: verificationCode,
         locale,
         purpose: 'verification',
       });
     } catch (error) {
-      console.error('Failed to send verification email:', error);
-      this.logDevOtp(user.email, verificationCode, 'register-email-failed');
-      if (process.env.EMAIL_STRICT === 'true') {
+      console.error('Failed to send verification OTP:', error);
+      this.logDevOtp(user.email, verificationCode, 'register-otp-failed');
+      if (process.env.EMAIL_STRICT === 'true' || env.SMS_STRICT) {
         await this.prisma.user.delete({ where: { id: user.id } }).catch((deleteError) => {
-          console.error('Failed to roll back user after email error:', deleteError);
+          console.error('Failed to roll back user after OTP error:', deleteError);
         });
         throw new BadRequestException({
-          message: 'Failed to send verification email',
+          message: 'Failed to send verification code',
           messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL,
         });
       }
@@ -243,14 +248,17 @@ export class AuthService {
     });
 
     try {
-      await this.sendMail.sendAccountRegister(user.email, verificationCode, {
+      await this.deliverOtp({
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        code: verificationCode,
         locale,
         purpose: 'verification',
       });
     } catch (error) {
-      console.error('Failed to send verification email:', error);
+      console.error('Failed to send verification OTP:', error);
       throw new BadRequestException({
-        message: 'Failed to send verification email',
+        message: 'Failed to send verification code',
         messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL,
       });
     }
@@ -306,16 +314,53 @@ export class AuthService {
       });
     }
 
+    // Persist a real mobile when the client provides one (replaces unset_* placeholders).
+    const incomingPhone = this.smsIr.normalizeMobile(options?.phoneNumber);
+    if (
+      incomingPhone &&
+      (!user.phoneNumber || user.phoneNumber.startsWith('unset_'))
+    ) {
+      try {
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: { phoneNumber: incomingPhone },
+        });
+        user = { ...user, phoneNumber: incomingPhone };
+      } catch (error) {
+        if (
+          error instanceof PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
+          throw new ConflictException({
+            message: 'User with this email or phone number already exists',
+            messageKey: AUTH_MESSAGE_KEYS.USER_ALREADY_EXISTS,
+          });
+        }
+        throw error;
+      }
+    }
+
+    const smsPhone = this.smsIr.normalizeMobile(
+      user.phoneNumber ?? options?.phoneNumber,
+    );
+    const requireOtpForSms = this.smsIr.isConfigured() && Boolean(smsPhone);
+
     // Unverified accounts always complete via OTP on this endpoint.
     if (!user.isVerified) {
       if (!otp?.trim()) {
-        return this.sendSignInOtp(user.id, user.email, locale, 'verification');
+        return this.sendSignInOtp(
+          user.id,
+          user.email,
+          user.phoneNumber,
+          locale,
+          'verification',
+        );
       }
       return this.completeOtpSignIn(user, otp.trim(), true);
     }
 
-    // Verified user — OTP optional via feature flag.
-    if (!env.EMAIL_OTP_ENABLED) {
+    // Verified user — OTP optional via feature flag, or required when SMS OTP is available.
+    if (!env.EMAIL_OTP_ENABLED && !requireOtpForSms) {
       const { emailVerificationCode: _c, emailVerificationCodeExpires: _e, ...publicUser } =
         user;
       const tokens = await this.generateTokens(publicUser.id, publicUser.email);
@@ -326,7 +371,13 @@ export class AuthService {
     }
 
     if (!otp?.trim()) {
-      return this.sendSignInOtp(user.id, user.email, locale, 'sign-in');
+      return this.sendSignInOtp(
+        user.id,
+        user.email,
+        user.phoneNumber ?? options?.phoneNumber,
+        locale,
+        'sign-in',
+      );
     }
 
     return this.completeOtpSignIn(user, otp.trim(), false);
@@ -391,21 +442,23 @@ export class AuthService {
     }
 
     try {
-      await this.sendMail.sendAccountRegister(user.email, verificationCode, {
+      await this.deliverOtp({
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        code: verificationCode,
         locale,
         purpose: 'verification',
       });
     } catch (error) {
-      console.error('Failed to send verification email:', error);
+      console.error('Failed to send verification OTP:', error);
       // Keep account + OTP so the client can still show the OTP step.
-      // Set EMAIL_STRICT=true to fail closed (rollback + 400) when mail is required.
-      this.logDevOtp(user.email, verificationCode, 'register-email-failed');
-      if (process.env.EMAIL_STRICT === 'true') {
+      this.logDevOtp(user.email, verificationCode, 'register-otp-failed');
+      if (process.env.EMAIL_STRICT === 'true' || env.SMS_STRICT) {
         await this.prisma.user.delete({ where: { id: user.id } }).catch((deleteError) => {
-          console.error('Failed to roll back user after email error:', deleteError);
+          console.error('Failed to roll back user after OTP error:', deleteError);
         });
         throw new BadRequestException({
-          message: 'Failed to send verification email',
+          message: 'Failed to send verification code',
           messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_VERIFICATION_EMAIL,
         });
       }
@@ -442,6 +495,7 @@ export class AuthService {
   private async sendSignInOtp(
     userId: number,
     email: string,
+    phoneNumber: string | null | undefined,
     locale: string | undefined,
     purpose: 'sign-in' | 'verification',
   ) {
@@ -460,7 +514,10 @@ export class AuthService {
     });
 
     try {
-      await this.sendMail.sendAccountRegister(email, loginCode, {
+      await this.deliverOtp({
+        email,
+        phoneNumber,
+        code: loginCode,
         locale,
         purpose,
       });
@@ -470,14 +527,14 @@ export class AuthService {
         email,
         loginCode,
         purpose === 'verification'
-          ? 'resend-verification-email-failed'
-          : 'sign-in-email-failed',
+          ? 'resend-verification-otp-failed'
+          : 'sign-in-otp-failed',
       );
-      if (process.env.EMAIL_STRICT === 'true') {
+      if (process.env.EMAIL_STRICT === 'true' || env.SMS_STRICT) {
         throw new BadRequestException({
           message:
             purpose === 'verification'
-              ? 'Failed to send verification email'
+              ? 'Failed to send verification code'
               : 'Failed to send sign-in code',
           messageKey:
             purpose === 'verification'
@@ -492,6 +549,53 @@ export class AuthService {
       message: 'If the account exists, a sign-in code was sent.',
       messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
     };
+  }
+
+  /**
+   * Deliver OTP via sms.ir when a valid mobile is available; email otherwise / as well.
+   */
+  private async deliverOtp(params: {
+    email: string;
+    phoneNumber?: string | null;
+    code: string;
+    locale?: string;
+    purpose: 'sign-in' | 'verification';
+  }): Promise<void> {
+    const mobile = this.smsIr.normalizeMobile(params.phoneNumber);
+    let smsSent = false;
+
+    if (this.smsIr.isConfigured() && mobile) {
+      try {
+        await this.smsIr.sendOtp(mobile, params.code);
+        smsSent = true;
+      } catch (error) {
+        console.error('sms.ir OTP send failed:', error);
+        if (env.SMS_STRICT) {
+          throw new BadRequestException({
+            message: 'Failed to send OTP SMS',
+            messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_OTP_SMS,
+          });
+        }
+      }
+    }
+
+    if (smsSent && env.SMS_OTP_SKIP_EMAIL) {
+      return;
+    }
+
+    try {
+      await this.sendMail.sendAccountRegister(params.email, params.code, {
+        locale: params.locale,
+        purpose: params.purpose,
+      });
+    } catch (error) {
+      if (smsSent) {
+        // SMS already delivered — email failure is non-fatal.
+        console.error('OTP email failed after SMS success:', error);
+        return;
+      }
+      throw error;
+    }
   }
 
   private async completeOtpSignIn(
@@ -712,11 +816,11 @@ export class AuthService {
     return email.trim().toLowerCase();
   }
 
-  /** Empty phone must be unique — DB has @unique on phoneNumber. */
+  /** Empty / invalid phone must still be unique — DB has @unique on phoneNumber. */
   private resolvePhoneNumber(phoneNumber?: string): string {
-    const trimmed = phoneNumber?.trim();
-    if (trimmed) {
-      return trimmed;
+    const normalized = this.smsIr.normalizeMobile(phoneNumber);
+    if (normalized) {
+      return normalized;
     }
     return `unset_${randomUUID().replace(/-/g, '')}`;
   }

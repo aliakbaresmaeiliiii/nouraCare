@@ -24,6 +24,7 @@ import {
 import { addIcons } from 'ionicons';
 import {
   alertCircleOutline,
+  callOutline,
   logoApple,
   logoGoogle,
   mailOpenOutline,
@@ -131,7 +132,10 @@ export class LoginComponent
 
   readonly loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    phoneNumber: [''],
+    phoneNumber: [
+      '',
+      [Validators.required, Validators.pattern(/^(\+98|0)?9\d{9}$/)],
+    ],
     otp: ['', [Validators.minLength(6), Validators.maxLength(6)]],
   });
 
@@ -185,7 +189,7 @@ export class LoginComponent
     }
     const form = this.loginFormView();
     if (!this.loginOtpStep()) {
-      return form.emailInvalid;
+      return form.emailInvalid || form.phoneInvalid;
     }
     return form.emailInvalid || form.otpIncomplete;
   });
@@ -195,7 +199,18 @@ export class LoginComponent
     return form.emailTouched && form.emailInvalid;
   });
 
+  readonly phoneShowError = computed(() => {
+    const form = this.loginFormView();
+    return form.phoneTouched && form.phoneInvalid;
+  });
+
   readonly loginOtpSentMessage = computed(() => {
+    const phone = this.loginFormView().phoneNumber;
+    if (phone) {
+      return this.translation.translateParams('auth.otpSentToPhone', {
+        phone,
+      });
+    }
     const email = this.loginFormView().email;
     return this.translation.translateParams('auth.otpSentTo', { email });
   });
@@ -205,6 +220,7 @@ export class LoginComponent
       moonOutline,
       sunnyOutline,
       mailOutline,
+      callOutline,
       alertCircleOutline,
       mailOpenOutline,
       logoGoogle,
@@ -242,18 +258,21 @@ export class LoginComponent
         tap(() => this.authActionInProgress.set('login')),
         exhaustMap(() => {
           const email = (this.loginForm.value.email || '').trim();
+          const phoneNumber = this.normalizePhoneInput(
+            this.loginForm.value.phoneNumber,
+          );
           const otp = this.normalizeOtpInput(this.loginForm.value.otp);
 
           const authRequest$: Observable<TokenResponse> =
             this.loginOtpStep() && otp
               ? this.verifyOtpViaEmailApi
                 ? this.auth.verifyEmail({ email, code: otp })
-                : this.auth.login({ email, otp })
-              : this.auth.login({ email }).pipe(
+                : this.auth.login({ email, otp, phoneNumber })
+              : this.auth.login({ email, phoneNumber }).pipe(
                   catchError((err) => {
                     const apiPayload = extractApiMessagePayload(err);
                     if (this.isUserNotFoundError(apiPayload)) {
-                      return this.registerUnknownEmail(email);
+                      return this.registerUnknownEmail(email, phoneNumber);
                     }
                     throw err;
                   }),
@@ -364,6 +383,9 @@ export class LoginComponent
     }
 
     const email = (this.loginForm.get('email')?.value || '').trim();
+    const phoneNumber = this.normalizePhoneInput(
+      this.loginForm.get('phoneNumber')?.value,
+    );
     if (!this.isValidEmail(email)) {
       return;
     }
@@ -372,7 +394,7 @@ export class LoginComponent
 
     const resend$ = this.verifyOtpViaEmailApi
       ? this.auth.resendOtp({ email })
-      : this.auth.login({ email });
+      : this.auth.login({ email, phoneNumber });
 
     resend$
       .pipe(
@@ -477,10 +499,14 @@ export class LoginComponent
   }
 
   /** Older sign-in APIs return 404/401 for unknown emails — create + send OTP. */
-  private registerUnknownEmail(email: string): Observable<TokenResponse> {
+  private registerUnknownEmail(
+    email: string,
+    phoneNumber?: string,
+  ): Observable<TokenResponse> {
     const registerPayload: RegisterRequest = {
       email,
-      phoneNumber: this.loginForm.value.phoneNumber || undefined,
+      phoneNumber:
+        phoneNumber || this.loginForm.value.phoneNumber || undefined,
     };
     const onboardingData = this.readStoredOnboardingData();
 
@@ -655,8 +681,9 @@ export class LoginComponent
       return false;
     }
     const emailValid = !!this.loginForm.get('email')?.valid;
+    const phoneValid = !!this.loginForm.get('phoneNumber')?.valid;
     if (!this.loginOtpStep()) {
-      return emailValid;
+      return emailValid && phoneValid;
     }
     const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
     return emailValid && otp.length === EMAIL_OTP_LENGTH;
@@ -666,15 +693,22 @@ export class LoginComponent
     email: string;
     emailInvalid: boolean;
     emailTouched: boolean;
+    phoneNumber: string;
+    phoneInvalid: boolean;
+    phoneTouched: boolean;
     otp: string;
     otpIncomplete: boolean;
   } {
     const emailCtrl = this.loginForm.get('email');
+    const phoneCtrl = this.loginForm.get('phoneNumber');
     const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
     return {
       email: (emailCtrl?.value || '').trim(),
       emailInvalid: !!emailCtrl?.invalid,
       emailTouched: !!emailCtrl?.touched,
+      phoneNumber: this.normalizePhoneInput(phoneCtrl?.value) || '',
+      phoneInvalid: !!phoneCtrl?.invalid,
+      phoneTouched: !!phoneCtrl?.touched,
       otp,
       otpIncomplete: otp.length < EMAIL_OTP_LENGTH,
     };
@@ -739,6 +773,18 @@ export class LoginComponent
     return String(value ?? '')
       .replace(/\D/g, '')
       .slice(0, EMAIL_OTP_LENGTH);
+  }
+
+  /** Normalize Iranian mobiles to 09xxxxxxxxx for the API. */
+  private normalizePhoneInput(value: unknown): string | undefined {
+    const raw = String(value ?? '').replace(/[\s\-()]/g, '');
+    if (!raw) return undefined;
+    let digits = raw;
+    if (digits.startsWith('+98')) digits = `0${digits.slice(3)}`;
+    else if (digits.startsWith('98')) digits = `0${digits.slice(2)}`;
+    else if (digits.startsWith('9') && digits.length === 10) digits = `0${digits}`;
+    if (!/^09\d{9}$/.test(digits)) return raw;
+    return digits;
   }
 
   private isValidEmail(email: string): boolean {

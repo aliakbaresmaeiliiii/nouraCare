@@ -11,6 +11,7 @@ export const AUTH_MESSAGE_KEYS = {
   ACCOUNT_NOT_ACTIVE: 'auth.api.accountNotActive',
   EMAIL_NOT_VERIFIED: 'auth.api.emailNotVerified',
   FAILED_SEND_SIGNIN_CODE: 'auth.api.failedSendSignInCode',
+  FAILED_SEND_OTP_SMS: 'auth.api.failedSendOtpSms',
   INVALID_OR_EXPIRED_SIGNIN_CODE: 'auth.api.invalidOrExpiredSignInCode',
   USER_ALREADY_EXISTS: 'auth.api.userAlreadyExists',
 } as const;
