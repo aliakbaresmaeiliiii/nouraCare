@@ -31,5 +31,5 @@ export class OtpVerifyDto {
   @IsString()
   @IsNotEmpty()
   @Length(4, 8)
-  otp: string;
+  otp?: string | undefined;
 }
