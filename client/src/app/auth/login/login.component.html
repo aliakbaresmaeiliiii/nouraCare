@@ -77,90 +77,124 @@
           novalidate
         >
           @if (!loginOtpStep()) {
-            <div class="form-group">
-              <label class="form-label visually-hidden" for="login-email">{{
-                "auth.email" | translate
-              }}</label>
-              <div class="input-shell">
-                <ion-icon
-                  name="mail-outline"
-                  class="input-icon"
-                  aria-hidden="true"
-                ></ion-icon>
-                <input
-                  id="login-email"
-                  type="email"
-                  formControlName="email"
-                  [placeholder]="'auth.emailPlaceholder' | translate"
-                  class="form-input"
-                  autocomplete="email"
-                  inputmode="email"
-                  [attr.aria-invalid]="emailShowError() ? true : null"
-                  [attr.aria-describedby]="
-                    emailShowError() ? 'login-email-error' : null
-                  "
-                  [class.error]="emailShowError()"
-                />
-              </div>
-              @if (emailShowError()) {
-                <div
-                  id="login-email-error"
-                  class="error-message"
-                  role="alert"
-                >
-                  <ion-icon
-                    name="alert-circle-outline"
-                    aria-hidden="true"
-                  ></ion-icon>
-                  {{ "auth.validEmailError" | translate }}
-                </div>
-              }
+            <div
+              class="method-switch"
+              [class.method-switch--dark]="isDarkTheme()"
+              role="group"
+              [attr.aria-label]="'auth.loginMethod' | translate"
+            >
+              <button
+                type="button"
+                class="method-switch__option"
+                [class.method-switch__option--active]="loginMethod() === 'email'"
+                [attr.aria-pressed]="loginMethod() === 'email'"
+                (click)="setLoginMethod('email')"
+              >
+                <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+                <span>{{ "auth.email" | translate }}</span>
+              </button>
+              <button
+                type="button"
+                class="method-switch__option"
+                [class.method-switch__option--active]="loginMethod() === 'phone'"
+                [attr.aria-pressed]="loginMethod() === 'phone'"
+                (click)="setLoginMethod('phone')"
+              >
+                <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                <span>{{ "auth.phone" | translate }}</span>
+              </button>
             </div>
 
-            <div class="form-group">
-              <label class="form-label visually-hidden" for="login-phone">{{
-                "auth.phone" | translate
-              }}</label>
-              <div class="input-shell">
-                <ion-icon
-                  name="call-outline"
-                  class="input-icon"
-                  aria-hidden="true"
-                ></ion-icon>
-                <input
-                  id="login-phone"
-                  type="tel"
-                  formControlName="phoneNumber"
-                  [placeholder]="'auth.phonePlaceholder' | translate"
-                  class="form-input"
-                  autocomplete="tel"
-                  inputmode="tel"
-                  [attr.aria-invalid]="phoneShowError() ? true : null"
-                  [attr.aria-describedby]="
-                    phoneShowError() ? 'login-phone-error' : null
-                  "
-                  [class.error]="phoneShowError()"
-                />
-              </div>
-              @if (phoneShowError()) {
-                <div
-                  id="login-phone-error"
-                  class="error-message"
-                  role="alert"
-                >
+            @if (loginMethod() === 'email') {
+              <div class="form-group">
+                <label class="form-label visually-hidden" for="login-email">{{
+                  "auth.email" | translate
+                }}</label>
+                <div class="input-shell">
                   <ion-icon
-                    name="alert-circle-outline"
+                    name="mail-outline"
+                    class="input-icon"
                     aria-hidden="true"
                   ></ion-icon>
-                  {{ "auth.validPhoneError" | translate }}
+                  <input
+                    id="login-email"
+                    type="email"
+                    formControlName="email"
+                    [placeholder]="'auth.emailPlaceholder' | translate"
+                    class="form-input"
+                    autocomplete="email"
+                    inputmode="email"
+                    [attr.aria-invalid]="emailShowError() ? true : null"
+                    [attr.aria-describedby]="
+                      emailShowError() ? 'login-email-error' : null
+                    "
+                    [class.error]="emailShowError()"
+                  />
                 </div>
-              }
-            </div>
+                @if (emailShowError()) {
+                  <div
+                    id="login-email-error"
+                    class="error-message"
+                    role="alert"
+                  >
+                    <ion-icon
+                      name="alert-circle-outline"
+                      aria-hidden="true"
+                    ></ion-icon>
+                    {{ "auth.validEmailError" | translate }}
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="form-group">
+                <label class="form-label visually-hidden" for="login-phone">{{
+                  "auth.phone" | translate
+                }}</label>
+                <div class="input-shell">
+                  <ion-icon
+                    name="call-outline"
+                    class="input-icon"
+                    aria-hidden="true"
+                  ></ion-icon>
+                  <input
+                    id="login-phone"
+                    type="tel"
+                    formControlName="phoneNumber"
+                    [placeholder]="'auth.phonePlaceholder' | translate"
+                    class="form-input"
+                    autocomplete="tel"
+                    inputmode="tel"
+                    [attr.aria-invalid]="phoneShowError() ? true : null"
+                    [attr.aria-describedby]="
+                      phoneShowError() ? 'login-phone-error' : null
+                    "
+                    [class.error]="phoneShowError()"
+                  />
+                </div>
+                @if (phoneShowError()) {
+                  <div
+                    id="login-phone-error"
+                    class="error-message"
+                    role="alert"
+                  >
+                    <ion-icon
+                      name="alert-circle-outline"
+                      aria-hidden="true"
+                    ></ion-icon>
+                    {{ "auth.validPhoneError" | translate }}
+                  </div>
+                }
+              </div>
+            }
           } @else {
             <div class="otp-step-banner">
               <div class="otp-step-banner__icon">
                 <ion-icon
-                  name="mail-open-outline"
+                  [name]="
+                    loginMethod() === 'phone'
+                      ? 'call-outline'
+                      : 'mail-open-outline'
+                  "
                   aria-hidden="true"
                 ></ion-icon>
               </div>
@@ -170,7 +204,12 @@
                 class="change-email-link"
                 (click)="resetLoginOtpStep()"
               >
-                {{ "auth.changeEmail" | translate }}
+                {{
+                  (loginMethod() === 'phone'
+                    ? 'auth.changePhone'
+                    : 'auth.changeEmail'
+                  ) | translate
+                }}
               </button>
             </div>
 
@@ -216,13 +255,7 @@
             [disabled]="loginDisabled()"
             [loading]="isLoginLoading()"
           >
-            {{
-              isLoginLoading()
-                ? ("auth.signingIn" | translate)
-                : loginOtpStep()
-                  ? ("auth.verifyCode" | translate)
-                  : ("auth.continueWithEmail" | translate)
-            }}
+            {{ continueButtonLabelKey() | translate }}
           </app-button>
 
           <div class="social-divider">

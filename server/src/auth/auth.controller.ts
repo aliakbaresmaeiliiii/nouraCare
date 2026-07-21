@@ -59,15 +59,18 @@ export class AuthController {
     @Headers('accept-language') acceptLanguage?: string,
     @Headers('x-app-language') appLanguage?: string,
   ) {
+    if (!loginDto.email && !loginDto.phoneNumber) {
+      throw new BadRequestException('Email or phone number is required');
+    }
     const result = await this.authService.login(
-      loginDto.email,
-      loginDto.otp,
-      resolveRequestLocale(acceptLanguage, appLanguage),
       {
+        email: loginDto.email,
         phoneNumber: loginDto.phoneNumber,
+        otp: loginDto.otp,
         onboardingData: loginDto.onboardingData,
         inviteCode: loginDto.inviteCode,
       },
+      resolveRequestLocale(acceptLanguage, appLanguage),
     );
     if ('otpSent' in result && result.otpSent) {
       return ApiResponseHelper.success(

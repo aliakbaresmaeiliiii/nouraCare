@@ -131,13 +131,13 @@ export class LoginComponent
   private readonly themeService = inject(ThemeService);
 
   readonly loginForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    phoneNumber: [
-      '',
-      [Validators.required, Validators.pattern(/^(\+98|0)?9\d{9}$/)],
-    ],
+    email: [''],
+    phoneNumber: [''],
     otp: ['', [Validators.minLength(6), Validators.maxLength(6)]],
   });
+
+  /** Which identifier the user is signing in with. */
+  readonly loginMethod = signal<'email' | 'phone'>('email');
 
   readonly isDarkTheme = signal(false);
   readonly titlePaintActive = signal(false);
@@ -188,31 +188,52 @@ export class LoginComponent
       return true;
     }
     const form = this.loginFormView();
+    const method = this.loginMethod();
     if (!this.loginOtpStep()) {
-      return form.emailInvalid || form.phoneInvalid;
+      return method === 'email' ? form.emailInvalid : form.phoneInvalid;
     }
-    return form.emailInvalid || form.otpIncomplete;
+    return form.otpIncomplete;
   });
 
   readonly emailShowError = computed(() => {
     const form = this.loginFormView();
-    return form.emailTouched && form.emailInvalid;
+    return (
+      this.loginMethod() === 'email' &&
+      form.emailTouched &&
+      form.emailInvalid
+    );
   });
 
   readonly phoneShowError = computed(() => {
     const form = this.loginFormView();
-    return form.phoneTouched && form.phoneInvalid;
+    return (
+      this.loginMethod() === 'phone' &&
+      form.phoneTouched &&
+      form.phoneInvalid
+    );
   });
 
   readonly loginOtpSentMessage = computed(() => {
-    const phone = this.loginFormView().phoneNumber;
-    if (phone) {
+    if (this.loginMethod() === 'phone') {
+      const phone = this.loginFormView().phoneNumber;
       return this.translation.translateParams('auth.otpSentToPhone', {
         phone,
       });
     }
     const email = this.loginFormView().email;
     return this.translation.translateParams('auth.otpSentTo', { email });
+  });
+
+  readonly continueButtonLabelKey = computed(() => {
+    if (this.isLoginLoading()) {
+      return 'auth.signingIn';
+    }
+    if (this.loginOtpStep()) {
+      return 'auth.verifyCode';
+    }
+    return this.loginMethod() === 'phone'
+      ? 'auth.continueWithPhone'
+      : 'auth.continueWithEmail';
   });
 
   constructor() {
@@ -233,6 +254,7 @@ export class LoginComponent
 
   ngOnInit(): void {
     this.syncThemeFromService();
+    this.applyLoginMethodValidators(this.loginMethod());
     this.themeService.appearanceChanged$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.syncThemeFromService());
@@ -257,22 +279,31 @@ export class LoginComponent
         filter(() => this.canSubmitLogin()),
         tap(() => this.authActionInProgress.set('login')),
         exhaustMap(() => {
+          const method = this.loginMethod();
           const email = (this.loginForm.value.email || '').trim();
           const phoneNumber = this.normalizePhoneInput(
             this.loginForm.value.phoneNumber,
           );
           const otp = this.normalizeOtpInput(this.loginForm.value.otp);
 
+          const loginPayload =
+            method === 'phone'
+              ? { phoneNumber: phoneNumber!, otp: otp || undefined }
+              : { email, otp: otp || undefined };
+
           const authRequest$: Observable<TokenResponse> =
             this.loginOtpStep() && otp
-              ? this.verifyOtpViaEmailApi
+              ? this.verifyOtpViaEmailApi && method === 'email'
                 ? this.auth.verifyEmail({ email, code: otp })
-                : this.auth.login({ email, otp, phoneNumber })
-              : this.auth.login({ email, phoneNumber }).pipe(
+                : this.auth.login(loginPayload)
+              : this.auth.login(loginPayload).pipe(
                   catchError((err) => {
                     const apiPayload = extractApiMessagePayload(err);
-                    if (this.isUserNotFoundError(apiPayload)) {
-                      return this.registerUnknownEmail(email, phoneNumber);
+                    if (
+                      method === 'email' &&
+                      this.isUserNotFoundError(apiPayload)
+                    ) {
+                      return this.registerUnknownEmail(email);
                     }
                     throw err;
                   }),
@@ -282,9 +313,10 @@ export class LoginComponent
             catchError((err) => {
               const apiPayload = extractApiMessagePayload(err);
               if (
-                apiPayload.messageKey === 'auth.api.emailNotVerified' ||
-                apiPayload.message ===
-                  'Email is not verified. Please complete email verification first.'
+                method === 'email' &&
+                (apiPayload.messageKey === 'auth.api.emailNotVerified' ||
+                  apiPayload.message ===
+                    'Email is not verified. Please complete email verification first.')
               ) {
                 this.persistEmailForVerification(email);
                 markEmailVerificationSent();
@@ -315,7 +347,7 @@ export class LoginComponent
             !res?.data?.accessToken &&
             (res?.data?.otpSent || res?.data?.requiresVerification)
           ) {
-            this.enterLoginOtpStep(this.loginForm.value.email || '');
+            this.enterLoginOtpStep();
             this.presentToast(
               resolveApiMessage(this.translation, {
                 messageKey: res.messageKey ?? res.data?.messageKey,
@@ -371,6 +403,16 @@ export class LoginComponent
     this.themeService.setPreference(preference);
   }
 
+  setLoginMethod(method: 'email' | 'phone'): void {
+    if (this.loginMethod() === method || this.loginOtpStep()) {
+      return;
+    }
+    this.loginMethod.set(method);
+    this.applyLoginMethodValidators(method);
+    this.loginForm.patchValue({ otp: '' });
+    this.loginForm.markAsUntouched();
+  }
+
   resetLoginOtpStep(): void {
     this.loginOtpStep.set(false);
     this.verifyOtpViaEmailApi = false;
@@ -382,19 +424,27 @@ export class LoginComponent
       return;
     }
 
+    const method = this.loginMethod();
     const email = (this.loginForm.get('email')?.value || '').trim();
     const phoneNumber = this.normalizePhoneInput(
       this.loginForm.get('phoneNumber')?.value,
     );
-    if (!this.isValidEmail(email)) {
+
+    if (method === 'email' && !this.isValidEmail(email)) {
+      return;
+    }
+    if (method === 'phone' && !phoneNumber) {
       return;
     }
 
     this.isResendingLoginOtp.set(true);
 
-    const resend$ = this.verifyOtpViaEmailApi
-      ? this.auth.resendOtp({ email })
-      : this.auth.login({ email, phoneNumber });
+    const resend$ =
+      this.verifyOtpViaEmailApi && method === 'email'
+        ? this.auth.resendOtp({ email })
+        : this.auth.login(
+            method === 'phone' ? { phoneNumber: phoneNumber! } : { email },
+          );
 
     resend$
       .pipe(
@@ -499,14 +549,10 @@ export class LoginComponent
   }
 
   /** Older sign-in APIs return 404/401 for unknown emails — create + send OTP. */
-  private registerUnknownEmail(
-    email: string,
-    phoneNumber?: string,
-  ): Observable<TokenResponse> {
+  private registerUnknownEmail(email: string): Observable<TokenResponse> {
     const registerPayload: RegisterRequest = {
       email,
-      phoneNumber:
-        phoneNumber || this.loginForm.value.phoneNumber || undefined,
+      phoneNumber: undefined,
     };
     const onboardingData = this.readStoredOnboardingData();
 
@@ -550,9 +596,13 @@ export class LoginComponent
     );
   }
 
-  private enterLoginOtpStep(email: string): void {
+  private enterLoginOtpStep(): void {
     this.loginOtpStep.set(true);
-    this.persistEmailForVerification(email);
+    if (this.loginMethod() === 'email') {
+      this.persistEmailForVerification(
+        (this.loginForm.value.email || '').trim(),
+      );
+    }
     queueMicrotask(() => this.focusLoginOtp());
   }
 
@@ -680,13 +730,33 @@ export class LoginComponent
     if (this.authActionInProgress() !== null || this.isSocialLoading()) {
       return false;
     }
+    const method = this.loginMethod();
     const emailValid = !!this.loginForm.get('email')?.valid;
     const phoneValid = !!this.loginForm.get('phoneNumber')?.valid;
     if (!this.loginOtpStep()) {
-      return emailValid && phoneValid;
+      return method === 'email' ? emailValid : phoneValid;
     }
     const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
-    return emailValid && otp.length === EMAIL_OTP_LENGTH;
+    return otp.length === EMAIL_OTP_LENGTH;
+  }
+
+  private applyLoginMethodValidators(method: 'email' | 'phone'): void {
+    const emailCtrl = this.loginForm.get('email');
+    const phoneCtrl = this.loginForm.get('phoneNumber');
+    if (method === 'email') {
+      emailCtrl?.setValidators([Validators.required, Validators.email]);
+      phoneCtrl?.clearValidators();
+      phoneCtrl?.setValue('');
+    } else {
+      phoneCtrl?.setValidators([
+        Validators.required,
+        Validators.pattern(/^(\+98|0)?9\d{9}$/),
+      ]);
+      emailCtrl?.clearValidators();
+      emailCtrl?.setValue('');
+    }
+    emailCtrl?.updateValueAndValidity({ emitEvent: false });
+    phoneCtrl?.updateValueAndValidity({ emitEvent: false });
   }
 
   private readLoginFormView(): {

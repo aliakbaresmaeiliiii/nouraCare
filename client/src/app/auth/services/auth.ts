@@ -70,15 +70,19 @@ export class AuthService {
   }
 
   /**
-   * Continue with email — existing users sign in; unknown emails are auto-registered
-   * and receive an OTP (server returns otpSent until the code is verified).
-   * Body stays email + optional otp so older API builds (forbidNonWhitelisted)
-   * do not 400 on onboardingData / inviteCode. Onboarding is applied after auth.
+   * Continue with email or phone — existing users sign in; unknown identifiers
+   * are auto-registered and receive an OTP (server returns otpSent until verified).
    */
   login(data: LoginRequest): Observable<TokenResponse> {
-    const body: { email: string; otp?: string } = {
-      email: data.email.trim().toLowerCase(),
-    };
+    const body: { email?: string; phoneNumber?: string; otp?: string } = {};
+    const email = data.email?.trim().toLowerCase();
+    const phoneNumber = data.phoneNumber?.trim();
+    if (email) {
+      body.email = email;
+    }
+    if (phoneNumber) {
+      body.phoneNumber = phoneNumber;
+    }
     if (data.otp?.trim()) {
       body.otp = String(data.otp).trim();
     }

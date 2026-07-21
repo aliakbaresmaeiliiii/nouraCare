@@ -270,24 +270,47 @@ export class AuthService {
   }
 
   /**
-   * Continue-with-email:
-   * - Existing verified user → login (OTP when EMAIL_OTP_ENABLED)
-   * - Unknown email → auto-register, send OTP, return otpSent
+   * Continue-with-email or continue-with-phone:
+   * - Existing verified user → login (OTP when required)
+   * - Unknown identifier → auto-register, send OTP, return otpSent
    * - Unverified user → send/verify OTP on this same endpoint
    */
   async login(
-    email: string,
-    otp?: string,
-    locale?: string,
-    options?: {
+    input: {
+      email?: string;
       phoneNumber?: string;
+      otp?: string;
       onboardingData?: Record<string, unknown>;
       inviteCode?: string;
     },
+    locale?: string,
   ) {
-    const normalizedEmail = this.normalizeEmail(email);
+    const otp = input.otp;
+    const options = {
+      phoneNumber: input.phoneNumber,
+      onboardingData: input.onboardingData,
+      inviteCode: input.inviteCode,
+    };
+
+    const normalizedPhone = this.smsIr.normalizeMobile(input.phoneNumber);
+    const normalizedEmail = input.email
+      ? this.normalizeEmail(input.email)
+      : undefined;
+
+    if (!normalizedEmail && !normalizedPhone) {
+      throw new BadRequestException({
+        message: 'Email or phone number is required',
+        messageKey: AUTH_MESSAGE_KEYS.EMAIL_OR_PHONE_REQUIRED,
+      });
+    }
+
+    // Phone-first path (no email in request)
+    if (!normalizedEmail && normalizedPhone) {
+      return this.loginWithPhone(normalizedPhone, otp, locale, options);
+    }
+
     let user = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
+      where: { email: normalizedEmail! },
       select: {
         ...USER_PUBLIC_SELECT,
         emailVerificationCode: true,
@@ -304,9 +327,70 @@ export class AuthService {
       }
 
       // New email: create account and send OTP for verification / first login.
-      return this.autoRegisterForEmailSignIn(normalizedEmail, locale, options);
+      return this.autoRegisterForEmailSignIn(normalizedEmail!, locale, options);
     }
 
+    return this.continueLoginForExistingUser(user, otp, locale, options);
+  }
+
+  /** Phone-only sign-in / auto-register. */
+  private async loginWithPhone(
+    phone: string,
+    otp: string | undefined,
+    locale: string | undefined,
+    options: {
+      phoneNumber?: string;
+      onboardingData?: Record<string, unknown>;
+      inviteCode?: string;
+    },
+  ) {
+    let user = await this.prisma.user.findUnique({
+      where: { phoneNumber: phone },
+      select: {
+        ...USER_PUBLIC_SELECT,
+        emailVerificationCode: true,
+        emailVerificationCodeExpires: true,
+      },
+    });
+
+    if (!user) {
+      if (otp?.trim()) {
+        throw new UnauthorizedException({
+          message: 'Invalid or expired sign-in code',
+          messageKey: AUTH_MESSAGE_KEYS.INVALID_OR_EXPIRED_SIGNIN_CODE,
+        });
+      }
+      return this.autoRegisterForPhoneSignIn(phone, locale, options);
+    }
+
+    return this.continueLoginForExistingUser(user, otp, locale, {
+      ...options,
+      phoneNumber: phone,
+    });
+  }
+
+  private async continueLoginForExistingUser(
+    user: {
+      id: number;
+      email: string;
+      phoneNumber: string;
+      fullName: string;
+      role: string;
+      status: string;
+      isVerified: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+      emailVerificationCode: string | null;
+      emailVerificationCodeExpires: Date | null;
+    },
+    otp: string | undefined,
+    locale: string | undefined,
+    options: {
+      phoneNumber?: string;
+      onboardingData?: Record<string, unknown>;
+      inviteCode?: string;
+    },
+  ): Promise<any> {
     if (user.status !== 'ACTIVE') {
       throw new UnauthorizedException({
         message: 'Account is not active',
@@ -343,7 +427,10 @@ export class AuthService {
     const smsPhone = this.smsIr.normalizeMobile(
       user.phoneNumber ?? options?.phoneNumber,
     );
-    const requireOtpForSms = this.smsIr.isConfigured() && Boolean(smsPhone);
+    const phoneOnlyAccount = this.isPhonePlaceholderEmail(user.email);
+    const requireOtpForSms =
+      phoneOnlyAccount ||
+      (this.smsIr.isConfigured() && Boolean(smsPhone));
 
     // Unverified accounts always complete via OTP on this endpoint.
     if (!user.isVerified) {
@@ -359,7 +446,7 @@ export class AuthService {
       return this.completeOtpSignIn(user, otp.trim(), true);
     }
 
-    // Verified user — OTP optional via feature flag, or required when SMS OTP is available.
+    // Verified user — OTP optional via feature flag, or required for SMS / phone accounts.
     if (!env.EMAIL_OTP_ENABLED && !requireOtpForSms) {
       const { emailVerificationCode: _c, emailVerificationCodeExpires: _e, ...publicUser } =
         user;
@@ -381,6 +468,120 @@ export class AuthService {
     }
 
     return this.completeOtpSignIn(user, otp.trim(), false);
+  }
+
+  /** Create account for an unknown phone, SMS an OTP, and ask the client to verify. */
+  private async autoRegisterForPhoneSignIn(
+    phone: string,
+    locale?: string,
+    options?: {
+      onboardingData?: Record<string, unknown>;
+      inviteCode?: string;
+    },
+  ) {
+    if (!this.smsIr.isConfigured()) {
+      throw new BadRequestException({
+        message: 'SMS sign-in is not configured',
+        messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_OTP_SMS,
+      });
+    }
+
+    const email = this.phonePlaceholderEmail(phone);
+    const verificationCode = this.generateOtp();
+    this.logDevOtp(phone, verificationCode, 'register-phone');
+    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    let user;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          phoneNumber: phone,
+          fullName: '',
+          isVerified: false,
+          emailVerificationCode: verificationCode,
+          emailVerificationCodeExpires: verificationCodeExpires,
+          updatedAt: new Date(),
+          user_subscription: {
+            create: {
+              usageDayPaywallThreshold: 3 + Math.floor(Math.random() * 3),
+            },
+          },
+        },
+        select: USER_PUBLIC_SELECT,
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const existing = await this.prisma.user.findUnique({
+          where: { phoneNumber: phone },
+          select: {
+            ...USER_PUBLIC_SELECT,
+            emailVerificationCode: true,
+            emailVerificationCodeExpires: true,
+          },
+        });
+        if (existing) {
+          return this.login({ phoneNumber: phone }, locale);
+        }
+        throw new ConflictException({
+          message: 'User with this email or phone number already exists',
+          messageKey: AUTH_MESSAGE_KEYS.USER_ALREADY_EXISTS,
+        });
+      }
+      throw error;
+    }
+
+    try {
+      await this.deliverOtp({
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        code: verificationCode,
+        locale,
+        purpose: 'verification',
+      });
+    } catch (error) {
+      console.error('Failed to send phone verification OTP:', error);
+      this.logDevOtp(phone, verificationCode, 'register-phone-otp-failed');
+      if (env.SMS_STRICT || process.env.EMAIL_STRICT === 'true') {
+        await this.prisma.user.delete({ where: { id: user.id } }).catch((deleteError) => {
+          console.error('Failed to roll back user after OTP error:', deleteError);
+        });
+        throw new BadRequestException({
+          message: 'Failed to send OTP SMS',
+          messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_OTP_SMS,
+        });
+      }
+    }
+
+    const onboardingDto = mapRegisterOnboardingPayload(options?.onboardingData);
+    if (onboardingDto) {
+      try {
+        await this.userOnboarding.saveOnboardingData(user.id, onboardingDto);
+        await this.initializeReproductiveFromOnboarding(user.id, onboardingDto);
+      } catch (err) {
+        console.error(
+          'Failed to persist onboarding_data at phone auto-register:',
+          err,
+        );
+      }
+    }
+
+    try {
+      await this.growthService.onNewAccount(user.id, options?.inviteCode);
+    } catch (err) {
+      console.error('Growth referral setup failed at phone auto-register:', err);
+    }
+
+    return {
+      otpSent: true,
+      isNewUser: true,
+      requiresVerification: true,
+      message: 'If the account exists, a sign-in code was sent.',
+      messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
+    };
   }
 
   /** Create account for an unknown email, email an OTP, and ask the client to verify. */
@@ -431,7 +632,7 @@ export class AuthService {
           },
         });
         if (existing) {
-          return this.login(email, undefined, locale, options);
+          return this.login({ email, phoneNumber: options?.phoneNumber }, locale);
         }
         throw new ConflictException({
           message: 'User with this email or phone number already exists',
@@ -562,6 +763,7 @@ export class AuthService {
     purpose: 'sign-in' | 'verification';
   }): Promise<void> {
     const mobile = this.smsIr.normalizeMobile(params.phoneNumber);
+    const phoneOnlyAccount = this.isPhonePlaceholderEmail(params.email);
     let smsSent = false;
 
     if (this.smsIr.isConfigured() && mobile) {
@@ -570,16 +772,21 @@ export class AuthService {
         smsSent = true;
       } catch (error) {
         console.error('sms.ir OTP send failed:', error);
-        if (env.SMS_STRICT) {
+        if (env.SMS_STRICT || phoneOnlyAccount) {
           throw new BadRequestException({
             message: 'Failed to send OTP SMS',
             messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_OTP_SMS,
           });
         }
       }
+    } else if (phoneOnlyAccount) {
+      throw new BadRequestException({
+        message: 'Failed to send OTP SMS',
+        messageKey: AUTH_MESSAGE_KEYS.FAILED_SEND_OTP_SMS,
+      });
     }
 
-    if (smsSent && env.SMS_OTP_SKIP_EMAIL) {
+    if (smsSent && (env.SMS_OTP_SKIP_EMAIL || phoneOnlyAccount)) {
       return;
     }
 
@@ -596,6 +803,15 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  /** Synthetic email used when the user signs up with phone only. */
+  private phonePlaceholderEmail(phone: string): string {
+    return `phone.${phone}@phone.local`;
+  }
+
+  private isPhonePlaceholderEmail(email: string): boolean {
+    return email.endsWith('@phone.local');
   }
 
   private async completeOtpSignIn(
