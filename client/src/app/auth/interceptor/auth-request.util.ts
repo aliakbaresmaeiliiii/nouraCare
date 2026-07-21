@@ -2,6 +2,8 @@
 const PUBLIC_AUTH_PATH_SUFFIXES = [
   '/auth/register',
   '/auth/sign-in',
+  '/auth/otp/request',
+  '/auth/otp/verify',
   '/auth/social-login',
   '/auth/refresh',
   '/auth/verify-email',

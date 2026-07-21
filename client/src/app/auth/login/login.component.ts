@@ -86,7 +86,6 @@ import {
   GoogleSignInNotConfiguredError,
   GoogleSignInService,
 } from '../services/google-sign-in.service';
-import { RegisterRequest } from './model/register-request-interface';
 
 @Component({
   selector: 'app-login',
@@ -151,11 +150,6 @@ export class LoginComponent
   readonly isResendingLoginOtp = signal(false);
 
   private readonly authActionInProgress = signal<'login' | null>(null);
-  /**
-   * When true, OTP was issued via /register (older APIs that still 404 unknown
-   * emails on sign-in). Verify/resend use verify-email endpoints instead of sign-in.
-   */
-  private verifyOtpViaEmailApi = false;
   private titlePaintTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly loginClick$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
@@ -285,48 +279,21 @@ export class LoginComponent
             this.loginForm.value.phoneNumber,
           );
           const otp = this.normalizeOtpInput(this.loginForm.value.otp);
-
-          const loginPayload =
+          const identifier =
             method === 'phone'
-              ? { phoneNumber: phoneNumber!, otp: otp || undefined }
-              : { email, otp: otp || undefined };
+              ? { phoneNumber: phoneNumber! }
+              : { email };
 
           const authRequest$: Observable<TokenResponse> =
             this.loginOtpStep() && otp
-              ? this.verifyOtpViaEmailApi && method === 'email'
-                ? this.auth.verifyEmail({ email, code: otp })
-                : this.auth.login(loginPayload)
-              : this.auth.login(loginPayload).pipe(
-                  catchError((err) => {
-                    const apiPayload = extractApiMessagePayload(err);
-                    if (
-                      method === 'email' &&
-                      this.isUserNotFoundError(apiPayload)
-                    ) {
-                      return this.registerUnknownEmail(email);
-                    }
-                    throw err;
-                  }),
-                );
+              ? this.auth.verifyOtp({ ...identifier, otp })
+              : this.auth.requestOtp(identifier);
 
           return authRequest$.pipe(
             catchError((err) => {
-              const apiPayload = extractApiMessagePayload(err);
-              if (
-                method === 'email' &&
-                (apiPayload.messageKey === 'auth.api.emailNotVerified' ||
-                  apiPayload.message ===
-                    'Email is not verified. Please complete email verification first.')
-              ) {
-                this.persistEmailForVerification(email);
-                markEmailVerificationSent();
-                void this.router.navigate(['/auth/verify-email']);
-                return EMPTY;
-              }
-
               this.presentToast(
                 resolveApiMessage(this.translation, {
-                  ...apiPayload,
+                  ...extractApiMessagePayload(err),
                   fallbackKey: 'auth.toast.loginFailed',
                 }),
                 false,
@@ -415,7 +382,6 @@ export class LoginComponent
 
   resetLoginOtpStep(): void {
     this.loginOtpStep.set(false);
-    this.verifyOtpViaEmailApi = false;
     this.loginForm.patchValue({ otp: '' });
   }
 
@@ -439,12 +405,9 @@ export class LoginComponent
 
     this.isResendingLoginOtp.set(true);
 
-    const resend$ =
-      this.verifyOtpViaEmailApi && method === 'email'
-        ? this.auth.resendOtp({ email })
-        : this.auth.login(
-            method === 'phone' ? { phoneNumber: phoneNumber! } : { email },
-          );
+    const resend$ = this.auth.requestOtp(
+      method === 'phone' ? { phoneNumber: phoneNumber! } : { email },
+    );
 
     resend$
       .pipe(
@@ -454,12 +417,9 @@ export class LoginComponent
       .subscribe({
         next: (res) => {
           const otpSent =
-            res?.data?.otpSent === true ||
-            this.verifyOtpViaEmailApi ||
-            !!res?.messageKey;
+            res?.data?.otpSent === true || !!res?.messageKey;
           if (otpSent) {
             this.loginForm.patchValue({ otp: '' });
-            markEmailVerificationSent();
             this.presentToast(
               resolveApiMessage(this.translation, {
                 messageKey: res?.messageKey ?? res?.data?.messageKey,
@@ -546,54 +506,6 @@ export class LoginComponent
     this.destroy$.next();
     this.destroy$.complete();
     this.loginClick$.complete();
-  }
-
-  /** Older sign-in APIs return 404/401 for unknown emails — create + send OTP. */
-  private registerUnknownEmail(email: string): Observable<TokenResponse> {
-    const registerPayload: RegisterRequest = {
-      email,
-      phoneNumber: undefined,
-    };
-    const onboardingData = this.readStoredOnboardingData();
-
-    return this.auth.register(registerPayload, onboardingData).pipe(
-      map((res: TokenResponse) => {
-        if (res?.data?.accessToken) {
-          return res;
-        }
-
-        this.verifyOtpViaEmailApi = true;
-        markEmailVerificationSent();
-        this.persistEmailForVerification(email);
-
-        return {
-          code: res?.code ?? 200,
-          isSuccess: true,
-          message:
-            res?.message ??
-            res?.data?.messageKey ??
-            'If the account exists, a sign-in code was sent.',
-          messageKey: res?.messageKey ?? 'auth.api.otpSentIfExists',
-          timestamp: res?.timestamp ?? new Date().toISOString(),
-          data: {
-            ...(res?.data ?? {}),
-            otpSent: true,
-            isNewUser: true,
-            requiresVerification: true,
-          },
-        } as TokenResponse;
-      }),
-      catchError((err) => {
-        const apiPayload = extractApiMessagePayload(err);
-        if (
-          apiPayload.messageKey === 'auth.api.userAlreadyExists' ||
-          (apiPayload.message || '').toLowerCase().includes('already exists')
-        ) {
-          return this.auth.login({ email });
-        }
-        throw err;
-      }),
-    );
   }
 
   private enterLoginOtpStep(): void {
@@ -789,17 +701,6 @@ export class LoginComponent
     this.toastSuccess.set(success);
     this.toastButtons.set([this.t('common.ok')]);
     this.showToast.set(true);
-  }
-
-  private isUserNotFoundError(payload: {
-    messageKey?: string | null;
-    message?: string | null;
-  }): boolean {
-    if (payload.messageKey === 'auth.api.userNotFound') {
-      return true;
-    }
-    const message = (payload.message || '').trim().toLowerCase();
-    return message === 'user not found' || message.includes('user not found');
   }
 
   private persistEmailForVerification(email: string): void {

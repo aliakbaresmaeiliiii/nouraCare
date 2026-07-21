@@ -12,6 +12,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { OtpRequestDto } from './dto/otp-request.dto';
+import { OtpVerifyDto } from './dto/otp-verify.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendVerificationDto } from './dto/resend-verification.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
@@ -51,6 +53,47 @@ export class AuthController {
     return ApiResponseHelper.success(result, 'User registered successfully');
   }
 
+  /** Unified OTP — step 1: send code (email or sms.ir). */
+  @Public()
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Post('otp/request')
+  async requestOtp(
+    @Body() dto: OtpRequestDto,
+    @Headers('accept-language') acceptLanguage?: string,
+    @Headers('x-app-language') appLanguage?: string,
+  ) {
+    if (!dto.email && !dto.phoneNumber) {
+      throw new BadRequestException('Email or phone number is required');
+    }
+    const result = await this.authService.requestOtp(
+      { email: dto.email, phoneNumber: dto.phoneNumber },
+      resolveRequestLocale(acceptLanguage, appLanguage),
+    );
+    return ApiResponseHelper.success(
+      result,
+      result.message,
+      200,
+      result.messageKey,
+    );
+  }
+
+  /** Unified OTP — step 2: verify code and issue tokens. */
+  @Public()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @Post('otp/verify')
+  async verifyOtp(@Body() dto: OtpVerifyDto) {
+    if (!dto.email && !dto.phoneNumber) {
+      throw new BadRequestException('Email or phone number is required');
+    }
+    const result = await this.authService.verifyOtp({
+      email: dto.email,
+      phoneNumber: dto.phoneNumber,
+      otp: dto.otp,
+    });
+    return ApiResponseHelper.success(result, 'Login successful');
+  }
+
+  /** @deprecated Prefer /auth/otp/request and /auth/otp/verify */
   @Public()
   @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('sign-in')

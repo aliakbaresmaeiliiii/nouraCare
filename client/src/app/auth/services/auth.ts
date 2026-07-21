@@ -70,34 +70,65 @@ export class AuthService {
   }
 
   /**
-   * Continue with email or phone — existing users sign in; unknown identifiers
-   * are auto-registered and receive an OTP (server returns otpSent until verified).
+   * Unified OTP — step 1: send code to email or phone (sms.ir).
    */
-  login(data: LoginRequest): Observable<TokenResponse> {
-    const body: { email?: string; phoneNumber?: string; otp?: string } = {};
+  requestOtp(data: {
+    email?: string;
+    phoneNumber?: string;
+  }): Observable<TokenResponse> {
+    const body: { email?: string; phoneNumber?: string } = {};
     const email = data.email?.trim().toLowerCase();
     const phoneNumber = data.phoneNumber?.trim();
-    if (email) {
-      body.email = email;
-    }
-    if (phoneNumber) {
-      body.phoneNumber = phoneNumber;
-    }
+    if (email) body.email = email;
+    if (phoneNumber) body.phoneNumber = phoneNumber;
+
+    return this.http.post<TokenResponse>(
+      `${this.baseUrl}/otp/request`,
+      body,
+      this.languageHttpOptions(),
+    );
+  }
+
+  /**
+   * Unified OTP — step 2: verify code and store tokens.
+   */
+  verifyOtp(data: {
+    email?: string;
+    phoneNumber?: string;
+    otp: string;
+  }): Observable<TokenResponse> {
+    const body: { email?: string; phoneNumber?: string; otp: string } = {
+      otp: String(data.otp).trim(),
+    };
+    const email = data.email?.trim().toLowerCase();
+    const phoneNumber = data.phoneNumber?.trim();
+    if (email) body.email = email;
+    if (phoneNumber) body.phoneNumber = phoneNumber;
+
+    return this.http.post<TokenResponse>(`${this.baseUrl}/otp/verify`, body).pipe(
+      tap((response: TokenResponse) => {
+        if (response?.data?.accessToken) {
+          this.handleTokenResponse(response);
+        }
+      }),
+    );
+  }
+
+  /**
+   * @deprecated Prefer requestOtp / verifyOtp. Kept for older callers.
+   */
+  login(data: LoginRequest): Observable<TokenResponse> {
     if (data.otp?.trim()) {
-      body.otp = String(data.otp).trim();
+      return this.verifyOtp({
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        otp: data.otp,
+      });
     }
-
-    const options = data.otp?.trim() ? {} : this.languageHttpOptions();
-
-    return this.http
-      .post<TokenResponse>(`${this.baseUrl}/sign-in`, body, options)
-      .pipe(
-        tap((response: TokenResponse) => {
-          if (response?.data?.accessToken) {
-            this.handleTokenResponse(response);
-          }
-        }),
-      );
+    return this.requestOtp({
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+    });
   }
 
   /**
