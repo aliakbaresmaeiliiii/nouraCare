@@ -59,11 +59,20 @@
         id="login-title-heading"
         class="login-title"
         [class.login-title--animating]="titlePaintActive()"
+        [attr.aria-label]="'welcome.title' | translate"
       >
-        <span class="login-title__base">{{ "welcome.title" | translate }}</span>
-        <span class="login-title__color" aria-hidden="true">{{
-          "welcome.title" | translate
-        }}</span>
+        <span class="login-title__base" aria-hidden="true">
+          {{ "welcome.title.before" | translate }}
+          <span class="login-title__brand">
+            <span class="login-title__brand-text">{{
+              "welcome.title.brand" | translate
+            }}</span>
+            <span class="login-title__brand-color">{{
+              "welcome.title.brand" | translate
+            }}</span>
+          </span>
+          {{ "welcome.title.after" | translate }}
+        </span>
       </h1>
       <p class="login-lead">{{ "welcome.subtitle" | translate }}</p>
     </header>

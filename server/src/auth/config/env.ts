@@ -1,6 +1,24 @@
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
 
-dotenv.config();
+/** Load server/.env even when Nest is started from the monorepo root. */
+function loadServerEnv(): void {
+  const candidates = [
+    path.resolve(__dirname, '../../../.env'), // dist/auth/config → server/.env
+    path.resolve(__dirname, '../../../../.env'), // nested dist layouts
+    path.resolve(process.cwd(), '.env'),
+    path.resolve(process.cwd(), 'server', '.env'),
+  ];
+  const envPath = candidates.find((p) => fs.existsSync(p));
+  if (envPath) {
+    dotenv.config({ path: envPath });
+  } else {
+    dotenv.config();
+  }
+}
+
+loadServerEnv();
 
 function requireEnv(name: string, value: string | undefined): string {
   if (!value?.trim()) {

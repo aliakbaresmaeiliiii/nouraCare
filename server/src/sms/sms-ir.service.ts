@@ -1,11 +1,29 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Smsir } from 'sms-typescript';
 import { env } from '../auth/config/env';
 
 @Injectable()
-export class SmsIrService {
+export class SmsIrService implements OnModuleInit {
   private readonly logger = new Logger(SmsIrService.name);
   private client: Smsir | null = null;
+
+  onModuleInit(): void {
+    if (!this.isConfigured()) {
+      this.logger.warn(
+        'sms.ir is NOT configured (SMS_IR_API_KEY / SMS_IR_LINE_NUMBER). Phone OTP will fail.',
+      );
+      return;
+    }
+    if (env.SMS_IR_VERIFY_TEMPLATE_ID <= 0) {
+      this.logger.warn(
+        'SMS_IR_VERIFY_TEMPLATE_ID is not set. Phone OTP should use a sms.ir verify template — bulk SMS often never delivers OTP messages.',
+      );
+    } else {
+      this.logger.log(
+        `sms.ir ready (line=${env.SMS_IR_LINE_NUMBER}, verifyTemplate=${env.SMS_IR_VERIFY_TEMPLATE_ID})`,
+      );
+    }
+  }
 
   isConfigured(): boolean {
     return Boolean(env.SMS_IR_API_KEY && env.SMS_IR_LINE_NUMBER);
@@ -34,8 +52,19 @@ export class SmsIrService {
     return digits;
   }
 
+  private assertSmsSuccess(result: any, action: string): void {
+    if (result?.status !== undefined && result.status !== 1) {
+      const detail = result?.message || JSON.stringify(result);
+      throw new BadRequestException({
+        message: `sms.ir ${action} failed: ${detail}`,
+        messageKey: 'auth.api.failedSendOtpSms',
+      });
+    }
+  }
+
   /**
-   * Send OTP via verify template (preferred) or plain bulk SMS.
+   * Send OTP via sms.ir verify template (required for reliable delivery).
+   * Falls back to bulk only when no template is configured (often blocked by operators).
    */
   async sendOtp(phone: string, code: string): Promise<void> {
     const mobile = this.normalizeMobile(phone);
@@ -50,26 +79,38 @@ export class SmsIrService {
         const result = await client.sendVerifyCode(
           mobile,
           env.SMS_IR_VERIFY_TEMPLATE_ID,
-          [{ name: env.SMS_IR_VERIFY_PARAM_NAME, value: code }],
+          [{ name: env.SMS_IR_VERIFY_PARAM_NAME, value: String(code) }],
         );
-        if (result?.status !== undefined && result.status !== 1) {
-          throw new Error(result?.message || 'sms.ir verify send failed');
-        }
-        this.logger.log(`OTP SMS (verify) queued for ${mobile}`);
+        this.assertSmsSuccess(result, 'verify');
+        this.logger.log(
+          `OTP SMS (verify) queued for ${mobile} messageId=${result?.data?.messageId ?? 'n/a'}`,
+        );
         return;
       }
+
+      this.logger.warn(
+        'Sending OTP via bulk SMS — set SMS_IR_VERIFY_TEMPLATE_ID for reliable delivery',
+      );
 
       const message =
         env.SMS_OTP_MESSAGE_TEMPLATE.replace(/\{code\}/g, code) ||
         `DoreHealth code: ${code}`;
       const result = await client.sendBulk(message, [mobile]);
-      if (result?.status !== undefined && result.status !== 1) {
-        throw new Error(result?.message || 'sms.ir bulk send failed');
-      }
-      this.logger.log(`OTP SMS (bulk) queued for ${mobile}`);
+      this.assertSmsSuccess(result, 'bulk');
+      this.logger.log(
+        `OTP SMS (bulk) queued for ${mobile} packId=${result?.data?.packId ?? 'n/a'}`,
+      );
     } catch (error) {
       this.logger.error(`Failed to send OTP SMS to ${mobile}`, error as Error);
-      throw error;
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      const detail =
+        error instanceof Error ? error.message : 'Unknown sms.ir error';
+      throw new BadRequestException({
+        message: `Failed to send OTP SMS: ${detail}`,
+        messageKey: 'auth.api.failedSendOtpSms',
+      });
     }
   }
 }

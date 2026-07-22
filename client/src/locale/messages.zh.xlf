@@ -99,6 +99,18 @@
         <source>Welcome to DoreHealth</source>
         <target>欢迎来到DoreHealth</target>
       </trans-unit>
+      <trans-unit id="welcome.title.before" datatype="html">
+        <source>Welcome to </source>
+        <target>欢迎来到</target>
+      </trans-unit>
+      <trans-unit id="welcome.title.brand" datatype="html">
+        <source>DoreHealth</source>
+        <target>DoreHealth</target>
+      </trans-unit>
+      <trans-unit id="welcome.title.after" datatype="html">
+        <source></source>
+        <target></target>
+      </trans-unit>
       <trans-unit id="welcome.subtitle" datatype="html">
         <source>Your Pregnancy Companion</source>
         <target>您的孕期伴侣</target>

@@ -10,16 +10,27 @@
   margin: 0 0 0.5rem;
   padding-inline: 0.08em;
   font-size: $login-title-size;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.15;
-}
-
-.login-title__base {
   color: var(--brand-text);
 }
 
-.login-title__color {
+.login-title__base {
+  color: inherit;
+}
+
+.login-title__brand {
+  position: relative;
+  display: inline-block;
+  font-weight: 800;
+}
+
+.login-title__brand-text {
+  color: inherit;
+}
+
+.login-title__brand-color {
   position: absolute;
   inset: 0;
   color: var(--brand-primary);
