@@ -39,6 +39,14 @@
 .otp-group {
   width: 100%;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.otp-group .resend-button {
+  width: 100%;
+  align-self: stretch;
 }
 
 .otp-container {
@@ -67,4 +75,48 @@
   --font-weight: 700;
   --margin-start: 0.06rem;
   --margin-end: 0.06rem;
+}
+
+.otp-timer {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.75rem auto 0;
+  color: var(--brand-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  background: rgba(var(--brand-primary-rgb), 0.08);
+  border-radius: $login-radius-control;
+  padding: 0.4rem 0.8rem;
+}
+
+.otp-timer__icon {
+  color: var(--brand-primary);
+  font-size: 1rem;
+}
+
+.otp-timer__countdown {
+  color: var(--brand-primary-dark, var(--brand-primary));
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.otp-expired {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin: 0.75rem 0 0;
+  background: rgba(var(--ion-color-danger-rgb), 0.08);
+  color: var(--ion-color-danger-shade);
+  border-radius: $login-radius-control;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.otp-expired__icon {
+  font-size: 1rem;
+  flex-shrink: 0;
 }

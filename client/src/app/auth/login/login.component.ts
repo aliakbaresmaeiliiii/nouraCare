@@ -32,16 +32,19 @@ import {
   moonOutline,
   shieldCheckmarkOutline,
   sunnyOutline,
+  timeOutline,
 } from 'ionicons/icons';
 import {
   EMPTY,
   Observable,
   Subject,
+  Subscription,
   catchError,
   exhaustMap,
   filter,
   finalize,
   firstValueFrom,
+  interval,
   map,
   merge,
   startWith,
@@ -74,6 +77,8 @@ import {
 } from '../../shared/utils/onboarding-reproductive.util';
 import {
   EMAIL_OTP_LENGTH,
+  EMAIL_OTP_VALIDITY_MS,
+  SMS_OTP_VALIDITY_MS,
   markEmailVerificationSent,
 } from '../constants/email-verification.constants';
 import { TokenResponse } from '../models/token.interface';
@@ -148,11 +153,16 @@ export class LoginComponent
   readonly toastButtons = signal<string[]>(['OK']);
   readonly loginOtpStep = signal(false);
   readonly isResendingLoginOtp = signal(false);
+  /** Seconds remaining until the login OTP expires. */
+  readonly loginOtpTimerSec = signal(0);
+  readonly loginOtpExpired = signal(false);
 
   private readonly authActionInProgress = signal<'login' | null>(null);
   private titlePaintTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly loginClick$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
+  private loginOtpTimerSub?: Subscription;
+  private loginOtpExpiresAt = 0;
 
   private readonly loginFormView = toSignal(
     merge(this.loginForm.valueChanges, this.loginForm.statusChanges).pipe(
@@ -186,8 +196,12 @@ export class LoginComponent
     if (!this.loginOtpStep()) {
       return method === 'email' ? form.emailInvalid : form.phoneInvalid;
     }
-    return form.otpIncomplete;
+    return form.otpIncomplete || this.loginOtpExpired();
   });
+
+  readonly loginOtpTimerDisplay = computed(() =>
+    this.formatOtpSeconds(this.loginOtpTimerSec()),
+  );
 
   readonly emailShowError = computed(() => {
     const form = this.loginFormView();
@@ -241,6 +255,7 @@ export class LoginComponent
       logoGoogle,
       logoApple,
       shieldCheckmarkOutline,
+      timeOutline,
     });
 
     this.bindPageVisibility();
@@ -381,7 +396,10 @@ export class LoginComponent
   }
 
   resetLoginOtpStep(): void {
+    this.clearLoginOtpTimer();
     this.loginOtpStep.set(false);
+    this.loginOtpExpired.set(false);
+    this.loginOtpTimerSec.set(0);
     this.loginForm.patchValue({ otp: '' });
   }
 
@@ -420,6 +438,7 @@ export class LoginComponent
             res?.data?.otpSent === true || !!res?.messageKey;
           if (otpSent) {
             this.loginForm.patchValue({ otp: '' });
+            this.startLoginOtpTimer();
             this.presentToast(
               resolveApiMessage(this.translation, {
                 messageKey: res?.messageKey ?? res?.data?.messageKey,
@@ -459,6 +478,7 @@ export class LoginComponent
     if (
       otp.length === EMAIL_OTP_LENGTH &&
       this.loginOtpStep() &&
+      !this.loginOtpExpired() &&
       !this.isLoginLoading()
     ) {
       queueMicrotask(() => this.onLogin());
@@ -503,6 +523,7 @@ export class LoginComponent
     if (this.titlePaintTimer !== null) {
       window.clearTimeout(this.titlePaintTimer);
     }
+    this.clearLoginOtpTimer();
     this.destroy$.next();
     this.destroy$.complete();
     this.loginClick$.complete();
@@ -510,12 +531,43 @@ export class LoginComponent
 
   private enterLoginOtpStep(): void {
     this.loginOtpStep.set(true);
+    this.startLoginOtpTimer();
     if (this.loginMethod() === 'email') {
       this.persistEmailForVerification(
         (this.loginForm.value.email || '').trim(),
       );
     }
     queueMicrotask(() => this.focusLoginOtp());
+  }
+
+  private startLoginOtpTimer(): void {
+    const validityMs =
+      this.loginMethod() === 'phone'
+        ? SMS_OTP_VALIDITY_MS
+        : EMAIL_OTP_VALIDITY_MS;
+    this.loginOtpExpiresAt = Date.now() + validityMs;
+    this.syncLoginOtpExpiry();
+    this.clearLoginOtpTimer();
+    this.loginOtpTimerSub = interval(1000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.syncLoginOtpExpiry());
+  }
+
+  private syncLoginOtpExpiry(): void {
+    const remainingMs = this.loginOtpExpiresAt - Date.now();
+    this.loginOtpTimerSec.set(Math.max(0, Math.ceil(remainingMs / 1000)));
+    this.loginOtpExpired.set(remainingMs <= 0);
+  }
+
+  private clearLoginOtpTimer(): void {
+    this.loginOtpTimerSub?.unsubscribe();
+    this.loginOtpTimerSub = undefined;
+  }
+
+  private formatOtpSeconds(totalSeconds: number): string {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
 
   private focusLoginOtp(): void {
@@ -647,6 +699,9 @@ export class LoginComponent
     const phoneValid = !!this.loginForm.get('phoneNumber')?.valid;
     if (!this.loginOtpStep()) {
       return method === 'email' ? emailValid : phoneValid;
+    }
+    if (this.loginOtpExpired()) {
+      return false;
     }
     const otp = this.normalizeOtpInput(this.loginForm.get('otp')?.value);
     return otp.length === EMAIL_OTP_LENGTH;

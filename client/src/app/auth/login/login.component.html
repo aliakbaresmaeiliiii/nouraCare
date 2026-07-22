@@ -241,6 +241,30 @@
                   [attr.aria-describedby]="'login-otp-hint'"
                 ></ion-input-otp>
               </div>
+
+              @if (!loginOtpExpired()) {
+                <div class="otp-timer" aria-live="polite">
+                  <ion-icon
+                    name="time-outline"
+                    class="otp-timer__icon"
+                    aria-hidden="true"
+                  ></ion-icon>
+                  <span>{{ "auth.codeExpiresIn" | translate }}</span>
+                  <strong class="otp-timer__countdown">{{
+                    loginOtpTimerDisplay()
+                  }}</strong>
+                </div>
+              } @else {
+                <div class="otp-expired" role="alert">
+                  <ion-icon
+                    name="alert-circle-outline"
+                    class="otp-expired__icon"
+                    aria-hidden="true"
+                  ></ion-icon>
+                  <span>{{ "auth.codeExpired" | translate }}</span>
+                </div>
+              }
+
               <ion-button
                 fill="clear"
                 class="resend-button"

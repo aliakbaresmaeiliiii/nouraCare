@@ -79,9 +79,9 @@ export const env = {
    * When set (>0), OTP uses sendVerifyCode; otherwise plain sendBulk text.
    */
   SMS_IR_VERIFY_TEMPLATE_ID: Number(process.env.SMS_IR_VERIFY_TEMPLATE_ID || 0),
-  /** Template placeholder name (default Code). */
+  /** Template placeholder name (sms.ir #OTP# → send as name: "OTP"). */
   SMS_IR_VERIFY_PARAM_NAME:
-    process.env.SMS_IR_VERIFY_PARAM_NAME?.trim() || 'Code',
+    process.env.SMS_IR_VERIFY_PARAM_NAME?.trim() || 'OTP',
   /** Bulk SMS body; use {code} for the OTP. */
   SMS_OTP_MESSAGE_TEMPLATE:
     process.env.SMS_OTP_MESSAGE_TEMPLATE?.trim() ||

@@ -1,8 +1,11 @@
 /** Must match server `generateOtp()` and email template. */
 export const EMAIL_OTP_LENGTH = 6;
 
-/** Must match server `emailVerificationCodeExpires` (15 minutes). */
+/** Must match server EMAIL_OTP_VALIDITY_MS (15 minutes). */
 export const EMAIL_OTP_VALIDITY_MS = 15 * 60 * 1000;
+
+/** Must match server SMS_OTP_VALIDITY_MS (3 minutes). */
+export const SMS_OTP_VALIDITY_MS = 3 * 60 * 1000;
 
 export const EMAIL_OTP_RESEND_COOLDOWN_SEC = 60;
 

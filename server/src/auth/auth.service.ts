@@ -24,6 +24,10 @@ import { GrowthService } from '../growth/growth.service';
 import { ACCESS_TOKEN_TTL } from './config/jwt.config';
 import { parseRefreshToken } from './services/social-token.service';
 import { AUTH_MESSAGE_KEYS } from './constants/auth-message-keys';
+import {
+  EMAIL_OTP_VALIDITY_MS,
+  SMS_OTP_VALIDITY_MS,
+} from './constants/otp.constants';
 import { env } from './config/env';
 import { SmsIrService } from '../sms/sms-ir.service';
 
@@ -88,7 +92,9 @@ export class AuthService {
     }
 
     const code = this.generateOtp();
-    const expires = new Date(Date.now() + 15 * 60 * 1000);
+    const validityMs =
+      channel.kind === 'phone' ? SMS_OTP_VALIDITY_MS : EMAIL_OTP_VALIDITY_MS;
+    const expires = new Date(Date.now() + validityMs);
     this.logDevOtp(
       channel.kind === 'phone' ? channel.phone : channel.email,
       code,
@@ -302,7 +308,9 @@ export class AuthService {
     // OTP for already-verified users on continue-with-email sign-in.
     const verificationCode = this.generateOtp();
     this.logDevOtp(email, verificationCode, 'register');
-    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+    const verificationCodeExpires = new Date(
+      Date.now() + EMAIL_OTP_VALIDITY_MS,
+    );
 
     let user;
     try {
@@ -464,7 +472,9 @@ export class AuthService {
 
     const verificationCode = this.generateOtp();
     this.logDevOtp(user.email, verificationCode, 'resend-verification');
-    const verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+    const verificationCodeExpires = new Date(
+      Date.now() + EMAIL_OTP_VALIDITY_MS,
+    );
 
     await this.prisma.user.update({
       where: { id: user.id },
