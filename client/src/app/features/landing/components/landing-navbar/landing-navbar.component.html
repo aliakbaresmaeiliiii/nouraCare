@@ -1,28 +1,124 @@
 <header class="nav" [class.nav--open]="menuOpen()">
   <div class="nav__inner">
     <a class="nav__brand" routerLink="/" (click)="closeMenu()">
-      <span class="nav__mark" aria-hidden="true"></span>
-      <span class="nav__name">Dore</span>
+      <img
+        class="nav__logo"
+        [src]="logoSrc"
+        [attr.alt]="'landing.brandAlt' | translate"
+        width="40"
+        height="40"
+        decoding="async"
+      />
+      <span class="nav__name">{{ 'landing.hero.brand' | translate }}</span>
     </a>
 
-    <button
-      type="button"
-      class="nav__burger"
-      [attr.aria-expanded]="menuOpen()"
-      aria-controls="landing-nav-links"
-      aria-label="Toggle menu"
-      (click)="toggleMenu()"
-    >
-      <span></span>
-      <span></span>
-    </button>
-
-    <nav id="landing-nav-links" class="nav__links" aria-label="Primary">
-      <a href="#features" (click)="closeMenu()">Features</a>
-      <a href="#screenshots" (click)="closeMenu()">Product</a>
-      <a href="#faq" (click)="closeMenu()">FAQ</a>
-      <a class="nav__ghost" routerLink="/app/auth/sign-in" (click)="closeMenu()">Sign in</a>
-      <a class="nav__cta" routerLink="/app" (click)="closeMenu()">Open app</a>
+    <nav class="nav__links nav__links--desktop" [attr.aria-label]="'landing.nav.primary' | translate">
+      @for (link of navLinks; track link.href) {
+        <a [href]="link.href">{{ link.labelKey | translate }}</a>
+      }
     </nav>
+
+    <div class="nav__actions">
+      <div class="nav__lang" [class.nav__lang--open]="langOpen()">
+        <button
+          type="button"
+          class="nav__lang-btn"
+          [attr.aria-expanded]="langOpen()"
+          [attr.aria-label]="'landing.nav.language' | translate"
+          (click)="toggleLang(); $event.stopPropagation()"
+        >
+          <span aria-hidden="true">{{ currentFlag }}</span>
+        </button>
+        @if (langOpen()) {
+          <ul
+            class="nav__lang-menu"
+            role="listbox"
+            [attr.aria-label]="'landing.nav.language' | translate"
+          >
+            @for (language of languages; track language.code) {
+              <li>
+                <button
+                  type="button"
+                  role="option"
+                  class="nav__lang-option"
+                  [class.nav__lang-option--active]="language.code === currentLanguage"
+                  [attr.aria-selected]="language.code === currentLanguage"
+                  (click)="selectLanguage(language.code)"
+                >
+                  <span aria-hidden="true">{{ language.flag }}</span>
+                  <span>{{ language.name }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <a class="nav__ghost nav__ghost--desktop" routerLink="/app/auth/sign-in">{{
+        'landing.nav.signIn' | translate
+      }}</a>
+      <a class="nav__cta nav__cta--desktop" routerLink="/app">{{
+        'landing.nav.openApp' | translate
+      }}</a>
+
+      <button
+        type="button"
+        class="nav__burger"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="landing-full-menu"
+        [attr.aria-label]="'landing.nav.toggleMenu' | translate"
+        (click)="toggleMenu()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
   </div>
+
+  @if (menuOpen()) {
+    <div
+      id="landing-full-menu"
+      class="nav__drawer"
+      role="dialog"
+      [attr.aria-label]="'landing.nav.menuTitle' | translate"
+    >
+      <div class="nav__drawer-head">
+        <div class="nav__drawer-brand">
+          <img
+            [src]="logoSrc"
+            [attr.alt]="'landing.brandAlt' | translate"
+            width="36"
+            height="36"
+            decoding="async"
+          />
+          <strong>{{ 'landing.hero.brand' | translate }}</strong>
+        </div>
+        <button
+          type="button"
+          class="nav__drawer-close"
+          [attr.aria-label]="'landing.nav.closeMenu' | translate"
+          (click)="closeMenu()"
+        >
+          ✕
+        </button>
+      </div>
+
+      <nav class="nav__drawer-links" [attr.aria-label]="'landing.nav.primary' | translate">
+        @for (link of navLinks; track link.href) {
+          <a [href]="link.href" (click)="closeMenu()">{{ link.labelKey | translate }}</a>
+        }
+        <a href="#cta" (click)="closeMenu()">{{ 'landing.nav.cta' | translate }}</a>
+      </nav>
+
+      <div class="nav__drawer-cta">
+        <a class="nav__ghost" routerLink="/app/auth/sign-in" (click)="closeMenu()">{{
+          'landing.nav.signIn' | translate
+        }}</a>
+        <a class="nav__cta" routerLink="/app" (click)="closeMenu()">{{
+          'landing.nav.openApp' | translate
+        }}</a>
+      </div>
+    </div>
+  }
 </header>

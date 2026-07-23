@@ -7,7 +7,7 @@
 }
 
 .shots__inner {
-  max-width: var(--dh-max, 1120px);
+  max-width: var(--dh-max, 1140px);
   margin: 0 auto;
 }
 
@@ -22,20 +22,21 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--dh-sea, #0f766e);
+  color: var(--dh-primary, #6366f1);
 }
 
 .shots__header h2 {
   margin: 0;
-  font-family: var(--dh-display, Georgia, serif);
-  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-family: var(--dh-display, Fredoka, sans-serif);
+  font-size: clamp(1.8rem, 3.2vw, 2.45rem);
   letter-spacing: -0.03em;
-  line-height: 1.15;
+  line-height: 1.18;
+  color: var(--dh-navy, #050a1a);
 }
 
 .shots__lede {
   margin: 0.9rem 0 0;
-  color: var(--dh-muted, #5b6b7c);
+  color: var(--dh-muted, #64748b);
   line-height: 1.6;
 }
 
@@ -52,9 +53,9 @@
 .shots__frame {
   padding: 0.85rem;
   border-radius: 1.5rem;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid var(--dh-line, rgba(7, 17, 31, 0.08));
-  box-shadow: 0 18px 40px rgba(7, 17, 31, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
 }
 
 .shots__screen {
@@ -62,19 +63,19 @@
   aspect-ratio: 9 / 16;
   border-radius: 1.05rem;
   overflow: hidden;
-  background: linear-gradient(165deg, #123041, #0a1824 70%);
+  background: linear-gradient(165deg, #191e2c, #050a1a 70%);
 }
 
 .shots__card[data-tone='sea'] .shots__orb {
-  background: radial-gradient(circle, rgba(20, 184, 166, 0.55), transparent 70%);
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.5), transparent 70%);
 }
 
 .shots__card[data-tone='ink'] .shots__orb {
-  background: radial-gradient(circle, rgba(125, 211, 199, 0.35), transparent 70%);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.5), transparent 70%);
 }
 
 .shots__card[data-tone='coral'] .shots__orb {
-  background: radial-gradient(circle, rgba(255, 107, 74, 0.4), transparent 70%);
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.35), transparent 70%);
 }
 
 .shots__bar {
@@ -138,7 +139,7 @@
 }
 
 .shots__card span {
-  color: var(--dh-muted, #5b6b7c);
+  color: var(--dh-muted, #64748b);
   font-size: 0.92rem;
   line-height: 1.5;
 }

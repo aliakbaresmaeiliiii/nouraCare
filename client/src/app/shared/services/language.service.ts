@@ -7,16 +7,16 @@ export interface Language {
   flag: string;
 }
 
-/** Set to `true` to re-enable multi-language UI and switching. */
+/** Set to `true` to re-enable multi-language UI and switching in the Ionic app shell. */
 export const LANGUAGE_SWITCHING_ENABLED = false;
 
 export const DEFAULT_APP_LANGUAGE = 'fa';
 
 const ALL_LANGUAGES: Language[] = [
+  { code: 'fa', name: 'فارسی', flag: '🇮🇷' },
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'zh', name: '中文', flag: '🇨🇳' },
   { code: 'ms', name: 'Bahasa Malaysia', flag: '🇲🇾' },
-  { code: 'fa', name: 'فارسی', flag: '🇮🇷' },
 ];
 
 @Injectable({
@@ -31,14 +31,19 @@ export class LanguageService {
     : ALL_LANGUAGES.filter((lang) => lang.code === DEFAULT_APP_LANGUAGE);
 
   constructor(private appRef: ApplicationRef) {
+    const savedLanguage =
+      localStorage.getItem('selectedLanguage') || DEFAULT_APP_LANGUAGE;
+    const initial = ALL_LANGUAGES.some((l) => l.code === savedLanguage)
+      ? savedLanguage
+      : DEFAULT_APP_LANGUAGE;
+
     if (!LANGUAGE_SWITCHING_ENABLED) {
-      this.persistLanguage(DEFAULT_APP_LANGUAGE);
-      this.applyLanguage(DEFAULT_APP_LANGUAGE);
+      // Honor saved language for marketing; in-app switchers stay hidden.
+      this.persistLanguage(initial);
+      this.applyLanguage(initial);
       return;
     }
 
-    const savedLanguage =
-      localStorage.getItem('selectedLanguage') || DEFAULT_APP_LANGUAGE;
     this.setLanguage(savedLanguage);
   }
 
@@ -46,8 +51,18 @@ export class LanguageService {
     return this.languages;
   }
 
+  /** Full language list for landing / marketing (independent of in-app switch flag). */
+  getMarketingLanguages(): Language[] {
+    return ALL_LANGUAGES;
+  }
+
   getCurrentLanguage(): string {
     return this.currentLanguageSubject.value;
+  }
+
+  isRtl(): boolean {
+    const code = this.getCurrentLanguage();
+    return code === 'ar' || code === 'he' || code === 'fa';
   }
 
   setLanguage(languageCode: string): void {
@@ -64,6 +79,21 @@ export class LanguageService {
         this.appRef.tick();
       }, 0);
     }
+  }
+
+  /**
+   * Language switch for marketing pages even when in-app switching is disabled.
+   * Defaults remain Persian (`fa`).
+   */
+  setMarketingLanguage(languageCode: string): void {
+    if (!ALL_LANGUAGES.some((lang) => lang.code === languageCode)) {
+      return;
+    }
+    this.persistLanguage(languageCode);
+    this.applyLanguage(languageCode);
+    setTimeout(() => {
+      this.appRef.tick();
+    }, 0);
   }
 
   getLanguageName(code: string): string {

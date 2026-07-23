@@ -1,10 +1,20 @@
-<section class="cta" aria-labelledby="cta-title">
+<section id="cta" class="cta" aria-labelledby="cta-title">
   <div class="cta__inner">
-    <h2 id="cta-title">Ready to feel more in sync?</h2>
-    <p>Open Dore and set up your profile in a few minutes.</p>
+    <img
+      class="cta__logo"
+      src="assets/branding/logo.png"
+      [attr.alt]="'landing.brandAlt' | translate"
+      width="56"
+      height="56"
+      decoding="async"
+    />
+    <h2 id="cta-title">{{ 'landing.cta.title' | translate }}</h2>
+    <p>{{ 'landing.cta.body' | translate }}</p>
     <div class="cta__actions">
-      <a class="cta__primary" routerLink="/app">Get started</a>
-      <a class="cta__secondary" routerLink="/app/auth/sign-in">I already have an account</a>
+      <a class="cta__primary" routerLink="/app">{{ 'landing.cta.getStarted' | translate }}</a>
+      <a class="cta__secondary" routerLink="/app/auth/sign-in">{{
+        'landing.cta.hasAccount' | translate
+      }}</a>
     </div>
   </div>
 </section>
