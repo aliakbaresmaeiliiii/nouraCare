@@ -1,4 +1,4 @@
-import type { ArticleContent } from '../../article-detail/article.types';
+import type { ArticleContent } from '@app/features/content/article-detail/article.types';
 
 /** Sample article bodies (FA) for article detail. */
 export const ARTICLE_DATABASE_FA: Record<string, ArticleContent> = {

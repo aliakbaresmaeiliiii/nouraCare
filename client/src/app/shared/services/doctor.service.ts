@@ -6,7 +6,7 @@ import {
   DoctorDto,
   DoctorListQuery,
   PaginatedDoctorsResponse,
-} from '../models/doctor.dto';
+} from '@app/shared/models/doctor.dto';
 import { environment } from '../../../environments/environment';
 
 function normalizeDoctorsPage(body: unknown): PaginatedDoctorsResponse {

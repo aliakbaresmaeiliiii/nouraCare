@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { OnboardingService, OnboardingDataDto } from './onboarding.service';
+import { OnboardingService, OnboardingDataDto } from '@app/shared/services/onboarding.service';
 import { environment } from '../../../environments/environment';
 
 describe('OnboardingService', () => {

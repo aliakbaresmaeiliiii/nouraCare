@@ -1,9 +1,9 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { ImageUrlService } from './image-url.service';
-import { UserInfoService } from './user-info.service';
-import { UserSessionService } from './user-session.service';
-import { User } from './user';
-import { OnboardingService } from './onboarding.service';
+import { ImageUrlService } from '@app/shared/services/image-url.service';
+import { UserInfoService } from '@app/shared/services/user-info.service';
+import { UserSessionService } from '@app/shared/services/user-session.service';
+import { User } from '@app/shared/services/user';
+import { OnboardingService } from '@app/shared/services/onboarding.service';
 import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 

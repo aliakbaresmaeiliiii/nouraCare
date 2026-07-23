@@ -1,4 +1,4 @@
-import { TranslationService } from '../services/translation.service';
+import { TranslationService } from '@app/shared/services/translation.service';
 
 /** Maps legacy English API / Nest error strings to translation keys. */
 const SERVER_MESSAGE_TO_KEY: Record<string, string> = {

@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { LanguageService } from '../services/language.service';
-import { formatLocalizedNumber } from '../utils/locale-date-format.util';
+import { LanguageService } from '@app/shared/services/language.service';
+import { formatLocalizedNumber } from '@app/shared/utils/locale-date-format.util';
 
 @Pipe({
   name: 'localNum',

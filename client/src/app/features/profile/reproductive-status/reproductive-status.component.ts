@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
-import { SHARED_STANDALONE_IMPORTS } from '../../../shared/shared-standalone';
+import { SHARED_STANDALONE_IMPORTS } from '@app/shared/shared-standalone';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular/standalone';
 import {
   InitializeReproductiveStateDto,
   OnboardingService,
   ReproductiveStatus,
-} from '../../../shared/services/onboarding.service';
-import { PregnancySetupSheetComponent } from '../../../shared/components/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
+} from '@app/shared/services/onboarding.service';
+import { PregnancySetupSheetComponent } from '@app/shared/ui/pregnancy-setup-sheet/pregnancy-setup-sheet.component';
 
 export type ReproductiveStatusOption =
   | 'period'

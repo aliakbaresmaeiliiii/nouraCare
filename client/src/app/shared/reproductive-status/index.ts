@@ -1,9 +1,9 @@
-export { REPRODUCTIVE_STATUS_OPTIONS } from './reproductive-status-options';
+export { REPRODUCTIVE_STATUS_OPTIONS } from '@app/shared/reproductive-status/reproductive-status-options';
 export type {
   ReproductiveHomeStatus,
   ReproductiveStatusOption,
   ReproductiveUiStatus,
-} from './reproductive-status.model';
+} from '@app/shared/reproductive-status/reproductive-status.model';
 export {
   apiStateToUiStatus,
   findReproductiveStatusOption,
@@ -11,4 +11,4 @@ export {
   normalizeReproductiveUiStatus,
   uiStatusToApiState,
   uiStatusToHomeStatus,
-} from './reproductive-status.mapper';
+} from '@app/shared/reproductive-status/reproductive-status.mapper';

@@ -1,8 +1,8 @@
-import { DoctorBookingTimeSlot } from '../models/doctor-booking.model';
+import { DoctorBookingTimeSlot } from '@app/shared/models/doctor-booking.model';
 import {
   bookingIsoDateKey,
   slotBookingDateKey,
-} from './doctor-booking-format.util';
+} from '@app/shared/utils/doctor-booking-format.util';
 
 function compareSlotsByTime(
   a: DoctorBookingTimeSlot,

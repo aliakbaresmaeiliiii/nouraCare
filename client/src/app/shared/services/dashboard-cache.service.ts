@@ -1,13 +1,13 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { forkJoin, Observable, of, throwError } from 'rxjs';
 import { catchError, finalize, shareReplay, tap } from 'rxjs/operators';
-import type { UserInfo } from '../interfaces/user-info-api.interface';
+import type { UserInfo } from '@app/shared/interfaces/user-info-api.interface';
 import {
   DashboardResponse,
   OnboardingService,
-} from './onboarding.service';
-import { UserInfoService } from './user-info.service';
-import { AuthService } from '../../auth/services/auth';
+} from '@app/shared/services/onboarding.service';
+import { UserInfoService } from '@app/shared/services/user-info.service';
+import { AuthService } from '@app/core/auth/services/auth';
 
 export interface HomeDashboardBundle {
   dashboard: DashboardResponse;

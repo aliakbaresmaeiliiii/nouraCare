@@ -9,11 +9,11 @@ export interface OnboardingJourneyRequestOptions {
 import {
   ApiEnvelope,
   UserInfo,
-} from '../interfaces/user-info-api.interface';
+} from '@app/shared/interfaces/user-info-api.interface';
 import { environment } from '../../../environments/environment';
-import { UserSessionService } from './user-session.service';
-import { AuthService } from '../../auth/services/auth';
-import { normalizeLmpInput } from '../utils/pregnancy-lmp.util';
+import { UserSessionService } from '@app/shared/services/user-session.service';
+import { AuthService } from '@app/core/auth/services/auth';
+import { normalizeLmpInput } from '@app/shared/utils/pregnancy-lmp.util';
 
 export interface OnboardingData {
   pregnancy_status: string;

@@ -1,7 +1,7 @@
 /**
  * Local calendar YYYY-MM-DD (avoids UTC day-shift from `Date#toISOString()`).
  */
-import { addCalendarDaysIso, isoDateOnly } from './pregnancy-lmp.util';
+import { addCalendarDaysIso, isoDateOnly } from '@app/shared/utils/pregnancy-lmp.util';
 
 export function localCalendarIsoDate(date: Date = new Date()): string {
   const y = date.getFullYear();

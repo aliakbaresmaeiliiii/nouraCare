@@ -1,10 +1,10 @@
-import type { ReproductiveStatus } from '../services/onboarding.service';
-import { REPRODUCTIVE_STATUS_OPTIONS } from './reproductive-status-options';
+import type { ReproductiveStatus } from '@app/shared/services/onboarding.service';
+import { REPRODUCTIVE_STATUS_OPTIONS } from '@app/shared/reproductive-status/reproductive-status-options';
 import type {
   ReproductiveHomeStatus,
   ReproductiveStatusOption,
   ReproductiveUiStatus,
-} from './reproductive-status.model';
+} from '@app/shared/reproductive-status/reproductive-status.model';
 
 /** Normalize any API / journey / local string → picker UI key. */
 export function normalizeReproductiveUiStatus(

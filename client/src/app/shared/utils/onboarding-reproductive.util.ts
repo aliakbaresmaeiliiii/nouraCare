@@ -1,9 +1,9 @@
 import type {
   InitializeReproductiveStateDto,
   ReproductiveStatus,
-} from '../services/onboarding.service';
-import { uiStatusToApiState } from '../reproductive-status/reproductive-status.mapper';
-import { normalizeLmpInput } from './pregnancy-lmp.util';
+} from '@app/shared/services/onboarding.service';
+import { uiStatusToApiState } from '@app/shared/reproductive-status/reproductive-status.mapper';
+import { normalizeLmpInput } from '@app/shared/utils/pregnancy-lmp.util';
 
 /** Shape of `localStorage.onboarding_data` written by the onboarding flow. */
 export interface LocalOnboardingAnswers {

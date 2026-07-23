@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
-import { LanguageService } from './language.service';
-import { localizeDigitsInText } from '../utils/locale-date-format.util';
-import { PRIVACY_POLICY } from '../content/privacy-policy.content';
-import { TERMS_OF_SERVICE } from '../content/terms-of-service.content';
-import { SCHOOL_TRANSLATIONS } from '../content/school-translations.content';
-import { ARTICLE_TRANSLATIONS } from '../content/article-translations.content';
-import { PAGE_TRANSLATIONS } from '../content/page-translations.content';
-import { TOOLS_MENU_TRANSLATIONS } from '../content/tools-menu-translations.content';
-import { SHOP_TRANSLATIONS } from '../content/shop-translations.content';
-import { PAYMENT_TRANSLATIONS } from '../content/payment-translations.content';
-import { TOAST_TRANSLATIONS } from '../content/toast-translations.content';
+import { LanguageService } from '@app/shared/services/language.service';
+import { localizeDigitsInText } from '@app/shared/utils/locale-date-format.util';
+import { PRIVACY_POLICY } from '@app/shared/content/privacy-policy.content';
+import { TERMS_OF_SERVICE } from '@app/shared/content/terms-of-service.content';
+import { SCHOOL_TRANSLATIONS } from '@app/shared/content/school-translations.content';
+import { ARTICLE_TRANSLATIONS } from '@app/shared/content/article-translations.content';
+import { PAGE_TRANSLATIONS } from '@app/shared/content/page-translations.content';
+import { TOOLS_MENU_TRANSLATIONS } from '@app/shared/content/tools-menu-translations.content';
+import { SHOP_TRANSLATIONS } from '@app/shared/content/shop-translations.content';
+import { PAYMENT_TRANSLATIONS } from '@app/shared/content/payment-translations.content';
+import { TOAST_TRANSLATIONS } from '@app/shared/content/toast-translations.content';
+import { LANDING_TRANSLATIONS } from '@app/shared/content/landing-translations.content';
 
 @Injectable({
   providedIn: 'root',
@@ -1452,6 +1453,7 @@ export class TranslationService {
       ...SHOP_TRANSLATIONS['en'],
       ...PAYMENT_TRANSLATIONS['en'],
       ...TOAST_TRANSLATIONS['en'],
+      ...LANDING_TRANSLATIONS['en'],
 
       'about.toast.feedbackSoon': 'Feedback form can open here.',
       'about.toast.rateSoon': 'Store rating can open here.',
@@ -3924,6 +3926,7 @@ export class TranslationService {
       ...SHOP_TRANSLATIONS['zh'],
       ...PAYMENT_TRANSLATIONS['zh'],
       ...TOAST_TRANSLATIONS['zh'],
+      ...LANDING_TRANSLATIONS['zh'],
 
       'about.toast.feedbackSoon': '反馈表单可在此打开。',
       'about.toast.rateSoon': '应用商店评分可在此打开。',
@@ -5491,6 +5494,7 @@ export class TranslationService {
       ...SHOP_TRANSLATIONS['ms'],
       ...PAYMENT_TRANSLATIONS['ms'],
       ...TOAST_TRANSLATIONS['ms'],
+      ...LANDING_TRANSLATIONS['ms'],
 
       'about.toast.feedbackSoon': 'Borang maklum balas boleh dibuka di sini.',
       'about.toast.rateSoon': 'Penilaian kedai boleh dibuka di sini.',
@@ -7039,6 +7043,7 @@ export class TranslationService {
       ...SHOP_TRANSLATIONS['fa'],
       ...PAYMENT_TRANSLATIONS['fa'],
       ...TOAST_TRANSLATIONS['fa'],
+      ...LANDING_TRANSLATIONS['fa'],
 
       'about.toast.feedbackSoon': 'فرم بازخورد می‌تواند اینجا باز شود.',
       'about.toast.rateSoon': 'امتیازدهی فروشگاه می‌تواند اینجا باز شود.',

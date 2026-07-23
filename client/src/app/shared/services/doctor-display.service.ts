@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { ConsultationType, DoctorDto } from '../models/doctor.dto';
-import { formatDoctorFee, formatLocalizedNumber } from '../utils/locale-date-format.util';
-import { ImageUrlService } from './image-url.service';
-import { LanguageService } from './language.service';
-import { TranslationService } from './translation.service';
+import { ConsultationType, DoctorDto } from '@app/shared/models/doctor.dto';
+import { formatDoctorFee, formatLocalizedNumber } from '@app/shared/utils/locale-date-format.util';
+import { ImageUrlService } from '@app/shared/services/image-url.service';
+import { LanguageService } from '@app/shared/services/language.service';
+import { TranslationService } from '@app/shared/services/translation.service';
 
 /** Canonical specialty values stored on doctor records (English). */
 export const DOCTOR_SPECIALTIES = [

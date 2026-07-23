@@ -3,10 +3,10 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { addCalendarDaysIso, isoDateOnly } from '../utils/pregnancy-lmp.util';
-import { UpdateReproductiveStateDto } from '../../profile/models/UpdateReproductiveStateDto';
-import { OnboardingService, type DashboardResponse } from './onboarding.service';
-import { UserInfoService } from './user-info.service';
+import { addCalendarDaysIso, isoDateOnly } from '@app/shared/utils/pregnancy-lmp.util';
+import { UpdateReproductiveStateDto } from '@app/features/profile/models/UpdateReproductiveStateDto';
+import { OnboardingService, type DashboardResponse } from '@app/shared/services/onboarding.service';
+import { UserInfoService } from '@app/shared/services/user-info.service';
 
 export interface ReproductiveStatusData {
   isPregnant?: boolean;

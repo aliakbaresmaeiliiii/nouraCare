@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  /* Escape Ionic page shell chrome when hosted under ion-router-outlet */
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+
+.dh-landing {
+  --dh-ink: #07111f;
+  --dh-ink-soft: #243247;
+  --dh-muted: #5b6b7c;
+  --dh-paper: #f4f7f8;
+  --dh-paper-2: #e8eef1;
+  --dh-sea: #0f766e;
+  --dh-sea-bright: #14b8a6;
+  --dh-coral: #ff6b4a;
+  --dh-glow: #7dd3c7;
+  --dh-line: rgba(7, 17, 31, 0.08);
+  --dh-radius: 1.25rem;
+  --dh-max: 1120px;
+  --dh-font: 'Sora', 'Vazirmatn', system-ui, sans-serif;
+  --dh-display: 'Fraunces', 'Georgia', serif;
+
+  min-height: 100dvh;
+  color: var(--dh-ink);
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(20, 184, 166, 0.18), transparent 55%),
+    radial-gradient(900px 500px at -10% 20%, rgba(255, 107, 74, 0.1), transparent 50%),
+    linear-gradient(180deg, #f7fbfb 0%, var(--dh-paper) 42%, #eef5f4 100%);
+  font-family: var(--dh-font);
+  overflow-x: clip;
+}
+
+.dh-landing * {
+  box-sizing: border-box;
+}
+
+.dh-landing a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dh-landing button {
+  font: inherit;
+}

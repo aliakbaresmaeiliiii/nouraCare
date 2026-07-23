@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { UserSessionService } from './user-session.service';
+import { UserSessionService } from '@app/shared/services/user-session.service';
 
 @Injectable({
   providedIn: 'root'

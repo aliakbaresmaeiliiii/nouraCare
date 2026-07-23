@@ -3,7 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import {
   NOTIFICATIONS_SEED,
   countUnreadNotifications,
-} from '../../notifications/notifications.seed';
+} from '@app/features/notifications/notifications.seed';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationUnreadService {

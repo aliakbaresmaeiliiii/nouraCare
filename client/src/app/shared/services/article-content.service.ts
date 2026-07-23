@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import type { ArticleContent } from '../../article-detail/article.types';
-import { TranslationService } from './translation.service';
-import { LanguageService } from './language.service';
-import { ARTICLE_DATABASE_EN } from '../content/article-database.en.content';
-import { ARTICLE_DATABASE_ZH } from '../content/article-database.zh.content';
-import { ARTICLE_DATABASE_MS } from '../content/article-database.ms.content';
-import { ARTICLE_DATABASE_FA } from '../content/article-database.fa.content';
+import type { ArticleContent } from '@app/features/content/article-detail/article.types';
+import { TranslationService } from '@app/shared/services/translation.service';
+import { LanguageService } from '@app/shared/services/language.service';
+import { ARTICLE_DATABASE_EN } from '@app/shared/content/article-database.en.content';
+import { ARTICLE_DATABASE_ZH } from '@app/shared/content/article-database.zh.content';
+import { ARTICLE_DATABASE_MS } from '@app/shared/content/article-database.ms.content';
+import { ARTICLE_DATABASE_FA } from '@app/shared/content/article-database.fa.content';
 import {
   ARTICLE_CATEGORY_BY_ID,
   ARTICLE_IMAGE_BY_ID,
@@ -13,7 +13,7 @@ import {
   ARTICLE_READ_MINUTES_BY_ID,
   VALID_ARTICLE_IDS,
   isPremiumArticleId,
-} from '../content/article-translations.content';
+} from '@app/shared/content/article-translations.content';
 
 const DATABASE_BY_LANG: Record<string, Record<string, ArticleContent>> = {
   en: ARTICLE_DATABASE_EN,

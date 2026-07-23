@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { UserDto } from '../models/user.dto';
+import { UserDto } from '@app/shared/models/user.dto';
 
 @Injectable({
   providedIn: 'root',

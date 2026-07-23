@@ -3,13 +3,13 @@ import { firstValueFrom } from 'rxjs';
 import {
   PeriodLogData,
   ReproductiveStatusService,
-} from './reproductive-status.service';
-import { CycleSettingsService } from './cycle-settings.service';
-import { PeriodHistoryService } from './period-history.service';
-import { normalizeLmpInput } from '../utils/pregnancy-lmp.util';
-import { UserInfoService } from './user-info.service';
-import { AuthService } from '../../auth/services/auth';
-import { DashboardCacheService } from './dashboard-cache.service';
+} from '@app/shared/services/reproductive-status.service';
+import { CycleSettingsService } from '@app/shared/services/cycle-settings.service';
+import { PeriodHistoryService } from '@app/shared/services/period-history.service';
+import { normalizeLmpInput } from '@app/shared/utils/pregnancy-lmp.util';
+import { UserInfoService } from '@app/shared/services/user-info.service';
+import { AuthService } from '@app/core/auth/services/auth';
+import { DashboardCacheService } from '@app/shared/services/dashboard-cache.service';
 
 @Injectable({ providedIn: 'root' })
 export class PeriodCycleStateService {

@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { normalizeLmpInput } from '../utils/pregnancy-lmp.util';
-import { ReproductiveStatusService } from './reproductive-status.service';
+import { normalizeLmpInput } from '@app/shared/utils/pregnancy-lmp.util';
+import { ReproductiveStatusService } from '@app/shared/services/reproductive-status.service';
 
 @Injectable({ providedIn: 'root' })
 export class CycleSettingsService {

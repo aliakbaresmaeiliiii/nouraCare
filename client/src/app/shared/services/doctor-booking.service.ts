@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { DoctorDto } from '../models/doctor.dto';
-import { DoctorBookingResult } from '../models/doctor-booking.model';
-import { DoctorBookingModalComponent } from '../components/doctor-booking-modal/doctor-booking-modal.component';
-import { PaymentCheckoutService } from '../../payment/services/payment-checkout.service';
+import { DoctorDto } from '@app/shared/models/doctor.dto';
+import { DoctorBookingResult } from '@app/shared/models/doctor-booking.model';
+import { DoctorBookingModalComponent } from '@app/shared/ui/doctor-booking-modal/doctor-booking-modal.component';
+import { PaymentCheckoutService } from '@app/features/shop/payment/services/payment-checkout.service';
 
 @Injectable({
   providedIn: 'root',

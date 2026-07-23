@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { EditPostResponse } from '../interfaces/forum.interface';
-import { ThreadsResponse } from './forum-threads.service';
+import { EditPostResponse } from '@app/shared/interfaces/forum.interface';
+import { ThreadsResponse } from '@app/shared/services/forum-threads.service';
 import {
   CreateForumPostDto,
   CreateForumThreadDto,
@@ -13,7 +13,7 @@ import {
   ThreadDetailResponse,
   UserForumActivityResponse,
   UserForumActivityType,
-} from '../models/forum';
+} from '@app/shared/models/forum';
 import { environment } from '../../../environments/environment';
 
 @Injectable({

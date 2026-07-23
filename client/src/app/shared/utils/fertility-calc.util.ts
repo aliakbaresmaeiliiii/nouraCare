@@ -1,8 +1,8 @@
-import type { FertilityResults } from '../components/fertility-results-modal/fertility-results-modal.component';
+import type { FertilityResults } from '@app/shared/ui/fertility-results-modal/fertility-results-modal.component';
 import {
   formatCyclePhaseShortDate,
   formatHistoryDayDate,
-} from './locale-date-format.util';
+} from '@app/shared/utils/locale-date-format.util';
 
 export type FertilityPhase =
   | 'period'

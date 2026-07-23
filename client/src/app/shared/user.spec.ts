@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { User } from './services/user';
+import { User } from '@app/shared/services/user';
 
 describe('User', () => {
   let service: User;

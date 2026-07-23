@@ -1,7 +1,7 @@
-import { SCHOOL_WEEK_EN } from './school-week.en.content';
-import { SCHOOL_WEEK_ZH } from './school-week.zh.content';
-import { SCHOOL_WEEK_MS } from './school-week.ms.content';
-import { SCHOOL_WEEK_FA } from './school-week.fa.content';
+import { SCHOOL_WEEK_EN } from '@app/shared/content/school-week.en.content';
+import { SCHOOL_WEEK_ZH } from '@app/shared/content/school-week.zh.content';
+import { SCHOOL_WEEK_MS } from '@app/shared/content/school-week.ms.content';
+import { SCHOOL_WEEK_FA } from '@app/shared/content/school-week.fa.content';
 
 const SCHOOL_UI_EN: Record<string, string> = {
   'school.page.title': 'Baby development',

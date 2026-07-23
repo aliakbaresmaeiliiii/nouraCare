@@ -1,0 +1,1580 @@
+import {
+  Component,
+  effect,
+  inject,
+  Input,
+  NgZone,
+  AfterViewInit,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  ChangeDetectorRef,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { IonDatetime } from '@ionic/angular';
+import { Subscription } from 'rxjs';
+import { SHARED_STANDALONE_IMPORTS } from '@app/shared/shared-standalone';
+import { CycleSettingsService } from '@app/shared/services/cycle-settings.service';
+import { TranslationService } from '@app/shared/services/translation.service';
+import { LanguageService } from '@app/shared/services/language.service';
+import { UserSessionService } from '@app/shared/services/user-session.service';
+import { PeriodCycleStateService } from '@app/shared/services/period-cycle-state.service';
+import {
+  formatCyclePhaseShortDate,
+  formatCycleStripCenterDate,
+  formatLocalizedNumber,
+  weekStripDayOfMonth,
+  weekStripWeekdayShort,
+} from '@app/shared/utils/locale-date-format.util';
+import {
+  cycleDayFromLmpIso,
+  localMidnight,
+  parseCycleViewDateKey,
+  toCycleViewDateKey,
+} from '@app/shared/utils/cycle-day.util';
+
+export interface Segment {
+  label: string;
+  days: number;
+  color: string;
+}
+
+@Component({
+  selector: 'app-circle-period-chart',
+  standalone: true,
+  imports: [...SHARED_STANDALONE_IMPORTS],
+  templateUrl: './circle-period-chart.html',
+  styleUrls: [
+    './circle-period-chart.scss',
+    './circle-period-chart-week-strip.scss',
+  ],
+})
+export class CirclePeriodChart implements OnInit, AfterViewInit, OnChanges, OnDestroy {
+  @ViewChild('periodCalendar') periodCalendar!: IonDatetime;
+  @ViewChild('cycleChartWeekScroll', { read: ElementRef })
+  cycleChartWeekScroll?: ElementRef<HTMLElement>;
+
+  router = inject(Router);
+  private cycleSettings = inject(CycleSettingsService);
+  private translationService = inject(TranslationService);
+  private languageService = inject(LanguageService);
+  private userSession = inject(UserSessionService);
+  private periodCycleState = inject(PeriodCycleStateService);
+  private cdr = inject(ChangeDetectorRef);
+  private ngZone = inject(NgZone);
+  private langSub?: Subscription;
+  /** Parent-bound cycle length; wins over cycleSettings when Home passes fresh inputs. */
+  private boundCycleLength: number | null = null;
+  private boundPeriodLength: number | null = null;
+
+  // Configuration inputs
+  @Input() cycleLength: number = 28; // total cycle length in days
+  @Input() periodLength: number = 5; // menstruation length in days
+  /** ISO date (YYYY-MM-DD) for cycle ring anchor; kept in sync with {@link CycleSettingsService}. */
+  @Input() lastPeriodStart: string | null = null;
+  /** When true, shows the Mon–Sun week strip above the ring (cycle home). */
+  @Input() showWeekStrip = true;
+
+  /** Rebuild SVG when shared cycle store changes (profile save, dashboard sync). */
+  private readonly cycleStoreSyncEffect = effect(() => {
+    this.cycleSettings.cycleLength();
+    this.cycleSettings.periodLength();
+    this.cycleSettings.lastPeriodStartDate();
+    this.cycleSettings.selectedCycleViewDate();
+    this.periodCycleState.periodStartIso();
+    this.ngZone.run(() => {
+      this.applyLocalCycleState();
+      this.syncWeekCalendarSelectionFromStartDate();
+      this.focusTodayWhenInActivePeriod();
+      this.recomputeEverything();
+      this.cdr.markForCheck();
+    });
+  });
+
+  private readonly weekCalWeeksPast = 10;
+  private readonly weekCalWeeksFuture = 10;
+  /** Mirrors home “selected day” for the strip; null → highlight today. */
+  private weekCalendarSelectedIsoKey: string | null = null;
+
+  // Computed state
+  @Input() ovulationDay: number = 14; // computed from cycleLength in ngOnInit
+  segments: { start: number; len: number; color: string; kind?: string }[] = [];
+
+  // User selections
+  startDate: string | null = null; // last period start (YYYY-MM-DD)
+  endDate: string | null = null; // last period end (YYYY-MM-DD)
+
+  /**
+   * Cycle day (1‑based) for the date in focus: an explicit week‑strip tap, otherwise **today**.
+   * Ring marker, center copy, and disk tint follow this (not a frozen “wall clock” slice).
+   */
+  get viewCycleDay(): number {
+    if (!this.startDate) {
+      return Math.max(1, this.todayCycleDay || 1);
+    }
+    const strip = this.getSelectedStripCalendarDate();
+    const cd = this.cycleDayForCalendarDate(strip);
+    return cd != null && cd >= 1 ? cd : Math.max(1, this.todayCycleDay || 1);
+  }
+
+  /** True when no explicit calendar day is selected (strip follows today). */
+  viewingCalendarToday(): boolean {
+    return this.weekCalendarSelectedIsoKey == null;
+  }
+
+  getStripViewDate(): Date {
+    return this.getSelectedStripCalendarDate();
+  }
+
+  /** Gregorian or Jalali string for the focused day above the ring. */
+  formatStripCenterDate(): string {
+    return formatCycleStripCenterDate(
+      this.getStripViewDate(),
+      this.languageService.getCurrentLanguage(),
+    );
+  }
+
+  /** Main headline under the calendar date (e.g. “Period day 4” or “Day 11 of your cycle”). */
+  getCenterCycleHeading(): string {
+    if (!this.startDate) {
+      return this.t('cycleChart.heading.logPeriodToBegin');
+    }
+    const d = this.viewCycleDay;
+    if (d >= 1 && d <= this.periodLength) {
+      return this.t('cycleChart.heading.periodDay', { day: d });
+    }
+    return this.t('cycleChart.heading.dayOfCycle', { day: d });
+  }
+
+  /** Short caption under the large center cycle-day numeral. */
+  getCenterHeroCaption(): string {
+    if (!this.startDate || this.viewCycleDay < 1) {
+      return this.t('cycleChart.heading.logPeriodToBegin');
+    }
+    if (this.viewCycleDay <= this.periodLength) {
+      return this.t('cycleChart.center.periodCaption');
+    }
+    return this.t('cycleChart.center.cycleCaption');
+  }
+
+  showCenterHeroDay(): boolean {
+    return !!this.startDate && this.viewCycleDay >= 1;
+  }
+
+  /** Ring cap for non-period days; period days use highlighted arc numerals (1…5). */
+  showTodayRingCap(): boolean {
+    return (
+      this.viewCycleDay >= 1 &&
+      this.viewCycleDay < Math.max(1, this.cycleLength) &&
+      !this.isInPeriod
+    );
+  }
+
+  /** 1-based period marker (1…periodLength) to bold on the ring for the focused day. */
+  getActivePeriodMarkerDay(): number | null {
+    if (!this.startDate) {
+      return null;
+    }
+    const cycleDay = this.viewCycleDay;
+    if (cycleDay >= 1 && cycleDay <= this.periodLength) {
+      return cycleDay;
+    }
+    if (this.viewingCalendarToday()) {
+      const todayDay = this.todayCycleDay;
+      if (todayDay >= 1 && todayDay <= this.periodLength) {
+        return todayDay;
+      }
+    }
+    return null;
+  }
+
+  /** Bold red bg on the matching period arc numeral (e.g. day 1 when period starts today). */
+  isPeriodDayHighlighted(day: number): boolean {
+    return this.getActivePeriodMarkerDay() === day;
+  }
+
+  // Period status (driven by **view** day so taps update the ring + center)
+  get isInPeriod(): boolean {
+    return this.viewCycleDay >= 1 && this.viewCycleDay <= this.periodLength;
+  }
+
+  // Cycle phase calculations based on standard cycle science
+  get fertileWindowStart(): number {
+    // Flo-like UX: fertile phase starts 3 days after bleeding ends.
+    return Math.min(this.cycleLength, Math.max(1, this.periodLength + 3));
+  }
+
+  get fertileWindowEnd(): number {
+    // Fertile window ends 1 day after ovulation
+    return Math.min(this.cycleLength, this.ovulationDay + 1);
+  }
+
+  get isInFertileWindow(): boolean {
+    return (
+      this.viewCycleDay >= this.fertileWindowStart &&
+      this.viewCycleDay <= this.fertileWindowEnd
+    );
+  }
+
+  get isOvulationDay(): boolean {
+    return this.viewCycleDay === this.ovulationDay;
+  }
+
+  get pmsStart(): number {
+    // PMS typically starts 5-7 days before next period
+    return Math.max(1, this.cycleLength - 6);
+  }
+
+  get pmsEnd(): number {
+    return this.cycleLength;
+  }
+
+  get isInPMS(): boolean {
+    return (
+      this.viewCycleDay >= this.pmsStart && this.viewCycleDay <= this.pmsEnd
+    );
+  }
+
+  /** Drives outer ring disk tint (period vs fertile vs peak ovulation). */
+  get cycleDiskPhase(): 'none' | 'period' | 'fertile' | 'ovulation' {
+    if (!this.startDate || this.viewCycleDay < 1) {
+      return 'none';
+    }
+    if (this.isInPeriod) {
+      return 'period';
+    }
+    if (this.isOvulationDay) {
+      return 'ovulation';
+    }
+    if (this.isInFertileWindow) {
+      return 'fertile';
+    }
+    return 'none';
+  }
+
+  /** SVG radial fill for the large background disk behind the ring — neutral; phase tint lives on host. */
+  get cycleDiskBackgroundFill(): string {
+    return 'url(#centerGradient)';
+  }
+
+
+  // Today
+  todayDate: Date = new Date();
+  todayCycleDay: number = 0; // 1-based day number in current cycle relative to startDate
+  radius = 230;
+  circumference = 2 * Math.PI * this.radius;
+
+  ovulationX = 0;
+  ovulationY = 0;
+  ovulationRotation = 0;
+  // labels around ring
+  periodLabelX = 0;
+  periodLabelY = 0;
+  cycleLabelX = 0;
+  cycleLabelY = 0;
+  totalDays = this.cycleLength;
+  highlightedPeriods = 4;
+  R = 190;
+
+  // Phase lengths (in days)
+  fertileWindowLength = 6;
+  pmsLength = 5;
+  ovulationLengthDays = 1;
+
+  showPeriodSheet = false;
+
+  years = Array.from({ length: 30 }, (_, i) => 2000 + i);
+  months = Array.from({ length: 12 }, (_, i) => i + 1);
+  pickerDays = Array.from({ length: 31 }, (_, i) => i + 1);
+  ringDays = Array.from({ length: this.cycleLength }, (_, i) => i + 1);
+  periodDayNumbers = Array.from({ length: this.periodLength }, (_, i) => i + 1);
+
+  // start
+  startYear = new Date().getFullYear();
+  startMonth = new Date().getMonth() + 1;
+  startDay = new Date().getDate();
+
+  // end
+  endYear = new Date().getFullYear();
+  endMonth = new Date().getMonth() + 1;
+  endDay = new Date().getDate();
+  periodCount = 6;
+  periodDays = 0;
+  tempYear = new Date().getFullYear();
+  tempMonth = new Date().getMonth() + 1;
+  tempDay = new Date().getDate();
+  pickerType: 'start' | 'end' = 'start';
+  showPicker = false;
+
+  openPicker(_type: 'start' | 'end') {
+    this.showPicker = false;
+    this.showPeriodSheet = false;
+    void this.router.navigate(['/cycle-calendar']);
+  }
+  onStartChange(ev: any, type: 'year' | 'month' | 'day') {
+    if (type === 'year') this.startYear = +ev.detail.value;
+    if (type === 'month') this.startMonth = +ev.detail.value;
+    if (type === 'day') this.startDay = +ev.detail.value;
+    this.calculatePeriodDays();
+  }
+
+  onEndChange(ev: any, type: 'year' | 'month' | 'day') {
+    if (type === 'year') this.endYear = +ev.detail.value;
+    if (type === 'month') this.endMonth = +ev.detail.value;
+    if (type === 'day') this.endDay = +ev.detail.value;
+    this.calculatePeriodDays();
+  }
+
+  calculatePeriodDays() {
+    if (!this.startDate || !this.endDate) {
+      this.periodDays = 0;
+      return;
+    }
+    const start = new Date(
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
+    );
+    const end = new Date(
+      this.endDate.includes('T') ? this.endDate : `${this.endDate}T12:00:00`,
+    );
+    const diff =
+      Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    this.periodDays = diff > 0 ? diff : 0;
+  }
+
+  closePeriodSheet() {
+    this.showPeriodSheet = false;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['cycleLength']?.currentValue != null) {
+      this.boundCycleLength = Math.max(
+        21,
+        Math.min(60, Math.floor(Number(changes['cycleLength'].currentValue) || 28)),
+      );
+      this.cycleLength = this.boundCycleLength;
+    }
+    if (changes['periodLength']?.currentValue != null) {
+      this.boundPeriodLength = Math.max(
+        1,
+        Math.min(10, Math.floor(Number(changes['periodLength'].currentValue) || 5)),
+      );
+      this.periodLength = this.boundPeriodLength;
+    }
+    if (changes['lastPeriodStart']) {
+      const raw = changes['lastPeriodStart'].currentValue;
+      if (raw) {
+        this.startDate = String(raw).includes('T')
+          ? String(raw).split('T')[0]
+          : String(raw).slice(0, 10);
+        this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+      } else {
+        this.startDate = null;
+        this.endDate = null;
+      }
+      this.syncWeekCalendarSelectionFromStartDate();
+      this.focusTodayWhenInActivePeriod();
+    }
+    this.recomputeEverything();
+  }
+
+  ngOnInit() {
+    // Home owns GET /me/dashboard; chart reads cycleSettings updated by Home.
+    this.applyLocalCycleState();
+    this.recomputeEverything();
+    this.syncWeekCalendarSelectionFromStartDate();
+    this.langSub = this.languageService.currentLanguage$.subscribe(() => {
+      this.cdr.markForCheck();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.scheduleWeekScrollToAnchor();
+    // iOS PWA can report zero layout width on the first paint frame.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => this.scheduleWeekScrollToAnchor());
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+  }
+
+  /**
+   * Prefer shared cycle state first because period picker and calendar write there immediately.
+   * Journey payload can be stale for a short time after new period logs are created.
+   */
+  private applyLocalCycleState(): void {
+    this.cycleLength =
+      this.boundCycleLength ?? this.cycleSettings.cycleLength();
+    this.periodLength =
+      this.boundPeriodLength ?? this.cycleSettings.periodLength();
+    this.startDate = this.cycleSettings.lastPeriodStartDate();
+
+    if (this.startDate) {
+      this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+    } else {
+      this.endDate = null;
+    }
+  }
+
+  private resolvePreferredStartDate(journeyStartIso: string | null): string | null {
+    const cycleStateIso = this.cycleSettings.lastPeriodStartDate();
+    return cycleStateIso || journeyStartIso || null;
+  }
+
+  private toPeriodIso(raw: string | Date | null | undefined): string | null {
+    if (raw == null) {
+      return null;
+    }
+    if (typeof raw === 'string') {
+      return raw.split('T')[0];
+    }
+    return raw.toISOString().split('T')[0];
+  }
+
+  /**
+   * Public method to manually refresh the chart
+   * This can be called from parent components when data changes
+   */
+  public refreshChart() {
+    this.applyLocalCycleState();
+    this.syncWeekCalendarSelectionFromStartDate();
+    this.focusTodayWhenInActivePeriod();
+    this.recomputeEverything();
+    queueMicrotask(() => this.scheduleWeekScrollToAnchor());
+  }
+
+  /**
+   * Debug method to check current state
+   */
+  public debugState() {}
+
+  /**
+   * Force complete reinitialization of the chart
+   */
+  public forceReinitialize() {
+    this.ngOnInit();
+  }
+
+  dashArray(len: number): string {
+    // len is in "days" relative to cycleLength
+    return `${(len / this.cycleLength) * this.circumference} ${
+      this.circumference
+    }`;
+  }
+
+  dashOffset(start: number): string {
+    // start is in "days" relative to cycleLength
+    return `${(start / this.cycleLength) * this.circumference}`;
+  }
+
+  /** Flo-style inner progress sweep (day 1 → focused day). */
+  getCycleProgressDash(): string {
+    const circ = 2 * Math.PI * 198;
+    if (!this.startDate || this.viewCycleDay < 1) {
+      return `0 ${circ}`;
+    }
+    const progress = Math.min(
+      1,
+      this.viewCycleDay / Math.max(1, this.cycleLength),
+    );
+    const filled = progress * circ;
+    return `${filled} ${circ}`;
+  }
+  getDayX(index: number, total: number) {
+    const angle = (2 * Math.PI * index) / total - Math.PI / 2;
+    return this.R * Math.cos(angle);
+  }
+
+  getDayY(index: number, total: number) {
+    const angle = (2 * Math.PI * index) / total - Math.PI / 2;
+    return this.R * Math.sin(angle);
+  }
+
+  getOuterNumberX(index: number, total: number) {
+    return this.getCycleDayLabelX(index + 1, total);
+  }
+
+  getOuterNumberY(index: number, total: number) {
+    return this.getCycleDayLabelY(index + 1, total);
+  }
+
+  /** Period / ring day labels — centered in each day slice, just outside the track. */
+  getCycleDayLabelX(cycleDay: number, total: number = this.cycleLength): number {
+    return (
+      this.ringDayLabelRadius *
+      Math.cos(this.cycleDayAngleRad(cycleDay, total))
+    );
+  }
+
+  getCycleDayLabelY(cycleDay: number, total: number = this.cycleLength): number {
+    return (
+      this.ringDayLabelRadius *
+      Math.sin(this.cycleDayAngleRad(cycleDay, total))
+    );
+  }
+
+  private readonly ringTrackRadius = 210;
+  private readonly ringTrackStroke = 22;
+
+  private get ringDayLabelRadius(): number {
+    return this.ringTrackRadius + this.ringTrackStroke / 2 + 8;
+  }
+
+  /** 1-based cycle day → angle at the center of that day's wedge (12 o'clock = day 1). */
+  private cycleDayAngleRad(cycleDay1Based: number, totalDays: number): number {
+    const total = Math.max(1, totalDays);
+    const day = Math.max(1, Math.min(total, Math.floor(cycleDay1Based)));
+    return ((day - 0.5) / total) * 2 * Math.PI - Math.PI / 2;
+  }
+
+  getPhaseMarkX(dayIndex: number, total: number) {
+    const angle = (2 * Math.PI * dayIndex) / total - Math.PI / 2;
+    return this.ringTrackRadius * Math.cos(angle);
+  }
+
+  getPhaseMarkY(dayIndex: number, total: number) {
+    const angle = (2 * Math.PI * dayIndex) / total - Math.PI / 2;
+    return this.ringTrackRadius * Math.sin(angle);
+  }
+
+  isToday(value: number): boolean {
+    // Highlight the **focused** cycle day on the ring (selected strip day or today).
+    return value === this.viewCycleDay;
+  }
+
+  private updatePositions() {
+    // ovulation heart at ovulationDay (1-based index)
+    const ovAngle =
+      ((this.ovulationDay - 1) / this.cycleLength) * 2 * Math.PI - Math.PI / 2;
+    this.ovulationX = this.ringTrackRadius * Math.cos(ovAngle);
+    this.ovulationY = this.ringTrackRadius * Math.sin(ovAngle);
+    this.ovulationRotation = (ovAngle * 180) / Math.PI + 90;
+
+    // period label at middle of period arc, slightly outside ring
+    const periodMidAngle =
+      ((0 + this.periodLength / 2) / this.cycleLength) * 2 * Math.PI -
+      Math.PI / 2;
+    const periodLabelRadius = this.radius + 30;
+    this.periodLabelX = periodLabelRadius * Math.cos(periodMidAngle);
+    this.periodLabelY = periodLabelRadius * Math.sin(periodMidAngle);
+
+    // cycle label at top outside ring
+    const cycleAngleTop = -Math.PI / 2;
+    const cycleLabelRadius = this.radius + 46;
+    this.cycleLabelX = cycleLabelRadius * Math.cos(cycleAngleTop);
+    this.cycleLabelY = cycleLabelRadius * Math.sin(cycleAngleTop);
+  }
+
+  selectedStartDate: any;
+  selectedEndDate: any;
+  showCalendar = false;
+
+  editPeriod(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.showPeriodSheet = false;
+    void this.router.navigate(['/cycle-calendar']);
+  }
+
+  openCalendar() {
+    this.showCalendar = true;
+  }
+
+  dateChanged(event: any) {
+    const picked = new Date(event.detail.value);
+    this.selectedStartDate = picked.toISOString();
+    this.selectedEndDate = picked.toISOString();
+  }
+
+  updateSegmentsFromDate(startDate: any, endDate: any) {
+    if (!startDate || !endDate) {
+      this.segments = [];
+      return;
+    }
+    // Convert to Date objects
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    // Calculate actual period length from selection (fallback to configured periodLength)
+    const actualPeriodLength =
+      Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    this.periodLength =
+      isFinite(actualPeriodLength) && actualPeriodLength > 0
+        ? actualPeriodLength
+        : this.periodLength;
+
+    this.recomputeEverything();
+    this.closePeriodSheet();
+  }
+
+  activePicker: 'start' | 'end' | null = null;
+
+  onChange(ev: any, type: 'year' | 'month' | 'day') {
+    if (type === 'year') this.tempYear = +ev.detail.value;
+    if (type === 'month') this.tempMonth = +ev.detail.value;
+    if (type === 'day') this.tempDay = +ev.detail.value;
+  }
+
+  /** Highlights the current calendar year in the wheel (local date). */
+  isPickerYearToday(y: number): boolean {
+    return y === new Date().getFullYear();
+  }
+
+  /** Highlights the current month when the year wheel matches this year. */
+  isPickerMonthToday(m: number): boolean {
+    const t = new Date();
+    return m === t.getMonth() + 1 && this.tempYear === t.getFullYear();
+  }
+
+  /** Highlights today's calendar day when year + month wheels match today. */
+  isPickerDayToday(d: number): boolean {
+    const t = new Date();
+    return (
+      d === t.getDate() &&
+      this.tempMonth === t.getMonth() + 1 &&
+      this.tempYear === t.getFullYear()
+    );
+  }
+
+  closePicker() {
+    this.showPicker = false;
+  }
+
+  confirmPicker() {
+    this.showPicker = false;
+    void this.router.navigate(['/cycle-calendar']);
+  }
+
+  goToToday() {
+    const today = new Date();
+    this.selectedStartDate = today.toISOString();
+    this.selectedEndDate = today.toISOString();
+  }
+
+  closeCalendar() {
+    this.showCalendar = false;
+  }
+
+  editCycle() {
+    this.showCalendar = true;
+  }
+
+  openButtonSheet() {
+    this.openPicker('start');
+  }
+
+  /** Wheel modal title: which period boundary is being edited. */
+  get pickerModalTitle(): string {
+    return this.pickerType === 'start'
+      ? this.t('cycleChart.picker.firstDayLastPeriod')
+      : this.t('cycleChart.picker.lastDayThisPeriod');
+  }
+
+  savePeriod() {
+    this.closePeriodSheet();
+    void this.router.navigate(['/cycle-calendar']);
+  }
+
+  goToLogPeriod(): void {
+    void this.router.navigate(['/cycle-calendar']);
+  }
+
+  // --- helpers & recompute ---
+  private addDaysToIso(isoDate: string, daysToAdd: number): string {
+    const d = new Date(
+      isoDate.includes('T') ? isoDate : `${isoDate}T12:00:00`,
+    );
+    d.setDate(d.getDate() + daysToAdd);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  private formatDateShort(d: Date): string {
+    return formatCyclePhaseShortDate(d, this.languageService.getCurrentLanguage());
+  }
+
+  get periodStartLabel(): string {
+    if (!this.startDate) return '-';
+    const d = new Date(this.startDate);
+    return this.formatDateShort(d);
+  }
+
+  get fertilityStartLabel(): string {
+    if (!this.startDate) return '-';
+    const fertileStart = this.ovulationDay - 5;
+    const d = new Date(this.addDaysToIso(this.startDate, fertileStart));
+    return this.formatDateShort(d);
+  }
+
+  get ovulationLabel(): string {
+    if (!this.startDate) return '-';
+    const d = new Date(
+      this.addDaysToIso(this.startDate, this.ovulationDay - 1),
+    );
+    return this.formatDateShort(d);
+  }
+
+  get pmsStartLabel(): string {
+    if (!this.startDate) return '-';
+    const pmsStart = this.cycleLength - 5;
+    const d = new Date(this.addDaysToIso(this.startDate, pmsStart));
+    return this.formatDateShort(d);
+  }
+
+  getCycleStatusText(): string {
+    const cd = this.viewCycleDay;
+    if (cd <= 0) return this.t('cycleChart.status.startTracking');
+    if (cd <= this.periodLength) return this.t('cycleChart.status.periodPhase');
+    if (cd <= this.ovulationDay - 5) return this.t('cycleChart.status.follicularPhase');
+    if (cd <= this.ovulationDay + 1) return this.t('cycleChart.status.fertileWindow');
+    if (cd <= this.cycleLength - this.pmsLength) return this.t('cycleChart.status.lutealPhase');
+    return this.t('cycleChart.status.pmsPhase');
+  }
+
+  getCyclePhaseText(): string {
+    const cd = this.viewCycleDay;
+    if (cd <= 0) return this.t('cycleChart.phase.logPeriodToBegin');
+    if (cd <= this.periodLength) return this.t('cycleChart.phase.dayOfPeriod', { day: cd });
+    if (cd <= this.ovulationDay - 5) return this.t('cycleChart.phase.preparingOvulation');
+    if (cd <= this.ovulationDay + 1) return this.t('cycleChart.phase.highFertilityChance');
+    if (cd <= this.cycleLength - this.pmsLength) return this.t('cycleChart.phase.postOvulation');
+    return this.t('cycleChart.phase.preMenstrual');
+  }
+
+  getNextMilestoneText(): string {
+    const cd = this.viewCycleDay;
+    if (cd <= 0) return this.t('cycleChart.milestone.logPeriod');
+    if (cd <= this.periodLength) {
+      const daysLeft = this.periodLength - cd;
+      return daysLeft > 0
+        ? this.t('cycleChart.milestone.daysBleedingLeft', {
+            days: daysLeft,
+            dayWord: this.dayWord(daysLeft),
+          })
+        : this.t('cycleChart.milestone.lastDayPeriod');
+    }
+    if (cd < this.ovulationDay - 5) {
+      const daysToFertile = this.ovulationDay - 5 - cd;
+      return this.t('cycleChart.milestone.daysToFertileWindow', {
+        days: daysToFertile,
+        dayWord: this.dayWord(daysToFertile),
+      });
+    }
+    if (cd <= this.ovulationDay + 1) {
+      const daysToOvulation = this.ovulationDay - cd;
+      return daysToOvulation > 0
+        ? this.t('cycleChart.milestone.daysToOvulation', {
+            days: daysToOvulation,
+            dayWord: this.dayWord(daysToOvulation),
+          })
+        : this.t('cycleChart.milestone.ovulationDay');
+    }
+    if (cd < this.cycleLength - this.pmsLength) {
+      const daysToPMS = this.cycleLength - this.pmsLength - cd;
+      return this.t('cycleChart.milestone.daysToPms', {
+        days: daysToPMS,
+        dayWord: this.dayWord(daysToPMS),
+      });
+    }
+    const daysToNextPeriod = this.cycleLength - cd;
+    return this.t('cycleChart.milestone.daysToNextPeriod', {
+      days: daysToNextPeriod,
+      dayWord: this.dayWord(daysToNextPeriod),
+    });
+  }
+
+  /**
+   * Calendar‑method fertility copy for the **focused** day.
+   * Fertile phase starts at `periodLength + 3` (3 days after bleeding ends),
+   * with ovulation kept near the cycle baseline (`cycleLength - 14`) but not too early.
+   */
+  getFertilityStatus(): {
+    status: string;
+    description: string;
+    color: string;
+    icon: string;
+    tone: 'rose' | 'amber' | 'mint' | 'emerald' | 'violet' | 'pink' | 'slate';
+  } {
+    const d = this.viewCycleDay;
+    if (!this.startDate || d <= 0) {
+      return {
+        status: this.t('cycleChart.fertility.getStarted'),
+        description: this.t('cycleChart.fertility.logLastPeriodEstimate'),
+        color: '#64748b',
+        icon: '📅',
+        tone: 'slate',
+      };
+    }
+    if (d <= this.periodLength) {
+      return {
+        status: this.t('cycleChart.fertility.period'),
+        description: this.t('cycleChart.fertility.veryLowDuringMenstruation'),
+        color: '#f43f5e',
+        icon: '🩸',
+        tone: 'rose',
+      };
+    }
+    if (d <= this.periodLength + 3) {
+      return {
+        status: this.t('cycleChart.fertility.earlyCycle'),
+        description: this.t('cycleChart.fertility.veryLowHormonesResetting'),
+        color: '#f97316',
+        icon: '📅',
+        tone: 'amber',
+      };
+    }
+    if (d < this.fertileWindowStart) {
+      return {
+        status: this.t('cycleChart.fertility.follicularPhase'),
+        description: this.t('cycleChart.fertility.lowerChanceFollicleDeveloping'),
+        color: '#ca8a04',
+        icon: '🌱',
+        tone: 'amber',
+      };
+    }
+    if (d < this.ovulationDay - 1) {
+      return {
+        status: this.t('cycleChart.fertility.fertileWindow'),
+        description: this.t('cycleChart.fertility.chanceRising'),
+        color: '#0f766e',
+        icon: '💚',
+        tone: 'mint',
+      };
+    }
+    if (d <= this.ovulationDay + 1) {
+      const peak = d === this.ovulationDay;
+      return {
+        status: peak
+          ? this.t('cycleChart.fertility.ovulation')
+          : this.t('cycleChart.fertility.peakFertileDays'),
+        description: peak
+          ? this.t('cycleChart.fertility.highestChanceThisCycle')
+          : this.t('cycleChart.fertility.highChanceInWindow'),
+        color: '#2dd4bf',
+        icon: '💚',
+        tone: 'emerald',
+      };
+    }
+    if (d <= this.ovulationDay + 4) {
+      return {
+        status: this.t('cycleChart.fertility.justAfterOvulation'),
+        description: this.t('cycleChart.fertility.lowerThanPeakEggHours'),
+        color: '#8b5cf6',
+        icon: '🌙',
+        tone: 'violet',
+      };
+    }
+    if (d <= this.cycleLength - this.pmsLength) {
+      return {
+        status: this.t('cycleChart.fertility.lutealPhase'),
+        description: this.t('cycleChart.fertility.lowerChanceUntilNextCycle'),
+        color: '#7c3aed',
+        icon: '🌙',
+        tone: 'violet',
+      };
+    }
+    return {
+      status: this.t('cycleChart.fertility.preMenstrual'),
+      description: this.t('cycleChart.fertility.veryLowBeforeNextPeriod'),
+      color: '#db2777',
+      icon: '🌊',
+      tone: 'pink',
+    };
+  }
+
+  getDaysUntilFertileWindow() {
+    const cd = this.viewCycleDay;
+    if (cd < this.fertileWindowStart) {
+      return this.fertileWindowStart - cd;
+    }
+    if (cd >= this.fertileWindowStart && cd <= this.fertileWindowEnd) {
+      return 0;
+    }
+    return this.cycleLength - cd + this.fertileWindowStart;
+  }
+
+  getDaysUntilOvulation(): number {
+    const cd = this.viewCycleDay;
+    if (cd < this.ovulationDay) {
+      return this.ovulationDay - cd;
+    }
+    if (cd === this.ovulationDay) {
+      return 0;
+    }
+    return this.cycleLength - cd + this.ovulationDay;
+  }
+
+  getDetailedMilestone(): string {
+    const cd = this.viewCycleDay;
+    if (!this.startDate || cd < 1) {
+      return '';
+    }
+    if (cd < this.ovulationDay) {
+      const n = this.ovulationDay - cd;
+      return this.t('cycleChart.detail.ovulationIn', {
+        days: n,
+        dayWord: this.dayWord(n),
+      });
+    }
+    if (cd === this.ovulationDay) {
+      return this.t('cycleChart.detail.ovulationDayHighestChance');
+    }
+    if (cd <= this.ovulationDay + 7) {
+      const past = cd - this.ovulationDay;
+      return this.t('cycleChart.detail.daysAfterOvulation', {
+        days: past,
+        dayWord: this.dayWord(past),
+      });
+    }
+    const daysUntilPeriod = this.cycleLength - cd + 1;
+    return this.t('cycleChart.detail.nextPeriodAbout', {
+      days: daysUntilPeriod,
+      dayWord: this.dayWord(daysUntilPeriod),
+    });
+  }
+
+  // Progress loader calculation
+  getProgressOffset(): number {
+    if (this.todayCycleDay <= 0) return 753.98; // Full circle (no progress)
+
+    const progress = this.todayCycleDay / this.cycleLength;
+    const circumference = 2 * Math.PI * 120; // 2πr where r=120
+    return circumference * (1 - progress);
+  }
+
+  onCycleLengthChange(ev: any) {
+    const value = Number(ev?.detail?.value ?? ev);
+    this.cycleLength = Math.max(21, Math.min(60, Math.floor(value || 28)));
+    this.ringDays = Array.from({ length: this.cycleLength }, (_, i) => i + 1);
+    this.recomputeEverything();
+  }
+
+  onPeriodLengthChange(ev: any) {
+    const value = Number(ev?.detail?.value ?? ev);
+    this.periodLength = Math.max(1, Math.min(10, Math.floor(value || 5)));
+    this.periodDayNumbers = Array.from(
+      { length: this.periodLength },
+      (_, i) => i + 1,
+    );
+    if (this.startDate) {
+      this.endDate = this.addDaysToIso(this.startDate, this.periodLength - 1);
+      this.calculatePeriodDays();
+    }
+    this.recomputeEverything();
+  }
+
+  private addSegmentWithWrap(
+    start: number,
+    len: number,
+    color: string,
+    kind?: string,
+  ) {
+    // normalize start
+    let s = ((start % this.cycleLength) + this.cycleLength) % this.cycleLength;
+    if (len <= 0) return;
+    if (s + len <= this.cycleLength) {
+      this.segments.push({ start: s, len, color, kind });
+    } else {
+      const firstPart = this.cycleLength - s;
+      const secondPart = len - firstPart;
+      this.segments.push({ start: s, len: firstPart, color, kind });
+      this.segments.push({ start: 0, len: secondPart, color, kind });
+    }
+  }
+
+  getWeekCalendarWeeks(): {
+    weekKey: string;
+    days: {
+      label: string;
+      dateNum: number;
+      isToday: boolean;
+      isoKey: string;
+      fullDate: Date;
+    }[];
+  }[] {
+    const today = new Date();
+    const anchorMonday = this.getWeekMonday(today);
+    const lang = this.languageService.getCurrentLanguage();
+    const weeks: {
+      weekKey: string;
+      days: {
+        label: string;
+        dateNum: number;
+        isToday: boolean;
+        isoKey: string;
+        fullDate: Date;
+      }[];
+    }[] = [];
+
+    for (let w = -this.weekCalWeeksPast; w <= this.weekCalWeeksFuture; w++) {
+      const monday = new Date(anchorMonday);
+      monday.setDate(anchorMonday.getDate() + w * 7);
+      const days: {
+        label: string;
+        dateNum: number;
+        isToday: boolean;
+        isoKey: string;
+        fullDate: Date;
+      }[] = [];
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const uToday = Date.UTC(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+        );
+        const uD = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+        const isToday = uD === uToday;
+        const isoKey = toCycleViewDateKey(d);
+        const dayRow = {
+          fullDate: d,
+          isToday,
+          isoKey,
+        };
+        let label = isToday
+          ? this.t('cycleChart.week.today')
+          : weekStripWeekdayShort(d, lang);
+        if (!isToday && this.isWeekDayLastPeriodDay(dayRow)) {
+          label = this.t('cycleChart.week.last');
+        }
+        days.push({
+          label,
+          dateNum: weekStripDayOfMonth(d, lang),
+          isToday,
+          isoKey,
+          fullDate: d,
+        });
+      }
+
+      weeks.push({
+        weekKey: `${monday.getFullYear()}-${monday.getMonth() + 1}-${monday.getDate()}`,
+        days,
+      });
+    }
+
+    return weeks;
+  }
+
+  isWeekDaySelected(d: { isToday: boolean; isoKey: string }): boolean {
+    if (this.weekCalendarSelectedIsoKey) {
+      return d.isoKey === this.weekCalendarSelectedIsoKey;
+    }
+    return d.isToday;
+  }
+
+  isWeekDayInPeriod(d: { fullDate: Date }): boolean {
+    if (!this.startDate) {
+      return false;
+    }
+    const start = new Date(
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
+    );
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + this.periodLength - 1);
+    const t = new Date(
+      d.fullDate.getFullYear(),
+      d.fullDate.getMonth(),
+      d.fullDate.getDate(),
+    );
+    return t >= start && t <= end;
+  }
+
+  /** Last calendar day of the logged bleeding range (often lighter / “tail” UI). */
+  isWeekDayLastPeriodDay(d: { fullDate: Date }): boolean {
+    if (!this.startDate || !this.isWeekDayInPeriod(d)) {
+      return false;
+    }
+    const start = new Date(
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
+    );
+    start.setHours(0, 0, 0, 0);
+    const last = new Date(start);
+    last.setDate(start.getDate() + this.periodLength - 1);
+    const t = new Date(
+      d.fullDate.getFullYear(),
+      d.fullDate.getMonth(),
+      d.fullDate.getDate(),
+    );
+    t.setHours(0, 0, 0, 0);
+    return t.getTime() === last.getTime();
+  }
+
+  /**
+   * Predicted ovulation on this calendar day (same `ovulationDay` as the ring), including today.
+   * Skipped when that day is inside the logged bleeding range.
+   */
+  isWeekDayPredictedOvulation(d: { fullDate: Date }): boolean {
+    if (!this.startDate) {
+      return false;
+    }
+    const ovDay = this.effectiveOvulationCycleDay();
+    if (ovDay < 1) {
+      return false;
+    }
+    if (this.isWeekDayInPeriod(d)) {
+      return false;
+    }
+    const cd = this.cycleDayForCalendarDate(d.fullDate);
+    return cd != null && cd === ovDay;
+  }
+
+  /**
+   * Other fertile‑window days (not ovulation peak) — mint styling on the week strip.
+   */
+  isWeekDayInFertileWindowStrip(d: { fullDate: Date }): boolean {
+    if (!this.startDate || this.isWeekDayInPeriod(d)) {
+      return false;
+    }
+    if (this.isWeekDayPredictedOvulation(d)) {
+      return false;
+    }
+    const cd = this.cycleDayForCalendarDate(d.fullDate);
+    if (cd == null) {
+      return false;
+    }
+    return cd >= this.fertileWindowStart && cd <= this.fertileWindowEnd;
+  }
+
+  /** Selected day after period and before predicted ovulation (dashed “countdown” look). */
+  isWeekDayPreOvulationSelected(d: {
+    fullDate: Date;
+    isToday: boolean;
+    isoKey: string;
+  }): boolean {
+    if (!this.startDate || !this.isWeekDaySelected(d)) {
+      return false;
+    }
+    if (this.isWeekDayInPeriod(d)) {
+      return false;
+    }
+    if (this.isWeekDayPredictedOvulation(d)) {
+      return false;
+    }
+    const cd = this.cycleDayForCalendarDate(d.fullDate);
+    if (cd == null) {
+      return false;
+    }
+    const ov = this.effectiveOvulationCycleDay();
+    return cd > this.periodLength && cd < ov;
+  }
+
+  /**
+   * Extra ring on the predicted ovulation cell when it is exactly 6 calendar days away
+   * (matches “Ovulation in 6 days” in the today strip).
+   */
+  isWeekStripOvulationSixDaySpotlight(d: {
+    fullDate: Date;
+    isToday?: boolean;
+  }): boolean {
+    if (!this.startDate) {
+      return false;
+    }
+    if (this.calendarDaysUntilNextPredictedOvulation() !== 6) {
+      return false;
+    }
+    if (!this.isWeekDayPredictedOvulation(d)) {
+      return false;
+    }
+    const nextOv = this.nextOvulationCalendarOnOrAfter(
+      localMidnight(new Date()),
+    );
+    if (!nextOv) {
+      return false;
+    }
+    return this.sameLocalCalendarDay(d.fullDate, nextOv);
+  }
+
+  /**
+   * Countdown from the strip’s selected calendar day (LMP sync, a tap, or today when none).
+   */
+  get weekStripSelectionOvulationInsight(): string {
+    if (!this.startDate) {
+      return '';
+    }
+    const d = this.getSelectedStripCalendarDate();
+    const nextOv = this.nextOvulationCalendarOnOrAfter(d);
+    if (!nextOv) {
+      return '';
+    }
+    const days = Math.round((nextOv.getTime() - d.getTime()) / 86400000);
+    if (days < 0) {
+      return '';
+    }
+    if (days === 0) {
+      return this.t('cycleChart.insight.predictedOvulationDay');
+    }
+    if (days === 1) {
+      return this.t('cycleChart.insight.ovulationTomorrow');
+    }
+    return this.t('cycleChart.insight.ovulationInDays', { days });
+  }
+
+  getViewContextText(): string {
+    return this.viewingCalendarToday()
+      ? this.t('cycleChart.view.todayOnCycle')
+      : this.t('cycleChart.view.previewTapAnotherDay');
+  }
+
+  getPeriodLengthSummaryText(): string {
+    return this.t('cycleChart.sheet.lengthThisPeriod', {
+      days: this.periodDays,
+      dayWord: this.dayWord(this.periodDays),
+    });
+  }
+
+  getTrackButtonAriaLabel(): string {
+    return this.isInPeriod
+      ? this.t('cycleChart.a11y.editLoggedPeriod')
+      : this.t('cycleChart.a11y.logPeriod');
+  }
+
+  getTrackButtonTitle(): string {
+    return this.isInPeriod
+      ? this.t('cycleChart.track.editLogPeriod')
+      : this.t('cycleChart.track.logPeriod');
+  }
+
+  getTrackButtonHint(): string {
+    return this.t('cycleChart.track.hint');
+  }
+
+  getPeriodSheetTitle(): string {
+    return this.t('cycleChart.sheet.title');
+  }
+
+  getWheelPickerHint(): string {
+    return this.t('cycleChart.picker.spinThenDone');
+  }
+
+  private dayWord(count: number): string {
+    return count === 1
+      ? this.t('cycleChart.common.day')
+      : this.t('cycleChart.common.days');
+  }
+
+  private toLocalIsoDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  private t(key: string, params?: Record<string, string | number>): string {
+    let template = this.translationService.translate(key);
+    if (params) {
+      template = Object.entries(params).reduce(
+        (acc, [paramKey, value]) =>
+          acc.replace(
+            new RegExp(`\\{\\{\\s*${paramKey}\\s*\\}\\}`, 'g'),
+            String(value),
+          ),
+        template,
+      );
+    }
+    return formatLocalizedNumber(
+      template,
+      this.languageService.getCurrentLanguage(),
+    );
+  }
+
+  private getSelectedStripCalendarDate(): Date {
+    if (this.weekCalendarSelectedIsoKey) {
+      const parsed = parseCycleViewDateKey(this.weekCalendarSelectedIsoKey);
+      if (parsed) {
+        return parsed;
+      }
+    }
+    return localMidnight(new Date());
+  }
+
+  /** Same index as the ring; falls back when `recomputeEverything` yields 0 for very short cycles. */
+  private effectiveOvulationCycleDay(): number {
+    if (this.ovulationDay >= 1) {
+      return this.ovulationDay;
+    }
+    return Math.max(1, this.cycleLength - 14);
+  }
+
+  private startDateLocalMidnight(): Date | null {
+    if (!this.startDate) {
+      return null;
+    }
+    const d = new Date(
+      this.startDate.includes('T')
+        ? this.startDate
+        : `${this.startDate}T12:00:00`,
+    );
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  private sameLocalCalendarDay(a: Date, b: Date): boolean {
+    return (
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+    );
+  }
+
+  /** Next calendar date ≥ `from` (local midnight) that is a predicted ovulation day. */
+  private nextOvulationCalendarOnOrAfter(from: Date): Date | null {
+    const start = this.startDateLocalMidnight();
+    if (!start) {
+      return null;
+    }
+    const ov = this.effectiveOvulationCycleDay();
+    if (ov < 1) {
+      return null;
+    }
+    const fromMid = localMidnight(from);
+    let candidate = new Date(start);
+    candidate.setDate(candidate.getDate() + (ov - 1));
+    while (candidate.getTime() < fromMid.getTime()) {
+      candidate.setDate(candidate.getDate() + this.cycleLength);
+    }
+    return candidate;
+  }
+
+  private calendarDaysUntilNextPredictedOvulation(): number | null {
+    if (!this.startDate) {
+      return null;
+    }
+    const today = localMidnight(new Date());
+    const nextOv = this.nextOvulationCalendarOnOrAfter(today);
+    if (!nextOv) {
+      return null;
+    }
+    return Math.round((nextOv.getTime() - today.getTime()) / 86400000);
+  }
+
+  /** 1-based cycle day for a calendar date from `startDate` (LMP), wrapping by `cycleLength`. */
+  private cycleDayForCalendarDate(d: Date): number | null {
+    if (!this.startDate) {
+      return null;
+    }
+    const day = cycleDayFromLmpIso(this.startDate, d, this.cycleLength);
+    return day >= 1 ? day : null;
+  }
+
+  async onWeekDayPick(d: { isToday: boolean; isoKey: string; fullDate: Date }): Promise<void> {
+    // Week strip tap is now selection-only; period logging is handled elsewhere.
+
+    if (d.isToday) {
+      this.weekCalendarSelectedIsoKey = null;
+      this.cycleSettings.setSelectedCycleViewDate(null);
+      this.cdr.markForCheck();
+      this.scheduleWeekScrollToAnchor(true);
+      return;
+    }
+    this.weekCalendarSelectedIsoKey = d.isoKey;
+    this.cycleSettings.setSelectedCycleViewDate(d.isoKey);
+    this.cdr.markForCheck();
+    this.scheduleWeekScrollToAnchor(true);
+  }
+
+  private syncWeekCalendarSelectionFromStartDate(): void {
+    if (!this.startDate) {
+      this.weekCalendarSelectedIsoKey = null;
+      this.cycleSettings.setSelectedCycleViewDate(null);
+      return;
+    }
+    const pinned = this.cycleSettings.selectedCycleViewDate();
+    if (pinned) {
+      this.weekCalendarSelectedIsoKey = pinned;
+      return;
+    }
+    this.weekCalendarSelectedIsoKey = null;
+  }
+
+  /** After logging a period, keep the ring on today so day 1…5 highlights correctly. */
+  private focusTodayWhenInActivePeriod(): void {
+    if (!this.startDate) {
+      return;
+    }
+    const today = localMidnight(new Date());
+    const todayCycleDay = this.cycleDayForCalendarDate(today);
+    if (
+      todayCycleDay == null ||
+      todayCycleDay < 1 ||
+      todayCycleDay > this.periodLength
+    ) {
+      return;
+    }
+    const pinned = this.cycleSettings.selectedCycleViewDate();
+    if (!pinned) {
+      this.weekCalendarSelectedIsoKey = null;
+      return;
+    }
+    const pinnedDate = parseCycleViewDateKey(pinned);
+    if (!pinnedDate) {
+      this.weekCalendarSelectedIsoKey = null;
+      this.cycleSettings.setSelectedCycleViewDate(null);
+      return;
+    }
+    if (this.sameLocalCalendarDay(pinnedDate, today)) {
+      this.weekCalendarSelectedIsoKey = pinned;
+      return;
+    }
+    const pinnedCycleDay = this.cycleDayForCalendarDate(pinnedDate);
+    // Drop stale future strip pins (e.g. day 4 highlighted when today is day 1).
+    if (
+      pinnedCycleDay != null &&
+      pinnedCycleDay > todayCycleDay &&
+      pinnedCycleDay <= this.periodLength
+    ) {
+      this.weekCalendarSelectedIsoKey = null;
+      this.cycleSettings.setSelectedCycleViewDate(null);
+      return;
+    }
+    this.weekCalendarSelectedIsoKey = pinned;
+  }
+
+  /**
+   * Scroll the horizontal week strip so the viewport shows the calendar week that contains
+   * the **highlighted** strip day ({@link getSelectedStripCalendarDate}: explicit pick, pinned
+   * date from storage, or today).
+   *
+   * @param smooth when `true`, animate (e.g. after user taps a day); default instant for init/sync.
+   */
+  scheduleWeekScrollToAnchor(smooth = false): void {
+    if (!this.showWeekStrip) {
+      return;
+    }
+    const attempt = (retriesLeft: number) => {
+      setTimeout(() => {
+        const host = this.cycleChartWeekScroll?.nativeElement;
+        if (host && host.clientWidth < 1 && retriesLeft > 0) {
+          attempt(retriesLeft - 1);
+          return;
+        }
+        this.scrollWeekToAnchor(smooth);
+      }, retriesLeft === 5 ? 0 : 48);
+    };
+    attempt(5);
+  }
+
+  private getWeekMonday(d: Date): Date {
+    const x = new Date(d);
+    const dow = x.getDay();
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
+    x.setDate(x.getDate() + mondayOffset);
+    x.setHours(0, 0, 0, 0);
+    return x;
+  }
+
+  private weekUtcDayIndex(d: Date): number {
+    return Math.floor(
+      Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000,
+    );
+  }
+
+  private diffWeeksBetweenMondays(fromMonday: Date, toMonday: Date): number {
+    return (
+      (this.weekUtcDayIndex(toMonday) - this.weekUtcDayIndex(fromMonday)) / 7
+    );
+  }
+
+  private scrollWeekToAnchor(smooth = false): void {
+    const host = this.cycleChartWeekScroll?.nativeElement;
+    if (!host || host.clientWidth < 1) {
+      return;
+    }
+    const ref = this.getSelectedStripCalendarDate();
+    const anchorMonday = this.getWeekMonday(new Date());
+    const refMonday = this.getWeekMonday(ref);
+    const diffWeeks = this.diffWeeksBetweenMondays(anchorMonday, refMonday);
+    const idx = Math.max(
+      0,
+      Math.min(
+        this.weekCalWeeksPast + this.weekCalWeeksFuture,
+        this.weekCalWeeksPast + diffWeeks,
+      ),
+    );
+    const weekEl = host.children[idx] as HTMLElement | undefined;
+    const leftTarget = weekEl ? weekEl.offsetLeft : idx * host.clientWidth;
+    const behavior: ScrollBehavior = smooth ? 'smooth' : 'auto';
+    host.scrollTo({ left: leftTarget, top: 0, behavior });
+  }
+
+  private recomputeEverything() {
+    this.todayDate = new Date();
+
+    // Predicted ovulation cycle day.
+    // Keep the medical baseline (`cycleLength - 14`), but never place ovulation
+    // too early for the Flo-like fertile start (period end + 3 days).
+    const baselineOvulationDay = this.cycleLength - 14;
+    const minOvulationFromPeriodTiming = this.fertileWindowStart + 4;
+    this.ovulationDay = Math.min(
+      this.cycleLength,
+      Math.max(1, baselineOvulationDay, minOvulationFromPeriodTiming),
+    );
+
+    // refresh ring day labels
+    this.ringDays = Array.from({ length: this.cycleLength }, (_, i) => i + 1);
+    this.periodDayNumbers = Array.from(
+      { length: this.periodLength },
+      (_, i) => i + 1,
+    );
+
+    // compute today cycle day relative to last period start (1-based)
+    if (this.startDate) {
+      const cd = this.cycleDayForCalendarDate(localMidnight(this.todayDate));
+      this.todayCycleDay = cd != null && cd >= 1 ? cd : 1;
+    } else {
+      // fallback: keep current day index within cycle length (not ideal but avoids NaN)
+      const todayNum = new Date().getDate();
+      this.todayCycleDay =
+        ((((todayNum - 1) % this.cycleLength) + this.cycleLength) %
+          this.cycleLength) +
+        1;
+    }
+
+    // rebuild segments — soft Flo-style palette (see SVG gradient defs)
+    this.segments = [];
+    this.addSegmentWithWrap(0, this.periodLength, 'url(#segmentGradientPeriod)', 'period');
+
+    const fertileStart = this.ovulationDay - 5;
+    this.addSegmentWithWrap(
+      fertileStart,
+      this.fertileWindowLength,
+      'url(#segmentGradientFertile)',
+      'fertile',
+    );
+
+    this.addSegmentWithWrap(
+      this.ovulationDay,
+      0.65,
+      'url(#segmentGradientOvulation)',
+      'ovulation',
+    );
+
+    this.addSegmentWithWrap(
+      this.cycleLength - this.pmsLength,
+      this.pmsLength,
+      'url(#segmentGradientLuteal)',
+      'luteal',
+    );
+
+    // positions for today & ovulation
+    this.updatePositions();
+
+    // Force change detection to update the view
+    this.cdr.detectChanges();
+  }
+}

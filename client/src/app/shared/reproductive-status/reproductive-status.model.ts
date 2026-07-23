@@ -1,4 +1,4 @@
-import type { ReproductiveStatus } from '../services/onboarding.service';
+import type { ReproductiveStatus } from '@app/shared/services/onboarding.service';
 
 /**
  * Profile / picker UI keys (legacy journey vocabulary).

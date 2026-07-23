@@ -1,4 +1,4 @@
-import type { ReproductiveStatusOption } from './reproductive-status.model';
+import type { ReproductiveStatusOption } from '@app/shared/reproductive-status/reproductive-status.model';
 
 /**
  * Single source of truth for the «وضعیت شما» 2×2 picker.

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { CreatePeriodLogDto } from '../models/period-log.dto';
+import { CreatePeriodLogDto } from '@app/shared/models/period-log.dto';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 

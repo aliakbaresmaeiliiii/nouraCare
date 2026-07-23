@@ -3,9 +3,9 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, ReplaySubject, share, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Injector } from '@angular/core';
-import { UserInfoService } from './user-info.service';
-import { DashboardCacheService } from './dashboard-cache.service';
-import { UserSessionService } from './user-session.service';
+import { UserInfoService } from '@app/shared/services/user-info.service';
+import { DashboardCacheService } from '@app/shared/services/dashboard-cache.service';
+import { UserSessionService } from '@app/shared/services/user-session.service';
 
 export interface DashboardRequestOptions {
   /** Bypass in-flight / shared cache (pull-to-refresh, after PATCH). */

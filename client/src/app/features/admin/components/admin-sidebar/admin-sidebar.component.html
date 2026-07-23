@@ -1,0 +1,21 @@
+<aside class="sidebar" aria-label="Admin navigation">
+  <div class="sidebar__brand">
+    <span class="sidebar__mark" aria-hidden="true"></span>
+    <div>
+      <strong>Dore Admin</strong>
+      <small>Console</small>
+    </div>
+  </div>
+
+  <nav class="sidebar__nav">
+    @for (link of links; track link.path) {
+      <a
+        [routerLink]="link.path"
+        routerLinkActive="sidebar__link--active"
+        class="sidebar__link"
+      >
+        {{ link.label }}
+      </a>
+    }
+  </nav>
+</aside>

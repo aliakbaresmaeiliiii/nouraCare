@@ -1,0 +1,31 @@
+<section id="screenshots" class="shots" aria-labelledby="shots-title">
+  <div class="shots__inner">
+    <header class="shots__header">
+      <p class="shots__eyebrow">Product</p>
+      <h2 id="shots-title">A calm interface for daily health decisions</h2>
+      <p class="shots__lede">
+        Designed for clarity on mobile — the places you open most, without noise.
+      </p>
+    </header>
+
+    <div class="shots__row">
+      @for (shot of shots; track shot.title) {
+        <figure class="shots__card" [attr.data-tone]="shot.tone">
+          <div class="shots__frame" aria-hidden="true">
+            <div class="shots__screen">
+              <span class="shots__bar"></span>
+              <span class="shots__orb"></span>
+              <span class="shots__line"></span>
+              <span class="shots__line shots__line--short"></span>
+              <span class="shots__panel"></span>
+            </div>
+          </div>
+          <figcaption>
+            <strong>{{ shot.title }}</strong>
+            <span>{{ shot.caption }}</span>
+          </figcaption>
+        </figure>
+      }
+    </div>
+  </div>
+</section>

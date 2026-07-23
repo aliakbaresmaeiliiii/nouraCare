@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { ModalController } from '@ionic/angular/standalone';
-import { LanguagePickSheetComponent } from '../components/language-pick-sheet/language-pick-sheet.component';
+import { LanguagePickSheetComponent } from '@app/shared/ui/language-pick-sheet/language-pick-sheet.component';
 import {
   hasConfirmedOnboardingLanguage,
   type OnboardingLanguageChoice,
-} from '../utils/onboarding-language.util';
+} from '@app/shared/utils/onboarding-language.util';
 
 @Injectable({ providedIn: 'root' })
 export class OnboardingLanguageSheetService {

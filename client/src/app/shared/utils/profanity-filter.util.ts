@@ -1,4 +1,4 @@
-import { PROFANITY_TERMS } from '../content/profanity-terms.content';
+import { PROFANITY_TERMS } from '@app/shared/content/profanity-terms.content';
 
 const PERSIAN_DIGITS = '۰۱۲۳۴۵۶۷۸۹';
 const ARABIC_DIGITS = '٠١٢٣٤٥٦٧٨٩';

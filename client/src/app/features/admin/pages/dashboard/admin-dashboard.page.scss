@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.page__header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: -0.03em;
+}
+
+.page__header p {
+  margin: 0.4rem 0 0;
+  color: var(--admin-muted, #64748b);
+}
+
+.page__panel {
+  margin-top: 1.25rem;
+  min-height: 12rem;
+  border-radius: 1rem;
+  background: var(--admin-surface, #fff);
+  border: 1px solid var(--admin-line, #e2e8f0);
+}

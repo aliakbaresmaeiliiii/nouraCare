@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, inject } from '@angular/core';
-import { SHARED_STANDALONE_IMPORTS } from './shared/shared-standalone';
-import { ThemeService } from './shared/services/theme.service';
-import { PwaInstallBannerComponent } from './shared/components/pwa-install-banner/pwa-install-banner.component';
+import { SHARED_STANDALONE_IMPORTS } from '@app/shared/shared-standalone';
+import { ThemeService } from '@app/shared/services/theme.service';
+import { PwaInstallBannerComponent } from '@app/shared/ui/pwa-install-banner/pwa-install-banner.component';
 
 /**
  * Root shell. `ion-app` exists after first render; palette class must live on it for Ionic dark CSS.

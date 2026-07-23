@@ -1,0 +1,162 @@
+:host {
+  display: block;
+}
+
+.shots {
+  padding: 2rem 1.25rem 4.5rem;
+}
+
+.shots__inner {
+  max-width: var(--dh-max, 1120px);
+  margin: 0 auto;
+}
+
+.shots__header {
+  max-width: 36rem;
+  margin-bottom: 2.25rem;
+}
+
+.shots__eyebrow {
+  margin: 0 0 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dh-sea, #0f766e);
+}
+
+.shots__header h2 {
+  margin: 0;
+  font-family: var(--dh-display, Georgia, serif);
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.shots__lede {
+  margin: 0.9rem 0 0;
+  color: var(--dh-muted, #5b6b7c);
+  line-height: 1.6;
+}
+
+.shots__row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.shots__card {
+  margin: 0;
+}
+
+.shots__frame {
+  padding: 0.85rem;
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--dh-line, rgba(7, 17, 31, 0.08));
+  box-shadow: 0 18px 40px rgba(7, 17, 31, 0.08);
+}
+
+.shots__screen {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  border-radius: 1.05rem;
+  overflow: hidden;
+  background: linear-gradient(165deg, #123041, #0a1824 70%);
+}
+
+.shots__card[data-tone='sea'] .shots__orb {
+  background: radial-gradient(circle, rgba(20, 184, 166, 0.55), transparent 70%);
+}
+
+.shots__card[data-tone='ink'] .shots__orb {
+  background: radial-gradient(circle, rgba(125, 211, 199, 0.35), transparent 70%);
+}
+
+.shots__card[data-tone='coral'] .shots__orb {
+  background: radial-gradient(circle, rgba(255, 107, 74, 0.4), transparent 70%);
+}
+
+.shots__bar {
+  position: absolute;
+  top: 0.9rem;
+  left: 50%;
+  translate: -50% 0;
+  width: 35%;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.shots__orb {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  translate: -50% 0;
+  width: 58%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: dh-orb 6s ease-in-out infinite;
+}
+
+.shots__line,
+.shots__panel {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.shots__line {
+  top: 58%;
+  height: 0.7rem;
+}
+
+.shots__line--short {
+  top: 66%;
+  right: 28%;
+}
+
+.shots__panel {
+  top: 76%;
+  height: 14%;
+}
+
+.shots__card figcaption {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.95rem;
+  padding: 0 0.2rem;
+}
+
+.shots__card strong {
+  font-size: 1.02rem;
+  letter-spacing: -0.02em;
+}
+
+.shots__card span {
+  color: var(--dh-muted, #5b6b7c);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+@keyframes dh-orb {
+  0%,
+  100% {
+    transform: translate(-50%, 0) scale(1);
+  }
+  50% {
+    transform: translate(-50%, 8px) scale(1.05);
+  }
+}
+
+@media (max-width: 900px) {
+  .shots__row {
+    grid-template-columns: 1fr;
+    max-width: 360px;
+    margin-inline: auto;
+  }
+}

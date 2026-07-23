@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { TranslationService } from './translation.service';
+import { TranslationService } from '@app/shared/services/translation.service';
 
 /** Minimal shape needed to resolve a forum category label. */
 export interface ForumCategoryLike {

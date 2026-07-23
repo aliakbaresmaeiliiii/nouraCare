@@ -5,10 +5,10 @@ import {
   isCalendarDateNotAfterToday,
   lmpIsoFromGestationalWeekAndDay,
   utcTodayIsoDateOnly,
-} from './pregnancy-lmp.util';
-import { localCalendarIsoDate } from './ion-datetime-today-highlight.util';
+} from '@app/shared/utils/pregnancy-lmp.util';
+import { localCalendarIsoDate } from '@app/shared/utils/ion-datetime-today-highlight.util';
 
-export { GESTATION_LENGTH_DAYS } from './pregnancy-lmp.util';
+export { GESTATION_LENGTH_DAYS } from '@app/shared/utils/pregnancy-lmp.util';
 
 /** Matches server `validateLmpAgainstToday` (pregnancy-lmp.util.ts). */
 export const MAX_PREGNANCY_DAYS_FROM_LMP = 320;

@@ -1,0 +1,28 @@
+<header class="nav" [class.nav--open]="menuOpen()">
+  <div class="nav__inner">
+    <a class="nav__brand" routerLink="/" (click)="closeMenu()">
+      <span class="nav__mark" aria-hidden="true"></span>
+      <span class="nav__name">Dore</span>
+    </a>
+
+    <button
+      type="button"
+      class="nav__burger"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="landing-nav-links"
+      aria-label="Toggle menu"
+      (click)="toggleMenu()"
+    >
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav id="landing-nav-links" class="nav__links" aria-label="Primary">
+      <a href="#features" (click)="closeMenu()">Features</a>
+      <a href="#screenshots" (click)="closeMenu()">Product</a>
+      <a href="#faq" (click)="closeMenu()">FAQ</a>
+      <a class="nav__ghost" routerLink="/app/auth/sign-in" (click)="closeMenu()">Sign in</a>
+      <a class="nav__cta" routerLink="/app" (click)="closeMenu()">Open app</a>
+    </nav>
+  </div>
+</header>

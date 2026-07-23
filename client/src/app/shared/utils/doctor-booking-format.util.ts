@@ -3,7 +3,7 @@ import { faIR } from 'date-fns-jalali/locale';
 import {
   formatLocalizedNumber,
   isPersianAppLanguage,
-} from './locale-date-format.util';
+} from '@app/shared/utils/locale-date-format.util';
 
 const FA = { locale: faIR };
 

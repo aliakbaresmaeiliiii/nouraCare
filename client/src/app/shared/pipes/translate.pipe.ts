@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Pipe, PipeTransform, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { TranslationService } from '../services/translation.service';
-import { LanguageService } from '../services/language.service';
+import { TranslationService } from '@app/shared/services/translation.service';
+import { LanguageService } from '@app/shared/services/language.service';
 
 @Pipe({
   name: 'translate',
