@@ -20,6 +20,8 @@ export interface User {
   profileImage?: string | null;
   isVerified?: boolean;
   status?: string;
+  /** App role from Prisma: USER | ADMIN | SUPER_ADMIN */
+  role?: string;
   city?: string | null;
   birthday?: string | null;
   createdAt?: string;

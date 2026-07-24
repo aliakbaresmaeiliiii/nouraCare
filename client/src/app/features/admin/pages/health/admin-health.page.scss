@@ -1,0 +1,51 @@
+@use '../../styles/admin-page';
+
+.health-skeleton {
+  display: grid;
+  gap: 1rem;
+}
+
+.health-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1rem;
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-line);
+  background: var(--admin-surface);
+}
+
+.health-banner strong {
+  display: block;
+  font-size: 1.05rem;
+  text-transform: capitalize;
+}
+
+.health-banner p {
+  margin: 0.25rem 0 0;
+  color: var(--admin-muted);
+  font-size: 0.82rem;
+}
+
+.health-banner--healthy {
+  border-color: color-mix(in srgb, #16a34a 35%, var(--admin-line));
+  background: color-mix(in srgb, #16a34a 8%, var(--admin-surface));
+}
+
+.health-banner--degraded {
+  border-color: color-mix(in srgb, #ca8a04 35%, var(--admin-line));
+  background: color-mix(in srgb, #ca8a04 8%, var(--admin-surface));
+}
+
+.health-banner--down {
+  border-color: color-mix(in srgb, #dc2626 35%, var(--admin-line));
+  background: color-mix(in srgb, #dc2626 8%, var(--admin-surface));
+}
+
+.svc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}

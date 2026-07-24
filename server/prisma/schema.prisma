@@ -564,6 +564,7 @@ enum chat_messages_messageType {
 enum user_role {
   USER
   ADMIN
+  SUPER_ADMIN
 }
 
 enum user_status {

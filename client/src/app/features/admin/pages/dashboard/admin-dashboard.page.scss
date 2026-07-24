@@ -1,22 +1,55 @@
-:host {
-  display: block;
+@use '../../styles/admin-page';
+
+.error-panel {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
 }
 
-.page__header h1 {
+.dash-skeleton__card {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+}
+
+.admin-kpi-grid--secondary {
+  margin-top: 0.25rem;
+  opacity: 0.95;
+}
+
+.recent-list {
+  list-style: none;
   margin: 0;
-  font-size: 1.5rem;
-  letter-spacing: -0.03em;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
 }
 
-.page__header p {
-  margin: 0.4rem 0 0;
-  color: var(--admin-muted, #64748b);
+.recent-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--admin-line);
 }
 
-.page__panel {
-  margin-top: 1.25rem;
-  min-height: 12rem;
-  border-radius: 1rem;
-  background: var(--admin-surface, #fff);
-  border: 1px solid var(--admin-line, #e2e8f0);
+.recent-list strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.recent-list small {
+  color: var(--admin-muted);
+  font-size: 0.75rem;
+}
+
+.recent-list time {
+  color: var(--admin-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--admin-muted);
 }

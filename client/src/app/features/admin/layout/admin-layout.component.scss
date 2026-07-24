@@ -1,44 +1,89 @@
+@use '../styles/admin-tokens' as tokens;
+
 :host {
   display: block;
-  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
 }
 
 .admin-shell {
-  --admin-bg: #f4f6f8;
-  --admin-surface: #ffffff;
-  --admin-ink: #0f172a;
-  --admin-muted: #64748b;
-  --admin-line: #e2e8f0;
-  --admin-accent: #0f766e;
-  --admin-sidebar-w: 240px;
-  --admin-font: 'Sora', 'Vazirmatn', system-ui, sans-serif;
-
+  @include tokens.admin-theme-light;
   display: grid;
   grid-template-columns: var(--admin-sidebar-w) minmax(0, 1fr);
-  min-height: 100dvh;
-  background: var(--admin-bg);
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, var(--admin-accent) 14%, transparent), transparent 55%),
+    radial-gradient(900px 420px at 100% 0%, color-mix(in srgb, var(--admin-secondary) 10%, transparent), transparent 50%),
+    var(--admin-bg);
   color: var(--admin-ink);
   font-family: var(--admin-font);
+  transition: grid-template-columns 180ms ease;
+}
+
+.admin-shell[data-theme='dark'] {
+  @include tokens.admin-theme-dark;
+}
+
+.admin-shell--collapsed {
+  grid-template-columns: var(--admin-sidebar-collapsed-w) minmax(0, 1fr);
+}
+
+.admin-shell__sidebar {
+  min-height: 0;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .admin-shell__main {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: 100dvh;
+  min-height: 0;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .admin-shell__content {
-  flex: 1;
-  padding: 1.25rem 1.5rem 2rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.25rem 1.5rem 1.5rem;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.admin-shell__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 8, 16, 0.45);
+  z-index: 40;
+}
+
+.admin-shell__drawer {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 50;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
 }
 
 @media (max-width: 900px) {
-  .admin-shell {
+  .admin-shell,
+  .admin-shell--collapsed {
     grid-template-columns: 1fr;
   }
 
   .admin-shell__sidebar {
     display: none;
+  }
+
+  .admin-shell__content {
+    padding: 1rem;
   }
 }

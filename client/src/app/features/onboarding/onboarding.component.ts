@@ -242,8 +242,11 @@ export class OnboardingComponent implements OnInit {
   private async ensureOnboardingLanguage(): Promise<void> {
     const choice = await this.onboardingLanguageSheet.presentIfNeeded();
     if (choice) {
-      this.languageService.setLanguage(choice);
+      // Prefer setPreferredLanguage: setLanguage() is gated by LANGUAGE_SWITCHING_ENABLED
+      // and would skip applying EN while in-app switchers are hidden.
+      this.languageService.setPreferredLanguage(choice);
       markOnboardingLanguageConfirmed();
+      this.cdr.markForCheck();
     }
   }
 

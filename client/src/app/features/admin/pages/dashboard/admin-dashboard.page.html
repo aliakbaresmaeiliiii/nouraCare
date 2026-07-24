@@ -1,7 +1,100 @@
-<section class="page">
-  <header class="page__header">
-    <h1>Dashboard</h1>
-    <p>Overview placeholder — architecture only.</p>
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <h1>{{ 'admin.dashboard.title' | translate }}</h1>
+      <p>{{ 'admin.dashboard.subtitle' | translate }}</p>
+    </div>
+    <div class="admin-page__actions">
+      <button type="button" class="admin-btn" (click)="load()" [disabled]="loading()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
   </header>
-  <div class="page__panel" aria-hidden="true"></div>
+
+  @if (loading()) {
+    <div class="dash-skeleton" aria-busy="true" aria-label="Loading dashboard">
+      <div class="admin-kpi-grid">
+        @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+          <div class="admin-panel dash-skeleton__card">
+            <app-admin-skeleton height="0.7rem" width="40%" />
+            <app-admin-skeleton height="1.6rem" width="55%" />
+          </div>
+        }
+      </div>
+      <div class="admin-grid-2">
+        <div class="admin-panel"><app-admin-skeleton height="240px" /></div>
+        <div class="admin-panel"><app-admin-skeleton height="240px" /></div>
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="admin-panel error-panel">
+      <p>{{ error()! | translate }}</p>
+      <button type="button" class="admin-btn admin-btn--primary" (click)="load()">
+        {{ 'admin.dashboard.retry' | translate }}
+      </button>
+    </div>
+  } @else {
+    <div class="admin-kpi-grid">
+      @for (kpi of primaryKpis(); track kpi.id) {
+        <app-admin-stat-card
+          [label]="kpi.labelKey | translate"
+          [value]="kpi.value"
+          [tone]="kpi.tone || 'default'"
+        />
+      }
+    </div>
+
+    <div class="admin-grid-2">
+      <app-admin-chart-card
+        [title]="'admin.dashboard.signups' | translate"
+        kind="area"
+        [labels]="signupLabels()"
+        [datasets]="signupValues()"
+        [height]="260"
+      />
+      <app-admin-chart-card
+        [title]="'admin.dashboard.subscriptions' | translate"
+        kind="donut"
+        [labels]="tierLabels()"
+        [datasets]="tierValues()"
+        [height]="260"
+      />
+    </div>
+
+    <div class="admin-grid-2">
+      <app-admin-chart-card
+        [title]="'admin.dashboard.reproductive' | translate"
+        kind="bar"
+        [labels]="reproLabels()"
+        [datasets]="reproValues()"
+        [height]="260"
+      />
+      <section class="admin-panel">
+        <h3>{{ 'admin.dashboard.recent' | translate }}</h3>
+        <ul class="recent-list">
+          @for (u of overview()?.recentSignups ?? []; track u.id) {
+            <li>
+              <div>
+                <strong>{{ u.fullName || u.email || ('#' + u.id) }}</strong>
+                <small>{{ u.email }}</small>
+              </div>
+              <time>{{ u.createdAt | date: 'MMM d, HH:mm' }}</time>
+            </li>
+          } @empty {
+            <li class="muted">—</li>
+          }
+        </ul>
+      </section>
+    </div>
+
+    <div class="admin-kpi-grid admin-kpi-grid--secondary">
+      @for (kpi of secondaryKpis(); track kpi.id) {
+        <app-admin-stat-card
+          [label]="kpi.labelKey | translate"
+          [value]="kpi.value"
+          [tone]="kpi.tone || 'default'"
+        />
+      }
+    </div>
+  }
 </section>

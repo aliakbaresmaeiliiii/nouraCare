@@ -10,7 +10,7 @@ import { TOOLS_MENU_TRANSLATIONS } from '@app/shared/content/tools-menu-translat
 import { SHOP_TRANSLATIONS } from '@app/shared/content/shop-translations.content';
 import { PAYMENT_TRANSLATIONS } from '@app/shared/content/payment-translations.content';
 import { TOAST_TRANSLATIONS } from '@app/shared/content/toast-translations.content';
-import { LANDING_TRANSLATIONS } from '@app/shared/content/landing-translations.content';
+import { ADMIN_TRANSLATIONS } from '@app/features/admin/i18n/admin-translations.content';
 
 @Injectable({
   providedIn: 'root',
@@ -1453,7 +1453,7 @@ export class TranslationService {
       ...SHOP_TRANSLATIONS['en'],
       ...PAYMENT_TRANSLATIONS['en'],
       ...TOAST_TRANSLATIONS['en'],
-      ...LANDING_TRANSLATIONS['en'],
+      ...ADMIN_TRANSLATIONS['en'],
 
       'about.toast.feedbackSoon': 'Feedback form can open here.',
       'about.toast.rateSoon': 'Store rating can open here.',
@@ -3926,7 +3926,7 @@ export class TranslationService {
       ...SHOP_TRANSLATIONS['zh'],
       ...PAYMENT_TRANSLATIONS['zh'],
       ...TOAST_TRANSLATIONS['zh'],
-      ...LANDING_TRANSLATIONS['zh'],
+      ...ADMIN_TRANSLATIONS['zh'],
 
       'about.toast.feedbackSoon': '反馈表单可在此打开。',
       'about.toast.rateSoon': '应用商店评分可在此打开。',
@@ -5494,7 +5494,7 @@ export class TranslationService {
       ...SHOP_TRANSLATIONS['ms'],
       ...PAYMENT_TRANSLATIONS['ms'],
       ...TOAST_TRANSLATIONS['ms'],
-      ...LANDING_TRANSLATIONS['ms'],
+      ...ADMIN_TRANSLATIONS['ms'],
 
       'about.toast.feedbackSoon': 'Borang maklum balas boleh dibuka di sini.',
       'about.toast.rateSoon': 'Penilaian kedai boleh dibuka di sini.',
@@ -7043,7 +7043,7 @@ export class TranslationService {
       ...SHOP_TRANSLATIONS['fa'],
       ...PAYMENT_TRANSLATIONS['fa'],
       ...TOAST_TRANSLATIONS['fa'],
-      ...LANDING_TRANSLATIONS['fa'],
+      ...ADMIN_TRANSLATIONS['fa'],
 
       'about.toast.feedbackSoon': 'فرم بازخورد می‌تواند اینجا باز شود.',
       'about.toast.rateSoon': 'امتیازدهی فروشگاه می‌تواند اینجا باز شود.',

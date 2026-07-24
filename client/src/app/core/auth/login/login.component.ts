@@ -275,6 +275,12 @@ export class LoginComponent
         if (ref && typeof sessionStorage !== 'undefined') {
           sessionStorage.setItem(PENDING_INVITE_CODE_KEY, ref.toUpperCase());
         }
+        if (params['adminDenied'] === '1') {
+          this.presentToast(
+            'Admin access required. Sign in with an ADMIN or SUPER_ADMIN account.',
+            false,
+          );
+        }
       });
 
     const devEmail = environment.devAuthEmail?.trim();
@@ -360,10 +366,11 @@ export class LoginComponent
               id: res.data.user.id,
               email: res.data.user.email,
               phone: res.data.user.phone ?? '',
-              name: res.data.user['name'],
+              name: res.data.user['name'] ?? res.data.user['fullName'],
               profileImage: res.data.user['profileImage'],
               isVerified: res.data.user.isVerified,
               status: res.data.user['status'],
+              role: res.data.user['role'],
               city: res.data.user['city'],
               birthday: res.data.user['birthday'],
               createdAt: res.data.user['createdAt'],
@@ -687,6 +694,12 @@ export class LoginComponent
       }
     }
     this.clearStoredOnboardingAfterAuth();
+
+    const returnUrl = this.activatedRoute.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//')) {
+      await this.router.navigateByUrl(returnUrl);
+      return;
+    }
     await this.router.navigate(['/tabs/home']);
   }
 

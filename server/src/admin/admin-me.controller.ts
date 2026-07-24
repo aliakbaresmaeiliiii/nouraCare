@@ -8,7 +8,7 @@ import { ApiResponseHelper } from '../core/helpers/api-response.helper';
 /** Lightweight session probe for the admin SPA. */
 @Controller('admin')
 @UseGuards(RolesGuard)
-@Roles(user_role.ADMIN)
+@Roles(user_role.SUPER_ADMIN, user_role.ADMIN)
 export class AdminMeController {
   @Get('me')
   me(

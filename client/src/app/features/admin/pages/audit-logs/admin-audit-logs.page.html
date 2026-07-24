@@ -1,0 +1,58 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <h1>Audit Logs</h1>
+      <p>Logins, role changes, admin actions, deletes, and system errors.</p>
+    </div>
+    <div class="admin-page__actions">
+      <button type="button" class="admin-btn" (click)="exportCsv()">Export CSV</button>
+    </div>
+  </header>
+
+  <app-admin-filter-panel (changed)="onFilter($event)" />
+
+  <div class="type-filters">
+    @for (t of ['', 'login', 'user_update', 'role_change', 'admin_action', 'delete', 'error']; track t) {
+      <button
+        type="button"
+        class="admin-tab"
+        [class.admin-tab--active]="typeFilter() === t"
+        (click)="typeFilter.set(t)"
+      >
+        {{ t || 'All' }}
+      </button>
+    }
+  </div>
+
+  <div class="admin-grid-2">
+    <section class="admin-panel">
+      <h3>Timeline</h3>
+      <app-admin-timeline [items]="timeline()" />
+    </section>
+    <section class="admin-panel">
+      <h3>Event table</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Actor</th>
+              <th>Message</th>
+              <th>When</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of filtered(); track e.id) {
+              <tr>
+                <td><span class="admin-badge">{{ e.type }}</span></td>
+                <td>{{ e.actor }}</td>
+                <td>{{ e.message }}</td>
+                <td>{{ e.at | date: 'MMM d, HH:mm' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</section>

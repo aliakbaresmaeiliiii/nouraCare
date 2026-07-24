@@ -1,0 +1,54 @@
+// Shared admin design tokens — aligned with app brand (`theme/variables.scss`)
+@mixin admin-theme-light {
+  --admin-bg: var(--brand-bg, #f8fafc);
+  --admin-surface: var(--brand-surface, #ffffff);
+  --admin-surface-2: #eef2ff;
+  --admin-ink: var(--brand-text, #0f172a);
+  --admin-muted: var(--brand-text-secondary, #334155);
+  --admin-line: #e2e8f0;
+  --admin-accent: var(--brand-primary, #6366f1);
+  --admin-accent-soft: rgba(var(--brand-primary-rgb, 99, 102, 241), 0.12);
+  --admin-accent-hover: var(--brand-primary-dark, #4f46e5);
+  --admin-secondary: var(--brand-secondary, #14b8a6);
+  --admin-gold: var(--brand-accent, #ffd700);
+  --admin-success: #2dd36f;
+  --admin-warning: #d97706;
+  --admin-danger: #c21e56;
+  --admin-info: #0284c7;
+  --admin-sidebar-bg: var(--navy-shell-950, #050a1a);
+  --admin-sidebar-ink: #e8eefc;
+  --admin-sidebar-muted: rgba(232, 238, 252, 0.55);
+  --admin-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --admin-sidebar-active: rgba(var(--brand-primary-rgb, 99, 102, 241), 0.28);
+  --admin-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(99, 102, 241, 0.06);
+  --admin-radius: 0.75rem;
+  --admin-radius-sm: 0.5rem;
+  --admin-font: 'Sora', 'Vazirmatn', system-ui, sans-serif;
+  --admin-sidebar-w: 260px;
+  --admin-sidebar-collapsed-w: 72px;
+  --admin-topbar-h: 3.5rem;
+}
+
+@mixin admin-theme-dark {
+  --admin-bg: var(--navy-shell-950, #050a1a);
+  --admin-surface: var(--navy-shell-900, #191e2c);
+  --admin-surface-2: var(--navy-shell-850, #232735);
+  --admin-ink: #e2e8f0;
+  --admin-muted: #94a3b8;
+  --admin-line: var(--navy-shell-750, #3c404c);
+  --admin-accent: #818cf8;
+  --admin-accent-soft: rgba(129, 140, 248, 0.16);
+  --admin-accent-hover: #a5b4fc;
+  --admin-secondary: #2dd4bf;
+  --admin-gold: #ffd700;
+  --admin-success: #34d399;
+  --admin-warning: #fbbf24;
+  --admin-danger: #f87171;
+  --admin-info: #38bdf8;
+  --admin-sidebar-bg: #030712;
+  --admin-sidebar-ink: #e8eefc;
+  --admin-sidebar-muted: rgba(232, 238, 252, 0.5);
+  --admin-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --admin-sidebar-active: rgba(129, 140, 248, 0.28);
+  --admin-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+}

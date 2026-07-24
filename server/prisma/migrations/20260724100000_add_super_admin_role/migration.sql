@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TABLE `user` MODIFY `role` ENUM('USER', 'ADMIN', 'SUPER_ADMIN') NOT NULL DEFAULT 'USER';

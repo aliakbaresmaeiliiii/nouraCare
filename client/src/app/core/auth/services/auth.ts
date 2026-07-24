@@ -12,7 +12,6 @@ import { User } from '@app/core/auth/login/model/uesr-interface';
 import { JwtPayload, TokenResponse } from '@app/core/auth/models/token.interface';
 import {
   DEFAULT_APP_LANGUAGE,
-  LANGUAGE_SWITCHING_ENABLED,
 } from '@app/shared/services/language.service';
 
 @Injectable({
@@ -198,10 +197,11 @@ export class AuthService {
       id: user.id,
       email: user.email,
       phone: user.phone ?? '',
-      name: user['name'],
+      name: user['name'] ?? user['fullName'],
       profileImage: user['profileImage'],
       isVerified: user.isVerified,
       status: user['status'],
+      role: user['role'],
       city: user['city'],
       birthday: user['birthday'],
       createdAt: user['createdAt'],
@@ -471,9 +471,7 @@ export class AuthService {
   }
 
   private getClientLocale(): string {
-    if (!LANGUAGE_SWITCHING_ENABLED) {
-      return DEFAULT_APP_LANGUAGE;
-    }
+    // Honor onboarding / marketing language picks even when in-app switchers are hidden.
     if (typeof localStorage === 'undefined') {
       return DEFAULT_APP_LANGUAGE;
     }

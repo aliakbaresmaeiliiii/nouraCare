@@ -1,7 +1,15 @@
-<section class="page">
-  <header class="page__header">
-    <h1>Reports</h1>
-    <p>Reports placeholder — architecture only.</p>
-  </header>
-  <div class="page__panel" aria-hidden="true"></div>
-</section>
+<app-admin-stub-page
+  title="Reports"
+  description="Generate users, revenue, subscriptions, retention, sessions, and growth reports."
+  panelTitle="Export center"
+  panelBody="Download mock report datasets as CSV. PDF/Excel buttons are available as console affordances."
+  relatedPath="/admin/analytics"
+  relatedLabel="Open analytics"
+  [bullets]="['Users & growth exports', 'Revenue & subscriptions', 'Retention & sessions']"
+>
+  <div actions class="admin-page__actions">
+    <button type="button" class="admin-btn" (click)="exportCsv()">Export CSV</button>
+    <button type="button" class="admin-btn" (click)="exportCsv()">Export Excel</button>
+    <button type="button" class="admin-btn" (click)="pdf()">Export PDF</button>
+  </div>
+</app-admin-stub-page>

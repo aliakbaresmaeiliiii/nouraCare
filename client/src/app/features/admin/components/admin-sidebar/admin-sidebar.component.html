@@ -1,21 +1,50 @@
-<aside class="sidebar" aria-label="Admin navigation">
+<aside
+  class="sidebar"
+  [class.sidebar--collapsed]="collapsed()"
+  [class.sidebar--mobile]="mobile()"
+  aria-label="Admin navigation"
+>
   <div class="sidebar__brand">
     <span class="sidebar__mark" aria-hidden="true"></span>
-    <div>
-      <strong>Dore Admin</strong>
-      <small>Console</small>
-    </div>
+    @if (!collapsed()) {
+      <div class="sidebar__brand-text">
+        <strong>{{ 'admin.brand' | translate }}</strong>
+        <small>{{ 'admin.brandSub' | translate }}</small>
+      </div>
+    }
+    @if (!mobile()) {
+      <button
+        type="button"
+        class="sidebar__collapse"
+        (click)="toggleCollapse()"
+        [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      >
+        {{ collapsed() ? '»' : '«' }}
+      </button>
+    }
   </div>
 
   <nav class="sidebar__nav">
-    @for (link of links; track link.path) {
-      <a
-        [routerLink]="link.path"
-        routerLinkActive="sidebar__link--active"
-        class="sidebar__link"
-      >
-        {{ link.label }}
-      </a>
+    @for (group of groups; track group.label) {
+      <div class="sidebar__group">
+        @if (!collapsed()) {
+          <div class="sidebar__group-label">{{ group.label | translate }}</div>
+        }
+        @for (item of group.items; track item.path) {
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="sidebar__link--active"
+            class="sidebar__link"
+            [attr.title]="item.label | translate"
+            (click)="onNavigate()"
+          >
+            <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(item.icon) }}</span>
+            @if (!collapsed()) {
+              <span>{{ item.label | translate }}</span>
+            }
+          </a>
+        }
+      </div>
     }
   </nav>
 </aside>

@@ -88,7 +88,11 @@ export class AdminService {
       this.prisma.user.count({ where: { status: user_status.ACTIVE } }),
       this.prisma.user.count({ where: { status: user_status.SUSPENDED } }),
       this.prisma.user.count({ where: { isVerified: true } }),
-      this.prisma.user.count({ where: { role: user_role.ADMIN } }),
+      this.prisma.user.count({
+        where: {
+          role: { in: [user_role.ADMIN, user_role.SUPER_ADMIN] },
+        },
+      }),
       this.prisma.user.count({ where: { createdAt: { gte: startOfToday } } }),
       this.prisma.user.count({ where: { createdAt: { gte: startOfWeek } } }),
       this.prisma.user.count({ where: { createdAt: { gte: startOfMonth } } }),
@@ -284,7 +288,12 @@ export class AdminService {
       throw new NotFoundException('User not found');
     }
 
-    if (id === actorId && dto.role === user_role.USER) {
+    if (
+      id === actorId &&
+      dto.role !== undefined &&
+      dto.role !== user_role.SUPER_ADMIN &&
+      dto.role !== user_role.ADMIN
+    ) {
       throw new ForbiddenException('You cannot remove your own admin role');
     }
 
@@ -292,14 +301,31 @@ export class AdminService {
       throw new ForbiddenException('You cannot deactivate your own account');
     }
 
+    // Never leave the system without a SUPER_ADMIN
     if (
-      user.role === user_role.ADMIN &&
+      user.role === user_role.SUPER_ADMIN &&
+      dto.role !== undefined &&
+      dto.role !== user_role.SUPER_ADMIN
+    ) {
+      const superAdminCount = await this.prisma.user.count({
+        where: { role: user_role.SUPER_ADMIN },
+      });
+      if (superAdminCount <= 1) {
+        throw new ForbiddenException('Cannot demote the last super admin');
+      }
+    }
+
+    // Protect last operator-level admin (ADMIN + SUPER_ADMIN)
+    if (
+      (user.role === user_role.ADMIN || user.role === user_role.SUPER_ADMIN) &&
       dto.role === user_role.USER
     ) {
-      const adminCount = await this.prisma.user.count({
-        where: { role: user_role.ADMIN },
+      const privilegedCount = await this.prisma.user.count({
+        where: {
+          role: { in: [user_role.ADMIN, user_role.SUPER_ADMIN] },
+        },
       });
-      if (adminCount <= 1) {
+      if (privilegedCount <= 1) {
         throw new ForbiddenException('Cannot demote the last admin');
       }
     }
@@ -594,6 +620,25 @@ export class AdminService {
       ),
       premiumActive,
       trialActive,
+    };
+  }
+
+  async getHealth() {
+    const started = Date.now();
+    let database: 'up' | 'down' = 'down';
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+      database = 'up';
+    } catch {
+      database = 'down';
+    }
+
+    return {
+      status: database === 'up' ? ('healthy' as const) : ('down' as const),
+      database,
+      latencyMs: Date.now() - started,
+      uptimeSec: Math.floor(process.uptime()),
+      checkedAt: new Date().toISOString(),
     };
   }
 }

@@ -1,22 +1,59 @@
-:host {
-  display: block;
+@use '../../styles/admin-page';
+
+.settings-panel {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 520px;
 }
 
-.page__header h1 {
+label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--admin-muted);
+  font-weight: 600;
+}
+
+input,
+select {
+  border: 1px solid var(--admin-line);
+  border-radius: 0.45rem;
+  padding: 0.5rem 0.65rem;
+  background: var(--admin-surface-2);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.theme-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.flag-list {
+  list-style: none;
   margin: 0;
-  font-size: 1.5rem;
-  letter-spacing: -0.03em;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
 }
 
-.page__header p {
-  margin: 0.4rem 0 0;
-  color: var(--admin-muted, #64748b);
+.flag-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--admin-line);
 }
 
-.page__panel {
-  margin-top: 1.25rem;
-  min-height: 12rem;
-  border-radius: 1rem;
-  background: var(--admin-surface, #fff);
-  border: 1px solid var(--admin-line, #e2e8f0);
+.flag-list strong { display: block; color: var(--admin-ink); }
+.flag-list small { color: var(--admin-muted); font-size: 0.75rem; }
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--admin-ink);
+  font-size: 0.9rem;
 }

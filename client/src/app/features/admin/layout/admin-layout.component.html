@@ -1,9 +1,24 @@
-<div class="admin-shell">
+<div
+  class="admin-shell"
+  [attr.data-theme]="themeSvc.theme()"
+  [class.admin-shell--collapsed]="shell.sidebarCollapsed()"
+>
   <app-admin-sidebar class="admin-shell__sidebar" />
+
   <div class="admin-shell__main">
     <app-admin-topbar />
     <main class="admin-shell__content">
       <router-outlet />
     </main>
+    <app-admin-footer />
   </div>
+
+  @if (shell.mobileNavOpen()) {
+    <div class="admin-shell__overlay" (click)="shell.closeMobileNav()" aria-hidden="true"></div>
+    <div class="admin-shell__drawer" role="dialog" aria-label="Navigation">
+      <app-admin-sidebar [mobile]="true" (closed)="shell.closeMobileNav()" />
+    </div>
+  }
+
+  <app-admin-toast-host />
 </div>

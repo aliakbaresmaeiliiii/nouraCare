@@ -1,22 +1,109 @@
-:host {
-  display: block;
+@use '../../styles/admin-page';
+
+.muted {
+  color: var(--admin-muted);
+  font-size: 0.75rem;
 }
 
-.page__header h1 {
+.users-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: end;
+  padding: 0.85rem;
+  margin-bottom: 1rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+}
+
+.users-filters label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: var(--admin-muted);
+  font-weight: 600;
+}
+
+.users-filters__grow {
+  flex: 1;
+  min-width: 180px;
+}
+
+.users-filters input,
+.users-filters select {
+  border: 1px solid var(--admin-line);
+  border-radius: 0.45rem;
+  padding: 0.45rem 0.55rem;
+  background: var(--admin-surface-2);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 0.86rem;
+  min-width: 8rem;
+}
+
+.users-filters__actions {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.users-skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.users-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.users-pager__btns {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.detail {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.detail__hero {
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.admin-avatar--lg {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 0.95rem;
+}
+
+.detail__grid {
+  display: grid;
+  gap: 0.85rem;
   margin: 0;
-  font-size: 1.5rem;
-  letter-spacing: -0.03em;
 }
 
-.page__header p {
-  margin: 0.4rem 0 0;
-  color: var(--admin-muted, #64748b);
+.detail__grid dt {
+  font-size: 0.72rem;
+  color: var(--admin-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.page__panel {
-  margin-top: 1.25rem;
-  min-height: 12rem;
-  border-radius: 1rem;
-  background: var(--admin-surface, #fff);
-  border: 1px solid var(--admin-line, #e2e8f0);
+.detail__grid dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.92rem;
+}
+
+.detail__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }

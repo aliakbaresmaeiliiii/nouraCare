@@ -54,7 +54,7 @@ export class AuthService {
         if (!data?.accessToken || !data?.user) {
           throw new Error('Invalid login response');
         }
-        if (data.user.role !== 'ADMIN') {
+        if (data.user.role !== 'ADMIN' && data.user.role !== 'SUPER_ADMIN') {
           throw new Error('Admin access required');
         }
         this.persistSession(data);
@@ -66,7 +66,7 @@ export class AuthService {
   /** Completes passwordless login when server returns tokens without OTP. */
   completeIfTokens(data: Partial<AuthTokens> & { otpSent?: boolean }): AdminUser | null {
     if (data?.accessToken && data?.user) {
-      if (data.user.role !== 'ADMIN') {
+      if (data.user.role !== 'ADMIN' && data.user.role !== 'SUPER_ADMIN') {
         throw new Error('Admin access required');
       }
       this.persistSession(data as AuthTokens);
@@ -123,7 +123,7 @@ export class AuthService {
   }
 
   assertAdminOrThrow(user: AdminUser): void {
-    if (user.role !== 'ADMIN') {
+    if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
       this.clearSession();
       throw new Error('Admin access required');
     }

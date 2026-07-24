@@ -1,7 +1,177 @@
-<section class="page">
-  <header class="page__header">
-    <h1>Users</h1>
-    <p>User management placeholder — architecture only.</p>
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <h1>{{ 'admin.users.title' | translate }}</h1>
+      <p>{{ 'admin.users.subtitle' | translate }}</p>
+    </div>
+    <div class="admin-page__actions">
+      <button type="button" class="admin-btn" (click)="exportAll()">
+        {{ 'admin.common.exportCsv' | translate }}
+      </button>
+      <button type="button" class="admin-btn" (click)="load()" [disabled]="loading()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
   </header>
-  <div class="page__panel" aria-hidden="true"></div>
+
+  <form class="users-filters" (submit)="$event.preventDefault(); applyFilters()">
+    <label class="users-filters__grow">
+      <span>Search</span>
+      <input
+        type="search"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        name="search"
+        placeholder="Name, email, or phone"
+      />
+    </label>
+    <label>
+      <span>Status</span>
+      <select
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+        name="status"
+      >
+        <option value="">All</option>
+        <option value="ACTIVE">Active</option>
+        <option value="INACTIVE">Inactive</option>
+        <option value="SUSPENDED">Suspended</option>
+      </select>
+    </label>
+    <label>
+      <span>Role</span>
+      <select
+        [ngModel]="roleFilter()"
+        (ngModelChange)="roleFilter.set($event)"
+        name="role"
+      >
+        <option value="">All</option>
+        <option value="USER">User</option>
+        <option value="ADMIN">Admin</option>
+        <option value="SUPER_ADMIN">Super admin</option>
+      </select>
+    </label>
+    <div class="users-filters__actions">
+      <button type="submit" class="admin-btn admin-btn--primary">Apply</button>
+      <button type="button" class="admin-btn" (click)="resetFilters()">Reset</button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <div class="admin-panel users-skeleton" aria-busy="true">
+      <app-admin-skeleton height="2.5rem" />
+      <app-admin-skeleton height="14rem" />
+    </div>
+  } @else if (error()) {
+    <div class="admin-panel">
+      <p>{{ error()! | translate }}</p>
+      <button type="button" class="admin-btn admin-btn--primary" (click)="load()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
+  } @else {
+    <app-admin-data-table
+      [columns]="columns"
+      [rows]="rows()"
+      [pageSize]="limit()"
+      exportName="dore-users"
+      [searchableKeys]="[]"
+      (rowClick)="openUser($event)"
+      (bulkAction)="onBulk($event)"
+    >
+      <ng-template #cell let-row let-column="column">
+        @if (column.key === 'name') {
+          <div class="admin-user-cell">
+            <span class="admin-avatar">{{ initials(row.name) }}</span>
+            <div>
+              <strong>{{ row.name }}</strong>
+            </div>
+          </div>
+        } @else if (column.key === 'status') {
+          <span class="admin-badge" [class]="statusClass(row.status)">{{ row.status }}</span>
+        } @else if (column.key === 'registeredAt' || column.key === 'lastLoginAt') {
+          {{ $any(row)[column.key] | date: 'MMM d, y' }}
+        } @else if (column.key === 'subscription' || column.key === 'role') {
+          <span class="admin-badge">{{ $any(row)[column.key] }}</span>
+        } @else {
+          {{ $any(row)[column.key] }}
+        }
+      </ng-template>
+    </app-admin-data-table>
+
+    <div class="users-pager">
+      <span class="muted">{{ pageLabel() }}</span>
+      <div class="users-pager__btns">
+        <button
+          type="button"
+          class="admin-btn"
+          (click)="prevPage()"
+          [disabled]="page() <= 1"
+        >
+          Prev
+        </button>
+        <button
+          type="button"
+          class="admin-btn"
+          (click)="nextPage()"
+          [disabled]="page() >= totalPages()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+
+  <app-admin-drawer
+    [open]="drawerOpen()"
+    [title]="selected()?.name || 'User'"
+    [hasFooter]="true"
+    (closed)="drawerOpen.set(false)"
+  >
+    @if (selected(); as u) {
+      <div class="detail">
+        <div class="admin-user-cell detail__hero">
+          <span class="admin-avatar admin-avatar--lg">{{ initials(u.name) }}</span>
+          <div>
+            <strong>{{ u.name }}</strong>
+            <div class="muted">{{ u.email }}</div>
+          </div>
+        </div>
+        <dl class="detail__grid">
+          <div><dt>Phone</dt><dd>{{ u.phone }}</dd></div>
+          <div><dt>Role</dt><dd>{{ u.role }}</dd></div>
+          <div><dt>Status</dt><dd><span class="admin-badge" [class]="statusClass(u.status)">{{ u.status }}</span></dd></div>
+          <div><dt>Subscription</dt><dd>{{ u.subscription }}</dd></div>
+          <div><dt>Registered</dt><dd>{{ u.registeredAt | date: 'mediumDate' }}</dd></div>
+          <div><dt>Last open</dt><dd>{{ u.lastLoginAt | date: 'medium' }}</dd></div>
+        </dl>
+      </div>
+    }
+    @if (selected(); as u) {
+      <div footer class="detail__actions">
+        <button type="button" class="admin-btn" (click)="drawerOpen.set(false)">
+          {{ 'admin.common.close' | translate }}
+        </button>
+        @if (u.status === 'suspended') {
+          <button
+            type="button"
+            class="admin-btn admin-btn--primary"
+            [disabled]="updating()"
+            (click)="setStatus([u.id], 'ACTIVE')"
+          >
+            Activate
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="admin-btn"
+            [disabled]="updating()"
+            (click)="setStatus([u.id], 'SUSPENDED')"
+          >
+            Suspend
+          </button>
+        }
+      </div>
+    }
+  </app-admin-drawer>
 </section>

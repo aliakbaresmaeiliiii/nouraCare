@@ -127,7 +127,7 @@ async function main() {
     email: string;
     phoneNumber: string;
     fullName: string;
-    role: 'ADMIN' | 'USER';
+    role: 'SUPER_ADMIN' | 'ADMIN' | 'USER';
   }) => {
     const existing = await db.user.findFirst({
       where: { OR: [{ email: args.email }, { phoneNumber: args.phoneNumber }] },
@@ -162,8 +162,8 @@ async function main() {
   const adminUser = await upsertUserByEmailOrPhone({
     email: 'admin@dorehealth.app',
     phoneNumber: '+989121111111',
-    fullName: 'Admin User',
-    role: 'ADMIN',
+    fullName: 'Super Admin',
+    role: 'SUPER_ADMIN',
   });
   const seedUser = await upsertUserByEmailOrPhone({
     email: 'user@dorehealth.app',
@@ -172,7 +172,7 @@ async function main() {
     role: 'USER',
   });
 
-  // Promote extra admins from ADMIN_EMAILS (comma-separated)
+  // Promote extra operators from ADMIN_EMAILS (comma-separated) — cannot open panel
   const extraAdminEmails = (process.env.ADMIN_EMAILS || '')
     .split(',')
     .map((e) => e.trim().toLowerCase())
@@ -186,6 +186,23 @@ async function main() {
       console.log(`✅ Promoted ADMIN: ${email}`);
     } else {
       console.log(`⚠️ ADMIN_EMAILS skip (user not found): ${email}`);
+    }
+  }
+
+  // Promote panel owners from SUPER_ADMIN_EMAILS (comma-separated)
+  const extraSuperAdminEmails = (process.env.SUPER_ADMIN_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  for (const email of extraSuperAdminEmails) {
+    const updated = await db.user.updateMany({
+      where: { email },
+      data: { role: 'SUPER_ADMIN', status: 'ACTIVE', updatedAt: now() },
+    });
+    if (updated.count > 0) {
+      console.log(`✅ Promoted SUPER_ADMIN: ${email}`);
+    } else {
+      console.log(`⚠️ SUPER_ADMIN_EMAILS skip (user not found): ${email}`);
     }
   }
   console.log('✅ Users');

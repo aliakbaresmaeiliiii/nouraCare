@@ -65,27 +65,27 @@ export class LanguageService {
     return code === 'ar' || code === 'he' || code === 'fa';
   }
 
+  /**
+   * In-app language switcher. When `LANGUAGE_SWITCHING_ENABLED` is false,
+   * this is a no-op for UI switchers — use {@link setPreferredLanguage} for
+   * onboarding / marketing first-run picks that must still apply.
+   */
   setLanguage(languageCode: string): void {
     if (!LANGUAGE_SWITCHING_ENABLED) {
-      this.applyLanguage(DEFAULT_APP_LANGUAGE);
       return;
     }
 
     if (this.languages.some((lang) => lang.code === languageCode)) {
-      this.persistLanguage(languageCode);
-      this.applyLanguage(languageCode);
-
-      setTimeout(() => {
-        this.appRef.tick();
-      }, 0);
+      this.setPreferredLanguage(languageCode);
     }
   }
 
   /**
-   * Language switch for marketing pages even when in-app switching is disabled.
-   * Defaults remain Persian (`fa`).
+   * Persist and apply a supported language even when in-app switchers are hidden.
+   * Used by onboarding language gate and marketing / admin surfaces.
+   * Defaults remain Persian (`fa`) until the user explicitly chooses.
    */
-  setMarketingLanguage(languageCode: string): void {
+  setPreferredLanguage(languageCode: string): void {
     if (!ALL_LANGUAGES.some((lang) => lang.code === languageCode)) {
       return;
     }
@@ -94,6 +94,11 @@ export class LanguageService {
     setTimeout(() => {
       this.appRef.tick();
     }, 0);
+  }
+
+  /** @deprecated Prefer {@link setPreferredLanguage}. */
+  setMarketingLanguage(languageCode: string): void {
+    this.setPreferredLanguage(languageCode);
   }
 
   getLanguageName(code: string): string {

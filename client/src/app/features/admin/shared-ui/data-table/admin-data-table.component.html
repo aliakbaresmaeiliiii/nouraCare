@@ -1,0 +1,100 @@
+<div class="table-shell">
+  <div class="table-toolbar">
+    <input
+      type="search"
+      class="table-search"
+      placeholder="Search…"
+      [ngModel]="search()"
+      (ngModelChange)="search.set($event); page.set(1)"
+    />
+    <select
+      [ngModel]="statusFilter()"
+      (ngModelChange)="statusFilter.set($event); page.set(1)"
+      aria-label="Status filter"
+    >
+      <option value="">All statuses</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+      <option value="suspended">Suspended</option>
+    </select>
+    <button type="button" class="btn" (click)="exportCsv()">Export CSV</button>
+    <button type="button" class="btn" (click)="exportCsv()">Export Excel</button>
+    @if (selected().size) {
+      <div class="bulk">
+        <span>{{ selected().size }} selected</span>
+        <button type="button" class="btn btn--accent" (click)="runBulk('activate')">Activate</button>
+        <button type="button" class="btn" (click)="runBulk('suspend')">Suspend</button>
+        <button type="button" class="btn btn--danger" (click)="runBulk('delete')">Delete</button>
+      </div>
+    }
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th class="check">
+            <input
+              type="checkbox"
+              [checked]="allPageSelected()"
+              (change)="toggleAll()"
+              aria-label="Select page"
+            />
+          </th>
+          @for (col of columns(); track col.key) {
+            <th [style.width]="col.width || null">
+              @if (col.sortable !== false) {
+                <button type="button" class="th-btn" (click)="setSort(col.key)">
+                  {{ col.label }}
+                  @if (sortKey() === col.key) {
+                    <span>{{ sortDir() === 'asc' ? '↑' : '↓' }}</span>
+                  }
+                </button>
+              } @else {
+                {{ col.label }}
+              }
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of pageRows(); track row.id) {
+          <tr (click)="rowClick.emit(row)">
+            <td class="check" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="isSelected(row.id)"
+                (change)="toggleOne(row.id)"
+                [attr.aria-label]="'Select ' + row.id"
+              />
+            </td>
+            @for (col of columns(); track col.key) {
+              <td>
+                @if (cellTpl(); as tpl) {
+                  <ng-container
+                    [ngTemplateOutlet]="tpl"
+                    [ngTemplateOutletContext]="{ $implicit: row, column: col }"
+                  />
+                } @else {
+                  {{ cellValue(row, col.key) }}
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="columns().length + 1" class="empty">No results</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pager">
+    <span>{{ filtered().length }} results · page {{ page() }} / {{ totalPages() }}</span>
+    <div class="pager__btns">
+      <button type="button" class="btn" [disabled]="page() <= 1" (click)="prev()">Prev</button>
+      <button type="button" class="btn" [disabled]="page() >= totalPages()" (click)="next()">Next</button>
+    </div>
+  </div>
+</div>

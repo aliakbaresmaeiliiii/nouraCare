@@ -1,0 +1,142 @@
+.table-shell {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+}
+
+.table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.table-search,
+select {
+  border: 1px solid var(--admin-line);
+  border-radius: 0.45rem;
+  padding: 0.45rem 0.6rem;
+  background: var(--admin-surface-2);
+  color: var(--admin-ink);
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+.table-search {
+  min-width: min(240px, 100%);
+  flex: 1;
+}
+
+.btn {
+  border: 1px solid var(--admin-line);
+  background: var(--admin-surface);
+  color: var(--admin-ink);
+  border-radius: 0.45rem;
+  padding: 0.4rem 0.7rem;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn--accent {
+  background: var(--admin-accent);
+  border-color: var(--admin-accent);
+  color: #fff;
+}
+
+.btn--danger {
+  color: var(--admin-danger);
+}
+
+.bulk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-inline-start: auto;
+  font-size: 0.8rem;
+  color: var(--admin-muted);
+}
+
+.table-scroll {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+
+th,
+td {
+  text-align: start;
+  padding: 0.7rem 0.75rem;
+  border-bottom: 1px solid var(--admin-line);
+  white-space: nowrap;
+}
+
+th {
+  background: var(--admin-surface-2);
+  color: var(--admin-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.th-btn {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+tbody tr {
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+tbody tr:hover {
+  background: var(--admin-accent-soft);
+}
+
+.check {
+  width: 2.5rem;
+}
+
+.empty {
+  text-align: center;
+  color: var(--admin-muted);
+  padding: 2rem !important;
+}
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 0.85rem;
+  color: var(--admin-muted);
+  font-size: 0.8rem;
+}
+
+.pager__btns {
+  display: flex;
+  gap: 0.4rem;
+}

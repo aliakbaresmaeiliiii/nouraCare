@@ -1,0 +1,39 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <h1>{{ 'admin.analytics.title' | translate }}</h1>
+      <p>{{ 'admin.analytics.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="admin-btn" (click)="load()">
+      {{ 'admin.common.retry' | translate }}
+    </button>
+  </header>
+
+  @if (loading()) {
+    <div class="admin-panel">{{ 'admin.common.loading' | translate }}</div>
+  } @else if (error()) {
+    <div class="admin-panel">{{ error()! | translate }}</div>
+  } @else if (overview(); as o) {
+    <div class="admin-kpi-grid">
+      <app-admin-stat-card [label]="'admin.dashboard.kpi.totalUsers' | translate" [value]="o.users.total" />
+      <app-admin-stat-card [label]="'admin.dashboard.kpi.activeUsers' | translate" [value]="o.users.active" tone="success" />
+      <app-admin-stat-card [label]="'admin.dashboard.kpi.newWeek' | translate" [value]="o.users.newThisWeek" />
+      <app-admin-stat-card [label]="'admin.dashboard.kpi.newMonth' | translate" [value]="o.users.newThisMonth" />
+    </div>
+
+    <div class="admin-grid-2">
+      <app-admin-chart-card
+        [title]="'admin.dashboard.signups' | translate"
+        kind="area"
+        [labels]="signupLabels()"
+        [datasets]="signupValues()"
+      />
+      <app-admin-chart-card
+        [title]="'admin.dashboard.subscriptions' | translate"
+        kind="donut"
+        [labels]="tierLabels()"
+        [datasets]="tierValues()"
+      />
+    </div>
+  }
+</section>

@@ -25,7 +25,7 @@ import { UpdateThreadAdminDto } from './dto/update-thread-admin.dto';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
-@Roles(user_role.ADMIN)
+@Roles(user_role.SUPER_ADMIN, user_role.ADMIN)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
@@ -103,5 +103,11 @@ export class AdminController {
   async subscriptionSummary() {
     const data = await this.adminService.getSubscriptionSummary();
     return ApiResponseHelper.success(data, 'Subscription summary');
+  }
+
+  @Get('health')
+  async health() {
+    const data = await this.adminService.getHealth();
+    return ApiResponseHelper.success(data, 'Admin health');
   }
 }

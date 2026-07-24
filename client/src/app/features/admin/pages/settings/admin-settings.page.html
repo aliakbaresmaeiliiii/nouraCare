@@ -1,7 +1,95 @@
-<section class="page">
-  <header class="page__header">
-    <h1>Settings</h1>
-    <p>Admin settings placeholder — architecture only.</p>
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <h1>Settings</h1>
+      <p>General, appearance, localization, flags, API keys, SMTP, and security.</p>
+    </div>
+    <div class="admin-page__actions">
+      <button type="button" class="admin-btn admin-btn--primary" (click)="save()">Save changes</button>
+    </div>
   </header>
-  <div class="page__panel" aria-hidden="true"></div>
+
+  <div class="admin-tabs">
+    @for (t of [
+      ['general', 'General'],
+      ['appearance', 'Appearance'],
+      ['localization', 'Localization'],
+      ['flags', 'Feature Flags'],
+      ['keys', 'API Keys'],
+      ['smtp', 'SMTP'],
+      ['security', 'Security']
+    ]; track t[0]) {
+      <button
+        type="button"
+        class="admin-tab"
+        [class.admin-tab--active]="tab() === t[0]"
+        (click)="tab.set($any(t[0]))"
+      >
+        {{ t[1] }}
+      </button>
+    }
+  </div>
+
+  <section class="admin-panel settings-panel">
+    @if (tab() === 'general') {
+      <label>Organization <input [(ngModel)]="orgName" /></label>
+      <label>Support email <input [(ngModel)]="supportEmail" /></label>
+    }
+    @if (tab() === 'appearance') {
+      <div class="theme-row">
+        <button type="button" class="admin-btn" (click)="setTheme('light')">Light</button>
+        <button type="button" class="admin-btn" (click)="setTheme('dark')">Dark</button>
+      </div>
+    }
+    @if (tab() === 'localization') {
+      <label>Locale
+        <select [(ngModel)]="locale">
+          <option value="en">English</option>
+          <option value="fa">Persian</option>
+          <option value="ms">Malay</option>
+          <option value="zh">Chinese</option>
+        </select>
+      </label>
+      <label>Timezone <input [(ngModel)]="timezone" /></label>
+    }
+    @if (tab() === 'flags') {
+      <ul class="flag-list">
+        @for (f of flags(); track f.key) {
+          <li>
+            <div>
+              <strong>{{ f.label }}</strong>
+              <small>{{ f.key }}</small>
+            </div>
+            <button type="button" class="admin-btn" (click)="toggleFlag(f.key)">
+              {{ f.enabled ? 'On' : 'Off' }}
+            </button>
+          </li>
+        }
+      </ul>
+    }
+    @if (tab() === 'keys') {
+      <ul class="flag-list">
+        @for (k of apiKeys; track k.name) {
+          <li>
+            <div>
+              <strong>{{ k.name }}</strong>
+              <small>{{ k.key }} · created {{ k.created }}</small>
+            </div>
+            <span class="admin-badge">Masked</span>
+          </li>
+        }
+      </ul>
+    }
+    @if (tab() === 'smtp') {
+      <label>Host <input [(ngModel)]="smtpHost" /></label>
+      <label>Port <input [(ngModel)]="smtpPort" /></label>
+    }
+    @if (tab() === 'security') {
+      <label class="check">
+        <input type="checkbox" [(ngModel)]="twoFaRequired" />
+        Require 2FA for admins
+      </label>
+      <label>Session timeout <input [(ngModel)]="sessionTimeout" /></label>
+    }
+  </section>
 </section>

@@ -11,13 +11,13 @@ export const authGuard: CanActivateFn = () => {
     return router.createUrlTree(['/login']);
   }
 
-  if (auth.user()?.role === 'ADMIN') {
+  if (auth.user()?.role === 'ADMIN' || auth.user()?.role === 'SUPER_ADMIN') {
     return true;
   }
 
   return auth.loadMe().pipe(
     map((user) => {
-      if (user?.role === 'ADMIN') {
+      if (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
         return true;
       }
       auth.logout();
@@ -29,7 +29,10 @@ export const authGuard: CanActivateFn = () => {
 export const guestGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  if (auth.isAuthenticated() && auth.user()?.role === 'ADMIN') {
+  if (
+    auth.isAuthenticated() &&
+    (auth.user()?.role === 'ADMIN' || auth.user()?.role === 'SUPER_ADMIN')
+  ) {
     return router.createUrlTree(['/']);
   }
   return true;

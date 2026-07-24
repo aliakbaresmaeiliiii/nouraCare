@@ -1,0 +1,58 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <h1>{{ 'admin.health.title' | translate }}</h1>
+      <p>{{ 'admin.health.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="admin-btn" (click)="load()" [disabled]="loading()">
+      {{ 'admin.common.retry' | translate }}
+    </button>
+  </header>
+
+  @if (loading()) {
+    <div class="admin-panel health-skeleton" aria-busy="true">
+      <app-admin-skeleton height="5rem" />
+      <div class="admin-grid-3">
+        <app-admin-skeleton height="6rem" />
+        <app-admin-skeleton height="6rem" />
+        <app-admin-skeleton height="6rem" />
+      </div>
+    </div>
+  } @else if (error()) {
+    <div class="admin-panel">
+      <p>{{ error()! | translate }}</p>
+      <button type="button" class="admin-btn admin-btn--primary" (click)="load()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
+  } @else if (health(); as h) {
+    <div class="health-banner" [class]="'health-banner--' + h.status">
+      <div>
+        <strong>System {{ h.status }}</strong>
+        <p>Last checked {{ h.checkedAt | date: 'medium' }}</p>
+      </div>
+      <span class="admin-badge" [class]="statusClass(h.status)">{{ h.status }}</span>
+    </div>
+
+    <div class="admin-grid-3">
+      <app-admin-metric-card
+        label="API"
+        [value]="h.status"
+        [badge]="h.status"
+        [sub]="(h.checkedAt | date: 'medium') || ''"
+      />
+      <app-admin-metric-card
+        label="Database"
+        [value]="h.database"
+        [badge]="h.database"
+        [sub]="(h.latencyMs ?? 0) + ' ms latency'"
+      />
+      <app-admin-trend-card
+        label="Uptime"
+        [value]="uptimeLabel()"
+        [progress]="uptimeProgress()"
+        caption="Process uptime"
+      />
+    </div>
+  }
+</section>

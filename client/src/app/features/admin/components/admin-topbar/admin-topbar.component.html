@@ -1,9 +1,156 @@
 <header class="topbar">
-  <div class="topbar__title">
-    <span>Admin</span>
+  <div class="topbar__left">
+    <button
+      type="button"
+      class="topbar__icon-btn topbar__menu"
+      (click)="toggleMobileNav()"
+      aria-label="Open navigation"
+    >
+      ☰
+    </button>
+
+    <nav class="topbar__crumbs" aria-label="Breadcrumb">
+      <a routerLink="/admin/dashboard" class="topbar__crumb">Admin</a>
+      @for (c of crumbs(); track c.path; let last = $last) {
+        <span class="topbar__sep" aria-hidden="true">/</span>
+        @if (last) {
+          <span class="topbar__crumb topbar__crumb--current">{{ c.label }}</span>
+        } @else {
+          <a [routerLink]="c.path" class="topbar__crumb">{{ c.label }}</a>
+        }
+      }
+    </nav>
+
+    <h1 class="topbar__title">{{ pageTitle() }}</h1>
   </div>
+
   <div class="topbar__actions">
-    <a class="topbar__link" routerLink="/">View site</a>
-    <a class="topbar__link" routerLink="/app">Open app</a>
+    <div class="topbar__search-wrap">
+      <button
+        type="button"
+        class="topbar__icon-btn"
+        (click)="toggleSearch()"
+        [attr.aria-label]="'admin.topbar.search' | translate"
+      >
+        ⌕
+      </button>
+      @if (searchOpen()) {
+        <form
+          class="topbar__search-panel"
+          (submit)="$event.preventDefault(); onSearch(searchInput.value); searchInput.value = ''"
+        >
+          <input
+            #searchInput
+            type="search"
+            [placeholder]="'admin.topbar.searchPlaceholder' | translate"
+            class="topbar__search-input"
+            autofocus
+          />
+          <button type="submit" class="topbar__btn topbar__btn--primary">Go</button>
+        </form>
+      }
+    </div>
+
+    <div class="topbar__qa-wrap">
+      <button
+        type="button"
+        class="topbar__btn topbar__btn--ghost"
+        (click)="toggleQuickActions()"
+      >
+        {{ 'admin.topbar.quickActions' | translate }}
+      </button>
+      @if (quickActionsOpen()) {
+        <div class="topbar__menu-panel" role="menu">
+          <a routerLink="/admin/users" role="menuitem" (click)="quickActionsOpen.set(false)">
+            {{ 'admin.nav.users' | translate }}
+          </a>
+          <a routerLink="/admin/health" role="menuitem" (click)="quickActionsOpen.set(false)">
+            {{ 'admin.nav.health' | translate }}
+          </a>
+          <a routerLink="/admin/settings" role="menuitem" (click)="quickActionsOpen.set(false)">
+            {{ 'admin.nav.settings' | translate }}
+          </a>
+        </div>
+      }
+    </div>
+
+    <div class="topbar__notif-wrap">
+      <button
+        type="button"
+        class="topbar__icon-btn"
+        (click)="toggleNotifications()"
+        [attr.aria-label]="'admin.topbar.notifications' | translate"
+      >
+        ⚑
+        @if (unreadCount() > 0) {
+          <span class="topbar__badge">{{ unreadCount() }}</span>
+        }
+      </button>
+      @if (notificationsOpen()) {
+        <div class="topbar__menu-panel topbar__notif-panel" role="dialog">
+          <div class="topbar__panel-head">
+            <strong>{{ 'admin.topbar.notifications' | translate }}</strong>
+            <button type="button" class="topbar__linkish" (click)="markAllRead()">
+              {{ 'admin.topbar.markAllRead' | translate }}
+            </button>
+          </div>
+          <ul class="topbar__notif-list">
+            @for (n of notificationItems(); track n.id) {
+              <li [class.topbar__notif--unread]="!n.read">
+                <div class="topbar__notif-title">{{ n.title }}</div>
+                <div class="topbar__notif-body">{{ n.body }}</div>
+                <time>{{ n.at | date: 'MMM d, HH:mm' }}</time>
+              </li>
+            } @empty {
+              <li class="topbar__notif-empty">No notifications</li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+
+    <div class="topbar__lang-wrap">
+      <button
+        type="button"
+        class="topbar__btn topbar__btn--ghost"
+        (click)="toggleLang()"
+        [attr.aria-label]="'admin.topbar.language' | translate"
+      >
+        {{ currentLang()!.toUpperCase() }}
+      </button>
+      @if (langOpen()) {
+        <div class="topbar__menu-panel" role="menu">
+          @for (lang of languages; track lang.code) {
+            <button type="button" role="menuitem" (click)="setLanguage(lang.code)">
+              {{ lang.flag }} {{ lang.name }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="topbar__icon-btn"
+      (click)="toggleTheme()"
+      [attr.aria-label]="
+        theme() === 'light'
+          ? ('admin.topbar.themeLight' | translate)
+          : ('admin.topbar.themeDark' | translate)
+      "
+    >
+      {{ theme() === 'light' ? '☾' : '☀' }}
+    </button>
+
+    <div class="topbar__user" aria-label="User menu">
+      <span class="topbar__avatar" aria-hidden="true">{{ userInitial() }}</span>
+      <div class="topbar__user-meta">
+        <strong>{{ sessionUser()?.fullName || 'Super Admin' }}</strong>
+        <small>{{ sessionUser()?.email || '' }}</small>
+      </div>
+    </div>
+
+    <a class="topbar__link" routerLink="/">{{ 'admin.topbar.site' | translate }}</a>
+    <a class="topbar__link" routerLink="/app">{{ 'admin.topbar.app' | translate }}</a>
   </div>
 </header>

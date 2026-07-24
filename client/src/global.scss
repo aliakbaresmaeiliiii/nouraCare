@@ -112,6 +112,11 @@ ion-router-outlet {
   height: 100%;
 }
 
+/*
+ * Ionic structure.css locks document scroll (body position:fixed + overflow:hidden).
+ * Admin shell is not an ion-content page — it scrolls on its own host.
+ */
+
 /* Reinforce main header above tab content (Ionic header can use fixed positioning internally). */
 app-layout>ion-header.modern-header {
   flex-shrink: 0;
