@@ -16,7 +16,7 @@ export function BlobImage({
 }: BlobImageProps) {
   return (
     <div className="blob-frame">
-      <div className="blob-frame__ring" />
+      <div className="blob-frame__ring" aria-hidden />
       <div
         className={`blob-frame__media ${
           variant === "alt" ? "blob-frame__media--alt" : ""
@@ -26,12 +26,14 @@ export function BlobImage({
           src={src}
           alt={alt}
           fill
-          className="object-cover object-top"
+          className="object-cover object-center"
           sizes="(max-width: 768px) 90vw, 420px"
           priority={priority}
+          loading={priority ? undefined : "eager"}
         />
       </div>
 
+      {/* Decorative leaves / flowers around the shape */}
       <svg
         className="blob-frame__leaf"
         style={{ top: "8%", insetInlineStart: "-8%", transform: "rotate(-18deg)" }}

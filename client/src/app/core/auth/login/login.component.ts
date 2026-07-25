@@ -10,7 +10,13 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ViewDidEnter } from '@ionic/angular';
 import {
@@ -350,7 +356,10 @@ export class LoginComponent
             this.auth.setUserInfo({
               id: res.data.user.id,
               email: res.data.user.email,
-              phone: res.data.user.phone ?? '',
+              phone:
+                res.data.user.phone ??
+                res.data.user['phoneNumber'] ??
+                '',
               name: res.data.user['name'] ?? res.data.user['fullName'],
               profileImage: res.data.user['profileImage'],
               isVerified: res.data.user.isVerified,
@@ -705,7 +714,10 @@ export class LoginComponent
     } else {
       phoneCtrl?.setValidators([
         Validators.required,
-        Validators.pattern(/^(\+98|0)?9\d{9}$/),
+        (control: AbstractControl): ValidationErrors | null =>
+          this.normalizePhoneInput(control.value)
+            ? null
+            : { phoneNumber: true },
       ]);
       emailCtrl?.clearValidators();
       emailCtrl?.setValue('');
@@ -791,13 +803,17 @@ export class LoginComponent
 
   /** Normalize Iranian mobiles to 09xxxxxxxxx for the API. */
   private normalizePhoneInput(value: unknown): string | undefined {
-    const raw = String(value ?? '').replace(/[\s\-()]/g, '');
+    const raw = String(value ?? '')
+      .replace(/[\s\-()]/g, '')
+      .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+      .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
     if (!raw) return undefined;
     let digits = raw;
     if (digits.startsWith('+98')) digits = `0${digits.slice(3)}`;
-    else if (digits.startsWith('98')) digits = `0${digits.slice(2)}`;
+    else if (digits.startsWith('98') && digits.length >= 12)
+      digits = `0${digits.slice(2)}`;
     else if (digits.startsWith('9') && digits.length === 10) digits = `0${digits}`;
-    if (!/^09\d{9}$/.test(digits)) return raw;
+    if (!/^09\d{9}$/.test(digits)) return undefined;
     return digits;
   }
 

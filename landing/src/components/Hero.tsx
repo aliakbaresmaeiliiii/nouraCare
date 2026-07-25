@@ -3,8 +3,7 @@
 import { useTranslations } from "next-intl";
 import { motion } from "framer-motion";
 import { Play } from "lucide-react";
-import { BlobImage } from "./BlobImage";
-import { SCREEN_IMAGES } from "@/lib/images";
+import { HeroSlider } from "./HeroSlider";
 import { Wave } from "./Wave";
 
 export function Hero() {
@@ -58,7 +57,7 @@ export function Hero() {
           transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto w-full max-w-[280px] sm:max-w-[320px] lg:max-w-none"
         >
-          <BlobImage src={SCREEN_IMAGES.hero} alt={t("imageAlt")} priority />
+          <HeroSlider alt={t("imageAlt")} />
         </motion.div>
       </div>
 

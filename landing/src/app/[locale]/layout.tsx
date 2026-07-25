@@ -5,6 +5,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { Vazirmatn, Fraunces, DM_Sans } from "next/font/google";
 import { localeDirection, routing, type Locale } from "@/i18n/routing";
+import { PageLoader } from "@/components/PageLoader";
 import "../globals.css";
 
 const vazirmatn = Vazirmatn({
@@ -51,8 +52,13 @@ export async function generateMetadata({
     title: t("title"),
     description: t("description"),
     icons: {
-      icon: "/images/logo.png",
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/favicon.png", type: "image/png" },
+        { url: "/images/logo.png", type: "image/png" },
+      ],
       apple: "/images/logo.png",
+      shortcut: "/favicon.ico",
     },
     openGraph: {
       title: t("title"),
@@ -100,7 +106,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         }
       >
         <NextIntlClientProvider messages={messages}>
-          {children}
+          <PageLoader>{children}</PageLoader>
         </NextIntlClientProvider>
       </body>
     </html>

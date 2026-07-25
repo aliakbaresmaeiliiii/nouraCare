@@ -44,9 +44,15 @@ export class SmsIrService implements OnModuleInit {
    */
   normalizeMobile(phone: string | null | undefined): string | null {
     if (!phone?.trim()) return null;
-    let digits = phone.trim().replace(/[\s\-()]/g, '');
+    let digits = phone
+      .trim()
+      .replace(/[\s\-()]/g, '')
+      // Persian / Arabic-Indic digits → ASCII
+      .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+      .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
     if (digits.startsWith('+98')) digits = `0${digits.slice(3)}`;
-    else if (digits.startsWith('98')) digits = `0${digits.slice(2)}`;
+    else if (digits.startsWith('98') && digits.length >= 12)
+      digits = `0${digits.slice(2)}`;
     else if (digits.startsWith('9') && digits.length === 10) digits = `0${digits}`;
     if (!/^09\d{9}$/.test(digits)) return null;
     return digits;

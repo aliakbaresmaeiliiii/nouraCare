@@ -1,19 +1,39 @@
-/** Local app screenshots from public/images/screen */
+/** Brand illustrations in public/images/human */
+const IMG = {
+  heroAvatar: "/images/human/hero-avatar.png",
+  heroCalm: "/images/human/hero-calm.png",
+  heroCommunity: "/images/human/hero-community.png",
+  about: "/images/human/about.png",
+  expertise: "/images/human/expertise.png",
+  cycle: "/images/human/feature-cycle.png",
+  symptoms: "/images/human/feature-symptoms.png",
+  pregnancy: "/images/human/feature-pregnancy.png",
+  consultation: "/images/human/feature-consultation.png",
+} as const;
+
+/** Auto-rotating slides for the hero blob */
+export const HERO_SLIDES = [
+  IMG.heroAvatar,
+  IMG.heroCalm,
+  IMG.heroCommunity,
+  IMG.cycle,
+] as const;
+
 export const SCREEN_IMAGES = {
-  hero: "/images/human/images.jpg",
-  about: "/images/screen/IMG_9727.PNG",
-  expertise: "/images/screen/IMG_9730.PNG",
+  hero: IMG.heroAvatar,
+  about: IMG.about,
+  expertise: IMG.expertise,
   features: {
-    cycle: "/images/screen/IMG_9736.PNG",
-    symptoms: "/images/screen/IMG_9735.PNG",
-    pregnancy: "/images/screen/IMG_9727.PNG",
-    consultation: "/images/screen/IMG_9730.PNG",
+    cycle: IMG.cycle,
+    symptoms: IMG.symptoms,
+    pregnancy: IMG.pregnancy,
+    consultation: IMG.consultation,
   },
   extras: {
-    tools: "/images/screen/IMG_9728.PNG",
-    insights: "/images/screen/IMG_9729.PNG",
-    community: "/images/screen/IMG_9726.PNG",
-    forums: "/images/screen/IMG_9732.PNG",
+    tools: IMG.symptoms,
+    insights: IMG.cycle,
+    community: IMG.heroCommunity,
+    forums: IMG.consultation,
   },
 } as const;
 

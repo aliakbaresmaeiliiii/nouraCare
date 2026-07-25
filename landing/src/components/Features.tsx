@@ -63,12 +63,12 @@ export function Features() {
                   }`}
                 >
                   {/* Mobile: compact side thumb · Desktop: tall preview */}
-                  <div className="screen-thumb relative w-[7.25rem] shrink-0 self-stretch overflow-hidden sm:mx-4 sm:mt-4 sm:aspect-[9/12] sm:w-auto sm:rounded-2xl">
+                  <div className="screen-thumb relative aspect-square w-[7.25rem] shrink-0 self-stretch overflow-hidden sm:mx-4 sm:mt-4 sm:w-auto sm:rounded-2xl">
                     <Image
                       src={image}
                       alt={t(`items.${id}.title`)}
                       fill
-                      className="object-cover object-top"
+                      className="object-cover object-center"
                       sizes="(max-width: 640px) 116px, (max-width: 1024px) 45vw, 220px"
                     />
                   </div>

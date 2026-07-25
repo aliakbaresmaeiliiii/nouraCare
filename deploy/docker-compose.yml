@@ -41,6 +41,13 @@ services:
       APPLE_CLIENT_IDS: ${APPLE_CLIENT_IDS}
       CORS_ORIGINS: ${CORS_ORIGINS}
       BASE_URL: ${BASE_URL}
+      # sms.ir — required for phone OTP login (email OTP does not use these)
+      SMS_IR_API_KEY: ${SMS_IR_API_KEY}
+      SMS_IR_LINE_NUMBER: ${SMS_IR_LINE_NUMBER}
+      SMS_IR_VERIFY_TEMPLATE_ID: ${SMS_IR_VERIFY_TEMPLATE_ID:-0}
+      SMS_IR_VERIFY_PARAM_NAME: ${SMS_IR_VERIFY_PARAM_NAME:-OTP}
+      SMS_OTP_SKIP_EMAIL: ${SMS_OTP_SKIP_EMAIL:-true}
+      SMS_STRICT: ${SMS_STRICT:-true}
     volumes:
       - uploads_data:/app/server/public/uploads
 

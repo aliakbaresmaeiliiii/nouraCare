@@ -187,30 +187,29 @@ body {
   box-shadow: 0 10px 24px rgba(99, 102, 241, 0.18);
 }
 
-/* Phone / blob frames — mobile-first compact */
+/* Blob frames — square-ish so illustrations fill the shape cleanly */
 .blob-frame {
   position: relative;
-  width: min(100%, 260px);
-  aspect-ratio: 9 / 16;
+  width: min(100%, 280px);
+  aspect-ratio: 1 / 1;
   margin-inline: auto;
 }
 
 @media (min-width: 480px) {
   .blob-frame {
-    width: min(100%, 300px);
+    width: min(100%, 320px);
   }
 }
 
 @media (min-width: 768px) {
   .blob-frame {
-    width: min(100%, 360px);
-    aspect-ratio: 4 / 5;
+    width: min(100%, 380px);
   }
 }
 
 @media (min-width: 1024px) {
   .blob-frame {
-    width: min(100%, 400px);
+    width: min(100%, 420px);
   }
 }
 
@@ -220,8 +219,21 @@ body {
   overflow: hidden;
   border-radius: 1.75rem;
   box-shadow: 0 20px 44px rgba(99, 102, 241, 0.16);
-  background: var(--gradient-soft);
+  background: transparent;
   border: 3px solid var(--c-surface);
+}
+
+.blob-frame__media > img,
+.blob-frame__media > span {
+  /* Next/Image wrap: force full bleed cover inside the blob */
+  inset: 0 !important;
+}
+
+.blob-frame__media img {
+  object-fit: cover !important;
+  object-position: center !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 @media (min-width: 768px) {
@@ -253,33 +265,45 @@ body {
 .blob-frame__dot,
 .blob-frame__spark,
 .blob-frame__leaf {
-  display: none;
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.blob-frame__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--c-primary);
+  opacity: 0.5;
+}
+
+.blob-frame__spark {
+  color: var(--c-primary-light);
+  opacity: 0.8;
+}
+
+.blob-frame__leaf {
+  width: 3.25rem;
+  height: 5.25rem;
+  opacity: 0.85;
 }
 
 @media (min-width: 768px) {
   .blob-frame__dot {
-    display: block;
-    position: absolute;
     width: 0.7rem;
     height: 0.7rem;
-    border-radius: 999px;
-    background: var(--c-primary);
     opacity: 0.55;
   }
 
   .blob-frame__spark {
-    display: block;
-    position: absolute;
-    color: var(--c-primary-light);
     opacity: 0.85;
   }
 
   .blob-frame__leaf {
-    display: block;
-    position: absolute;
     width: 4.5rem;
     height: 7rem;
-    pointer-events: none;
     opacity: 0.9;
   }
 }
@@ -318,7 +342,12 @@ body {
 }
 
 .screen-thumb {
-  background: var(--gradient-soft);
+  background: transparent;
+}
+
+.screen-thumb img {
+  object-fit: cover !important;
+  object-position: center !important;
 }
 
 .progress-track {
@@ -355,3 +384,77 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* —— Page loader / skeleton —— */
+.skel {
+  background: linear-gradient(
+    90deg,
+    #e8eefc 0%,
+    #f4f7ff 45%,
+    #e8eefc 100%
+  );
+  background-size: 200% 100%;
+  animation: skel-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes skel-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.page-skeleton {
+  min-height: 100vh;
+  background: var(--c-bg);
+  padding-bottom: 3rem;
+}
+
+.page-skeleton__header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: var(--header-h);
+  background: rgba(248, 250, 252, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.page-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: auto;
+  background: var(--c-bg);
+  transition: opacity 0.35s var(--ease-out), visibility 0.35s;
+}
+
+.page-loader-overlay--done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.page-loader-content {
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-out) 0.05s;
+}
+
+.page-loader-content--ready {
+  opacity: 1;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+

@@ -113,6 +113,9 @@ export class TranslationService {
       'auth.api.invalidOrExpiredSignInCode': 'Invalid or expired sign-in code',
       'auth.api.userAlreadyExists': 'User with this email already exists',
       'auth.api.emailRequired': 'Email is required',
+      'auth.api.emailOrPhoneRequired': 'Email or phone number is required',
+      'auth.api.failedSendOtpSms':
+        'Could not send the SMS code. Check the number and try again.',
       'auth.api.loginSuccess': 'Login successful',
       'profile.editProfile': 'Edit Profile',
       'profile.editPeriod': 'Edit Period',
@@ -2698,6 +2701,8 @@ export class TranslationService {
       'auth.api.invalidOrExpiredSignInCode': '登录验证码无效或已过期',
       'auth.api.userAlreadyExists': '该邮箱已被注册',
       'auth.api.emailRequired': '邮箱为必填项',
+      'auth.api.emailOrPhoneRequired': '需要邮箱或手机号',
+      'auth.api.failedSendOtpSms': '无法发送短信验证码，请检查号码后重试。',
       'auth.api.loginSuccess': '登录成功',
       'profile.editProfile': '编辑个人资料',
       'profile.editPeriod': '编辑周期',
@@ -4152,6 +4157,9 @@ export class TranslationService {
       'auth.api.invalidOrExpiredSignInCode': 'Kod log masuk tidak sah atau tamat tempoh',
       'auth.api.userAlreadyExists': 'Pengguna dengan e-mel ini sudah wujud',
       'auth.api.emailRequired': 'E-mel diperlukan',
+      'auth.api.emailOrPhoneRequired': 'E-mel atau nombor telefon diperlukan',
+      'auth.api.failedSendOtpSms':
+        'Tidak dapat menghantar kod SMS. Semak nombor dan cuba lagi.',
       'auth.api.loginSuccess': 'Log masuk berjaya',
       'profile.editProfile': 'Edit Profil',
       'profile.editPeriod': 'Edit Tempoh',
@@ -5726,6 +5734,9 @@ export class TranslationService {
       'auth.api.invalidOrExpiredSignInCode': 'کد ورود نامعتبر یا منقضی شده است',
       'auth.api.userAlreadyExists': 'کاربری با این ایمیل از قبل وجود دارد',
       'auth.api.emailRequired': 'ایمیل الزامی است',
+      'auth.api.emailOrPhoneRequired': 'ایمیل یا شماره موبایل الزامی است',
+      'auth.api.failedSendOtpSms':
+        'ارسال پیامک کد ورود ناموفق بود. شماره را بررسی کنید و دوباره تلاش کنید.',
       'auth.api.loginSuccess': 'ورود موفق',
       'profile.editProfile': 'ویرایش پروفایل',
       'profile.editPeriod': 'ویرایش دوره',
