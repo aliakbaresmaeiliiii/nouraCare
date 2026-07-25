@@ -1,10 +1,10 @@
-# DoreHealth Landing Page
+# DoreHealth Landing (`landing/`)
 
-Marketing landing page for **DoreHealth** (دوره), inspired by [Karafs Health](https://karafshealth.com/) and styled with the app's brand palette.
+Multi-language marketing site for **DoreHealth (دوره)**.
 
-Built with **Next.js 16**, **React 19**, and **Tailwind CSS 4**.
+Deployed as **static files** (same idea as Angular `dist`) — no Node, no PM2.
 
-## Getting started
+## Develop
 
 ```bash
 cd landing
@@ -12,23 +12,42 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-## Build for production
+## Production (like Angular dist)
 
 ```bash
-npm run build
-npm start
+cd landing
+npm run build:deploy
 ```
 
-## Structure
+That creates **`deploy-out/`** (HTML/CSS/JS/images).
 
-- `src/app/` — App Router pages and layout
-- `src/components/` — Header, Hero, feature carousel, footer
-- `src/lib/brand.ts` — Brand name, colors (aligned with `client/src/theme/variables.scss`)
-- `src/app/logo.png` — App logo (header, footer, phone mockup, favicon, Open Graph)
+### On the server
 
-## Customization
+1. Stop the old Node landing if you started it:
 
-- Update store download URLs in `src/components/DownloadButtons.tsx`
-- Edit copy in `src/lib/brand.ts` and `src/lib/content.ts`
+```bash
+pm2 delete dorehealth-landing
+```
+
+2. Upload **contents** of `deploy-out/` to e.g. `/home/dorehealth/landing`
+
+3. Point nginx `dorehealth.ir` to that folder (static), see `deploy/nginx/dorehealth-landing.conf`:
+
+```nginx
+root /home/dorehealth/landing;
+location = / { return 302 /fa/; }
+location / { try_files $uri $uri/ $uri.html /fa/index.html; }
+```
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### User flow
+
+- `dorehealth.ir` → landing  
+- “Open web app” → `app.dorehealth.ir` (Ionic app / your current `/home/dorehealth/web`)
+
+## Locales
+
+`fa` (default) · `en` · `zh` · `ms`

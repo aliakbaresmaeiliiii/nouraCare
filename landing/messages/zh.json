@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "title": "DoreHealth | 每天了解你的身体",
+    "description": "女性健康从了解身体开始。用温和提醒追踪经期、症状、孕期与日常健康，隐私始终放在产品中心。"
+  },
+  "brand": {
+    "name": "DoreHealth",
+    "nameEn": "DoreHealth",
+    "slogan": "每天了解你的身体",
+    "tagline": "Understand your body, every day"
+  },
+  "nav": {
+    "home": "首页",
+    "features": "服务",
+    "about": "关于我们",
+    "faq": "常见问题",
+    "download": "下载",
+    "openMenu": "打开菜单",
+    "closeMenu": "关闭菜单",
+    "language": "语言"
+  },
+  "hero": {
+    "headline": "你的身体，成就独一无二的你。",
+    "description": "女性健康从了解身体开始。用温和提醒追踪经期、症状、孕期与日常健康，同时将隐私放在产品中心。",
+    "ctaPrimary": "了解更多",
+    "ctaSecondary": "探索功能",
+    "imageAlt": "平静自在的女性 — DoreHealth 健康"
+  },
+  "about": {
+    "title": "欢迎来到 DoreHealth。",
+    "body": "DoreHealth 帮助你私密地了解身体——从月经周期与日常症状，到孕期、产后、更年期、教育、社区与专业护理。",
+    "imageAlt": "自信女性代表自我照护旅程",
+    "stats": {
+      "users": { "value": "5万+", "label": "女性用户" },
+      "features": { "value": "6", "label": "核心支柱" },
+      "stages": { "value": "5", "label": "生命阶段" }
+    }
+  },
+  "features": {
+    "title": "我们助力你的健康转变。",
+    "subtitle": "从周期洞察到专业护理——为女性健康每一个章节而设计。",
+    "learnMore": "了解更多",
+    "items": {
+      "cycle": {
+        "title": "经期追踪",
+        "description": "个人周期日历、下次经期预测与易孕日洞察。"
+      },
+      "symptoms": {
+        "title": "日常健康",
+        "description": "记录情绪、精力与症状，发现规律并获得智能提醒。"
+      },
+      "pregnancy": {
+        "title": "孕期模式",
+        "description": "逐周追踪、胎动计数、生长图表与待产工具。"
+      },
+      "consultation": {
+        "title": "专业护理",
+        "description": "连接认证女性健康专家，获得个性化指导。"
+      }
+    }
+  },
+  "expertise": {
+    "title": "以专业赢得信任。",
+    "body": "隐私优先架构、自适应周期智能与有管理的社区空间——让你安心记录、放心信赖。",
+    "cta": "了解更多",
+    "imageAlt": "代表可信健康专业的女性形象",
+    "bars": {
+      "privacy": "隐私与信任",
+      "care": "个性化护理",
+      "insight": "智能洞察"
+    }
+  },
+  "faq": {
+    "eyebrow": "常见问题",
+    "title": "常见问题解答",
+    "subtitle": "找不到答案？可通过应用或客服联系我们。",
+    "items": [
+      {
+        "q": "什么是 DoreHealth？",
+        "a": "DoreHealth（دوره）是一个女性健康平台，用于周期追踪、症状、孕期、教育、社区与专业护理——以隐私为核心。"
+      },
+      {
+        "q": "我的数据有多私密？",
+        "a": "隐私是产品核心。健康数据受所有权校验保护，管理端健康视图仅为汇总数据。"
+      },
+      {
+        "q": "支持哪些语言？",
+        "a": "主要界面为波斯语。也支持英语、中文与马来语，并提供波斯历支持。"
+      },
+      {
+        "q": "孕期模式包含什么？",
+        "a": "逐周追踪、清单、胎动计数、生长图表、待产包与待产工具。"
+      },
+      {
+        "q": "可以咨询医生吗？",
+        "a": "可以。认证的女性健康专家提供线上与线下咨询，支持预约与时段。"
+      },
+      {
+        "q": "什么是高级会员？",
+        "a": "采用免费增值模式：免费、高级试用与高级会员（月/年），解锁更多进阶功能。"
+      },
+      {
+        "q": "有哪些平台？",
+        "a": "Android、渐进式 Web 应用，以及 dorehealth.ir 网页体验。"
+      },
+      {
+        "q": "是否支持波斯历？",
+        "a": "是的，需要的用户可使用波斯历。"
+      }
+    ]
+  },
+  "download": {
+    "eyebrow": "开始使用",
+    "title": "每天更好地了解你的身体",
+    "subtitle": "下载 DoreHealth，以平静、隐私优先的方式开始你的健康旅程。",
+    "bazaar": "Cafe Bazaar",
+    "play": "Google Play",
+    "appStore": "App Store",
+    "pwa": "打开网页应用"
+  },
+  "footer": {
+    "tagline": "女性健康，每一天。",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "rights": "保留所有权利。"
+  }
+}

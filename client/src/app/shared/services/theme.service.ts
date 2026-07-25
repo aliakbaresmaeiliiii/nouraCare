@@ -14,6 +14,7 @@ export function readStoredPreference(): ThemePreference {
       return v;
     }
     const legacy = localStorage.getItem(LEGACY_DARK_MODE_KEY);
+    // No explicit preference → follow the OS / browser color scheme.
     let resolved: ThemePreference = 'system';
     if (legacy === 'true') {
       resolved = 'dark';

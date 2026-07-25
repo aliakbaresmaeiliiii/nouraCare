@@ -43,10 +43,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .theme-switch__option {
-    transition: none;
-  }
-
   .login-title__brand-color {
     transform: none;
   }

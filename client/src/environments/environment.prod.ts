@@ -30,7 +30,7 @@
     privacyPolicyUrl: 'https://dorehealth.ir/privacy',
 
     /** Public HTTPS URL where the PWA is hosted (Add to Home Screen on iOS). */
-    pwaInstallUrl: 'https://dorehealth.ir',
+    pwaInstallUrl: 'https://app.dorehealth.ir',
 
     neshanBaseUrl: 'https://api.neshan.org',
     neshanApiKey: 'service.KVVe90o9etGdBaZMu1jT2tlhVuc2yXdMDcYkYded',

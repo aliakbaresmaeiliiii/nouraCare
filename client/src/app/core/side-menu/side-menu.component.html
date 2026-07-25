@@ -93,36 +93,6 @@
     <!-- Divider -->
     <div class="menu-divider"></div>
 
-    <!-- Appearance (theme) -->
-    <div class="theme-section">
-      <h4 class="section-title">{{ 'menu.appearance' | translate }}</h4>
-      <div class="theme-segment-card">
-        <ion-segment
-          class="menu-theme-segment"
-          [value]="themePreference"
-          (ionChange)="onThemeSegmentChange($event)"
-        >
-          <ion-segment-button value="light" layout="icon-top">
-            <ion-icon name="sunny-outline" aria-hidden="true"></ion-icon>
-            <ion-label class="theme-chip-label">{{ 'menu.themeLight' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="dark" layout="icon-top">
-            <ion-icon name="moon-outline" aria-hidden="true"></ion-icon>
-            <ion-label class="theme-chip-label">{{ 'menu.themeDark' | translate }}</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="system" layout="icon-top">
-            <ion-icon name="phone-portrait-outline" aria-hidden="true"></ion-icon>
-            <ion-label class="theme-chip-label">{{ 'menu.themeSystem' | translate }}</ion-label>
-          </ion-segment-button>
-        </ion-segment>
-      </div>
-      @if (themeHint) {
-        <p class="theme-hint">{{ themeHint }}</p>
-      }
-    </div>
-
-    <div class="menu-divider menu-divider--tight"></div>
-
     <!-- Settings & Support -->
     <div class="menu-section">
       <h4 class="section-title">{{ 'menu.settingsSupport' | translate }}</h4>

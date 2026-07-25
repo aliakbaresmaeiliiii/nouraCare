@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "title": "DoreHealth | Fahami badan anda, setiap hari",
+    "description": "Kesihatan wanita bermula dengan memahami badan. Jejaki kitaran, simptom, kehamilan dan kesejahteraan harian dengan peringatan lembut — privasi di tengah produk."
+  },
+  "brand": {
+    "name": "DoreHealth",
+    "nameEn": "DoreHealth",
+    "slogan": "Fahami badan anda, setiap hari",
+    "tagline": "Understand your body, every day"
+  },
+  "nav": {
+    "home": "Laman utama",
+    "features": "Perkhidmatan",
+    "about": "Tentang kami",
+    "faq": "Soalan lazim",
+    "download": "Muat turun",
+    "openMenu": "Buka menu",
+    "closeMenu": "Tutup menu",
+    "language": "Bahasa"
+  },
+  "hero": {
+    "headline": "Badan anda menjadikan anda unik.",
+    "description": "Kesihatan wanita bermula dengan memahami badan. Jejaki kitaran, simptom, kehamilan dan kesejahteraan harian dengan peringatan lembut — privasi di tengah produk.",
+    "ctaPrimary": "Ketahui lebih lanjut",
+    "ctaSecondary": "Terokai ciri-ciri",
+    "imageAlt": "Wanita yang tenang — kesejahteraan DoreHealth"
+  },
+  "about": {
+    "title": "Selamat datang ke DoreHealth.",
+    "body": "DoreHealth membantu anda memahami badan secara peribadi — dari kitaran haid dan simptom harian hingga kehamilan, postpartum, menopaus, pendidikan, komuniti dan penjagaan pakar.",
+    "imageAlt": "Wanita yakin dalam perjalanan penjagaan diri",
+    "stats": {
+      "users": { "value": "50K+", "label": "Wanita dilayan" },
+      "features": { "value": "6", "label": "Tonggak utama" },
+      "stages": { "value": "5", "label": "Peringkat hidup" }
+    }
+  },
+  "features": {
+    "title": "Kami boleh membantu mengubah anda.",
+    "subtitle": "Dari kecerdasan kitaran hingga penjagaan pakar — alat untuk setiap bab kesihatan wanita.",
+    "learnMore": "Ketahui lebih lanjut",
+    "items": {
+      "cycle": {
+        "title": "Penjejakan haid",
+        "description": "Kalendar kitaran peribadi, ramalan haid seterusnya dan pandangan hari subur."
+      },
+      "symptoms": {
+        "title": "Kesejahteraan harian",
+        "description": "Log mood, tenaga dan simptom untuk melihat corak dan dapatkan peringatan pintar."
+      },
+      "pregnancy": {
+        "title": "Mod kehamilan",
+        "description": "Penjejakan minggu demi minggu, pengira tendangan, carta pertumbuhan dan alat bersalin."
+      },
+      "consultation": {
+        "title": "Penjagaan pakar",
+        "description": "Berhubung dengan pakar kesihatan wanita yang disahkan untuk bimbingan peribadi."
+      }
+    }
+  },
+  "expertise": {
+    "title": "Membuktikan kepakaran kami.",
+    "body": "Seni bina privasi diutamakan, kecerdasan kitaran adaptif dan ruang komuniti dimoderasi — dibina supaya anda boleh percaya apa yang anda jejaki.",
+    "cta": "Ketahui lebih lanjut",
+    "imageAlt": "Wanita profesional mewakili kepakaran kesihatan yang dipercayai",
+    "bars": {
+      "privacy": "Privasi & kepercayaan",
+      "care": "Penjagaan peribadi",
+      "insight": "Pandangan pintar"
+    }
+  },
+  "faq": {
+    "eyebrow": "Soalan lazim",
+    "title": "Jawapan kepada soalan biasa",
+    "subtitle": "Tidak jumpa apa yang anda perlukan? Hubungi kami melalui aplikasi atau sokongan.",
+    "items": [
+      {
+        "q": "Apa itu DoreHealth?",
+        "a": "DoreHealth (دوره) ialah platform kesihatan wanita untuk penjejakan kitaran, simptom, kehamilan, pendidikan, komuniti dan penjagaan pakar — dengan privasi di tengah."
+      },
+      {
+        "q": "Seberapa peribadi data saya?",
+        "a": "Privasi adalah teras produk. Data kesihatan dilindungi dengan semakan pemilikan, dan paparan kesihatan admin hanya agregat."
+      },
+      {
+        "q": "Bahasa mana yang disokong?",
+        "a": "UX utama ialah Parsi. Inggeris, Cina dan Melayu juga disokong, dengan sokongan kalendar Jalali."
+      },
+      {
+        "q": "Apa yang termasuk dalam mod kehamilan?",
+        "a": "Penjejakan minggu demi minggu, senarai semak, pengira tendangan, carta pertumbuhan dan alat persediaan bersalin."
+      },
+      {
+        "q": "Bolehkah saya berunding dengan doktor?",
+        "a": "Ya. Pakar kesihatan wanita yang disahkan menawarkan konsultasi dalam talian dan bersemuka."
+      },
+      {
+        "q": "Apa itu Premium?",
+        "a": "Model freemium dengan peringkat FREE, PREMIUM_TRIAL dan PREMIUM (bulan / tahun) membuka ciri lanjutan."
+      },
+      {
+        "q": "Platform mana yang tersedia?",
+        "a": "Android, Progressive Web App, dan pengalaman web di dorehealth.ir."
+      },
+      {
+        "q": "Adakah kalendar Jalali disokong?",
+        "a": "Ya. Sokongan kalendar Jalali tersedia untuk pengguna yang memerlukannya."
+      }
+    ]
+  },
+  "download": {
+    "eyebrow": "Mulakan",
+    "title": "Fahami badan anda, setiap hari",
+    "subtitle": "Muat turun DoreHealth dan mulakan perjalanan kesejahteraan anda dengan tenang dan privasi diutamakan.",
+    "bazaar": "Cafe Bazaar",
+    "play": "Google Play",
+    "appStore": "App Store",
+    "pwa": "Buka aplikasi web"
+  },
+  "footer": {
+    "tagline": "Kesihatan wanita, setiap hari.",
+    "privacy": "Privasi",
+    "terms": "Terma",
+    "rights": "Hak cipta terpelihara."
+  }
+}

@@ -39,12 +39,13 @@ Women’s health starts with understanding your body. With DoreHealth, track you
 | `client/` | Consumer app (Ionic) + in-app `/admin` | Angular 21, Ionic 8, Capacitor 8, Tailwind, Chart.js, PWA |
 | `admin/` | Standalone ops console (port 4300) | Angular 21 |
 | `server/` | REST API | NestJS 11, Prisma 7, MySQL, JWT, Socket.io |
-| `landing/` | Marketing website | Next.js 16, React 19, Tailwind 4 |
+| `landing/` | Marketing website (i18n: fa/en/zh/ms) | Next.js 16, React 19, Tailwind 4, next-intl |
 | `deploy/` | Production Docker + nginx | API + MySQL, TLS for `api.dorehealth.ir` |
 
 **Production domains**
 
-- App: `https://dorehealth.ir`  
+- Marketing: `https://dorehealth.ir` (Next.js `landing/`)  
+- App: `https://app.dorehealth.ir` / PWA (Ionic `client/`)  
 - API: `https://api.dorehealth.ir`  
 
 ---
@@ -283,7 +284,7 @@ Secret-chat member roles (community only): `ADMIN` / `MODERATOR` / `MEMBER`.
 - **Client:** Angular 21 · Ionic 8 · Capacitor 8 · Tailwind 4 · Chart.js · PWA / Firebase  
 - **Admin:** Angular 21  
 - **Server:** NestJS 11 · Prisma 7 · MySQL 8 · JWT / Passport · Mail / SMS · Firebase · Throttling · Helmet  
-- **Landing:** Next.js 16 · React 19 · Tailwind 4  
+- **Landing:** Next.js 16 · React 19 · Tailwind 4 · next-intl (fa/en/zh/ms) · Framer Motion 
 - **Deploy:** Docker Compose · nginx · TLS · GitHub Actions CI  
 
 ---

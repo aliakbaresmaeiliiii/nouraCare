@@ -346,78 +346,9 @@
   }
 }
 
-// Appearance (theme) — compact segment in the drawer
-.theme-section {
-  padding: 8px 16px 4px;
-}
+// Appearance is configured in Settings (system by default).
 
-.theme-segment-card {
-  background: rgba(var(--brand-text-rgb), 0.07);
-  border-radius: var(--app-radius-md);
-  padding: 6px;
-  border: 1px solid rgba(var(--brand-text-rgb), 0.08);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset;
-}
-
-.menu-theme-segment {
-  --background: transparent;
-  border-radius: calc(var(--app-radius-md) - 4px);
-  min-height: 52px;
-
-  ion-segment-button {
-    --background: transparent;
-    --background-checked: rgba(var(--brand-surface-rgb), 0.92);
-    --color: rgba(var(--brand-text-rgb), 0.55);
-    --color-checked: var(--brand-text);
-    --indicator-color: transparent;
-    --border-radius: 10px;
-    --padding-start: 4px;
-    --padding-end: 4px;
-    margin: 0 2px;
-    min-height: 48px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    box-shadow: none;
-
-    &::part(native) {
-      border-radius: 10px;
-    }
-
-    ion-icon {
-      font-size: 20px;
-      margin-bottom: 2px;
-      color: rgba(var(--brand-text-rgb), 0.5);
-    }
-
-    &.segment-button-checked ion-icon {
-      color: var(--brand-primary);
-    }
-  }
-}
-
-.theme-chip-label {
-  margin: 0;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.theme-hint {
-  margin: 10px 4px 0;
-  font-size: 11px;
-  line-height: 1.35;
-  font-weight: 500;
-  color: rgba(var(--brand-text-rgb), 0.52);
-  text-align: center;
-}
-
-// Social Section — compact grid matching theme segment card style
+// Social Section
 .social-section {
   padding: 12px 16px 8px;
 }
@@ -553,7 +484,6 @@
     padding: 16px 12px;
   }
 
-  .theme-section,
   .social-section {
     padding-inline: 12px;
   }
@@ -589,27 +519,6 @@
     }
   }
 
-  .theme-segment-card {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
-  }
-
-  .menu-theme-segment ion-segment-button {
-    --color: rgba(255, 255, 255, 0.55);
-    --background-checked: rgba(255, 255, 255, 0.14);
-    --color-checked: #f8fafc;
-
-    ion-icon {
-      color: rgba(255, 255, 255, 0.45);
-    }
-
-    &.segment-button-checked ion-icon {
-      color: #a5b4fc;
-    }
-  }
-
-  .theme-hint,
   .social-hint {
     color: rgba(255, 255, 255, 0.45);
   }
@@ -681,7 +590,6 @@
   .menu-label,
   .progress-text,
   .menu-soon,
-  .theme-hint,
   .social-hint,
   .social-card__name,
   .social-card__handle {

@@ -1,47 +1,13 @@
 <ion-content class="login-page" [scrollY]="true">
-  <div class="login-chrome">
-    <div
-      class="theme-switch"
-      [class.theme-switch--dark]="isDarkTheme()"
-      role="group"
-      [attr.aria-label]="'menu.appearance' | translate"
-    >
-      <button
-        type="button"
-        class="theme-switch__option"
-        [class.theme-switch__option--active]="!isDarkTheme()"
-        [attr.aria-pressed]="!isDarkTheme()"
-        [attr.aria-label]="'menu.themeLight' | translate"
-        (click)="setTheme('light')"
-      >
-        <ion-icon name="sunny-outline" aria-hidden="true"></ion-icon>
-        <span class="theme-switch__label">{{
-          "menu.themeLight" | translate
-        }}</span>
-      </button>
-      <button
-        type="button"
-        class="theme-switch__option"
-        [class.theme-switch__option--active]="isDarkTheme()"
-        [attr.aria-pressed]="isDarkTheme()"
-        [attr.aria-label]="'menu.themeDark' | translate"
-        (click)="setTheme('dark')"
-      >
-        <ion-icon name="moon-outline" aria-hidden="true"></ion-icon>
-        <span class="theme-switch__label">{{
-          "menu.themeDark" | translate
-        }}</span>
-      </button>
-    </div>
-
-    @if (languageSwitchingEnabled) {
+  @if (languageSwitchingEnabled) {
+    <div class="login-chrome">
       <div class="language-section">
         @defer {
           <app-language-switcher></app-language-switcher>
         }
       </div>
-    }
-  </div>
+    </div>
+  }
 
   <div class="login-layout">
     <header class="login-hero">
@@ -88,7 +54,6 @@
           @if (!loginOtpStep()) {
             <div
               class="method-switch"
-              [class.method-switch--dark]="isDarkTheme()"
               role="group"
               [attr.aria-label]="'auth.loginMethod' | translate"
             >

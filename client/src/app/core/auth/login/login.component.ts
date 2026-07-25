@@ -29,9 +29,7 @@ import {
   logoGoogle,
   mailOpenOutline,
   mailOutline,
-  moonOutline,
   shieldCheckmarkOutline,
-  sunnyOutline,
   timeOutline,
 } from 'ionicons/icons';
 import {
@@ -62,10 +60,6 @@ import {
   OnboardingDataDto,
   OnboardingService,
 } from '@app/shared/services/onboarding.service';
-import {
-  ThemePreference,
-  ThemeService,
-} from '@app/shared/services/theme.service';
 import { TranslationService } from '@app/shared/services/translation.service';
 import {
   extractApiMessagePayload,
@@ -132,7 +126,6 @@ export class LoginComponent
   private readonly onboardingService = inject(OnboardingService);
   private readonly dashboardCache = inject(DashboardCacheService);
   private readonly translation = inject(TranslationService);
-  private readonly themeService = inject(ThemeService);
 
   readonly loginForm = this.fb.group({
     email: [''],
@@ -143,7 +136,6 @@ export class LoginComponent
   /** Which identifier the user is signing in with. */
   readonly loginMethod = signal<'email' | 'phone'>('email');
 
-  readonly isDarkTheme = signal(false);
   readonly titlePaintActive = signal(false);
   readonly isBackgrounded = signal(false);
   readonly isSocialLoading = signal(false);
@@ -246,8 +238,6 @@ export class LoginComponent
 
   constructor() {
     addIcons({
-      moonOutline,
-      sunnyOutline,
       mailOutline,
       callOutline,
       alertCircleOutline,
@@ -262,12 +252,7 @@ export class LoginComponent
   }
 
   ngOnInit(): void {
-    this.syncThemeFromService();
     this.applyLoginMethodValidators(this.loginMethod());
-    this.themeService.appearanceChanged$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.syncThemeFromService());
-
     this.activatedRoute.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
@@ -380,16 +365,6 @@ export class LoginComponent
           void this.finishAuthNavigationToHome();
         },
       });
-  }
-
-  setTheme(preference: Extract<ThemePreference, 'light' | 'dark'>): void {
-    if (
-      (preference === 'dark' && this.isDarkTheme()) ||
-      (preference === 'light' && !this.isDarkTheme())
-    ) {
-      return;
-    }
-    this.themeService.setPreference(preference);
   }
 
   setLoginMethod(method: 'email' | 'phone'): void {
@@ -840,10 +815,6 @@ export class LoginComponent
       this.titlePaintActive.set(true);
       this.titlePaintTimer = null;
     }, 120);
-  }
-
-  private syncThemeFromService(): void {
-    this.isDarkTheme.set(this.themeService.effectiveIsDark());
   }
 
   private bindPageVisibility(): void {

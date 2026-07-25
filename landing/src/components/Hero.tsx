@@ -1,57 +1,68 @@
-import { BRAND } from "@/lib/brand";
-import { DownloadButtons } from "./DownloadButtons";
-import { PhoneMockup } from "./PhoneMockup";
+"use client";
 
-const TRUST_STATS = [
-  { value: "۱۰۰٪", label: "خصوصی" },
-  { value: "رایگان", label: "شروع" },
-  { value: "۲۴/۷", label: "یادآور" },
-];
-
-const HERO_DESC_MOBILE =
-  "چرخه، علائم و بارداری را با یادآورهای ملایم و حریم خصوصی روی گوشی خودت دنبال کن.";
+import { useTranslations } from "next-intl";
+import { motion } from "framer-motion";
+import { Play } from "lucide-react";
+import { BlobImage } from "./BlobImage";
+import { SCREEN_IMAGES } from "@/lib/images";
+import { Wave } from "./Wave";
 
 export function Hero() {
+  const t = useTranslations("hero");
+
   return (
-    <section className="hero" id="download">
-      <div className="hero__bg" aria-hidden />
+    <section id="home" className="section--hero relative overflow-hidden">
+      <div className="container-page grid items-center gap-8 pb-6 pt-[calc(var(--header-h)+1.5rem)] sm:gap-10 sm:pb-8 sm:pt-[calc(var(--header-h)+2.25rem)] lg:grid-cols-2 lg:gap-14 lg:pb-4 lg:pt-[calc(var(--header-h)+3rem)]">
+        {/* Content first on mobile for readability */}
+        <div className="text-center lg:text-start">
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="font-display mx-auto mb-4 max-w-xl text-[clamp(1.75rem,6.2vw,3.5rem)] leading-[1.18] text-[var(--c-ink)] lg:mx-0"
+          >
+            {t("headline")}
+          </motion.h1>
 
-      <div className="site-container hero__grid">
-        <div className="hero__copy">
-          <span className="hero__badge">
-            <span className="hero__badge-dot" aria-hidden />
-            اپلیکیشن سلامت زنان
-          </span>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+            className="section-body mx-auto mb-6 max-w-md lg:mx-0 lg:mb-8"
+          >
+            {t("description")}
+          </motion.p>
 
-          <h1 className="hero__title">
-            <span className="hero__title-brand">{BRAND.nameFa}</span>
-            <span className="hero__title-sub">{BRAND.sloganFa}</span>
-          </h1>
-
-          <p className="hero__desc hero__desc--desktop">{BRAND.descriptionFa}</p>
-          <p className="hero__desc hero__desc--mobile">{HERO_DESC_MOBILE}</p>
-
-          <DownloadButtons className="hero__downloads" />
-
-          <ul className="hero__stats">
-            {TRUST_STATS.map((stat) => (
-              <li key={stat.label} className="hero__stat">
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-              </li>
-            ))}
-          </ul>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.14 }}
+            className="flex flex-wrap items-center justify-center gap-3 lg:justify-start"
+          >
+            <a href="#about" className="btn btn-primary min-w-[9.5rem]">
+              {t("ctaPrimary")}
+            </a>
+            <a
+              href="#features"
+              className="btn-play"
+              aria-label={t("ctaSecondary")}
+            >
+              <Play className="size-4 fill-current" aria-hidden />
+            </a>
+          </motion.div>
         </div>
 
-        <div className="hero__visual">
-          <PhoneMockup />
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto w-full max-w-[280px] sm:max-w-[320px] lg:max-w-none"
+        >
+          <BlobImage src={SCREEN_IMAGES.hero} alt={t("imageAlt")} priority />
+        </motion.div>
       </div>
 
-      <a href="#features" className="hero__scroll" aria-label="رفتن به ویژگی‌ها">
-        <span className="hero__scroll-icon" aria-hidden />
-        <span>بیشتر بدانید</span>
-      </a>
+      <Wave from="var(--c-bg)" to="var(--c-surface)" />
     </section>
   );
 }

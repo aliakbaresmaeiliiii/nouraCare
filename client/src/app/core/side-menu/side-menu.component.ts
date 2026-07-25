@@ -17,27 +17,20 @@ import {
   logOutOutline,
   logoInstagram,
   mailOutline,
-  moonOutline,
   notificationsOutline,
   paperPlaneOutline,
   peopleOutline,
   personAddOutline,
-  phonePortraitOutline,
   refreshOutline,
   settingsOutline,
-  sunnyOutline,
 } from 'ionicons/icons';
-import { merge, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { SHARED_STANDALONE_IMPORTS } from '@app/shared/shared-standalone';
 import { Router } from '@angular/router';
 import { ImageUrlService } from '@app/shared/services/image-url.service';
 import { ProfileCompletionService } from '@app/shared/services/profile-completion.service';
 import { AuthService } from '@app/core/auth/services/auth';
 import { UserSessionService } from '@app/shared/services/user-session.service';
-import {
-  ThemePreference,
-  ThemeService,
-} from '@app/shared/services/theme.service';
 import { TranslationService } from '@app/shared/services/translation.service';
 import {
   LanguageService,
@@ -77,23 +70,16 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
   private profileCompletionService = inject(ProfileCompletionService);
   private authService = inject(AuthService);
   private userSession = inject(UserSessionService);
-  private themeService = inject(ThemeService);
   private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly translation = inject(TranslationService);
   private readonly languageService = inject(LanguageService);
   private readonly notificationUnread = inject(NotificationUnreadService);
-  private themeSub?: Subscription;
   private unreadSub?: Subscription;
   private languageSub?: Subscription;
   private userUpdatedSub?: Subscription;
 
   unreadCount = 0;
   currentLanguage = 'fa';
-
-  /** Bound to the appearance segment (light / dark / system). */
-  themePreference: ThemePreference = 'system';
-  /** Shown under the segment when following the device theme. */
-  themeHint = '';
 
   // User profile data
   userName: string = 'Aliakbar Esmaeili';
@@ -160,20 +146,16 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
       logOutOutline,
       logoInstagram,
       mailOutline,
-      moonOutline,
       notificationsOutline,
       paperPlaneOutline,
       peopleOutline,
       personAddOutline,
-      phonePortraitOutline,
       refreshOutline,
       settingsOutline,
-      sunnyOutline,
     });
   }
 
   ngOnDestroy(): void {
-    this.themeSub?.unsubscribe();
     this.unreadSub?.unsubscribe();
     this.languageSub?.unsubscribe();
     this.userUpdatedSub?.unsubscribe();
@@ -208,31 +190,6 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   async openNotifications(): Promise<void> {
     await this.router.navigate(['/notifications']);
-  }
-
-  onThemeSegmentChange(ev: Event): void {
-    const ce = ev as CustomEvent<{ value?: string | number }>;
-    const fromDetail = ce.detail?.value;
-    const target = ce.target as HTMLIonSegmentElement | null;
-    const fromTarget = target?.value;
-    const raw =
-      fromDetail !== undefined && fromDetail !== null && fromDetail !== ''
-        ? String(fromDetail)
-        : fromTarget !== undefined && fromTarget !== null && fromTarget !== ''
-          ? String(fromTarget)
-          : '';
-    const v = raw as ThemePreference;
-    if (v === 'light' || v === 'dark' || v === 'system') {
-      this.themeService.setPreference(v);
-    }
-  }
-
-  private syncThemeFromService(): void {
-    this.themePreference = this.themeService.getPreference();
-    this.themeHint =
-      this.themePreference === 'system'
-        ? this.themeService.subtitleForCurrent()
-        : '';
   }
 
   async setActiveTop(index: number) {
@@ -346,11 +303,6 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
     this.unreadCount = this.notificationUnread.getUnreadCount();
 
     this.loadUserProfile();
-    this.syncThemeFromService();
-    this.themeSub = merge(
-      this.themeService.preferenceChanges$,
-      this.themeService.appearanceChanged$,
-    ).subscribe(() => this.syncThemeFromService());
 
     this.unreadSub = this.notificationUnread.unreadCount$.subscribe((count) => {
       this.unreadCount = count;
@@ -367,7 +319,6 @@ export class SideMenuComponent implements OnInit, OnDestroy, ViewWillEnter {
 
   ionViewWillEnter(): void {
     this.loadUserProfile();
-    this.syncThemeFromService();
   }
 
   private loadUserProfile() {

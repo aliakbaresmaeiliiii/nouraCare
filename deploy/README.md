@@ -1,6 +1,9 @@
 # DoreHealth production deployment
 
-Production domains: app `https://dorehealth.ir`, API `https://api.dorehealth.ir`.
+Production domains:
+- Marketing landing: `https://dorehealth.ir` (Next.js in `landing/`)
+- App PWA: `https://app.dorehealth.ir` or `https://dorehealth.app` (Ionic in `client/`)
+- API: `https://api.dorehealth.ir`
 
 ## 1. Server `.env`
 
@@ -40,7 +43,18 @@ API: `http://localhost:3000/api/v1/` (put nginx TLS in front for production).
 4. `sudo certbot --nginx -d api.dorehealth.ir`
 5. `sudo nginx -t && sudo systemctl reload nginx`
 
-## 4. Client production build
+## 4. Landing (marketing site)
+
+```bash
+cd landing
+npm install
+npm run build
+PORT=3001 npm start
+```
+
+Use `deploy/nginx/dorehealth-landing.conf` to terminate TLS on `dorehealth.ir` and proxy to port `3001`.
+
+## 5. Client production build
 
 Edit `client/src/environments/environment.prod.ts`:
 - `PROD_API_ORIGIN`
@@ -53,7 +67,7 @@ npm run build:prod
 npm run cap:sync:prod
 ```
 
-## 5. Store checklist
+## 6. Store checklist
 
 - [ ] HTTPS API live
 - [ ] Privacy policy URL (`environment.prod.ts` → `privacyPolicyUrl`)

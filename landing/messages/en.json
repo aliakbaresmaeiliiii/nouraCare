@@ -1,0 +1,127 @@
+{
+  "meta": {
+    "title": "DoreHealth | Understand your body, every day",
+    "description": "Women's health starts with understanding your body. Track your cycle, symptoms, pregnancy, and daily wellness with gentle reminders — privacy at the center."
+  },
+  "brand": {
+    "name": "DoreHealth",
+    "nameEn": "DoreHealth",
+    "slogan": "Understand your body, every day",
+    "tagline": "همراه سلامتی تو"
+  },
+  "nav": {
+    "home": "Home",
+    "features": "Services",
+    "about": "About Us",
+    "faq": "FAQ",
+    "download": "Download",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "language": "Language"
+  },
+  "hero": {
+    "headline": "Your body is what makes you uniquely you.",
+    "description": "Women's health starts with understanding your body. Track your cycle, symptoms, pregnancy, and daily wellness with gentle reminders — privacy at the center of the product.",
+    "ctaPrimary": "Learn More",
+    "ctaSecondary": "Explore features",
+    "imageAlt": "Woman reflecting calmly — DoreHealth wellness"
+  },
+  "about": {
+    "title": "Welcome To DoreHealth.",
+    "body": "DoreHealth helps you understand your body privately — from menstrual cycles and daily symptoms to pregnancy, postpartum, menopause, education, community, and specialist care.",
+    "imageAlt": "Confident woman representing self-care journey",
+    "stats": {
+      "users": { "value": "50K+", "label": "Women served" },
+      "features": { "value": "6", "label": "Core pillars" },
+      "stages": { "value": "5", "label": "Life stages" }
+    }
+  },
+  "features": {
+    "title": "We Can Help Transform You.",
+    "subtitle": "From cycle intelligence to expert care — tools designed for every chapter of women's health.",
+    "learnMore": "Learn More",
+    "items": {
+      "cycle": {
+        "title": "Period Tracking",
+        "description": "Personal cycle calendar, next-period predictions, and fertile-day insights."
+      },
+      "symptoms": {
+        "title": "Daily Wellness",
+        "description": "Log mood, energy, and symptoms to spot patterns and get smart reminders."
+      },
+      "pregnancy": {
+        "title": "Pregnancy Mode",
+        "description": "Week-by-week tracking, kick counter, growth charts, and birth prep tools."
+      },
+      "consultation": {
+        "title": "Expert Care",
+        "description": "Connect with verified women's health specialists for personalized guidance."
+      }
+    }
+  },
+  "expertise": {
+    "title": "Proving Our Expertise.",
+    "body": "Privacy-first architecture, adaptive cycle intelligence, and moderated community spaces — built so you can trust what you track.",
+    "cta": "Learn More",
+    "imageAlt": "Professional woman representing trusted health expertise",
+    "bars": {
+      "privacy": "Privacy & trust",
+      "care": "Personal care",
+      "insight": "Smart insights"
+    }
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Answers to common questions",
+    "subtitle": "Can't find what you need? Reach us through the app or support.",
+    "items": [
+      {
+        "q": "What is DoreHealth?",
+        "a": "DoreHealth (دوره) is a women's health platform for cycle tracking, symptoms, pregnancy, education, community, and specialist care — with privacy at the center."
+      },
+      {
+        "q": "How private is my data?",
+        "a": "Privacy is core to the product. Health data is protected with ownership checks, and admin health views are aggregate-only — no raw cycle logs or symptoms."
+      },
+      {
+        "q": "Which languages are supported?",
+        "a": "Primary UX is Persian. English, Chinese, and Malay are also supported, with Jalali calendar support."
+      },
+      {
+        "q": "What does pregnancy mode include?",
+        "a": "Week-by-week tracking, checklists, kick counter, growth charts, hospital bag, newborn layette, and birth prep tools."
+      },
+      {
+        "q": "Can I consult a doctor?",
+        "a": "Yes. Verified women's health specialists offer online and in-person consultations with booking, fees, and available slots."
+      },
+      {
+        "q": "What is Premium?",
+        "a": "A freemium model with FREE, PREMIUM_TRIAL, and PREMIUM tiers (month / year) unlocks advanced features as you grow with the app."
+      },
+      {
+        "q": "Which platforms are available?",
+        "a": "Android (Capacitor), Progressive Web App, and the web experience at dorehealth.ir."
+      },
+      {
+        "q": "Is the Jalali calendar supported?",
+        "a": "Yes. Jalali calendar support is available for users who need it."
+      }
+    ]
+  },
+  "download": {
+    "eyebrow": "Get started",
+    "title": "Understand your body, every day",
+    "subtitle": "Download DoreHealth and begin your wellness journey with calm, privacy-first care.",
+    "bazaar": "Cafe Bazaar",
+    "play": "Google Play",
+    "appStore": "App Store",
+    "pwa": "Open web app"
+  },
+  "footer": {
+    "tagline": "Women's health, every day.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "rights": "All rights reserved."
+  }
+}

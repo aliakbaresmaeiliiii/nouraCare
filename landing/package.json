@@ -5,11 +5,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "pack": "node scripts/pack-deploy.js",
+    "build:deploy": "next build && node scripts/pack-deploy.js",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
-    "next": "16.2.7",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^1.26.0",
+    "next": "16.2.11",
+    "next-intl": "^4.13.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -19,7 +24,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.7",
+    "eslint-config-next": "16.2.11",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

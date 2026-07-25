@@ -547,6 +547,14 @@ export class SettingsComponent implements OnInit, ViewWillEnter, OnDestroy {
 
         {
 
+          text: `${this.t('settings.appearanceSystemDevice')}${mark('system')}`,
+
+          handler: () => this.themeService.setPreference('system'),
+
+        },
+
+        {
+
           text: `${this.t('menu.themeLight')}${mark('light')}`,
 
           handler: () => this.themeService.setPreference('light'),
@@ -558,14 +566,6 @@ export class SettingsComponent implements OnInit, ViewWillEnter, OnDestroy {
           text: `${this.t('menu.themeDark')}${mark('dark')}`,
 
           handler: () => this.themeService.setPreference('dark'),
-
-        },
-
-        {
-
-          text: `${this.t('settings.appearanceSystemDevice')}${mark('system')}`,
-
-          handler: () => this.themeService.setPreference('system'),
 
         },
 

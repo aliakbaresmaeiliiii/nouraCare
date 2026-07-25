@@ -10,6 +10,8 @@ node_modules/
 # Build outputs
 dist/
 .angular/
+.next/
+out/
 *.tsbuildinfo
 
 # IDE and OS

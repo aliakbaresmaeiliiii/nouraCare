@@ -22,15 +22,6 @@
 }
 
 @media (max-width: $login-bp-xs) {
-  .theme-switch__option {
-    min-width: 44px;
-    padding: 0 10px;
-  }
-
-  .theme-switch__label {
-    display: none;
-  }
-
   .custom-otp {
     --width: 1.9rem;
     --height: 2.5rem;
