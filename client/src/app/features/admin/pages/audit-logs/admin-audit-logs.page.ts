@@ -15,8 +15,8 @@ import { AdminEmptyStateComponent } from '../../shared-ui/empty-state/admin-empt
         </div>
       </header>
       <app-admin-empty-state
-        [title]="'admin.audit.empty' | translate"
-        [message]="'admin.audit.subtitle' | translate"
+        title="admin.audit.empty"
+        message="admin.audit.subtitle"
       />
     </section>
   `,

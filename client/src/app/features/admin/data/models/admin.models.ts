@@ -1,4 +1,6 @@
 export type AdminTheme = 'light' | 'dark';
+export type AdminAccent = 'violet' | 'orange' | 'green' | 'slate' | 'blue';
+export type AdminLayoutMode = 'default' | 'boxed' | 'compact';
 
 export type AdminUserStatus = 'active' | 'inactive' | 'invited' | 'suspended';
 export type AdminUserRole = 'admin' | 'editor' | 'viewer' | 'support' | 'user';
@@ -82,17 +84,27 @@ export interface AdminJobQueue {
 
 export interface AdminNotificationItem {
   id: string;
+  /** Short actor / title shown in bold (e.g. person name). */
   title: string;
   body: string;
   at: string;
   read: boolean;
   tone?: 'info' | 'warning' | 'success' | 'danger';
+  /** Optional avatar image URL. */
+  avatarUrl?: string;
+  /** Initials when no avatarUrl. */
+  avatarInitials?: string;
+  /** Soft avatar background when no image. */
+  avatarTone?: 'violet' | 'blue' | 'teal' | 'orange' | 'rose';
+  kind?: 'mention' | 'invite' | 'reminder' | 'system';
 }
 
 export interface AdminNavItem {
-  path: string;
+  /** Route path for leaf links. Parents with children may omit this. */
+  path?: string;
   label: string;
   icon: string;
+  children?: AdminNavItem[];
 }
 
 export interface AdminNavGroup {

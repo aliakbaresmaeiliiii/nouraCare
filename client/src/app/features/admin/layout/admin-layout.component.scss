@@ -14,21 +14,71 @@
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
-  background:
-    radial-gradient(1200px 500px at 10% -10%, color-mix(in srgb, var(--admin-accent) 14%, transparent), transparent 55%),
-    radial-gradient(900px 420px at 100% 0%, color-mix(in srgb, var(--admin-secondary) 10%, transparent), transparent 50%),
-    var(--admin-bg);
+  background: var(--admin-bg);
   color: var(--admin-ink);
   font-family: var(--admin-font);
-  transition: grid-template-columns 180ms ease;
+  direction: inherit;
+  transition: grid-template-columns 180ms ease, background 180ms ease;
+}
+
+.admin-shell[dir='rtl'] {
+  direction: rtl;
+  text-align: start;
+}
+
+.admin-shell[dir='ltr'] {
+  direction: ltr;
+  text-align: start;
 }
 
 .admin-shell[data-theme='dark'] {
   @include tokens.admin-theme-dark;
 }
 
+.admin-shell[data-accent='violet'] {
+  @include tokens.admin-accent-violet;
+}
+
+.admin-shell[data-theme='dark'][data-accent='violet'] {
+  @include tokens.admin-accent-violet-dark;
+}
+
+.admin-shell[data-accent='orange'] {
+  @include tokens.admin-accent-orange;
+}
+
+.admin-shell[data-accent='green'] {
+  @include tokens.admin-accent-green;
+}
+
+.admin-shell[data-accent='slate'] {
+  @include tokens.admin-accent-slate;
+}
+
+.admin-shell[data-accent='blue'] {
+  @include tokens.admin-accent-blue;
+}
+
 .admin-shell--collapsed {
   grid-template-columns: var(--admin-sidebar-collapsed-w) minmax(0, 1fr);
+}
+
+.admin-shell--boxed .admin-shell__main {
+  margin: 0.85rem;
+  border-radius: 1.15rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  box-shadow: var(--admin-shadow);
+  overflow: hidden;
+}
+
+.admin-shell--compact {
+  --admin-sidebar-w: 220px;
+  --admin-topbar-h: 3.25rem;
+}
+
+.admin-shell--compact .admin-shell__content {
+  padding: 0.9rem 1rem 1.1rem;
 }
 
 .admin-shell__sidebar {
@@ -51,7 +101,7 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.25rem 1.5rem 1.5rem;
+  padding: 1.35rem 1.6rem 1.75rem;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
@@ -59,8 +109,9 @@
 .admin-shell__overlay {
   position: fixed;
   inset: 0;
-  background: rgba(2, 8, 16, 0.45);
+  background: rgba(15, 18, 28, 0.4);
   z-index: 40;
+  backdrop-filter: blur(2px);
 }
 
 .admin-shell__drawer {
@@ -85,5 +136,12 @@
 
   .admin-shell__content {
     padding: 1rem;
+  }
+
+  .admin-shell--boxed .admin-shell__main {
+    margin: 0;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
   }
 }

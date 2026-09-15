@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
+import { HAS_ACCOUNT_KEY } from '@app/core/auth/utils/auth-session.util';
 
 const DISMISS_KEY = 'dorehealth.pwaInstallDismissed';
 
@@ -37,9 +38,21 @@ export class PwaPlatformService {
     return isIos && isSafari;
   }
 
-  shouldShowIosInstallHint(): boolean {
+  shouldShowIosInstallHint(options?: { requireAuth?: boolean }): boolean {
     if (this.isStandalone() || !this.isIosSafari()) {
       return false;
+    }
+    // Prefer showing after login so install keeps the same localStorage session.
+    if (options?.requireAuth !== false) {
+      try {
+        const hasAccount = localStorage.getItem(HAS_ACCOUNT_KEY) === '1';
+        const hasToken = !!localStorage.getItem('accessToken');
+        if (!hasAccount && !hasToken) {
+          return false;
+        }
+      } catch {
+        return false;
+      }
     }
     try {
       return localStorage.getItem(DISMISS_KEY) !== '1';

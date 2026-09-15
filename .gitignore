@@ -28,3 +28,6 @@ yarn-error.log*
 
 # Prisma generated (if using custom output)
 generated/
+
+# Large local archives / deploy dumps (never push to GitHub)
+*.zip

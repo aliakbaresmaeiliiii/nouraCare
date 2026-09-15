@@ -165,6 +165,24 @@ async function main() {
     fullName: 'Super Admin',
     role: 'SUPER_ADMIN',
   });
+  // Panel owner — promote existing account by email (do not overwrite phone).
+  const ownerEmail = 'aliakbaresmaeili98@gmail.com';
+  const ownerUpdated = await db.user.updateMany({
+    where: { email: ownerEmail },
+    data: {
+      role: 'SUPER_ADMIN',
+      status: 'ACTIVE',
+      isVerified: true,
+      updatedAt: now(),
+    },
+  });
+  if (ownerUpdated.count > 0) {
+    console.log(`✅ SUPER_ADMIN: ${ownerEmail}`);
+  } else {
+    console.log(
+      `⚠️ SUPER_ADMIN owner not found (${ownerEmail}) — sign up once, then re-seed or promote via SUPER_ADMIN_EMAILS`,
+    );
+  }
   const seedUser = await upsertUserByEmailOrPhone({
     email: 'user@dorehealth.app',
     phoneNumber: '+989122222222',
@@ -172,7 +190,7 @@ async function main() {
     role: 'USER',
   });
 
-  // Promote extra operators from ADMIN_EMAILS (comma-separated) — cannot open panel
+  // Promote extra operators from ADMIN_EMAILS (comma-separated)
   const extraAdminEmails = (process.env.ADMIN_EMAILS || '')
     .split(',')
     .map((e) => e.trim().toLowerCase())

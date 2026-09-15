@@ -42,8 +42,11 @@ export class JwtInterceptor implements HttpInterceptor {
           return throwError(() => error);
         }
 
-        if (error.status === 401 && accessToken) {
-          // Access token expired, try to refresh
+        if (
+          error.status === 401 &&
+          (accessToken || this.authService.hasRefreshToken())
+        ) {
+          // Access token expired/missing — restore session via refresh token
           return this.handle401Error(req, next);
         }
 

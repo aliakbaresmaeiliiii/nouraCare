@@ -16,7 +16,7 @@ import { AdminToastService } from '../../data/services/admin-toast.service';
   styles: `
     .toast-host {
       position: fixed;
-      right: 1rem;
+      inset-inline-end: 1rem;
       bottom: 1rem;
       z-index: 80;
       display: grid;

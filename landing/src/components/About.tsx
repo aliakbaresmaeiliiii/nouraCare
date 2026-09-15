@@ -17,12 +17,13 @@ export function About() {
   return (
     <section id="about" className="section section--surface !pt-2 sm:!pt-4">
       <div className="container-page grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
-        <div className="order-2 lg:order-1">
-          <Reveal className="mx-auto mb-2 max-w-[240px] sm:max-w-[280px] lg:mx-0 lg:max-w-none">
+        <div className="order-2 flex justify-center lg:order-1 lg:justify-start">
+          <Reveal className="mb-2 w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[420px]">
             <BlobImage
               src={SCREEN_IMAGES.about}
               alt={t("imageAlt")}
               variant="alt"
+              priority
             />
           </Reveal>
         </div>

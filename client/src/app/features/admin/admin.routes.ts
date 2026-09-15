@@ -31,6 +31,34 @@ export const ADMIN_ROUTES: Routes = [
           import('./pages/users/admin-users.page').then((m) => m.AdminUsersPage),
       },
       {
+        path: 'users/:id',
+        loadComponent: () =>
+          import('./pages/users/admin-user-detail.page').then(
+            (m) => m.AdminUserDetailPage,
+          ),
+      },
+      {
+        path: 'doctors',
+        loadComponent: () =>
+          import('./pages/doctors/admin-doctors.page').then(
+            (m) => m.AdminDoctorsPage,
+          ),
+      },
+      {
+        path: 'doctors/:id',
+        loadComponent: () =>
+          import('./pages/doctors/admin-doctor-detail.page').then(
+            (m) => m.AdminDoctorDetailPage,
+          ),
+      },
+      {
+        path: 'appointments',
+        loadComponent: () =>
+          import('./pages/appointments/admin-appointments.page').then(
+            (m) => m.AdminAppointmentsPage,
+          ),
+      },
+      {
         path: 'sessions',
         loadComponent: () =>
           import('./pages/stubs/admin-stub.pages').then((m) => m.AdminSessionsPage),
@@ -70,9 +98,23 @@ export const ADMIN_ROUTES: Routes = [
           ),
       },
       {
+        path: 'tickets',
+        loadComponent: () =>
+          import('./pages/tickets/admin-tickets.page').then(
+            (m) => m.AdminTicketsPage,
+          ),
+      },
+      {
+        path: 'tickets/:id',
+        loadComponent: () =>
+          import('./pages/tickets/admin-ticket-detail.page').then(
+            (m) => m.AdminTicketDetailPage,
+          ),
+      },
+      {
         path: 'notifications',
         loadComponent: () =>
-          import('./pages/stubs/admin-stub.pages').then(
+          import('./pages/notifications/admin-notifications.page').then(
             (m) => m.AdminNotificationsPage,
           ),
       },

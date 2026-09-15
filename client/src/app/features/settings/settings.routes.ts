@@ -35,6 +35,27 @@ export const SETTINGS_ROUTES: Routes = [
       ),
   },
   {
+    path: 'support-tickets',
+    loadComponent: () =>
+      import(
+        '@app/features/settings/support-tickets/support-tickets-list.page'
+      ).then((m) => m.SupportTicketsListPage),
+  },
+  {
+    path: 'support-tickets/new',
+    loadComponent: () =>
+      import(
+        '@app/features/settings/support-tickets/support-ticket-create.page'
+      ).then((m) => m.SupportTicketCreatePage),
+  },
+  {
+    path: 'support-tickets/:id',
+    loadComponent: () =>
+      import(
+        '@app/features/settings/support-tickets/support-ticket-detail.page'
+      ).then((m) => m.SupportTicketDetailPage),
+  },
+  {
     path: 'privacy-policy',
     loadComponent: () =>
       import('@app/features/settings/settings-legal-page/settings-legal-page.component').then(

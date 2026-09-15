@@ -3,28 +3,38 @@
     <input
       type="search"
       class="table-search"
-      placeholder="Search…"
+      [placeholder]="'admin.table.searchPlaceholder' | translate"
       [ngModel]="search()"
       (ngModelChange)="search.set($event); page.set(1)"
     />
     <select
       [ngModel]="statusFilter()"
       (ngModelChange)="statusFilter.set($event); page.set(1)"
-      aria-label="Status filter"
+      [attr.aria-label]="'admin.users.col.status' | translate"
     >
-      <option value="">All statuses</option>
-      <option value="active">Active</option>
-      <option value="inactive">Inactive</option>
-      <option value="suspended">Suspended</option>
+      <option value="">{{ 'admin.table.allStatuses' | translate }}</option>
+      <option value="active">{{ 'admin.status.active' | translate }}</option>
+      <option value="inactive">{{ 'admin.status.inactive' | translate }}</option>
+      <option value="suspended">{{ 'admin.status.suspended' | translate }}</option>
     </select>
-    <button type="button" class="btn" (click)="exportCsv()">Export CSV</button>
-    <button type="button" class="btn" (click)="exportCsv()">Export Excel</button>
+    <button type="button" class="btn" (click)="exportCsv()">
+      {{ 'admin.common.exportCsv' | translate }}
+    </button>
+    <button type="button" class="btn" (click)="exportCsv()">
+      {{ 'admin.common.exportExcel' | translate }}
+    </button>
     @if (selected().size) {
       <div class="bulk">
-        <span>{{ selected().size }} selected</span>
-        <button type="button" class="btn btn--accent" (click)="runBulk('activate')">Activate</button>
-        <button type="button" class="btn" (click)="runBulk('suspend')">Suspend</button>
-        <button type="button" class="btn btn--danger" (click)="runBulk('delete')">Delete</button>
+        <span>{{ selected().size }} {{ 'admin.table.selected' | translate }}</span>
+        <button type="button" class="btn btn--accent" (click)="runBulk('activate')">
+          {{ 'admin.users.activate' | translate }}
+        </button>
+        <button type="button" class="btn" (click)="runBulk('suspend')">
+          {{ 'admin.users.suspend' | translate }}
+        </button>
+        <button type="button" class="btn btn--danger" (click)="runBulk('delete')">
+          {{ 'admin.users.delete' | translate }}
+        </button>
       </div>
     }
   </div>
@@ -34,24 +44,29 @@
       <thead>
         <tr>
           <th class="check">
-            <input
-              type="checkbox"
-              [checked]="allPageSelected()"
-              (change)="toggleAll()"
-              aria-label="Select page"
-            />
+            <label class="table-check">
+              <input
+                type="checkbox"
+                class="table-check__input"
+                [checked]="allPageSelected()"
+                [indeterminate]="somePageSelected()"
+                (change)="toggleAll()"
+                [attr.aria-label]="'admin.table.selectPage' | translate"
+              />
+              <span class="table-check__box" aria-hidden="true"></span>
+            </label>
           </th>
           @for (col of columns(); track col.key) {
             <th [style.width]="col.width || null">
               @if (col.sortable !== false) {
                 <button type="button" class="th-btn" (click)="setSort(col.key)">
-                  {{ col.label }}
+                  {{ col.label | translate }}
                   @if (sortKey() === col.key) {
                     <span>{{ sortDir() === 'asc' ? '↑' : '↓' }}</span>
                   }
                 </button>
               } @else {
-                {{ col.label }}
+                {{ col.label | translate }}
               }
             </th>
           }
@@ -61,12 +76,16 @@
         @for (row of pageRows(); track row.id) {
           <tr (click)="rowClick.emit(row)">
             <td class="check" (click)="$event.stopPropagation()">
-              <input
-                type="checkbox"
-                [checked]="isSelected(row.id)"
-                (change)="toggleOne(row.id)"
-                [attr.aria-label]="'Select ' + row.id"
-              />
+              <label class="table-check">
+                <input
+                  type="checkbox"
+                  class="table-check__input"
+                  [checked]="isSelected(row.id)"
+                  (change)="toggleOne(row.id)"
+                  [attr.aria-label]="'admin.table.selectRow' | translate"
+                />
+                <span class="table-check__box" aria-hidden="true"></span>
+              </label>
             </td>
             @for (col of columns(); track col.key) {
               <td>
@@ -83,7 +102,9 @@
           </tr>
         } @empty {
           <tr>
-            <td [attr.colspan]="columns().length + 1" class="empty">No results</td>
+            <td [attr.colspan]="columns().length + 1" class="empty">
+              {{ 'admin.table.noResults' | translate }}
+            </td>
           </tr>
         }
       </tbody>
@@ -91,10 +112,14 @@
   </div>
 
   <div class="pager">
-    <span>{{ filtered().length }} results · page {{ page() }} / {{ totalPages() }}</span>
+    <span>{{ pagerLabel() }}</span>
     <div class="pager__btns">
-      <button type="button" class="btn" [disabled]="page() <= 1" (click)="prev()">Prev</button>
-      <button type="button" class="btn" [disabled]="page() >= totalPages()" (click)="next()">Next</button>
+      <button type="button" class="btn" [disabled]="page() <= 1" (click)="prev()">
+        {{ 'admin.users.prev' | translate }}
+      </button>
+      <button type="button" class="btn" [disabled]="page() >= totalPages()" (click)="next()">
+        {{ 'admin.users.next' | translate }}
+      </button>
     </div>
   </div>
 </div>

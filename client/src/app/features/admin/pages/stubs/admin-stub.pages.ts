@@ -5,7 +5,12 @@ import { AdminStubPageComponent } from '../../shared-ui/stub-page/admin-stub-pag
   selector: 'app-admin-sessions-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Sessions" description="Session volume, duration, and bounce analysis." relatedPath="/admin/analytics" relatedLabel="Open analytics" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.sessions"
+    description="admin.stub.sessions.desc"
+    relatedPath="/admin/analytics"
+    relatedLabel="admin.stub.sessions.related"
+  />`,
 })
 export class AdminSessionsPage {}
 
@@ -13,7 +18,12 @@ export class AdminSessionsPage {}
   selector: 'app-admin-retention-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Retention" description="Cohort retention and churn deep-dives." relatedPath="/admin/dashboard" relatedLabel="View cohort on dashboard" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.retention"
+    description="admin.stub.retention.desc"
+    relatedPath="/admin/dashboard"
+    relatedLabel="admin.stub.retention.related"
+  />`,
 })
 export class AdminRetentionPage {}
 
@@ -21,7 +31,12 @@ export class AdminRetentionPage {}
   selector: 'app-admin-revenue-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Revenue" description="MRR, ARR, and growth charts." relatedPath="/admin/dashboard" relatedLabel="View revenue KPI" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.revenue"
+    description="admin.stub.revenue.desc"
+    relatedPath="/admin/dashboard"
+    relatedLabel="admin.stub.revenue.related"
+  />`,
 })
 export class AdminRevenuePage {}
 
@@ -29,7 +44,12 @@ export class AdminRevenuePage {}
   selector: 'app-admin-subscriptions-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Subscriptions" description="Plan mix, upgrades, and cancellations." relatedPath="/admin/users" relatedLabel="Open users" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.subscriptions"
+    description="admin.stub.subscriptions.desc"
+    relatedPath="/admin/users"
+    relatedLabel="admin.stub.subscriptions.related"
+  />`,
 })
 export class AdminSubscriptionsPage {}
 
@@ -37,23 +57,25 @@ export class AdminSubscriptionsPage {}
   selector: 'app-admin-payments-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Payments" description="Payment attempts, failures, and refunds." relatedPath="/admin/revenue" relatedLabel="Open revenue" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.payments"
+    description="admin.stub.payments.desc"
+    relatedPath="/admin/revenue"
+    relatedLabel="admin.stub.payments.related"
+  />`,
 })
 export class AdminPaymentsPage {}
-
-@Component({
-  selector: 'app-admin-notifications-page',
-  standalone: true,
-  imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Notifications" description="System notifications, push, email campaigns, and announcements." relatedPath="/admin/settings" relatedLabel="Open settings" />`,
-})
-export class AdminNotificationsPage {}
 
 @Component({
   selector: 'app-admin-roles-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Roles & Permissions" description="RBAC matrix for admin operators." relatedPath="/admin/audit-logs" relatedLabel="Open audit logs" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.roles"
+    description="admin.stub.roles.desc"
+    relatedPath="/admin/audit-logs"
+    relatedLabel="admin.stub.roles.related"
+  />`,
 })
 export class AdminRolesPage {}
 
@@ -61,7 +83,12 @@ export class AdminRolesPage {}
   selector: 'app-admin-system-status-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="System Status" description="Public status page mirror for incidents and maintenance." relatedPath="/admin/health" relatedLabel="Open health" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.systemStatus"
+    description="admin.stub.systemStatus.desc"
+    relatedPath="/admin/health"
+    relatedLabel="admin.stub.systemStatus.related"
+  />`,
 })
 export class AdminSystemStatusPage {}
 
@@ -69,7 +96,12 @@ export class AdminSystemStatusPage {}
   selector: 'app-admin-api-monitoring-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="API Monitoring" description="Latency, error rate, and endpoint throughput." relatedPath="/admin/health" relatedLabel="Open health" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.apiMonitoring"
+    description="admin.stub.apiMonitoring.desc"
+    relatedPath="/admin/health"
+    relatedLabel="admin.stub.apiMonitoring.related"
+  />`,
 })
 export class AdminApiMonitoringPage {}
 
@@ -77,7 +109,12 @@ export class AdminApiMonitoringPage {}
   selector: 'app-admin-integrations-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Integrations" description="Third-party connectors and webhook endpoints." relatedPath="/admin/settings" relatedLabel="Open settings" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.integrations"
+    description="admin.stub.integrations.desc"
+    relatedPath="/admin/settings"
+    relatedLabel="admin.stub.integrations.related"
+  />`,
 })
 export class AdminIntegrationsPage {}
 
@@ -85,6 +122,11 @@ export class AdminIntegrationsPage {}
   selector: 'app-admin-feature-flags-page',
   standalone: true,
   imports: [AdminStubPageComponent],
-  template: `<app-admin-stub-page title="Feature Flags" description="Rollouts, experiments, and kill switches." relatedPath="/admin/settings" relatedLabel="Manage in settings" />`,
+  template: `<app-admin-stub-page
+    title="admin.nav.featureFlags"
+    description="admin.stub.featureFlags.desc"
+    relatedPath="/admin/settings"
+    relatedLabel="admin.stub.featureFlags.related"
+  />`,
 })
 export class AdminFeatureFlagsPage {}

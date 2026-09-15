@@ -1,0 +1,335 @@
+<section class="admin-page care-page">
+  <header class="care-banner">
+    <div>
+      <p class="care-banner__eyebrow">
+        <span aria-hidden="true">▦</span>
+        {{ 'admin.care.eyebrow' | translate }}
+      </p>
+      <h1>{{ 'admin.appointments.title' | translate }}</h1>
+      <p class="care-banner__lead">{{ 'admin.appointments.subtitle' | translate }}</p>
+    </div>
+    <div class="care-banner__actions">
+      <a routerLink="/admin/doctors" class="admin-btn">
+        {{ 'admin.appointments.manageDoctors' | translate }}
+      </a>
+      <button type="button" class="admin-btn" (click)="exportAll()" [disabled]="loading() || !rows().length">
+        {{ 'admin.common.exportCsv' | translate }}
+      </button>
+      <button type="button" class="admin-btn" (click)="load()" [disabled]="loading()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <div class="care-kpis">
+    <button
+      type="button"
+      class="care-kpi care-kpi--info"
+      [class.is-active]="statusFilter() === ''"
+      (click)="filterStatus('')"
+    >
+      <span class="care-kpi__label">{{ 'admin.appointments.filterAll' | translate }}</span>
+      <span class="care-kpi__value">{{ allCount() }}</span>
+      <span class="care-kpi__hint">{{ 'admin.appointments.kpi.allHint' | translate }}</span>
+    </button>
+    <button
+      type="button"
+      class="care-kpi care-kpi--warn"
+      [class.is-active]="statusFilter() === 'PENDING'"
+      (click)="filterStatus('PENDING')"
+    >
+      <span class="care-kpi__label">{{ 'admin.appointments.status.PENDING' | translate }}</span>
+      <span class="care-kpi__value">{{ pendingCount() }}</span>
+      <span class="care-kpi__hint">{{ 'admin.appointments.kpi.pendingHint' | translate }}</span>
+    </button>
+    <button
+      type="button"
+      class="care-kpi care-kpi--success"
+      [class.is-active]="statusFilter() === 'CONFIRMED'"
+      (click)="filterStatus('CONFIRMED')"
+    >
+      <span class="care-kpi__label">{{ 'admin.appointments.status.CONFIRMED' | translate }}</span>
+      <span class="care-kpi__value">{{ confirmedCount() }}</span>
+      <span class="care-kpi__hint">{{ 'admin.appointments.kpi.confirmedHint' | translate }}</span>
+    </button>
+    <button
+      type="button"
+      class="care-kpi care-kpi--danger"
+      [class.is-active]="statusFilter() === 'CANCELLED'"
+      (click)="filterStatus('CANCELLED')"
+    >
+      <span class="care-kpi__label">{{ 'admin.appointments.status.CANCELLED' | translate }}</span>
+      <span class="care-kpi__value">{{ cancelledCount() }}</span>
+      <span class="care-kpi__hint">{{ 'admin.appointments.kpi.cancelledHint' | translate }}</span>
+    </button>
+  </div>
+
+  <div class="care-note">
+    <span class="care-note__icon" aria-hidden="true">i</span>
+    <p>{{ 'admin.appointments.sensitiveNote' | translate }}</p>
+  </div>
+
+  <form class="care-filters" (submit)="$event.preventDefault(); applyFilters()">
+    <label class="care-filters__grow">
+      <span>{{ 'admin.appointments.search' | translate }}</span>
+      <input
+        type="search"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        name="search"
+        [placeholder]="'admin.appointments.searchPlaceholder' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.appointments.col.type' | translate }}</span>
+      <select
+        [ngModel]="typeFilter()"
+        (ngModelChange)="typeFilter.set($event)"
+        name="type"
+      >
+        <option value="">{{ 'admin.appointments.filterAll' | translate }}</option>
+        <option value="ONLINE">{{ 'admin.doctors.type.ONLINE' | translate }}</option>
+        <option value="IN_PERSON">{{ 'admin.doctors.type.IN_PERSON' | translate }}</option>
+      </select>
+    </label>
+    <div class="care-filters__actions">
+      <button type="submit" class="admin-btn admin-btn--primary">
+        {{ 'admin.appointments.apply' | translate }}
+      </button>
+      <button type="button" class="admin-btn" (click)="resetFilters()">
+        {{ 'admin.appointments.reset' | translate }}
+      </button>
+    </div>
+  </form>
+
+  @if (doctorId()) {
+    <div class="filter-chip">
+      <span>{{ 'admin.appointments.filteredByDoctor' | translate }}</span>
+      <button type="button" class="filter-chip__clear" (click)="clearDoctorFilter()">
+        {{ 'admin.appointments.clearDoctorFilter' | translate }} ×
+      </button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="admin-panel" aria-busy="true">
+      <app-admin-skeleton height="2.5rem" />
+      <app-admin-skeleton height="14rem" />
+    </div>
+  } @else if (error()) {
+    <div class="admin-panel">
+      <p>{{ error()! | translate }}</p>
+      <button type="button" class="admin-btn admin-btn--primary" (click)="load()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
+  } @else if (!rows().length) {
+    <div class="care-empty">
+      <div class="care-empty__icon" aria-hidden="true">▦</div>
+      <h3>{{ 'admin.appointments.emptyTitle' | translate }}</h3>
+      <p>{{ 'admin.appointments.emptyBody' | translate }}</p>
+      <a routerLink="/admin/doctors" class="admin-btn admin-btn--primary">
+        {{ 'admin.appointments.manageDoctors' | translate }}
+      </a>
+    </div>
+  } @else {
+    <app-admin-data-table
+      [columns]="columns"
+      [rows]="rows()"
+      [pageSize]="limit()"
+      exportName="dore-appointments"
+      [searchableKeys]="[]"
+      (rowClick)="openRow($event)"
+    >
+      <ng-template #cell let-row let-column="column">
+        @if (column.key === 'doctor') {
+          <div class="person-cell">
+            <span class="admin-avatar doctor-avatar">{{ initials(row.doctor) }}</span>
+            <div>
+              <strong>{{ row.doctor }}</strong>
+              <span class="muted">{{ row.raw.doctor.specialty }}</span>
+            </div>
+          </div>
+        } @else if (column.key === 'patient') {
+          <div class="stack-cell">
+            <strong>{{ row.patient }}</strong>
+            <span class="muted">{{ row.raw.user.email || row.raw.user.phoneNumber || '—' }}</span>
+          </div>
+        } @else if (column.key === 'when') {
+          <span class="when-cell">{{ row.when | date: 'medium' }}</span>
+        } @else if (column.key === 'type') {
+          <span class="admin-badge">{{ typeKey(row.type) | translate }}</span>
+        } @else if (column.key === 'status') {
+          <span class="admin-badge" [class]="statusClass(row.status)">
+            {{ statusKey(row.status) | translate }}
+          </span>
+        } @else {
+          {{ row[column.key] }}
+        }
+      </ng-template>
+    </app-admin-data-table>
+
+    <div class="appt-pager">
+      <span class="muted">{{ pageLabel() }}</span>
+      <div class="appt-pager__btns">
+        <button type="button" class="admin-btn" (click)="prevPage()" [disabled]="page() <= 1">
+          {{ 'admin.appointments.prev' | translate }}
+        </button>
+        <button
+          type="button"
+          class="admin-btn"
+          (click)="nextPage()"
+          [disabled]="page() >= totalPages()"
+        >
+          {{ 'admin.appointments.next' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</section>
+
+<app-admin-drawer
+  [open]="drawerOpen()"
+  [title]="'admin.appointments.detailTitle' | translate"
+  (closed)="drawerOpen.set(false)"
+>
+  @if (selected(); as s) {
+    <div class="detail">
+      <div class="detail__hero">
+        <span class="admin-avatar doctor-avatar doctor-avatar--lg">{{ initials(s.doctor) }}</span>
+        <div>
+          <h3>{{ s.doctor }}</h3>
+          <p class="muted">{{ s.raw.doctor.specialty }}</p>
+          <div class="chips">
+            <span class="admin-badge" [class]="statusClass(s.status)">
+              {{ statusKey(s.status) | translate }}
+            </span>
+            <span class="admin-badge">{{ typeKey(s.type) | translate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <ol class="timeline" [attr.aria-label]="'admin.appointments.timeline' | translate">
+        <li class="timeline__item is-done">
+          <span class="timeline__dot"></span>
+          <div>
+            <strong>{{ 'admin.appointments.step.booked' | translate }}</strong>
+            <span class="muted">{{ s.raw.createdAt | date: 'medium' }}</span>
+          </div>
+        </li>
+        <li class="timeline__item" [class.is-done]="s.status === 'CONFIRMED' || s.status === 'CANCELLED'" [class.is-active]="s.status === 'PENDING'">
+          <span class="timeline__dot"></span>
+          <div>
+            <strong>{{ 'admin.appointments.step.review' | translate }}</strong>
+            <span class="muted">{{ statusKey(s.status) | translate }}</span>
+          </div>
+        </li>
+        <li class="timeline__item" [class.is-done]="s.status === 'CONFIRMED'" [class.is-cancel]="s.status === 'CANCELLED'">
+          <span class="timeline__dot"></span>
+          <div>
+            <strong>{{ 'admin.appointments.step.visit' | translate }}</strong>
+            <span class="muted">{{ s.when | date: 'medium' }}</span>
+          </div>
+        </li>
+      </ol>
+
+      <dl class="info-grid">
+        <div>
+          <dt>{{ 'admin.appointments.col.patient' | translate }}</dt>
+          <dd>{{ s.patient }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.appointments.col.when' | translate }}</dt>
+          <dd>{{ s.when | date: 'medium' }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.users.col.email' | translate }}</dt>
+          <dd>{{ s.raw.user.email || '—' }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.users.col.phone' | translate }}</dt>
+          <dd>{{ s.raw.user.phoneNumber || '—' }}</dd>
+        </div>
+        <div>
+          <dt>{{ 'admin.appointments.col.fee' | translate }}</dt>
+          <dd>{{ formatFee(s.raw.feeTomans) }}</dd>
+        </div>
+        @if (s.raw.cancelledAt) {
+          <div>
+            <dt>{{ 'admin.appointments.cancelledAt' | translate }}</dt>
+            <dd>{{ s.raw.cancelledAt | date: 'medium' }}</dd>
+          </div>
+        }
+      </dl>
+
+      <div class="detail__actions">
+        @if (s.status === 'PENDING') {
+          <button
+            type="button"
+            class="admin-btn admin-btn--primary"
+            [disabled]="updating()"
+            (click)="askSetStatus('CONFIRMED')"
+          >
+            {{ 'admin.appointments.confirm' | translate }}
+          </button>
+        }
+        @if (s.status !== 'CANCELLED') {
+          <button
+            type="button"
+            class="admin-btn admin-btn--danger"
+            [disabled]="updating()"
+            (click)="askSetStatus('CANCELLED')"
+          >
+            {{ 'admin.appointments.cancel' | translate }}
+          </button>
+        }
+        <a class="admin-btn" [routerLink]="['/admin/doctors', s.raw.doctor.id]">
+          {{ 'admin.appointments.openDoctor' | translate }}
+        </a>
+        <a class="admin-btn" [routerLink]="['/admin/users', s.raw.user.id]">
+          {{ 'admin.appointments.openPatient' | translate }}
+        </a>
+      </div>
+    </div>
+  }
+</app-admin-drawer>
+
+<app-admin-dialog
+  [open]="actionOpen()"
+  [title]="actionDialogTitleKey() | translate"
+  (closed)="closeActionDialog()"
+>
+  @if (selected(); as s) {
+    <div class="care-confirm">
+      @if (pendingAction() === 'CANCELLED') {
+        <p>{{ 'admin.appointments.cancelConfirm' | translate }}</p>
+        <p class="care-confirm__warn care-confirm__danger">
+          {{ 'admin.appointments.cancelWarn' | translate }}
+        </p>
+      } @else {
+        <p>{{ 'admin.appointments.confirmConfirm' | translate }}</p>
+        <p class="care-confirm__warn">{{ 'admin.appointments.confirmWarn' | translate }}</p>
+      }
+      <p class="muted">
+        <strong>{{ s.doctor }}</strong>
+        · {{ s.patient }}
+        · {{ s.when | date: 'medium' }}
+      </p>
+      <div class="care-form__actions">
+        <button type="button" class="admin-btn" (click)="closeActionDialog()">
+          {{ 'admin.common.close' | translate }}
+        </button>
+        <button
+          type="button"
+          class="admin-btn"
+          [class.admin-btn--primary]="pendingAction() !== 'CANCELLED'"
+          [class.admin-btn--danger]="pendingAction() === 'CANCELLED'"
+          [disabled]="updating()"
+          (click)="confirmAction()"
+        >
+          {{ actionDialogConfirmKey() | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</app-admin-dialog>

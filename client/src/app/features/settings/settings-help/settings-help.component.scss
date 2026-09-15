@@ -1,5 +1,42 @@
 @use '../privacy-settings/privacy-settings.component.scss' as *;
 
-.sub-settings-content ion-button {
+.help-page ion-button {
   margin-bottom: 0.75rem;
+}
+
+.help-actions {
+  background: transparent;
+  margin: 0 0 1.25rem;
+  padding: 0;
+}
+
+.help-actions ion-item {
+  --background: var(--ion-card-background, var(--brand-surface));
+  --padding-start: 0.9rem;
+  --inner-padding-end: 0.75rem;
+  margin-bottom: 0.55rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--brand-text-secondary) 16%, transparent);
+}
+
+.help-actions ion-label h2 {
+  font-size: 1rem;
+  font-weight: 650;
+  margin: 0 0 0.15rem;
+}
+
+.help-actions ion-label p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--brand-text-secondary);
+  white-space: normal;
+}
+
+.section-label {
+  margin: 0 0 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--brand-text-secondary);
 }

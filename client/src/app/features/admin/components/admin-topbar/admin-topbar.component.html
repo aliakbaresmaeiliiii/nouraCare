@@ -4,13 +4,15 @@
       type="button"
       class="topbar__icon-btn topbar__menu"
       (click)="toggleMobileNav()"
-      aria-label="Open navigation"
+      [attr.aria-label]="'admin.topbar.openNav' | translate"
     >
       ☰
     </button>
 
-    <nav class="topbar__crumbs" aria-label="Breadcrumb">
-      <a routerLink="/admin/dashboard" class="topbar__crumb">Admin</a>
+    <nav class="topbar__crumbs" [attr.aria-label]="'admin.topbar.breadcrumb' | translate">
+      <a routerLink="/admin/dashboard" class="topbar__crumb">
+        {{ 'admin.topbar.adminHome' | translate }}
+      </a>
       @for (c of crumbs(); track c.path; let last = $last) {
         <span class="topbar__sep" aria-hidden="true">/</span>
         @if (last) {
@@ -46,7 +48,9 @@
             class="topbar__search-input"
             autofocus
           />
-          <button type="submit" class="topbar__btn topbar__btn--primary">Go</button>
+          <button type="submit" class="topbar__btn topbar__btn--primary">
+            {{ 'admin.topbar.go' | translate }}
+          </button>
         </form>
       }
     </div>
@@ -77,34 +81,74 @@
     <div class="topbar__notif-wrap">
       <button
         type="button"
-        class="topbar__icon-btn"
+        class="topbar__icon-btn topbar__bell"
         (click)="toggleNotifications()"
         [attr.aria-label]="'admin.topbar.notifications' | translate"
+        [attr.aria-expanded]="notificationsOpen()"
       >
-        ⚑
+        <span class="topbar__bell-icon" aria-hidden="true">🔔</span>
         @if (unreadCount() > 0) {
-          <span class="topbar__badge">{{ unreadCount() }}</span>
+          <span class="topbar__dot" aria-hidden="true"></span>
         }
       </button>
       @if (notificationsOpen()) {
-        <div class="topbar__menu-panel topbar__notif-panel" role="dialog">
-          <div class="topbar__panel-head">
+        <div class="notif-panel" role="dialog" [attr.aria-label]="'admin.topbar.notifications' | translate">
+          <header class="notif-panel__head">
             <strong>{{ 'admin.topbar.notifications' | translate }}</strong>
-            <button type="button" class="topbar__linkish" (click)="markAllRead()">
-              {{ 'admin.topbar.markAllRead' | translate }}
+            <button
+              type="button"
+              class="notif-panel__mail"
+              (click)="markAllRead()"
+              [attr.aria-label]="'admin.topbar.markAllRead' | translate"
+              title="{{ 'admin.topbar.markAllRead' | translate }}"
+            >
+              ✉
             </button>
-          </div>
-          <ul class="topbar__notif-list">
+          </header>
+
+          <ul class="notif-panel__list">
             @for (n of notificationItems(); track n.id) {
-              <li [class.topbar__notif--unread]="!n.read">
-                <div class="topbar__notif-title">{{ n.title }}</div>
-                <div class="topbar__notif-body">{{ n.body }}</div>
-                <time>{{ n.at | date: 'MMM d, HH:mm' }}</time>
+              <li
+                class="notif-item"
+                [class.notif-item--unread]="!n.read"
+                [class.notif-item--active]="activeNotifId() === n.id"
+                (click)="onNotifClick(n)"
+              >
+                <span
+                  class="notif-avatar"
+                  [attr.data-tone]="n.avatarTone || 'violet'"
+                  aria-hidden="true"
+                >
+                  @if (n.avatarUrl) {
+                    <img [src]="n.avatarUrl" alt="" />
+                  } @else {
+                    {{ n.avatarInitials || '•' }}
+                  }
+                </span>
+                <div class="notif-item__body">
+                  <p class="notif-item__text">
+                    @if (n.title) {
+                      <strong>{{ n.title }}</strong>
+                    }
+                    {{ n.body }}
+                  </p>
+                  <time>{{ relativeTime(n.at) }}</time>
+                </div>
               </li>
             } @empty {
-              <li class="topbar__notif-empty">No notifications</li>
+              <li class="notif-panel__empty">{{ 'admin.topbar.noNotifications' | translate }}</li>
             }
           </ul>
+
+          <div class="notif-panel__foot">
+            <a
+              routerLink="/admin/notifications"
+              class="notif-panel__cta"
+              (click)="closeNotifications()"
+            >
+              {{ 'admin.topbar.viewAllActivity' | translate }}
+            </a>
+          </div>
         </div>
       }
     </div>
@@ -112,22 +156,44 @@
     <div class="topbar__lang-wrap">
       <button
         type="button"
-        class="topbar__btn topbar__btn--ghost"
+        class="topbar__lang-btn"
         (click)="toggleLang()"
         [attr.aria-label]="'admin.topbar.language' | translate"
+        [attr.aria-expanded]="langOpen()"
       >
-        {{ currentLang()!.toUpperCase() }}
+        <span class="topbar__lang-glyph" aria-hidden="true">文A</span>
+        <span class="topbar__lang-code">{{ currentLangCode() }}</span>
       </button>
       @if (langOpen()) {
-        <div class="topbar__menu-panel" role="menu">
+        <div class="topbar__menu-panel topbar__lang-menu" role="menu">
           @for (lang of languages; track lang.code) {
-            <button type="button" role="menuitem" (click)="setLanguage(lang.code)">
-              {{ lang.flag }} {{ lang.name }}
+            <button
+              type="button"
+              role="menuitem"
+              class="topbar__lang-option"
+              [class.topbar__lang-option--active]="lang.code === currentLang()"
+              (click)="setLanguage(lang.code)"
+            >
+              <span class="topbar__lang-option-code">{{ langCode(lang.code) }}</span>
+              <span class="topbar__lang-option-name">{{ lang.name }}</span>
+              @if (lang.code === currentLang()) {
+                <span class="topbar__lang-option-check" aria-hidden="true">✓</span>
+              }
             </button>
           }
         </div>
       }
     </div>
+
+    <button
+      type="button"
+      class="topbar__icon-btn topbar__icon-btn--accent"
+      (click)="openThemePanel()"
+      [attr.aria-label]="'admin.theme.title' | translate"
+      title="{{ 'admin.theme.title' | translate }}"
+    >
+      ◈
+    </button>
 
     <button
       type="button"
@@ -142,15 +208,24 @@
       {{ theme() === 'light' ? '☾' : '☀' }}
     </button>
 
-    <div class="topbar__user" aria-label="User menu">
+    <div class="topbar__user" [attr.aria-label]="'admin.topbar.userMenu' | translate">
       <span class="topbar__avatar" aria-hidden="true">{{ userInitial() }}</span>
       <div class="topbar__user-meta">
-        <strong>{{ sessionUser()?.fullName || 'Super Admin' }}</strong>
+        <strong>
+          {{ sessionUser()?.fullName || ('admin.topbar.superAdmin' | translate) }}
+        </strong>
         <small>{{ sessionUser()?.email || '' }}</small>
       </div>
     </div>
 
-    <a class="topbar__link" routerLink="/">{{ 'admin.topbar.site' | translate }}</a>
+    <a
+      class="topbar__link"
+      [href]="siteUrl()"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {{ 'admin.topbar.site' | translate }}
+    </a>
     <a class="topbar__link" routerLink="/app">{{ 'admin.topbar.app' | translate }}</a>
   </div>
 </header>

@@ -1,0 +1,210 @@
+<section class="admin-page user-detail">
+  <div class="user-detail__nav">
+    <a routerLink="/admin/users" class="admin-btn">← {{ 'admin.users.back' | translate }}</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-panel" aria-busy="true">
+      <app-admin-skeleton height="6rem" />
+      <app-admin-skeleton height="12rem" />
+    </div>
+  } @else if (error()) {
+    <div class="admin-panel">
+      <p>{{ error()! | translate }}</p>
+      <a routerLink="/admin/users" class="admin-btn admin-btn--primary">
+        {{ 'admin.users.back' | translate }}
+      </a>
+    </div>
+  } @else if (user(); as u) {
+    <header class="user-hero admin-panel">
+      <div class="user-hero__main">
+        <span class="admin-avatar admin-avatar--xl">{{ initials(u.fullName) }}</span>
+        <div>
+          <h1>{{ u.fullName || '—' }}</h1>
+          <p class="muted">{{ u.email }} · {{ u.phoneNumber }}</p>
+          <div class="user-hero__chips">
+            <span class="admin-badge" [class]="statusClass(u.status)">
+              {{ statusKey(u.status) | translate }}
+            </span>
+            <span class="admin-badge">{{ roleKey(u.role) | translate }}</span>
+            @if (u.isVerified) {
+              <span class="admin-badge admin-badge--success">{{ 'admin.users.verified' | translate }}</span>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="user-hero__actions">
+        <button type="button" class="admin-btn admin-btn--primary" (click)="openEdit()">
+          {{ 'admin.users.edit' | translate }}
+        </button>
+        @if (u.status === 'SUSPENDED') {
+          <button type="button" class="admin-btn" [disabled]="saving()" (click)="setStatus('ACTIVE')">
+            {{ 'admin.users.activate' | translate }}
+          </button>
+        } @else {
+          <button type="button" class="admin-btn" [disabled]="saving()" (click)="setStatus('SUSPENDED')">
+            {{ 'admin.users.suspend' | translate }}
+          </button>
+        }
+        <button type="button" class="admin-btn admin-btn--danger" (click)="confirmDelete()">
+          {{ 'admin.users.delete' | translate }}
+        </button>
+      </div>
+    </header>
+
+    <div class="user-detail__grid">
+      <section class="admin-panel">
+        <h2>{{ 'admin.users.section.account' | translate }}</h2>
+        <dl class="info-grid">
+          <div><dt>{{ 'admin.users.col.email' | translate }}</dt><dd>{{ u.email || '—' }}</dd></div>
+          <div><dt>{{ 'admin.users.col.phone' | translate }}</dt><dd>{{ u.phoneNumber || '—' }}</dd></div>
+          <div><dt>{{ 'admin.users.col.role' | translate }}</dt>
+            <dd>{{ roleKey(u.role) | translate }}</dd>
+          </div>
+          <div><dt>{{ 'admin.users.col.status' | translate }}</dt>
+            <dd>
+              <span class="admin-badge" [class]="statusClass(u.status)">
+                {{ statusKey(u.status) | translate }}
+              </span>
+            </dd>
+          </div>
+          <div><dt>{{ 'admin.users.col.registered' | translate }}</dt>
+            <dd>{{ u.createdAt | date: 'medium' }}</dd>
+          </div>
+          <div><dt>{{ 'admin.users.updated' | translate }}</dt>
+            <dd>{{ u.updatedAt | date: 'medium' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="admin-panel">
+        <h2>{{ 'admin.users.section.product' | translate }}</h2>
+        <dl class="info-grid">
+          <div><dt>{{ 'admin.users.col.subscription' | translate }}</dt>
+            <dd>{{ tierKey(u.user_subscription?.tier || 'FREE') | translate }}</dd>
+          </div>
+          <div><dt>{{ 'admin.users.mode' | translate }}</dt>
+            <dd>{{ modeLabel(u.reproductive?.state) }}</dd>
+          </div>
+          <div><dt>{{ 'admin.users.engagement' | translate }}</dt>
+            <dd>{{ u.user_engagement?.engagementTier || '—' }}
+              @if (u.user_engagement?.engagementScore != null) {
+                <span class="muted">({{ u.user_engagement?.engagementScore }})</span>
+              }
+            </dd>
+          </div>
+          <div><dt>{{ 'admin.users.col.lastOpen' | translate }}</dt>
+            <dd>{{ (u.user_engagement?.lastOpenAt || u.updatedAt) | date: 'medium' }}</dd>
+          </div>
+          <div><dt>{{ 'admin.users.growthPoints' | translate }}</dt>
+            <dd>{{ u.user_engagement?.growthPoints ?? 0 }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="admin-panel">
+        <h2>{{ 'admin.users.section.activity' | translate }}</h2>
+        <div class="stat-row">
+          <article>
+            <strong>{{ u._count?.doctor_appointments ?? 0 }}</strong>
+            <span>{{ 'admin.users.stat.appointments' | translate }}</span>
+          </article>
+          <article>
+            <strong>{{ u._count?.forum_threads ?? 0 }}</strong>
+            <span>{{ 'admin.users.stat.threads' | translate }}</span>
+          </article>
+          <article>
+            <strong>{{ u._count?.forum_posts ?? 0 }}</strong>
+            <span>{{ 'admin.users.stat.posts' | translate }}</span>
+          </article>
+          <article>
+            <strong>{{ u._count?.forum_comments ?? 0 }}</strong>
+            <span>{{ 'admin.users.stat.comments' | translate }}</span>
+          </article>
+        </div>
+        <p class="privacy-note">{{ 'admin.users.privacyNote' | translate }}</p>
+      </section>
+    </div>
+  }
+</section>
+
+<app-admin-dialog
+  [open]="editOpen()"
+  [title]="'admin.users.editTitle' | translate"
+  (closed)="editOpen.set(false)"
+>
+  <form class="edit-form" (submit)="$event.preventDefault(); saveEdit()">
+    <label>
+      <span>{{ 'admin.users.col.name' | translate }}</span>
+      <input
+        [(ngModel)]="editFullName"
+        name="fullName"
+        required
+        [placeholder]="'admin.users.placeholder.name' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.email' | translate }}</span>
+      <input
+        [(ngModel)]="editEmail"
+        name="email"
+        type="email"
+        required
+        [placeholder]="'admin.users.placeholder.email' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.phone' | translate }}</span>
+      <input
+        [(ngModel)]="editPhone"
+        name="phone"
+        required
+        [placeholder]="'admin.users.placeholder.phone' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.role' | translate }}</span>
+      <select [(ngModel)]="editRole" name="role">
+        <option value="USER">{{ 'admin.role.USER' | translate }}</option>
+        <option value="ADMIN">{{ 'admin.role.ADMIN' | translate }}</option>
+        <option value="SUPER_ADMIN">{{ 'admin.role.SUPER_ADMIN' | translate }}</option>
+      </select>
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.status' | translate }}</span>
+      <select [(ngModel)]="editStatus" name="status">
+        <option value="ACTIVE">{{ 'admin.status.active' | translate }}</option>
+        <option value="INACTIVE">{{ 'admin.status.inactive' | translate }}</option>
+        <option value="SUSPENDED">{{ 'admin.status.suspended' | translate }}</option>
+      </select>
+    </label>
+    <label class="edit-form__check">
+      <input type="checkbox" [(ngModel)]="editVerified" name="verified" />
+      <span>{{ 'admin.users.verified' | translate }}</span>
+    </label>
+  </form>
+  <div footer>
+    <button type="button" class="admin-btn" (click)="editOpen.set(false)">
+      {{ 'admin.common.close' | translate }}
+    </button>
+    <button type="button" class="admin-btn admin-btn--primary" [disabled]="saving()" (click)="saveEdit()">
+      {{ 'admin.users.save' | translate }}
+    </button>
+  </div>
+</app-admin-dialog>
+
+<app-admin-dialog
+  [open]="deleteOpen()"
+  [title]="'admin.users.deleteTitle' | translate"
+  (closed)="deleteOpen.set(false)"
+>
+  <p>{{ 'admin.users.deleteConfirm' | translate }}</p>
+  <div footer>
+    <button type="button" class="admin-btn" (click)="deleteOpen.set(false)">
+      {{ 'admin.common.close' | translate }}
+    </button>
+    <button type="button" class="admin-btn admin-btn--danger" [disabled]="saving()" (click)="deleteUser()">
+      {{ 'admin.users.delete' | translate }}
+    </button>
+  </div>
+</app-admin-dialog>

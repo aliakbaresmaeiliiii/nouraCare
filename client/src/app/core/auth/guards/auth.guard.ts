@@ -3,9 +3,9 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '@app/core/auth/services/auth';
 
 /**
- * Simple auth guard:
- * - Relies on AuthService.isAuthenticated() (which is driven by token state).
- * - JwtInterceptor handles 401/refresh, so the guard doesn't decode/refresh tokens itself.
+ * Auth guard:
+ * - Allows routes when access token is valid OR a refresh token can restore the session.
+ * - JwtInterceptor refreshes on 401 when needed (including after Add-to-Home-Screen open).
  */
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);

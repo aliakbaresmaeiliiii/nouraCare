@@ -3,10 +3,15 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
+  IsString,
   Max,
+  MaxLength,
   Min,
 } from 'class-validator';
-import { doctor_appointment_status } from '@prisma/client';
+import {
+  doctor_appointment_consultationType,
+  doctor_appointment_status,
+} from '@prisma/client';
 
 export class ListAppointmentsQueryDto {
   @IsOptional()
@@ -25,4 +30,18 @@ export class ListAppointmentsQueryDto {
   @IsOptional()
   @IsEnum(doctor_appointment_status)
   status?: doctor_appointment_status;
+
+  @IsOptional()
+  @IsEnum(doctor_appointment_consultationType)
+  consultationType?: doctor_appointment_consultationType;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  doctorId?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  search?: string;
 }

@@ -1,15 +1,18 @@
 <app-admin-stub-page
-  title="Reports"
-  description="Generate users, revenue, subscriptions, retention, sessions, and growth reports."
-  panelTitle="Export center"
-  panelBody="Download mock report datasets as CSV. PDF/Excel buttons are available as console affordances."
+  title="admin.reports.title"
+  panelTitle="admin.reports.exportCenter"
   relatedPath="/admin/analytics"
-  relatedLabel="Open analytics"
-  [bullets]="['Users & growth exports', 'Revenue & subscriptions', 'Retention & sessions']"
+  relatedLabel="admin.nav.analytics"
 >
   <div actions class="admin-page__actions">
-    <button type="button" class="admin-btn" (click)="exportCsv()">Export CSV</button>
-    <button type="button" class="admin-btn" (click)="exportCsv()">Export Excel</button>
-    <button type="button" class="admin-btn" (click)="pdf()">Export PDF</button>
+    <button type="button" class="admin-btn" (click)="exportCsv()">
+      {{ 'admin.common.exportCsv' | translate }}
+    </button>
+    <button type="button" class="admin-btn" (click)="exportCsv()">
+      {{ 'admin.common.exportExcel' | translate }}
+    </button>
+    <button type="button" class="admin-btn" (click)="pdf()">
+      {{ 'admin.common.exportPdf' | translate }}
+    </button>
   </div>
 </app-admin-stub-page>

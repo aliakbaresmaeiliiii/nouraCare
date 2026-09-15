@@ -786,9 +786,15 @@ export class LoginComponent
   }
 
   private clearStoredOnboardingAfterAuth(): void {
+    // Keep onboarding_completed so Add-to-Home-Screen cold starts do not
+    // treat a returning user as brand-new if tokens are briefly unavailable.
     if (localStorage.getItem('onboarding_data')) {
       localStorage.removeItem('onboarding_data');
-      localStorage.removeItem('onboarding_completed');
+    }
+    try {
+      localStorage.setItem('onboarding_completed', 'true');
+    } catch {
+      /* ignore */
     }
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.removeItem(PENDING_INVITE_CODE_KEY);

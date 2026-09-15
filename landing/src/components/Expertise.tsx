@@ -47,9 +47,18 @@ export function Expertise() {
           </Reveal>
         </div>
 
-        <Reveal delay={0.08} className="mx-auto max-w-[240px] sm:max-w-[280px] lg:max-w-none">
-          <BlobImage src={SCREEN_IMAGES.expertise} alt={t("imageAlt")} />
-        </Reveal>
+        <div className="flex justify-center lg:justify-end">
+          <Reveal
+            delay={0.08}
+            className="w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[420px]"
+          >
+            <BlobImage
+              src={SCREEN_IMAGES.expertise}
+              alt={t("imageAlt")}
+              priority
+            />
+          </Reveal>
+        </div>
       </div>
     </section>
   );

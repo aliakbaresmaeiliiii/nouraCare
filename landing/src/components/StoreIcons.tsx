@@ -1,53 +1,104 @@
+import Image from "next/image";
 import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement>;
 
+/** Official-style Google Play triangle mark */
 export function GooglePlayIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden {...props}>
-      <path fill="#00C3FF" d="M3 3.2v17.6L12.2 12 3 3.2Z" />
-      <path fill="#FFD400" d="M3 3.2 12.2 12l5.1-2.9L19.8 7.5 3 3.2Z" />
-      <path fill="#FF3A44" d="M3 20.8 12.2 12l5.1 2.9 2.5 1.6L3 20.8Z" />
-      <path fill="#00F076" d="M12.2 12 17.3 9.1l2.5-1.6v9l-2.5-1.6L12.2 12Z" />
-    </svg>
-  );
-}
-
-/** Cafe Bazaar brand mark — green tile with white “B” monogram */
-export function CafeBazaarIcon(props: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden {...props}>
-      <rect width="24" height="24" rx="5" fill="#0AAD5A" />
+      <path fill="#00C3FF" d="M3.2 2.1v19.8L13.1 12 3.2 2.1Z" />
+      <path fill="#FFD400" d="M16.7 9.9 13.1 12 3.2 2.1l13.5 7.8Z" />
+      <path fill="#FF3A44" d="M16.7 14.1 3.2 21.9 13.1 12l3.6 2.1Z" />
       <path
-        fill="#fff"
-        d="M7.15 6.25h4.2c2.45 0 4.05 1.4 4.05 3.5 0 1.35-.65 2.4-1.8 2.95l2.35 4.85h-2.45l-2.1-4.5H9.4v4.5H7.15V6.25Zm2.25 1.9v3.1h1.85c1.15 0 1.85-.55 1.85-1.55s-.7-1.55-1.85-1.55H9.4Z"
+        fill="#00F076"
+        d="M20.5 10.95c.7.4.7 1.1 0 1.5l-3.8 2.2L13.1 12l3.6-2.1 3.8 1.05Z"
       />
     </svg>
   );
 }
 
+/** Cafe Bazaar brand mark */
+export function CafeBazaarIcon({ className }: IconProps) {
+  return (
+    <Image
+      src="/cafebazar.png"
+      alt=""
+      width={32}
+      height={32}
+      className={className}
+      aria-hidden
+    />
+  );
+}
+
+/** App Store — blue badge with classic “A” (brush / pen / ruler) mark */
 export function AppStoreIcon(props: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden {...props}>
-      <path d="M16.37 12.74c.03 3.38 2.97 4.51 3 4.52-.03.08-.47 1.6-1.55 3.17-1.07 1.57-2.18 3.13-3.93 3.16-1.72.03-2.28-1.02-4.25-1.02-1.98 0-2.6 1-4.25 1.05-1.7.05-3-1.68-4.08-3.24C-.3 17.56-1.56 12.7.73 9.42c1.14-1.63 2.98-2.66 5.05-2.69 1.58-.03 3.07 1.06 4.05 1.06.98 0 2.81-1.31 4.74-1.12.81.03 3.08.33 4.54 2.46-.12.07-2.71 1.58-2.74 4.61ZM13.9 4.84c.85-1.03 1.43-2.46 1.27-3.89-1.23.05-2.72.82-3.6 1.85-.79.91-1.48 2.37-1.29 3.77 1.36.1 2.76-.7 3.62-1.73Z" />
+    <svg viewBox="0 0 24 24" aria-hidden {...props}>
+      <defs>
+        <linearGradient id="store-appstore-bg" x1="4" y1="2" x2="20" y2="22">
+          <stop stopColor="#5AC8FA" />
+          <stop offset="0.45" stopColor="#007AFF" />
+          <stop offset="1" stopColor="#5856D6" />
+        </linearGradient>
+      </defs>
+      <rect width="24" height="24" rx="5.5" fill="url(#store-appstore-bg)" />
+      {/* Simplified App Store “A” glyph */}
+      <path
+        fill="#fff"
+        d="M12.05 5.2c.28 0 .5.1.66.38l5.55 9.9c.2.36.08.72-.28.9-.12.06-.24.08-.36.08-.22 0-.42-.1-.54-.32l-1.28-2.3H8.2l-1.28 2.3c-.12.22-.32.32-.54.32-.12 0-.24-.02-.36-.08-.36-.18-.48-.54-.28-.9l5.55-9.9c.16-.28.38-.38.66-.38Zm0 2.55L9.45 12.9h5.2L12.05 7.75Z"
+      />
+      <path
+        fill="#fff"
+        fillOpacity="0.92"
+        d="M7.1 16.35h9.8c.42 0 .72.28.72.66 0 .38-.3.66-.72.66H7.1c-.42 0-.72-.28-.72-.66 0-.38.3-.66.72-.66Z"
+      />
     </svg>
   );
 }
 
+/** Web app / PWA — install-to-home mark with brand gradient */
 export function PwaIcon(props: IconProps) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      aria-hidden
-      {...props}
-    >
-      <rect x="3.5" y="4.5" width="17" height="12" rx="2" />
-      <path d="M8 20.5h8M12 16.5v4" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" aria-hidden {...props}>
+      <defs>
+        <linearGradient id="store-pwa-bg" x1="3" y1="2" x2="21" y2="22">
+          <stop stopColor="#818CF8" />
+          <stop offset="0.55" stopColor="#6366F1" />
+          <stop offset="1" stopColor="#4F46E5" />
+        </linearGradient>
+      </defs>
+      <rect width="24" height="24" rx="5.5" fill="url(#store-pwa-bg)" />
+      {/* Device / home screen */}
+      <rect
+        x="6.25"
+        y="4.5"
+        width="11.5"
+        height="15"
+        rx="2.2"
+        fill="none"
+        stroke="#fff"
+        strokeWidth="1.55"
+      />
       <path
-        d="M9.2 9.2 12 12l2.8-2.8M12 12V7.5"
+        d="M10 17.75h4"
+        stroke="#fff"
+        strokeWidth="1.55"
+        strokeLinecap="round"
+      />
+      {/* Install / add-to-home arrow */}
+      <path
+        d="M12 8.1v5.1"
+        stroke="#fff"
+        strokeWidth="1.65"
+        strokeLinecap="round"
+      />
+      <path
+        d="M9.55 11.35 12 13.85l2.45-2.5"
+        fill="none"
+        stroke="#fff"
+        strokeWidth="1.65"
         strokeLinecap="round"
         strokeLinejoin="round"
       />

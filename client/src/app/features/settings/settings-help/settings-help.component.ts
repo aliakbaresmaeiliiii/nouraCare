@@ -1,7 +1,15 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { logoInstagram, mailOutline, paperPlaneOutline } from 'ionicons/icons';
+import {
+  chatbubbleOutline,
+  chatbubblesOutline,
+  helpBuoyOutline,
+  logoInstagram,
+  mailOutline,
+  paperPlaneOutline,
+  refreshOutline,
+} from 'ionicons/icons';
 import { ActionSheetController } from '@ionic/angular/standalone';
 import { TranslationService } from '@app/shared/services/translation.service';
 import { SHARED_STANDALONE_IMPORTS } from '@app/shared/shared-standalone';
@@ -11,7 +19,7 @@ import { SHARED_STANDALONE_IMPORTS } from '@app/shared/shared-standalone';
   templateUrl: './settings-help.component.html',
   styleUrls: ['./settings-help.component.scss'],
   standalone: true,
-  imports: [...SHARED_STANDALONE_IMPORTS],
+  imports: [...SHARED_STANDALONE_IMPORTS, RouterLink],
   host: { class: 'ion-page' },
 })
 export class SettingsHelpComponent {
@@ -20,7 +28,15 @@ export class SettingsHelpComponent {
   private readonly translation = inject(TranslationService);
 
   constructor() {
-    addIcons({ logoInstagram, mailOutline, paperPlaneOutline });
+    addIcons({
+      logoInstagram,
+      mailOutline,
+      paperPlaneOutline,
+      helpBuoyOutline,
+      chatbubblesOutline,
+      chatbubbleOutline,
+      refreshOutline,
+    });
   }
 
   goBack(): void {
@@ -68,14 +84,6 @@ export class SettingsHelpComponent {
       ],
     });
     await sheet.present();
-  }
-
-  openFeedback(): void {
-    const subject = encodeURIComponent('DoreHealth App Feedback');
-    const body = encodeURIComponent(
-      'Hi DoreHealth team,\n\nI would like to share the following feedback:\n\n',
-    );
-    window.open(`mailto:support@dorehealth.app?subject=${subject}&body=${body}`);
   }
 
   private t(key: string): string {

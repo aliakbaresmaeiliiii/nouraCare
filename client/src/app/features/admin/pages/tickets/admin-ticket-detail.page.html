@@ -1,0 +1,140 @@
+<section class="admin-page ticket-detail">
+  <div class="ticket-detail__nav">
+    <a routerLink="/admin/tickets" class="admin-btn">← {{ 'admin.tickets.back' | translate }}</a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-panel" aria-busy="true">
+      <app-admin-skeleton height="5rem" />
+      <app-admin-skeleton height="14rem" />
+    </div>
+  } @else if (error()) {
+    <div class="admin-panel">
+      <p>{{ error()! | translate }}</p>
+      <a routerLink="/admin/tickets" class="admin-btn admin-btn--primary">
+        {{ 'admin.tickets.back' | translate }}
+      </a>
+    </div>
+  } @else if (ticket(); as t) {
+    <header class="admin-panel ticket-hero">
+      <div>
+        <h1>{{ t.subject }}</h1>
+        <p class="muted">
+          {{ t.user.fullName || '—' }}
+          · {{ t.user.email || t.user.phoneNumber || ('#' + t.user.id) }}
+        </p>
+        <div class="chips">
+          <span class="admin-badge">{{ statusKey(t.status) | translate }}</span>
+          <span class="admin-badge">{{ categoryKey(t.category) | translate }}</span>
+          <span class="admin-badge">{{ t.messageCount }} {{ 'admin.tickets.messages' | translate }}</span>
+        </div>
+      </div>
+      <div class="status-box">
+        <label>
+          <span>{{ 'admin.tickets.col.status' | translate }}</span>
+          <select [(ngModel)]="status" name="status">
+            @for (s of statuses; track s) {
+              <option [value]="s">{{ statusKey(s) | translate }}</option>
+            }
+          </select>
+        </label>
+        <button
+          type="button"
+          class="admin-btn admin-btn--primary"
+          (click)="saveStatus()"
+          [disabled]="saving() || status === t.status"
+        >
+          {{ 'admin.tickets.saveStatus' | translate }}
+        </button>
+      </div>
+    </header>
+
+    <div class="ticket-detail__grid">
+      <section class="admin-panel thread-panel">
+        <h2>{{ 'admin.tickets.conversation' | translate }}</h2>
+        <div class="thread">
+          @for (msg of t.messages; track msg.id) {
+            <article
+              class="bubble"
+              [class.bubble--user]="msg.authorRole === 'USER'"
+              [class.bubble--admin]="msg.authorRole === 'ADMIN'"
+            >
+              <div class="bubble__meta">
+                <strong>
+                  {{
+                    msg.authorRole === 'USER'
+                      ? ('admin.tickets.roleUser' | translate)
+                      : ('admin.tickets.roleAdmin' | translate)
+                  }}
+                </strong>
+                <time>{{ msg.createdAt | date: 'medium' }}</time>
+              </div>
+              <p>{{ msg.body }}</p>
+            </article>
+          }
+        </div>
+
+        <div class="reply-box">
+          <label>
+            <span>{{ 'admin.tickets.reply' | translate }}</span>
+            <textarea
+              [(ngModel)]="reply"
+              name="reply"
+              rows="4"
+              [placeholder]="'admin.tickets.replyPlaceholder' | translate"
+              [disabled]="sending() || t.status === 'CLOSED'"
+            ></textarea>
+          </label>
+          <button
+            type="button"
+            class="admin-btn admin-btn--primary"
+            (click)="sendReply()"
+            [disabled]="sending() || !reply.trim() || t.status === 'CLOSED'"
+          >
+            {{ 'admin.tickets.sendReply' | translate }}
+          </button>
+        </div>
+      </section>
+
+      <aside class="admin-panel meta-panel">
+        <h2>{{ 'admin.tickets.meta' | translate }}</h2>
+        <dl class="info-grid">
+          <div>
+            <dt>{{ 'admin.tickets.col.user' | translate }}</dt>
+            <dd>
+              <a [routerLink]="['/admin/users', t.user.id]">{{ t.user.fullName || t.user.id }}</a>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.users.col.email' | translate }}</dt>
+            <dd>{{ t.user.email || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.users.col.phone' | translate }}</dt>
+            <dd>{{ t.user.phoneNumber || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.tickets.created' | translate }}</dt>
+            <dd>{{ t.createdAt | date: 'medium' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.tickets.col.updated' | translate }}</dt>
+            <dd>{{ t.lastMessageAt | date: 'medium' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.tickets.appVersion' | translate }}</dt>
+            <dd>{{ t.appVersion || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.tickets.pagePath' | translate }}</dt>
+            <dd>{{ t.pagePath || '—' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.tickets.device' | translate }}</dt>
+            <dd class="device">{{ t.deviceInfo || '—' }}</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  }
+</section>

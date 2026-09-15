@@ -3,16 +3,22 @@ import {
   Component,
   computed,
   contentChild,
+  inject,
   input,
   output,
   signal,
   TemplateRef,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@app/shared/pipes/translate.pipe';
+import { LanguageService } from '@app/shared/services/language.service';
+import { TranslationService } from '@app/shared/services/translation.service';
 import { downloadCsv } from '../utils/csv.util';
 
 export interface AdminTableColumn<T> {
   key: keyof T & string;
+  /** i18n key (e.g. admin.users.col.name) */
   label: string;
   sortable?: boolean;
   width?: string;
@@ -21,11 +27,17 @@ export interface AdminTableColumn<T> {
 @Component({
   selector: 'app-admin-data-table',
   standalone: true,
-  imports: [FormsModule, NgTemplateOutlet],
+  imports: [FormsModule, NgTemplateOutlet, TranslatePipe],
   templateUrl: './admin-data-table.component.html',
   styleUrl: './admin-data-table.component.scss',
 })
 export class AdminDataTableComponent<T extends { id: string }> {
+  private readonly i18n = inject(TranslationService);
+  private readonly language = inject(LanguageService);
+  private readonly lang = toSignal(this.language.currentLanguage$, {
+    initialValue: this.language.getCurrentLanguage(),
+  });
+
   readonly columns = input.required<AdminTableColumn<T>[]>();
   readonly rows = input.required<T[]>();
   readonly pageSize = input(10);
@@ -76,6 +88,15 @@ export class AdminDataTableComponent<T extends { id: string }> {
     Math.max(1, Math.ceil(this.filtered().length / this.pageSize())),
   );
 
+  readonly pagerLabel = computed(() => {
+    this.lang();
+    return this.i18n.translateParams('admin.table.pager', {
+      count: this.filtered().length,
+      page: this.page(),
+      pages: this.totalPages(),
+    });
+  });
+
   readonly pageRows = computed(() => {
     const p = Math.min(this.page(), this.totalPages());
     const start = (p - 1) * this.pageSize();
@@ -87,6 +108,13 @@ export class AdminDataTableComponent<T extends { id: string }> {
     if (!rows.length) return false;
     const sel = this.selected();
     return rows.every((r) => sel.has(r.id));
+  });
+
+  readonly somePageSelected = computed(() => {
+    const rows = this.pageRows();
+    if (!rows.length || this.allPageSelected()) return false;
+    const sel = this.selected();
+    return rows.some((r) => sel.has(r.id));
   });
 
   setSort(key: string): void {
@@ -136,7 +164,7 @@ export class AdminDataTableComponent<T extends { id: string }> {
     const cols = this.columns();
     downloadCsv(
       this.exportName(),
-      cols.map((c) => c.label),
+      cols.map((c) => this.i18n.translate(c.label)),
       this.filtered().map((row) =>
         cols.map((c) => String((row as Record<string, unknown>)[c.key] ?? '')),
       ),

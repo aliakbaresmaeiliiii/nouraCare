@@ -121,12 +121,23 @@ export class LanguageService {
 
   private applyLanguage(languageCode: string): void {
     this.currentLanguageSubject.next(languageCode);
-    document.documentElement.lang = languageCode;
+    const isRtl =
+      languageCode === 'ar' || languageCode === 'he' || languageCode === 'fa';
+    const dir: 'rtl' | 'ltr' = isRtl ? 'rtl' : 'ltr';
 
-    if (languageCode === 'ar' || languageCode === 'he' || languageCode === 'fa') {
-      document.documentElement.dir = 'rtl';
-    } else {
-      document.documentElement.dir = 'ltr';
+    document.documentElement.lang = languageCode;
+    document.documentElement.dir = dir;
+    document.documentElement.setAttribute('dir', dir);
+
+    if (document.body) {
+      document.body.dir = dir;
+      document.body.setAttribute('dir', dir);
+    }
+
+    // Ionic shell can keep its own dir; keep it in sync with the document.
+    const ionApp = document.querySelector('ion-app');
+    if (ionApp) {
+      ionApp.setAttribute('dir', dir);
     }
   }
 }

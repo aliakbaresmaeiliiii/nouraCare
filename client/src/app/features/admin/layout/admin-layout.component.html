@@ -1,7 +1,12 @@
 <div
   class="admin-shell"
+  [attr.dir]="dir()"
+  [attr.lang]="currentLang()"
   [attr.data-theme]="themeSvc.theme()"
+  [attr.data-accent]="themeSvc.accent()"
   [class.admin-shell--collapsed]="shell.sidebarCollapsed()"
+  [class.admin-shell--boxed]="themeSvc.layout() === 'boxed'"
+  [class.admin-shell--compact]="themeSvc.layout() === 'compact'"
 >
   <app-admin-sidebar class="admin-shell__sidebar" />
 
@@ -15,10 +20,15 @@
 
   @if (shell.mobileNavOpen()) {
     <div class="admin-shell__overlay" (click)="shell.closeMobileNav()" aria-hidden="true"></div>
-    <div class="admin-shell__drawer" role="dialog" aria-label="Navigation">
+    <div
+      class="admin-shell__drawer"
+      role="dialog"
+      [attr.aria-label]="'admin.sidebar.nav' | translate"
+    >
       <app-admin-sidebar [mobile]="true" (closed)="shell.closeMobileNav()" />
     </div>
   }
 
+  <app-admin-theme-panel />
   <app-admin-toast-host />
 </div>

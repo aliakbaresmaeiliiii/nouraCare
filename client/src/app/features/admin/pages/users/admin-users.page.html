@@ -5,6 +5,12 @@
       <p>{{ 'admin.users.subtitle' | translate }}</p>
     </div>
     <div class="admin-page__actions">
+      <button type="button" class="admin-btn admin-btn--primary" (click)="openCreate()">
+        <svg class="btn-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        {{ 'admin.users.create' | translate }}
+      </button>
       <button type="button" class="admin-btn" (click)="exportAll()">
         {{ 'admin.common.exportCsv' | translate }}
       </button>
@@ -16,44 +22,48 @@
 
   <form class="users-filters" (submit)="$event.preventDefault(); applyFilters()">
     <label class="users-filters__grow">
-      <span>Search</span>
+      <span>{{ 'admin.users.search' | translate }}</span>
       <input
         type="search"
         [ngModel]="search()"
         (ngModelChange)="search.set($event)"
         name="search"
-        placeholder="Name, email, or phone"
+        [placeholder]="'admin.users.searchPlaceholder' | translate"
       />
     </label>
     <label>
-      <span>Status</span>
+      <span>{{ 'admin.users.col.status' | translate }}</span>
       <select
         [ngModel]="statusFilter()"
         (ngModelChange)="statusFilter.set($event)"
         name="status"
       >
-        <option value="">All</option>
-        <option value="ACTIVE">Active</option>
-        <option value="INACTIVE">Inactive</option>
-        <option value="SUSPENDED">Suspended</option>
+        <option value="">{{ 'admin.users.filterAll' | translate }}</option>
+        <option value="ACTIVE">{{ 'admin.status.active' | translate }}</option>
+        <option value="INACTIVE">{{ 'admin.status.inactive' | translate }}</option>
+        <option value="SUSPENDED">{{ 'admin.status.suspended' | translate }}</option>
       </select>
     </label>
     <label>
-      <span>Role</span>
+      <span>{{ 'admin.users.col.role' | translate }}</span>
       <select
         [ngModel]="roleFilter()"
         (ngModelChange)="roleFilter.set($event)"
         name="role"
       >
-        <option value="">All</option>
-        <option value="USER">User</option>
-        <option value="ADMIN">Admin</option>
-        <option value="SUPER_ADMIN">Super admin</option>
+        <option value="">{{ 'admin.users.filterAll' | translate }}</option>
+        <option value="USER">{{ 'admin.role.USER' | translate }}</option>
+        <option value="ADMIN">{{ 'admin.role.ADMIN' | translate }}</option>
+        <option value="SUPER_ADMIN">{{ 'admin.role.SUPER_ADMIN' | translate }}</option>
       </select>
     </label>
     <div class="users-filters__actions">
-      <button type="submit" class="admin-btn admin-btn--primary">Apply</button>
-      <button type="button" class="admin-btn" (click)="resetFilters()">Reset</button>
+      <button type="submit" class="admin-btn admin-btn--primary">
+        {{ 'admin.users.apply' | translate }}
+      </button>
+      <button type="button" class="admin-btn" (click)="resetFilters()">
+        {{ 'admin.users.reset' | translate }}
+      </button>
     </div>
   </form>
 
@@ -88,11 +98,53 @@
             </div>
           </div>
         } @else if (column.key === 'status') {
-          <span class="admin-badge" [class]="statusClass(row.status)">{{ row.status }}</span>
+          <span class="admin-badge" [class]="statusClass(row.status)">
+            {{ statusKey(row.status) | translate }}
+          </span>
         } @else if (column.key === 'registeredAt' || column.key === 'lastLoginAt') {
           {{ $any(row)[column.key] | date: 'MMM d, y' }}
-        } @else if (column.key === 'subscription' || column.key === 'role') {
-          <span class="admin-badge">{{ $any(row)[column.key] }}</span>
+        } @else if (column.key === 'role') {
+          <span class="admin-badge">{{ roleKey(row.role) | translate }}</span>
+        } @else if (column.key === 'subscription') {
+          <span class="admin-badge">{{ tierKey(row.subscription) | translate }}</span>
+        } @else if (column.key === 'actions') {
+          <div class="row-actions" (click)="$event.stopPropagation()">
+            <button
+              type="button"
+              class="row-btn row-btn--icon"
+              (click)="goDetail(row, $event)"
+              [attr.title]="'admin.users.view' | translate"
+              [attr.aria-label]="'admin.users.view' | translate"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="row-btn row-btn--icon"
+              (click)="openEdit(row, $event)"
+              [attr.title]="'admin.users.edit' | translate"
+              [attr.aria-label]="'admin.users.edit' | translate"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4.5 19.5h4L19 9l-4-4L4.5 15.5v4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="m13.2 6.8 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="row-btn row-btn--icon row-btn--danger"
+              (click)="openDelete(row, $event)"
+              [attr.title]="'admin.users.delete' | translate"
+              [attr.aria-label]="'admin.users.delete' | translate"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M5 8h14M9.5 8V5.8a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V8M9 11.5v6M12 11.5v6M15 11.5v6M7 8l.8 11.2a1.5 1.5 0 0 0 1.5 1.3h6.4a1.5 1.5 0 0 0 1.5-1.3L18 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
         } @else {
           {{ $any(row)[column.key] }}
         }
@@ -108,7 +160,7 @@
           (click)="prevPage()"
           [disabled]="page() <= 1"
         >
-          Prev
+          {{ 'admin.users.prev' | translate }}
         </button>
         <button
           type="button"
@@ -116,7 +168,7 @@
           (click)="nextPage()"
           [disabled]="page() >= totalPages()"
         >
-          Next
+          {{ 'admin.users.next' | translate }}
         </button>
       </div>
     </div>
@@ -124,7 +176,7 @@
 
   <app-admin-drawer
     [open]="drawerOpen()"
-    [title]="selected()?.name || 'User'"
+    [title]="selected()?.name || ('admin.users.userFallback' | translate)"
     [hasFooter]="true"
     (closed)="drawerOpen.set(false)"
   >
@@ -138,12 +190,34 @@
           </div>
         </div>
         <dl class="detail__grid">
-          <div><dt>Phone</dt><dd>{{ u.phone }}</dd></div>
-          <div><dt>Role</dt><dd>{{ u.role }}</dd></div>
-          <div><dt>Status</dt><dd><span class="admin-badge" [class]="statusClass(u.status)">{{ u.status }}</span></dd></div>
-          <div><dt>Subscription</dt><dd>{{ u.subscription }}</dd></div>
-          <div><dt>Registered</dt><dd>{{ u.registeredAt | date: 'mediumDate' }}</dd></div>
-          <div><dt>Last open</dt><dd>{{ u.lastLoginAt | date: 'medium' }}</dd></div>
+          <div>
+            <dt>{{ 'admin.users.col.phone' | translate }}</dt>
+            <dd>{{ u.phone }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.users.col.role' | translate }}</dt>
+            <dd>{{ roleKey(u.role) | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.users.col.status' | translate }}</dt>
+            <dd>
+              <span class="admin-badge" [class]="statusClass(u.status)">
+                {{ statusKey(u.status) | translate }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.users.col.subscription' | translate }}</dt>
+            <dd>{{ tierKey(u.subscription) | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.users.col.registered' | translate }}</dt>
+            <dd>{{ u.registeredAt | date: 'mediumDate' }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'admin.users.col.lastOpen' | translate }}</dt>
+            <dd>{{ u.lastLoginAt | date: 'medium' }}</dd>
+          </div>
         </dl>
       </div>
     }
@@ -152,14 +226,28 @@
         <button type="button" class="admin-btn" (click)="drawerOpen.set(false)">
           {{ 'admin.common.close' | translate }}
         </button>
+        <button type="button" class="admin-btn" (click)="openEdit(u)">
+          <svg class="btn-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4.5 19.5h4L19 9l-4-4L4.5 15.5v4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="m13.2 6.8 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          {{ 'admin.users.edit' | translate }}
+        </button>
+        <a class="admin-btn admin-btn--primary" [routerLink]="['/admin/users', u.id]">
+          <svg class="btn-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/>
+          </svg>
+          {{ 'admin.users.fullDetail' | translate }}
+        </a>
         @if (u.status === 'suspended') {
           <button
             type="button"
-            class="admin-btn admin-btn--primary"
+            class="admin-btn"
             [disabled]="updating()"
             (click)="setStatus([u.id], 'ACTIVE')"
           >
-            Activate
+            {{ 'admin.users.activate' | translate }}
           </button>
         } @else {
           <button
@@ -168,10 +256,165 @@
             [disabled]="updating()"
             (click)="setStatus([u.id], 'SUSPENDED')"
           >
-            Suspend
+            {{ 'admin.users.suspend' | translate }}
           </button>
         }
       </div>
     }
   </app-admin-drawer>
 </section>
+
+<app-admin-dialog
+  [open]="createOpen()"
+  [title]="'admin.users.createTitle' | translate"
+  (closed)="createOpen.set(false)"
+>
+  <form class="crud-form" (submit)="$event.preventDefault(); saveCreate()">
+    <label>
+      <span>{{ 'admin.users.col.name' | translate }}</span>
+      <input
+        [(ngModel)]="createFullName"
+        name="createName"
+        required
+        [placeholder]="'admin.users.placeholder.name' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.email' | translate }}</span>
+      <input
+        [(ngModel)]="createEmail"
+        name="createEmail"
+        type="email"
+        required
+        [placeholder]="'admin.users.placeholder.email' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.phone' | translate }}</span>
+      <input
+        [(ngModel)]="createPhone"
+        name="createPhone"
+        required
+        [placeholder]="'admin.users.placeholder.phone' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.role' | translate }}</span>
+      <select [(ngModel)]="createRole" name="createRole">
+        <option value="USER">{{ 'admin.role.USER' | translate }}</option>
+        <option value="ADMIN">{{ 'admin.role.ADMIN' | translate }}</option>
+        <option value="SUPER_ADMIN">{{ 'admin.role.SUPER_ADMIN' | translate }}</option>
+      </select>
+    </label>
+  </form>
+  <div footer>
+    <button type="button" class="admin-btn" (click)="createOpen.set(false)">
+      {{ 'admin.common.close' | translate }}
+    </button>
+    <button
+      type="button"
+      class="admin-btn admin-btn--primary"
+      [disabled]="updating()"
+      (click)="saveCreate()"
+    >
+      {{ 'admin.users.create' | translate }}
+    </button>
+  </div>
+</app-admin-dialog>
+
+<app-admin-dialog
+  [open]="editOpen()"
+  [title]="'admin.users.editTitle' | translate"
+  (closed)="editOpen.set(false)"
+>
+  <form class="crud-form" (submit)="$event.preventDefault(); saveEdit()">
+    <label>
+      <span>{{ 'admin.users.col.name' | translate }}</span>
+      <input
+        [(ngModel)]="editFullName"
+        name="editName"
+        required
+        [placeholder]="'admin.users.placeholder.name' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.email' | translate }}</span>
+      <input
+        [(ngModel)]="editEmail"
+        name="editEmail"
+        type="email"
+        required
+        [placeholder]="'admin.users.placeholder.email' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.phone' | translate }}</span>
+      <input
+        [(ngModel)]="editPhone"
+        name="editPhone"
+        required
+        [placeholder]="'admin.users.placeholder.phone' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.role' | translate }}</span>
+      <select [(ngModel)]="editRole" name="editRole">
+        <option value="USER">{{ 'admin.role.USER' | translate }}</option>
+        <option value="ADMIN">{{ 'admin.role.ADMIN' | translate }}</option>
+        <option value="SUPER_ADMIN">{{ 'admin.role.SUPER_ADMIN' | translate }}</option>
+      </select>
+    </label>
+    <label>
+      <span>{{ 'admin.users.col.status' | translate }}</span>
+      <select [(ngModel)]="editStatus" name="editStatus">
+        <option value="ACTIVE">{{ 'admin.status.active' | translate }}</option>
+        <option value="INACTIVE">{{ 'admin.status.inactive' | translate }}</option>
+        <option value="SUSPENDED">{{ 'admin.status.suspended' | translate }}</option>
+      </select>
+    </label>
+    <label class="crud-form__check">
+      <input type="checkbox" [(ngModel)]="editVerified" name="editVerified" />
+      <span>{{ 'admin.users.verified' | translate }}</span>
+    </label>
+  </form>
+  <div footer>
+    <button type="button" class="admin-btn" (click)="editOpen.set(false)">
+      {{ 'admin.common.close' | translate }}
+    </button>
+    <button
+      type="button"
+      class="admin-btn admin-btn--primary"
+      [disabled]="updating()"
+      (click)="saveEdit()"
+    >
+      {{ 'admin.users.save' | translate }}
+    </button>
+  </div>
+</app-admin-dialog>
+
+<app-admin-dialog
+  [open]="deleteOpen()"
+  [title]="'admin.users.deleteTitle' | translate"
+  (closed)="deleteOpen.set(false)"
+>
+  <p>
+    {{ 'admin.users.deleteConfirm' | translate }}
+    @if (selected(); as u) {
+      <strong> {{ u.name }}</strong>
+      <span class="muted"> ({{ u.email }})</span>
+    }
+  </p>
+  <div footer>
+    <button type="button" class="admin-btn" (click)="deleteOpen.set(false)">
+      {{ 'admin.common.close' | translate }}
+    </button>
+    <button
+      type="button"
+      class="admin-btn admin-btn--danger"
+      [disabled]="updating()"
+      (click)="confirmDelete()"
+    >
+      {{ 'admin.users.delete' | translate }}
+    </button>
+  </div>
+</app-admin-dialog>

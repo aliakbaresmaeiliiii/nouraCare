@@ -1,16 +1,19 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-stub-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   template: `
     <section class="admin-page">
       <header class="admin-page__header">
         <div>
-          <h1>{{ title() }}</h1>
-          <p>{{ description() }}</p>
+          <h1>{{ title() | translate }}</h1>
+          @if (description()) {
+            <p>{{ description() | translate }}</p>
+          }
         </div>
         <div class="admin-page__actions">
           <ng-content select="[actions]" />
@@ -19,17 +22,19 @@ import { RouterLink } from '@angular/router';
 
       <div class="admin-grid-2">
         <section class="admin-panel">
-          <h3>{{ panelTitle() }}</h3>
-          <p class="stub-copy">{{ panelBody() }}</p>
+          <h3>{{ panelTitle() | translate }}</h3>
+          <p class="stub-copy">{{ panelBody() | translate }}</p>
           @if (relatedPath()) {
-            <a class="admin-btn admin-btn--primary" [routerLink]="relatedPath()">{{ relatedLabel() }}</a>
+            <a class="admin-btn admin-btn--primary" [routerLink]="relatedPath()">
+              {{ relatedLabel() | translate }}
+            </a>
           }
         </section>
         <section class="admin-panel stub-panel">
-          <h3>Coming next</h3>
+          <h3>{{ 'admin.stub.comingNext' | translate }}</h3>
           <ul>
             @for (item of bullets(); track item) {
-              <li>{{ item }}</li>
+              <li>{{ item | translate }}</li>
             }
           </ul>
         </section>
@@ -40,17 +45,17 @@ import { RouterLink } from '@angular/router';
   styleUrl: './admin-stub-page.component.scss',
 })
 export class AdminStubPageComponent {
+  /** i18n key for page title */
   readonly title = input.required<string>();
+  /** i18n key for subtitle */
   readonly description = input('');
-  readonly panelTitle = input('Overview');
-  readonly panelBody = input(
-    'This section is scaffolded and ready for deeper charts and workflows.',
-  );
+  readonly panelTitle = input('admin.stub.overview');
+  readonly panelBody = input('admin.stub.panelBody');
   readonly relatedPath = input('');
-  readonly relatedLabel = input('Open related view');
+  readonly relatedLabel = input('admin.stub.openRelated');
   readonly bullets = input<string[]>([
-    'Mock-data services already power related priority pages',
-    'Wire real APIs without changing the shell',
-    'Extend with feature-specific tables and exports',
+    'admin.stub.bullet1',
+    'admin.stub.bullet2',
+    'admin.stub.bullet3',
   ]);
 }

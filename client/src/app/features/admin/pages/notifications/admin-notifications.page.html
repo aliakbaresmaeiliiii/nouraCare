@@ -1,0 +1,35 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <h1>{{ 'admin.topbar.notifications' | translate }}</h1>
+      <p>{{ 'admin.notifications.pageSubtitle' | translate }}</p>
+    </div>
+    <div class="admin-page__actions">
+      <button type="button" class="admin-btn" (click)="markAll()">
+        {{ 'admin.topbar.markAllRead' | translate }}
+      </button>
+      <a routerLink="/admin/dashboard" class="admin-btn">{{ 'admin.nav.dashboard' | translate }}</a>
+    </div>
+  </header>
+
+  <div class="admin-panel list">
+    @for (n of items(); track n.id) {
+      <article class="row" [class.row--unread]="!n.read" (click)="markOne(n.id)">
+        <span class="avatar" [attr.data-tone]="n.avatarTone || 'violet'">
+          {{ n.avatarInitials || '•' }}
+        </span>
+        <div>
+          <p>
+            @if (n.title) {
+              <strong>{{ n.title }}</strong>
+            }
+            {{ n.body }}
+          </p>
+          <time>{{ relative(n.at) }}</time>
+        </div>
+      </article>
+    } @empty {
+      <p class="empty">{{ 'admin.topbar.noNotifications' | translate }}</p>
+    }
+  </div>
+</section>

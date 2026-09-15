@@ -5,7 +5,7 @@ Internal operations console for DoreHealth. Separate from the Ionic consumer app
 ## Run locally
 
 1. Start the API (`server/`) on port `3000`.
-2. Promote an admin (seed already creates `admin@dorehealth.app`, or set `ADMIN_EMAILS` and re-seed / update role in DB).
+2. Promote an admin (seed creates `admin@dorehealth.app` and promotes `aliakbaresmaeili98@gmail.com` if that user exists; or set `SUPER_ADMIN_EMAILS` / `ADMIN_EMAILS` and re-seed / run `npx ts-node prisma/promote-super-admin.ts`).
 3. From this folder:
 
 ```bash

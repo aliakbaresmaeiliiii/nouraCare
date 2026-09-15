@@ -28,30 +28,32 @@
   } @else if (health(); as h) {
     <div class="health-banner" [class]="'health-banner--' + h.status">
       <div>
-        <strong>System {{ h.status }}</strong>
-        <p>Last checked {{ h.checkedAt | date: 'medium' }}</p>
+        <strong>{{ systemStatusLabel(h.status) }}</strong>
+        <p>{{ lastCheckedLabel(h.checkedAt) }}</p>
       </div>
-      <span class="admin-badge" [class]="statusClass(h.status)">{{ h.status }}</span>
+      <span class="admin-badge" [class]="statusClass(h.status)">
+        {{ statusLabel(h.status) }}
+      </span>
     </div>
 
     <div class="admin-grid-3">
       <app-admin-metric-card
-        label="API"
-        [value]="h.status"
-        [badge]="h.status"
-        [sub]="(h.checkedAt | date: 'medium') || ''"
+        [label]="'admin.health.api' | translate"
+        [value]="statusLabel(h.status)"
+        [badge]="statusLabel(h.status)"
+        [sub]="checkedAtMedium(h.checkedAt)"
       />
       <app-admin-metric-card
-        label="Database"
-        [value]="h.database"
-        [badge]="h.database"
-        [sub]="(h.latencyMs ?? 0) + ' ms latency'"
+        [label]="'admin.health.database' | translate"
+        [value]="statusLabel(h.database)"
+        [badge]="statusLabel(h.database)"
+        [sub]="latencyLabel(h.latencyMs)"
       />
       <app-admin-trend-card
-        label="Uptime"
+        [label]="'admin.health.uptime' | translate"
         [value]="uptimeLabel()"
         [progress]="uptimeProgress()"
-        caption="Process uptime"
+        [caption]="'admin.health.uptimeCaption' | translate"
       />
     </div>
   }

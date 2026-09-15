@@ -1,0 +1,90 @@
+@if (themeSvc.themePanelOpen()) {
+  <div class="theme-backdrop" (click)="close()" aria-hidden="true"></div>
+  <aside class="theme-panel" role="dialog" [attr.aria-label]="'admin.theme.title' | translate">
+    <header class="theme-panel__head">
+      <h2>{{ 'admin.theme.title' | translate }}</h2>
+      <button
+        type="button"
+        class="theme-panel__close"
+        (click)="close()"
+        [attr.aria-label]="'admin.common.close' | translate"
+      >
+        ✕
+      </button>
+    </header>
+
+    <div class="theme-panel__body">
+      <section class="theme-panel__section">
+        <div class="theme-panel__row">
+          <div>
+            <strong>{{ 'admin.theme.darkMode' | translate }}</strong>
+            <p>{{ 'admin.theme.darkModeHint' | translate }}</p>
+          </div>
+          <button
+            type="button"
+            class="theme-switch"
+            [class.theme-switch--on]="themeSvc.theme() === 'dark'"
+            (click)="setDark(themeSvc.theme() !== 'dark')"
+            [attr.aria-pressed]="themeSvc.theme() === 'dark'"
+          >
+            <span class="theme-switch__knob"></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="theme-panel__section">
+        <strong>{{ 'admin.theme.direction' | translate }}</strong>
+        <p>{{ 'admin.theme.directionHint' | translate }}</p>
+        <div class="theme-panel__seg">
+          <button
+            type="button"
+            [class.is-active]="isRtl()"
+            (click)="setDir('rtl')"
+          >
+            {{ 'admin.theme.rtl' | translate }}
+          </button>
+          <button
+            type="button"
+            [class.is-active]="!isRtl()"
+            (click)="setDir('ltr')"
+          >
+            {{ 'admin.theme.ltr' | translate }}
+          </button>
+        </div>
+      </section>
+
+      <section class="theme-panel__section">
+        <strong>{{ 'admin.theme.accent' | translate }}</strong>
+        <div class="theme-panel__swatches">
+          @for (a of accents; track a.id) {
+            <button
+              type="button"
+              class="theme-swatch"
+              [class.is-active]="themeSvc.accent() === a.id"
+              [style.--swatch]="a.color"
+              (click)="setAccent(a.id)"
+              [attr.aria-label]="a.id"
+            ></button>
+          }
+        </div>
+      </section>
+
+      <section class="theme-panel__section">
+        <strong>{{ 'admin.theme.layout' | translate }}</strong>
+        <div class="theme-panel__layouts">
+          @for (l of layouts; track l.id) {
+            <button
+              type="button"
+              class="theme-layout"
+              [class.is-active]="themeSvc.layout() === l.id"
+              (click)="setLayout(l.id)"
+            >
+              <span class="theme-layout__preview" [attr.data-layout]="l.id"></span>
+              <span>{{ l.labelKey | translate }}</span>
+            </button>
+          }
+        </div>
+      </section>
+    </div>
+  </aside>
+}

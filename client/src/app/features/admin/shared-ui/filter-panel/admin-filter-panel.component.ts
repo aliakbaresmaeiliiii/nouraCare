@@ -1,30 +1,33 @@
 import { Component, model, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-filter-panel',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, TranslatePipe],
   template: `
     <div class="filters">
       <label>
-        <span>From</span>
+        <span>{{ 'admin.filter.from' | translate }}</span>
         <input type="date" [(ngModel)]="from" (ngModelChange)="emit()" />
       </label>
       <label>
-        <span>To</span>
+        <span>{{ 'admin.filter.to' | translate }}</span>
         <input type="date" [(ngModel)]="to" (ngModelChange)="emit()" />
       </label>
       <label class="filters__grow">
-        <span>Query</span>
+        <span>{{ 'admin.filter.query' | translate }}</span>
         <input
           type="search"
           [(ngModel)]="query"
           (ngModelChange)="emit()"
-          placeholder="Filter…"
+          [placeholder]="'admin.filter.placeholder' | translate"
         />
       </label>
-      <button type="button" class="filters__reset" (click)="reset()">Reset</button>
+      <button type="button" class="filters__reset" (click)="reset()">
+        {{ 'admin.users.reset' | translate }}
+      </button>
     </div>
   `,
   styles: `

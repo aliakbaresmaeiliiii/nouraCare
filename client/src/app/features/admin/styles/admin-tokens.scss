@@ -1,54 +1,119 @@
-// Shared admin design tokens — aligned with app brand (`theme/variables.scss`)
+// Soft modern admin tokens — light SaaS console (reference-aligned)
+
 @mixin admin-theme-light {
-  --admin-bg: var(--brand-bg, #f8fafc);
-  --admin-surface: var(--brand-surface, #ffffff);
-  --admin-surface-2: #eef2ff;
-  --admin-ink: var(--brand-text, #0f172a);
-  --admin-muted: var(--brand-text-secondary, #334155);
+  --admin-bg: #f8fafc;
+  --admin-surface: #ffffff;
+  --admin-surface-2: #f1f5f9;
+  --admin-ink: #0f172a;
+  --admin-muted: #64748b;
   --admin-line: #e2e8f0;
-  --admin-accent: var(--brand-primary, #6366f1);
-  --admin-accent-soft: rgba(var(--brand-primary-rgb, 99, 102, 241), 0.12);
-  --admin-accent-hover: var(--brand-primary-dark, #4f46e5);
-  --admin-secondary: var(--brand-secondary, #14b8a6);
-  --admin-gold: var(--brand-accent, #ffd700);
-  --admin-success: #2dd36f;
+  /* Brand primary — matches app --brand-primary */
+  --admin-accent: #6366f1;
+  --admin-accent-rgb: 99, 102, 241;
+  --admin-accent-soft: rgba(99, 102, 241, 0.12);
+  --admin-accent-hover: #4f46e5;
+  --admin-secondary: #14b8a6;
+  --admin-gold: #f5b942;
+  --admin-success: #16a34a;
   --admin-warning: #d97706;
-  --admin-danger: #c21e56;
+  --admin-danger: #e11d48;
   --admin-info: #0284c7;
-  --admin-sidebar-bg: var(--navy-shell-950, #050a1a);
-  --admin-sidebar-ink: #e8eefc;
-  --admin-sidebar-muted: rgba(232, 238, 252, 0.55);
-  --admin-sidebar-hover: rgba(255, 255, 255, 0.06);
-  --admin-sidebar-active: rgba(var(--brand-primary-rgb, 99, 102, 241), 0.28);
-  --admin-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(99, 102, 241, 0.06);
-  --admin-radius: 0.75rem;
-  --admin-radius-sm: 0.5rem;
-  --admin-font: 'Sora', 'Vazirmatn', system-ui, sans-serif;
-  --admin-sidebar-w: 260px;
-  --admin-sidebar-collapsed-w: 72px;
-  --admin-topbar-h: 3.5rem;
+  --admin-sidebar-bg: #ffffff;
+  --admin-sidebar-ink: #0f172a;
+  --admin-sidebar-muted: #94a3b8;
+  --admin-sidebar-hover: #eef2ff;
+  --admin-sidebar-active: rgba(99, 102, 241, 0.12);
+  --admin-sidebar-active-ink: #4f46e5;
+  --admin-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 8px 28px rgba(15, 23, 42, 0.05);
+  --admin-shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.1);
+  --admin-radius: 1rem;
+  --admin-radius-sm: 0.65rem;
+  --admin-font: 'Vazirmatn', 'Sora', system-ui, sans-serif;
+  --admin-sidebar-w: 268px;
+  --admin-sidebar-collapsed-w: 78px;
+  --admin-topbar-h: 3.75rem;
 }
 
 @mixin admin-theme-dark {
-  --admin-bg: var(--navy-shell-950, #050a1a);
-  --admin-surface: var(--navy-shell-900, #191e2c);
-  --admin-surface-2: var(--navy-shell-850, #232735);
-  --admin-ink: #e2e8f0;
-  --admin-muted: #94a3b8;
-  --admin-line: var(--navy-shell-750, #3c404c);
+  --admin-bg: #050a1a;
+  --admin-surface: #151a27;
+  --admin-surface-2: #1c2233;
+  --admin-ink: #e8eaf2;
+  --admin-muted: #9aa3b8;
+  --admin-line: #2a3144;
   --admin-accent: #818cf8;
-  --admin-accent-soft: rgba(129, 140, 248, 0.16);
+  --admin-accent-rgb: 129, 140, 248;
+  --admin-accent-soft: rgba(129, 140, 248, 0.18);
   --admin-accent-hover: #a5b4fc;
   --admin-secondary: #2dd4bf;
-  --admin-gold: #ffd700;
-  --admin-success: #34d399;
+  --admin-gold: #f5b942;
+  --admin-success: #4ade80;
   --admin-warning: #fbbf24;
-  --admin-danger: #f87171;
+  --admin-danger: #fb7185;
   --admin-info: #38bdf8;
-  --admin-sidebar-bg: #030712;
-  --admin-sidebar-ink: #e8eefc;
-  --admin-sidebar-muted: rgba(232, 238, 252, 0.5);
-  --admin-sidebar-hover: rgba(255, 255, 255, 0.06);
-  --admin-sidebar-active: rgba(129, 140, 248, 0.28);
-  --admin-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  --admin-sidebar-bg: #0c1120;
+  --admin-sidebar-ink: #e8eaf2;
+  --admin-sidebar-muted: #8b92a8;
+  --admin-sidebar-hover: rgba(129, 140, 248, 0.1);
+  --admin-sidebar-active: rgba(129, 140, 248, 0.22);
+  --admin-sidebar-active-ink: #c7d2fe;
+  --admin-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px rgba(0, 0, 0, 0.28);
+  --admin-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+// Accent overrides applied via data-accent on .admin-shell
+@mixin admin-accent-violet {
+  /* Brand indigo (default / main) */
+  --admin-accent: #6366f1;
+  --admin-accent-rgb: 99, 102, 241;
+  --admin-accent-soft: rgba(99, 102, 241, 0.12);
+  --admin-accent-hover: #4f46e5;
+  --admin-sidebar-active: rgba(99, 102, 241, 0.12);
+  --admin-sidebar-active-ink: #4f46e5;
+}
+
+@mixin admin-accent-violet-dark {
+  --admin-accent: #818cf8;
+  --admin-accent-rgb: 129, 140, 248;
+  --admin-accent-soft: rgba(129, 140, 248, 0.18);
+  --admin-accent-hover: #a5b4fc;
+  --admin-sidebar-active: rgba(129, 140, 248, 0.22);
+  --admin-sidebar-active-ink: #c7d2fe;
+}
+
+@mixin admin-accent-orange {
+  --admin-accent: #f97316;
+  --admin-accent-rgb: 249, 115, 22;
+  --admin-accent-soft: rgba(249, 115, 22, 0.12);
+  --admin-accent-hover: #ea580c;
+  --admin-sidebar-active: rgba(249, 115, 22, 0.12);
+  --admin-sidebar-active-ink: #ea580c;
+}
+
+@mixin admin-accent-green {
+  /* Brand secondary teal */
+  --admin-accent: #14b8a6;
+  --admin-accent-rgb: 20, 184, 166;
+  --admin-accent-soft: rgba(20, 184, 166, 0.12);
+  --admin-accent-hover: #0d9488;
+  --admin-sidebar-active: rgba(20, 184, 166, 0.12);
+  --admin-sidebar-active-ink: #0d9488;
+}
+
+@mixin admin-accent-slate {
+  --admin-accent: #0f172a;
+  --admin-accent-rgb: 15, 23, 42;
+  --admin-accent-soft: rgba(15, 23, 42, 0.1);
+  --admin-accent-hover: #020617;
+  --admin-sidebar-active: rgba(15, 23, 42, 0.1);
+  --admin-sidebar-active-ink: #0f172a;
+}
+
+@mixin admin-accent-blue {
+  --admin-accent: #2563eb;
+  --admin-accent-rgb: 37, 99, 235;
+  --admin-accent-soft: rgba(37, 99, 235, 0.12);
+  --admin-accent-hover: #1d4ed8;
+  --admin-sidebar-active: rgba(37, 99, 235, 0.12);
+  --admin-sidebar-active-ink: #2563eb;
 }

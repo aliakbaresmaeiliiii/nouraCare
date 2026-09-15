@@ -13,6 +13,10 @@ import { JwtPayload, TokenResponse } from '@app/core/auth/models/token.interface
 import {
   DEFAULT_APP_LANGUAGE,
 } from '@app/shared/services/language.service';
+import {
+  markHasRegisteredAccount,
+  readStoredRefreshToken,
+} from '@app/core/auth/utils/auth-session.util';
 
 @Injectable({
   providedIn: 'root',
@@ -48,23 +52,42 @@ export class AuthService {
   }
 
   /**
-   * Initialize tokens from storage
+   * Initialize tokens from storage.
+   * Keep refreshable sessions across PWA / Add-to-Home-Screen cold starts
+   * (do not wipe an expired access token when a refresh token still exists).
    */
   private initializeTokens(): void {
-    if (typeof window !== 'undefined') {
-      // Get access token from storage
-      const accessToken = localStorage.getItem('accessToken');
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const accessToken = localStorage.getItem('accessToken');
+    const refreshToken = readStoredRefreshToken();
+
+    if (accessToken && this.isTokenValid(accessToken)) {
+      this.isAuthenticatedSubject.next(true);
+      this.accessTokenSubject.next(accessToken);
+      this.attachSessionVerifyOnAppVisible();
+      return;
+    }
+
+    if (refreshToken) {
+      markHasRegisteredAccount();
+      this.isAuthenticatedSubject.next(true);
       if (accessToken) {
-        // Check if access token is still valid
-        if (this.isTokenValid(accessToken)) {
-          this.isAuthenticatedSubject.next(true);
-          this.accessTokenSubject.next(accessToken);
-          this.attachSessionVerifyOnAppVisible();
-        } else {
-          // Access token expired, clear everything
-          this.clearTokens();
-        }
+        this.accessTokenSubject.next(accessToken);
       }
+      this.refreshToken().subscribe({
+        error: () => {
+          /* refreshToken() clears invalid sessions */
+        },
+      });
+      this.attachSessionVerifyOnAppVisible();
+      return;
+    }
+
+    if (accessToken) {
+      this.clearTokens();
     }
   }
 
@@ -233,6 +256,7 @@ export class AuthService {
           refreshToken: response.data.refreshToken,
         }),
       );
+      markHasRegisteredAccount();
     }
     this.isAuthenticatedSubject.next(true);
     this.setUserInfoFromToken(accessToken);
@@ -261,9 +285,7 @@ export class AuthService {
    * Refresh access token using refresh token
    */
   refreshToken(): Observable<TokenResponse> {
-    const refreshToken = JSON.parse(
-      localStorage.getItem('userInfo') || '{}',
-    )?.refreshToken;
+    const refreshToken = readStoredRefreshToken();
 
     if (!refreshToken) {
       return throwError(() => new Error('No refresh token available'));
@@ -345,18 +367,27 @@ export class AuthService {
     }
   }
   /**
-   * Clear all tokens and reset authentication state
+   * Clear all tokens and reset authentication state.
+   * Keeps `dorehealth.hasAccount` so cold starts still open sign-in, not onboarding.
    */
   private clearTokens(): void {
     // Clear access token from memory
     this.accessTokenSubject.next(null);
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('accessToken');
-    }
-
-    // Clear token from secure storage
-    if (typeof window !== 'undefined') {
       localStorage.removeItem('accessToken');
+      // Drop refresh token so a dead session cannot look "refreshable"
+      try {
+        const raw = localStorage.getItem('userInfo');
+        if (raw) {
+          const parsed = JSON.parse(raw) as Record<string, unknown>;
+          delete parsed['refreshToken'];
+          delete parsed['accessToken'];
+          localStorage.setItem('userInfo', JSON.stringify(parsed));
+        }
+      } catch {
+        localStorage.removeItem('userInfo');
+      }
     }
 
     // Reset authentication state
@@ -377,10 +408,19 @@ export class AuthService {
   }
 
   /**
-   * Check if user is authenticated
+   * Check if user is authenticated (valid access token, or refreshable session).
    */
   isAuthenticated(): boolean {
-    return !!this.getAccessToken();
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken && this.isTokenValid(accessToken)) {
+      return true;
+    }
+    return !!readStoredRefreshToken();
+  }
+
+  /** True when a refresh token is stored (session can be restored). */
+  hasRefreshToken(): boolean {
+    return !!readStoredRefreshToken();
   }
 
   /**

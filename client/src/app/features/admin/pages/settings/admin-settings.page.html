@@ -1,67 +1,75 @@
 <section class="admin-page">
   <header class="admin-page__header">
     <div>
-      <h1>Settings</h1>
-      <p>General, appearance, localization, flags, API keys, SMTP, and security.</p>
+      <h1>{{ 'admin.settings.title' | translate }}</h1>
+      <p>{{ 'admin.settings.subtitle' | translate }}</p>
     </div>
     <div class="admin-page__actions">
-      <button type="button" class="admin-btn admin-btn--primary" (click)="save()">Save changes</button>
+      <button type="button" class="admin-btn admin-btn--primary" (click)="save()">
+        {{ 'admin.settings.save' | translate }}
+      </button>
     </div>
   </header>
 
   <div class="admin-tabs">
-    @for (t of [
-      ['general', 'General'],
-      ['appearance', 'Appearance'],
-      ['localization', 'Localization'],
-      ['flags', 'Feature Flags'],
-      ['keys', 'API Keys'],
-      ['smtp', 'SMTP'],
-      ['security', 'Security']
-    ]; track t[0]) {
+    @for (t of tabs; track t.id) {
       <button
         type="button"
         class="admin-tab"
-        [class.admin-tab--active]="tab() === t[0]"
-        (click)="tab.set($any(t[0]))"
+        [class.admin-tab--active]="tab() === t.id"
+        (click)="tab.set(t.id)"
       >
-        {{ t[1] }}
+        {{ t.labelKey | translate }}
       </button>
     }
   </div>
 
   <section class="admin-panel settings-panel">
     @if (tab() === 'general') {
-      <label>Organization <input [(ngModel)]="orgName" /></label>
-      <label>Support email <input [(ngModel)]="supportEmail" /></label>
+      <label>
+        {{ 'admin.settings.orgName' | translate }}
+        <input [(ngModel)]="orgName" />
+      </label>
+      <label>
+        {{ 'admin.settings.supportEmail' | translate }}
+        <input [(ngModel)]="supportEmail" />
+      </label>
     }
     @if (tab() === 'appearance') {
       <div class="theme-row">
-        <button type="button" class="admin-btn" (click)="setTheme('light')">Light</button>
-        <button type="button" class="admin-btn" (click)="setTheme('dark')">Dark</button>
+        <button type="button" class="admin-btn" (click)="setTheme('light')">
+          {{ 'admin.settings.themeLight' | translate }}
+        </button>
+        <button type="button" class="admin-btn" (click)="setTheme('dark')">
+          {{ 'admin.settings.themeDark' | translate }}
+        </button>
       </div>
     }
     @if (tab() === 'localization') {
-      <label>Locale
+      <label>
+        {{ 'admin.settings.locale' | translate }}
         <select [(ngModel)]="locale">
-          <option value="en">English</option>
-          <option value="fa">Persian</option>
-          <option value="ms">Malay</option>
-          <option value="zh">Chinese</option>
+          <option value="en">{{ 'admin.settings.lang.en' | translate }}</option>
+          <option value="fa">{{ 'admin.settings.lang.fa' | translate }}</option>
+          <option value="ms">{{ 'admin.settings.lang.ms' | translate }}</option>
+          <option value="zh">{{ 'admin.settings.lang.zh' | translate }}</option>
         </select>
       </label>
-      <label>Timezone <input [(ngModel)]="timezone" /></label>
+      <label>
+        {{ 'admin.settings.timezone' | translate }}
+        <input [(ngModel)]="timezone" />
+      </label>
     }
     @if (tab() === 'flags') {
       <ul class="flag-list">
         @for (f of flags(); track f.key) {
           <li>
             <div>
-              <strong>{{ f.label }}</strong>
+              <strong>{{ f.labelKey | translate }}</strong>
               <small>{{ f.key }}</small>
             </div>
             <button type="button" class="admin-btn" (click)="toggleFlag(f.key)">
-              {{ f.enabled ? 'On' : 'Off' }}
+              {{ (f.enabled ? 'admin.settings.on' : 'admin.settings.off') | translate }}
             </button>
           </li>
         }
@@ -69,27 +77,38 @@
     }
     @if (tab() === 'keys') {
       <ul class="flag-list">
-        @for (k of apiKeys; track k.name) {
+        @for (k of apiKeys; track k.nameKey) {
           <li>
             <div>
-              <strong>{{ k.name }}</strong>
-              <small>{{ k.key }} · created {{ k.created }}</small>
+              <strong>{{ k.nameKey | translate }}</strong>
+              <small>
+                {{ k.key }} · {{ 'admin.settings.created' | translate }} {{ k.created }}
+              </small>
             </div>
-            <span class="admin-badge">Masked</span>
+            <span class="admin-badge">{{ 'admin.settings.masked' | translate }}</span>
           </li>
         }
       </ul>
     }
     @if (tab() === 'smtp') {
-      <label>Host <input [(ngModel)]="smtpHost" /></label>
-      <label>Port <input [(ngModel)]="smtpPort" /></label>
+      <label>
+        {{ 'admin.settings.smtpHost' | translate }}
+        <input [(ngModel)]="smtpHost" />
+      </label>
+      <label>
+        {{ 'admin.settings.smtpPort' | translate }}
+        <input [(ngModel)]="smtpPort" />
+      </label>
     }
     @if (tab() === 'security') {
       <label class="check">
         <input type="checkbox" [(ngModel)]="twoFaRequired" />
-        Require 2FA for admins
+        {{ 'admin.settings.require2fa' | translate }}
       </label>
-      <label>Session timeout <input [(ngModel)]="sessionTimeout" /></label>
+      <label>
+        {{ 'admin.settings.sessionTimeout' | translate }}
+        <input [(ngModel)]="sessionTimeout" />
+      </label>
     }
   </section>
 </section>

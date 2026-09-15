@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
@@ -7,6 +6,7 @@ import { TranslatePipe } from '@app/shared/pipes/translate.pipe';
 import { LanguageService } from '@app/shared/services/language.service';
 import { TranslationService } from '@app/shared/services/translation.service';
 import { ADMIN_BREADCRUMB_KEYS } from '../../data/nav.config';
+import { AdminNotificationItem } from '../../data/models/admin.models';
 import { AdminNotificationsService } from '../../data/services/admin-notifications.service';
 import { AdminSessionService } from '../../data/services/admin-session.service';
 import { AdminShellService } from '../../data/services/admin-shell.service';
@@ -16,7 +16,7 @@ import { AdminToastService } from '../../data/services/admin-toast.service';
 @Component({
   selector: 'app-admin-topbar',
   standalone: true,
-  imports: [RouterLink, DatePipe, TranslatePipe],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './admin-topbar.component.html',
   styleUrl: './admin-topbar.component.scss',
 })
@@ -36,12 +36,28 @@ export class AdminTopbarComponent {
   readonly searchOpen = this.shell.searchOpen;
   readonly quickActionsOpen = this.shell.quickActionsOpen;
   readonly langOpen = signal(false);
+  readonly activeNotifId = signal<string | null>(null);
   readonly notificationItems = this.notifications.items;
   readonly sessionUser = this.session.me;
   readonly languages = this.language.getMarketingLanguages();
   readonly currentLang = toSignal(this.language.currentLanguage$, {
     initialValue: this.language.getCurrentLanguage(),
   });
+
+  readonly currentLangCode = computed(() =>
+    this.langCode(this.currentLang() || 'fa'),
+  );
+
+  /** Marketing landing site (Next.js). */
+  readonly siteUrl = computed(() => {
+    const lang = this.currentLang() || 'fa';
+    const locale = ['fa', 'en', 'zh', 'ms'].includes(lang) ? lang : 'fa';
+    return `https://dorehealth.ir/${locale}`;
+  });
+
+  langCode(code: string): string {
+    return code.toUpperCase();
+  }
 
   readonly userInitial = computed(() => {
     const name = this.sessionUser()?.fullName?.trim() || 'S';
@@ -72,12 +88,23 @@ export class AdminTopbarComponent {
   });
 
   readonly pageTitle = computed(() => {
+    this.currentLang();
     const list = this.crumbs();
-    return list.length ? list[list.length - 1].label : 'Admin';
+    return list.length
+      ? list[list.length - 1].label
+      : this.i18n.translate('admin.topbar.adminHome');
   });
 
   toggleTheme(): void {
     this.themeSvc.toggle();
+  }
+
+  openThemePanel(): void {
+    this.shell.searchOpen.set(false);
+    this.shell.notificationsOpen.set(false);
+    this.shell.quickActionsOpen.set(false);
+    this.langOpen.set(false);
+    this.themeSvc.openThemePanel();
   }
 
   toggleMobileNav(): void {
@@ -98,6 +125,10 @@ export class AdminTopbarComponent {
     this.langOpen.set(false);
   }
 
+  closeNotifications(): void {
+    this.shell.notificationsOpen.set(false);
+  }
+
   toggleQuickActions(): void {
     this.shell.quickActionsOpen.update((v) => !v);
     this.shell.searchOpen.set(false);
@@ -115,10 +146,22 @@ export class AdminTopbarComponent {
   setLanguage(code: string): void {
     this.language.setPreferredLanguage(code);
     this.langOpen.set(false);
+    this.shell.searchOpen.set(false);
+    this.shell.notificationsOpen.set(false);
+    this.shell.quickActionsOpen.set(false);
   }
 
   markAllRead(): void {
     this.notifications.markAllRead();
+  }
+
+  onNotifClick(n: AdminNotificationItem): void {
+    this.activeNotifId.set(n.id);
+    this.notifications.markRead(n.id);
+  }
+
+  relativeTime(iso: string): string {
+    return this.notifications.relativeTime(iso, this.currentLang() || 'fa');
   }
 
   onSearch(term: string): void {

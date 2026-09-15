@@ -476,6 +476,7 @@ model user {
   user_profile                 user_profile?
   user_subscription            user_subscription?
   doctor_appointments          doctor_appointment[]
+  support_tickets              support_ticket[]
 }
 
 /// * Stable invite code per user (for referral links).
@@ -610,4 +611,68 @@ enum doctor_appointment_status {
 enum doctor_appointment_consultationType {
   ONLINE
   IN_PERSON
+}
+
+enum support_ticket_status {
+  OPEN
+  IN_PROGRESS
+  WAITING_ON_USER
+  RESOLVED
+  CLOSED
+}
+
+enum support_ticket_category {
+  BUG
+  QUESTION
+  ACCOUNT
+  PAYMENT
+  FEEDBACK
+  OTHER
+}
+
+enum support_ticket_priority {
+  LOW
+  NORMAL
+  HIGH
+}
+
+enum support_ticket_message_author_role {
+  USER
+  ADMIN
+}
+
+/// * In-app support tickets (user ↔ admin).
+model support_ticket {
+  id              String                   @id
+  userId          Int
+  subject         String                   @db.VarChar(200)
+  category        support_ticket_category  @default(QUESTION)
+  status          support_ticket_status    @default(OPEN)
+  priority        support_ticket_priority  @default(NORMAL)
+  appVersion      String?                  @db.VarChar(40)
+  deviceInfo      String?                  @db.VarChar(240)
+  pagePath        String?                  @db.VarChar(240)
+  assignedAdminId Int?
+  lastMessageAt   DateTime                 @default(now())
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  user            user                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages        support_ticket_message[]
+
+  @@index([userId, lastMessageAt])
+  @@index([status, lastMessageAt])
+  @@index([assignedAdminId])
+}
+
+model support_ticket_message {
+  id         String                              @id
+  ticketId   String
+  authorId   Int
+  authorRole support_ticket_message_author_role
+  body       String                              @db.Text
+  createdAt  DateTime                            @default(now())
+  ticket     support_ticket                      @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+  @@index([authorId])
 }

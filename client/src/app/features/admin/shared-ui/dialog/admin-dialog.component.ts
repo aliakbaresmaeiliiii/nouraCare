@@ -1,8 +1,10 @@
 import { Component, input, output } from '@angular/core';
+import { TranslatePipe } from '@app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-dialog',
   standalone: true,
+  imports: [TranslatePipe],
   template: `
     @if (open()) {
       <div class="dlg-root" role="presentation">
@@ -10,7 +12,13 @@ import { Component, input, output } from '@angular/core';
         <div class="dlg" role="dialog" [attr.aria-label]="title()">
           <header>
             <h2>{{ title() }}</h2>
-            <button type="button" (click)="closed.emit()" aria-label="Close">×</button>
+            <button
+              type="button"
+              (click)="closed.emit()"
+              [attr.aria-label]="'admin.common.close' | translate"
+            >
+              ×
+            </button>
           </header>
           <div class="dlg__body"><ng-content /></div>
           <footer>
@@ -25,11 +33,11 @@ import { Component, input, output } from '@angular/core';
     .dlg-backdrop { position: absolute; inset: 0; background: rgba(2, 8, 16, 0.45); }
     .dlg {
       position: relative;
-      width: min(480px, 100%);
+      width: min(520px, 100%);
       background: var(--admin-surface);
       border: 1px solid var(--admin-line);
       border-radius: var(--admin-radius);
-      box-shadow: var(--admin-shadow);
+      box-shadow: var(--admin-shadow-lg, var(--admin-shadow));
       animation: pop 160ms ease;
     }
     header, footer {

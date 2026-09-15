@@ -1,0 +1,316 @@
+<section class="admin-page doctor-detail">
+  <div class="doctor-detail__nav">
+    <a routerLink="/admin/doctors" class="admin-btn admin-btn--ghost">
+      ← {{ 'admin.doctors.back' | translate }}
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="admin-panel" aria-busy="true">
+      <app-admin-skeleton height="7rem" />
+      <app-admin-skeleton height="14rem" />
+    </div>
+  } @else if (error()) {
+    <div class="care-empty">
+      <div class="care-empty__icon" aria-hidden="true">?</div>
+      <h3>{{ error()! | translate }}</h3>
+      <a routerLink="/admin/doctors" class="admin-btn admin-btn--primary">
+        {{ 'admin.doctors.back' | translate }}
+      </a>
+    </div>
+  } @else if (doctor(); as d) {
+    <header class="doctor-hero">
+      <div class="doctor-hero__glow" aria-hidden="true"></div>
+      <div class="doctor-hero__main">
+        <span class="admin-avatar doctor-avatar doctor-avatar--xl">{{ initials(d.fullName) }}</span>
+        <div class="doctor-hero__copy">
+          <p class="doctor-hero__eyebrow">{{ 'admin.care.eyebrow' | translate }}</p>
+          <h1>{{ d.fullName }}</h1>
+          <p class="doctor-hero__meta">
+            {{ d.specialty }}
+            <span aria-hidden="true">·</span>
+            {{ d.experienceYears }} {{ 'admin.doctors.years' | translate }}
+            <span aria-hidden="true">·</span>
+            ★ {{ d.rating.toFixed(1) }}
+          </p>
+          <div class="doctor-hero__chips">
+            <span class="admin-badge">{{ typeKey(d.consultationType) | translate }}</span>
+            @if (d.isVerified) {
+              <span class="admin-badge admin-badge--success">{{ 'admin.doctors.verified' | translate }}</span>
+            } @else {
+              <span class="admin-badge admin-badge--warning">{{ 'admin.doctors.unverified' | translate }}</span>
+            }
+            @if (d.location || d.clinicName) {
+              <span class="admin-badge admin-badge--muted">
+                {{ d.clinicName || d.location }}
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="doctor-hero__actions">
+        <button type="button" class="admin-btn admin-btn--primary" (click)="openEdit()">
+          {{ 'admin.doctors.edit' | translate }}
+        </button>
+        <button type="button" class="admin-btn" [disabled]="saving()" (click)="askToggleVerify()">
+          {{ (d.isVerified ? 'admin.doctors.unverify' : 'admin.doctors.verify') | translate }}
+        </button>
+        <a
+          class="admin-btn"
+          [routerLink]="['/admin/appointments']"
+          [queryParams]="{ doctorId: d.id }"
+        >
+          {{ 'admin.doctors.viewAppointments' | translate }}
+        </a>
+        <button type="button" class="admin-btn admin-btn--danger" (click)="confirmDelete()">
+          {{ 'admin.doctors.delete' | translate }}
+        </button>
+      </div>
+    </header>
+
+    @if (!d.isVerified) {
+      <div class="care-note care-note--warn">
+        <span class="care-note__icon" aria-hidden="true">!</span>
+        <p>{{ 'admin.doctors.hiddenNote' | translate }}</p>
+      </div>
+    } @else {
+      <div class="care-note">
+        <span class="care-note__icon" aria-hidden="true">✓</span>
+        <p>{{ 'admin.doctors.visibleNote' | translate }}</p>
+      </div>
+    }
+
+    <div class="doctor-detail__grid">
+      <section class="admin-panel">
+        <h2>{{ 'admin.doctors.section.profile' | translate }}</h2>
+        <dl class="info-grid">
+          <div><dt>{{ 'admin.doctors.field.email' | translate }}</dt><dd>{{ d.contactEmail || '—' }}</dd></div>
+          <div><dt>{{ 'admin.doctors.field.phone' | translate }}</dt><dd>{{ d.contactPhone || '—' }}</dd></div>
+          <div><dt>{{ 'admin.doctors.field.clinic' | translate }}</dt><dd>{{ d.clinicName || '—' }}</dd></div>
+          <div><dt>{{ 'admin.doctors.field.location' | translate }}</dt><dd>{{ d.location || '—' }}</dd></div>
+          <div><dt>{{ 'admin.doctors.field.license' | translate }}</dt><dd>{{ d.licenseNumber || '—' }}</dd></div>
+          <div><dt>{{ 'admin.doctors.field.fee' | translate }}</dt><dd>{{ d.fee != null ? d.fee : '—' }}</dd></div>
+          <div><dt>{{ 'admin.doctors.verifiedAt' | translate }}</dt>
+            <dd>{{ d.verifiedAt ? (d.verifiedAt | date: 'medium') : '—' }}</dd>
+          </div>
+          <div><dt>{{ 'admin.doctors.updatedAt' | translate }}</dt>
+            <dd>{{ d.updatedAt | date: 'medium' }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="admin-panel about-panel">
+        <h2>{{ 'admin.doctors.section.about' | translate }}</h2>
+        <p class="about-text">{{ d.about }}</p>
+      </section>
+
+      <section class="admin-panel">
+        <div class="section-head">
+          <h2>{{ 'admin.doctors.section.appointments' | translate }}</h2>
+          <a
+            class="admin-btn"
+            [routerLink]="['/admin/appointments']"
+            [queryParams]="{ doctorId: d.id }"
+          >
+            {{ 'admin.doctors.viewAllBookings' | translate }}
+          </a>
+        </div>
+
+        <div class="stat-row">
+          <article class="stat-card stat-card--warn">
+            <strong>{{ d.appointmentStats.pending }}</strong>
+            <span>{{ 'admin.appointments.status.PENDING' | translate }}</span>
+          </article>
+          <article class="stat-card stat-card--success">
+            <strong>{{ d.appointmentStats.confirmed }}</strong>
+            <span>{{ 'admin.appointments.status.CONFIRMED' | translate }}</span>
+          </article>
+          <article class="stat-card">
+            <strong>{{ d.appointmentStats.cancelled }}</strong>
+            <span>{{ 'admin.appointments.status.CANCELLED' | translate }}</span>
+          </article>
+          <article class="stat-card stat-card--info">
+            <strong>{{ d._count?.doctor_appointments ?? 0 }}</strong>
+            <span>{{ 'admin.doctors.col.appointments' | translate }}</span>
+          </article>
+        </div>
+
+        @if (d.recentAppointments.length === 0) {
+          <div class="mini-empty">
+            <p>{{ 'admin.doctors.noAppointments' | translate }}</p>
+          </div>
+        } @else {
+          <ul class="appt-list">
+            @for (a of d.recentAppointments; track a.id) {
+              <li>
+                <div class="appt-list__who">
+                  <strong>{{ a.user.fullName || a.user.email || ('admin.users.userFallback' | translate) }}</strong>
+                  <span class="muted">{{ a.scheduledAt | date: 'medium' }}</span>
+                </div>
+                <div class="appt-list__meta">
+                  <span class="admin-badge">{{ typeKey(a.consultationType) | translate }}</span>
+                  <span class="admin-badge" [class]="statusClass(a.status)">
+                    {{ statusKey(a.status) | translate }}
+                  </span>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</section>
+
+<app-admin-dialog
+  [open]="editOpen()"
+  [title]="'admin.doctors.editTitle' | translate"
+  (closed)="editOpen.set(false)"
+>
+  <form class="care-form" (submit)="$event.preventDefault(); saveEdit()">
+    <section class="care-form__section">
+      <h3>{{ 'admin.doctors.form.identity' | translate }}</h3>
+      <div class="care-form__grid">
+        <label>
+          <span>{{ 'admin.doctors.field.fullName' | translate }}</span>
+          <input [(ngModel)]="editFullName" name="fullName" required />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.specialty' | translate }}</span>
+          <input [(ngModel)]="editSpecialty" name="specialty" list="specialty-list" />
+          <datalist id="specialty-list">
+            @for (s of specialties; track s) {
+              <option [value]="s"></option>
+            }
+          </datalist>
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.experience' | translate }}</span>
+          <input type="number" min="0" max="60" [(ngModel)]="editExperience" name="experience" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.rating' | translate }}</span>
+          <input type="number" min="0" max="5" step="0.1" [(ngModel)]="editRating" name="rating" />
+        </label>
+        <label class="care-form__full">
+          <span>{{ 'admin.doctors.field.about' | translate }}</span>
+          <textarea rows="4" [(ngModel)]="editAbout" name="about"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="care-form__section">
+      <h3>{{ 'admin.doctors.form.practice' | translate }}</h3>
+      <div class="care-form__grid">
+        <label>
+          <span>{{ 'admin.doctors.field.type' | translate }}</span>
+          <select [(ngModel)]="editType" name="type">
+            <option value="BOTH">{{ 'admin.doctors.type.BOTH' | translate }}</option>
+            <option value="ONLINE">{{ 'admin.doctors.type.ONLINE' | translate }}</option>
+            <option value="IN_PERSON">{{ 'admin.doctors.type.IN_PERSON' | translate }}</option>
+          </select>
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.fee' | translate }}</span>
+          <input type="number" min="0" step="0.1" [(ngModel)]="editFee" name="fee" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.clinic' | translate }}</span>
+          <input [(ngModel)]="editClinic" name="clinic" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.location' | translate }}</span>
+          <input [(ngModel)]="editLocation" name="location" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.email' | translate }}</span>
+          <input type="email" [(ngModel)]="editEmail" name="email" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.phone' | translate }}</span>
+          <input [(ngModel)]="editPhone" name="phone" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.license' | translate }}</span>
+          <input [(ngModel)]="editLicense" name="license" />
+        </label>
+      </div>
+    </section>
+
+    <label class="care-form__check">
+      <input type="checkbox" [(ngModel)]="editVerified" name="verified" />
+      <span>
+        <strong>{{ 'admin.doctors.verified' | translate }}</strong>
+        <span>{{ 'admin.doctors.createHint' | translate }}</span>
+      </span>
+    </label>
+
+    <div class="care-form__actions">
+      <button type="button" class="admin-btn" (click)="editOpen.set(false)">
+        {{ 'admin.common.close' | translate }}
+      </button>
+      <button type="submit" class="admin-btn admin-btn--primary" [disabled]="saving()">
+        {{ 'admin.doctors.save' | translate }}
+      </button>
+    </div>
+  </form>
+</app-admin-dialog>
+
+<app-admin-dialog
+  [open]="verifyOpen()"
+  [title]="verifyDialogTitleKey() | translate"
+  (closed)="verifyOpen.set(false)"
+>
+  @if (doctor(); as d) {
+    <div class="care-confirm">
+      <p>
+        {{
+          (d.isVerified ? 'admin.doctors.unverifyConfirm' : 'admin.doctors.verifyConfirm') | translate
+        }}
+      </p>
+      <p class="muted"><strong>{{ d.fullName }}</strong></p>
+      @if (d.isVerified) {
+        <p class="care-confirm__warn">{{ 'admin.doctors.unverifyWarn' | translate }}</p>
+      } @else {
+        <p class="care-confirm__warn">{{ 'admin.doctors.verifyWarn' | translate }}</p>
+      }
+      <div class="care-form__actions">
+        <button type="button" class="admin-btn" (click)="verifyOpen.set(false)">
+          {{ 'admin.common.close' | translate }}
+        </button>
+        <button
+          type="button"
+          class="admin-btn admin-btn--primary"
+          [disabled]="saving()"
+          (click)="confirmToggleVerify()"
+        >
+          {{ (d.isVerified ? 'admin.doctors.unverify' : 'admin.doctors.verify') | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</app-admin-dialog>
+
+<app-admin-dialog
+  [open]="deleteOpen()"
+  [title]="'admin.doctors.deleteTitle' | translate"
+  (closed)="deleteOpen.set(false)"
+>
+  <div class="care-confirm">
+    <p>{{ 'admin.doctors.deleteConfirm' | translate }}</p>
+    <p class="care-confirm__warn care-confirm__danger">{{ 'admin.doctors.deleteWarn' | translate }}</p>
+    <div class="care-form__actions">
+      <button type="button" class="admin-btn" (click)="deleteOpen.set(false)">
+        {{ 'admin.common.close' | translate }}
+      </button>
+      <button
+        type="button"
+        class="admin-btn admin-btn--danger"
+        [disabled]="saving()"
+        (click)="deleteDoctor()"
+      >
+        {{ 'admin.doctors.delete' | translate }}
+      </button>
+    </div>
+  </div>
+</app-admin-dialog>

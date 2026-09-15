@@ -12,7 +12,7 @@
   </header>
 
   @if (loading()) {
-    <div class="dash-skeleton" aria-busy="true" aria-label="Loading dashboard">
+    <div class="dash-skeleton" aria-busy="true" [attr.aria-label]="'admin.dashboard.loading' | translate">
       <div class="admin-kpi-grid">
         @for (i of [1, 2, 3, 4, 5, 6]; track i) {
           <div class="admin-panel dash-skeleton__card">
@@ -22,8 +22,8 @@
         }
       </div>
       <div class="admin-grid-2">
-        <div class="admin-panel"><app-admin-skeleton height="240px" /></div>
-        <div class="admin-panel"><app-admin-skeleton height="240px" /></div>
+        <div class="admin-panel"><app-admin-skeleton height="260px" /></div>
+        <div class="admin-panel"><app-admin-skeleton height="260px" /></div>
       </div>
     </div>
   } @else if (error()) {
@@ -40,48 +40,67 @@
           [label]="kpi.labelKey | translate"
           [value]="kpi.value"
           [tone]="kpi.tone || 'default'"
+          [icon]="kpi.icon"
         />
       }
     </div>
 
-    <div class="admin-grid-2">
+    <div class="charts-row">
       <app-admin-chart-card
+        class="charts-row__wide"
         [title]="'admin.dashboard.signups' | translate"
+        [subtitle]="'admin.dashboard.signupsHint' | translate"
         kind="area"
         [labels]="signupLabels()"
         [datasets]="signupValues()"
-        [height]="260"
+        [height]="280"
+        [emptyText]="'admin.dashboard.chartEmpty' | translate"
       />
       <app-admin-chart-card
         [title]="'admin.dashboard.subscriptions' | translate"
+        [subtitle]="'admin.dashboard.subscriptionsHint' | translate"
         kind="donut"
         [labels]="tierLabels()"
         [datasets]="tierValues()"
-        [height]="260"
+        [height]="280"
+        [centerLabel]="'' + tierTotal()"
+        [centerSubLabel]="'admin.dashboard.tier.total' | translate"
+        [emptyText]="'admin.dashboard.chartEmpty' | translate"
       />
     </div>
 
     <div class="admin-grid-2">
       <app-admin-chart-card
         [title]="'admin.dashboard.reproductive' | translate"
+        [subtitle]="'admin.dashboard.reproductiveHint' | translate"
         kind="bar"
         [labels]="reproLabels()"
         [datasets]="reproValues()"
         [height]="260"
+        [emptyText]="'admin.dashboard.chartEmpty' | translate"
       />
-      <section class="admin-panel">
-        <h3>{{ 'admin.dashboard.recent' | translate }}</h3>
+      <section class="admin-panel recent-panel">
+        <div class="recent-panel__head">
+          <h3>{{ 'admin.dashboard.recent' | translate }}</h3>
+          <span class="muted">{{ overview()?.recentSignups?.length || 0 }}</span>
+        </div>
         <ul class="recent-list">
           @for (u of overview()?.recentSignups ?? []; track u.id) {
             <li>
-              <div>
+              <span class="admin-avatar">{{ initials(u.fullName, u.email, u.id) }}</span>
+              <div class="recent-list__meta">
                 <strong>{{ u.fullName || u.email || ('#' + u.id) }}</strong>
-                <small>{{ u.email }}</small>
+                <small>{{ u.email || '—' }}</small>
               </div>
-              <time>{{ u.createdAt | date: 'MMM d, HH:mm' }}</time>
+              <div class="recent-list__side">
+                <span class="admin-badge" [class.admin-badge--success]="u.status === 'ACTIVE'">
+                  {{ ('admin.status.' + (u.status || '').toLowerCase()) | translate }}
+                </span>
+                <time>{{ u.createdAt | date: 'MMM d, HH:mm' }}</time>
+              </div>
             </li>
           } @empty {
-            <li class="muted">—</li>
+            <li class="muted recent-list__empty">{{ 'admin.dashboard.chartEmpty' | translate }}</li>
           }
         </ul>
       </section>
@@ -93,6 +112,7 @@
           [label]="kpi.labelKey | translate"
           [value]="kpi.value"
           [tone]="kpi.tone || 'default'"
+          [icon]="kpi.icon"
         />
       }
     </div>

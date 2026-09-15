@@ -1,0 +1,129 @@
+<section class="admin-page">
+  <header class="admin-page__header">
+    <div>
+      <h1>{{ 'admin.tickets.title' | translate }}</h1>
+      <p>{{ 'admin.tickets.subtitle' | translate }}</p>
+    </div>
+    <div class="admin-page__actions">
+      <span class="open-pill">
+        {{ 'admin.tickets.openCount' | translate }}: {{ openCount() }}
+      </span>
+      <button type="button" class="admin-btn" (click)="load()" [disabled]="loading()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <form class="tickets-filters" (submit)="$event.preventDefault(); applyFilters()">
+    <label class="tickets-filters__grow">
+      <span>{{ 'admin.tickets.search' | translate }}</span>
+      <input
+        type="search"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        name="search"
+        [placeholder]="'admin.tickets.searchPlaceholder' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.tickets.col.status' | translate }}</span>
+      <select
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+        name="status"
+      >
+        <option value="">{{ 'admin.tickets.filterAll' | translate }}</option>
+        <option value="OPEN">{{ 'admin.tickets.status.OPEN' | translate }}</option>
+        <option value="IN_PROGRESS">{{ 'admin.tickets.status.IN_PROGRESS' | translate }}</option>
+        <option value="WAITING_ON_USER">{{ 'admin.tickets.status.WAITING_ON_USER' | translate }}</option>
+        <option value="RESOLVED">{{ 'admin.tickets.status.RESOLVED' | translate }}</option>
+        <option value="CLOSED">{{ 'admin.tickets.status.CLOSED' | translate }}</option>
+      </select>
+    </label>
+    <label>
+      <span>{{ 'admin.tickets.col.category' | translate }}</span>
+      <select
+        [ngModel]="categoryFilter()"
+        (ngModelChange)="categoryFilter.set($event)"
+        name="category"
+      >
+        <option value="">{{ 'admin.tickets.filterAll' | translate }}</option>
+        <option value="QUESTION">{{ 'admin.tickets.category.QUESTION' | translate }}</option>
+        <option value="BUG">{{ 'admin.tickets.category.BUG' | translate }}</option>
+        <option value="ACCOUNT">{{ 'admin.tickets.category.ACCOUNT' | translate }}</option>
+        <option value="PAYMENT">{{ 'admin.tickets.category.PAYMENT' | translate }}</option>
+        <option value="FEEDBACK">{{ 'admin.tickets.category.FEEDBACK' | translate }}</option>
+        <option value="OTHER">{{ 'admin.tickets.category.OTHER' | translate }}</option>
+      </select>
+    </label>
+    <div class="tickets-filters__actions">
+      <button type="submit" class="admin-btn admin-btn--primary">
+        {{ 'admin.tickets.apply' | translate }}
+      </button>
+      <button type="button" class="admin-btn" (click)="resetFilters()">
+        {{ 'admin.tickets.reset' | translate }}
+      </button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <div class="admin-panel" aria-busy="true">
+      <app-admin-skeleton height="2.5rem" />
+      <app-admin-skeleton height="14rem" />
+    </div>
+  } @else if (error()) {
+    <div class="admin-panel">
+      <p>{{ error()! | translate }}</p>
+      <button type="button" class="admin-btn admin-btn--primary" (click)="load()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
+  } @else {
+    <app-admin-data-table
+      [columns]="columns"
+      [rows]="rows()"
+      [pageSize]="limit()"
+      exportName="dore-tickets"
+      [searchableKeys]="[]"
+      (rowClick)="openTicket($event)"
+    >
+      <ng-template #cell let-row let-column="column">
+        @if (column.key === 'subject') {
+          <div class="subject-cell">
+            <strong>{{ row.subject }}</strong>
+            @if (row.raw.preview?.body) {
+              <span class="muted">{{ row.raw.preview.body }}</span>
+            }
+          </div>
+        } @else if (column.key === 'status') {
+          <span class="admin-badge" [class]="statusClass(row.status)">
+            {{ statusKey(row.status) | translate }}
+          </span>
+        } @else if (column.key === 'category') {
+          {{ categoryKey(row.category) | translate }}
+        } @else if (column.key === 'updated') {
+          {{ row.updated | date: 'short' }}
+        } @else {
+          {{ row[column.key] }}
+        }
+      </ng-template>
+    </app-admin-data-table>
+
+    <div class="tickets-pager">
+      <span>{{ pageLabel() }}</span>
+      <div class="tickets-pager__actions">
+        <button type="button" class="admin-btn" (click)="prevPage()" [disabled]="page() <= 1">
+          {{ 'admin.tickets.prev' | translate }}
+        </button>
+        <button
+          type="button"
+          class="admin-btn"
+          (click)="nextPage()"
+          [disabled]="page() >= totalPages()"
+        >
+          {{ 'admin.tickets.next' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</section>

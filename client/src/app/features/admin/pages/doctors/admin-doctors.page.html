@@ -1,0 +1,309 @@
+<section class="admin-page care-page">
+  <header class="care-banner">
+    <div>
+      <p class="care-banner__eyebrow">
+        <span aria-hidden="true">✚</span>
+        {{ 'admin.care.eyebrow' | translate }}
+      </p>
+      <h1>{{ 'admin.doctors.title' | translate }}</h1>
+      <p class="care-banner__lead">{{ 'admin.doctors.subtitle' | translate }}</p>
+    </div>
+    <div class="care-banner__actions">
+      <button type="button" class="admin-btn admin-btn--primary" (click)="openCreate()">
+        <svg class="btn-ico" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        {{ 'admin.doctors.create' | translate }}
+      </button>
+      <a routerLink="/admin/appointments" class="admin-btn">
+        {{ 'admin.doctors.viewAppointments' | translate }}
+      </a>
+      <button type="button" class="admin-btn" (click)="exportAll()" [disabled]="loading() || !rows().length">
+        {{ 'admin.common.exportCsv' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <div class="care-kpis">
+    <button
+      type="button"
+      class="care-kpi care-kpi--info"
+      [class.is-active]="verifiedFilter() === ''"
+      (click)="setVerifiedFilter('')"
+    >
+      <span class="care-kpi__label">{{ 'admin.doctors.kpi.total' | translate }}</span>
+      <span class="care-kpi__value">{{ catalogTotal() }}</span>
+      <span class="care-kpi__hint">{{ 'admin.doctors.kpi.totalHint' | translate }}</span>
+    </button>
+    <button
+      type="button"
+      class="care-kpi care-kpi--success"
+      [class.is-active]="verifiedFilter() === 'true'"
+      (click)="setVerifiedFilter('true')"
+    >
+      <span class="care-kpi__label">{{ 'admin.doctors.verifiedCount' | translate }}</span>
+      <span class="care-kpi__value">{{ verifiedCount() }}</span>
+      <span class="care-kpi__hint">{{ 'admin.doctors.kpi.verifiedHint' | translate }}</span>
+    </button>
+    <button
+      type="button"
+      class="care-kpi care-kpi--warn"
+      [class.is-active]="verifiedFilter() === 'false'"
+      (click)="setVerifiedFilter('false')"
+    >
+      <span class="care-kpi__label">{{ 'admin.doctors.unverifiedCount' | translate }}</span>
+      <span class="care-kpi__value">{{ unverifiedCount() }}</span>
+      <span class="care-kpi__hint">{{ 'admin.doctors.kpi.unverifiedHint' | translate }}</span>
+    </button>
+    <a routerLink="/admin/appointments" class="care-kpi">
+      <span class="care-kpi__label">{{ 'admin.doctors.viewAppointments' | translate }}</span>
+      <span class="care-kpi__value">→</span>
+      <span class="care-kpi__hint">{{ 'admin.doctors.kpi.appointmentsHint' | translate }}</span>
+    </a>
+  </div>
+
+  <div class="care-note">
+    <span class="care-note__icon" aria-hidden="true">✓</span>
+    <p>{{ 'admin.doctors.trustNote' | translate }}</p>
+  </div>
+
+  <form class="care-filters" (submit)="$event.preventDefault(); applyFilters()">
+    <label class="care-filters__grow">
+      <span>{{ 'admin.doctors.search' | translate }}</span>
+      <input
+        type="search"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        name="search"
+        [placeholder]="'admin.doctors.searchPlaceholder' | translate"
+      />
+    </label>
+    <label>
+      <span>{{ 'admin.doctors.col.verified' | translate }}</span>
+      <select
+        [ngModel]="verifiedFilter()"
+        (ngModelChange)="verifiedFilter.set($event)"
+        name="verified"
+      >
+        <option value="">{{ 'admin.doctors.filterAll' | translate }}</option>
+        <option value="true">{{ 'admin.doctors.filterVerified' | translate }}</option>
+        <option value="false">{{ 'admin.doctors.filterUnverified' | translate }}</option>
+      </select>
+    </label>
+    <div class="care-filters__actions">
+      <button type="submit" class="admin-btn admin-btn--primary">
+        {{ 'admin.doctors.apply' | translate }}
+      </button>
+      <button type="button" class="admin-btn" (click)="resetFilters()">
+        {{ 'admin.doctors.reset' | translate }}
+      </button>
+    </div>
+  </form>
+
+  @if (loading()) {
+    <div class="admin-panel" aria-busy="true">
+      <app-admin-skeleton height="2.5rem" />
+      <app-admin-skeleton height="14rem" />
+    </div>
+  } @else if (error()) {
+    <div class="admin-panel">
+      <p>{{ error()! | translate }}</p>
+      <button type="button" class="admin-btn admin-btn--primary" (click)="load()">
+        {{ 'admin.common.retry' | translate }}
+      </button>
+    </div>
+  } @else if (!rows().length) {
+    <div class="care-empty">
+      <div class="care-empty__icon" aria-hidden="true">✚</div>
+      <h3>{{ 'admin.doctors.emptyTitle' | translate }}</h3>
+      <p>{{ 'admin.doctors.emptyBody' | translate }}</p>
+      <button type="button" class="admin-btn admin-btn--primary" (click)="openCreate()">
+        {{ 'admin.doctors.create' | translate }}
+      </button>
+    </div>
+  } @else {
+    <app-admin-data-table
+      [columns]="columns"
+      [rows]="rows()"
+      [pageSize]="limit()"
+      exportName="dore-doctors"
+      [searchableKeys]="[]"
+      (rowClick)="openDoctor($event)"
+    >
+      <ng-template #cell let-row let-column="column">
+        @if (column.key === 'name') {
+          <div class="name-cell">
+            <span class="admin-avatar doctor-avatar">{{ initials(row.name) }}</span>
+            <div>
+              <strong>{{ row.name }}</strong>
+              <span class="muted">{{ row.raw.contactEmail || row.raw.contactPhone || '—' }}</span>
+            </div>
+          </div>
+        } @else if (column.key === 'type') {
+          <span class="admin-badge">{{ typeKey(row.type) | translate }}</span>
+        } @else if (column.key === 'verified') {
+          <button
+            type="button"
+            class="verify-btn"
+            [class.verify-btn--on]="row.raw.isVerified"
+            [disabled]="saving()"
+            (click)="askToggleVerify(row, $event)"
+            [attr.title]="(row.raw.isVerified ? 'admin.doctors.unverify' : 'admin.doctors.verify') | translate"
+          >
+            {{ (row.raw.isVerified ? 'admin.doctors.verified' : 'admin.doctors.unverified') | translate }}
+          </button>
+        } @else if (column.key === 'rating') {
+          <span class="rating-cell">★ {{ row.rating }}</span>
+        } @else {
+          {{ row[column.key] }}
+        }
+      </ng-template>
+    </app-admin-data-table>
+
+    <div class="doctors-pager">
+      <span class="muted">{{ pageLabel() }}</span>
+      <div class="doctors-pager__btns">
+        <button type="button" class="admin-btn" (click)="prevPage()" [disabled]="page() <= 1">
+          {{ 'admin.doctors.prev' | translate }}
+        </button>
+        <button
+          type="button"
+          class="admin-btn"
+          (click)="nextPage()"
+          [disabled]="page() >= totalPages()"
+        >
+          {{ 'admin.doctors.next' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</section>
+
+<app-admin-dialog
+  [open]="createOpen()"
+  [title]="'admin.doctors.createTitle' | translate"
+  (closed)="createOpen.set(false)"
+>
+  <form class="care-form" (submit)="$event.preventDefault(); createDoctor()">
+    <p class="create-intro">{{ 'admin.doctors.createIntro' | translate }}</p>
+
+    <section class="care-form__section">
+      <h3>{{ 'admin.doctors.form.identity' | translate }}</h3>
+      <div class="care-form__grid">
+        <label>
+          <span>{{ 'admin.doctors.field.fullName' | translate }} *</span>
+          <input [(ngModel)]="createFullName" name="fullName" required autocomplete="name" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.specialty' | translate }} *</span>
+          <select [(ngModel)]="createSpecialty" name="specialty">
+            @for (s of specialties; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.experience' | translate }}</span>
+          <input type="number" min="0" max="60" [(ngModel)]="createExperience" name="experience" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.license' | translate }}</span>
+          <input [(ngModel)]="createLicense" name="license" />
+        </label>
+        <label class="care-form__full">
+          <span>{{ 'admin.doctors.field.about' | translate }} *</span>
+          <textarea rows="4" [(ngModel)]="createAbout" name="about" required></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="care-form__section">
+      <h3>{{ 'admin.doctors.form.practice' | translate }}</h3>
+      <div class="care-form__grid">
+        <label>
+          <span>{{ 'admin.doctors.field.type' | translate }}</span>
+          <select [(ngModel)]="createType" name="type">
+            <option value="BOTH">{{ 'admin.doctors.type.BOTH' | translate }}</option>
+            <option value="ONLINE">{{ 'admin.doctors.type.ONLINE' | translate }}</option>
+            <option value="IN_PERSON">{{ 'admin.doctors.type.IN_PERSON' | translate }}</option>
+          </select>
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.fee' | translate }}</span>
+          <input type="number" min="0" step="0.1" [(ngModel)]="createFee" name="fee" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.clinic' | translate }}</span>
+          <input [(ngModel)]="createClinic" name="clinic" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.location' | translate }}</span>
+          <input [(ngModel)]="createLocation" name="location" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.email' | translate }}</span>
+          <input type="email" [(ngModel)]="createEmail" name="email" />
+        </label>
+        <label>
+          <span>{{ 'admin.doctors.field.phone' | translate }}</span>
+          <input [(ngModel)]="createPhone" name="phone" />
+        </label>
+      </div>
+    </section>
+
+    <label class="care-form__check">
+      <input type="checkbox" [(ngModel)]="createVerified" name="verified" />
+      <span>
+        <strong>{{ 'admin.doctors.field.verifyNow' | translate }}</strong>
+        <span>{{ 'admin.doctors.createHint' | translate }}</span>
+      </span>
+    </label>
+
+    <div class="care-form__actions">
+      <button type="button" class="admin-btn" (click)="createOpen.set(false)">
+        {{ 'admin.common.close' | translate }}
+      </button>
+      <button type="submit" class="admin-btn admin-btn--primary" [disabled]="saving()">
+        {{ 'admin.doctors.create' | translate }}
+      </button>
+    </div>
+  </form>
+</app-admin-dialog>
+
+<app-admin-dialog
+  [open]="verifyOpen()"
+  [title]="verifyDialogTitleKey() | translate"
+  (closed)="closeVerifyDialog()"
+>
+  @if (verifyTarget(); as t) {
+    <div class="care-confirm">
+      <p>
+        {{
+          (t.raw.isVerified
+            ? 'admin.doctors.unverifyConfirm'
+            : 'admin.doctors.verifyConfirm'
+          ) | translate
+        }}
+      </p>
+      <p class="muted"><strong>{{ t.name }}</strong> · {{ t.specialty }}</p>
+      @if (t.raw.isVerified) {
+        <p class="care-confirm__warn">{{ 'admin.doctors.unverifyWarn' | translate }}</p>
+      } @else {
+        <p class="care-confirm__warn">{{ 'admin.doctors.verifyWarn' | translate }}</p>
+      }
+      <div class="care-form__actions">
+        <button type="button" class="admin-btn" (click)="closeVerifyDialog()">
+          {{ 'admin.common.close' | translate }}
+        </button>
+        <button
+          type="button"
+          class="admin-btn admin-btn--primary"
+          [disabled]="saving()"
+          (click)="confirmToggleVerify()"
+        >
+          {{ (t.raw.isVerified ? 'admin.doctors.unverify' : 'admin.doctors.verify') | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</app-admin-dialog>

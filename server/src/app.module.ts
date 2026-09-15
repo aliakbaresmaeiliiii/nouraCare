@@ -19,6 +19,7 @@ import { HealthEngagementModule } from './health-engagement/health-engagement.mo
 import { SubscriptionModule } from './subscription/subscription.module';
 import { GrowthModule } from './growth/growth.module';
 import { AdminModule } from './admin/admin.module';
+import { SupportTicketsModule } from './support-tickets/support-tickets.module';
 import { GlobalJwtAuthGuard } from './auth/guards/global-jwt-auth.guard';
 
 @Module({
@@ -45,6 +46,7 @@ import { GlobalJwtAuthGuard } from './auth/guards/global-jwt-auth.guard';
     HealthEngagementModule,
     SubscriptionModule,
     GrowthModule,
+    SupportTicketsModule,
     AdminModule,
   ],
   controllers: [AppController],

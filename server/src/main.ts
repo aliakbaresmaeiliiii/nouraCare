@@ -28,7 +28,11 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
-  const defaultOrigins = ['https://dorehealth.ir', 'https://www.dorehealth.ir'];
+  const defaultOrigins = [
+    'https://dorehealth.ir',
+    'https://www.dorehealth.ir',
+    'https://app.dorehealth.ir',
+  ];
 
   const devOrigins =
     env.NODE_ENV === 'production'

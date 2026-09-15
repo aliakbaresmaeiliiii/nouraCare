@@ -63,7 +63,8 @@ export class DoctorsService {
     specialty?: string;
     consultationType?: string;
   }): Prisma.doctorsWhereInput {
-    const clauses: Prisma.doctorsWhereInput[] = [];
+    // Only verified doctors appear in the patient-facing catalog.
+    const clauses: Prisma.doctorsWhereInput[] = [{ isVerified: true }];
 
     const q = params.search?.trim();
     if (q) {
@@ -100,9 +101,6 @@ export class DoctorsService {
       }
     }
 
-    if (clauses.length === 0) {
-      return {};
-    }
     return { AND: clauses };
   }
 
@@ -150,7 +148,7 @@ export class DoctorsService {
     const doctor = await this.prisma.doctors.findUnique({
       where: { id },
     });
-    if (!doctor) {
+    if (!doctor || !doctor.isVerified) {
       throw new NotFoundException(`Doctor with id ${id} not found`);
     }
     return this.mapDoctor(doctor);

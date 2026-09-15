@@ -18,6 +18,7 @@ const APP_ROOT_SEGMENTS = new Set([
   'edit-profile',
   'forums',
   'help-support',
+  'support-tickets',
   'home',
   'insights',
   'invite-friends',

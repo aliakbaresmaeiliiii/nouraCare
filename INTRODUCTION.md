@@ -241,7 +241,7 @@ How the product is organized in code and operations.
 |------|-----|--------|
 | `USER` | Default consumer | Full app features for their own data |
 | `ADMIN` | Operations staff | Admin API + admin consoles |
-| `SUPER_ADMIN` | Top operator | Same admin access; seed default `admin@dorehealth.app` |
+| `SUPER_ADMIN` | Top operator | Same admin access; seed defaults `admin@dorehealth.app` + `aliakbaresmaeili98@gmail.com` |
 
 Secret-chat member roles (community only): `ADMIN` / `MODERATOR` / `MEMBER`.
 

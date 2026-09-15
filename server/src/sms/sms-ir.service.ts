@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Smsir } from 'sms-typescript';
 import { env } from '../auth/config/env';
+import { AUTH_MESSAGE_KEYS } from '../auth/constants/auth-message-keys';
 
 @Injectable()
 export class SmsIrService implements OnModuleInit {
@@ -63,9 +64,17 @@ export class SmsIrService implements OnModuleInit {
       const detail = result?.message || JSON.stringify(result);
       throw new BadRequestException({
         message: `sms.ir ${action} failed: ${detail}`,
-        messageKey: 'auth.api.failedSendOtpSms',
+        messageKey: this.smsFailureMessageKey(detail),
       });
     }
+  }
+
+  /** Map known sms.ir panel errors to client i18n keys. */
+  private smsFailureMessageKey(detail: string): string {
+    if (/اعتبار\s*کافی\s*نمی\s*باشد|insufficient\s*credit|not\s*enough\s*credit/i.test(detail)) {
+      return AUTH_MESSAGE_KEYS.SMS_INSUFFICIENT_CREDIT;
+    }
+    return AUTH_MESSAGE_KEYS.FAILED_SEND_OTP_SMS;
   }
 
   /**
@@ -115,7 +124,7 @@ export class SmsIrService implements OnModuleInit {
         error instanceof Error ? error.message : 'Unknown sms.ir error';
       throw new BadRequestException({
         message: `Failed to send OTP SMS: ${detail}`,
-        messageKey: 'auth.api.failedSendOtpSms',
+        messageKey: this.smsFailureMessageKey(detail),
       });
     }
   }

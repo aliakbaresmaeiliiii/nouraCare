@@ -2,10 +2,18 @@
   class="sidebar"
   [class.sidebar--collapsed]="collapsed()"
   [class.sidebar--mobile]="mobile()"
-  aria-label="Admin navigation"
+  [attr.aria-label]="'admin.sidebar.nav' | translate"
 >
   <div class="sidebar__brand">
-    <span class="sidebar__mark" aria-hidden="true"></span>
+    <img
+      class="sidebar__mark"
+      [src]="logoPath"
+      width="36"
+      height="36"
+      alt=""
+      decoding="async"
+      aria-hidden="true"
+    />
     @if (!collapsed()) {
       <div class="sidebar__brand-text">
         <strong>{{ 'admin.brand' | translate }}</strong>
@@ -17,7 +25,11 @@
         type="button"
         class="sidebar__collapse"
         (click)="toggleCollapse()"
-        [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+        [attr.aria-label]="
+          collapsed()
+            ? ('admin.sidebar.expand' | translate)
+            : ('admin.sidebar.collapse' | translate)
+        "
       >
         {{ collapsed() ? '»' : '«' }}
       </button>
@@ -30,19 +42,54 @@
         @if (!collapsed()) {
           <div class="sidebar__group-label">{{ group.label | translate }}</div>
         }
-        @for (item of group.items; track item.path) {
-          <a
-            [routerLink]="item.path"
-            routerLinkActive="sidebar__link--active"
-            class="sidebar__link"
-            [attr.title]="item.label | translate"
-            (click)="onNavigate()"
-          >
-            <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(item.icon) }}</span>
-            @if (!collapsed()) {
-              <span>{{ item.label | translate }}</span>
-            }
-          </a>
+        @for (item of group.items; track item.label) {
+          @if (hasChildren(item)) {
+            <div class="sidebar__branch" [class.sidebar__branch--open]="isSubmenuOpen(item)">
+              <button
+                type="button"
+                class="sidebar__link sidebar__link--parent"
+                [class.sidebar__link--active]="isParentActive(item)"
+                [attr.title]="item.label | translate"
+                [attr.aria-expanded]="isSubmenuOpen(item)"
+                (click)="toggleSubmenu(item, $event)"
+              >
+                <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(item.icon) }}</span>
+                @if (!collapsed()) {
+                  <span class="sidebar__link-text">{{ item.label | translate }}</span>
+                  <span class="sidebar__chevron" aria-hidden="true">▾</span>
+                }
+              </button>
+              @if (isSubmenuOpen(item) && item.children; as children) {
+                <div class="sidebar__submenu" role="group">
+                  @for (child of children; track child.path ?? child.label) {
+                    <a
+                      [routerLink]="child.path"
+                      routerLinkActive="sidebar__link--active"
+                      class="sidebar__link sidebar__link--child"
+                      [attr.title]="child.label | translate"
+                      (click)="onNavigate()"
+                    >
+                      <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(child.icon) }}</span>
+                      <span>{{ child.label | translate }}</span>
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          } @else if (item.path) {
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="sidebar__link--active"
+              class="sidebar__link"
+              [attr.title]="item.label | translate"
+              (click)="onNavigate()"
+            >
+              <span class="sidebar__icon" aria-hidden="true">{{ iconGlyph(item.icon) }}</span>
+              @if (!collapsed()) {
+                <span>{{ item.label | translate }}</span>
+              }
+            </a>
+          }
         }
       </div>
     }

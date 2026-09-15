@@ -57,7 +57,7 @@ export class AppointmentsService {
     const doctor = await this.prisma.doctors.findUnique({
       where: { id: doctorId },
     });
-    if (!doctor) {
+    if (!doctor || !doctor.isVerified) {
       throw new NotFoundException('Doctor not found');
     }
 
@@ -101,7 +101,7 @@ export class AppointmentsService {
     const doctor = await this.prisma.doctors.findUnique({
       where: { id: dto.doctorId },
     });
-    if (!doctor) {
+    if (!doctor || !doctor.isVerified) {
       throw new NotFoundException('Doctor not found');
     }
 

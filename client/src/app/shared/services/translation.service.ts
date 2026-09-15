@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { LanguageService } from '@app/shared/services/language.service';
 import { localizeDigitsInText } from '@app/shared/utils/locale-date-format.util';
 import { PRIVACY_POLICY } from '@app/shared/content/privacy-policy.content';
@@ -10,12 +10,19 @@ import { TOOLS_MENU_TRANSLATIONS } from '@app/shared/content/tools-menu-translat
 import { SHOP_TRANSLATIONS } from '@app/shared/content/shop-translations.content';
 import { PAYMENT_TRANSLATIONS } from '@app/shared/content/payment-translations.content';
 import { TOAST_TRANSLATIONS } from '@app/shared/content/toast-translations.content';
+import { SUPPORT_TICKET_TRANSLATIONS } from '@app/shared/content/support-ticket-translations.content';
 import { ADMIN_TRANSLATIONS } from '@app/features/admin/i18n/admin-translations.content';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TranslationService {
+  /**
+   * Bumped whenever the active language changes.
+   * Reading this (via translate / translateParams) makes Angular `computed` /
+   * `effect` callers re-run so UI does not stay stuck on the previous language.
+   */
+  private readonly langEpoch = signal(0);
   private translations: { [key: string]: { [key: string]: string } } = {
     en: {
       'common.welcome': 'Welcome',
@@ -116,6 +123,8 @@ export class TranslationService {
       'auth.api.emailOrPhoneRequired': 'Email or phone number is required',
       'auth.api.failedSendOtpSms':
         'Could not send the SMS code. Check the number and try again.',
+      'auth.api.smsInsufficientCredit':
+        'SMS service is out of credit. Top up the sms.ir account and try again.',
       'auth.api.loginSuccess': 'Login successful',
       'profile.editProfile': 'Edit Profile',
       'profile.editPeriod': 'Edit Period',
@@ -1457,6 +1466,7 @@ export class TranslationService {
       ...PAYMENT_TRANSLATIONS['en'],
       ...TOAST_TRANSLATIONS['en'],
       ...ADMIN_TRANSLATIONS['en'],
+      ...SUPPORT_TICKET_TRANSLATIONS['en'],
 
       'about.toast.feedbackSoon': 'Feedback form can open here.',
       'about.toast.rateSoon': 'Store rating can open here.',
@@ -2703,6 +2713,8 @@ export class TranslationService {
       'auth.api.emailRequired': '邮箱为必填项',
       'auth.api.emailOrPhoneRequired': '需要邮箱或手机号',
       'auth.api.failedSendOtpSms': '无法发送短信验证码，请检查号码后重试。',
+      'auth.api.smsInsufficientCredit':
+        '短信服务余额不足。请为 sms.ir 账户充值后再试。',
       'auth.api.loginSuccess': '登录成功',
       'profile.editProfile': '编辑个人资料',
       'profile.editPeriod': '编辑周期',
@@ -3932,6 +3944,7 @@ export class TranslationService {
       ...PAYMENT_TRANSLATIONS['zh'],
       ...TOAST_TRANSLATIONS['zh'],
       ...ADMIN_TRANSLATIONS['zh'],
+      ...SUPPORT_TICKET_TRANSLATIONS['zh'],
 
       'about.toast.feedbackSoon': '反馈表单可在此打开。',
       'about.toast.rateSoon': '应用商店评分可在此打开。',
@@ -4160,6 +4173,8 @@ export class TranslationService {
       'auth.api.emailOrPhoneRequired': 'E-mel atau nombor telefon diperlukan',
       'auth.api.failedSendOtpSms':
         'Tidak dapat menghantar kod SMS. Semak nombor dan cuba lagi.',
+      'auth.api.smsInsufficientCredit':
+        'Baki SMS tidak mencukupi. Top up akaun sms.ir dan cuba lagi.',
       'auth.api.loginSuccess': 'Log masuk berjaya',
       'profile.editProfile': 'Edit Profil',
       'profile.editPeriod': 'Edit Tempoh',
@@ -5503,6 +5518,7 @@ export class TranslationService {
       ...PAYMENT_TRANSLATIONS['ms'],
       ...TOAST_TRANSLATIONS['ms'],
       ...ADMIN_TRANSLATIONS['ms'],
+      ...SUPPORT_TICKET_TRANSLATIONS['ms'],
 
       'about.toast.feedbackSoon': 'Borang maklum balas boleh dibuka di sini.',
       'about.toast.rateSoon': 'Penilaian kedai boleh dibuka di sini.',
@@ -5737,6 +5753,8 @@ export class TranslationService {
       'auth.api.emailOrPhoneRequired': 'ایمیل یا شماره موبایل الزامی است',
       'auth.api.failedSendOtpSms':
         'ارسال پیامک کد ورود ناموفق بود. شماره را بررسی کنید و دوباره تلاش کنید.',
+      'auth.api.smsInsufficientCredit':
+        'اعتبار پنل پیامک (sms.ir) کافی نیست. حساب را شارژ کنید و دوباره تلاش کنید.',
       'auth.api.loginSuccess': 'ورود موفق',
       'profile.editProfile': 'ویرایش پروفایل',
       'profile.editPeriod': 'ویرایش دوره',
@@ -7055,6 +7073,7 @@ export class TranslationService {
       ...PAYMENT_TRANSLATIONS['fa'],
       ...TOAST_TRANSLATIONS['fa'],
       ...ADMIN_TRANSLATIONS['fa'],
+      ...SUPPORT_TICKET_TRANSLATIONS['fa'],
 
       'about.toast.feedbackSoon': 'فرم بازخورد می‌تواند اینجا باز شود.',
       'about.toast.rateSoon': 'امتیازدهی فروشگاه می‌تواند اینجا باز شود.',
@@ -8216,9 +8235,15 @@ export class TranslationService {
     },
   };
 
-  constructor(private languageService: LanguageService) {}
+  constructor(private languageService: LanguageService) {
+    this.languageService.currentLanguage$.subscribe(() => {
+      this.langEpoch.update((n) => n + 1);
+    });
+  }
 
   translate(key: string): string {
+    // Track language so computed()/effect() that call translate() invalidate.
+    this.langEpoch();
     const currentLanguage = this.languageService.getCurrentLanguage();
     const languageTranslations =
       this.translations[currentLanguage] || this.translations['en'];

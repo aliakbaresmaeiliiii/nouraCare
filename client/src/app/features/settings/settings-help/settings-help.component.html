@@ -9,17 +9,40 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="sub-settings-content">
+<ion-content class="sub-settings-content help-page">
   <p class="lede">{{ 'settings.help.body' | translate }}</p>
 
-  <ion-button expand="block" (click)="openContactOptions()">
+  <ion-list lines="none" class="help-actions">
+    <ion-item button detail="true" routerLink="/support-tickets/new">
+      <ion-icon name="help-buoy-outline" slot="start" color="primary"></ion-icon>
+      <ion-label>
+        <h2>{{ 'settings.help.newTicket' | translate }}</h2>
+        <p>{{ 'settings.help.newTicketHint' | translate }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item button detail="true" routerLink="/support-tickets">
+      <ion-icon name="chatbubbles-outline" slot="start" color="primary"></ion-icon>
+      <ion-label>
+        <h2>{{ 'settings.help.myTickets' | translate }}</h2>
+        <p>{{ 'settings.help.myTicketsHint' | translate }}</p>
+      </ion-label>
+    </ion-item>
+
+    <ion-item button detail="true" routerLink="/support-tickets/new" [queryParams]="{ category: 'FEEDBACK' }">
+      <ion-icon name="chatbubble-outline" slot="start" color="primary"></ion-icon>
+      <ion-label>
+        <h2>{{ 'settings.feedback.title' | translate }}</h2>
+        <p>{{ 'settings.feedback.subtitle' | translate }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <p class="section-label">{{ 'settings.help.otherWays' | translate }}</p>
+
+  <ion-button expand="block" fill="outline" (click)="openContactOptions()">
     <ion-icon name="mail-outline" slot="start"></ion-icon>
     {{ 'menu.contactUs' | translate }}
-  </ion-button>
-
-  <ion-button expand="block" fill="outline" (click)="openFeedback()">
-    <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
-    {{ 'settings.feedback.title' | translate }}
   </ion-button>
 
   <ion-button expand="block" fill="clear" [routerLink]="['/check-version']">

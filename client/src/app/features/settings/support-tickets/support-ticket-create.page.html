@@ -1,0 +1,59 @@
+<ion-header class="sub-settings-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="goBack()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'support.create.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="sub-settings-content create-ticket">
+  <p class="lede">{{ 'support.create.lede' | translate }}</p>
+
+  <label class="field">
+    <span>{{ 'support.create.category' | translate }}</span>
+    <ion-select
+      interface="action-sheet"
+      [(ngModel)]="category"
+      [disabled]="submitting()"
+    >
+      @for (c of categories; track c) {
+        <ion-select-option [value]="c">{{ categoryKey(c) | translate }}</ion-select-option>
+      }
+    </ion-select>
+  </label>
+
+  <label class="field">
+    <span>{{ 'support.create.subject' | translate }}</span>
+    <ion-input
+      [(ngModel)]="subject"
+      [placeholder]="'support.create.subjectPlaceholder' | translate"
+      [disabled]="submitting()"
+      maxlength="200"
+    ></ion-input>
+  </label>
+
+  <label class="field field--area">
+    <span>{{ 'support.create.message' | translate }}</span>
+    <ion-textarea
+      [(ngModel)]="message"
+      [placeholder]="'support.create.messagePlaceholder' | translate"
+      [disabled]="submitting()"
+      autoGrow="true"
+      rows="6"
+      maxlength="4000"
+    ></ion-textarea>
+  </label>
+
+  <ion-button expand="block" (click)="submit()" [disabled]="submitting()">
+    @if (submitting()) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+      {{ 'support.create.sending' | translate }}
+    } @else {
+      <ion-icon name="send-outline" slot="start"></ion-icon>
+      {{ 'support.create.submit' | translate }}
+    }
+  </ion-button>
+</ion-content>

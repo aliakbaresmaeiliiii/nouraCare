@@ -85,8 +85,8 @@ export function hasLocalDoreHealthOnboardingProfile(): boolean {
 }
 
 /**
- * Root entry: use onboarding when there is no saved questionnaire snapshot.
- * Signed-in users who cleared onboarding keys after registration still reach sign-in via `/auth/sign-in`.
+ * Root entry helper: onboarding when there is no questionnaire snapshot or userInfo.
+ * Splash / PWA cold starts should use getInitialAppPath() instead.
  */
 export function shouldOpenOnboardingFirst(): boolean {
   if (typeof localStorage === 'undefined') {

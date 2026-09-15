@@ -1,14 +1,16 @@
 import { Component, input } from '@angular/core';
+import { TranslatePipe } from '@app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-empty-state',
   standalone: true,
+  imports: [TranslatePipe],
   template: `
     <div class="empty">
       <div class="empty__mark" aria-hidden="true">◇</div>
-      <h3>{{ title() }}</h3>
+      <h3>{{ title() | translate }}</h3>
       @if (message()) {
-        <p>{{ message() }}</p>
+        <p>{{ message() | translate }}</p>
       }
       <div class="empty__actions">
         <ng-content />
@@ -34,6 +36,7 @@ import { Component, input } from '@angular/core';
   `,
 })
 export class AdminEmptyStateComponent {
-  readonly title = input('Nothing here yet');
+  /** i18n key or already-translated text */
+  readonly title = input('admin.common.empty');
   readonly message = input('');
 }

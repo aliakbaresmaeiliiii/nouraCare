@@ -47,7 +47,7 @@ export interface AdminTimelineItem {
     li:not(:last-child)::before {
       content: '';
       position: absolute;
-      left: 0.5rem;
+      inset-inline-start: 0.5rem;
       top: 1rem;
       bottom: 0;
       width: 2px;

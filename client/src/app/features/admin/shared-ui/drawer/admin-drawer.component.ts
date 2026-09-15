@@ -1,8 +1,10 @@
 import { Component, input, output } from '@angular/core';
+import { TranslatePipe } from '@app/shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-admin-drawer',
   standalone: true,
+  imports: [TranslatePipe],
   template: `
     @if (open()) {
       <div class="drawer-root">
@@ -10,7 +12,14 @@ import { Component, input, output } from '@angular/core';
         <aside class="drawer" role="dialog" [attr.aria-label]="title()">
           <header class="drawer__head">
             <h2>{{ title() }}</h2>
-            <button type="button" class="drawer__close" (click)="closed.emit()" aria-label="Close">×</button>
+            <button
+              type="button"
+              class="drawer__close"
+              (click)="closed.emit()"
+              [attr.aria-label]="'admin.common.close' | translate"
+            >
+              ×
+            </button>
           </header>
           <div class="drawer__body">
             <ng-content />
@@ -33,11 +42,12 @@ import { Component, input, output } from '@angular/core';
     }
     .drawer {
       position: absolute;
-      top: 0; right: 0; bottom: 0;
-      width: min(420px, 100vw);
+      inset-block: 0;
+      inset-inline-end: 0;
+      width: min(440px, 100vw);
       background: var(--admin-surface);
-      border-left: 1px solid var(--admin-line);
-      box-shadow: var(--admin-shadow);
+      border-inline-start: 1px solid var(--admin-line);
+      box-shadow: var(--admin-shadow-lg, var(--admin-shadow));
       display: flex;
       flex-direction: column;
       animation: slide 180ms ease;

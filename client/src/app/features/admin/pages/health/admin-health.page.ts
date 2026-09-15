@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { TranslatePipe } from '@app/shared/pipes/translate.pipe';
+import { TranslationService } from '@app/shared/services/translation.service';
 import { AdminHealthDto } from '../../data/models/admin-api.models';
 import { AdminApiService } from '../../data/services/admin-api.service';
 import { AdminMetricCardComponent } from '../../shared-ui/metric-card/admin-metric-card.component';
@@ -15,13 +16,15 @@ import { AdminTrendCardComponent } from '../../shared-ui/trend-card/admin-trend-
     AdminMetricCardComponent,
     AdminSkeletonComponent,
     TranslatePipe,
-    DatePipe,
   ],
   templateUrl: './admin-health.page.html',
   styleUrl: './admin-health.page.scss',
+  providers: [DatePipe],
 })
 export class AdminHealthPage implements OnInit {
   private readonly api = inject(AdminApiService);
+  private readonly i18n = inject(TranslationService);
+  private readonly datePipe = inject(DatePipe);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -52,11 +55,42 @@ export class AdminHealthPage implements OnInit {
     return 'admin-badge--danger';
   }
 
+  statusLabel(status: string): string {
+    const key = `admin.health.status.${status}`;
+    const translated = this.i18n.translate(key);
+    return translated === key ? status : translated;
+  }
+
+  systemStatusLabel(status: string): string {
+    return this.i18n.translateParams('admin.health.systemStatus', {
+      status: this.statusLabel(status),
+    });
+  }
+
+  lastCheckedLabel(checkedAt: string): string {
+    return this.i18n.translateParams('admin.health.lastChecked', {
+      at: this.checkedAtMedium(checkedAt),
+    });
+  }
+
+  checkedAtMedium(checkedAt: string): string {
+    return this.datePipe.transform(checkedAt, 'medium') || '';
+  }
+
+  latencyLabel(ms?: number | null): string {
+    return this.i18n.translateParams('admin.health.latency', {
+      ms: ms ?? 0,
+    });
+  }
+
   uptimeLabel(): string {
     const sec = this.health()?.uptimeSec ?? 0;
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    return `${h}h ${m}m`;
+    const hours = Math.floor(sec / 3600);
+    const minutes = Math.floor((sec % 3600) / 60);
+    return this.i18n.translateParams('admin.health.uptimeValue', {
+      hours,
+      minutes,
+    });
   }
 
   uptimeProgress(): number {

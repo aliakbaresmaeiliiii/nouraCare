@@ -1,0 +1,157 @@
+@use '../../styles/admin-page.scss';
+
+.ticket-detail__nav {
+  margin-bottom: 0.25rem;
+}
+
+.ticket-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.ticket-hero h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.ticket-hero .muted {
+  margin: 0.35rem 0 0;
+  color: var(--admin-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.65rem;
+}
+
+.status-box {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 14rem;
+}
+
+.status-box label {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--admin-muted);
+}
+
+.status-box select,
+.reply-box textarea {
+  width: 100%;
+  border: 1px solid var(--admin-line);
+  background: var(--admin-bg, #fff);
+  color: var(--admin-ink);
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  font: inherit;
+}
+
+.ticket-detail__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(14rem, 0.9fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.thread-panel h2,
+.meta-panel h2 {
+  margin: 0 0 0.85rem;
+  font-size: 1rem;
+}
+
+.thread {
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.bubble {
+  border-radius: 0.9rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--admin-line);
+}
+
+.bubble--user {
+  background: color-mix(in srgb, var(--admin-accent) 8%, transparent);
+}
+
+.bubble--admin {
+  background: var(--admin-bg, #f8fafc);
+}
+
+.bubble__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.74rem;
+  color: var(--admin-muted);
+}
+
+.bubble p {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.45;
+}
+
+.reply-box {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.reply-box label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: var(--admin-muted);
+}
+
+.info-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.info-grid div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.info-grid dt {
+  font-size: 0.74rem;
+  color: var(--admin-muted);
+  font-weight: 650;
+}
+
+.info-grid dd {
+  margin: 0;
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.info-grid a {
+  color: var(--admin-accent);
+  text-decoration: none;
+  font-weight: 650;
+}
+
+.device {
+  font-size: 0.78rem !important;
+  color: var(--admin-muted);
+}
+
+@media (max-width: 960px) {
+  .ticket-detail__grid {
+    grid-template-columns: 1fr;
+  }
+}

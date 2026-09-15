@@ -1,0 +1,121 @@
+@use '../privacy-settings/privacy-settings.component.scss' as *;
+
+.ticket-detail {
+  --padding-bottom: 1rem;
+}
+
+.state {
+  display: grid;
+  place-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--brand-text-secondary);
+}
+
+.ticket-hero {
+  margin-bottom: 1rem;
+}
+
+.ticket-hero h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.35;
+}
+
+.ticket-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ion-color-primary) 14%, transparent);
+  color: var(--ion-color-primary-shade, var(--ion-color-primary));
+}
+
+.chip--muted {
+  background: color-mix(in srgb, var(--brand-text-secondary) 14%, transparent);
+  color: var(--brand-text-secondary);
+}
+
+.chip[data-status='WAITING_ON_USER'] {
+  background: color-mix(in srgb, #d97706 16%, transparent);
+  color: #b45309;
+}
+
+.thread {
+  display: grid;
+  gap: 0.7rem;
+  padding-bottom: 0.5rem;
+}
+
+.bubble {
+  border-radius: 14px;
+  padding: 0.75rem 0.9rem;
+  max-width: 92%;
+  border: 1px solid color-mix(in srgb, var(--brand-text-secondary) 14%, transparent);
+}
+
+.bubble--mine {
+  justify-self: end;
+  background: color-mix(in srgb, var(--ion-color-primary) 12%, transparent);
+}
+
+.bubble--support {
+  justify-self: start;
+  background: var(--ion-card-background, var(--brand-surface));
+}
+
+.bubble__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--brand-text-secondary);
+}
+
+.bubble p {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.45;
+  font-size: 0.92rem;
+}
+
+.reply-footer {
+  --background: var(--ion-background-color, #fff);
+  border-top: 1px solid color-mix(in srgb, var(--brand-text-secondary) 16%, transparent);
+  padding: 0.55rem 0.75rem calc(0.55rem + env(safe-area-inset-bottom));
+}
+
+.reply-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+  align-items: end;
+}
+
+.reply-row ion-textarea {
+  --background: var(--ion-card-background, var(--brand-surface));
+  --padding-start: 0.75rem;
+  --padding-end: 0.75rem;
+  --padding-top: 0.55rem;
+  --padding-bottom: 0.55rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--brand-text-secondary) 18%, transparent);
+  max-height: 8rem;
+}
+
+.closed-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--brand-text-secondary);
+  line-height: 1.4;
+}
