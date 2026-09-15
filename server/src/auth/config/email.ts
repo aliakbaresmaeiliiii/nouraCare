@@ -1,24 +1,18 @@
-import _ from 'lodash';
 import nodemailer from 'nodemailer';
 import mg from 'nodemailer-mailgun-transport';
 import dotenv from 'dotenv';
+import { BadGatewayException } from '@nestjs/common';
 import { APP_BRAND_NAME } from '../../constants/app-brand.constants';
 
 dotenv.config(); // Load environment variables
 
 const {
-  MAIL_DRIVER,
   MAIL_HOST,
   MAIL_PORT,
   MAIL_USERNAME,
   MAIL_PASSWORD,
-  MAIL_AUTH_TYPE,
   MAILGUN_API_KEY,
   MAILGUN_DOMAIN,
-  OAUTH_CLIENT_ID,
-  OAUTH_CLIENT_SECRET,
-  OAUTH_REFRESH_TOKEN,
-  OAUTH_REDIRECT_URL,
 } = process.env;
 
 const isMailgunAPI = Boolean(MAILGUN_API_KEY && MAILGUN_DOMAIN);
@@ -46,13 +40,16 @@ export class EmailProvider {
     }
 
     return nodemailer.createTransport({
-      host: MAIL_HOST,
-      port: Number(MAIL_PORT),
-      secure: false, // Set `true` for port 465 (SSL)
-      auth: {
-        user: MAIL_USERNAME,
-        pass: MAIL_PASSWORD,
-      },
+      host: MAIL_HOST || 'localhost',
+      port: Number(MAIL_PORT || 587),
+      secure: Number(MAIL_PORT) === 465,
+      auth:
+        MAIL_USERNAME && MAIL_PASSWORD
+          ? {
+              user: MAIL_USERNAME,
+              pass: MAIL_PASSWORD,
+            }
+          : undefined,
     });
   }
 
@@ -73,6 +70,12 @@ export class EmailProvider {
     html: string;
     attachments?: nodemailer.Attachment[];
   }) {
+    if (!isMailgunAPI && (!MAIL_HOST || !MAIL_USERNAME || !MAIL_PASSWORD)) {
+      throw new BadGatewayException(
+        'Email is not configured (MAIL_HOST / MAIL_USERNAME / MAIL_PASSWORD)',
+      );
+    }
+
     try {
       const recipient = Array.isArray(options.to)
         ? options.to.join(', ')
@@ -89,7 +92,12 @@ export class EmailProvider {
       return info;
     } catch (error) {
       console.error('❌ Error sending email:', error);
-      throw new Error('Failed to send email');
+      if (error instanceof BadGatewayException) {
+        throw error;
+      }
+      throw new BadGatewayException(
+        'Failed to send email — check MAIL_* SMTP settings on the server',
+      );
     }
   }
 }

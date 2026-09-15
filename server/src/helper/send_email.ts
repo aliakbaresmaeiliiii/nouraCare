@@ -83,7 +83,13 @@ class SendMail {
       await this.emailProvider.send(email, content.subject, htmlToSend);
     } catch (error) {
       console.error('Error sending registration email:', error);
-      throw new UnauthorizedException('Failed to send email');
+      if (
+        error instanceof BadGatewayException ||
+        error instanceof UnauthorizedException
+      ) {
+        throw error;
+      }
+      throw new BadGatewayException('Failed to send email');
     }
   }
 
