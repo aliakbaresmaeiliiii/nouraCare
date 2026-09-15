@@ -6,14 +6,16 @@ import { APP_BRAND_NAME } from '../../constants/app-brand.constants';
 
 dotenv.config(); // Load environment variables
 
-const {
-  MAIL_HOST,
-  MAIL_PORT,
-  MAIL_USERNAME,
-  MAIL_PASSWORD,
-  MAILGUN_API_KEY,
-  MAILGUN_DOMAIN,
-} = process.env;
+function stripEnvQuotes(value: string | undefined): string {
+  return (value ?? '').trim().replace(/^["']|["']$/g, '');
+}
+
+const MAIL_HOST = stripEnvQuotes(process.env.MAIL_HOST);
+const MAIL_PORT = Number(stripEnvQuotes(process.env.MAIL_PORT) || 587);
+const MAIL_USERNAME = stripEnvQuotes(process.env.MAIL_USERNAME);
+const MAIL_PASSWORD = stripEnvQuotes(process.env.MAIL_PASSWORD);
+const MAILGUN_API_KEY = stripEnvQuotes(process.env.MAILGUN_API_KEY);
+const MAILGUN_DOMAIN = stripEnvQuotes(process.env.MAILGUN_DOMAIN);
 
 const isMailgunAPI = Boolean(MAILGUN_API_KEY && MAILGUN_DOMAIN);
 
@@ -39,10 +41,13 @@ export class EmailProvider {
       );
     }
 
+    const secure = MAIL_PORT === 465;
+
     return nodemailer.createTransport({
-      host: MAIL_HOST || 'localhost',
-      port: Number(MAIL_PORT || 587),
-      secure: Number(MAIL_PORT) === 465,
+      host: MAIL_HOST || '127.0.0.1',
+      port: MAIL_PORT,
+      secure,
+      requireTLS: !secure && MAIL_PORT === 587,
       auth:
         MAIL_USERNAME && MAIL_PASSWORD
           ? {
@@ -50,6 +55,9 @@ export class EmailProvider {
               pass: MAIL_PASSWORD,
             }
           : undefined,
+      connectionTimeout: 8_000,
+      greetingTimeout: 8_000,
+      socketTimeout: 12_000,
     });
   }
 
@@ -95,8 +103,10 @@ export class EmailProvider {
       if (error instanceof BadGatewayException) {
         throw error;
       }
+      const detail =
+        error instanceof Error ? error.message : 'unknown SMTP error';
       throw new BadGatewayException(
-        'Failed to send email — check MAIL_* SMTP settings on the server',
+        `Failed to send email (${detail}). Check MAIL_* on the server.`,
       );
     }
   }

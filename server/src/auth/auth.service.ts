@@ -1,6 +1,8 @@
 import {
+  BadGatewayException,
   BadRequestException,
   ConflictException,
+  HttpException,
   Injectable,
   UnauthorizedException,
   NotFoundException,
@@ -70,60 +72,71 @@ export class AuthService {
     input: { email?: string; phoneNumber?: string },
     locale?: string,
   ) {
-    const channel = this.resolveOtpChannel(input);
-    const existing = await this.findUserByChannel(channel);
+    try {
+      const channel = this.resolveOtpChannel(input);
+      const existing = await this.findUserByChannel(channel);
 
-    let user = existing;
-    let isNewUser = false;
+      let user = existing;
+      let isNewUser = false;
 
-    if (!user) {
-      user = await this.createPendingUser(channel);
-      isNewUser = true;
-      try {
-        await this.growthService.onNewAccount(user.id);
-      } catch (err) {
-        console.error('Growth referral setup failed at OTP request:', err);
+      if (!user) {
+        user = await this.createPendingUser(channel);
+        isNewUser = true;
+        try {
+          await this.growthService.onNewAccount(user.id);
+        } catch (err) {
+          console.error('Growth referral setup failed at OTP request:', err);
+        }
+      } else if (user.status !== 'ACTIVE') {
+        throw new UnauthorizedException({
+          message: 'Account is not active',
+          messageKey: AUTH_MESSAGE_KEYS.ACCOUNT_NOT_ACTIVE,
+        });
       }
-    } else if (user.status !== 'ACTIVE') {
-      throw new UnauthorizedException({
-        message: 'Account is not active',
-        messageKey: AUTH_MESSAGE_KEYS.ACCOUNT_NOT_ACTIVE,
+
+      const code = this.generateOtp();
+      const validityMs =
+        channel.kind === 'phone' ? SMS_OTP_VALIDITY_MS : EMAIL_OTP_VALIDITY_MS;
+      const expires = new Date(Date.now() + validityMs);
+      this.logDevOtp(
+        channel.kind === 'phone' ? channel.phone : channel.email,
+        code,
+        'otp-request',
+      );
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerificationCode: code,
+          emailVerificationCodeExpires: expires,
+        },
       });
+
+      await this.deliverOtp({
+        email: user.email,
+        phoneNumber:
+          channel.kind === 'phone' ? channel.phone : user.phoneNumber,
+        code,
+        locale,
+        purpose: user.isVerified ? 'sign-in' : 'verification',
+        otpChannel: channel.kind === 'phone' ? 'sms' : 'email',
+      });
+
+      return {
+        otpSent: true,
+        isNewUser,
+        message: 'If the account exists, a sign-in code was sent.',
+        messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
+      };
+    } catch (error) {
+      console.error('requestOtp failed:', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      const detail =
+        error instanceof Error ? error.message : 'OTP request failed';
+      throw new BadGatewayException(detail);
     }
-
-    const code = this.generateOtp();
-    const validityMs =
-      channel.kind === 'phone' ? SMS_OTP_VALIDITY_MS : EMAIL_OTP_VALIDITY_MS;
-    const expires = new Date(Date.now() + validityMs);
-    this.logDevOtp(
-      channel.kind === 'phone' ? channel.phone : channel.email,
-      code,
-      'otp-request',
-    );
-
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        emailVerificationCode: code,
-        emailVerificationCodeExpires: expires,
-      },
-    });
-
-    await this.deliverOtp({
-      email: user.email,
-      phoneNumber: channel.kind === 'phone' ? channel.phone : user.phoneNumber,
-      code,
-      locale,
-      purpose: user.isVerified ? 'sign-in' : 'verification',
-      otpChannel: channel.kind === 'phone' ? 'sms' : 'email',
-    });
-
-    return {
-      otpSent: true,
-      isNewUser,
-      message: 'If the account exists, a sign-in code was sent.',
-      messageKey: AUTH_MESSAGE_KEYS.OTP_SENT_IF_EXISTS,
-    };
   }
 
   /**
